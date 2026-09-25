@@ -33,7 +33,7 @@ class ProductController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return ProductConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return ProductConfigService::getInitParams($page, $this->getUserId());
 
     }
 

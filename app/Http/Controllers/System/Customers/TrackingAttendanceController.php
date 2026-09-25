@@ -29,7 +29,7 @@ class TrackingAttendanceController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return TrackingAttendanceConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return TrackingAttendanceConfigService::getInitParams($page, $this->getUserId());
 
     }
 

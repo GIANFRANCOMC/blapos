@@ -27,7 +27,7 @@ final class QuotationController extends BaseController {
 
     public function initParams(Request $request) {
 
-        return SaleConfigService::getInitParams($this->getCompanyId(), "main", $this->getUserId());
+        return SaleConfigService::getInitParams("main", $this->getUserId());
 
     }
 

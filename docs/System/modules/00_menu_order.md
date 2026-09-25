@@ -132,4 +132,4 @@ No dispersar el catálogo en varias migraciones cuando la base todavía es reini
 
 ## Caché
 
-La clave general es `company_sections:company:{companyId}:role:{roleId|all}` y dura 30 minutos. Las asignaciones empresariales y los permisos invalidan las variantes afectadas mediante sus observers. `system:sync` limpia la caché de cada organización sincronizada.
+La clave general usa el namespace físico del tenant y el rol: `tenant:{namespace}:company_sections:role:{roleId|all}`. Las asignaciones empresariales y los permisos invalidan las variantes afectadas mediante sus observers. `system:sync` limpia la caché de la empresa raíz.

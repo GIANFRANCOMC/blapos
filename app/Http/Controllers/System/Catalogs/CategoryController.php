@@ -26,7 +26,7 @@ class CategoryController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return CategoryConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return CategoryConfigService::getInitParams($page, $this->getUserId());
 
     }
 

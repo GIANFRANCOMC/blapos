@@ -26,7 +26,7 @@ class ServiceController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return ServiceConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return ServiceConfigService::getInitParams($page, $this->getUserId());
 
     }
 

@@ -31,7 +31,7 @@ Administra usuarios internos, perfiles, alcance operativo y seguridad de acceso 
 
 ## Reglas
 
-- El usuario pertenece a una empresa y los servicios de escritura reciben `companyId` y `userId` explícitos.
+- El usuario pertenece al tenant actual. Los servicios pueden recibir el ID de la empresa raíz únicamente cuando consumen configuración o una de las cuatro relaciones estructurales.
 - El email debe ser único según la regla empresarial vigente.
 - La contraseña se guarda únicamente mediante hash.
 - `role_id` controla módulos y acciones disponibles.

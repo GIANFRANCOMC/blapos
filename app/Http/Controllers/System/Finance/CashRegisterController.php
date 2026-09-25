@@ -30,7 +30,6 @@ final class CashRegisterController extends BaseController {
 
         return response()->json(
             CashRegisterConfigService::getInitParams(
-                $this->getCompanyId(),
                 (string) $request->get("page", "main"),
                 $this->getUserId()
             )

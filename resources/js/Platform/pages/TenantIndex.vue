@@ -22,7 +22,7 @@
             <div class="platform-toolbar">
                 <div class="platform-search"><i class="fa-solid fa-magnifying-glass"></i><input v-model="filters.search" type="search" placeholder="Buscar por cliente, dominio o base de datos" @input="scheduleSearch"></div>
                 <select v-model="filters.status" class="form-select platform-filter" @change="loadTenants(1)">
-                    <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="provisioning">En preparación</option>
+                    <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="maintenance">Mantenimiento</option><option value="provisioning">En preparación</option><option value="provisioning_failed">Preparación fallida</option>
                 </select>
                 <button class="platform-icon-button" type="button" title="Actualizar" :disabled="loading" @click="loadTenants(meta.current_page)"><i class="fa-solid fa-rotate"></i></button>
             </div>
@@ -92,7 +92,7 @@ export default {
     props: {apiBase: {type: String, required: true}},
     emits: ["open", "notify"],
     data() {
-        return {tenants: [], counts: {total: 0, active: 0, inactive: 0, suspended: 0, provisioning: 0}, meta: {current_page: 1, last_page: 1, total: 0}, filters: {search: "", status: ""}, loading: true, creating: false, showCreate: false, form: emptyForm(), searchTimer: null};
+        return {tenants: [], counts: {total: 0, active: 0, inactive: 0, suspended: 0, provisioning: 0, provisioning_failed: 0, maintenance: 0}, meta: {current_page: 1, last_page: 1, total: 0}, filters: {search: "", status: ""}, loading: true, creating: false, showCreate: false, form: emptyForm(), searchTimer: null};
     },
     computed: {
         countCards() {
@@ -117,7 +117,7 @@ export default {
         },
         scheduleSearch() { window.clearTimeout(this.searchTimer); this.searchTimer = window.setTimeout(() => this.loadTenants(1), 320); },
         selectStatus(status) { this.filters.status = this.filters.status === status && status !== "" ? "" : status; this.loadTenants(1); },
-        statusLabel(status) { return {active: "Activo", inactive: "Inactivo", suspended: "Suspendido", provisioning: "En preparación"}[status] || status; },
+        statusLabel(status) { return {active: "Activo", inactive: "Inactivo", suspended: "Suspendido", provisioning: "En preparación", provisioning_failed: "Preparación fallida", maintenance: "Mantenimiento"}[status] || status; },
         openCreateModal() { this.showCreate = true; document.body.classList.add("platform-modal-open"); },
         closeCreateModal() { if(this.creating) return; this.showCreate = false; document.body.classList.remove("platform-modal-open"); },
         normalizeSlug(event) { this.form.slug = event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-{2,}/g, "-"); },

@@ -26,7 +26,7 @@ class AssetManagementController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return AssetManagementConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return AssetManagementConfigService::getInitParams($page, $this->getUserId());
 
     }
 

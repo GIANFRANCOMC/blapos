@@ -80,7 +80,10 @@
                             <option value="active">Activo</option>
                             <option value="inactive">Inactivo</option>
                             <option value="suspended">Suspendido</option>
+                            <option value="maintenance">Mantenimiento</option>
                         </select>
+                        <label class="form-label mt-3">Motivo</label>
+                        <textarea v-model.trim="statusReason" class="form-control platform-announcement-message" rows="3" maxlength="1000" placeholder="Contexto opcional para la auditoría"></textarea>
                         <p class="platform-status-help">Actualmente está <strong>{{ statusLabel(tenant.status).toLowerCase() }}</strong>.</p>
                     </div>
                     <footer class="platform-modal__footer">
@@ -102,7 +105,7 @@ export default {
     props: {tenantId: {type: String, required: true}, apiBase: {type: String, required: true}},
     emits: ["back", "notify"],
     data() {
-        return {tenant: null, modules: [], announcements: [], enabledModuleIds: [], statusForm: "active", showStatusModal: false, announcementForm: emptyAnnouncement(), loading: true, loadingStatus: false, savingStatus: false, savingModules: false, publishing: false, updatingAnnouncementId: null};
+        return {tenant: null, modules: [], announcements: [], enabledModuleIds: [], statusForm: "active", statusReason: "", showStatusModal: false, announcementForm: emptyAnnouncement(), loading: true, loadingStatus: false, savingStatus: false, savingModules: false, publishing: false, updatingAnnouncementId: null};
     },
     computed: {
         endpoint() { return `${this.apiBase}/${this.tenantId}`; },
@@ -137,7 +140,7 @@ export default {
         isEnabled(id) { return this.enabledModuleIds.includes(Number(id)); },
         uniqueModules(modules) { return [...new Map(modules.map(module => [Number(module.id), module])).values()]; },
         toggleModule(id) { const value = Number(id); this.enabledModuleIds = this.isEnabled(value) ? this.enabledModuleIds.filter(current => current !== value) : [...this.enabledModuleIds, value]; },
-        statusLabel(status) { return {active: "Activo", inactive: "Inactivo", suspended: "Suspendido", provisioning: "En preparación"}[status] || status; },
+        statusLabel(status) { return {active: "Activo", inactive: "Inactivo", suspended: "Suspendido", provisioning: "En preparación", provisioning_failed: "Preparación fallida", maintenance: "Mantenimiento"}[status] || status; },
         async openStatusModal() {
             if(this.loadingStatus) return;
             this.loadingStatus = true;
@@ -145,6 +148,7 @@ export default {
                 const {data} = await api.get(this.endpoint);
                 this.tenant = {...this.tenant, ...data.data.tenant};
                 this.statusForm = this.tenant.status;
+                this.statusReason = this.tenant.status_reason || "";
                 this.showStatusModal = true;
                 document.body.classList.add("platform-modal-open");
             } catch(error) {
@@ -156,7 +160,7 @@ export default {
         closeStatusModal() { if(this.savingStatus) return; this.showStatusModal = false; document.body.classList.remove("platform-modal-open"); },
         async saveStatus() {
             this.savingStatus = true;
-            try { const {data} = await api.patch(`${this.endpoint}/status`, {status: this.statusForm}); this.tenant = {...this.tenant, ...data.data}; this.showStatusModal = false; document.body.classList.remove("platform-modal-open"); this.$emit("notify", data.message); }
+            try { const {data} = await api.patch(`${this.endpoint}/status`, {status: this.statusForm, reason: this.statusReason || null}); this.tenant = {...this.tenant, ...data.data}; this.showStatusModal = false; document.body.classList.remove("platform-modal-open"); this.$emit("notify", data.message); }
             catch(error) { this.$emit("notify", {type: "danger", message: errorMessage(error)}); }
             finally { this.savingStatus = false; }
         },

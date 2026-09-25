@@ -27,7 +27,7 @@ class SaleController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return SaleConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return SaleConfigService::getInitParams($page, $this->getUserId());
 
     }
 

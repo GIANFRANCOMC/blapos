@@ -484,7 +484,7 @@ final class ServiceOperationService {
         $query = ServiceSession::query()
             ->with(["branch", "station", "customer", "assignedUser", "items.assignedUser", "sale"]);
 
-        $branchIds = CompanyReferenceDataService::for($companyId, $actorId)->allowedBranchIds();
+        $branchIds = CompanyReferenceDataService::forUser($actorId)->allowedBranchIds();
 
         if($branchIds !== null) {
 
@@ -1028,7 +1028,7 @@ final class ServiceOperationService {
             ->whereBetween("created_at", [$dateFrom, $dateTo])
             ->with(["branch", "station", "assignedUser", "items.item", "items.assignedUser"]);
 
-        $branchIds = CompanyReferenceDataService::for($companyId, $actorId)->allowedBranchIds();
+        $branchIds = CompanyReferenceDataService::forUser($actorId)->allowedBranchIds();
 
         if($branchIds !== null) {
 

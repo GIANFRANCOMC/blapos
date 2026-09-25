@@ -32,7 +32,7 @@ final class BiometricDeviceConfigService extends BaseConfigService {
 
         return self::data([
             "branches" => self::data([
-                "records" => CompanyReferenceDataService::for($companyId, $userId)->activeBranches(),
+                "records" => CompanyReferenceDataService::forUser($userId)->activeBranches(),
             ]),
             "brands" => self::data([
                 "records" => $brands,

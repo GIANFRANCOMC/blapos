@@ -144,7 +144,7 @@ final class QuotationService {
 
             }
 
-            SaleConfigService::clearCache($companyId, "main");
+            SaleConfigService::clearCache("main");
 
             return self::find($companyId, $quotation->id);
 
@@ -224,7 +224,7 @@ final class QuotationService {
             "updated_by" => $userId,
         ]);
 
-        SaleConfigService::clearCache($companyId, "main");
+        SaleConfigService::clearCache("main");
 
         return $quotation->refresh();
 

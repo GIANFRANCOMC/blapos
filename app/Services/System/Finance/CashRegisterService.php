@@ -24,7 +24,7 @@ final class CashRegisterService {
             ->with(["branch", "openSession.paymentSummary.paymentMethod"]);
 
         $cashRegisterIds = $userId !== null
-            ? CompanyReferenceDataService::for($companyId, $userId)->allowedCashRegisterIds()
+            ? CompanyReferenceDataService::forUser($userId)->allowedCashRegisterIds()
             : null;
 
         if($cashRegisterIds !== null) {
@@ -53,7 +53,7 @@ final class CashRegisterService {
 
             }
 
-            $allowedBranchIds = CompanyReferenceDataService::for($companyId, $userId)->allowedBranchIds();
+            $allowedBranchIds = CompanyReferenceDataService::forUser($userId)->allowedBranchIds();
 
             if($allowedBranchIds !== null && !in_array((int) $branch->id, $allowedBranchIds, true)) {
 
@@ -525,7 +525,7 @@ final class CashRegisterService {
 
         return $userId === null
             ? null
-            : CompanyReferenceDataService::for($companyId, $userId)->allowedCashRegisterIds();
+            : CompanyReferenceDataService::forUser($userId)->allowedCashRegisterIds();
 
     }
 
@@ -703,8 +703,8 @@ final class CashRegisterService {
 
     private function clearOperationalCaches(int $companyId): void {
 
-        CashRegisterConfigService::clearAllCache($companyId);
-        SaleConfigService::clearAllCache($companyId);
+        CashRegisterConfigService::clearAllCache();
+        SaleConfigService::clearAllCache();
 
     }
 }

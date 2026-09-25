@@ -11,6 +11,7 @@ use RuntimeException;
 final class TenantConnectionManager {
     public function connect(TenantDatabase $tenant): void {
 
+        app(BranchContext::class)->forget();
         app(TenantCompanyContext::class)->forget();
         app(TenantContext::class)->set($tenant);
 
@@ -44,6 +45,7 @@ final class TenantConnectionManager {
 
     public function disconnect(): void {
 
+        app(BranchContext::class)->forget();
         app(TenantCompanyContext::class)->forget();
         app(TenantContext::class)->set(null);
 

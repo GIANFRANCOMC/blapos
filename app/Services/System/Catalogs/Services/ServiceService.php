@@ -357,7 +357,7 @@ class ServiceService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        Item::expireActiveItems($companyId);
+        Item::expireActiveItems();
 
         $query = Item::query()
             ->where("type", "service")

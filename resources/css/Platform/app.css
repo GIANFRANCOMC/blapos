@@ -100,6 +100,8 @@ button, input, select, textarea { font: inherit; }
 .platform-status--inactive { color: #475467; background: #f2f4f7; }
 .platform-status--suspended { color: var(--platform-danger); background: #fff0ee; }
 .platform-status--provisioning { color: #9a6700; background: #fff7d6; }
+.platform-status--provisioning_failed { color: #9f1d20; background: #fff0f0; }
+.platform-status--maintenance { color: #775306; background: #fff7d6; }
 .platform-pagination { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; color: var(--platform-muted); font-size: .7rem; }
 .platform-pagination div { display: flex; align-items: center; gap: .65rem; }
 .platform-pagination button { width: 30px; height: 30px; border: 1px solid var(--platform-border); border-radius: 8px; color: #475467; background: #fff; }

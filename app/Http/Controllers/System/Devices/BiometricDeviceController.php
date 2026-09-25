@@ -28,7 +28,7 @@ class BiometricDeviceController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return BiometricDeviceConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return BiometricDeviceConfigService::getInitParams($page, $this->getUserId());
 
     }
 

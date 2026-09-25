@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\System\Tenancy\{TenantStatus};
 use App\Models\System\Tenancy\{TenantDatabase, TenantDomain};
 use App\Services\System\Database\{SystemCatalogSyncService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
@@ -108,7 +109,12 @@ final class CreateTenantCompany extends Command {
             DB::connection("landlord")
                 ->table("tenant_databases")
                 ->where("id", $tenant->id)
-                ->update(["status" => "active", "updated_at" => now()]);
+                ->update([
+                    "status" => TenantStatus::ACTIVE->value,
+                    "status_reason" => null,
+                    "status_changed_at" => now(),
+                    "updated_at" => now(),
+                ]);
 
             Cache::forget("tenancy:resolver:".hash("sha256", $domain));
 
@@ -132,7 +138,12 @@ final class CreateTenantCompany extends Command {
                 DB::connection("landlord")
                     ->table("tenant_databases")
                     ->where("id", $tenant->id)
-                    ->update(["status" => "provisioning", "updated_at" => now()]);
+                    ->update([
+                        "status" => TenantStatus::PROVISIONING_FAILED->value,
+                        "status_reason" => mb_substr($exception->getMessage(), 0, 2000),
+                        "status_changed_at" => now(),
+                        "updated_at" => now(),
+                    ]);
 
             }
 
@@ -278,7 +289,9 @@ final class CreateTenantCompany extends Command {
 
         $tenantPayload = [
             "database_name" => $databaseName,
-            "status" => "provisioning",
+            "status" => TenantStatus::PROVISIONING->value,
+            "status_reason" => null,
+            "status_changed_at" => now(),
             "updated_at" => now(),
         ];
 

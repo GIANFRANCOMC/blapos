@@ -14,10 +14,9 @@ use App\Models\System\Sales\{SaleDeliveryMethod};
 use App\Models\System\Warehouses\{Warehouse};
 use App\Services\System\Organizations\{AccessScopeService};
 use Illuminate\Database\Eloquent\{Builder, Collection};
-use InvalidArgumentException;
 
 /**
- * Provides reusable, company-scoped records used by module initParams.
+ * Provides reusable tenant records used by module initParams.
  */
 final class CompanyReferenceDataService {
     private bool $userResolved = false;
@@ -27,22 +26,12 @@ final class CompanyReferenceDataService {
     /** @var array<string, array<int, int>|null> */
     private array $allowedIdsCache = [];
 
-    private function __construct(
-        private readonly int $companyId,
-        private readonly ?int $userId = null
-    ) {
-
-        if($companyId <= 0) {
-
-            throw new InvalidArgumentException("Company ID must be greater than zero.");
-
-        }
-
+    private function __construct(private readonly ?int $userId = null) {
     }
 
-    public static function for(int $companyId, ?int $userId = null): self {
+    public static function forUser(?int $userId = null): self {
 
-        return new self($companyId, $userId);
+        return new self($userId);
 
     }
 
@@ -133,7 +122,7 @@ final class CompanyReferenceDataService {
 
     public function saleItems(): Collection {
 
-        Item::expireActiveItems($this->companyId);
+        Item::expireActiveItems();
 
         return Item::query()
             ->availableForSale()
@@ -146,7 +135,7 @@ final class CompanyReferenceDataService {
 
     public function subscriptionItems(): Collection {
 
-        Item::expireActiveItems($this->companyId);
+        Item::expireActiveItems();
 
         return Item::query()
             ->where("type", "subscription")

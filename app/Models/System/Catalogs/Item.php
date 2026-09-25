@@ -221,7 +221,7 @@ class Item extends Model {
 
     }
 
-    public static function expireActiveItems(int $companyId): int {
+    public static function expireActiveItems(): int {
 
         return self::query()
             ->where("status", "active")

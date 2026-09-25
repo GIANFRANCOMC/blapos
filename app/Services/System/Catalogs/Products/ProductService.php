@@ -386,7 +386,7 @@ class ProductService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        Item::expireActiveItems($companyId);
+        Item::expireActiveItems();
 
         return self::getFilteredListQuery($companyId, $filters)
             ->paginate($perPage);

@@ -10,6 +10,28 @@ use SplFileInfo;
 use Tests\{TestCase};
 
 final class TenantCompanyBoundaryTest extends TestCase {
+    private const BACKEND_COMPANY_ID_USAGE = [
+        "app/Models/Guest/Branch.php" => 2,
+        "app/Models/Guest/Company.php" => 1,
+        "app/Models/Guest/CompanySocialMedia.php" => 2,
+        "app/Models/System/Organizations/Branch.php" => 2,
+        "app/Models/System/Organizations/Company.php" => 4,
+        "app/Models/System/Organizations/CompanySetting.php" => 2,
+        "app/Models/System/Organizations/CompanySocialMedia.php" => 2,
+        "app/Models/System/Organizations/CompanySubSection.php" => 2,
+        "app/Observers/System/Organizations/CompanySubSectionObserver.php" => 3,
+        "app/Services/System/Database/SystemCatalogSyncService.php" => 1,
+        "app/Services/System/Essentials/UserNavigationService.php" => 1,
+        "app/Services/System/Organizations/Branches/BranchService.php" => 3,
+        "app/Services/System/Organizations/BusinessProfileService.php" => 5,
+        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 6,
+        "app/Services/System/Organizations/Companies/CompanySectionService.php" => 4,
+        "app/Services/System/Organizations/Companies/CompanyService.php" => 2,
+        "app/Services/System/Organizations/Companies/CompanySettingService.php" => 1,
+        "app/Services/System/Organizations/Roles/RolePermissionService.php" => 2,
+        "app/Services/System/Tenancy/PlatformTenantService.php" => 3,
+    ];
+
     private const STRUCTURAL_COMPANY_TABLES = [
         "branches",
         "companies_sub_sections",
@@ -109,10 +131,55 @@ final class TenantCompanyBoundaryTest extends TestCase {
 
     }
 
+    public function test_backend_company_id_usage_is_limited_to_structural_files(): void {
+
+        $usage = [];
+
+        foreach($this->phpFiles(app_path()) as $file) {
+
+            $content = file_get_contents($file->getPathname());
+
+            if(str_contains($content, "company_id")) {
+
+                $usage[$this->relativePath($file->getPathname())] = substr_count($content, "company_id");
+
+            }
+
+        }
+
+        ksort($usage);
+
+        $this->assertSame(self::BACKEND_COMPANY_ID_USAGE, $usage);
+
+    }
+
+    public function test_frontend_does_not_receive_a_company_selector(): void {
+
+        foreach($this->filesWithExtensions(resource_path(), ["js", "php", "ts", "vue"]) as $file) {
+
+            $content = file_get_contents($file->getPathname());
+
+            $this->assertStringNotContainsString("company_id", $content, $file->getPathname());
+            $this->assertStringNotContainsString("companyId", $content, $file->getPathname());
+
+        }
+
+    }
+
     /**
      * @return iterable<SplFileInfo>
      */
     private function phpFiles(string $path): iterable {
+
+        yield from $this->filesWithExtensions($path, ["php"]);
+
+    }
+
+    /**
+     * @param  array<string>  $extensions
+     * @return iterable<SplFileInfo>
+     */
+    private function filesWithExtensions(string $path, array $extensions): iterable {
 
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS)
@@ -120,13 +187,23 @@ final class TenantCompanyBoundaryTest extends TestCase {
 
         foreach($files as $file) {
 
-            if($file instanceof SplFileInfo && $file->isFile() && $file->getExtension() === "php") {
+            if($file instanceof SplFileInfo
+                && $file->isFile()
+                && in_array(strtolower($file->getExtension()), $extensions, true)) {
 
                 yield $file;
 
             }
 
         }
+
+    }
+
+    private function relativePath(string $path): string {
+
+        $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, "", $path);
+
+        return str_replace(DIRECTORY_SEPARATOR, "/", $relativePath);
 
     }
 }

@@ -25,7 +25,7 @@ class CompanyController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return CompanyConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return CompanyConfigService::getInitParams($page, $this->getUserId());
 
     }
 
@@ -68,7 +68,7 @@ class CompanyController extends BaseController {
 
             }
 
-            CompanyConfigService::clearAllCache($this->getCompanyId());
+            CompanyConfigService::clearAllCache();
 
             return $this->updatedResponse($company, "updated", "company");
 

@@ -104,7 +104,7 @@ final class PurchaseService {
 
         $warehouseIds = $userId === null
             ? null
-            : \App\Services\System\Base\CompanyReferenceDataService::for($companyId, $userId)->allowedWarehouseIds();
+            : \App\Services\System\Base\CompanyReferenceDataService::forUser($userId)->allowedWarehouseIds();
 
         if($warehouseIds !== null) {
 

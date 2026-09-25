@@ -26,7 +26,7 @@ final class MiscExpenseService {
 
         if($userId !== null) {
 
-            $branchIds = \App\Services\System\Base\CompanyReferenceDataService::for($companyId, $userId)->allowedBranchIds();
+            $branchIds = \App\Services\System\Base\CompanyReferenceDataService::forUser($userId)->allowedBranchIds();
 
             if($branchIds !== null) {
 

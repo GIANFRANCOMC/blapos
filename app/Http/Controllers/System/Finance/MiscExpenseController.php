@@ -25,7 +25,7 @@ final class MiscExpenseController extends BaseController {
 
     public function initParams(): JsonResponse {
 
-        $references = CompanyReferenceDataService::for($this->getCompanyId(), $this->getUserId());
+        $references = CompanyReferenceDataService::forUser($this->getUserId());
         $cashSessions = CashSession::query()
             ->with("register:id,name")
             ->where("status", "open");

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Tenancy;
 
+use App\Enums\System\Tenancy\{TenantStatus};
 use App\Models\System\Tenancy\{TenantDatabase, TenantDomain};
 use Illuminate\Support\Facades\{Cache};
 use Illuminate\Support\{Str};
@@ -86,7 +87,7 @@ final class TenantResolver {
 
             $tenant = $domain->tenantDatabase;
 
-            if($tenant->status !== "active" || $tenant->slug !== $subdomain) {
+            if($tenant->status !== TenantStatus::ACTIVE->value || $tenant->slug !== $subdomain) {
 
                 return null;
 

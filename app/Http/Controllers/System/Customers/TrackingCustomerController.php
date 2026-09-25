@@ -24,7 +24,7 @@ class TrackingCustomerController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return TrackingCustomerConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return TrackingCustomerConfigService::getInitParams($page, $this->getUserId());
 
     }
 

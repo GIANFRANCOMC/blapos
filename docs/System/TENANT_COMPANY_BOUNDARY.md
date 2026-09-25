@@ -36,7 +36,9 @@ Solo cuatro tablas tenant mantienen la relación porque describen estructura dir
 
 El proyecto todavía no está en producción, por lo que la estructura se corrigió en las migraciones de origen. No existe una migración incremental que copie o elimine columnas históricas. Una instalación limpia crea directamente el modelo vigente.
 
-La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas y también evita que regresen primitivas de alcance anteriores.
+La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa y evita que regresen primitivas de alcance anteriores.
+
+`TenantCompanyDatabaseBoundaryTest` inspecciona `INFORMATION_SCHEMA` después de migrar MySQL y verifica que las cuatro columnas sean obligatorias y tengan clave foránea hacia `companies`.
 
 ## Verificación de base de datos
 
@@ -44,6 +46,7 @@ La reconstrucción de pruebas debe apuntar explícitamente a `blapos_testing`. N
 
 ```bash
 php artisan migrate:fresh --database=mysql --seed
+composer check:tenant-boundary
 php artisan test
 ```
 

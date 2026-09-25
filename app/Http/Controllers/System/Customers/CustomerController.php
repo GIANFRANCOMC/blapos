@@ -29,7 +29,7 @@ class CustomerController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return CustomerConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return CustomerConfigService::getInitParams($page, $this->getUserId());
 
     }
 

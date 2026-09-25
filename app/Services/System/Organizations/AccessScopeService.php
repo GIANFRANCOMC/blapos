@@ -72,7 +72,7 @@ final class AccessScopeService {
             StockManagementConfigService::class,
         ] as $configService) {
 
-            $configService::clearUserCache($companyId, $userId);
+            $configService::clearUserCache($userId);
 
         }
 

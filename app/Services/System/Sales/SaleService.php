@@ -1007,7 +1007,7 @@ class SaleService {
                         "updated_by" => $userId,
                     ]);
 
-                SaleConfigService::clearCache($companyId, "main");
+                SaleConfigService::clearCache("main");
 
             }
 
@@ -1255,7 +1255,7 @@ class SaleService {
 
         $branchIds = $userId === null
             ? null
-            : \App\Services\System\Base\CompanyReferenceDataService::for($companyId, $userId)->allowedBranchIds();
+            : \App\Services\System\Base\CompanyReferenceDataService::forUser($userId)->allowedBranchIds();
 
         if($branchIds !== null) {
 

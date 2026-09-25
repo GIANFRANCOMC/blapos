@@ -30,7 +30,7 @@ class StockManagementController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return StockManagementConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return StockManagementConfigService::getInitParams($page, $this->getUserId());
 
     }
 

@@ -28,7 +28,7 @@ class BranchController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return BranchConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return BranchConfigService::getInitParams($page, $this->getUserId());
 
     }
 

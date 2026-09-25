@@ -23,7 +23,6 @@ class RoleController extends BaseController {
     public function initParams(Request $request) {
 
         return RoleConfigService::getInitParams(
-            $this->getCompanyId(),
             $this->getPage($request),
             $this->getUserId()
         );
@@ -106,7 +105,7 @@ class RoleController extends BaseController {
 
         RolePermissionService::clearCompanyCache($this->getCompanyId());
         \App\Services\System\Organizations\Companies\CompanySectionService::clearCompanyCache($this->getCompanyId());
-        RoleConfigService::clearAllCache($this->getCompanyId());
+        RoleConfigService::clearAllCache();
         InitParamsCacheInvalidationService::invalidate(
             InitParamsCacheInvalidationService::ROLES,
             $this->getCompanyId()

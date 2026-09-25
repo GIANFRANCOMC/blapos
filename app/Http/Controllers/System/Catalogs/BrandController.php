@@ -17,7 +17,6 @@ final class BrandController extends BaseController {
     public function initParams(Request $request) {
 
         return BrandConfigService::getInitParams(
-            $this->getCompanyId(),
             $this->getPage($request),
             $this->getUserId()
         );

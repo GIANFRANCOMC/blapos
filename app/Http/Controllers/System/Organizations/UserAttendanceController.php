@@ -25,7 +25,6 @@ final class UserAttendanceController extends BaseController {
 
         return response()->json(
             UserAttendanceConfigService::getInitParams(
-                $this->getCompanyId(),
                 (string) $request->input("page", "main"),
                 $this->getUserId()
             )
@@ -318,7 +317,7 @@ final class UserAttendanceController extends BaseController {
 
     private function allowedBranchIds(): ?array {
 
-        return CompanyReferenceDataService::for($this->getCompanyId(), $this->getUserId())
+        return CompanyReferenceDataService::forUser($this->getUserId())
             ->allowedBranchIds();
 
     }

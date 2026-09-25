@@ -21,7 +21,7 @@ final class StockManagementConfigService extends BaseConfigService {
 
         return self::data([
             "warehouses" => self::data([
-                "records" => CompanyReferenceDataService::for($companyId, $userId)->stockWarehouses(),
+                "records" => CompanyReferenceDataService::forUser($userId)->stockWarehouses(),
             ]),
             "products" => self::data([
                 "records" => Item::query()

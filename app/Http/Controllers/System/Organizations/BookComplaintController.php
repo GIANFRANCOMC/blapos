@@ -28,7 +28,7 @@ class BookComplaintController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return BookComplaintConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return BookComplaintConfigService::getInitParams($page, $this->getUserId());
 
     }
 

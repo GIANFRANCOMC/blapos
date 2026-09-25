@@ -73,7 +73,7 @@ class ReportController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return ReportConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return ReportConfigService::getInitParams($page, $this->getUserId());
 
     }
 

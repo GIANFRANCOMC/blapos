@@ -30,7 +30,6 @@ class RecipeController extends BaseController {
     public function initParams(Request $request) {
 
         return RecipeConfigService::getInitParams(
-            $this->getCompanyId(),
             $this->getPage($request),
             $this->getUserId()
         );
@@ -126,7 +125,7 @@ class RecipeController extends BaseController {
                     $id,
                     (int) $data["warehouse_id"],
                     $this->getCompanyId(),
-                    CompanyReferenceDataService::for($this->getCompanyId(), $this->getUserId())
+                    CompanyReferenceDataService::forUser($this->getUserId())
                         ->allowedWarehouseIds()
                 ),
             ]);
@@ -150,7 +149,7 @@ class RecipeController extends BaseController {
                 $this->getCompanyId(),
                 $request->only(["recipe_dish_id", "warehouse_id", "item_id", "date_from", "date_to"]),
                 $this->getPerPage($request),
-                CompanyReferenceDataService::for($this->getCompanyId(), $this->getUserId())
+                CompanyReferenceDataService::forUser($this->getUserId())
                     ->allowedWarehouseIds()
             ),
         ]);
@@ -171,7 +170,7 @@ class RecipeController extends BaseController {
                     $this->getCompanyId(),
                     $this->getUserId(),
                     $data,
-                    CompanyReferenceDataService::for($this->getCompanyId(), $this->getUserId())
+                    CompanyReferenceDataService::forUser($this->getUserId())
                         ->allowedWarehouseIds()
                 ),
             ], 201);

@@ -16,6 +16,8 @@ final class TenantDatabase extends Model {
         "public_id", "slug",
         "database_name",
         "status",
+        "status_reason",
+        "status_changed_at",
         "last_resolved_at",
         "created_at",
         "created_by",
@@ -25,6 +27,7 @@ final class TenantDatabase extends Model {
 
     protected $casts = [
         "last_resolved_at" => "datetime",
+        "status_changed_at" => "datetime",
     ];
 
     protected static function booted(): void {

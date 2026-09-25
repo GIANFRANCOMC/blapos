@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Tenancy;
 
+use App\Enums\System\Tenancy\{TenantStatus};
 use App\Models\System\Tenancy\{TenantAuditLog, TenantDatabase};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Support\Facades\{Cache, DB, Schema};
@@ -30,7 +31,7 @@ final class TenantAdministrationService {
         return TenantDatabase::query()
             ->select([
                 "id", "public_id", "slug", "database_name", "status",
-                "last_resolved_at", "created_at", "updated_at",
+                "last_resolved_at", "status_reason", "status_changed_at", "created_at", "updated_at",
             ])
             ->with(["domains" => fn($query) => $query
                 ->select(["id", "tenant_database_id", "domain", "is_primary", "status"])
@@ -70,6 +71,8 @@ final class TenantAdministrationService {
             "inactive" => $counts["inactive"] ?? 0,
             "suspended" => $counts["suspended"] ?? 0,
             "provisioning" => $counts["provisioning"] ?? 0,
+            "provisioning_failed" => $counts["provisioning_failed"] ?? 0,
+            "maintenance" => $counts["maintenance"] ?? 0,
         ];
 
     }
@@ -85,6 +88,8 @@ final class TenantAdministrationService {
             "slug" => (string) $tenant->slug,
             "database_name" => (string) $tenant->database_name,
             "status" => (string) $tenant->status,
+            "status_reason" => $tenant->status_reason,
+            "status_changed_at" => $tenant->status_changed_at?->toIso8601String(),
             "domain" => $primaryDomain?->domain,
             "url" => $primaryDomain ? "//{$primaryDomain->domain}" : null,
             "last_resolved_at" => $tenant->last_resolved_at?->toIso8601String(),
@@ -139,9 +144,14 @@ final class TenantAdministrationService {
 
     }
 
-    public function changeStatus(TenantDatabase $tenant, string $status, ?string $actor = null): TenantDatabase {
+    public function changeStatus(
+        TenantDatabase $tenant,
+        string $status,
+        ?string $actor = null,
+        ?string $reason = null
+    ): TenantDatabase {
 
-        if(!in_array($status, ["active", "inactive", "suspended"], true)) {
+        if(!in_array($status, TenantStatus::manuallyAssignableValues(), true)) {
 
             throw new RuntimeException("El estado solicitado no es válido para un tenant.");
 
@@ -149,11 +159,17 @@ final class TenantAdministrationService {
 
         $previousStatus = $tenant->status;
 
-        $tenant->forceFill(["status" => $status, "updated_at" => now()])->save();
+        $tenant->forceFill([
+            "status" => $status,
+            "status_reason" => $reason,
+            "status_changed_at" => now(),
+            "updated_at" => now(),
+        ])->save();
         $this->clearResolverCache($tenant);
         $this->audit($tenant, "status_changed", "success", [
             "previous_status" => $previousStatus,
             "new_status" => $status,
+            "reason" => $reason,
         ], $actor);
 
         return $tenant->fresh("domains");

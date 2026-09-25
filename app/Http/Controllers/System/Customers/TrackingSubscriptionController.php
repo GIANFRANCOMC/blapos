@@ -27,7 +27,7 @@ class TrackingSubscriptionController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return TrackingSubscriptionConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return TrackingSubscriptionConfigService::getInitParams($page, $this->getUserId());
 
     }
 

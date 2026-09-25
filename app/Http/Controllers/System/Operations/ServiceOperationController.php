@@ -22,7 +22,6 @@ final class ServiceOperationController extends BaseController {
 
         return response()->json(
             ServiceOperationConfigService::getInitParams(
-                $this->getCompanyId(),
                 (string) $request->input("page", "restaurant"),
                 $this->getUserId()
             )

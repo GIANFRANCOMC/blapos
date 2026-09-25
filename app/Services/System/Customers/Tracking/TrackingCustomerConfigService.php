@@ -20,7 +20,7 @@ final class TrackingCustomerConfigService extends BaseConfigService {
 
         return self::data([
             "customers" => self::data([
-                "records" => CompanyReferenceDataService::for($companyId, $userId)->customers(),
+                "records" => CompanyReferenceDataService::forUser($userId)->customers(),
             ]),
         ]);
 

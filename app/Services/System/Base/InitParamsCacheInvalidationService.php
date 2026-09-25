@@ -205,7 +205,7 @@ final class InitParamsCacheInvalidationService {
 
         foreach(array_unique($services) as $service) {
 
-            $service::clearAllCache($companyId);
+            $service::clearAllCache();
 
         }
 

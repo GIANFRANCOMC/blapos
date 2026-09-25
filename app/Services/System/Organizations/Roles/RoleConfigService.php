@@ -26,7 +26,7 @@ final class RoleConfigService extends BaseConfigService {
 
         $sections = CompanySectionService::getSections($companyId, $user?->role_id);
         $delegableActions = $user ? RolePermissionService::allowedActionsBySubSection($user) : [];
-        $references = CompanyReferenceDataService::for($companyId, $userId);
+        $references = CompanyReferenceDataService::forUser($userId);
 
         $sections->each(function($section) use ($delegableActions): void {
 

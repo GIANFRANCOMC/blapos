@@ -8,7 +8,7 @@ use App\Services\System\Tenancy\{TenantAdministrationService};
 use Illuminate\Console\{Command};
 
 final class ListTenants extends Command {
-    protected $signature = "tenant:list {--status= : Filtra por active, inactive, suspended o provisioning}";
+    protected $signature = "tenant:list {--status= : Filtra por estado operativo del tenant}";
 
     protected $description = "Lista tenants, dominios y bases registradas en landlord.";
 

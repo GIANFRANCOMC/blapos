@@ -32,13 +32,23 @@ return new class extends Migration {
             $table->uuid("public_id")->unique();
             $table->string("slug", 120)->unique();
             $table->string("database_name", 180)->unique();
-            $table->enum("status", ["provisioning", "active", "inactive", "suspended"])->default("provisioning");
+            $table->enum("status", [
+                "provisioning",
+                "active",
+                "inactive",
+                "suspended",
+                "provisioning_failed",
+                "maintenance",
+            ])->default("provisioning");
+            $table->text("status_reason")->nullable();
+            $table->timestamp("status_changed_at")->nullable();
             $table->timestamp("last_resolved_at")->nullable();
             $table->timestamp("created_at")->useCurrent()->nullable();
             $table->integer("created_by")->nullable();
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
             $table->index(["status", "slug"], "tenant_databases_status_slug_index");
+            $table->index(["status", "status_changed_at"], "tenant_databases_status_changed_index");
 
         });
 

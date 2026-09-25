@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Platform;
 
+use App\Enums\System\Tenancy\{TenantStatus};
 use App\Http\Controllers\{Controller};
 use App\Models\System\Tenancy\{TenantAnnouncement, TenantDatabase};
 use App\Services\System\Tenancy\{PlatformTenantProvisioner, PlatformTenantService, TenantAdministrationService};
@@ -17,7 +18,7 @@ final class TenantController extends Controller {
 
         $data = $request->validate([
             "search" => ["nullable", "string", "max:100"],
-            "status" => ["nullable", Rule::in(["provisioning", "active", "inactive", "suspended"])],
+            "status" => ["nullable", Rule::in(TenantStatus::values())],
             "page" => ["nullable", "integer", "min:1"],
             "per_page" => ["nullable", "integer", "min:10", "max:50"],
         ]);
@@ -114,11 +115,17 @@ final class TenantController extends Controller {
     ): JsonResponse {
 
         $data = $request->validate([
-            "status" => ["required", Rule::in(["active", "inactive", "suspended"])],
+            "status" => ["required", Rule::in(TenantStatus::manuallyAssignableValues())],
+            "reason" => ["nullable", "string", "max:1000"],
         ]);
 
         $actor = $request->attributes->get("platformUser");
-        $updated = $administration->changeStatus($tenant, $data["status"], $actor?->email);
+        $updated = $administration->changeStatus(
+            $tenant,
+            $data["status"],
+            $actor?->email,
+            $data["reason"] ?? null
+        );
 
         return response()->json([
             "message" => "Estado del cliente actualizado.",

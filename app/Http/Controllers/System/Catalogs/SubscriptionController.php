@@ -26,7 +26,7 @@ class SubscriptionController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return SubscriptionConfigService::getInitParams($this->getCompanyId(), $page, $this->getUserId());
+        return SubscriptionConfigService::getInitParams($page, $this->getUserId());
 
     }
 
