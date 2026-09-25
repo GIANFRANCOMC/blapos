@@ -139,14 +139,4 @@ class QueryHelper {
 
     }
 
-    /**
-     * Apply company filter
-     *
-     * @param  int  $companyId Company ID
-     */
-    public static function applyCompanyFilter(Builder $query, int $companyId): Builder {
-
-        return $query->where("company_id", $companyId);
-
-    }
 }

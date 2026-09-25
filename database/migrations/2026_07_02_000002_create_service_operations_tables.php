@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create("service_floors", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->string("code", 50);
             $table->string("name", 150);
@@ -25,17 +24,15 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->restrictOnDelete();
-            $table->unique(["company_id", "branch_id", "code"]);
-            $table->index(["company_id", "branch_id", "status", "sort_order"], "service_floors_board_index");
+            $table->unique(["branch_id", "code"]);
+            $table->index(["branch_id", "status", "sort_order"], "service_floors_board_index");
 
         });
 
         Schema::create("service_stations", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->unsignedBigInteger("service_floor_id")->nullable();
             $table->string("code", 50);
@@ -54,18 +51,16 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->restrictOnDelete();
             $table->foreign("service_floor_id")->references("id")->on("service_floors")->restrictOnDelete();
-            $table->unique(["company_id", "branch_id", "code"]);
-            $table->index(["company_id", "branch_id", "service_floor_id", "status"], "service_stations_board_index");
+            $table->unique(["branch_id", "code"]);
+            $table->index(["branch_id", "service_floor_id", "status"], "service_stations_board_index");
 
         });
 
         Schema::create("service_sessions", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->unsignedBigInteger("service_station_id")->nullable();
             $table->unsignedBigInteger("customer_id")->nullable();
@@ -93,7 +88,6 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->restrictOnDelete();
             $table->foreign("service_station_id")->references("id")->on("service_stations")->restrictOnDelete();
             $table->foreign("customer_id")->references("id")->on("customers")->nullOnDelete();
@@ -101,16 +95,15 @@ return new class extends Migration {
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->restrictOnDelete();
             $table->foreign("opened_by")->references("id")->on("users")->restrictOnDelete();
             $table->foreign("closed_by")->references("id")->on("users")->nullOnDelete();
-            $table->unique(["company_id", "reference"]);
-            $table->index(["company_id", "service_station_id", "status"], "service_sessions_station_status_index");
-            $table->index(["company_id", "branch_id", "session_type", "status", "created_at"], "service_sessions_list_index");
+            $table->unique(["reference"]);
+            $table->index(["service_station_id", "status"], "service_sessions_station_status_index");
+            $table->index(["branch_id", "session_type", "status", "created_at"], "service_sessions_list_index");
 
         });
 
         Schema::create("service_session_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("service_session_id");
             $table->unsignedBigInteger("item_id");
             $table->unsignedBigInteger("assigned_user_id")->nullable();
@@ -136,18 +129,16 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("service_session_id")->references("id")->on("service_sessions")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->restrictOnDelete();
             $table->foreign("assigned_user_id")->references("id")->on("users")->nullOnDelete();
-            $table->index(["company_id", "service_session_id", "status"], "service_session_items_status_index");
+            $table->index(["service_session_id", "status"], "service_session_items_status_index");
 
         });
 
         Schema::create("service_session_pauses", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("service_session_id");
             $table->unsignedBigInteger("service_session_item_id")->nullable();
             $table->unsignedBigInteger("paused_by");
@@ -160,7 +151,6 @@ return new class extends Migration {
             $table->timestamp("created_at")->useCurrent()->nullable();
             $table->timestamp("updated_at")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("service_session_id")->references("id")->on("service_sessions")->onDelete("cascade");
             $table->foreign("service_session_item_id")->references("id")->on("service_session_items")->onDelete("cascade");
             $table->foreign("paused_by")->references("id")->on("users")->restrictOnDelete();
@@ -171,7 +161,6 @@ return new class extends Migration {
         Schema::create("service_session_events", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("service_session_id");
             $table->unsignedBigInteger("service_session_item_id")->nullable();
             $table->unsignedBigInteger("user_id")->nullable();
@@ -182,11 +171,10 @@ return new class extends Migration {
             $table->json("metadata")->nullable();
             $table->timestamp("occurred_at")->useCurrent();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("service_session_id")->references("id")->on("service_sessions")->onDelete("cascade");
             $table->foreign("service_session_item_id")->references("id")->on("service_session_items")->onDelete("cascade");
             $table->foreign("user_id")->references("id")->on("users")->nullOnDelete();
-            $table->index(["company_id", "service_session_id", "occurred_at"], "service_session_events_timeline_index");
+            $table->index(["service_session_id", "occurred_at"], "service_session_events_timeline_index");
 
         });
 

@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models\System\Warehouses;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 class InventoryMovement extends Model {
-    use BelongsToCompany;
 
     protected $table = "inventory_movements";
 
@@ -19,7 +17,6 @@ class InventoryMovement extends Model {
     protected $appends = ["reference"];
 
     protected $fillable = [
-        "company_id",
         "warehouse_id",
         "item_id",
         "user_id",

@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{InventoryMovement};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class PurchaseReceiptItem extends Model {
-    use BelongsToCompany;
 
     protected $table = "purchase_receipt_items";
 
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "purchase_receipt_id",
         "purchase_item_id",
         "item_id",

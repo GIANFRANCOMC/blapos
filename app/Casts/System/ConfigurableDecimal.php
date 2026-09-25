@@ -19,7 +19,7 @@ final class ConfigurableDecimal implements CastsAttributes {
 
         return number_format(
             (float) $value,
-            Utilities::decimalPrecision(isset($attributes["company_id"]) ? (int) $attributes["company_id"] : null),
+            Utilities::decimalPrecision(),
             ".",
             ""
         );

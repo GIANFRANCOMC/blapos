@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Models\System\Warehouses;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Organizations\{Branch};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class Warehouse extends Model {
-    use BelongsToCompany;
 
     protected $table = "warehouses";
 
@@ -19,7 +17,6 @@ class Warehouse extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "name",
         "status",

@@ -99,7 +99,7 @@ class CustomerController extends BaseController {
         try {
 
             $data = $request->validated();
-            $customer = CustomerService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $customer = CustomerService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($customer)) {
 
@@ -140,7 +140,6 @@ class CustomerController extends BaseController {
     private function prepareCustomerData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "identity_document_type_id" => $request->identity_document_type_id,
             "document_number" => $request->document_number,
             "name" => $request->name,
@@ -174,7 +173,7 @@ class CustomerController extends BaseController {
 
         try {
 
-            $customer = CustomerService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $customer = CustomerService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($customer)) {
 
@@ -182,7 +181,7 @@ class CustomerController extends BaseController {
 
             }
 
-            $subscriptions = Subscription::where("company_id", $this->getCompanyId())
+            $subscriptions = Subscription::query()
                 ->where("customer_id", $customer->id)
                 ->whereIn("status", ["active"])
                 ->get();
@@ -207,7 +206,7 @@ class CustomerController extends BaseController {
 
         try {
 
-            $customer = CustomerService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $customer = CustomerService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($customer)) {
 

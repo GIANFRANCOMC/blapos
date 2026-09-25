@@ -77,7 +77,7 @@ final class DoctorSystemDatabase extends Command {
 
             foreach(["roles", "branches", "warehouses", "cash_registers"] as $table) {
 
-                if(!DB::table($table)->where("company_id", $company->id)->exists()) {
+                if(!DB::table($table)->exists()) {
 
                     $errors[] = "La organización {$company->id} no tiene registros en {$table}.";
 

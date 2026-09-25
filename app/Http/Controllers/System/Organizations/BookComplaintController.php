@@ -72,7 +72,7 @@ class BookComplaintController extends BaseController {
 
         try {
 
-            $bookComplaint = BookComplaintService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $bookComplaint = BookComplaintService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($bookComplaint)) {
 
@@ -103,7 +103,6 @@ class BookComplaintController extends BaseController {
     public function downloadAttachment(int $attachmentId): StreamedResponse {
 
         $attachment = BookComplaintAttachment::query()
-            ->where("company_id", $this->getCompanyId())
             ->findOrFail($attachmentId);
 
         abort_unless(Storage::disk("local")->exists($attachment->file_path), 404);

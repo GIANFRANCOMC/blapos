@@ -13,7 +13,6 @@ class CashSessionInventoryCount extends Model {
     protected $table = "cash_session_inventory_counts";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "cash_session_id",
         "warehouse_id",
@@ -36,11 +35,6 @@ class CashSessionInventoryCount extends Model {
         "difference_quantity" => "App\\Casts\\System\\ConfigurableDecimal",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

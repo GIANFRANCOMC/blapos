@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Models\System\Sales;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Organizations\{User};
 use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class SaleDelivery extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_deliveries";
 
@@ -20,7 +18,6 @@ class SaleDelivery extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "sale_header_id",
         "warehouse_id",
         "total_quantity",

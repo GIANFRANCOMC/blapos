@@ -54,7 +54,6 @@ final class EnsureOperationalScope {
         if($request->filled("cash_session_id")) {
 
             $cashRegisterId = DB::table("cash_sessions")
-                ->where("company_id", $user->company_id)
                 ->where("id", (int) $request->input("cash_session_id"))
                 ->value("cash_register_id");
 
@@ -69,7 +68,6 @@ final class EnsureOperationalScope {
         if($request->filled("serie_id")) {
 
             $branchId = DB::table("series")
-                ->where("company_id", $user->company_id)
                 ->where("id", (int) $request->input("serie_id"))
                 ->value("branch_id");
 
@@ -105,7 +103,6 @@ final class EnsureOperationalScope {
         if($prefix === "purchases") {
 
             $warehouseId = DB::table("purchase_headers")
-                ->where("company_id", $request->user()->company_id)
                 ->where("id", $id)
                 ->value("warehouse_id");
 
@@ -124,7 +121,6 @@ final class EnsureOperationalScope {
 
             $sale = DB::table("sales_header")
                 ->join("series", "series.id", "=", "sales_header.serie_id")
-                ->where("series.company_id", $request->user()->company_id)
                 ->where("sales_header.id", $id)
                 ->select(["series.branch_id", "sales_header.warehouse_id"])
                 ->first();
@@ -148,7 +144,6 @@ final class EnsureOperationalScope {
         $delivery = DB::table("sale_deliveries")
             ->join("sales_header", "sales_header.id", "=", "sale_deliveries.sale_header_id")
             ->join("series", "series.id", "=", "sales_header.serie_id")
-            ->where("sale_deliveries.company_id", $request->user()->company_id)
             ->where("sale_deliveries.id", $deliveryId)
             ->select([
                 "series.branch_id",

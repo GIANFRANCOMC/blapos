@@ -11,7 +11,6 @@ final class PaymentMethod extends Model {
     protected $table = "payment_methods";
 
     protected $fillable = [
-        "company_id",
         "code",
         "name",
         "category",

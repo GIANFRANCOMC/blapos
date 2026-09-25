@@ -11,14 +11,12 @@ final class DashboardService {
     public static function getDashboardData(int $companyId, string $date, ?int $branchId = null): array {
 
         $timezone = (string) (DB::table("company_settings")
-            ->where("company_id", $companyId)
             ->where("group", "localization")
             ->where("key", "timezone")
             ->where("status", "active")
             ->value("value") ?: "America/Lima");
 
         $expirationWindow = max(1, (int) (DB::table("company_settings")
-            ->where("company_id", $companyId)
             ->where("group", "dashboard")
             ->where("key", "membership_expiration_window_days")
             ->where("status", "active")
@@ -30,7 +28,6 @@ final class DashboardService {
 
         $salesBase = DB::table("sales_header")
             ->join("series", "series.id", "=", "sales_header.serie_id")
-            ->where("sales_header.company_id", $companyId)
             ->when($branchId, fn($query) => $query->where("series.branch_id", $branchId));
 
         $netSales = (clone $salesBase)
@@ -46,14 +43,12 @@ final class DashboardService {
             ->first();
 
         $attendances = DB::table("attendances")
-            ->where("company_id", $companyId)
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
             ->whereIn("status", ["active", "finalized"])
             ->whereBetween("start_date", [$dayStart, $dayEnd])
             ->count();
 
         $expiringSubscriptions = DB::table("subscriptions")
-            ->where("company_id", $companyId)
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
             ->where("status", "active")
             ->whereBetween("end_date", [
@@ -77,13 +72,11 @@ final class DashboardService {
             ],
             "branches" => [
                 "active_count" => DB::table("branches")
-                    ->where("company_id", $companyId)
                     ->where("status", "active")
                     ->count(),
             ],
             "users" => [
                 "active_count" => DB::table("users")
-                    ->where("company_id", $companyId)
                     ->where("status", "active")
                     ->count(),
             ],

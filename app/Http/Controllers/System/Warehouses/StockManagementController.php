@@ -341,7 +341,6 @@ class StockManagementController extends BaseController {
             }
 
             $transfer = StockManagementService::transfer([
-                "company_id" => $this->getCompanyId(),
                 "source_warehouse_id" => (int) $data["source_warehouse_id"],
                 "destination_warehouse_id" => (int) $data["destination_warehouse_id"],
                 "items" => $data["items"],

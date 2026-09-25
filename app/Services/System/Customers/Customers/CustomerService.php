@@ -69,7 +69,6 @@ class CustomerService {
     private static function prepareCustomerDataForCreate(array $data, int $companyId, int $userId): array {
 
         $customerData = [
-            "company_id" => $companyId,
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -180,10 +179,9 @@ class CustomerService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Customer {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Customer {
 
-        $query = Customer::where("id", $id)
-            ->where("company_id", $companyId);
+        $query = Customer::where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -210,7 +208,7 @@ class CustomerService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        $query = Customer::where("company_id", $companyId)
+        $query = Customer::query()
             ->with(["identityDocumentType"]);
 
         // Apply filters

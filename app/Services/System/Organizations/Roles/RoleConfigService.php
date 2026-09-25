@@ -21,7 +21,7 @@ final class RoleConfigService extends BaseConfigService {
     protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
 
         $user = $userId
-            ? User::query()->where("company_id", $companyId)->find($userId)
+            ? User::query()->find($userId)
             : null;
 
         $sections = CompanySectionService::getSections($companyId, $user?->role_id);

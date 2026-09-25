@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Models\System\Catalogs;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\General\{Currency};
 use App\Models\System\Sales\{SaleBody};
 use App\Models\System\Warehouses\{InventoryMovement, WarehouseItem};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class Item extends Model {
-    use BelongsToCompany;
 
     public const STATUS_ACTIVE = "active";
 
@@ -33,7 +31,6 @@ class Item extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "brand_id",
         "internal_code",
         "barcode",
@@ -228,7 +225,6 @@ class Item extends Model {
     public static function expireActiveItems(int $companyId): int {
 
         return self::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->whereNotNull("expires_at")
             ->where("expires_at", "<=", now())

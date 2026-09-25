@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Catalogs\Recipes;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StoreRecipeWasteRequest extends CompanyFormRequest {
     public function rules(): array {
@@ -18,13 +18,13 @@ final class StoreRecipeWasteRequest extends CompanyFormRequest {
                 "bail",
                 "required",
                 "integer",
-                new BelongsToCompany("warehouses", ["status" => "active"], "El almacen seleccionado no esta disponible."),
+                new ExistsInTenant("warehouses", ["status" => "active"], "El almacen seleccionado no esta disponible."),
             ],
             "item_id" => [
                 "bail",
                 "required",
                 "integer",
-                new BelongsToCompany("items", ["type" => "product", "status" => "active"], "El insumo seleccionado no esta disponible."),
+                new ExistsInTenant("items", ["type" => "product", "status" => "active"], "El insumo seleccionado no esta disponible."),
             ],
             "quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "reason" => ["required", "string", "max:500"],

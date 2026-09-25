@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Role, User};
 use App\Services\System\Finance\{CashRegisterConfigService};
 use App\Services\System\Purchases\{PurchaseConfigService};
 use App\Services\System\Sales\{SaleConfigService};
+use App\Services\System\Tenancy\{TenantContext};
 use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{Cache, DB};
@@ -27,7 +28,7 @@ final class AccessScopeService {
         self::assertType($type);
 
         $scopes = Cache::remember(
-            self::cacheKey((int) $user->company_id, (int) $user->id),
+            self::cacheKey((int) $user->id),
             self::CACHE_TTL,
             fn(): array => self::resolve($user)
         );
@@ -38,7 +39,7 @@ final class AccessScopeService {
 
     public static function canAccess(User $user, string $type, int $resourceId): bool {
 
-        if($resourceId <= 0 || !self::belongsToCompany($type, $resourceId, (int) $user->company_id)) {
+        if($resourceId <= 0 || !self::existsInTenant($type, $resourceId)) {
 
             return false;
 
@@ -62,7 +63,7 @@ final class AccessScopeService {
 
     public static function clearUserCache(int $companyId, int $userId): void {
 
-        Cache::forget(self::cacheKey($companyId, $userId));
+        Cache::forget(self::cacheKey($userId));
 
         foreach([
             SaleConfigService::class,
@@ -80,7 +81,6 @@ final class AccessScopeService {
     public static function clearRoleCache(int $companyId, int $roleId): void {
 
         User::query()
-            ->where("company_id", $companyId)
             ->where("role_id", $roleId)
             ->pluck("id")
             ->each(fn($userId) => self::clearUserCache($companyId, (int) $userId));
@@ -90,7 +90,6 @@ final class AccessScopeService {
     private static function resolve(User $user): array {
 
         $role = Role::query()
-            ->where("company_id", $user->company_id)
             ->where("status", "active")
             ->find($user->role_id);
 
@@ -114,15 +113,13 @@ final class AccessScopeService {
         $cashRegisterIds = self::applyBranchHierarchy(
             self::CASH_REGISTER,
             $cashRegisterIds,
-            $branchIds,
-            (int) $user->company_id
+            $branchIds
         );
 
         $warehouseIds = self::applyBranchHierarchy(
             self::WAREHOUSE,
             $warehouseIds,
-            $branchIds,
-            (int) $user->company_id
+            $branchIds
         );
 
         return [
@@ -160,8 +157,7 @@ final class AccessScopeService {
     private static function applyBranchHierarchy(
         string $type,
         ?array $resourceIds,
-        ?array $branchIds,
-        int $companyId
+        ?array $branchIds
     ): ?array {
 
         if($branchIds === null) {
@@ -179,7 +175,6 @@ final class AccessScopeService {
         $definition = self::definition($type);
 
         $query = DB::table($definition["resource_table"])
-            ->where("company_id", $companyId)
             ->whereIn("branch_id", $branchIds);
 
         if($resourceIds !== null) {
@@ -205,12 +200,11 @@ final class AccessScopeService {
 
     }
 
-    private static function belongsToCompany(string $type, int $resourceId, int $companyId): bool {
+    private static function existsInTenant(string $type, int $resourceId): bool {
 
         $definition = self::definition($type);
 
         return DB::table($definition["resource_table"])
-            ->where("company_id", $companyId)
             ->where("id", $resourceId)
             ->exists();
 
@@ -254,9 +248,9 @@ final class AccessScopeService {
 
     }
 
-    private static function cacheKey(int $companyId, int $userId): string {
+    private static function cacheKey(int $userId): string {
 
-        return "access_scopes:company:{$companyId}:user:{$userId}";
+        return app(TenantContext::class)->cacheNamespace().":access_scopes:user:{$userId}";
 
     }
 

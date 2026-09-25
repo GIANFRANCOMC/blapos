@@ -10,7 +10,6 @@ final class BiometricDeviceEvent extends Model {
     protected $table = "biometric_device_events";
 
     protected $fillable = [
-        "company_id",
         "biometric_device_id",
         "event_uuid",
         "event_type",

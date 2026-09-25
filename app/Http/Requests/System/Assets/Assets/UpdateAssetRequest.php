@@ -6,7 +6,7 @@ namespace App\Http\Requests\System\Assets\Assets;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
-use App\Rules\System\Defaults\{BelongsToCompany, UniqueInCompany};
+use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 
 final class UpdateAssetRequest extends CompanyFormRequest {
     use AppliesInternalCodePrefix;
@@ -28,10 +28,10 @@ final class UpdateAssetRequest extends CompanyFormRequest {
         $assetId = (int) $this->route("id");
 
         return [
-            "internal_code" => ["required", "string", "max:50", new UniqueInCompany("assets", "internal_code", $assetId, [], "código interno")],
-            "asset_category_id" => ["nullable", "integer", new BelongsToCompany("asset_categories", ["status" => "active"])],
-            "patrimonial_code" => ["nullable", "string", "max:100", new UniqueInCompany("assets", "patrimonial_code", $assetId)],
-            "serial_number" => ["nullable", "string", "max:150", new UniqueInCompany("assets", "serial_number", $assetId)],
+            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("assets", "internal_code", $assetId, [], "código interno")],
+            "asset_category_id" => ["nullable", "integer", new ExistsInTenant("asset_categories", ["status" => "active"])],
+            "patrimonial_code" => ["nullable", "string", "max:100", new UniqueInTenant("assets", "patrimonial_code", $assetId)],
+            "serial_number" => ["nullable", "string", "max:150", new UniqueInTenant("assets", "serial_number", $assetId)],
             "name" => ["required", "string", "max:50"],
             "description" => ["nullable", "string", "max:500"],
             "status" => ["required", "in:active,inactive"],

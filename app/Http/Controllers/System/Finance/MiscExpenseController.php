@@ -28,7 +28,6 @@ final class MiscExpenseController extends BaseController {
         $references = CompanyReferenceDataService::for($this->getCompanyId(), $this->getUserId());
         $cashSessions = CashSession::query()
             ->with("register:id,name")
-            ->where("company_id", $this->getCompanyId())
             ->where("status", "open");
 
         $allowedCashRegisterIds = $references->allowedCashRegisterIds();
@@ -48,12 +47,10 @@ final class MiscExpenseController extends BaseController {
                     ->get(),
                 "paymentMethods" => $references->paymentMethodsFor("purchase"),
                 "currencies" => Currency::query()
-                    ->where("company_id", $this->getCompanyId())
                     ->where("status", "active")
                     ->orderBy("code")
                     ->get(),
                 "categories" => MiscExpenseCategory::query()
-                    ->where("company_id", $this->getCompanyId())
                     ->where("status", "active")
                     ->orderBy("name")
                     ->get(),
@@ -81,12 +78,12 @@ final class MiscExpenseController extends BaseController {
 
         $companyId = $this->getCompanyId();
         $validator = Validator::make($request->all(), [
-            "branch_id" => ["nullable", "integer", Rule::exists("branches", "id")->where("company_id", $companyId)],
-            "cash_session_id" => ["nullable", "integer", Rule::exists("cash_sessions", "id")->where("company_id", $companyId)->where("status", "open")],
-            "payment_method_id" => ["nullable", "integer", Rule::exists("payment_methods", "id")->where("company_id", $companyId)],
-            "currency_id" => ["required", "integer", Rule::exists("currencies", "id")->where("company_id", $companyId)->where("status", "active")],
-            "misc_expense_category_id" => ["nullable", "integer", Rule::exists("misc_expense_categories", "id")->where("company_id", $companyId)->where("status", "active")],
-            "responsible_user_id" => ["nullable", "integer", Rule::exists("users", "id")->where("company_id", $companyId)->where("status", "active")],
+            "branch_id" => ["nullable", "integer", Rule::exists("branches", "id")],
+            "cash_session_id" => ["nullable", "integer", Rule::exists("cash_sessions", "id")->where("status", "open")],
+            "payment_method_id" => ["nullable", "integer", Rule::exists("payment_methods", "id")],
+            "currency_id" => ["required", "integer", Rule::exists("currencies", "id")->where("status", "active")],
+            "misc_expense_category_id" => ["nullable", "integer", Rule::exists("misc_expense_categories", "id")->where("status", "active")],
+            "responsible_user_id" => ["nullable", "integer", Rule::exists("users", "id")->where("status", "active")],
             "expense_date" => ["required", "date"],
             "reference" => ["nullable", "string", "max:100"],
             "concept" => ["required", "string", "max:255"],

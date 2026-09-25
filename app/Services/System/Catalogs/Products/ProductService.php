@@ -7,6 +7,7 @@ namespace App\Services\System\Catalogs\Products;
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Services\System\Catalogs\Categories\{CategoryItemService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Warehouses\Warehouses\{WarehouseItemService};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
@@ -98,7 +99,6 @@ class ProductService {
     private static function prepareProductDataForCreate(array $data, int $companyId, int $userId): array {
 
         $itemData = [
-            "company_id" => $companyId,
             "type" => "product",
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
@@ -304,9 +304,11 @@ class ProductService {
 
         DB::transaction(function() use ($item, $data, $userId) {
 
+            $companyId = app(TenantCompanyContext::class)->id();
+
             self::assertBrandCanBeAssigned(
                 $data["brand_id"] ?? null,
-                (int) $item->company_id,
+                $companyId,
                 $item
             );
 
@@ -334,7 +336,7 @@ class ProductService {
 
             WarehouseItemService::syncProductInventory(
                 $item->id,
-                (int) $item->company_id,
+                $companyId,
                 $data["inventory"] ?? [],
                 $userId,
                 false
@@ -354,10 +356,9 @@ class ProductService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["brand", "currency", "categoryItems", "warehouseItems.warehouse.branch"]): ?Item {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["brand", "currency", "categoryItems", "warehouseItems.warehouse.branch"]): ?Item {
 
         $query = Item::where("id", $id)
-            ->where("company_id", $companyId)
             ->where("type", "product");
 
         if($statuses !== null && !empty($statuses)) {
@@ -404,7 +405,6 @@ class ProductService {
     public static function getFilteredListQuery(int $companyId, array $filters = []): Builder {
 
         $query = Item::query()
-            ->where("company_id", $companyId)
             ->where("type", "product")
             ->with([
                 "brand",
@@ -479,7 +479,6 @@ class ProductService {
 
         $brand = Brand::query()
             ->whereKey($brandId)
-            ->where("company_id", $companyId)
             ->first();
 
         $keepsCurrentInactiveBrand = $brand

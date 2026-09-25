@@ -16,14 +16,11 @@ final class PublicAttendanceRequest extends FormRequest {
 
     public function rules(): array {
 
-        $companyId = (int) $this->attributes->get("company")?->id;
-
         return [
             "branch_id" => [
                 "required",
                 "integer",
                 Rule::exists("branches", "id")
-                    ->where("company_id", $companyId)
                     ->where("status", "active"),
             ],
             "customers" => ["required", "array", "min:1", "max:20"],
@@ -31,7 +28,6 @@ final class PublicAttendanceRequest extends FormRequest {
                 "required",
                 "integer",
                 Rule::exists("customers", "id")
-                    ->where("company_id", $companyId)
                     ->where("status", "active"),
             ],
         ];

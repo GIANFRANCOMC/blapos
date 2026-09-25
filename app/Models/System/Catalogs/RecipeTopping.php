@@ -15,7 +15,6 @@ class RecipeTopping extends Model {
     protected $appends = ["formatted_status"];
 
     protected $fillable = [
-        "company_id",
         "currency_id",
         "item_id",
         "name",
@@ -48,11 +47,6 @@ class RecipeTopping extends Model {
 
     }
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function currency() {
 

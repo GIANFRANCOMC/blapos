@@ -11,7 +11,6 @@ final class ServiceStation extends Model {
     protected $table = "service_stations";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "service_floor_id",
         "code",
@@ -36,11 +35,6 @@ final class ServiceStation extends Model {
         "position_y" => "App\\Casts\\System\\ConfigurableDecimal",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

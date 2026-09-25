@@ -13,7 +13,6 @@ return new class extends Migration {
         Schema::create("identity_document_types", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("code", 255);
             $table->string("name", 255);
             $table->boolean("is_searchable")->default(true);
@@ -27,13 +26,12 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->unique(["company_id", "code"]);
+            $table->unique(["code"]);
 
         });
         Schema::create("document_types", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("code", 255);
             $table->string("name", 255);
             $table->enum("status", ["active", "inactive"])->default("active");
@@ -43,13 +41,12 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->unique(["company_id", "code"]);
+            $table->unique(["code"]);
 
         });
         Schema::create("currencies", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("code", 255);
             $table->string("sign", 255);
             $table->string("singular_name", 255);
@@ -61,7 +58,7 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->unique(["company_id", "code"]);
+            $table->unique(["code"]);
 
         });
         Schema::create("companies", function(Blueprint $table) {
@@ -97,17 +94,14 @@ return new class extends Migration {
         });
         Schema::table("identity_document_types", function(Blueprint $table) {
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
         Schema::table("document_types", function(Blueprint $table) {
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
         Schema::table("currencies", function(Blueprint $table) {
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
         Schema::create("menu_categories", function(Blueprint $table) {
@@ -205,7 +199,6 @@ return new class extends Migration {
         Schema::create("roles", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("slug", 255);
             $table->string("name", 255);
             $table->boolean("is_full_access")->default(false);
@@ -219,13 +212,11 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
         Schema::create("role_sub_sections", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("role_id");
             $table->unsignedBigInteger("sub_section_id");
             $table->json("actions")->nullable();
@@ -236,16 +227,14 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("role_id")->references("id")->on("roles")->onDelete("cascade");
             $table->foreign("sub_section_id")->references("id")->on("sub_sections")->onDelete("cascade");
-            $table->unique(["company_id", "role_id", "sub_section_id"]);
+            $table->unique(["role_id", "sub_section_id"]);
 
         });
         Schema::create("users", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("role_id")->nullable();
             $table->enum("branch_scope_mode", ["inherit", "restricted"])->default("inherit");
             $table->enum("cash_register_scope_mode", ["inherit", "restricted"])->default("inherit");
@@ -268,16 +257,14 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("role_id")->references("id")->on("roles")->onDelete("cascade");
             $table->foreign("identity_document_type_id")->references("id")->on("identity_document_types")->restrictOnDelete();
-            $table->unique(["email", "company_id"]);
+            $table->unique(["email"]);
 
         });
         Schema::create("authentication_events", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_id")->nullable();
             $table->string("tenant_slug", 120)->nullable();
             $table->string("event_type", 40);
@@ -289,14 +276,12 @@ return new class extends Migration {
             $table->string("reason", 500)->nullable();
             $table->timestamp("occurred_at")->useCurrent();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_id")->references("id")->on("users")->nullOnDelete();
 
         });
         Schema::create("user_preferences", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_id");
             $table->string("slug", 255);
             $table->text("value")->nullable();
@@ -307,25 +292,22 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
 
         });
         Schema::create("user_navigation_metrics", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_id");
             $table->unsignedBigInteger("sub_section_id");
             $table->unsignedBigInteger("visit_count")->default(0);
             $table->unsignedTinyInteger("recent_rank")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
             $table->foreign("sub_section_id")->references("id")->on("sub_sections")->onDelete("cascade");
-            $table->unique(["company_id", "user_id", "sub_section_id"], "user_navigation_route_unique");
-            $table->index(["company_id", "user_id", "recent_rank"], "user_navigation_recent_index");
-            $table->index(["company_id", "user_id", "visit_count"], "user_navigation_visits_index");
+            $table->unique(["user_id", "sub_section_id"], "user_navigation_route_unique");
+            $table->index(["user_id", "recent_rank"], "user_navigation_recent_index");
+            $table->index(["user_id", "visit_count"], "user_navigation_visits_index");
 
         });
         // Los datos se aprovisionan después del esquema mediante system:install.

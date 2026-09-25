@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create("user_attendances", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->unsignedBigInteger("user_id");
             $table->date("work_date");
@@ -34,7 +33,6 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->restrictOnDelete();
             $table->foreign("user_id")->references("id")->on("users")->restrictOnDelete();
 
@@ -43,7 +41,6 @@ return new class extends Migration {
         Schema::create("user_biometric_fingerprints", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_id");
             $table->unsignedBigInteger("biometric_device_id");
             $table->integer("device_user_id");
@@ -57,11 +54,10 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_id")->references("id")->on("users")->restrictOnDelete();
             $table->foreign("biometric_device_id")->references("id")->on("biometric_devices")->restrictOnDelete();
             $table->unique(
-                ["company_id", "biometric_device_id", "device_user_id", "finger_index"],
+                ["biometric_device_id", "device_user_id", "finger_index"],
                 "ubf_company_device_user_finger_uq"
             );
 
@@ -70,7 +66,6 @@ return new class extends Migration {
         Schema::create("user_work_schedules", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id")->nullable();
             $table->unsignedBigInteger("user_id")->nullable();
             $table->string("name", 150);
@@ -87,7 +82,6 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->nullOnDelete();
             $table->foreign("user_id")->references("id")->on("users")->nullOnDelete();
 
@@ -96,7 +90,6 @@ return new class extends Migration {
         Schema::create("user_attendance_breaks", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_attendance_id");
             $table->dateTime("started_at");
             $table->dateTime("ended_at")->nullable();
@@ -108,7 +101,6 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_attendance_id")->references("id")->on("user_attendances")->onDelete("cascade");
 
         });
@@ -116,7 +108,6 @@ return new class extends Migration {
         Schema::create("user_attendance_corrections", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_attendance_id");
             $table->unsignedBigInteger("requested_by");
             $table->unsignedBigInteger("reviewed_by")->nullable();
@@ -129,7 +120,6 @@ return new class extends Migration {
             $table->timestamp("created_at")->useCurrent()->nullable();
             $table->timestamp("updated_at")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_attendance_id")->references("id")->on("user_attendances")->onDelete("cascade");
             $table->foreign("requested_by")->references("id")->on("users")->restrictOnDelete();
             $table->foreign("reviewed_by")->references("id")->on("users")->nullOnDelete();

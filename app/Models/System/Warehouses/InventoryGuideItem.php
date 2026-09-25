@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models\System\Warehouses;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class InventoryGuideItem extends Model {
-    use BelongsToCompany;
 
     protected $fillable = [
-        "company_id",
         "inventory_guide_id",
         "item_id",
         "inventory_movement_id",

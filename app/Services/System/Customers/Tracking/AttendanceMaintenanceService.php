@@ -88,7 +88,6 @@ final class AttendanceMaintenanceService {
             $cutoff = now()->subMonths($retentionMonths);
 
             $query = Attendance::query()
-                ->where("company_id", (int) $company->id)
                 ->whereIn("status", ["finalized", "canceled", "inactive", "absent"])
                 ->where(function($query) use ($cutoff) {
 
@@ -135,7 +134,6 @@ final class AttendanceMaintenanceService {
             $expiredAt = now()->subHours($maxActiveHours);
 
             $attendances = Attendance::query()
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->where(function($query) use ($todayStart, $expiredAt) {
 

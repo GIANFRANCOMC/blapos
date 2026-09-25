@@ -13,7 +13,6 @@ return new class extends Migration {
         Schema::create("subscriptions", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->unsignedBigInteger("sale_header_id")->nullable();
             $table->unsignedBigInteger("sale_body_id")->nullable();
@@ -38,7 +37,6 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->onDelete("cascade");
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->onDelete("cascade");
             $table->foreign("sale_body_id")->references("id")->on("sales_body")->onDelete("cascade");
@@ -49,7 +47,6 @@ return new class extends Migration {
         Schema::create("attendances", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->unsignedBigInteger("customer_id");
             $table->unsignedBigInteger("biometric_device_id")->nullable();
@@ -68,7 +65,6 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->onDelete("cascade");
             $table->foreign("customer_id")->references("id")->on("customers")->onDelete("cascade");
 
@@ -76,7 +72,6 @@ return new class extends Migration {
         Schema::create("attendance_corrections", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("attendance_id");
             $table->unsignedBigInteger("requested_by")->nullable();
             $table->dateTime("previous_start_date")->nullable();
@@ -90,7 +85,6 @@ return new class extends Migration {
             $table->timestamp("reviewed_at")->nullable();
             $table->timestamps();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("attendance_id")->references("id")->on("attendances")->onDelete("cascade");
             $table->foreign("requested_by")->references("id")->on("users")->nullOnDelete();
             $table->foreign("reviewed_by")->references("id")->on("users")->nullOnDelete();
@@ -99,7 +93,6 @@ return new class extends Migration {
         Schema::create("subscription_emails", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("to", 255);
             $table->string("subject", 255);
             $table->text("body")->nullable();
@@ -120,7 +113,6 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
 

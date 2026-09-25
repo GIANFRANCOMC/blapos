@@ -180,7 +180,7 @@ class ProductController extends BaseController {
 
         try {
 
-            $item = ProductService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $item = ProductService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($item)) {
 
@@ -221,7 +221,6 @@ class ProductController extends BaseController {
     private function prepareProductData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "brand_id" => $request->input("brand_id"),
             "internal_code" => $request->input("internal_code"),
             "barcode" => $request->input("barcode"),

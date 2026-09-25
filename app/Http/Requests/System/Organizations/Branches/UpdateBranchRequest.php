@@ -6,7 +6,7 @@ namespace App\Http\Requests\System\Organizations\Branches;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
-use App\Rules\System\Defaults\{UniqueInCompany};
+use App\Rules\System\Defaults\{UniqueInTenant};
 
 class UpdateBranchRequest extends CompanyFormRequest {
     use AppliesInternalCodePrefix;
@@ -41,7 +41,7 @@ class UpdateBranchRequest extends CompanyFormRequest {
         $branchId = (int) $this->route("id");
 
         $validations = [
-            "internal_code" => ["required", "string", "max:50", new UniqueInCompany("branches", "internal_code", $branchId, [], "código interno")],
+            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("branches", "internal_code", $branchId, [], "código interno")],
             "name" => "required|string|max:50",
             "address" => "nullable|string|max:100",
             "reference" => "nullable|string|max:100",

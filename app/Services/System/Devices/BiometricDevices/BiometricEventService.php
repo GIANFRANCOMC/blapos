@@ -21,7 +21,6 @@ final class BiometricEventService {
     ): BiometricDeviceEvent {
 
         $device = BiometricDevice::query()
-            ->where("company_id", $companyId)
             ->where("access_key", $accessKey)
             ->where("status", "active")
             ->first();
@@ -44,7 +43,6 @@ final class BiometricEventService {
 
             $event = BiometricDeviceEvent::query()->firstOrCreate(
                 [
-                    "company_id" => $companyId,
                     "biometric_device_id" => $device->id,
                     "event_uuid" => $payload["event_uuid"],
                 ],
@@ -108,7 +106,6 @@ final class BiometricEventService {
         if($event->subject_type === "customer") {
 
             $result = app(TrackingAttendanceBusinessService::class)->validateAndCreateAttendance([
-                "company_id" => $device->company_id,
                 "branch_id" => $device->branch_id,
                 "device_id" => $device->id,
                 "device_user_id" => $event->device_user_id,
@@ -133,8 +130,7 @@ final class BiometricEventService {
 
         $user = BiometricDeviceService::findUserByDeviceUserId(
             (int) $device->id,
-            (int) $event->device_user_id,
-            (int) $device->company_id
+            (int) $event->device_user_id
         );
 
         if(!$user) {
@@ -144,7 +140,6 @@ final class BiometricEventService {
         }
 
         $data = [
-            "company_id" => $device->company_id,
             "branch_id" => $device->branch_id,
             "user_id" => $user->id,
             "actor_id" => null,

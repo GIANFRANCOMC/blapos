@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Models\System\Catalogs;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Category};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class CategoryItem extends Model {
-    use BelongsToCompany;
 
     protected $table = "category_items";
 
@@ -19,7 +17,6 @@ class CategoryItem extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "category_id",
         "item_id",
         "status",

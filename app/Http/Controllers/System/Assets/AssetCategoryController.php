@@ -14,7 +14,6 @@ final class AssetCategoryController extends BaseController {
     public function list() {
 
         return AssetCategory::query()
-            ->where("company_id", $this->getCompanyId())
             ->withCount("assets")
             ->orderBy("name")
             ->get();
@@ -26,7 +25,6 @@ final class AssetCategoryController extends BaseController {
         $data = $request->validated();
         $category = AssetCategory::create([
             ...$data,
-            "company_id" => $this->getCompanyId(),
             "status" => $data["status"] ?? "active",
             "created_by" => $this->getUserId(),
         ]);
@@ -38,7 +36,7 @@ final class AssetCategoryController extends BaseController {
 
     public function update(UpdateAssetCategoryRequest $request, int $id): JsonResponse {
 
-        $category = AssetCategory::query()->where("company_id", $this->getCompanyId())->findOrFail($id);
+        $category = AssetCategory::query()->findOrFail($id);
         $data = $request->validated();
         $category->fill([...$data, "updated_by" => $this->getUserId()])->save();
         InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ASSETS, $this->getCompanyId());

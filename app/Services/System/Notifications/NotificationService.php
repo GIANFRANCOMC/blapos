@@ -32,7 +32,7 @@ class NotificationService {
                     ->orWhere("next_attempt_at", "<=", now());
 
             })
-            ->when($companyId, fn($query) => $query->where("company_id", $companyId))
+            
             ->orderBy("id")
             ->limit(max(1, min($limit, 500)))
             ->get();

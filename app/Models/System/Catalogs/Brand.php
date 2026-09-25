@@ -5,16 +5,13 @@ declare(strict_types=1);
 namespace App\Models\System\Catalogs;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 class Brand extends Model {
-    use BelongsToCompany;
 
     protected $table = "brands";
 
     protected $fillable = [
-        "company_id",
         "internal_code",
         "name",
         "description",

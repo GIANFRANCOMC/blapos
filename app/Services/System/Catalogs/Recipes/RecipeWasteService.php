@@ -22,7 +22,6 @@ final class RecipeWasteService {
     ): LengthAwarePaginator {
 
         return RecipeWasteRecord::query()
-            ->where("company_id", $companyId)
             ->with(["recipe.item", "warehouse.branch", "item", "inventoryMovement", "createdBy"])
             ->when($allowedWarehouseIds !== null, fn($query) => $query->whereIn("warehouse_id", $allowedWarehouseIds))
             ->when($filters["recipe_dish_id"] ?? null, fn($query, $id) => $query->where("recipe_dish_id", $id))
@@ -54,10 +53,10 @@ final class RecipeWasteService {
 
             }
 
-            $recipe = RecipeDish::query()->where("company_id", $companyId)->find($recipeId);
+            $recipe = RecipeDish::query()->find($recipeId);
 
-            $warehouse = Warehouse::query()->where("company_id", $companyId)->where("status", "active")->find($warehouseId);
-            $item = Item::query()->where("company_id", $companyId)->where("type", "product")->find($itemId);
+            $warehouse = Warehouse::query()->where("status", "active")->find($warehouseId);
+            $item = Item::query()->where("type", "product")->find($itemId);
 
             if(!$recipe || !$warehouse || !$item) {
 
@@ -68,13 +67,11 @@ final class RecipeWasteService {
             $quantity = Utilities::round((float) $data["quantity"], null, $companyId);
 
             $unitCost = round((float) (WarehouseItem::query()
-                ->where("company_id", $companyId)
                 ->where("warehouse_id", $warehouseId)
                 ->where("item_id", $itemId)
                 ->value("average_cost") ?? 0), 4);
 
             $movement = InventoryMovementService::apply([
-                "company_id" => $companyId,
                 "warehouse_id" => $warehouseId,
                 "item_id" => $itemId,
                 "user_id" => $userId,
@@ -89,7 +86,6 @@ final class RecipeWasteService {
             ]);
 
             return RecipeWasteRecord::create([
-                "company_id" => $companyId,
                 "recipe_dish_id" => $recipe->id,
                 "warehouse_id" => $warehouseId,
                 "item_id" => $itemId,

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class SaleDeliveryItem extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_delivery_items";
 
@@ -18,7 +16,6 @@ class SaleDeliveryItem extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "sale_delivery_id",
         "sale_body_id",
         "item_id",

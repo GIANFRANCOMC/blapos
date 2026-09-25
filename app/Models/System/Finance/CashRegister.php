@@ -11,7 +11,6 @@ final class CashRegister extends Model {
     protected $table = "cash_registers";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "code",
         "name",

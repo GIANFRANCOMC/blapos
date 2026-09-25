@@ -11,7 +11,6 @@ final class AttendanceCorrection extends Model {
     protected $table = "attendance_corrections";
 
     protected $fillable = [
-        "company_id",
         "attendance_id",
         "requested_by",
         "previous_start_date",
@@ -33,11 +32,6 @@ final class AttendanceCorrection extends Model {
         "reviewed_at" => "datetime",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class);
-
-    }
 
     public function attendance() {
 

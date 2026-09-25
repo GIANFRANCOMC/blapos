@@ -92,7 +92,6 @@ class TrackingAttendanceService {
 
         $branch = Branch::query()
             ->where("id", $filters["branch_id"] ?? null)
-            ->where("company_id", $companyId)
             ->first();
 
         if(!$branch || ($allowedBranchIds !== null && !in_array((int) $branch->id, $allowedBranchIds, true))) {
@@ -102,7 +101,6 @@ class TrackingAttendanceService {
         }
 
         $query = Attendance::query()
-            ->where("company_id", $companyId)
             ->where("branch_id", $branch->id)
             ->when($allowedBranchIds !== null, fn($query) => $query->whereIn("branch_id", $allowedBranchIds));
 
@@ -196,7 +194,6 @@ class TrackingAttendanceService {
         }
 
         return AttendanceCorrection::create([
-            "company_id" => $attendance->company_id,
             "attendance_id" => $attendance->id,
             "requested_by" => $userId,
             "previous_start_date" => $attendance->start_date,

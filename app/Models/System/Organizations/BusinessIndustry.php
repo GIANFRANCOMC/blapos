@@ -10,7 +10,6 @@ final class BusinessIndustry extends Model {
     protected $table = "business_industries";
 
     protected $fillable = [
-        "company_id",
         "slug",
         "name",
         "description",

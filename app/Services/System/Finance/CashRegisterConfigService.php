@@ -24,7 +24,7 @@ final class CashRegisterConfigService extends BaseConfigService {
         return self::data([
             "branches" => $references->activeBranches(),
             "registers" => $references->cashRegisters(),
-            "inventoryItems" => self::inventoryItems($companyId, $references),
+            "inventoryItems" => self::inventoryItems($references),
             "paymentMethods" => $references->paymentMethodsFor("sale"),
             "statuses" => [
                 ["id" => "open", "label" => "Abierta"],
@@ -43,25 +43,22 @@ final class CashRegisterConfigService extends BaseConfigService {
 
     }
 
-    private static function inventoryItems(int $companyId, CompanyReferenceDataService $references) {
+    private static function inventoryItems(CompanyReferenceDataService $references) {
 
         $branchIds = $references->activeBranches()->pluck("id")->all();
 
         return WarehouseItem::query()
             ->with(["warehouse.branch", "item.brand"])
-            ->where("company_id", $companyId)
             ->where("status", "active")
-            ->whereHas("warehouse", function($query) use ($companyId, $branchIds) {
+            ->whereHas("warehouse", function($query) use ($branchIds) {
 
-                $query->where("company_id", $companyId)
-                    ->where("status", "active")
+                $query->where("status", "active")
                     ->whereIn("branch_id", $branchIds);
 
             })
-            ->whereHas("item", function($query) use ($companyId) {
+            ->whereHas("item", function($query) {
 
-                $query->where("company_id", $companyId)
-                    ->where("type", "product")
+                $query->where("type", "product")
                     ->where("status", "active");
 
             })

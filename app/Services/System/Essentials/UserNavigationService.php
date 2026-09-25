@@ -7,6 +7,7 @@ namespace App\Services\System\Essentials;
 use App\Models\System\General\{SubSection};
 use App\Models\System\Organizations\{User, UserNavigationMetric};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Support\Facades\{DB, Route, Schema};
 use Illuminate\Support\{Collection};
 
@@ -31,12 +32,14 @@ final class UserNavigationService {
 
         }
 
+        $companyId = app(TenantCompanyContext::class)->id();
+
         $subSectionId = SubSection::query()
             ->where("dom_route", $routeName)
             ->where("status", "active")
-            ->whereHas("companiesSubSections", function($query) use ($user) {
+            ->whereHas("companiesSubSections", function($query) use ($companyId) {
 
-                $query->where("company_id", $user->company_id)
+                $query->where("company_id", $companyId)
                     ->where("status", "active");
 
             })
@@ -51,13 +54,11 @@ final class UserNavigationService {
         DB::transaction(function() use ($user, $subSectionId): void {
 
             DB::table("users")
-                ->where("company_id", $user->company_id)
                 ->where("id", $user->id)
                 ->lockForUpdate()
                 ->value("id");
 
             $metrics = DB::table("user_navigation_metrics")
-                ->where("company_id", $user->company_id)
                 ->where("user_id", $user->id);
 
             $lockedMetrics = (clone $metrics)
@@ -88,7 +89,6 @@ final class UserNavigationService {
             }
 
             DB::table("user_navigation_metrics")->insertOrIgnore([
-                "company_id" => $user->company_id,
                 "user_id" => $user->id,
                 "sub_section_id" => $subSectionId,
                 "visit_count" => 0,
@@ -96,7 +96,6 @@ final class UserNavigationService {
             ]);
 
             DB::table("user_navigation_metrics")
-                ->where("company_id", $user->company_id)
                 ->where("user_id", $user->id)
                 ->where("sub_section_id", $subSectionId)
                 ->increment("visit_count", 1, ["recent_rank" => 1]);
@@ -139,7 +138,6 @@ final class UserNavigationService {
         }
 
         $metrics = UserNavigationMetric::query()
-            ->where("company_id", $user->company_id)
             ->where("user_id", $user->id)
             ->whereIn("sub_section_id", $allowedIds)
             ->get();
@@ -179,7 +177,10 @@ final class UserNavigationService {
 
     private function allowedCatalog(User $user): Collection {
 
-        return CompanySectionService::getSections((int) $user->company_id, (int) $user->role_id)
+        return CompanySectionService::getSections(
+            app(TenantCompanyContext::class)->id(),
+            (int) $user->role_id
+        )
             ->flatMap(function($section) {
 
                 return $section->subSections

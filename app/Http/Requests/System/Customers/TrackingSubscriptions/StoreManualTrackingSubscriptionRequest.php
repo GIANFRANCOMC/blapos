@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Customers\TrackingSubscriptions;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StoreManualTrackingSubscriptionRequest extends CompanyFormRequest {
     public function rules(): array {
 
         return [
-            "branch_id" => ["required", "integer", new BelongsToCompany("branches", ["status" => "active"], "La sucursal seleccionada no pertenece a la empresa.")],
-            "customer_id" => ["required", "integer", new BelongsToCompany("customers", ["status" => "active"], "El cliente seleccionado no pertenece a la empresa.")],
-            "item_id" => ["nullable", "integer", new BelongsToCompany("items", ["type" => "subscription", "status" => "active"], "La membresía seleccionada no pertenece al catálogo activo.")],
+            "branch_id" => ["required", "integer", new ExistsInTenant("branches", ["status" => "active"], "La sucursal seleccionada no pertenece a la empresa.")],
+            "customer_id" => ["required", "integer", new ExistsInTenant("customers", ["status" => "active"], "El cliente seleccionado no pertenece a la empresa.")],
+            "item_id" => ["nullable", "integer", new ExistsInTenant("items", ["type" => "subscription", "status" => "active"], "La membresía seleccionada no pertenece al catálogo activo.")],
             "duration_type" => ["nullable", "in:hour,day,today,month,year"],
             "duration_value" => ["nullable", "integer", "min:1", "max:9999"],
             "start_date" => ["required", "date"],

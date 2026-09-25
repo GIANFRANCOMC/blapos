@@ -95,7 +95,7 @@ final class AccountsPayableService {
 
     private function query(int $companyId, int $userId, array $filters = []): Builder {
 
-        $query = PurchaseAccountPayable::query()->forCompany($companyId);
+        $query = PurchaseAccountPayable::query();
         $warehouseIds = CompanyReferenceDataService::for($companyId, $userId)->allowedWarehouseIds();
 
         if($warehouseIds !== null) {

@@ -10,7 +10,7 @@ final class Category extends Model {
     protected $table = "categories";
 
     protected $hidden = [
-        "company_id", "created_by", "updated_by", "created_at", "updated_at", "pivot",
+        "created_by", "updated_by", "created_at", "updated_at", "pivot",
     ];
 
     protected $casts = [

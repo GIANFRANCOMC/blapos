@@ -27,7 +27,6 @@ final class RecipeConfigService extends BaseConfigService {
             ]),
             "ingredients" => self::data([
                 "records" => Item::query()
-                    ->where("company_id", $companyId)
                     ->where("type", "product")
                     ->where("status", "active")
                     ->with(["currency", "brand"])

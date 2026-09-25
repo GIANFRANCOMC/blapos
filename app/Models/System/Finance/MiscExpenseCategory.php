@@ -10,7 +10,6 @@ final class MiscExpenseCategory extends Model {
     protected $table = "misc_expense_categories";
 
     protected $fillable = [
-        "company_id",
         "name",
         "description",
         "status",

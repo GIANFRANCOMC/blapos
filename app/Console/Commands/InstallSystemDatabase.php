@@ -13,7 +13,6 @@ use Illuminate\Support\{Str};
 
 final class InstallSystemDatabase extends Command {
     protected $signature = "system:install
-        {--company-id=1 : ID interno de la organización}
         {--slug=demo : Identificador único}
         {--commercial-name=Empresa demo : Nombre comercial}
         {--legal-name=EMPRESA DEMO : Razón social}
@@ -69,16 +68,14 @@ final class InstallSystemDatabase extends Command {
 
         }
 
-        $companyId = (int) $this->option("company-id");
-
         $slug = Str::slug((string) $this->option("slug"));
-        $provisioning->createOrUpdate([
+        $companyId = $provisioning->createOrUpdate([
             "slug" => $slug,
             "commercial_name" => (string) $this->option("commercial-name"),
             "legal_name" => (string) $this->option("legal-name"),
             "document_number" => (string) $this->option("document-number"),
             "email" => (string) $this->option("admin-email"),
-        ], $companyId);
+        ]);
 
         $catalog->sync($companyId);
         $provisioning->enable($companyId);

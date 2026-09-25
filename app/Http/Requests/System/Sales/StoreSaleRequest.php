@@ -6,7 +6,7 @@ namespace App\Http\Requests\System\Sales;
 
 use App\Helpers\System\{ApiResponse};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Http\Exceptions\{HttpResponseException};
 
@@ -49,8 +49,8 @@ class StoreSaleRequest extends CompanyFormRequest {
             "branch_id" => "required|integer",
             "serie_id" => "required|integer",
             "holder_id" => "required|integer",
-            "seller_id" => ["nullable", "integer", new BelongsToCompany("users", ["status" => "active"], "El vendedor seleccionado no pertenece a la empresa.")],
-            "currency_id" => ["required", "integer", new BelongsToCompany("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
+            "seller_id" => ["nullable", "integer", new ExistsInTenant("users", ["status" => "active"], "El vendedor seleccionado no pertenece a la empresa.")],
+            "currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "warehouse_id" => "nullable|integer",
             "cash_session_id" => "nullable|integer",
             "quotation_header_id" => "nullable|integer",
@@ -58,7 +58,7 @@ class StoreSaleRequest extends CompanyFormRequest {
             "source_channel" => "nullable|in:sale,pos",
             "issue_date" => "required|date",
             "delivery_mode" => "nullable|in:immediate,pending",
-            "delivery_method_id" => ["nullable", "integer", new BelongsToCompany("sale_delivery_methods", ["status" => "active"], "La modalidad de entrega no pertenece a la empresa.")],
+            "delivery_method_id" => ["nullable", "integer", new ExistsInTenant("sale_delivery_methods", ["status" => "active"], "La modalidad de entrega no pertenece a la empresa.")],
             "delivery_status" => "required|in:pending,delivered",
             "delivery_observation" => "nullable|string|max:500",
             "payment_modality" => "nullable|in:paid_now,cash_on_delivery,installments",
@@ -82,9 +82,9 @@ class StoreSaleRequest extends CompanyFormRequest {
             // Details
             "details" => "required|array",
             "details.*.item_id" => "required|integer",
-            "details.*.customer_id" => ["nullable", "integer", new BelongsToCompany("customers", ["status" => "active"], "El cliente beneficiario de la membresía no pertenece a la empresa.")],
+            "details.*.customer_id" => ["nullable", "integer", new ExistsInTenant("customers", ["status" => "active"], "El cliente beneficiario de la membresía no pertenece a la empresa.")],
             "details.*.type" => "required|string|max:255",
-            "details.*.currency_id" => ["required", "integer", new BelongsToCompany("currencies", ["status" => "active"], "Una moneda del detalle no pertenece a la empresa.")],
+            "details.*.currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "Una moneda del detalle no pertenece a la empresa.")],
             "details.*.name" => "required|string|max:255",
             "details.*.quantity" => "required|numeric|min:0.1|max:$maxValue|decimal:0,$round",
             "details.*.price" => "required|numeric|min:0.1|max:$maxValue|decimal:0,$round",

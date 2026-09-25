@@ -73,7 +73,6 @@ class BranchService {
     private static function prepareBranchDataForCreate(array $data, int $companyId, int $userId): array {
 
         $branchData = [
-            "company_id" => $companyId,
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -175,7 +174,6 @@ class BranchService {
 
             if(($updateData["status"] ?? null) === "inactive"
                 && AssetAssignment::query()
-                    ->where("company_id", $branch->company_id)
                     ->where("branch_id", $branch->id)
                     ->whereIn("status", ["active", "maintenance"])
                     ->exists()) {
@@ -216,10 +214,9 @@ class BranchService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["series.documentType", "warehouses"]): ?Branch {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["series.documentType", "warehouses"]): ?Branch {
 
-        $query = Branch::where("id", $id)
-            ->where("company_id", $companyId);
+        $query = Branch::where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -246,7 +243,7 @@ class BranchService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        $query = Branch::where("company_id", $companyId)
+        $query = Branch::query()
             ->with(["series.documentType", "warehouses"]);
 
         // Apply filters

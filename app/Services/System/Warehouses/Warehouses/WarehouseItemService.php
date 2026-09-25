@@ -23,10 +23,9 @@ class WarehouseItemService {
         );
 
         $warehouses = Warehouse::where("status", "active")
-            ->whereHas("branch", function($query) use ($companyId) {
+            ->whereHas("branch", function($query) {
 
-                $query->where("company_id", $companyId)
-                    ->where("status", "active");
+                $query->where("status", "active");
 
             })
             ->get();
@@ -43,7 +42,6 @@ class WarehouseItemService {
 
             if($isNew) {
 
-                $warehouseItem->company_id = $companyId;
                 $warehouseItem->quantity = 0;
                 $warehouseItem->created_at = now();
                 $warehouseItem->created_by = $userId;
@@ -70,7 +68,6 @@ class WarehouseItemService {
             if($isNew && $setInitialStock && $initialStock > 0) {
 
                 InventoryMovementService::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => (int) $warehouse->id,
                     "item_id" => $itemId,
                     "user_id" => $userId,
@@ -89,7 +86,7 @@ class WarehouseItemService {
 
     public static function createForWarehouse(int $warehouseId, int $companyId, ?int $userId = null): void {
 
-        $productIds = Item::where("company_id", $companyId)
+        $productIds = Item::query()
             ->where("type", "product")
             ->pluck("id");
 
@@ -101,7 +98,6 @@ class WarehouseItemService {
                     "item_id" => $itemId,
                 ],
                 [
-                    "company_id" => $companyId,
                     "quantity" => 0,
                     "minimum_stock" => 0,
                     "status" => "active",

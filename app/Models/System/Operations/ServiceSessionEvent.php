@@ -13,7 +13,6 @@ final class ServiceSessionEvent extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "service_session_id",
         "service_session_item_id",
         "user_id",

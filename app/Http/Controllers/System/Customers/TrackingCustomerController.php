@@ -49,7 +49,6 @@ class TrackingCustomerController extends BaseController {
         try {
 
             $result = $businessService->get([
-                "company_id" => $this->getCompanyId(),
                 "customer_id" => $id,
                 "period_type" => $request->input("period_type"),
                 "start_date" => $request->input("start_date"),

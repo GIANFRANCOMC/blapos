@@ -11,7 +11,7 @@ class BiometricDevice extends Model {
     protected $table = "biometric_devices";
 
     protected $fillable = [
-        "company_id", "branch_id", "biometric_device_model_id", "name",
+        "branch_id", "biometric_device_model_id", "name",
         "serial_number", "ip_address", "port", "device_id", "access_key",
         "secret_encrypted", "credentials_rotated_at", "last_seen_at",
         "description", "status", "created_at", "created_by", "updated_at", "updated_by",
@@ -53,11 +53,6 @@ class BiometricDevice extends Model {
 
     }
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

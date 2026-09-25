@@ -6,7 +6,7 @@ namespace App\Http\Requests\System\Catalogs\Subscriptions;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
-use App\Rules\System\Defaults\{BelongsToCompany, UniqueInCompany};
+use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class UpdateSubscriptionRequest extends CompanyFormRequest {
@@ -37,7 +37,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
         $maxValue = $this->filled("max_price") && (float) $this->input("max_price") > 0 ? (float) $this->input("max_price") : $this->numericMaxValue();
 
         $validations = [
-            "internal_code" => ["required", "string", "max:50", new UniqueInCompany("items", "internal_code", $itemId, ["type" => "subscription"], "código interno")],
+            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "subscription"], "código interno")],
             "name" => "required|string|max:50",
             "description" => "nullable|string|max:100",
             "duration_value" => "required|integer|min:1|max:$maxValue|decimal:0",
@@ -47,7 +47,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
             "igv_exempt" => "nullable|boolean",
             "commission_type" => "nullable|in:none,percentage,fixed",
             "commission_value" => "nullable|numeric|min:0|max:$maxValue|decimal:0,$round",
-            "currency_id" => ["required", "integer", new BelongsToCompany("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
+            "currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "capacity_control_enabled" => "nullable|boolean",
             "capacity_limit" => "nullable|integer|min:1|max:1000000",
             "expires_at" => "nullable|date",

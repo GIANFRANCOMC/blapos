@@ -73,15 +73,13 @@ abstract class BaseService {
      * Prepare data for create operation
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company ID
      * @param  int  $userId User ID
      * @param  array  $allowedFields Allowed fields
      */
-    protected static function prepareDataForCreate(array $data, int $companyId, int $userId, array $allowedFields): array {
+    protected static function prepareDataForCreate(array $data, int $userId, array $allowedFields): array {
 
         $prepared = static::prepareData($data, $allowedFields);
 
-        $prepared["company_id"] = $companyId;
         $prepared["created_at"] = now();
         $prepared["created_by"] = $userId;
 
@@ -123,12 +121,11 @@ abstract class BaseService {
     }
 
     /**
-     * Validate model exists and belongs to company
+     * Validate that a model exists in the current tenant database.
      *
      * @param  Model|null  $model Model instance
-     * @param  int  $companyId Company ID
      */
-    protected static function validateModel(?Model $model, int $companyId): bool {
+    protected static function validateModel(?Model $model): bool {
 
         if($model === null) {
 
@@ -136,7 +133,7 @@ abstract class BaseService {
 
         }
 
-        return isset($model->company_id) && $model->company_id === $companyId;
+        return true;
 
     }
 }

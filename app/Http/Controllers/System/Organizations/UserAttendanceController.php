@@ -126,7 +126,6 @@ final class UserAttendanceController extends BaseController {
 
             $attendance = UserAttendanceService::checkIn([
                 ...$request->validated(),
-                "company_id" => $this->getCompanyId(),
                 "actor_id" => $this->getUserId(),
             ]);
 
@@ -157,7 +156,6 @@ final class UserAttendanceController extends BaseController {
 
             $attendance = UserAttendanceService::checkOut([
                 ...$request->validated(),
-                "company_id" => $this->getCompanyId(),
                 "actor_id" => $this->getUserId(),
             ]);
 
@@ -190,7 +188,6 @@ final class UserAttendanceController extends BaseController {
 
             $attendance = UserAttendanceService::checkInFromBiometric([
                 ...$data,
-                "company_id" => $this->getCompanyId(),
                 "actor_id" => $this->getUserId(),
             ]);
 

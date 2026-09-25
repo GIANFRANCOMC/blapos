@@ -7,9 +7,9 @@ namespace App\Http\Controllers\System\Auth;
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\{Controller};
 use App\Http\Requests\System\Auth\{LoginRequest};
-use App\Models\System\Organizations\{Company};
 use App\Providers\{RouteServiceProvider};
 use App\Services\System\Auth\{AuthenticationAuditService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Http\{RedirectResponse, Request};
 use Illuminate\Support\Facades\{Auth};
 use Illuminate\View\{View};
@@ -22,43 +22,7 @@ class AuthenticatedSessionController extends Controller {
 
         $data = Utilities::getDefaultData();
 
-        $data->company = null;
-        $data->companies = [];
-
-        if(Utilities::isDefined($data->env_company_id)) {
-
-            $data->company = Company::where("id", $data->env_company_id)
-                ->whereIn("status", ["active"])
-                ->with(["socialsMedia"])
-                ->first();
-
-        }else {
-
-            $base64Company = $request->company;
-
-            if(Utilities::isDefined($base64Company)) {
-
-                $companyId = base64_decode($base64Company);
-
-                if(Utilities::isDefined($companyId)) {
-
-                    $data->company = Company::where("id", $companyId)
-                        ->whereIn("status", ["active"])
-                        ->with(["socialsMedia"])
-                        ->first();
-
-                }
-
-            }else {
-
-                $data->companies = Company::whereIn("status", ["active", "inactive"])
-                    ->with(["socialsMedia"])
-                    ->orderBy("commercial_name", "ASC")
-                    ->get();
-
-            }
-
-        }
+        $data->company = app(TenantCompanyContext::class)->get()->load("socialsMedia");
 
         return view("System/auth/login", compact("data"));
 
@@ -85,7 +49,6 @@ class AuthenticatedSessionController extends Controller {
     public function destroy(Request $request): RedirectResponse {
 
         $user = Auth::user();
-        $company = $user->company;
 
         AuthenticationAuditService::record($request, "logout", "success", $user);
 
@@ -94,7 +57,7 @@ class AuthenticatedSessionController extends Controller {
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect("/".Utilities::companyLoginQuery($company->id));
+        return redirect("/");
 
     }
 }

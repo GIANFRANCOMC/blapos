@@ -54,7 +54,6 @@ class AssetManagementService {
         ];
 
         $branch = Branch::where("id", $branchId)
-            ->where("company_id", $companyId)
             ->with("company")
             ->first();
 
@@ -77,7 +76,6 @@ class AssetManagementService {
                 if(!Utilities::isDefined($branchAsset)) {
 
                     $branchAsset = new BranchAsset();
-                    $branchAsset->company_id = $company->id;
                     $branchAsset->branch_id = $branchId;
                     $branchAsset->asset_id = $record["asset_id"];
                     $branchAsset->currency_id = $company->currency_id;
@@ -91,7 +89,6 @@ class AssetManagementService {
                     $branchAsset->save();
 
                     self::recordLog([
-                        "company_id" => $company->id,
                         "action_by" => $userId,
                         "branch_id" => $branchId,
                         "to_branch_id" => $branchId,
@@ -119,7 +116,6 @@ class AssetManagementService {
                         $branchAsset->save();
 
                         self::recordLog([
-                            "company_id" => $company->id,
                             "action_by" => $userId,
                             "branch_id" => $branchId,
                             "to_branch_id" => $branchId,
@@ -188,7 +184,6 @@ class AssetManagementService {
                     $branchAsset->save();
 
                     self::recordLog([
-                        "company_id" => $branchAsset->company_id,
                         "action_by" => $userId,
                         "branch_id" => $branchId,
                         "from_branch_id" => $branchId,
@@ -326,7 +321,6 @@ class AssetManagementService {
             foreach($assignments as $record) {
 
                 $data = [
-                    "company_id" => $branchAsset->company_id,
                     "user_id" => $record["user_id"],
                     "branch_id" => $branchAsset->branch_id,
                     "asset_id" => $branchAsset->asset_id,
@@ -343,7 +337,6 @@ class AssetManagementService {
                 if(is_numeric($record["id"] ?? null)) {
 
                     $assetAssignment = AssetAssignment::query()
-                        ->where("company_id", $branchAsset->company_id)
                         ->where("branch_id", $branchAsset->branch_id)
                         ->where("asset_id", $branchAsset->asset_id)
                         ->find((int) $record["id"]);
@@ -368,7 +361,6 @@ class AssetManagementService {
                     if($assetAssignment instanceof AssetAssignment) {
 
                         self::recordLog([
-                            "company_id" => $branchAsset->company_id,
                             "action_by" => $userId,
                             "user_id" => $record["user_id"],
                             "branch_id" => $branchAsset->branch_id,
@@ -440,7 +432,7 @@ class AssetManagementService {
 
             foreach($assignments as $record) {
 
-                $assetAssignment = AssetAssignment::where("company_id", $branchAsset->company_id)
+                $assetAssignment = AssetAssignment::query()
                     ->where("id", $record["id"])
                     ->where("user_id", $record["user_id"])
                     ->where("branch_id", $branchAsset->branch_id)
@@ -456,7 +448,6 @@ class AssetManagementService {
                     $assetAssignment->save();
 
                     self::recordLog([
-                        "company_id" => $assetAssignment->company_id,
                         "action_by" => $userId,
                         "user_id" => $assetAssignment->user_id,
                         "branch_id" => $assetAssignment->branch_id,
@@ -495,7 +486,6 @@ class AssetManagementService {
     public static function validateBranch(int $branchId, int $companyId): ?Branch {
 
         return Branch::where("id", $branchId)
-            ->where("company_id", $companyId)
             ->first();
 
     }

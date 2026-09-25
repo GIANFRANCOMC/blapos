@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Customers\Customers;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class RegisterCustomerFingerprintRequest extends CompanyFormRequest {
     public function rules(): array {
@@ -15,7 +15,7 @@ final class RegisterCustomerFingerprintRequest extends CompanyFormRequest {
                 "bail",
                 "required",
                 "integer",
-                new BelongsToCompany(
+                new ExistsInTenant(
                     "biometric_devices",
                     ["status" => "active"],
                     "El dispositivo biométrico no está disponible."

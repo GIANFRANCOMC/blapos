@@ -14,7 +14,6 @@ final class RecipeWasteRecord extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "recipe_dish_id",
         "warehouse_id",
         "item_id",
@@ -36,11 +35,6 @@ final class RecipeWasteRecord extends Model {
         "created_at" => "datetime",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id");
-
-    }
 
     public function recipe() {
 

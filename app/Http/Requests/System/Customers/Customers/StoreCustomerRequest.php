@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Customers\Customers;
 
-use App\Rules\System\Defaults\{BelongsToCompany, DocumentNumberLength, UniqueInCompany};
+use App\Rules\System\Defaults\{ExistsInTenant, DocumentNumberLength, UniqueInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 final class StoreCustomerRequest extends FormRequest {
@@ -19,8 +19,8 @@ final class StoreCustomerRequest extends FormRequest {
         $identityTypeId = (int) $this->input("identity_document_type_id");
 
         return [
-            "identity_document_type_id" => ["required", "integer", new BelongsToCompany("identity_document_types", ["status" => "active"], "El tipo de documento no pertenece a la empresa.")],
-            "document_number" => ["required", "string", new DocumentNumberLength($identityTypeId), new UniqueInCompany("customers", "document_number", null, ["identity_document_type_id" => $identityTypeId], "número de documento")],
+            "identity_document_type_id" => ["required", "integer", new ExistsInTenant("identity_document_types", ["status" => "active"], "El tipo de documento no pertenece a la empresa.")],
+            "document_number" => ["required", "string", new DocumentNumberLength($identityTypeId), new UniqueInTenant("customers", "document_number", null, ["identity_document_type_id" => $identityTypeId], "número de documento")],
             "name" => ["required", "string", "max:100"],
             "email" => ["nullable", "email", "max:100"],
             "phone_number" => ["nullable", "string", "max:15"],

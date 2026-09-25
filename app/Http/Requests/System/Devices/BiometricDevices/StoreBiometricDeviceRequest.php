@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Devices\BiometricDevices;
 
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 class StoreBiometricDeviceRequest extends FormRequest {
@@ -17,8 +17,8 @@ class StoreBiometricDeviceRequest extends FormRequest {
     public function rules(): array {
 
         return [
-            "branch_id" => ["required", "integer", new BelongsToCompany("branches", [], null)],
-            "biometric_device_model_id" => ["required_without:model", "nullable", "integer", new BelongsToCompany("biometric_device_models", [], null)],
+            "branch_id" => ["required", "integer", new ExistsInTenant("branches", [], null)],
+            "biometric_device_model_id" => ["required_without:model", "nullable", "integer", new ExistsInTenant("biometric_device_models", [], null)],
             "model" => "required_without:biometric_device_model_id|nullable|string|max:255",
             "brand" => "nullable|string|max:255",
             "name" => "required|string|max:50",

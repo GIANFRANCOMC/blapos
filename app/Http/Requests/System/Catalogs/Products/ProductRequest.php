@@ -7,7 +7,7 @@ namespace App\Http\Requests\System\Catalogs\Products;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Rules\System\Catalogs\{ValidEan13};
-use App\Rules\System\Defaults\{BelongsToCompany, UniqueInCompany};
+use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use App\Services\System\Base\{InternalCodeService};
 use Illuminate\Validation\{Validator};
 
@@ -19,11 +19,11 @@ abstract class ProductRequest extends CompanyFormRequest {
         $maxValue = $this->numericMaxValue();
 
         return [
-            "internal_code" => ["bail", "required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/", new UniqueInCompany("items", "internal_code", $itemId, ["type" => "product"], "código interno")],
-            "barcode" => ["bail", "required", "string", new ValidEan13(), new UniqueInCompany("items", "barcode", $itemId, [], "código de barras")],
+            "internal_code" => ["bail", "required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "product"], "código interno")],
+            "barcode" => ["bail", "required", "string", new ValidEan13(), new UniqueInTenant("items", "barcode", $itemId, [], "código de barras")],
             "name" => ["bail", "required", "string", "max:50"],
             "description" => ["nullable", "string", "max:100"],
-            "brand_id" => ["nullable", "integer", new BelongsToCompany("brands", [], "La marca seleccionada no pertenece a la empresa.")],
+            "brand_id" => ["nullable", "integer", new ExistsInTenant("brands", [], "La marca seleccionada no pertenece a la empresa.")],
             "price" => ["bail", "required", "numeric", "min:0.01", "max:{$maxValue}", "decimal:0,{$round}"],
             "price_includes_tax" => ["nullable", "boolean"],
             "igv_exempt" => ["nullable", "boolean"],
@@ -31,22 +31,21 @@ abstract class ProductRequest extends CompanyFormRequest {
             "max_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "commission_type" => ["required", "in:none,percentage,fixed"],
             "commission_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "currency_id" => ["bail", "required", "integer", new BelongsToCompany("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
+            "currency_id" => ["bail", "required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "capacity_control_enabled" => ["nullable", "boolean"],
             "capacity_limit" => ["nullable", "integer", "min:1", "max:1000000"],
             "expires_at" => ["nullable", "date"],
             "categories" => ["nullable", "array", "max:50"],
-            "categories.*.category_id" => ["bail", "required", "integer", "distinct", new BelongsToCompany("categories", ["status" => "active"], "Una o más categorías no pertenecen a la empresa o no están activas.")],
+            "categories.*.category_id" => ["bail", "required", "integer", "distinct", new ExistsInTenant("categories", ["status" => "active"], "Una o más categorías no pertenecen a la empresa o no están activas.")],
             "see_my_web" => ["required", "boolean"],
             "see_my_web_price" => ["required", "boolean"],
             "inventory" => ["required", "array", "min:1", "max:200"],
             "inventory.*.warehouse_id" => ["bail", "required", "integer", "distinct",
-                new BelongsToCompany(
+                new ExistsInTenant(
                     "warehouses",
                     ["warehouses.status" => "active", "branches.status" => "active"],
                     "Uno o más almacenes no pertenecen a la empresa o no están activos.",
                     [["branches", "warehouses.branch_id", "=", "branches.id"]],
-                    "branches.company_id",
                     "warehouses.id"
                 ),
             ],
@@ -127,7 +126,7 @@ abstract class ProductRequest extends CompanyFormRequest {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                (int) $this->user()?->company_id,
+                $this->companyId(),
                 "product",
                 $this->input("internal_code")
             ),
@@ -165,7 +164,6 @@ abstract class ProductRequest extends CompanyFormRequest {
 
         $currentUsed = Item::query()
             ->whereKey((int) $this->route("id"))
-            ->where("company_id", $this->user()?->company_id)
             ->where("type", "product")
             ->value("capacity_used");
 
@@ -246,7 +244,6 @@ abstract class ProductRequest extends CompanyFormRequest {
 
         $brand = Brand::query()
             ->whereKey((int) $this->input("brand_id"))
-            ->where("company_id", $this->user()?->company_id)
             ->first();
 
         if(!$brand || $brand->status === "active") {
@@ -257,7 +254,6 @@ abstract class ProductRequest extends CompanyFormRequest {
 
         $currentBrandId = Item::query()
             ->whereKey((int) $this->route("id"))
-            ->where("company_id", $this->user()?->company_id)
             ->where("type", "product")
             ->value("brand_id");
 

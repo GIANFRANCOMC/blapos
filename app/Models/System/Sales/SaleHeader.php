@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\System\Sales;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\Finance\{CashSession};
 use App\Models\System\General\{Currency};
@@ -16,7 +15,6 @@ use Exception;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany, Relations\HasOne};
 
 class SaleHeader extends Model {
-    use BelongsToCompany;
 
     public const STATUS_ACTIVE = "active";
 
@@ -41,7 +39,6 @@ class SaleHeader extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "serie_id",
         "sequential",
         "holder_id",

@@ -5,6 +5,7 @@ namespace App\Observers\System\Organizations;
 use App\Models\System\Organizations\{RoleSubSection};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 
 class RoleSubSectionObserver {
     public function saved(RoleSubSection $permission): void {
@@ -29,8 +30,10 @@ class RoleSubSectionObserver {
 
         }
 
-        RolePermissionService::clearRoleCache((int) $role->company_id, (int) $role->id);
-        CompanySectionService::clearCache((int) $role->company_id, (int) $role->id);
+        $companyId = app(TenantCompanyContext::class)->id();
+
+        RolePermissionService::clearRoleCache($companyId, (int) $role->id);
+        CompanySectionService::clearCache($companyId, (int) $role->id);
 
     }
 }

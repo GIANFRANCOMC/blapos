@@ -3,6 +3,7 @@
 namespace App\Helpers\System;
 
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use DateTime;
 use Exception;
@@ -57,15 +58,7 @@ class Utilities {
 
         $result = new stdClass();
 
-        $result->env_company_id = config("app.company_id");
-
         return $result;
-
-    }
-
-    public static function companyLoginQuery(int|string $companyId): string {
-
-        return "?company=".base64_encode((string) $companyId);
 
     }
 
@@ -101,7 +94,7 @@ class Utilities {
 
     public static function decimalPrecision(?int $companyId = null): int {
 
-        $companyId ??= (int) config("app.company_id");
+        $companyId ??= app(TenantCompanyContext::class)->idOrNull();
 
         if($companyId !== null && $companyId > 0) {
 

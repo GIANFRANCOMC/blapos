@@ -8,6 +8,7 @@ use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Organizations\{Role, User};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Organizations\{AccessScopeService, BusinessAuditService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Auth\Access\{AuthorizationException};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
@@ -74,7 +75,6 @@ class UserService {
     private static function prepareUserDataForCreate(array $data, int $companyId, int $userId): array {
 
         $userData = [
-            "company_id" => $companyId,
             "gender" => $data["gender"] ?? "other",
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
@@ -175,8 +175,10 @@ class UserService {
 
         DB::transaction(function() use ($user, $data, $userId) {
 
+            $companyId = app(TenantCompanyContext::class)->id();
+
             self::assertRoleAssignable(
-                (int) $user->company_id,
+                $companyId,
                 (int) $userId,
                 (int) ($data["role_id"] ?? $user->role_id)
             );
@@ -213,11 +215,11 @@ class UserService {
 
             }
 
-            self::syncBranches($user, $data["branch_ids"] ?? [], (int) $user->company_id, $userId);
-            self::syncResourceScopes($user, $data, (int) $user->company_id, $userId);
+            self::syncBranches($user, $data["branch_ids"] ?? [], $companyId, $userId);
+            self::syncResourceScopes($user, $data, $companyId, $userId);
 
             self::auditSensitiveChange(
-                (int) $user->company_id,
+                $companyId,
                 $user,
                 $userId,
                 $sensitiveBefore,
@@ -245,7 +247,6 @@ class UserService {
             $user->tokens()->delete();
 
             BusinessAuditService::record(
-                (int) $user->company_id,
                 "users",
                 "password_changed",
                 "Contraseña actualizada para el colaborador #{$user->id}.",
@@ -266,7 +267,6 @@ class UserService {
     private static function syncBranches(User $user, array $branchIds, int $companyId, ?int $userId = null): void {
 
         DB::table("user_branches")
-            ->where("company_id", $companyId)
             ->where("user_id", $user->id)
             ->delete();
 
@@ -284,7 +284,6 @@ class UserService {
         }
 
         $validBranchIds = DB::table("branches")
-            ->where("company_id", $companyId)
             ->whereIn("id", $branchIds)
             ->pluck("id")
             ->map(fn($branchId) => (int) $branchId)
@@ -299,7 +298,6 @@ class UserService {
         $now = now();
 
         DB::table("user_branches")->insert(array_map(fn($branchId) => [
-            "company_id" => $companyId,
             "user_id" => $user->id,
             "branch_id" => $branchId,
             "status" => "active",
@@ -311,8 +309,8 @@ class UserService {
 
     private static function assertRoleAssignable(int $companyId, int $actorId, int $roleId): void {
 
-        $actor = User::query()->where("company_id", $companyId)->findOrFail($actorId);
-        $role = Role::query()->where("company_id", $companyId)->findOrFail($roleId);
+        $actor = User::query()->findOrFail($actorId);
+        $role = Role::query()->findOrFail($roleId);
 
         if(!RolePermissionService::canAssignRole($actor, $role)) {
 
@@ -339,7 +337,6 @@ class UserService {
         foreach($definitions as $type => $definition) {
 
             DB::table($definition["table"])
-                ->where("company_id", $companyId)
                 ->where("user_id", $user->id)
                 ->delete();
 
@@ -352,7 +349,6 @@ class UserService {
             }
 
             $validIds = DB::table($definition["resource"])
-                ->where("company_id", $companyId)
                 ->whereIn("id", $ids)
                 ->when(!empty($branchIds), fn($query) => $query->whereIn("branch_id", $branchIds))
                 ->pluck("id")
@@ -360,7 +356,6 @@ class UserService {
                 ->all();
 
             DB::table($definition["table"])->insert(array_map(fn($id) => [
-                "company_id" => $companyId,
                 "user_id" => $user->id,
                 $definition["key"] => $id,
                 "status" => "active",
@@ -405,7 +400,6 @@ class UserService {
         }
 
         BusinessAuditService::record(
-            $companyId,
             "users",
             "security_updated",
             "Seguridad actualizada para el colaborador #{$user->id}.",
@@ -427,10 +421,9 @@ class UserService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]): ?User {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]): ?User {
 
-        $query = User::where("id", $id)
-            ->where("company_id", $companyId);
+        $query = User::where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -457,7 +450,7 @@ class UserService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        $query = User::where("company_id", $companyId)
+        $query = User::query()
             ->with(["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]);
 
         // Apply filters

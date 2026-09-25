@@ -11,7 +11,6 @@ final class UserAttendance extends Model {
     protected $table = "user_attendances";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "user_id",
         "work_date",
@@ -55,16 +54,11 @@ final class UserAttendance extends Model {
         return Utilities::round(
             ((int) ($this->attributes["worked_minutes"] ?? 0)) / 60,
             null,
-            isset($this->attributes["company_id"]) ? (int) $this->attributes["company_id"] : null
+            null
         );
 
     }
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

@@ -81,7 +81,6 @@ class SubscriptionService {
     private static function prepareSubscriptionDataForCreate(array $data, int $companyId, int $userId): array {
 
         $itemData = [
-            "company_id" => $companyId,
             "type" => "subscription",
             "brand_id" => null,
             "barcode" => null,
@@ -315,10 +314,9 @@ class SubscriptionService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["currency", "categoryItems"]): ?Item {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["currency", "categoryItems"]): ?Item {
 
         $query = Item::where("id", $id)
-            ->where("company_id", $companyId)
             ->where("type", "subscription");
 
         if($statuses !== null && !empty($statuses)) {
@@ -348,7 +346,7 @@ class SubscriptionService {
 
         Item::expireActiveItems($companyId);
 
-        $query = Item::where("company_id", $companyId)
+        $query = Item::query()
             ->where("type", "subscription")
             ->with(["currency", "categoryItems"]);
 

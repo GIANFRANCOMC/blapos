@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\System\Warehouses;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 final class InventoryStockAlert extends Model {
-    use BelongsToCompany;
 
     protected $table = "inventory_stock_alerts";
 
     protected $fillable = [
-        "company_id",
         "warehouse_item_id",
         "quantity",
         "minimum_stock",

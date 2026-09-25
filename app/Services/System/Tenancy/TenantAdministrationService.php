@@ -29,7 +29,7 @@ final class TenantAdministrationService {
 
         return TenantDatabase::query()
             ->select([
-                "id", "public_id", "slug", "company_id", "database_name", "status",
+                "id", "public_id", "slug", "database_name", "status",
                 "last_resolved_at", "created_at", "updated_at",
             ])
             ->with(["domains" => fn($query) => $query
@@ -83,7 +83,6 @@ final class TenantAdministrationService {
         return [
             "id" => (string) $tenant->public_id,
             "slug" => (string) $tenant->slug,
-            "company_id" => $tenant->company_id ? (int) $tenant->company_id : null,
             "database_name" => (string) $tenant->database_name,
             "status" => (string) $tenant->status,
             "domain" => $primaryDomain?->domain,
@@ -207,7 +206,6 @@ final class TenantAdministrationService {
 
             TenantAuditLog::query()->create([
                 "tenant_database_id" => $tenant?->id,
-                "company_id" => $tenant?->company_id,
                 "action" => $action,
                 "result" => $result,
                 "host" => $host,

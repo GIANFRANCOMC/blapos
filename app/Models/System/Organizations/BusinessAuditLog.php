@@ -12,7 +12,6 @@ final class BusinessAuditLog extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "user_id",
         "module",

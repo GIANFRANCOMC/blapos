@@ -20,7 +20,6 @@ final class CreateTenantCompany extends Command {
         {slug : Subdominio/código único del cliente}
         {--domain= : Subdominio completo. Debe coincidir con slug + TENANCY_BASE_DOMAIN}
         {--database= : Nombre de la base de datos tenant. Si se omite usa TENANT_DB_PREFIX + slug}
-        {--company-id=1 : ID raíz de company dentro de la BD tenant}
         {--commercial-name= : Nombre comercial inicial}
         {--legal-name= : Razón social inicial}
         {--document-number=99999999999 : Documento inicial}
@@ -41,17 +40,10 @@ final class CreateTenantCompany extends Command {
     ): int {
 
         $slug = $this->normalizeSlug((string) $this->argument("slug"));
-        $companyId = (int) $this->option("company-id");
         $databaseName = $this->normalizeDatabaseName((string) ($this->option("database") ?: config("tenancy.database_prefix", "blapos_tenant_").$slug));
         $domain = $this->normalizeDomain((string) ($this->option("domain") ?: $this->defaultDomain($slug)));
 
         $this->assertSubdomainIsAllowed($slug, $domain);
-
-        if($companyId <= 0) {
-
-            throw new InvalidArgumentException("company-id debe ser mayor a 0.");
-
-        }
 
         LandlordSchemaService::ensure();
 
@@ -67,7 +59,7 @@ final class CreateTenantCompany extends Command {
 
             }
 
-            $tenant = $this->upsertTenantRegistry($slug, $companyId, $databaseName, $domain);
+            $tenant = $this->upsertTenantRegistry($slug, $databaseName, $domain);
 
             $connectionManager->connect($tenant);
 
@@ -80,13 +72,13 @@ final class CreateTenantCompany extends Command {
                     "--force" => true,
                 ]);
 
-                $provisioning->createOrUpdate([
+                $companyId = $provisioning->createOrUpdate([
                     "slug" => $slug,
                     "commercial_name" => $this->option("commercial-name") ?: Str::headline($slug),
                     "legal_name" => $this->option("legal-name") ?: Str::upper(Str::headline($slug)),
                     "document_number" => (string) $this->option("document-number"),
                     "email" => (string) $this->option("admin-email"),
-                ], $companyId);
+                ]);
 
                 $catalog->sync($companyId);
                 $provisioning->enable($companyId);
@@ -282,10 +274,9 @@ final class CreateTenantCompany extends Command {
 
     }
 
-    private function upsertTenantRegistry(string $slug, int $companyId, string $databaseName, string $domain) {
+    private function upsertTenantRegistry(string $slug, string $databaseName, string $domain) {
 
         $tenantPayload = [
-            "company_id" => $companyId,
             "database_name" => $databaseName,
             "status" => "provisioning",
             "updated_at" => now(),

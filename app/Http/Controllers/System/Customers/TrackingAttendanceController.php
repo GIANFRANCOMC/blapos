@@ -145,7 +145,6 @@ class TrackingAttendanceController extends BaseController {
                 : now();
 
             $result = $businessService->validateAndCreateAttendance([
-                "company_id" => $this->getCompanyId(),
                 "branch_id" => (int) $data["branch_id"],
                 "customer_id" => (int) $data["customer_id"],
                 "start_date" => $startDate,
@@ -184,7 +183,6 @@ class TrackingAttendanceController extends BaseController {
         try {
 
             $attendance = Attendance::query()
-                ->where("company_id", $this->getCompanyId())
                 ->where("status", "active")
                 ->find($id);
 
@@ -206,7 +204,6 @@ class TrackingAttendanceController extends BaseController {
                 : now();
 
             $result = $businessService->validateAndCreateAttendance([
-                "company_id" => $this->getCompanyId(),
                 "attendance_id" => (int) $attendance->id,
                 "branch_id" => (int) $attendance->branch_id,
                 "customer_id" => (int) $attendance->customer_id,
@@ -250,7 +247,6 @@ class TrackingAttendanceController extends BaseController {
         try {
 
             $attendance = Attendance::query()
-                ->where("company_id", $this->getCompanyId())
                 ->find($id);
 
             if(!$attendance
@@ -290,7 +286,6 @@ class TrackingAttendanceController extends BaseController {
         try {
 
             $attendance = Attendance::query()
-                ->where("company_id", $this->getCompanyId())
                 ->find($id);
 
             if(!$attendance
@@ -321,7 +316,6 @@ class TrackingAttendanceController extends BaseController {
         try {
 
             $correction = AttendanceCorrection::query()
-                ->where("company_id", $this->getCompanyId())
                 ->with("attendance")
                 ->find($id);
 
@@ -410,7 +404,6 @@ class TrackingAttendanceController extends BaseController {
         ) {
 
             return $businessService->validateAndCreateAttendance([
-                "company_id" => $this->getCompanyId(),
                 "branch_id" => $branchId,
                 "customer_id" => $customer["customer_id"] ?? "",
                 "customer_document_number" => $customer["customer_document_number"] ?? "",

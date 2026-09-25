@@ -23,7 +23,6 @@ class Item extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "internal_code",
         "name",
         "description",
@@ -116,11 +115,6 @@ class Item extends Model {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function currency() {
 

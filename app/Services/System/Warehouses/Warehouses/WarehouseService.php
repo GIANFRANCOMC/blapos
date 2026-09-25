@@ -6,6 +6,7 @@ namespace App\Services\System\Warehouses\Warehouses;
 
 use App\Models\System\Organizations\{Branch};
 use App\Models\System\Warehouses\{Warehouse};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 
 /**
  * Service class for managing Warehouse operations
@@ -22,7 +23,6 @@ class WarehouseService {
     public static function createDefaultForBranch(Branch $branch, ?int $userId = null): Warehouse {
 
         $warehouse = Warehouse::create([
-            "company_id" => $branch->company_id,
             "branch_id" => $branch->id,
             "name" => self::generateWarehouseName(1),
             "status" => "active",
@@ -32,7 +32,7 @@ class WarehouseService {
 
         WarehouseItemService::createForWarehouse(
             (int) $warehouse->id,
-            (int) $branch->company_id,
+            app(TenantCompanyContext::class)->id(),
             $userId
         );
 

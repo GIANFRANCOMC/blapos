@@ -25,7 +25,6 @@ final class StockManagementConfigService extends BaseConfigService {
             ]),
             "products" => self::data([
                 "records" => Item::query()
-                    ->where("company_id", $companyId)
                     ->where("type", "product")
                     ->where("status", "active")
                     ->select(["id", "internal_code", "barcode", "name"])

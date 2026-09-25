@@ -11,7 +11,6 @@ final class BiometricDeviceBrand extends Model {
     protected $table = "biometric_device_brands";
 
     protected $fillable = [
-        "company_id",
         "slug",
         "name",
         "description",
@@ -22,11 +21,6 @@ final class BiometricDeviceBrand extends Model {
         "updated_by",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function models() {
 

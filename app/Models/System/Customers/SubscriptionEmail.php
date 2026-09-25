@@ -24,7 +24,6 @@ class SubscriptionEmail extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "to",
         "subject",
         "body",
@@ -97,9 +96,4 @@ class SubscriptionEmail extends Model {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 }

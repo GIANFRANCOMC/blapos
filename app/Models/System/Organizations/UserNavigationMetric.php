@@ -13,7 +13,6 @@ final class UserNavigationMetric extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "user_id",
         "sub_section_id",
         "visit_count",
@@ -21,7 +20,6 @@ final class UserNavigationMetric extends Model {
     ];
 
     protected $casts = [
-        "company_id" => "integer",
         "user_id" => "integer",
         "sub_section_id" => "integer",
         "visit_count" => "integer",

@@ -2,8 +2,7 @@
     @php
         $ownerApp     = config("app.owner_app");
         $hasCompany   = isset($data->company) && !empty($data->company);
-        $hasCompanies = isset($data->companies) && !empty($data->companies) && count($data->companies) > 0;
-        $seeLoginForm = $hasCompany || $hasCompanies;
+        $seeLoginForm = $hasCompany;
     @endphp
 
     <div class="br-auth-login-page container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center">
@@ -46,35 +45,6 @@
                                 @endforeach
                             @endif
                         </div>
-                        @if($hasCompany)
-                            <div class="mb-3 d-none">
-                                <label for="company_id" class="form-label colon-at-end fw-semibold">Empresa</label>
-                                <select class="form-control" id="company_id" name="company_id" :value="old('company_id')" required>
-                                    <option value="{{ $data->company->id }}" selected>{{ $data->company->commercial_name }}</option>
-                                </select>
-                                @if($errors->get("company_id"))
-                                    @foreach((array) $errors->get("company_id") as $message)
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @endforeach
-                                @endif
-                            </div>
-                        @endif
-                        @if($hasCompanies)
-                            <div class="mb-3">
-                                <label for="company_id" class="form-label colon-at-end fw-semibold">Empresa</label>
-                                <select class="form-control" id="company_id" name="company_id" :value="old('company_id')" required>
-                                    <option value="">Selecciona tu empresa</option>
-                                    @foreach($data->companies as $company)
-                                        <option value="{{ $company->id }}">{{ $company->commercial_name }}</option>
-                                    @endforeach
-                                </select>
-                                @if($errors->get("company_id"))
-                                    @foreach((array) $errors->get("company_id") as $message)
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @endforeach
-                                @endif
-                            </div>
-                        @endif
                         <div class="mb-1">
                             <div class="cf-turnstile" data-sitekey="{{ config("app.CAPTCHA_KEY_FRONTEND") }}" data-size="flexible"></div>
                             @if($errors->get("captcha"))

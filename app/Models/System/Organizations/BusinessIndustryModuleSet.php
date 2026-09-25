@@ -11,7 +11,6 @@ final class BusinessIndustryModuleSet extends Model {
     protected $table = "business_industry_module_sets";
 
     protected $fillable = [
-        "company_id",
         "business_industry_id",
         "sub_section_id",
         "is_enabled_by_default",

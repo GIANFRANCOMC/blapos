@@ -27,7 +27,7 @@ class UpdateHomePreferenceRequest extends FormRequest {
 
         }
 
-        return CompanySubSection::where("company_id", $user->company_id)
+        return CompanySubSection::query()
             ->where("sub_section_id", $subSectionId)
             ->where("status", "active")
             ->whereHas("subSection", function($query) {

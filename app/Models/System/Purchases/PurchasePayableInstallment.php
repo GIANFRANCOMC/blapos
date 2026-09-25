@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Models\Concerns\{BelongsToCompany};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchasePayableInstallment extends Model {
-    use BelongsToCompany;
 
     protected $table = "purchase_payable_installments";
 
     protected $fillable = [
-        "company_id",
         "purchase_account_payable_id",
         "installment_number",
         "due_date",

@@ -10,7 +10,7 @@ final class UserAttendanceCorrection extends Model {
     protected $table = "user_attendance_corrections";
 
     protected $fillable = [
-        "company_id", "user_attendance_id", "requested_by", "reviewed_by",
+        "user_attendance_id", "requested_by", "reviewed_by",
         "requested_check_in_at", "requested_check_out_at", "reason",
         "review_note", "status", "reviewed_at",
     ];

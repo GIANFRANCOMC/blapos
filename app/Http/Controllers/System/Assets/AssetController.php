@@ -95,7 +95,7 @@ class AssetController extends BaseController {
 
         try {
 
-            $asset = AssetService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $asset = AssetService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($asset)) {
 
@@ -136,7 +136,6 @@ class AssetController extends BaseController {
     private function prepareAssetData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "asset_category_id" => $request->input("asset_category_id"),
             "internal_code" => $request->input("internal_code"),
             "patrimonial_code" => $request->input("patrimonial_code"),

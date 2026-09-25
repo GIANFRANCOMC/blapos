@@ -6,6 +6,7 @@ namespace App\Services\System\Catalogs\Categories;
 
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Category};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
@@ -63,7 +64,6 @@ class CategoryService {
     private static function prepareCategoryDataForCreate(array $data, int $companyId, int $userId): array {
 
         $categoryData = [
-            "company_id" => $companyId,
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -154,7 +154,7 @@ class CategoryService {
             if(($data["status"] ?? null) === "inactive" && $category->status !== "inactive") {
 
                 self::assertCategoryHasNoActiveItems(
-                    (int) $category->company_id,
+                    app(TenantCompanyContext::class)->id(),
                     (int) $category->id,
                     "No puedes inactivar una categoría asociada a productos activos."
                 );
@@ -188,10 +188,9 @@ class CategoryService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = []): ?Category {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = []): ?Category {
 
-        $query = Category::where("id", $id)
-            ->where("company_id", $companyId);
+        $query = Category::where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -218,7 +217,7 @@ class CategoryService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        $query = Category::where("company_id", $companyId)
+        $query = Category::query()
             ->withCount([
                 "items as active_items_count" => function($builder) {
 
@@ -283,7 +282,6 @@ class CategoryService {
         DB::transaction(function() use ($companyId, $categoryId) {
 
             $category = Category::query()
-                ->where("company_id", $companyId)
                 ->lockForUpdate()
                 ->findOrFail($categoryId);
             self::assertCategoryHasNoActiveItems($companyId, $categoryId, "No puedes eliminar una categoría asociada a productos activos.");
@@ -298,7 +296,6 @@ class CategoryService {
 
         $hasActiveItems = DB::table("category_items")
             ->join("items", "items.id", "=", "category_items.item_id")
-            ->where("category_items.company_id", $companyId)
             ->where("category_items.category_id", $categoryId)
             ->where("category_items.status", "active")
             ->where("items.status", "active")

@@ -10,7 +10,6 @@ class RecipeToppingComponent extends Model {
     protected $table = "recipe_topping_components";
 
     protected $fillable = [
-        "company_id",
         "recipe_topping_id",
         "item_id",
         "quantity",

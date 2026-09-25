@@ -12,7 +12,6 @@ final class MiscExpense extends Model {
     protected $table = "misc_expenses";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "cash_session_id",
         "payment_method_id",

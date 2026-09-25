@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{InventoryMovement};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class SaleDeliveryEventItem extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_delivery_event_items";
 
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "sale_delivery_event_id",
         "sale_delivery_item_id",
         "sale_body_id",

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\{Model};
 final class AssetCategory extends Model {
     protected $table = "asset_categories";
 
-    protected $fillable = ["company_id", "name", "description", "status", "created_by", "updated_by"];
+    protected $fillable = ["name", "description", "status", "created_by", "updated_by"];
 
     public function assets() {
 

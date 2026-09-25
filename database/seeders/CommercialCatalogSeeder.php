@@ -52,7 +52,6 @@ class CommercialCatalogSeeder extends Seeder {
 
                 $brand = Brand::updateOrCreate(
                     [
-                        "company_id" => self::COMPANY_ID,
                         "internal_code" => $record["internal_code"],
                     ],
                     [
@@ -86,7 +85,6 @@ class CommercialCatalogSeeder extends Seeder {
 
                 $category = Category::updateOrCreate(
                     [
-                        "company_id" => self::COMPANY_ID,
                         "internal_code" => $record["internal_code"],
                     ],
                     [
@@ -232,7 +230,6 @@ class CommercialCatalogSeeder extends Seeder {
 
         return Item::updateOrCreate(
             [
-                "company_id" => self::COMPANY_ID,
                 "internal_code" => $payload["internal_code"],
             ],
             [
@@ -324,7 +321,6 @@ class CommercialCatalogSeeder extends Seeder {
                     "origin_id" => $item->id,
                 ],
                 [
-                    "company_id" => self::COMPANY_ID,
                     "user_id" => self::USER_ID,
                     "movement_type" => "initial_stock",
                     "quantity_before" => 0,

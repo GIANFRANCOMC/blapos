@@ -33,10 +33,9 @@ final class SaleDeliveryService {
 
         }
 
-        $totalQuantity = Utilities::round((float) $productBodies->sum("quantity"), null, (int) $saleHeader->company_id);
+        $totalQuantity = Utilities::round((float) $productBodies->sum("quantity"));
 
         $delivery = SaleDelivery::create([
-            "company_id" => (int) $saleHeader->company_id,
             "sale_header_id" => (int) $saleHeader->id,
             "warehouse_id" => $warehouseId,
             "total_quantity" => $totalQuantity,
@@ -51,7 +50,6 @@ final class SaleDeliveryService {
         foreach($productBodies as $body) {
 
             SaleDeliveryItem::create([
-                "company_id" => (int) $saleHeader->company_id,
                 "sale_delivery_id" => (int) $delivery->id,
                 "sale_body_id" => (int) $body->id,
                 "item_id" => (int) $body->item_id,
@@ -72,7 +70,6 @@ final class SaleDeliveryService {
     public static function queryPending(int $companyId, array $filters = [], ?int $userId = null): Builder {
 
         $query = SaleDelivery::query()
-            ->where("company_id", $companyId)
             ->whereIn("status", ["pending", "partial"])
             ->whereHas("saleHeader", fn($sale) => $sale
                 ->where("status", "active")
@@ -95,7 +92,6 @@ final class SaleDeliveryService {
         if($userId !== null) {
 
             $user = \App\Models\System\Organizations\User::query()
-                ->where("company_id", $companyId)
                 ->find($userId);
 
             $allowedWarehouseIds = $user ? AccessScopeService::allowedIds($user, AccessScopeService::WAREHOUSE) : [];
@@ -185,7 +181,6 @@ final class SaleDeliveryService {
         return DB::transaction(function() use ($delivery, $data, $companyId, $userId) {
 
             $delivery = SaleDelivery::query()
-                ->where("company_id", $companyId)
                 ->whereKey($delivery->id)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -202,7 +197,7 @@ final class SaleDeliveryService {
                 ->with("branch")
                 ->whereKey($warehouseId)
                 ->where("status", "active")
-                ->whereHas("branch", fn($branch) => $branch->where("company_id", $companyId)->where("status", "active"))
+                ->whereHas("branch", fn($branch) => $branch->where("status", "active"))
                 ->first();
 
             if(!$warehouse) {
@@ -222,7 +217,6 @@ final class SaleDeliveryService {
             }
 
             $deliveryItems = SaleDeliveryItem::query()
-                ->where("company_id", $companyId)
                 ->where("sale_delivery_id", $delivery->id)
                 ->whereIn("id", $itemsPayload->keys())
                 ->with("saleBody")
@@ -232,7 +226,6 @@ final class SaleDeliveryService {
 
             $totalDeliveredNow = 0.0;
             $event = SaleDeliveryEvent::create([
-                "company_id" => $companyId,
                 "sale_delivery_id" => (int) $delivery->id,
                 "warehouse_id" => (int) $warehouse->id,
                 "delivered_by" => $userId,
@@ -301,7 +294,6 @@ final class SaleDeliveryService {
                 ]);
 
                 SaleDeliveryEventItem::create([
-                    "company_id" => $companyId,
                     "sale_delivery_event_id" => (int) $event->id,
                     "sale_delivery_item_id" => (int) $deliveryItem->id,
                     "sale_body_id" => (int) $deliveryItem->sale_body_id,
@@ -346,7 +338,6 @@ final class SaleDeliveryService {
     public static function cancelForSale(SaleHeader $saleHeader, int $companyId, int $userId): void {
 
         $delivery = SaleDelivery::query()
-            ->where("company_id", $companyId)
             ->where("sale_header_id", (int) $saleHeader->id)
             ->whereIn("status", ["pending", "partial"])
             ->first();
@@ -376,7 +367,6 @@ final class SaleDeliveryService {
     private static function refreshDeliveryStatus(SaleDelivery $delivery, int $companyId, int $userId, int $warehouseId): void {
 
         $items = SaleDeliveryItem::query()
-            ->where("company_id", $companyId)
             ->where("sale_delivery_id", (int) $delivery->id)
             ->get();
 
@@ -398,7 +388,6 @@ final class SaleDeliveryService {
         ]);
 
         SaleHeader::query()
-            ->where("company_id", $companyId)
             ->whereKey((int) $delivery->sale_header_id)
             ->update([
                 "delivery_status" => $status,

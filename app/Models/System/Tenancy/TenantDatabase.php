@@ -14,7 +14,6 @@ final class TenantDatabase extends Model {
 
     protected $fillable = [
         "public_id", "slug",
-        "company_id",
         "database_name",
         "status",
         "last_resolved_at",
@@ -25,7 +24,6 @@ final class TenantDatabase extends Model {
     ];
 
     protected $casts = [
-        "company_id" => "integer",
         "last_resolved_at" => "datetime",
     ];
 

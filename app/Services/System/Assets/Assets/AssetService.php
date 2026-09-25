@@ -66,7 +66,6 @@ class AssetService {
     private static function prepareAssetDataForCreate(array $data, int $companyId, int $userId): array {
 
         $assetData = [
-            "company_id" => $companyId,
             "management_type" => "stock",
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
@@ -182,10 +181,9 @@ class AssetService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = []): ?Asset {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = []): ?Asset {
 
-        $query = Asset::where("id", $id)
-            ->where("company_id", $companyId);
+        $query = Asset::where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -212,7 +210,7 @@ class AssetService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        $query = Asset::where("company_id", $companyId);
+        $query = Asset::query();
 
         // Apply filters
         $filterBy = $filters["filter_by"] ?? null;

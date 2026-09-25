@@ -13,7 +13,6 @@ return new class extends Migration {
         Schema::create("biometric_device_brands", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("slug", 120);
             $table->string("name", 255);
             $table->text("description")->nullable();
@@ -24,15 +23,13 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->unique(["company_id", "slug"]);
+            $table->unique(["slug"]);
 
         });
 
         Schema::create("biometric_device_models", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("biometric_device_brand_id");
             $table->string("slug", 120);
             $table->string("name", 255);
@@ -44,16 +41,14 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("biometric_device_brand_id")->references("id")->on("biometric_device_brands")->onDelete("cascade");
-            $table->unique(["company_id", "biometric_device_brand_id", "slug"], "bdm_company_brand_slug_unique");
+            $table->unique(["biometric_device_brand_id", "slug"], "bdm_brand_slug_unique");
 
         });
 
         Schema::create("biometric_devices", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id");
             $table->unsignedBigInteger("biometric_device_model_id");
             $table->string("name", 255);
@@ -73,7 +68,6 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->onDelete("cascade");
             $table->foreign("biometric_device_model_id")->references("id")->on("biometric_device_models")->onDelete("restrict");
 
@@ -82,7 +76,6 @@ return new class extends Migration {
         Schema::create("customer_biometric_fingerprints", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("customer_id");
             $table->unsignedBigInteger("biometric_device_id");
             $table->integer("device_user_id")->comment("ID del usuario en el dispositivo biométrico");
@@ -96,17 +89,15 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("customer_id")->references("id")->on("customers")->onDelete("cascade");
             $table->foreign("biometric_device_id")->references("id")->on("biometric_devices")->onDelete("cascade");
-            $table->unique(["company_id", "biometric_device_id", "device_user_id", "finger_index"], "cbf_company_device_user_finger_unique");
+            $table->unique(["biometric_device_id", "device_user_id", "finger_index"], "cbf_device_user_finger_unique");
 
         });
 
         Schema::create("biometric_device_events", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("biometric_device_id");
             $table->string("event_uuid", 64);
             $table->string("event_type", 40);
@@ -121,9 +112,8 @@ return new class extends Migration {
             $table->timestamp("created_at")->useCurrent()->nullable();
             $table->timestamp("updated_at")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("biometric_device_id")->references("id")->on("biometric_devices")->onDelete("cascade");
-            $table->unique(["company_id", "biometric_device_id", "event_uuid"], "bde_company_device_event_unique");
+            $table->unique(["biometric_device_id", "event_uuid"], "bde_device_event_unique");
 
         });
 

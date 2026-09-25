@@ -28,7 +28,6 @@ class Customer extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "identity_document_type_id",
         "document_number",
         "name",
@@ -123,11 +122,6 @@ class Customer extends Model {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function identityDocumentType() {
 

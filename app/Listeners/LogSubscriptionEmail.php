@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\{SubscriptionExpired};
 use App\Helpers\System\{Utilities};
 use App\Models\System\Customers\{Subscription, SubscriptionEmail};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 
 class LogSubscriptionEmail {
     /**
@@ -26,7 +27,7 @@ class LogSubscriptionEmail {
         $customer = $subscription->customer;
         $ownerApp = Utilities::getOwnerApp();
 
-        $company = $subscription->company;
+        $company = app(TenantCompanyContext::class)->get();
         $socialsMedia = $company->socialsMedia;
 
         $touchpoints = collect();
@@ -51,7 +52,6 @@ class LogSubscriptionEmail {
         ];
 
         SubscriptionEmail::create([
-            "company_id" => $subscription->company_id,
             "to" => $customer->email ?? "",
             "subject" => "Tu membresía ha expirado",
             "body" => view("emails.subscriptions.expired.default", compact("subscription", "branch", "company", "customer", "ownerApp", "touchpoints"))->render(),

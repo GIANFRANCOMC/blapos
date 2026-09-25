@@ -8,6 +8,7 @@ use App\Helpers\System\{Utilities};
 use App\Models\System\Customers\{Attendance, Customer, Subscription};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use Illuminate\Support\Facades\{DB};
 
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\{DB};
  * Handles complex business logic for attendance validation and creation
  */
 class TrackingAttendanceBusinessService {
+    public function __construct(private readonly TenantCompanyContext $companyContext) {
+    }
+
     /**
      * Validate start date format
      */
@@ -38,13 +42,11 @@ class TrackingAttendanceBusinessService {
         if($this->normalizeLookupType($type) === "document_number") {
 
             return Customer::where("document_number", $code)
-                ->where("company_id", $companyId)
                 ->first();
 
         }
 
         return Customer::where("id", $code)
-            ->where("company_id", $companyId)
             ->first();
 
     }
@@ -60,7 +62,7 @@ class TrackingAttendanceBusinessService {
      */
     public function getValidSubscriptions(int $companyId, int $branchId, int $customerId, Carbon $startDate) {
 
-        return Subscription::where("company_id", $companyId)
+        return Subscription::query()
             ->where("branch_id", $branchId)
             ->where("customer_id", $customerId)
             ->where("start_date", "<=", $startDate)
@@ -82,7 +84,7 @@ class TrackingAttendanceBusinessService {
      */
     public function checkAttendanceLimits(int $companyId, int $branchId, int $customerId, Carbon $startDate, int $limit): array {
 
-        $dailyAttendances = Attendance::where("company_id", $companyId)
+        $dailyAttendances = Attendance::query()
             ->where("customer_id", $customerId)
             ->whereBetween("start_date", [
                 $startDate->copy()->startOfDay(),
@@ -125,7 +127,6 @@ class TrackingAttendanceBusinessService {
     public function createAttendance(array $data): Attendance {
 
         return Attendance::create([
-            "company_id" => $data["company_id"],
             "branch_id" => $data["branch_id"],
             "customer_id" => $data["customer_id"],
             "biometric_device_id" => $data["biometric_device_id"] ?? null,
@@ -162,7 +163,7 @@ class TrackingAttendanceBusinessService {
             "msg" => "",
         ];
 
-        $companyId = $data["company_id"];
+        $companyId = $this->companyContext->id();
         $branchId = $data["branch_id"];
         $customerId = $data["customer_id"] ?? "";
         $customerDocumentNumber = $data["customer_document_number"] ?? "";
@@ -241,7 +242,6 @@ class TrackingAttendanceBusinessService {
         }
 
         $customer = Customer::query()
-            ->where("company_id", $companyId)
             ->lockForUpdate()
             ->find($customer->id);
 
@@ -265,7 +265,6 @@ class TrackingAttendanceBusinessService {
             ));
 
             $duplicate = Attendance::query()
-                ->where("company_id", $companyId)
                 ->where("customer_id", $customer->id)
                 ->where("biometric_device_id", $deviceId)
                 ->where("created_at", ">=", now()->subSeconds($tolerance))
@@ -286,7 +285,6 @@ class TrackingAttendanceBusinessService {
 
         // Check for active attendance
         $activeAttendanceQuery = Attendance::query()
-            ->where("company_id", $companyId)
             ->where("branch_id", $branchId)
             ->where("customer_id", $customer->id)
             ->where("status", "active");
@@ -426,7 +424,6 @@ class TrackingAttendanceBusinessService {
 
         // Create attendance
         $result = $this->createAttendance([
-            "company_id" => $companyId,
             "branch_id" => $branchId,
             "customer_id" => $customer->id,
             "biometric_device_id" => $deviceId,

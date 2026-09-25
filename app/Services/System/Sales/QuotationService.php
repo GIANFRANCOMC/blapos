@@ -17,7 +17,6 @@ final class QuotationService {
     public static function query(int $companyId, array $filters = []): Builder {
 
         $query = QuotationHeader::query()
-            ->where("company_id", $companyId)
             ->with(["holder:id,name,document_number", "seller:id,name", "currency:id,code,sign", "branch:id,name"]);
 
         $word = trim((string) ($filters["word"] ?? ""));
@@ -58,7 +57,6 @@ final class QuotationService {
             $itemIds = $details->pluck("item_id")->map(fn($id) => (int) $id)->unique()->values();
 
             $items = Item::query()
-                ->where("company_id", $companyId)
                 ->whereIn("id", $itemIds)
                 ->get()
                 ->keyBy("id");
@@ -108,7 +106,6 @@ final class QuotationService {
             $total = Utilities::round($grossSubtotal + $taxImpactTotal);
 
             $quotation = QuotationHeader::create([
-                "company_id" => $companyId,
                 "branch_id" => $data["branch_id"] ?? null,
                 "holder_id" => (int) $data["holder_id"],
                 "seller_id" => $userId,
@@ -126,7 +123,6 @@ final class QuotationService {
             ]);
 
             QuotationItem::insert($normalizedDetails->map(fn($detail) => [
-                "company_id" => $companyId,
                 "quotation_header_id" => $quotation->id,
                 "created_at" => now(),
                 "created_by" => $userId,
@@ -139,7 +135,6 @@ final class QuotationService {
                     unset($tax["_total_impact"]);
 
                     return [
-                        "company_id" => $companyId,
                         "quotation_header_id" => $quotation->id,
                         "created_at" => now(),
                         "created_by" => $userId,
@@ -160,7 +155,6 @@ final class QuotationService {
     public static function find(int $companyId, int $quotationId): QuotationHeader {
 
         return QuotationHeader::query()
-            ->where("company_id", $companyId)
             ->with(["items.item", "taxes", "holder", "currency", "branch"])
             ->findOrFail($quotationId);
 
@@ -177,7 +171,6 @@ final class QuotationService {
         }
 
         $items = Item::query()
-            ->where("company_id", $companyId)
             ->whereIn("id", $quotation->items->pluck("item_id"))
             ->get()
             ->keyBy("id");
@@ -243,7 +236,7 @@ final class QuotationService {
 
             $reference = "COT-".strtoupper(Str::random(10));
 
-        } while(QuotationHeader::query()->where("company_id", $companyId)->where("reference", $reference)->exists());
+        } while(QuotationHeader::query()->where("reference", $reference)->exists());
 
         return $reference;
 

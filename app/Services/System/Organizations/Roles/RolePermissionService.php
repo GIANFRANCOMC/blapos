@@ -7,6 +7,7 @@ namespace App\Services\System\Organizations\Roles;
 use App\Models\System\General\{SubSection};
 use App\Models\System\Organizations\{Role, User};
 use App\Services\System\Organizations\{AccessScopeService};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
 use Illuminate\Support\Facades\{Cache};
 
 final class RolePermissionService {
@@ -43,7 +44,10 @@ final class RolePermissionService {
 
         }
 
-        $permissions = self::getPermissions((int) $user->company_id, (int) $user->role_id);
+        $permissions = self::getPermissions(
+            app(TenantCompanyContext::class)->id(),
+            (int) $user->role_id
+        );
 
         $action = self::actionForRoute($routeName, $httpMethod);
         $candidates = config("permissions.route_modules.{$routeName}");
@@ -155,7 +159,6 @@ final class RolePermissionService {
     public static function allowedActionsBySubSection(User $user): array {
 
         $role = Role::query()
-            ->where("company_id", $user->company_id)
             ->with("roleSubSections")
             ->find($user->role_id);
 
@@ -192,7 +195,8 @@ final class RolePermissionService {
 
     public static function canAssignRole(User $actor, Role $targetRole): bool {
 
-        $actorPermissions = self::getPermissions((int) $actor->company_id, (int) $actor->role_id);
+        $companyId = app(TenantCompanyContext::class)->id();
+        $actorPermissions = self::getPermissions($companyId, (int) $actor->role_id);
 
         if($actorPermissions["is_full_access"]) {
 
@@ -200,7 +204,7 @@ final class RolePermissionService {
 
         }
 
-        $targetPermissions = self::getPermissions((int) $actor->company_id, (int) $targetRole->id);
+        $targetPermissions = self::getPermissions($companyId, (int) $targetRole->id);
 
         if($targetPermissions["is_full_access"]) {
 
@@ -272,7 +276,6 @@ final class RolePermissionService {
     public static function clearCompanyCache(int $companyId): void {
 
         Role::query()
-            ->where("company_id", $companyId)
             ->pluck("id")
             ->each(fn($roleId) => self::clearRoleCache($companyId, (int) $roleId));
 
@@ -280,7 +283,7 @@ final class RolePermissionService {
 
     public static function cacheKey(int $companyId, int $roleId): string {
 
-        return self::CACHE_PREFIX.":company:{$companyId}:role:{$roleId}";
+        return app(TenantContext::class)->cacheNamespace().":".self::CACHE_PREFIX.":role:{$roleId}";
 
     }
 
@@ -297,7 +300,6 @@ final class RolePermissionService {
     private static function queryPermissions(int $companyId, int $roleId): array {
 
         $role = Role::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->with(["roleSubSections.subSection" => function($query) use ($companyId) {
 

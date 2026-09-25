@@ -12,7 +12,6 @@ final class BookComplaintStatusHistory extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "book_complaint_id",
         "changed_by",
         "previous_status",

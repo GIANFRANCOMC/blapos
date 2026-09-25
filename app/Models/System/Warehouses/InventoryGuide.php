@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models\System\Warehouses;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 final class InventoryGuide extends Model {
-    use BelongsToCompany;
 
     protected $fillable = [
-        "company_id",
         "warehouse_id",
         "number",
         "guide_type",

@@ -12,7 +12,6 @@ final class SupplierService {
     public static function query(int $companyId, string $word = "") {
 
         $query = Supplier::query()
-            ->where("company_id", $companyId)
             ->with(["contacts", "bankAccounts"])
             ->withCount(["purchases"])
             ->withSum("purchases as purchased_total", "total");
@@ -41,7 +40,6 @@ final class SupplierService {
 
             $supplier = Supplier::create([
                 ...Arr::except($data, ["contacts", "bank_accounts"]),
-                "company_id" => $companyId,
                 "created_at" => now(),
                 "created_by" => $userId,
             ]);
@@ -63,7 +61,6 @@ final class SupplierService {
         return DB::transaction(function() use ($companyId, $supplierId, $userId, $data) {
 
             $supplier = Supplier::query()
-                ->where("company_id", $companyId)
                 ->lockForUpdate()
                 ->findOrFail($supplierId);
 
@@ -93,7 +90,6 @@ final class SupplierService {
                 $primaryAssigned = $primaryAssigned || $isPrimary;
                 SupplierContact::create([
                     ...$contact,
-                    "company_id" => $companyId,
                     "supplier_id" => $supplier->id,
                     "is_primary" => $isPrimary,
                     "status" => "active",
@@ -114,7 +110,6 @@ final class SupplierService {
                 $primaryAssigned = $primaryAssigned || $isPrimary;
                 SupplierBankAccount::create([
                     ...$account,
-                    "company_id" => $companyId,
                     "supplier_id" => $supplier->id,
                     "is_primary" => $isPrimary,
                     "status" => "active",

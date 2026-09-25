@@ -21,8 +21,7 @@ final class CashRegisterService {
     public function listRegisters(int $companyId, ?int $userId = null) {
 
         $query = CashRegister::query()
-            ->with(["branch", "openSession.paymentSummary.paymentMethod"])
-            ->where("company_id", $companyId);
+            ->with(["branch", "openSession.paymentSummary.paymentMethod"]);
 
         $cashRegisterIds = $userId !== null
             ? CompanyReferenceDataService::for($companyId, $userId)->allowedCashRegisterIds()
@@ -45,7 +44,6 @@ final class CashRegisterService {
         return DB::transaction(function() use ($companyId, $userId, $data) {
 
             $branch = Branch::query()
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->find((int) $data["branch_id"]);
 
@@ -66,14 +64,12 @@ final class CashRegisterService {
             if((bool) ($data["is_main"] ?? false)) {
 
                 CashRegister::query()
-                    ->where("company_id", $companyId)
                     ->where("branch_id", $branch->id)
                     ->update(["is_main" => false]);
 
             }
 
             $register = CashRegister::create([
-                "company_id" => $companyId,
                 "branch_id" => $branch->id,
                 "code" => $data["code"] ?? $this->generateRegisterCode($companyId),
                 "name" => $data["name"],
@@ -102,7 +98,6 @@ final class CashRegisterService {
 
         $query = CashMovement::query()
             ->with(["branch", "cashSession.register", "paymentMethod", "user"])
-            ->where("company_id", $companyId)
             ->when($filters["branch_id"] ?? null, fn($query, $branchId) => $query->where("branch_id", $branchId))
             ->when($filters["cash_session_id"] ?? null, fn($query, $sessionId) => $query->where("cash_session_id", $sessionId))
             ->when($filters["payment_method_id"] ?? null, fn($query, $paymentMethodId) => $query->where("payment_method_id", $paymentMethodId))
@@ -168,7 +163,6 @@ final class CashRegisterService {
                 DB::raw("SUM(amount) as amount"),
             ])
             ->with("paymentMethod")
-            ->where("company_id", $companyId)
             ->whereIn("cash_session_id", $sessionIds)
             ->where("status", "active")
             ->when($filters["payment_method_id"] ?? null, fn($query, $paymentMethodId) => $query->where("payment_method_id", $paymentMethodId))
@@ -188,7 +182,6 @@ final class CashRegisterService {
         $paymentMethodId = $filters["payment_method_id"] ?? null;
         $expected = $paymentMethodId
             ? Utilities::round((float) CashMovement::query()
-                ->where("company_id", $companyId)
                 ->whereIn("cash_session_id", $sessionIds)
                 ->where("payment_method_id", $paymentMethodId)
                 ->where("status", "active")
@@ -197,7 +190,6 @@ final class CashRegisterService {
 
         $counted = $paymentMethodId
             ? Utilities::round((float) CashSessionPayment::query()
-                ->where("company_id", $companyId)
                 ->whereIn("cash_session_id", $sessionIds)
                 ->where("payment_method_id", $paymentMethodId)
                 ->sum("counted_amount"), null, $companyId)
@@ -222,14 +214,12 @@ final class CashRegisterService {
 
             $register = CashRegister::query()
                 ->with("branch")
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->findOrFail((int) $data["cash_register_id"]);
 
             $this->assertRegisterAccess($companyId, $userId, (int) $register->id);
 
             $hasOpenSession = CashSession::query()
-                ->where("company_id", $companyId)
                 ->where("cash_register_id", $register->id)
                 ->where("status", "open")
                 ->exists();
@@ -243,7 +233,6 @@ final class CashRegisterService {
             $openingAmount = Utilities::round((float) ($data["opening_amount"] ?? 0), null, $companyId);
 
             $session = CashSession::create([
-                "company_id" => $companyId,
                 "branch_id" => $register->branch_id,
                 "cash_register_id" => $register->id,
                 "opened_by" => $userId,
@@ -258,7 +247,6 @@ final class CashRegisterService {
             ]);
 
             CashMovement::create([
-                "company_id" => $companyId,
                 "branch_id" => $register->branch_id,
                 "cash_session_id" => $session->id,
                 "user_id" => $userId,
@@ -287,7 +275,6 @@ final class CashRegisterService {
 
             $session = CashSession::query()
                 ->with(["register", "branch"])
-                ->where("company_id", $companyId)
                 ->where("status", "open")
                 ->findOrFail((int) $data["cash_session_id"]);
 
@@ -298,7 +285,6 @@ final class CashRegisterService {
             if($session->register?->is_main) {
 
                 $hasOpenSecondarySessions = CashSession::query()
-                    ->where("company_id", $companyId)
                     ->where("branch_id", $session->branch_id)
                     ->where("status", "open")
                     ->where("id", "!=", $session->id)
@@ -320,7 +306,6 @@ final class CashRegisterService {
             }
 
             $expectedAmount = Utilities::round((float) CashMovement::query()
-                ->where("company_id", $companyId)
                 ->where("cash_session_id", $session->id)
                 ->where("status", "active")
                 ->sum("amount"), null, $companyId);
@@ -356,11 +341,10 @@ final class CashRegisterService {
 
                 $expectedByMethod = $this->expectedByPaymentMethod($companyId, $session->id, $payment["payment_method_id"]);
                 $paymentMethod = $payment["payment_method_id"]
-                    ? PaymentMethod::query()->where("company_id", $companyId)->find($payment["payment_method_id"])
+                    ? PaymentMethod::query()->find($payment["payment_method_id"])
                     : null;
 
                 CashSessionPayment::create([
-                    "company_id" => $companyId,
                     "cash_session_id" => $session->id,
                     "payment_method_id" => $payment["payment_method_id"],
                     "payment_method_name" => $paymentMethod?->name ?? "Efectivo / apertura",
@@ -380,7 +364,6 @@ final class CashRegisterService {
             );
 
             CashMovement::create([
-                "company_id" => $companyId,
                 "branch_id" => $session->branch_id,
                 "cash_session_id" => $session->id,
                 "user_id" => $userId,
@@ -409,7 +392,6 @@ final class CashRegisterService {
 
             $session = CashSession::query()
                 ->with("register")
-                ->where("company_id", $companyId)
                 ->where("status", "open")
                 ->findOrFail((int) $data["cash_session_id"]);
 
@@ -429,7 +411,6 @@ final class CashRegisterService {
             }
 
             return CashMovement::create([
-                "company_id" => $companyId,
                 "branch_id" => $session->branch_id,
                 "cash_session_id" => $session->id,
                 "payment_method_id" => $data["payment_method_id"] ?? null,
@@ -453,7 +434,6 @@ final class CashRegisterService {
 
         $query = CashMovement::query()
             ->with(["branch", "cashSession.register", "paymentMethod", "user"])
-            ->where("company_id", $companyId)
             ->when($filters["branch_id"] ?? null, fn($query, $branchId) => $query->where("branch_id", $branchId))
             ->when($filters["cash_register_id"] ?? null, function($query, $registerId) {
 
@@ -483,7 +463,6 @@ final class CashRegisterService {
 
         $query = CashSession::query()
             ->with(["register", "branch", "openedBy", "closedBy", "paymentSummary.paymentMethod"])
-            ->where("company_id", $companyId)
             ->when($filters["branch_id"] ?? null, fn($query, $branchId) => $query->where("branch_id", $branchId))
             ->when($filters["cash_register_id"] ?? null, fn($query, $registerId) => $query->where("cash_register_id", $registerId))
             ->when($filters["user_id"] ?? null, function($query, $responsibleId) {
@@ -563,7 +542,7 @@ final class CashRegisterService {
             "branch" => $register->branch,
             "open_session" => $openSession,
             "is_open" => $openSession !== null,
-            "current_amount" => $openSession ? Utilities::round((float) $openSession->expected_amount, null, (int) $register->company_id) : 0,
+            "current_amount" => $openSession ? Utilities::round((float) $openSession->expected_amount) : 0,
         ];
 
     }
@@ -571,7 +550,6 @@ final class CashRegisterService {
     private function expectedByPaymentMethod(int $companyId, int $sessionId, ?int $paymentMethodId): float {
 
         return Utilities::round((float) CashMovement::query()
-            ->where("company_id", $companyId)
             ->where("cash_session_id", $sessionId)
             ->where("status", "active")
             ->when($paymentMethodId === null, fn($query) => $query->whereNull("payment_method_id"))
@@ -604,13 +582,11 @@ final class CashRegisterService {
             }
 
             $warehouseItem = WarehouseItem::query()
-                ->whereHas("warehouse", function($query) use ($companyId, $session) {
+                ->whereHas("warehouse", function($query) use ($session) {
 
-                    $query->where("company_id", $companyId)
-                        ->where("branch_id", $session->branch_id);
+                    $query->where("branch_id", $session->branch_id);
 
                 })
-                ->whereHas("item", fn($query) => $query->where("company_id", $companyId))
                 ->where("warehouse_id", $warehouseId)
                 ->where("item_id", $itemId)
                 ->first();
@@ -623,7 +599,6 @@ final class CashRegisterService {
             if(abs($difference) >= 0.00001) {
 
                 $movement = InventoryMovementService::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => $warehouseId,
                     "item_id" => $itemId,
                     "user_id" => $userId,
@@ -643,7 +618,6 @@ final class CashRegisterService {
             }
 
             CashSessionInventoryCount::create([
-                "company_id" => $companyId,
                 "branch_id" => $session->branch_id,
                 "cash_session_id" => $session->id,
                 "warehouse_id" => $warehouseId,
@@ -664,19 +638,16 @@ final class CashRegisterService {
     private function branchHasCountableInventory(int $companyId, int $branchId): bool {
 
         return WarehouseItem::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
-            ->whereHas("warehouse", function($query) use ($companyId, $branchId) {
+            ->whereHas("warehouse", function($query) use ($branchId) {
 
-                $query->where("company_id", $companyId)
-                    ->where("branch_id", $branchId)
+                $query->where("branch_id", $branchId)
                     ->where("status", "active");
 
             })
-            ->whereHas("item", function($query) use ($companyId) {
+            ->whereHas("item", function($query) {
 
-                $query->where("company_id", $companyId)
-                    ->where("type", "product")
+                $query->where("type", "product")
                     ->where("status", "active");
 
             })
@@ -712,7 +683,7 @@ final class CashRegisterService {
 
             $code = "CAJ-".strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
 
-        } while(CashRegister::query()->where("company_id", $companyId)->where("code", $code)->exists());
+        } while(CashRegister::query()->where("code", $code)->exists());
 
         return $code;
 

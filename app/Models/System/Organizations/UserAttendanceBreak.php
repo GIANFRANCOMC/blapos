@@ -10,7 +10,7 @@ final class UserAttendanceBreak extends Model {
     protected $table = "user_attendance_breaks";
 
     protected $fillable = [
-        "company_id", "user_attendance_id", "started_at", "ended_at",
+        "user_attendance_id", "started_at", "ended_at",
         "duration_minutes", "reason", "status", "created_by", "updated_by",
     ];
 

@@ -45,7 +45,6 @@ class TrackingSubscriptionService {
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $branch = Branch::where("id", $filters["branch_id"] ?? null)
-            ->where("company_id", $companyId)
             ->first();
 
         if(!Utilities::isDefined($branch)) {
@@ -54,7 +53,7 @@ class TrackingSubscriptionService {
 
         }
 
-        $query = Subscription::where("company_id", $companyId)
+        $query = Subscription::query()
             ->where("branch_id", $branch->id);
 
         // Apply filters
@@ -162,7 +161,6 @@ class TrackingSubscriptionService {
         }
 
         $overlap = Subscription::query()
-            ->where("company_id", $companyId)
             ->where("branch_id", $branchId)
             ->where("customer_id", $customerId)
             ->where("status", "active")
@@ -184,7 +182,7 @@ class TrackingSubscriptionService {
         return DB::transaction(function() use ($source, $data, $userId) {
 
             self::assertDatesAvailable(
-                (int) $source->company_id,
+                app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id(),
                 (int) $source->branch_id,
                 (int) $source->customer_id,
                 (string) $data["start_date"],
@@ -193,7 +191,6 @@ class TrackingSubscriptionService {
             );
 
             return Subscription::create([
-                "company_id" => $source->company_id,
                 "branch_id" => $source->branch_id,
                 "sale_header_id" => null,
                 "sale_body_id" => null,
@@ -223,7 +220,6 @@ class TrackingSubscriptionService {
         return DB::transaction(function() use ($companyId, $data, $userId) {
 
             $customer = Customer::query()
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->findOrFail((int) $data["customer_id"]);
 
@@ -232,7 +228,6 @@ class TrackingSubscriptionService {
             if(!empty($data["item_id"])) {
 
                 $catalogSubscription = Item::query()
-                    ->where("company_id", $companyId)
                     ->where("type", "subscription")
                     ->where("status", "active")
                     ->findOrFail((int) $data["item_id"]);
@@ -249,7 +244,6 @@ class TrackingSubscriptionService {
             );
 
             $subscription = Subscription::create([
-                "company_id" => $companyId,
                 "branch_id" => (int) $data["branch_id"],
                 "sale_header_id" => null,
                 "sale_body_id" => null,
@@ -301,7 +295,6 @@ class TrackingSubscriptionService {
             : "<p>Hola {$customer->name},</p><p>Gracias por suscribirte a {$membershipName}. Tu membresía está activa desde {$subscription->start_date} hasta {$subscription->end_date}.</p>";
 
         SubscriptionEmail::create([
-            "company_id" => $subscription->company_id,
             "to" => $customer->email,
             "subject" => "Gracias por tu suscripción",
             "body" => $body,

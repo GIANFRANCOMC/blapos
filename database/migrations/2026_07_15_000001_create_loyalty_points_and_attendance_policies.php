@@ -19,7 +19,6 @@ return new class extends Migration {
         Schema::create("loyalty_point_rules", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("name", 255);
             $table->text("description")->nullable();
             $table->enum("trigger_type", ["sale_total", "item_quantity", "subscription_sale"])->default("sale_total");
@@ -36,20 +35,17 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
 
         Schema::create("loyalty_point_rule_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("loyalty_point_rule_id");
             $table->unsignedBigInteger("item_id");
             $table->enum("status", ["active", "inactive"])->default("active");
             $table->timestamp("created_at")->useCurrent()->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("loyalty_point_rule_id")->references("id")->on("loyalty_point_rules")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->onDelete("cascade");
 
@@ -58,7 +54,6 @@ return new class extends Migration {
         Schema::create("customer_point_balances", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("customer_id");
             $table->decimal("points_balance", 15, 3)->default(0);
             $table->timestamp("created_at")->useCurrent()->nullable();
@@ -66,16 +61,14 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("customer_id")->references("id")->on("customers")->onDelete("cascade");
-            $table->unique(["company_id", "customer_id"]);
+            $table->unique(["customer_id"]);
 
         });
 
         Schema::create("customer_point_movements", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("customer_id");
             $table->unsignedBigInteger("loyalty_point_rule_id")->nullable();
             $table->unsignedBigInteger("sale_header_id")->nullable();
@@ -92,7 +85,6 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("customer_id")->references("id")->on("customers")->onDelete("cascade");
             $table->foreign("loyalty_point_rule_id")->references("id")->on("loyalty_point_rules")->nullOnDelete();
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->nullOnDelete();

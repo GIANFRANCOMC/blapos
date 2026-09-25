@@ -15,7 +15,7 @@ final class DuplicateRoleRequest extends CompanyFormRequest {
                 "required",
                 "string",
                 "max:80",
-                Rule::unique("roles", "name")->where("company_id", $this->user()?->company_id),
+                Rule::unique("roles", "name"),
             ],
         ];
 

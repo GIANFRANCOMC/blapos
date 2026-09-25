@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace App\Models\System\Purchases;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 final class PurchaseItem extends Model {
-    use BelongsToCompany;
 
     protected $table = "purchase_items";
 
     protected $fillable = [
-        "company_id",
         "purchase_header_id",
         "item_id",
         "name",
@@ -48,8 +45,7 @@ final class PurchaseItem extends Model {
         return Utilities::round(
             (float) ($this->attributes["quantity"] ?? 0)
             - (float) ($this->attributes["received_quantity"] ?? 0),
-            null,
-            (int) ($this->attributes["company_id"] ?? 0)
+            null
         );
 
     }

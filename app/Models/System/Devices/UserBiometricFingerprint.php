@@ -11,7 +11,6 @@ final class UserBiometricFingerprint extends Model {
     protected $table = "user_biometric_fingerprints";
 
     protected $fillable = [
-        "company_id",
         "user_id",
         "biometric_device_id",
         "device_user_id",
@@ -29,11 +28,6 @@ final class UserBiometricFingerprint extends Model {
         "fingerprint_template",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function user() {
 

@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Builder, Model};
 
 final class SaleReceivableInstallment extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_receivable_installments";
 
     protected $fillable = [
-        "company_id",
         "sale_account_receivable_id",
         "installment_number",
         "due_date",

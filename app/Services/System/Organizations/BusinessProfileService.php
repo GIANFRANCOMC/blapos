@@ -20,7 +20,6 @@ final class BusinessProfileService {
     public static function industries(int $companyId) {
 
         return BusinessIndustry::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->with("moduleSets.subSection:id,dom_label,dom_route")
             ->orderBy("name")
@@ -33,12 +32,10 @@ final class BusinessProfileService {
         DB::transaction(function() use ($companyId, $industryId, $userId) {
 
             $industry = BusinessIndustry::query()
-                ->where("company_id", $companyId)
                 ->whereKey($industryId)
                 ->firstOrFail();
 
             $sets = BusinessIndustryModuleSet::query()
-                ->where("company_id", $companyId)
                 ->where("business_industry_id", $industry->id)
                 ->where("status", "active")
                 ->get();
@@ -58,7 +55,6 @@ final class BusinessProfileService {
                 ->unique();
 
             DB::table("companies_sub_sections")
-                ->where("company_id", $companyId)
                 ->whereIn("sub_section_id", $catalogIds->all())
                 ->update([
                     "status" => "inactive",
@@ -98,7 +94,6 @@ final class BusinessProfileService {
     public static function enabledModuleIds(int $companyId): array {
 
         return DB::table("companies_sub_sections")
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->pluck("sub_section_id")
             ->map(fn($id) => (int) $id)
@@ -123,7 +118,6 @@ final class BusinessProfileService {
                 ->unique();
 
             DB::table("companies_sub_sections")
-                ->where("company_id", $companyId)
                 ->whereIn("sub_section_id", $catalogIds->all())
                 ->update([
                     "status" => "inactive",

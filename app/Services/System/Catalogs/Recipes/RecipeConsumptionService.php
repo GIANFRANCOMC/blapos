@@ -22,7 +22,6 @@ final class RecipeConsumptionService {
     ): bool {
 
         $recipe = RecipeDish::query()
-            ->where("company_id", $companyId)
             ->where("item_id", $saleBody->item_id)
             ->where("status", "active")
             ->with([
@@ -98,7 +97,6 @@ final class RecipeConsumptionService {
         foreach($requirements as $itemId => $quantity) {
 
             InventoryMovementService::apply([
-                "company_id" => $companyId,
                 "warehouse_id" => $warehouse->id,
                 "item_id" => $itemId,
                 "user_id" => $userId,

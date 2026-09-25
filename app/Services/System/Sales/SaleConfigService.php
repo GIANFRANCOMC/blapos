@@ -55,7 +55,6 @@ final class SaleConfigService extends BaseConfigService {
 
         $cashSessions = CashSession::query()
             ->with(["register", "branch"])
-            ->where("company_id", $companyId)
             ->where("status", "open");
 
         $cashRegisterIds = $references->allowedCashRegisterIds();
@@ -107,7 +106,6 @@ final class SaleConfigService extends BaseConfigService {
             ]),
             "quotations" => self::data([
                 "records" => QuotationHeader::query()
-                    ->where("company_id", $companyId)
                     ->whereIn("status", ["draft", "sent", "accepted"])
                     ->with("holder:id,name,document_number")
                     ->latest("id")

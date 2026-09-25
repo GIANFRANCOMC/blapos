@@ -34,10 +34,9 @@ final class BrandService {
 
         self::validateContext($companyId, $userId);
 
-        return DB::transaction(function() use ($data, $companyId, $userId) {
+        return DB::transaction(function() use ($data, $userId) {
 
             return Brand::create(self::prepareData($data, [
-                "company_id" => $companyId,
                 "status" => $data["status"] ?? "active",
                 "created_by" => $userId,
             ]));
@@ -49,12 +48,6 @@ final class BrandService {
     public static function update(Brand $brand, array $data, int $companyId, int $userId): Brand {
 
         self::validateContext($companyId, $userId);
-
-        if((int) $brand->company_id !== $companyId) {
-
-            throw new InvalidArgumentException("La marca no pertenece a la empresa autenticada.");
-
-        }
 
         DB::transaction(function() use ($brand, $data, $userId) {
 
@@ -73,15 +66,14 @@ final class BrandService {
 
     }
 
-    public static function findByIdAndCompany(
+    public static function findByIdInTenant(
         int $id,
         int $companyId,
         ?array $statuses = ["active"]
     ): ?Brand {
 
         $query = Brand::query()
-            ->whereKey($id)
-            ->where("company_id", $companyId);
+            ->whereKey($id);
 
         if($statuses !== null && $statuses !== []) {
 
@@ -100,7 +92,6 @@ final class BrandService {
     ): LengthAwarePaginator {
 
         $query = Brand::query()
-            ->where("company_id", $companyId)
             ->withCount([
                 "products as products_count" => fn(Builder $builder) => $builder->where("status", "active"),
             ]);

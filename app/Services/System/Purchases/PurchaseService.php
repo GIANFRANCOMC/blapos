@@ -83,7 +83,6 @@ final class PurchaseService {
             $reference = "COM-".strtoupper(Str::random(10));
 
         } while(PurchaseHeader::query()
-            ->where("company_id", $companyId)
             ->where("reference", $reference)
             ->exists());
 
@@ -94,7 +93,6 @@ final class PurchaseService {
     public static function getFilteredQuery(int $companyId, array $filters = [], ?int $userId = null): Builder {
 
         $query = PurchaseHeader::query()
-            ->where("company_id", $companyId)
             ->with([
                 "supplier:id,name,document_number",
                 "warehouse:id,name",
@@ -164,7 +162,6 @@ final class PurchaseService {
         return DB::transaction(function() use ($companyId, $userId, $data) {
 
             $supplier = Supplier::query()
-                ->where("company_id", $companyId)
                 ->whereKey((int) $data["supplier_id"])
                 ->firstOrFail();
 
@@ -187,7 +184,6 @@ final class PurchaseService {
             if($documentNumber !== "") {
 
                 $documentQuery = PurchaseHeader::query()
-                    ->where("company_id", $companyId)
                     ->where("supplier_id", $supplier->id)
                     ->where("document_type", $data["document_type"])
                     ->where("document_number", $documentNumber)
@@ -212,7 +208,6 @@ final class PurchaseService {
             $itemIds = collect($data["items"])->pluck("item_id")->map(fn($id) => (int) $id);
 
             $items = Item::query()
-                ->where("company_id", $companyId)
                 ->where("type", "product")
                 ->whereIn("id", $itemIds)
                 ->get()
@@ -291,7 +286,6 @@ final class PurchaseService {
             $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount, (int) $companyId);
 
             $purchaseData = [
-                "company_id" => $companyId,
                 "supplier_id" => $supplier->id,
                 "warehouse_id" => $warehouse->id,
                 "currency_id" => (int) $data["currency_id"],
@@ -357,7 +351,6 @@ final class PurchaseService {
 
                 \App\Models\System\Purchases\PurchaseExpense::insert(collect($expenses)
                     ->map(fn($expense) => [
-                        "company_id" => $companyId,
                         "purchase_header_id" => $purchase->id,
                         "expense_type" => $expense["expense_type"],
                         "name" => $expense["name"],
@@ -381,7 +374,6 @@ final class PurchaseService {
                     : $unitCost;
 
                 PurchaseItem::create([
-                    "company_id" => $companyId,
                     "purchase_header_id" => $purchase->id,
                     "item_id" => $item->id,
                     "name" => $item->name,
@@ -432,7 +424,6 @@ final class PurchaseService {
         return DB::transaction(function() use ($companyId, $purchaseId, $userId, $data) {
 
             $purchase = PurchaseHeader::query()
-                ->where("company_id", $companyId)
                 ->whereKey($purchaseId)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -452,7 +443,6 @@ final class PurchaseService {
             $purchase->load("items");
 
             $receipt = PurchaseReceipt::create([
-                "company_id" => $companyId,
                 "purchase_header_id" => $purchase->id,
                 "warehouse_id" => $purchase->warehouse_id,
                 "reference" => "REC-".strtoupper(Str::random(10)),
@@ -487,7 +477,6 @@ final class PurchaseService {
                 }
 
                 $movement = InventoryMovementService::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => (int) $purchase->warehouse_id,
                     "item_id" => (int) $purchaseItem->item_id,
                     "user_id" => $userId,
@@ -505,7 +494,6 @@ final class PurchaseService {
                 ]);
 
                 PurchaseReceiptItem::create([
-                    "company_id" => $companyId,
                     "purchase_receipt_id" => $receipt->id,
                     "purchase_item_id" => $purchaseItem->id,
                     "item_id" => $purchaseItem->item_id,
@@ -558,7 +546,6 @@ final class PurchaseService {
             );
 
             $purchase = PurchaseHeader::query()
-                ->where("company_id", $companyId)
                 ->whereKey($purchaseId)
                 ->with(["items", "receipts.items"])
                 ->lockForUpdate()
@@ -594,7 +581,6 @@ final class PurchaseService {
                     foreach($receipt->items as $receiptItem) {
 
                         InventoryMovementService::apply([
-                            "company_id" => $companyId,
                             "warehouse_id" => (int) $receipt->warehouse_id,
                             "item_id" => (int) $receiptItem->item_id,
                             "user_id" => $userId,
@@ -653,7 +639,6 @@ final class PurchaseService {
         return DB::transaction(function() use ($companyId, $purchaseId, $userId) {
 
             $purchase = PurchaseHeader::query()
-                ->where("company_id", $companyId)
                 ->where("status", "confirmed")
                 ->lockForUpdate()
                 ->findOrFail($purchaseId);
@@ -679,7 +664,6 @@ final class PurchaseService {
     public static function find(int $companyId, int $purchaseId): PurchaseHeader {
 
         return PurchaseHeader::query()
-            ->where("company_id", $companyId)
             ->with([
                 "supplier",
                 "warehouse.branch",

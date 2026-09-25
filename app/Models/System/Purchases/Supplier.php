@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Models\Concerns\{BelongsToCompany};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 final class Supplier extends Model {
-    use BelongsToCompany;
 
     protected $table = "suppliers";
 
     protected $fillable = [
-        "company_id",
         "document_type",
         "document_number",
         "name",

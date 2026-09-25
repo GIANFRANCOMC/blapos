@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Finance\{PaymentMethod, PaymentMethodVariant};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class SalePayment extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_payments";
 
     protected $fillable = [
-        "company_id",
         "sale_header_id",
         "payment_method_id",
         "payment_method_variant_id",

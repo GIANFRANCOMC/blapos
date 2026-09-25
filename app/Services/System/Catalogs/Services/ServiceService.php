@@ -78,7 +78,6 @@ class ServiceService {
     private static function prepareServiceDataForCreate(array $data, int $companyId, int $userId): array {
 
         $itemData = [
-            "company_id" => $companyId,
             "type" => "service",
             "brand_id" => null,
             "barcode" => null,
@@ -328,10 +327,9 @@ class ServiceService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["currency", "categoryItems"]): ?Item {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["currency", "categoryItems"]): ?Item {
 
         $query = Item::where("id", $id)
-            ->where("company_id", $companyId)
             ->where("type", "service");
 
         if($statuses !== null && !empty($statuses)) {
@@ -361,7 +359,7 @@ class ServiceService {
 
         Item::expireActiveItems($companyId);
 
-        $query = Item::where("company_id", $companyId)
+        $query = Item::query()
             ->where("type", "service")
             ->with(["currency", "categoryItems"]);
 

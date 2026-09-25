@@ -16,7 +16,6 @@ final class PurchaseReturnService {
         return DB::transaction(function() use ($companyId, $purchaseId, $userId, $data) {
 
             $purchase = PurchaseHeader::query()
-                ->where("company_id", $companyId)
                 ->whereIn("status", ["partial", "received"])
                 ->lockForUpdate()
                 ->find($purchaseId);
@@ -34,7 +33,6 @@ final class PurchaseReturnService {
             }
 
             $return = PurchaseReturn::create([
-                "company_id" => $companyId,
                 "purchase_header_id" => $purchaseId,
                 "purchase_receipt_id" => $data["purchase_receipt_id"] ?? null,
                 "warehouse_id" => $data["warehouse_id"],
@@ -49,7 +47,6 @@ final class PurchaseReturnService {
             foreach($data["items"] as $line) {
 
                 $purchaseItem = PurchaseItem::query()
-                    ->where("company_id", $companyId)
                     ->where("purchase_header_id", $purchaseId)
                     ->lockForUpdate()
                     ->find((int) $line["purchase_item_id"]);
@@ -62,7 +59,6 @@ final class PurchaseReturnService {
 
                 $previouslyReturned = (float) PurchaseReturnItem::query()
                     ->join("purchase_returns", "purchase_returns.id", "=", "purchase_return_items.purchase_return_id")
-                    ->where("purchase_return_items.company_id", $companyId)
                     ->where("purchase_return_items.purchase_item_id", $purchaseItem->id)
                     ->where("purchase_returns.status", "confirmed")
                     ->sum("purchase_return_items.quantity");
@@ -77,7 +73,6 @@ final class PurchaseReturnService {
                 }
 
                 $movement = InventoryMovementService::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => $data["warehouse_id"],
                     "item_id" => $purchaseItem->item_id,
                     "user_id" => $userId,
@@ -91,7 +86,6 @@ final class PurchaseReturnService {
                 ]);
 
                 PurchaseReturnItem::create([
-                    "company_id" => $companyId,
                     "purchase_return_id" => $return->id,
                     "purchase_item_id" => $purchaseItem->id,
                     "item_id" => $purchaseItem->item_id,

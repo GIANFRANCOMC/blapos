@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace App\Models\System\Purchases;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\General\{Currency};
 use App\Models\System\Organizations\{User};
 use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany, Relations\HasOne};
 
 final class PurchaseHeader extends Model {
-    use BelongsToCompany;
 
     protected $table = "purchase_headers";
 
     protected $fillable = [
-        "company_id",
         "supplier_id",
         "warehouse_id",
         "currency_id",
@@ -173,7 +170,7 @@ final class PurchaseHeader extends Model {
         $received = (float) $this->items->sum("received_quantity");
 
         return $ordered > 0
-            ? Utilities::round(($received / $ordered) * 100, null, (int) ($this->attributes["company_id"] ?? 0))
+            ? Utilities::round(($received / $ordered) * 100)
             : 0;
 
     }

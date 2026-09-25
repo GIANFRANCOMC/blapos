@@ -37,12 +37,11 @@ class AuthenticationTest extends TestCase {
 
     public function test_users_can_authenticate_using_the_login_screen(): void {
 
-        $user = User::where("company_id", 1)->where("email", "admin@example.test")->firstOrFail();
+        $user = User::where("email", "admin@example.test")->firstOrFail();
 
         $response = $this->post("/login", [
             "email" => $user->email,
             "password" => "password",
-            "company_id" => 1,
         ]);
 
         $this->assertAuthenticated();
@@ -52,12 +51,11 @@ class AuthenticationTest extends TestCase {
 
     public function test_users_can_not_authenticate_with_invalid_password(): void {
 
-        $user = User::where("company_id", 1)->where("email", "admin@example.test")->firstOrFail();
+        $user = User::where("email", "admin@example.test")->firstOrFail();
 
         $this->post("/login", [
             "email" => $user->email,
             "password" => "wrong-password",
-            "company_id" => 1,
         ]);
 
         $this->assertGuest();
@@ -66,12 +64,12 @@ class AuthenticationTest extends TestCase {
 
     public function test_users_can_logout(): void {
 
-        $user = User::where("company_id", 1)->where("email", "admin@example.test")->firstOrFail();
+        $user = User::where("email", "admin@example.test")->firstOrFail();
 
         $response = $this->actingAs($user)->post("/logout");
 
         $this->assertGuest();
-        $response->assertRedirect("/?company=".base64_encode("1"));
+        $response->assertRedirect("/");
 
     }
 }

@@ -23,7 +23,6 @@ class UserPreference extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "user_id",
         "slug",
         "value",
@@ -57,16 +56,7 @@ class UserPreference extends Model {
 
         return DB::transaction(function() use ($userId, $slug, $data, $extras) {
 
-            $companyId = (int) User::query()->whereKey($userId)->value("company_id");
-
-            if($companyId <= 0) {
-
-                throw new \DomainException("No se pudo identificar la empresa del usuario.");
-
-            }
-
-            $activePreferences = UserPreference::where("company_id", $companyId)
-                ->where("user_id", $userId)
+            $activePreferences = UserPreference::where("user_id", $userId)
                 ->where("slug", $slug)
                 ->where("status", "active")
                 ->orderByDesc("id")
@@ -78,7 +68,6 @@ class UserPreference extends Model {
             if(!Utilities::isDefined($userPreference)) {
 
                 $userPreference = new UserPreference();
-                $userPreference->company_id = $companyId;
                 $userPreference->user_id = $userId;
                 $userPreference->slug = $slug;
                 $userPreference->value = null;
@@ -88,8 +77,7 @@ class UserPreference extends Model {
 
             }elseif($activePreferences->count() > 1) {
 
-                UserPreference::where("company_id", $companyId)
-                    ->whereIn("id", $activePreferences->skip(1)->pluck("id"))
+                UserPreference::whereIn("id", $activePreferences->skip(1)->pluck("id"))
                     ->update([
                         "status" => "inactive",
                         "updated_at" => now(),

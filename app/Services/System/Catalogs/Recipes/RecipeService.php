@@ -31,7 +31,6 @@ final class RecipeService {
     public static function getFilteredListQuery(int $companyId, array $filters = []): Builder {
 
         $query = RecipeDish::query()
-            ->where("company_id", $companyId)
             ->with(self::RELATIONS);
 
         $filterBy = $filters["filter_by"] ?? null;
@@ -84,10 +83,9 @@ final class RecipeService {
 
         return DB::transaction(function() use ($data, $companyId, $userId) {
 
-            self::assertItemBelongsToCompany((int) $data["item_id"], $companyId);
+            self::assertItemExistsInTenant((int) $data["item_id"], $companyId);
 
             $recipe = RecipeDish::create([
-                "company_id" => $companyId,
                 "item_id" => (int) $data["item_id"],
                 "yield_quantity" => (float) ($data["yield_quantity"] ?? 1),
                 "waste_percentage" => (float) ($data["waste_percentage"] ?? 0),
@@ -107,15 +105,9 @@ final class RecipeService {
 
     public static function update(RecipeDish $recipe, array $data, int $companyId, int $userId): RecipeDish {
 
-        if((int) $recipe->company_id !== $companyId) {
-
-            throw new DomainException("La receta seleccionada no pertenece a la empresa.");
-
-        }
-
         return DB::transaction(function() use ($recipe, $data, $companyId, $userId) {
 
-            self::assertItemBelongsToCompany((int) $data["item_id"], $companyId);
+            self::assertItemExistsInTenant((int) $data["item_id"], $companyId);
 
             $recipe->update([
                 "item_id" => (int) $data["item_id"],
@@ -136,12 +128,6 @@ final class RecipeService {
     }
 
     public static function delete(RecipeDish $recipe, int $companyId): void {
-
-        if((int) $recipe->company_id !== $companyId) {
-
-            throw new DomainException("La receta seleccionada no pertenece a la empresa.");
-
-        }
 
         DB::transaction(function() use ($recipe) {
 
@@ -175,7 +161,6 @@ final class RecipeService {
         }
 
         $warehouse = Warehouse::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->find($warehouseId);
 
@@ -186,7 +171,6 @@ final class RecipeService {
         }
 
         $recipe = RecipeDish::query()
-            ->where("company_id", $companyId)
             ->with(self::RELATIONS)
             ->find($recipeId);
 
@@ -213,7 +197,6 @@ final class RecipeService {
         $itemIds = $itemIds->filter()->unique()->values();
 
         $costs = WarehouseItem::query()
-            ->where("company_id", $companyId)
             ->where("warehouse_id", $warehouseId)
             ->whereIn("item_id", $itemIds)
             ->pluck("average_cost", "item_id");
@@ -273,10 +256,9 @@ final class RecipeService {
 
             }
 
-            self::assertItemBelongsToCompany($itemId, $companyId);
+            self::assertItemExistsInTenant($itemId, $companyId);
 
             RecipeDishComponent::create([
-                "company_id" => $companyId,
                 "recipe_dish_id" => $recipe->id,
                 "item_id" => $itemId,
                 "quantity" => $quantity,
@@ -318,7 +300,6 @@ final class RecipeService {
             }
 
             $topping = RecipeTopping::create([
-                "company_id" => $companyId,
                 "currency_id" => (int) ($toppingData["currency_id"] ?? $recipe->item?->currency_id),
                 "item_id" => $toppingData["item_id"] ?? null,
                 "name" => $name,
@@ -331,7 +312,6 @@ final class RecipeService {
             ]);
 
             RecipeDishTopping::create([
-                "company_id" => $companyId,
                 "recipe_dish_id" => $recipe->id,
                 "recipe_topping_id" => $topping->id,
                 "is_default" => (bool) ($toppingData["is_default"] ?? false),
@@ -361,10 +341,9 @@ final class RecipeService {
 
             }
 
-            self::assertItemBelongsToCompany($itemId, $companyId);
+            self::assertItemExistsInTenant($itemId, $companyId);
 
             RecipeToppingComponent::create([
-                "company_id" => $companyId,
                 "recipe_topping_id" => $topping->id,
                 "item_id" => $itemId,
                 "quantity" => $quantity,
@@ -394,7 +373,6 @@ final class RecipeService {
             }
 
             $option = RecipeDishOption::create([
-                "company_id" => $companyId,
                 "recipe_dish_id" => $recipe->id,
                 "name" => $name,
                 "description" => $optionData["description"] ?? null,
@@ -415,10 +393,9 @@ final class RecipeService {
 
                 }
 
-                self::assertItemBelongsToCompany($itemId, $companyId);
+                self::assertItemExistsInTenant($itemId, $companyId);
 
                 RecipeDishOptionComponent::create([
-                    "company_id" => $companyId,
                     "recipe_dish_option_id" => $option->id,
                     "item_id" => $itemId,
                     "quantity" => $quantity,
@@ -435,9 +412,9 @@ final class RecipeService {
 
     }
 
-    private static function assertItemBelongsToCompany(int $itemId, int $companyId): void {
+    private static function assertItemExistsInTenant(int $itemId, int $companyId): void {
 
-        if($itemId <= 0 || !Item::whereKey($itemId)->where("company_id", $companyId)->exists()) {
+        if($itemId <= 0 || !Item::whereKey($itemId)->exists()) {
 
             throw new DomainException("El producto, servicio o insumo seleccionado no pertenece a la empresa.");
 

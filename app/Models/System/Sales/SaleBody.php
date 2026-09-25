@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\System\Sales;
 
 use App\Helpers\System\{Utilities};
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\General\{Currency};
@@ -13,7 +12,6 @@ use Exception;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 class SaleBody extends Model {
-    use BelongsToCompany;
 
     protected $table = "sales_body";
 
@@ -24,7 +22,6 @@ class SaleBody extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "sale_header_id",
         "item_id",
         "currency_id",

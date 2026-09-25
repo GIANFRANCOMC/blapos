@@ -33,7 +33,6 @@ class BookComplaintService {
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         return BookComplaint::query()
-            ->where("company_id", $companyId)
             ->with(["branch", "identityDocumentType", "attachments", "statusHistories.changedBy", "respondedBy"])
             ->when(Utilities::isDefined($filters["status"] ?? null), function($query) use ($filters) {
 
@@ -75,10 +74,9 @@ class BookComplaintService {
      * @param  int  $companyId Company ID
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $relations = null): ?BookComplaint {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $relations = null): ?BookComplaint {
 
         return BookComplaint::query()
-            ->where("company_id", $companyId)
             ->with($relations ?? ["branch", "identityDocumentType", "attachments", "statusHistories.changedBy", "respondedBy"])
             ->find($id);
 
@@ -139,7 +137,6 @@ class BookComplaintService {
                 if($newStatus !== $previousStatus) {
 
                     BookComplaintStatusHistory::create([
-                        "company_id" => $bookComplaint->company_id,
                         "book_complaint_id" => $bookComplaint->id,
                         "changed_by" => $userId,
                         "previous_status" => $previousStatus,

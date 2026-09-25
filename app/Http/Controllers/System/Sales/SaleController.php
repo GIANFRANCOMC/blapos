@@ -163,7 +163,6 @@ class SaleController extends BaseController {
                 $branch = $serie->branch;
 
                 if(!Utilities::isDefined($branch)
-                    || $branch->company_id !== $this->getCompanyId()
                     || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::BRANCH, (int) $branch->id)) {
 
                     return $this->errorResponse("unauthorized", [], 403);
@@ -208,7 +207,6 @@ class SaleController extends BaseController {
         try {
 
             $delivery = SaleDelivery::query()
-                ->where("company_id", $this->getCompanyId())
                 ->find($id);
 
             if(!$delivery) {

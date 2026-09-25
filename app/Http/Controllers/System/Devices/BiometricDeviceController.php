@@ -97,7 +97,7 @@ class BiometricDeviceController extends BaseController {
 
         try {
 
-            $device = BiometricDeviceService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $device = BiometricDeviceService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($device)) {
 
@@ -134,7 +134,7 @@ class BiometricDeviceController extends BaseController {
 
         try {
 
-            $device = BiometricDeviceService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $device = BiometricDeviceService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!$device) {
 
@@ -198,7 +198,6 @@ class BiometricDeviceController extends BaseController {
         }
 
         $query = BiometricDeviceModel::query()
-            ->where("company_id", $this->getCompanyId())
             ->where("status", "active")
             ->where("name", $modelName);
 
@@ -215,7 +214,6 @@ class BiometricDeviceController extends BaseController {
     private function prepareBiometricDeviceData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "branch_id" => $request->input("branch_id"),
             "biometric_device_model_id" => $this->resolveBiometricDeviceModelId($request),
             "name" => $request->input("name"),

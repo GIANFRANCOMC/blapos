@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create("sale_deliveries", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_header_id");
             $table->unsignedBigInteger("warehouse_id")->nullable();
             $table->decimal("total_quantity", 15, 3)->default(0);
@@ -27,20 +26,18 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->onDelete("cascade");
             $table->foreign("warehouse_id")->references("id")->on("warehouses")->nullOnDelete();
             $table->foreign("last_delivered_by")->references("id")->on("users")->nullOnDelete();
-            $table->unique(["company_id", "sale_header_id"], "sale_deliveries_company_sale_uq");
-            $table->index(["company_id", "status", "created_at", "id"], "sale_deliveries_company_status_date_idx");
-            $table->index(["company_id", "warehouse_id", "status", "id"], "sale_deliveries_warehouse_status_idx");
+            $table->unique(["sale_header_id"], "sale_deliveries_sale_uq");
+            $table->index(["status", "created_at", "id"], "sale_deliveries_status_date_idx");
+            $table->index(["warehouse_id", "status", "id"], "sale_deliveries_warehouse_status_idx");
 
         });
 
         Schema::create("sale_delivery_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_delivery_id");
             $table->unsignedBigInteger("sale_body_id");
             $table->unsignedBigInteger("item_id");
@@ -53,19 +50,17 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("sale_delivery_id")->references("id")->on("sale_deliveries")->onDelete("cascade");
             $table->foreign("sale_body_id")->references("id")->on("sales_body")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->restrictOnDelete();
-            $table->unique(["company_id", "sale_delivery_id", "sale_body_id"], "sale_delivery_items_unique_body");
-            $table->index(["company_id", "sale_delivery_id", "status", "id"], "sale_delivery_items_delivery_status_idx");
+            $table->unique(["sale_delivery_id", "sale_body_id"], "sale_delivery_items_unique_body");
+            $table->index(["sale_delivery_id", "status", "id"], "sale_delivery_items_delivery_status_idx");
 
         });
 
         Schema::create("sale_delivery_events", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_delivery_id");
             $table->unsignedBigInteger("warehouse_id");
             $table->unsignedBigInteger("delivered_by")->nullable();
@@ -76,18 +71,16 @@ return new class extends Migration {
             $table->timestamp("created_at")->useCurrent()->nullable();
             $table->integer("created_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("sale_delivery_id")->references("id")->on("sale_deliveries")->onDelete("cascade");
             $table->foreign("warehouse_id")->references("id")->on("warehouses")->restrictOnDelete();
             $table->foreign("delivered_by")->references("id")->on("users")->nullOnDelete();
-            $table->index(["company_id", "sale_delivery_id", "status", "delivered_at", "id"], "sale_delivery_events_delivery_status_idx");
+            $table->index(["sale_delivery_id", "status", "delivered_at", "id"], "sale_delivery_events_delivery_status_idx");
 
         });
 
         Schema::create("sale_delivery_event_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_delivery_event_id");
             $table->unsignedBigInteger("sale_delivery_item_id");
             $table->unsignedBigInteger("sale_body_id");
@@ -96,14 +89,13 @@ return new class extends Migration {
             $table->decimal("quantity", 15, 3)->default(0);
             $table->timestamp("created_at")->useCurrent()->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("sale_delivery_event_id")->references("id")->on("sale_delivery_events")->onDelete("cascade");
             $table->foreign("sale_delivery_item_id")->references("id")->on("sale_delivery_items")->onDelete("cascade");
             $table->foreign("sale_body_id")->references("id")->on("sales_body")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->restrictOnDelete();
             $table->foreign("inventory_movement_id")->references("id")->on("inventory_movements")->nullOnDelete();
-            $table->unique(["company_id", "sale_delivery_event_id", "sale_delivery_item_id"], "sale_delivery_event_items_event_item_uq");
-            $table->index(["company_id", "inventory_movement_id"], "sale_delivery_event_items_movement_idx");
+            $table->unique(["sale_delivery_event_id", "sale_delivery_item_id"], "sale_delivery_event_items_event_item_uq");
+            $table->index(["inventory_movement_id"], "sale_delivery_event_items_movement_idx");
 
         });
 

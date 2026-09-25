@@ -6,7 +6,7 @@ namespace App\Http\Requests\System\Catalogs\Services;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
-use App\Rules\System\Defaults\{BelongsToCompany, UniqueInCompany};
+use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class StoreServiceRequest extends CompanyFormRequest {
@@ -36,13 +36,13 @@ class StoreServiceRequest extends CompanyFormRequest {
         $maxValue = $this->filled("max_price") && (float) $this->input("max_price") > 0 ? (float) $this->input("max_price") : $this->numericMaxValue();
 
         $validations = [
-            "internal_code" => ["required", "string", "max:50", new UniqueInCompany("items", "internal_code", null, ["type" => "service"], "código interno")],
+            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", null, ["type" => "service"], "código interno")],
             "name" => "required|string|max:50",
             "description" => "nullable|string|max:100",
             "price" => "required|numeric|min:$minValue|max:$maxValue|decimal:0,$round",
             "price_includes_tax" => "nullable|boolean",
             "igv_exempt" => "nullable|boolean",
-            "currency_id" => ["required", "integer", new BelongsToCompany("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
+            "currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "estimated_duration_minutes" => "nullable|integer|min:1|max:10080",
             "capacity_control_enabled" => "nullable|boolean",
             "capacity_limit" => "nullable|integer|min:1|max:1000000",

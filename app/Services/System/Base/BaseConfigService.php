@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Base;
 
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Support\Facades\{Cache};
 use InvalidArgumentException;
 use stdClass;
@@ -125,9 +126,9 @@ abstract class BaseConfigService {
         $page = self::normalizePage($page);
 
         $cacheKey = sprintf(
-            "init_params:%s:company:%d:page:%s",
+            "%s:init_params:%s:page:%s",
+            app(TenantContext::class)->cacheNamespace(),
             static::getCachePrefix(),
-            $companyId,
             $page
         );
 
@@ -174,7 +175,7 @@ abstract class BaseConfigService {
 
         self::validateCompanyId($companyId);
 
-        return "init_params:user_index:company:{$companyId}";
+        return app(TenantContext::class)->cacheNamespace().":init_params:user_index";
 
     }
 

@@ -23,7 +23,6 @@ class BranchAsset extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "asset_id",
         "currency_id",

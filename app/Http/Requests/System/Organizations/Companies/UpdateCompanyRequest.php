@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Organizations\Companies;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany, DocumentNumberLength};
+use App\Rules\System\Defaults\{ExistsInTenant, DocumentNumberLength};
 
 class UpdateCompanyRequest extends CompanyFormRequest {
     /**
@@ -18,7 +18,7 @@ class UpdateCompanyRequest extends CompanyFormRequest {
         $maxSize = $this->numericMaxFileSizeKb();
 
         $validations = [
-            "identity_document_type_id" => ["required", "integer", new BelongsToCompany("identity_document_types", ["status" => "active"], "El tipo de documento no pertenece a la empresa.")],
+            "identity_document_type_id" => ["required", "integer", new ExistsInTenant("identity_document_types", ["status" => "active"], "El tipo de documento no pertenece a la empresa.")],
             "document_number" => ["required", "string", new DocumentNumberLength((int) $this->identity_document_type_id)],
             "legal_name" => "required|string|max:100",
             "commercial_name" => "required|string|max:100",

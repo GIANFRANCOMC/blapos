@@ -32,7 +32,6 @@ final class MasterDataService {
         $definition = self::definition($resource);
 
         return $definition["model"]::query()
-            ->where("company_id", $companyId)
             ->orderBy(self::orderColumn($resource))
             ->get();
 
@@ -64,11 +63,10 @@ final class MasterDataService {
             ) {
 
                 $record = $id
-                    ? $definition["model"]::query()->where("company_id", $companyId)->findOrFail($id)
+                    ? $definition["model"]::query()->findOrFail($id)
                     : new $definition["model"]();
 
-                $duplicateQuery = $definition["model"]::query()
-                    ->where("company_id", $companyId);
+                $duplicateQuery = $definition["model"]::query();
 
                 foreach(self::uniqueKey($resource, $data) as $column => $value) {
 
@@ -152,7 +150,6 @@ final class MasterDataService {
                 unset($data["image"]);
 
                 $record->fill(collect($data)->only($allowed)->all());
-                $record->company_id = $companyId;
                 $record->{$id ? "updated_by" : "created_by"} = $userId;
                 $record->save();
 
@@ -227,19 +224,7 @@ final class MasterDataService {
 
             if(DB::table($table)
                 ->where($column, $id)
-                ->where(function($query) use ($companyId, $table) {
-
-                    if($table !== "companies") {
-
-                        $query->where("company_id", $companyId);
-
-                    }else {
-
-                        $query->where("id", $companyId);
-
-                    }
-
-                })
+                ->when($table === "companies", fn($query) => $query->where("id", $companyId))
                 ->exists()) {
 
                 throw new DomainException("No se puede inactivar el registro porque está siendo utilizado.");

@@ -28,7 +28,6 @@ class Subscription extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "sale_header_id",
         "sale_body_id",
@@ -159,11 +158,6 @@ class Subscription extends Model {
 
     }
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

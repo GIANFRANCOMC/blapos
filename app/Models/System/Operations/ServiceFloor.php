@@ -11,7 +11,6 @@ final class ServiceFloor extends Model {
     protected $table = "service_floors";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "code",
         "name",
@@ -31,11 +30,6 @@ final class ServiceFloor extends Model {
         "sort_order" => "integer",
     ];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

@@ -10,7 +10,6 @@ final class Tax extends Model {
     protected $table = "taxes";
 
     protected $fillable = [
-        "company_id",
         "code",
         "name",
         "description",

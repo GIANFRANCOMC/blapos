@@ -95,7 +95,7 @@ class ServiceController extends BaseController {
 
         try {
 
-            $item = ServiceService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $item = ServiceService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($item)) {
 
@@ -136,7 +136,6 @@ class ServiceController extends BaseController {
     private function prepareServiceData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "internal_code" => $request->input("internal_code"),
             "name" => $request->input("name"),
             "description" => $request->input("description"),

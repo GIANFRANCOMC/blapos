@@ -10,6 +10,7 @@ use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{Company};
 use App\Models\System\Warehouses\{InventoryMovement, InventoryStockAlert, Warehouse, WarehouseItem};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use DomainException;
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
@@ -64,7 +65,7 @@ final class InventoryMovementService {
 
         return DB::transaction(function() use ($data) {
 
-            $companyId = (int) ($data["company_id"] ?? 0);
+            $companyId = app(TenantCompanyContext::class)->id();
             $warehouseId = (int) ($data["warehouse_id"] ?? 0);
             $itemId = (int) ($data["item_id"] ?? 0);
             $type = (string) ($data["movement_type"] ?? "");
@@ -83,7 +84,7 @@ final class InventoryMovementService {
 
             }
 
-            self::assertWarehouseAndItemBelongToCompany($warehouseId, $itemId, $companyId);
+            self::assertWarehouseAndItemExistInTenant($warehouseId, $itemId);
 
             $warehouseItem = WarehouseItem::where("warehouse_id", $warehouseId)
                 ->where("item_id", $itemId)
@@ -93,7 +94,6 @@ final class InventoryMovementService {
             if(!$warehouseItem) {
 
                 WarehouseItem::create([
-                    "company_id" => $companyId,
                     "warehouse_id" => $warehouseId,
                     "item_id" => $itemId,
                     "quantity" => 0,
@@ -162,7 +162,6 @@ final class InventoryMovementService {
             }
 
             $movement = InventoryMovement::create([
-                "company_id" => $companyId,
                 "warehouse_id" => $warehouseId,
                 "item_id" => $itemId,
                 "user_id" => $data["user_id"] ?? null,
@@ -197,7 +196,7 @@ final class InventoryMovementService {
 
         return DB::transaction(function() use ($data) {
 
-            $companyId = (int) ($data["company_id"] ?? 0);
+            $companyId = app(TenantCompanyContext::class)->id();
             $sourceWarehouseId = (int) ($data["source_warehouse_id"] ?? 0);
             $destinationWarehouseId = (int) ($data["destination_warehouse_id"] ?? 0);
             $items = is_array($data["items"] ?? null) ? $data["items"] : [];
@@ -251,8 +250,8 @@ final class InventoryMovementService {
 
                 $processedItemIds[] = $itemId;
 
-                self::assertWarehouseAndItemBelongToCompany($sourceWarehouseId, $itemId, $companyId);
-                self::assertWarehouseAndItemBelongToCompany($destinationWarehouseId, $itemId, $companyId);
+                self::assertWarehouseAndItemExistInTenant($sourceWarehouseId, $itemId);
+                self::assertWarehouseAndItemExistInTenant($destinationWarehouseId, $itemId);
 
                 $metadata = [
                     "reference" => $reference,
@@ -261,7 +260,6 @@ final class InventoryMovementService {
                 ];
 
                 $exit = self::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => $sourceWarehouseId,
                     "item_id" => $itemId,
                     "user_id" => $data["user_id"] ?? null,
@@ -274,7 +272,6 @@ final class InventoryMovementService {
                 ]);
 
                 $entry = self::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => $destinationWarehouseId,
                     "item_id" => $itemId,
                     "user_id" => $data["user_id"] ?? null,
@@ -323,7 +320,6 @@ final class InventoryMovementService {
     ): Builder {
 
         $query = InventoryMovement::query()
-            ->where("company_id", $companyId)
             ->with([
                 "warehouse.branch:id,name,status",
                 "item:id,internal_code,barcode,name",
@@ -402,7 +398,7 @@ final class InventoryMovementService {
 
             }
 
-            $resultingBalance = Utilities::round((float) $data["resulting_balance"], null, (int) ($data["company_id"] ?? 0));
+            $resultingBalance = Utilities::round((float) $data["resulting_balance"]);
 
             if($resultingBalance < 0) {
 
@@ -410,11 +406,11 @@ final class InventoryMovementService {
 
             }
 
-            return Utilities::round($resultingBalance - $quantityBefore, null, (int) ($data["company_id"] ?? 0));
+            return Utilities::round($resultingBalance - $quantityBefore);
 
         }
 
-        $quantity = Utilities::round((float) ($data["quantity"] ?? 0), null, (int) ($data["company_id"] ?? 0));
+        $quantity = Utilities::round((float) ($data["quantity"] ?? 0));
 
         if($quantity <= 0) {
 
@@ -441,7 +437,7 @@ final class InventoryMovementService {
 
         if(array_key_exists("unit_cost", $data) && $data["unit_cost"] !== null) {
 
-            $unitCost = Utilities::round((float) $data["unit_cost"], null, (int) ($data["company_id"] ?? 0));
+            $unitCost = Utilities::round((float) $data["unit_cost"]);
 
             if($unitCost < 0) {
 
@@ -488,18 +484,15 @@ final class InventoryMovementService {
 
     }
 
-    private static function assertWarehouseAndItemBelongToCompany(
+    private static function assertWarehouseAndItemExistInTenant(
         int $warehouseId,
-        int $itemId,
-        int $companyId
+        int $itemId
     ): void {
 
         $warehouseExists = Warehouse::whereKey($warehouseId)
-            ->whereHas("branch", fn($query) => $query->where("company_id", $companyId))
             ->exists();
 
         $itemExists = Item::whereKey($itemId)
-            ->where("company_id", $companyId)
             ->where("type", "product")
             ->exists();
 
@@ -521,7 +514,6 @@ final class InventoryMovementService {
         $minimum = (float) $warehouseItem->minimum_stock;
         $isLow = $minimum > 0 && $quantity <= $minimum;
         $openAlert = InventoryStockAlert::query()
-            ->where("company_id", $companyId)
             ->where("warehouse_item_id", $warehouseItem->id)
             ->where("status", "open")
             ->latest("id")
@@ -541,7 +533,6 @@ final class InventoryMovementService {
             }
 
             $alert = InventoryStockAlert::create([
-                "company_id" => $companyId,
                 "warehouse_item_id" => $warehouseItem->id,
                 "quantity" => $quantity,
                 "minimum_stock" => $minimum,
@@ -618,7 +609,6 @@ final class InventoryMovementService {
         }catch(Throwable $exception) {
 
             Log::warning("No se pudo enviar la alerta de stock mínimo.", [
-                "company_id" => $companyId,
                 "inventory_stock_alert_id" => $alert->id,
                 "error" => $exception->getMessage(),
             ]);

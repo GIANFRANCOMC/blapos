@@ -83,7 +83,7 @@ final class CancelExpiredSubscriptions extends Command {
 
         $subscriptions = Subscription::query()
             ->where("status", "active")
-            ->when($companyId, fn($query) => $query->where("company_id", $companyId))
+            
             ->where("end_date", "<=", now())
             ->orderBy("end_date")
             ->limit($limit)

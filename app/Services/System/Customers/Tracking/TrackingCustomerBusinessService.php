@@ -7,6 +7,7 @@ namespace App\Services\System\Customers\Tracking;
 use App\Helpers\System\{Utilities};
 use App\Models\System\Customers\{Attendance, Customer, Subscription};
 use App\Models\System\Sales\{SaleHeader};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 
 /**
@@ -14,6 +15,9 @@ use Carbon\{Carbon};
  * Handles complex business logic for tracking customer information
  */
 class TrackingCustomerBusinessService {
+    public function __construct(private readonly TenantCompanyContext $companyContext) {
+    }
+
     /**
      * Get valid customer by code or document number
      *
@@ -23,7 +27,7 @@ class TrackingCustomerBusinessService {
      */
     public function getValidCustomer($code, int $companyId, string $type = ""): ?Customer {
 
-        $query = Customer::where("company_id", $companyId)
+        $query = Customer::query()
             ->with(["identityDocumentType"]);
 
         if($type === "document_number") {
@@ -104,10 +108,7 @@ class TrackingCustomerBusinessService {
 
             case "sales":
                 return SaleHeader::where("holder_id", $customer->id)
-                    ->whereHas("serie.branch", function($query) use ($customer, $allowedBranchIds) {
-
-                        $query->where("company_id", $customer->company_id);
-
+                    ->whereHas("serie.branch", function($query) use ($allowedBranchIds) {
                         if($allowedBranchIds !== null) {
 
                             $query->whereIn("id", $allowedBranchIds);
@@ -120,7 +121,7 @@ class TrackingCustomerBusinessService {
                     ->get();
 
             case "subscriptions":
-                return Subscription::where("company_id", $customer->company_id)
+                return Subscription::query()
                     ->where("customer_id", $customer->id)
                     ->when($allowedBranchIds !== null, fn($query) => $query->whereIn("branch_id", $allowedBranchIds))
                     ->whereBetween("created_at", [$range["from"], $range["to"]])
@@ -128,7 +129,7 @@ class TrackingCustomerBusinessService {
                     ->get();
 
             case "attendances":
-                return Attendance::where("company_id", $customer->company_id)
+                return Attendance::query()
                     ->where("customer_id", $customer->id)
                     ->when($allowedBranchIds !== null, fn($query) => $query->whereIn("branch_id", $allowedBranchIds))
                     ->whereBetween("created_at", [$range["from"], $range["to"]])
@@ -155,7 +156,7 @@ class TrackingCustomerBusinessService {
             "msg" => "",
         ];
 
-        $companyId = $data["company_id"];
+        $companyId = $this->companyContext->id();
         $customerId = $data["customer_id"] ?? "";
         $customerDocumentNumber = $data["customer_document_number"] ?? "";
         $periodType = $data["period_type"] ?? "last_3_months";

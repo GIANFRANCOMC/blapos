@@ -72,7 +72,6 @@ class BiometricDeviceService {
     private static function prepareBiometricDeviceDataForCreate(array $data, int $companyId, int $userId): array {
 
         $deviceData = [
-            "company_id" => $companyId,
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -164,7 +163,6 @@ class BiometricDeviceService {
             ])->save();
 
             BusinessAuditService::record(
-                (int) $device->company_id,
                 "biometric_devices",
                 "credentials_rotated",
                 "Credenciales rotadas para el dispositivo #{$device->id}.",
@@ -225,10 +223,9 @@ class BiometricDeviceService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["branch", "model.brand"]): ?BiometricDevice {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["branch", "model.brand"]): ?BiometricDevice {
 
-        $query = BiometricDevice::where("id", $id)
-            ->where("company_id", $companyId);
+        $query = BiometricDevice::where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -255,7 +252,7 @@ class BiometricDeviceService {
      */
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        $query = BiometricDevice::where("company_id", $companyId)
+        $query = BiometricDevice::query()
             ->with(["branch", "model.brand"])
             ->withCount([
                 "events as failed_events_count" => fn($eventQuery) => $eventQuery->where("processing_status", "failed"),
@@ -314,10 +311,9 @@ class BiometricDeviceService {
      * @param  string  $ipAddress IP
      * @param  int  $companyId Company
      */
-    public static function findByIpAndCompany(string $ipAddress, int $companyId): ?BiometricDevice {
+    public static function findByIpInTenant(string $ipAddress, int $companyId): ?BiometricDevice {
 
         return BiometricDevice::where("ip_address", $ipAddress)
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->first();
 
@@ -330,14 +326,13 @@ class BiometricDeviceService {
         int $perPage = 15
     ): LengthAwarePaginator {
 
-        if(!self::findByIdAndCompany($deviceId, $companyId, null, [])) {
+        if(!self::findByIdInTenant($deviceId, $companyId, null, [])) {
 
             throw new DomainException("El dispositivo biometrico no existe o no pertenece a la empresa actual.");
 
         }
 
         return BiometricDeviceEvent::query()
-            ->where("company_id", $companyId)
             ->where("biometric_device_id", $deviceId)
             ->when($filters["processing_status"] ?? null, fn($query, $status) => $query->where("processing_status", $status))
             ->when($filters["event_type"] ?? null, fn($query, $eventType) => $query->where("event_type", $eventType))
@@ -355,7 +350,7 @@ class BiometricDeviceService {
      */
     public static function getActiveDevices(int $companyId, ?int $branchId = null) {
 
-        $query = BiometricDevice::where("company_id", $companyId)
+        $query = BiometricDevice::query()
             ->where("status", "active");
 
         if(Utilities::isDefined($branchId)) {
@@ -384,7 +379,7 @@ class BiometricDeviceService {
 
             self::lockFingerprintDevice($biometricDeviceId, $companyId);
 
-            if(!Customer::query()->where("company_id", $companyId)->where("status", "active")->whereKey($customerId)->exists()) {
+            if(!Customer::query()->where("status", "active")->whereKey($customerId)->exists()) {
 
                 throw new DomainException("El cliente no está activo o no pertenece a la empresa.");
 
@@ -393,7 +388,6 @@ class BiometricDeviceService {
             self::assertAvailableDeviceUserId($biometricDeviceId, $deviceUserId, $fingerIndex);
 
             return CustomerBiometricFingerprint::create([
-                "company_id" => $companyId,
                 "customer_id" => $customerId,
                 "biometric_device_id" => $biometricDeviceId,
                 "device_user_id" => $deviceUserId,
@@ -418,7 +412,6 @@ class BiometricDeviceService {
 
         $fingerprint = CustomerBiometricFingerprint::where("biometric_device_id", $deviceId)
             ->where("device_user_id", $deviceUserId)
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->with("customer")
             ->first();
@@ -440,7 +433,7 @@ class BiometricDeviceService {
 
             self::lockFingerprintDevice($biometricDeviceId, $companyId);
 
-            if(!User::query()->where("company_id", $companyId)->where("status", "active")->whereKey($employeeUserId)->exists()) {
+            if(!User::query()->where("status", "active")->whereKey($employeeUserId)->exists()) {
 
                 throw new DomainException("El colaborador no está activo o no pertenece a la empresa.");
 
@@ -449,7 +442,6 @@ class BiometricDeviceService {
             self::assertAvailableDeviceUserId($biometricDeviceId, $deviceUserId, $fingerIndex);
 
             return UserBiometricFingerprint::create([
-                "company_id" => $companyId,
                 "user_id" => $employeeUserId,
                 "biometric_device_id" => $biometricDeviceId,
                 "device_user_id" => $deviceUserId,
@@ -463,16 +455,15 @@ class BiometricDeviceService {
 
     }
 
-    public static function findUserByDeviceUserId(int $deviceId, int $deviceUserId, int $companyId): ?User {
+    public static function findUserByDeviceUserId(int $deviceId, int $deviceUserId): ?User {
 
         $fingerprint = UserBiometricFingerprint::query()
             ->where("biometric_device_id", $deviceId)
             ->where("device_user_id", $deviceUserId)
-            ->where("company_id", $companyId)
             ->where("status", "active")
-            ->whereHas("user", function(Builder $query) use ($companyId) {
+            ->whereHas("user", function(Builder $query) {
 
-                $query->where("company_id", $companyId)->where("status", "active");
+                $query->where("status", "active");
 
             })
             ->with("user")
@@ -530,7 +521,6 @@ class BiometricDeviceService {
     private static function lockFingerprintDevice(int $deviceId, int $companyId): BiometricDevice {
 
         $device = BiometricDevice::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->lockForUpdate()
             ->find($deviceId);

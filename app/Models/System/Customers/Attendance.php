@@ -26,7 +26,6 @@ class Attendance extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "customer_id",
         "biometric_device_id",
@@ -107,11 +106,6 @@ class Attendance extends Model {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function branch() {
 

@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Finance\{PaymentMethod, PaymentMethodVariant};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchasePayablePayment extends Model {
-    use BelongsToCompany;
 
     protected $table = "purchase_payable_payments";
 
     protected $fillable = [
-        "company_id",
         "purchase_account_payable_id",
         "payment_method_id",
         "payment_method_variant_id",

@@ -102,7 +102,7 @@ final class AccountsReceivableService {
 
     private function query(int $companyId, int $userId, array $filters = []): Builder {
 
-        $query = SaleAccountReceivable::query()->where("company_id", $companyId);
+        $query = SaleAccountReceivable::query();
         $branchIds = CompanyReferenceDataService::for($companyId, $userId)->allowedBranchIds();
 
         if($branchIds !== null) {

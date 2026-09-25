@@ -9,7 +9,6 @@ class RoleSubSection extends Model {
     protected $table = "role_sub_sections";
 
     protected $fillable = [
-        "company_id",
         "role_id",
         "sub_section_id",
         "actions",

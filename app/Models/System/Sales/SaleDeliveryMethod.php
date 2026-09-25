@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 final class SaleDeliveryMethod extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_delivery_methods";
 
     protected $fillable = [
-        "company_id",
         "code",
         "name",
         "description",

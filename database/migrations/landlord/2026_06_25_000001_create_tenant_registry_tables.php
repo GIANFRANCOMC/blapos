@@ -31,7 +31,6 @@ return new class extends Migration {
             $table->id();
             $table->uuid("public_id")->unique();
             $table->string("slug", 120)->unique();
-            $table->unsignedBigInteger("company_id")->nullable();
             $table->string("database_name", 180)->unique();
             $table->enum("status", ["provisioning", "active", "inactive", "suspended"])->default("provisioning");
             $table->timestamp("last_resolved_at")->nullable();
@@ -65,7 +64,6 @@ return new class extends Migration {
 
             $table->id();
             $table->unsignedBigInteger("tenant_database_id")->nullable();
-            $table->unsignedBigInteger("company_id")->nullable();
             $table->string("action", 80);
             $table->enum("result", ["success", "failure", "blocked"])->default("success");
             $table->string("host", 255)->nullable();

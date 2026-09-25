@@ -13,7 +13,6 @@ return new class extends Migration {
         Schema::create("sale_delivery_methods", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("code", 50);
             $table->string("name", 100);
             $table->string("description", 300)->nullable();
@@ -25,16 +24,14 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->unique(["company_id", "code"], "sale_delivery_methods_company_code_uq");
-            $table->index(["company_id", "status", "sort_order"], "sale_delivery_methods_company_status_idx");
+            $table->unique(["code"], "sale_delivery_methods_code_uq");
+            $table->index(["status", "sort_order"], "sale_delivery_methods_status_idx");
 
         });
 
         Schema::create("sales_header", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("serie_id");
             $table->integer("sequential");
             $table->unsignedBigInteger("holder_id");
@@ -81,22 +78,20 @@ return new class extends Migration {
 
             $table->foreign("cash_session_id")->references("id")->on("cash_sessions")->nullOnDelete();
             $table->foreign("delivered_by")->references("id")->on("users")->nullOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->unique(["company_id", "serie_id", "sequential"], "sales_header_company_serie_sequential_uq");
-            $table->index(["company_id", "status", "issue_date", "id"], "sales_header_company_status_date_idx");
-            $table->index(["company_id", "holder_id", "status", "issue_date", "id"], "sales_header_holder_status_date_idx");
-            $table->index(["company_id", "seller_id", "status", "issue_date", "id"], "sales_header_seller_status_date_idx");
-            $table->index(["company_id", "warehouse_id", "status", "issue_date", "id"], "sales_header_warehouse_status_date_idx");
-            $table->index(["company_id", "delivery_method_id", "status", "issue_date"], "sales_header_company_delivery_method_idx");
-            $table->index(["company_id", "delivery_status", "status", "issue_date", "id"], "sales_header_delivery_status_date_idx");
-            $table->index(["company_id", "payment_status", "status", "issue_date", "id"], "sales_header_payment_status_date_idx");
+            $table->unique(["serie_id", "sequential"], "sales_header_serie_sequential_uq");
+            $table->index(["status", "issue_date", "id"], "sales_header_status_date_idx");
+            $table->index(["holder_id", "status", "issue_date", "id"], "sales_header_holder_status_date_idx");
+            $table->index(["seller_id", "status", "issue_date", "id"], "sales_header_seller_status_date_idx");
+            $table->index(["warehouse_id", "status", "issue_date", "id"], "sales_header_warehouse_status_date_idx");
+            $table->index(["delivery_method_id", "status", "issue_date"], "sales_header_delivery_method_idx");
+            $table->index(["delivery_status", "status", "issue_date", "id"], "sales_header_delivery_status_date_idx");
+            $table->index(["payment_status", "status", "issue_date", "id"], "sales_header_payment_status_date_idx");
 
         });
 
         Schema::create("series_correlative_movements", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("serie_id");
             $table->unsignedBigInteger("sale_header_id");
             $table->unsignedBigInteger("user_id")->nullable();
@@ -108,22 +103,20 @@ return new class extends Migration {
             $table->timestamp("occurred_at")->useCurrent();
             $table->timestamp("created_at")->useCurrent()->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("serie_id")->references("id")->on("series")->restrictOnDelete();
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->restrictOnDelete();
             $table->foreign("user_id")->references("id")->on("users")->nullOnDelete();
             $table->unique(
-                ["company_id", "serie_id", "sequential", "action"],
+                ["serie_id", "sequential", "action"],
                 "series_corr_company_serie_seq_action_uq"
             );
 
-            $table->index(["company_id", "sale_header_id", "action", "occurred_at"], "series_corr_sale_action_date_idx");
+            $table->index(["sale_header_id", "action", "occurred_at"], "series_corr_sale_action_date_idx");
 
         });
         Schema::create("sales_body", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_header_id");
             $table->unsignedBigInteger("item_id");
             $table->unsignedBigInteger("currency_id");
@@ -153,17 +146,15 @@ return new class extends Migration {
             $table->foreign("item_id")->references("id")->on("items")->restrictOnDelete();
             $table->foreign("currency_id")->references("id")->on("currencies")->restrictOnDelete();
             $table->foreign("customer_id")->references("id")->on("customers")->restrictOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->index(["company_id", "sale_header_id", "status", "id"], "sales_body_header_status_idx");
-            $table->index(["company_id", "item_id", "status", "created_at", "id"], "sales_body_item_status_date_idx");
-            $table->index(["company_id", "customer_id", "status", "created_at", "id"], "sales_body_customer_status_date_idx");
+            $table->index(["sale_header_id", "status", "id"], "sales_body_header_status_idx");
+            $table->index(["item_id", "status", "created_at", "id"], "sales_body_item_status_date_idx");
+            $table->index(["customer_id", "status", "created_at", "id"], "sales_body_customer_status_date_idx");
 
         });
 
         Schema::create("sale_taxes", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_header_id");
             $table->unsignedBigInteger("tax_id")->nullable();
             $table->string("name", 255);
@@ -184,15 +175,13 @@ return new class extends Migration {
 
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->onDelete("cascade");
             $table->foreign("tax_id")->references("id")->on("taxes")->nullOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->index(["company_id", "sale_header_id", "status"], "sale_taxes_header_status_idx");
+            $table->index(["sale_header_id", "status"], "sale_taxes_header_status_idx");
 
         });
 
         Schema::create("sale_payments", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sale_header_id");
             $table->unsignedBigInteger("payment_method_id")->nullable();
             $table->unsignedBigInteger("payment_method_variant_id")->nullable();
@@ -210,9 +199,8 @@ return new class extends Migration {
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->onDelete("cascade");
             $table->foreign("payment_method_id")->references("id")->on("payment_methods")->nullOnDelete();
             $table->foreign("payment_method_variant_id")->references("id")->on("payment_method_variants")->nullOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->index(["company_id", "sale_header_id", "status"], "sale_payments_header_status_idx");
-            $table->index(["company_id", "payment_method_id", "status", "created_at"], "sale_payments_method_status_date_idx");
+            $table->index(["sale_header_id", "status"], "sale_payments_header_status_idx");
+            $table->index(["payment_method_id", "status", "created_at"], "sale_payments_method_status_date_idx");
 
         });
 

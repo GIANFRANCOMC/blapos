@@ -35,7 +35,6 @@ final class GuestCatalogService {
                 "see_my_web_price",
                 "status",
             ])
-            ->where("company_id", $companyId)
             ->where("see_my_web", true)
             ->where("status", "active")
             ->with(["currency", "categories"])
@@ -54,7 +53,6 @@ final class GuestCatalogService {
         }
 
         return Category::query()
-            ->where("company_id", $companyId)
             ->where("is_public", true)
             ->where("status", "active")
             ->orderBy("sort_order")

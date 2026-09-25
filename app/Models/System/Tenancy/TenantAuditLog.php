@@ -15,7 +15,6 @@ final class TenantAuditLog extends Model {
 
     protected $fillable = [
         "tenant_database_id",
-        "company_id",
         "action",
         "result",
         "host",
@@ -26,7 +25,6 @@ final class TenantAuditLog extends Model {
     ];
 
     protected $casts = [
-        "company_id" => "integer",
         "context" => "array",
         "occurred_at" => "datetime",
     ];

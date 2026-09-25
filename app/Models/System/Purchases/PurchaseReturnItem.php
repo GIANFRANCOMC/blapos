@@ -14,7 +14,7 @@ final class PurchaseReturnItem extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id", "purchase_return_id", "purchase_item_id", "item_id",
+        "purchase_return_id", "purchase_item_id", "item_id",
         "inventory_movement_id", "quantity", "unit_cost", "total_cost", "created_at",
     ];
 

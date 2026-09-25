@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\{Model};
 final class SupplierContact extends Model {
     protected $table = "supplier_contacts";
 
-    protected $fillable = ["company_id", "supplier_id", "name", "position", "telephone", "email", "is_primary", "status"];
+    protected $fillable = ["supplier_id", "name", "position", "telephone", "email", "is_primary", "status"];
 
     protected $casts = ["is_primary" => "boolean"];
 }

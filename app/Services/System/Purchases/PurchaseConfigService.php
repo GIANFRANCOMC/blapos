@@ -25,7 +25,6 @@ final class PurchaseConfigService extends BaseConfigService {
         return self::data([
             "suppliers" => self::data([
                 "records" => Supplier::query()
-                    ->where("company_id", $companyId)
                     ->where("status", "active")
                     ->orderBy("name")
                     ->get(),
@@ -41,7 +40,6 @@ final class PurchaseConfigService extends BaseConfigService {
             ]),
             "products" => self::data([
                 "records" => Item::query()
-                    ->where("company_id", $companyId)
                     ->where("type", "product")
                     ->where("status", "active")
                     ->select(["id", "internal_code", "barcode", "name"])

@@ -24,7 +24,6 @@ class AssetAssignment extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "user_id",
         "branch_id",
         "asset_id",

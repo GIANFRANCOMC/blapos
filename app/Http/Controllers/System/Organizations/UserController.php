@@ -98,7 +98,7 @@ class UserController extends BaseController {
 
         try {
 
-            $user = UserService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $user = UserService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($user)) {
 
@@ -133,7 +133,7 @@ class UserController extends BaseController {
 
     public function authenticationEvents(Request $request, int $id): JsonResponse {
 
-        $user = UserService::findByIdAndCompany($id, $this->getCompanyId(), null, []);
+        $user = UserService::findByIdInTenant($id, $this->getCompanyId(), null, []);
 
         if(!$user) {
 
@@ -142,7 +142,6 @@ class UserController extends BaseController {
         }
 
         $events = AuthenticationEvent::query()
-            ->where("company_id", $this->getCompanyId())
             ->where("user_id", $user->id)
             ->when($request->input("event_type"), fn($query, $eventType) => $query->where("event_type", $eventType))
             ->when($request->input("result"), fn($query, $result) => $query->where("result", $result))
@@ -162,7 +161,7 @@ class UserController extends BaseController {
 
         try {
 
-            $user = UserService::findByIdAndCompany($id, $this->getCompanyId(), null, []);
+            $user = UserService::findByIdInTenant($id, $this->getCompanyId(), null, []);
 
             if(!$user) {
 
@@ -181,7 +180,6 @@ class UserController extends BaseController {
                 "password_changed",
                 "success",
                 $user,
-                $this->getCompanyId(),
                 $user->email,
                 "Contraseña actualizada desde Colaboradores."
             );
@@ -202,7 +200,7 @@ class UserController extends BaseController {
 
         try {
 
-            $user = UserService::findByIdAndCompany($id, $this->getCompanyId(), ["active"]);
+            $user = UserService::findByIdInTenant($id, $this->getCompanyId(), ["active"]);
 
             if(!$user) {
 
@@ -212,7 +210,7 @@ class UserController extends BaseController {
 
             $deviceId = (int) $data["biometric_device_id"];
 
-            $device = BiometricDeviceService::findByIdAndCompany($deviceId, $this->getCompanyId(), ["active"]);
+            $device = BiometricDeviceService::findByIdInTenant($deviceId, $this->getCompanyId(), ["active"]);
 
             if(!$device) {
 
@@ -255,7 +253,6 @@ class UserController extends BaseController {
     private function prepareUserData($request): array {
 
         $data = [
-            "company_id" => $this->getCompanyId(),
             "role_id" => $request->input("role_id"),
             "identity_document_type_id" => $request->input("identity_document_type_id"),
             "document_number" => $request->input("document_number"),

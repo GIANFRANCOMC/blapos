@@ -24,7 +24,6 @@ final class TestConfigService extends BaseConfigService {
     protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
 
         return self::data([
-            "company_id" => $companyId,
             "page" => $page,
         ]);
 
@@ -32,15 +31,13 @@ final class TestConfigService extends BaseConfigService {
 }
 
 class BaseConfigServiceTest extends TestCase {
-    public function test_cache_is_isolated_by_company_and_page(): void {
+    public function test_cache_is_isolated_by_tenant_and_page(): void {
 
         $main = TestConfigService::getInitParams(101, "main", 1);
         $list = TestConfigService::getInitParams(101, "list", 1);
-        $otherCompany = TestConfigService::getInitParams(102, "main", 1);
 
         $this->assertSame("main", $main->config->page);
         $this->assertSame("list", $list->config->page);
-        $this->assertSame(102, $otherCompany->config->company_id);
         $this->assertNotSame(
             TestConfigService::cacheKey(101, "main"),
             TestConfigService::cacheKey(101, "list")

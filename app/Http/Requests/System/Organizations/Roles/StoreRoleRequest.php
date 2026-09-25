@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Organizations\Roles;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 use Illuminate\Validation\{Rule};
 
 class StoreRoleRequest extends CompanyFormRequest {
@@ -21,7 +21,6 @@ class StoreRoleRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $companyId = (int) $this->user()?->company_id;
         $roleId = (int) $this->route("id");
         $actionCodes = collect(config("permissions.actions", []))->pluck("code")->all();
 
@@ -31,7 +30,6 @@ class StoreRoleRequest extends CompanyFormRequest {
                 "string",
                 "max:80",
                 Rule::unique("roles", "name")
-                    ->where("company_id", $companyId)
                     ->ignore($roleId),
             ],
             "is_full_access" => ["required", "boolean"],
@@ -45,11 +43,11 @@ class StoreRoleRequest extends CompanyFormRequest {
             "cash_register_scope_mode" => ["required", Rule::in(["all", "restricted"])],
             "warehouse_scope_mode" => ["required", Rule::in(["all", "restricted"])],
             "branch_ids" => ["required_if:branch_scope_mode,restricted", "array", "min:1"],
-            "branch_ids.*" => ["integer", "distinct", new BelongsToCompany("branches")],
+            "branch_ids.*" => ["integer", "distinct", new ExistsInTenant("branches")],
             "cash_register_ids" => ["required_if:cash_register_scope_mode,restricted", "array", "min:1"],
-            "cash_register_ids.*" => ["integer", "distinct", new BelongsToCompany("cash_registers")],
+            "cash_register_ids.*" => ["integer", "distinct", new ExistsInTenant("cash_registers")],
             "warehouse_ids" => ["required_if:warehouse_scope_mode,restricted", "array", "min:1"],
-            "warehouse_ids.*" => ["integer", "distinct", new BelongsToCompany("warehouses")],
+            "warehouse_ids.*" => ["integer", "distinct", new ExistsInTenant("warehouses")],
             "status" => ["required", Rule::in(["active", "inactive"])],
         ];
 

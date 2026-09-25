@@ -133,7 +133,6 @@ final class CompanySettingService {
         }
 
         $settings = CompanySetting::query()
-            ->where("company_id", $companyId)
             ->where("group", $group)
             ->where("status", "active")
             ->orderBy("id")

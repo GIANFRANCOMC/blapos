@@ -9,6 +9,7 @@ use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Organizations\Branches\{StoreBranchRequest, UpdateBranchRequest};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Organizations\Branches\{BranchConfigService, BranchService, SerieService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{URL};
 
@@ -96,7 +97,7 @@ class BranchController extends BaseController {
 
         try {
 
-            $branch = BranchService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $branch = BranchService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -183,7 +184,7 @@ class BranchController extends BaseController {
 
     public function publicAttendanceLink(Request $request, int $id): JsonResponse {
 
-        $branch = BranchService::findByIdAndCompany($id, $this->getCompanyId(), ["active"]);
+        $branch = BranchService::findByIdInTenant($id, $this->getCompanyId(), ["active"]);
 
         if(!$branch) {
 
@@ -198,7 +199,7 @@ class BranchController extends BaseController {
             "guest.tracking_attendances.signed",
             $expiresAt,
             [
-                "company_slug" => $this->getAuthUser()->company->slug,
+                "company_slug" => app(TenantCompanyContext::class)->get()->slug,
                 "branch" => $branch->id,
             ]
         );
@@ -221,7 +222,6 @@ class BranchController extends BaseController {
     private function prepareBranchData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "internal_code" => $request->input("internal_code"),
             "name" => $request->input("name"),
             "address" => $request->input("address"),

@@ -25,7 +25,6 @@ final class UserWorkspaceTest extends TestCase {
         $this->provisionSystemDatabase();
 
         $this->user = User::query()
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->firstOrFail();
 
@@ -43,7 +42,6 @@ final class UserWorkspaceTest extends TestCase {
 
         $this->assertDatabaseCount("user_navigation_metrics", 2);
         $this->assertDatabaseHas("user_navigation_metrics", [
-            "company_id" => 1,
             "user_id" => $this->user->id,
             "sub_section_id" => $newSaleId,
             "visit_count" => 2,
@@ -56,7 +54,7 @@ final class UserWorkspaceTest extends TestCase {
 
         $routes = DB::table("sub_sections as ss")
             ->join("companies_sub_sections as css", "css.sub_section_id", "=", "ss.id")
-            ->where("css.company_id", $this->user->company_id)
+            ->where("css.company_id", 1)
             ->where("css.status", "active")
             ->where("ss.dom_route", "!=", "workspace.index")
             ->orderBy("ss.id")
@@ -70,7 +68,6 @@ final class UserWorkspaceTest extends TestCase {
         }
 
         $metrics = DB::table("user_navigation_metrics")
-            ->where("company_id", 1)
             ->where("user_id", $this->user->id);
 
         $this->assertSame(11, (clone $metrics)->count());
@@ -83,7 +80,7 @@ final class UserWorkspaceTest extends TestCase {
 
         $routes = DB::table("sub_sections as ss")
             ->join("companies_sub_sections as css", "css.sub_section_id", "=", "ss.id")
-            ->where("css.company_id", $this->user->company_id)
+            ->where("css.company_id", 1)
             ->where("css.status", "active")
             ->where("ss.dom_route", "!=", "workspace.index")
             ->orderBy("ss.id")
@@ -100,7 +97,6 @@ final class UserWorkspaceTest extends TestCase {
         $this->navigationService->record($this->user, $routes[5]);
 
         $ranks = DB::table("user_navigation_metrics")
-            ->where("company_id", 1)
             ->where("user_id", $this->user->id)
             ->whereNotNull("recent_rank")
             ->orderBy("recent_rank")
@@ -140,7 +136,6 @@ final class UserWorkspaceTest extends TestCase {
 
         Auth::login($this->user);
         $originalRoleId = $this->user->role_id;
-        $originalCompanyId = $this->user->company_id;
 
         $response = $this->withoutMiddleware([
             \App\Http\Middleware\ResolveTenant::class,
@@ -155,7 +150,6 @@ final class UserWorkspaceTest extends TestCase {
             "gender" => "other",
             "birthdate" => "1990-05-12",
             "role_id" => null,
-            "company_id" => 999,
             "status" => "blocked",
         ]);
 
@@ -168,7 +162,6 @@ final class UserWorkspaceTest extends TestCase {
         $this->assertSame("cuenta.actualizada@example.test", $this->user->email);
         $this->assertSame("999888777", $this->user->phone_number);
         $this->assertSame($originalRoleId, $this->user->role_id);
-        $this->assertSame($originalCompanyId, $this->user->company_id);
         $this->assertSame("active", $this->user->status);
 
     }
@@ -190,14 +183,12 @@ final class UserWorkspaceTest extends TestCase {
         $posId = DB::table("sub_sections")->where("dom_route", "sales.pos")->value("id");
 
         $this->assertDatabaseHas("user_navigation_metrics", [
-            "company_id" => $this->user->company_id,
             "user_id" => $this->user->id,
             "sub_section_id" => $newSaleId,
             "recent_rank" => 1,
         ]);
 
         $this->assertDatabaseMissing("user_navigation_metrics", [
-            "company_id" => $this->user->company_id,
             "user_id" => $this->user->id,
             "sub_section_id" => $posId,
         ]);

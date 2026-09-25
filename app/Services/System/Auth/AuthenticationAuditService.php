@@ -16,7 +16,6 @@ final class AuthenticationAuditService {
         string $eventType,
         string $result,
         ?User $user = null,
-        ?int $companyId = null,
         ?string $email = null,
         ?string $reason = null
     ): void {
@@ -34,7 +33,6 @@ final class AuthenticationAuditService {
             $sessionId = $request->hasSession() ? $request->session()->getId() : null;
 
             AuthenticationEvent::query()->create([
-                "company_id" => $user?->company_id ?? $companyId,
                 "user_id" => $user?->id,
                 "tenant_slug" => $tenant?->slug,
                 "event_type" => $eventType,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Base;
 
 use App\Models\System\General\{Currency, IdentityDocumentType};
+use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Database\Eloquent\{Collection};
 use Illuminate\Support\Facades\{Cache};
 
@@ -36,7 +37,6 @@ final class MasterReferenceDataService {
             self::cacheKey($companyId, "currencies"),
             self::CACHE_TTL,
             fn() => Currency::query()
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->orderBy("code")
                 ->get()
@@ -83,7 +83,6 @@ final class MasterReferenceDataService {
             self::cacheKey($companyId, "identity_documents"),
             self::CACHE_TTL,
             fn() => IdentityDocumentType::query()
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->orderBy("name")
                 ->get()
@@ -93,7 +92,7 @@ final class MasterReferenceDataService {
 
     private static function cacheKey(int $companyId, string $name): string {
 
-        return "master_reference:company:{$companyId}:{$name}:active";
+        return app(TenantContext::class)->cacheNamespace().":master_reference:{$name}:active";
 
     }
 }

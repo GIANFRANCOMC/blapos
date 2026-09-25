@@ -47,7 +47,6 @@ final class EnsureAuthenticatedSession {
             "blocked",
             $user,
             null,
-            null,
             $user->status !== "active" ? "Usuario inactivo." : "Versión de sesión obsoleta."
         );
 

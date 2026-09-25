@@ -35,7 +35,6 @@ class TrackingNotificationService {
             });
 
         })
-            ->where("company_id", $companyId)
             ->orderBy("id", "DESC")
             ->paginate($perPage);
 
@@ -44,7 +43,6 @@ class TrackingNotificationService {
     public static function retry(int $companyId, int $userId, int $notificationId): SubscriptionEmail {
 
         $notification = SubscriptionEmail::query()
-            ->where("company_id", $companyId)
             ->findOrFail($notificationId);
 
         if($notification->status !== "failed") {
@@ -65,7 +63,6 @@ class TrackingNotificationService {
         ])->save();
 
         BusinessAuditService::record(
-            $companyId,
             "tracking_notifications",
             "retry",
             "Notificación #{$notification->id} habilitada para reintento.",

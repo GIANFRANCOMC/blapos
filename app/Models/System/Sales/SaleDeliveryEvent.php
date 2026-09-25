@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Organizations\{User};
 use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo, Relations\HasMany};
 
 class SaleDeliveryEvent extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_delivery_events";
 
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "sale_delivery_id",
         "warehouse_id",
         "delivered_by",

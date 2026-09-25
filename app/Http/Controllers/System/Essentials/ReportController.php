@@ -97,7 +97,7 @@ class ReportController extends BaseController {
 
         $allowedBranchIds = $this->allowedBranchIds();
 
-        $saleHeader = SaleHeader::where("company_id", $this->getCompanyId())
+        $saleHeader = SaleHeader::query()
             ->whereKey((int) $validated["document"])
             ->when($allowedBranchIds !== null, function($query) use ($allowedBranchIds) {
 
@@ -214,7 +214,7 @@ class ReportController extends BaseController {
 
     private function renderSalePdf(int $companyId, int $saleId, string $printType, ?array $allowedBranchIds = null) {
 
-        $saleHeader = SaleHeader::where("company_id", $companyId)
+        $saleHeader = SaleHeader::query()
             ->whereKey($saleId)
             ->when($allowedBranchIds !== null, function($query) use ($allowedBranchIds) {
 
@@ -290,7 +290,7 @@ class ReportController extends BaseController {
 
     public function customers(Request $request) {
 
-        $query = Customer::where("company_id", $this->getCompanyId())
+        $query = Customer::query()
             ->when(Utilities::isDefined($request->document_number), function($query) use ($request) {
 
                 $filter = "%".trim($request->document_number)."%";
@@ -331,7 +331,7 @@ class ReportController extends BaseController {
 
     public function users(Request $request) {
 
-        $query = User::where("company_id", $this->getCompanyId())
+        $query = User::query()
             ->when(Utilities::isDefined($request->document_number), function($query) use ($request) {
 
                 $filter = "%".trim($request->document_number)."%";
@@ -372,7 +372,7 @@ class ReportController extends BaseController {
 
     public function items(Request $request) {
 
-        $query = Item::where("company_id", $this->getCompanyId())
+        $query = Item::query()
             ->when(Utilities::isDefined($request->name), function($query) use ($request) {
 
                 $filter = "%".trim($request->name)."%";
@@ -406,7 +406,7 @@ class ReportController extends BaseController {
 
     public function branches(Request $request) {
 
-        $query = Branch::where("company_id", $this->getCompanyId())
+        $query = Branch::query()
             ->when($this->allowedBranchIds() !== null, fn($query) => $query->whereIn("id", $this->allowedBranchIds())
             )
             ->when(Utilities::isDefined($request->name), function($query) use ($request) {
@@ -438,7 +438,7 @@ class ReportController extends BaseController {
 
     public function sales(Request $request) {
 
-        $query = SaleHeader::where("company_id", $this->getCompanyId())
+        $query = SaleHeader::query()
             ->when($this->allowedBranchIds() !== null, fn($query) => $query->whereHas("serie", fn($serie) => $serie->whereIn("branch_id", $this->allowedBranchIds())
             )
             )

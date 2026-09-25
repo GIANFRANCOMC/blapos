@@ -49,7 +49,6 @@ final class CompanyReferenceDataService {
     public function categories(): Collection {
 
         return Category::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->orderBy("name")
             ->get();
@@ -59,7 +58,6 @@ final class CompanyReferenceDataService {
     public function brands(): Collection {
 
         return Brand::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->orderBy("name")
             ->get();
@@ -70,11 +68,6 @@ final class CompanyReferenceDataService {
 
         $query = Warehouse::query()
             ->with("branch")
-            ->whereHas("branch", function($query) {
-
-                $query->where("company_id", $this->companyId);
-
-            })
             ->where("status", "active");
 
         $warehouseIds = $this->allowedWarehouseIds();
@@ -110,7 +103,6 @@ final class CompanyReferenceDataService {
 
         $query = CashRegister::query()
             ->with("branch")
-            ->where("company_id", $this->companyId)
             ->where("status", "active");
 
         $cashRegisterIds = $this->allowedCashRegisterIds();
@@ -144,7 +136,6 @@ final class CompanyReferenceDataService {
         Item::expireActiveItems($this->companyId);
 
         return Item::query()
-            ->where("company_id", $this->companyId)
             ->availableForSale()
             ->with(["currency", "brand", "categoryItems.category", "warehouseItems.warehouse"])
             ->orderBy("type")
@@ -158,7 +149,6 @@ final class CompanyReferenceDataService {
         Item::expireActiveItems($this->companyId);
 
         return Item::query()
-            ->where("company_id", $this->companyId)
             ->where("type", "subscription")
             ->availableForSale()
             ->with("currency")
@@ -170,7 +160,6 @@ final class CompanyReferenceDataService {
     public function roles(): Collection {
 
         return Role::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->orderBy("name")
             ->get();
@@ -180,7 +169,6 @@ final class CompanyReferenceDataService {
     public function taxesFor(string $scope): Collection {
 
         return Tax::query()
-            ->where("company_id", $this->companyId)
             ->whereIn("scope", [$scope, "both"])
             ->where("status", "active")
             ->orderByDesc("is_default")
@@ -193,7 +181,6 @@ final class CompanyReferenceDataService {
 
         return PaymentMethod::query()
             ->with(["variants" => fn($query) => $query->orderBy("name")])
-            ->where("company_id", $this->companyId)
             ->whereIn("scope", [$scope, "both"])
             ->where("status", "active")
             ->orderByDesc("is_default")
@@ -205,7 +192,6 @@ final class CompanyReferenceDataService {
     public function saleDeliveryMethods(): Collection {
 
         return SaleDeliveryMethod::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->orderByDesc("is_default")
             ->orderBy("sort_order")
@@ -217,7 +203,6 @@ final class CompanyReferenceDataService {
     public function assets(): Collection {
 
         return Asset::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->orderBy("name")
             ->get();
@@ -227,7 +212,6 @@ final class CompanyReferenceDataService {
     public function biometricDevices(): Collection {
 
         $query = BiometricDevice::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active");
 
         $branchIds = $this->allowedBranchIds();
@@ -245,7 +229,6 @@ final class CompanyReferenceDataService {
     public function users(): Collection {
 
         return User::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->with("identityDocumentType")
             ->orderBy("name")
@@ -256,7 +239,6 @@ final class CompanyReferenceDataService {
     public function userOptions(): Collection {
 
         return User::query()
-            ->where("company_id", $this->companyId)
             ->where("status", "active")
             ->orderBy("name")
             ->get(["id", "name"]);
@@ -265,8 +247,7 @@ final class CompanyReferenceDataService {
 
     private function branchQuery(): Builder {
 
-        $query = Branch::query()
-            ->where("company_id", $this->companyId);
+        $query = Branch::query();
 
         $branchIds = $this->allowedBranchIds();
 
@@ -325,7 +306,6 @@ final class CompanyReferenceDataService {
         if(!$this->userResolved) {
 
             $this->user = User::query()
-                ->where("company_id", $this->companyId)
                 ->find($this->userId);
 
             $this->userResolved = true;
@@ -339,7 +319,6 @@ final class CompanyReferenceDataService {
     private function customerQuery(): Builder {
 
         return Customer::query()
-            ->where("company_id", $this->companyId)
             ->orderBy("name");
 
     }

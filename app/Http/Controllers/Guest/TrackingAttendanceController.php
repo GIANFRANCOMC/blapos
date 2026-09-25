@@ -30,14 +30,12 @@ class TrackingAttendanceController extends Controller {
 
         $company = $request->get("company");
         $record = Branch::query()
-            ->where("company_id", $company->id)
             ->where("status", "active")
             ->find($branch);
 
         abort_unless($record, 404, "La sucursal no está disponible.");
 
         $request->session()->put("_public_attendance_access", [
-            "company_id" => (int) $company->id,
             "branch_id" => (int) $record->id,
             "expires_at" => (int) $request->query("expires", now()->addMinutes(15)->timestamp),
         ]);
@@ -73,7 +71,6 @@ class TrackingAttendanceController extends Controller {
         foreach($request->validated("customers") as $customerRequest) {
 
             $result = $attendanceService->validateAndCreateAttendance([
-                "company_id" => $company->id,
                 "branch_id" => $request->branch_id,
                 "customer_id" => $customerRequest["customer_id"],
                 "start_date" => $startDate,

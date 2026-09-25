@@ -12,7 +12,6 @@ final class AuthenticationEvent extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "user_id",
         "tenant_slug",
         "event_type",
@@ -27,11 +26,6 @@ final class AuthenticationEvent extends Model {
 
     protected $casts = ["occurred_at" => "datetime"];
 
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id");
-
-    }
 
     public function user() {
 

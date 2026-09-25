@@ -16,9 +16,8 @@ final class RoleService {
     public static function query(int $companyId, string $word = ""): Builder {
 
         $query = Role::query()
-            ->where("company_id", $companyId)
             ->with([
-                "roleSubSections:id,company_id,role_id,sub_section_id,actions",
+                "roleSubSections:id,role_id,sub_section_id,actions",
                 "branches:id,name",
                 "cashRegisters:id,branch_id,name",
                 "warehouses:id,branch_id,name",
@@ -43,9 +42,8 @@ final class RoleService {
     public static function find(int $companyId, int $roleId): Role {
 
         return Role::query()
-            ->where("company_id", $companyId)
             ->with([
-                "roleSubSections:id,company_id,role_id,sub_section_id,actions",
+                "roleSubSections:id,role_id,sub_section_id,actions",
                 "branches:id,name",
                 "cashRegisters:id,branch_id,name",
                 "warehouses:id,branch_id,name",
@@ -61,7 +59,6 @@ final class RoleService {
         return DB::transaction(function() use ($companyId, $userId, $data) {
 
             $role = Role::create([
-                "company_id" => $companyId,
                 "slug" => Utilities::generateCode(),
                 "name" => trim((string) $data["name"]),
                 "is_full_access" => (bool) $data["is_full_access"],
@@ -92,7 +89,6 @@ final class RoleService {
 
             $before = self::roleSnapshot(self::find($companyId, $roleId));
             $role = Role::query()
-                ->where("company_id", $companyId)
                 ->findOrFail($roleId);
 
             $role->update([
@@ -201,7 +197,6 @@ final class RoleService {
         }
 
         RoleSubSection::insert($permissions->map(fn($permission) => [
-            "company_id" => $companyId,
             "role_id" => $role->id,
             "sub_section_id" => $permission["sub_section_id"],
             "actions" => json_encode($permission["actions"]),
@@ -251,7 +246,6 @@ final class RoleService {
             }
 
             DB::table($definition["table"])->insert(array_map(fn($id) => [
-                "company_id" => $companyId,
                 "role_id" => $role->id,
                 $definition["key"] => $id,
                 "status" => "active",
@@ -273,7 +267,6 @@ final class RoleService {
     ): array {
 
         $query = DB::table($table)
-            ->where("company_id", $companyId)
             ->whereIn("id", collect($ids)->map(fn($id) => (int) $id)->filter()->unique());
 
         if($branchIds !== null) {
@@ -348,14 +341,13 @@ final class RoleService {
         }
 
         BusinessAuditService::record(
-            $companyId,
             "roles",
             "security_{$action}",
             "Permisos y alcances actualizados para el perfil #{$roleId}.",
-            Role::query()->where("company_id", $companyId)->find($roleId),
+            Role::query()->find($roleId),
             $before,
             $after,
-            ["affected_users" => User::query()->where("company_id", $companyId)->where("role_id", $roleId)->where("status", "active")->count()],
+            ["affected_users" => User::query()->where("role_id", $roleId)->where("status", "active")->count()],
             null,
             $userId
         );
@@ -380,7 +372,6 @@ final class RoleService {
     ): void {
 
         $actor = User::query()
-            ->where("company_id", $companyId)
             ->with("role.roleSubSections")
             ->findOrFail($actorId);
 
@@ -397,7 +388,6 @@ final class RoleService {
         }
 
         if($targetRoleId && Role::query()
-            ->where("company_id", $companyId)
             ->where("id", $targetRoleId)
             ->where("is_full_access", true)
             ->exists()) {
@@ -468,7 +458,7 @@ final class RoleService {
 
     private static function assertCompanyKeepsAdministrator(int $companyId, int $roleId, array $data): void {
 
-        $role = Role::query()->where("company_id", $companyId)->findOrFail($roleId);
+        $role = Role::query()->findOrFail($roleId);
         $removesFullAccess = $role->is_full_access && (
             !(bool) ($data["is_full_access"] ?? false)
             || ($data["status"] ?? "active") !== "active"
@@ -481,10 +471,8 @@ final class RoleService {
         }
 
         $otherAdministratorExists = User::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->whereHas("role", fn(Builder $query) => $query
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->where("is_full_access", true)
                 ->where("id", "!=", $roleId))

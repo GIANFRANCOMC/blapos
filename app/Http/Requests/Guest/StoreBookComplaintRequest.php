@@ -25,12 +25,12 @@ final class StoreBookComplaintRequest extends FormRequest {
             "branch_id" => [
                 "required",
                 "integer",
-                Rule::exists("branches", "id")->where("company_id", $companyId)->where("status", "active"),
+                Rule::exists("branches", "id")->where("status", "active"),
             ],
             "identity_document_type_id" => [
                 "required",
                 "integer",
-                Rule::exists("identity_document_types", "id")->where("company_id", $companyId),
+                Rule::exists("identity_document_types", "id"),
             ],
             "document_number" => ["required", "string", "max:30"],
             "name" => ["required", "string", "max:255"],

@@ -13,7 +13,6 @@ final class ServiceSession extends Model {
     protected $table = "service_sessions";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "service_station_id",
         "customer_id",

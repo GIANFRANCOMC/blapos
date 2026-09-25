@@ -57,7 +57,6 @@ final class CommercialDocumentSettlementService {
             }
 
             $defaultMethod = PaymentMethod::query()
-                ->where("company_id", $companyId)
                 ->whereIn("scope", [$scope, "both"])
                 ->where("status", "active")
                 ->orderByDesc("is_default")
@@ -121,7 +120,6 @@ final class CommercialDocumentSettlementService {
             ->all();
 
         return Tax::query()
-            ->where("company_id", $companyId)
             ->whereIn("scope", [$scope, "both"])
             ->where("status", "active")
             ->where(function($query) use ($selectedTaxIds) {
@@ -157,7 +155,6 @@ final class CommercialDocumentSettlementService {
         }
 
         $methods = PaymentMethod::query()
-            ->where("company_id", $companyId)
             ->whereIn("scope", [$scope, "both"])
             ->where("status", "active")
             ->whereIn("id", $ids)
@@ -190,7 +187,6 @@ final class CommercialDocumentSettlementService {
 
         $variants = PaymentMethodVariant::query()
             ->with("paymentMethod")
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->whereIn("id", $ids)
             ->get();
@@ -207,7 +203,7 @@ final class CommercialDocumentSettlementService {
 
     private static function taxLine(Tax $tax, float $baseAmount, int $userId, int $quantity = 1): array {
 
-        $companyId = (int) $tax->company_id;
+        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
         $rate = Utilities::round((float) $tax->rate, null, $companyId);
         $base = Utilities::round($baseAmount, null, $companyId);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
@@ -221,7 +217,6 @@ final class CommercialDocumentSettlementService {
         $amount = self::taxAmount($base, $rate, $calculationType, $operationType, $quantity, $companyId);
 
         return [
-            "company_id" => $tax->company_id,
             "tax_id" => $tax->id,
             "name" => (string) $tax->name,
             "description" => $tax->description,
@@ -241,7 +236,7 @@ final class CommercialDocumentSettlementService {
 
     private static function saleTaxLine(Tax $tax, array $details, int $userId, int $quantity = 1): array {
 
-        $companyId = (int) $tax->company_id;
+        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
         $rate = Utilities::round((float) $tax->rate, null, $companyId);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
             ? $tax->calculation_type
@@ -305,7 +300,6 @@ final class CommercialDocumentSettlementService {
         }
 
         return [
-            "company_id" => $tax->company_id,
             "tax_id" => $tax->id,
             "name" => (string) $tax->name,
             "description" => $tax->description,
@@ -406,7 +400,6 @@ final class CommercialDocumentSettlementService {
         }
 
         return [
-            "company_id" => $method?->company_id,
             "payment_method_id" => $method?->id,
             "payment_method_variant_id" => $variant?->id,
             "name" => (string) ($paymentData["name"] ?? $variant?->name ?? $method?->name),

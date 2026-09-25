@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Customers\TrackingAttendances;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class ProcessTrackingAttendanceBatchRequest extends CompanyFormRequest {
     public function rules(): array {
@@ -15,7 +15,7 @@ final class ProcessTrackingAttendanceBatchRequest extends CompanyFormRequest {
                 "bail",
                 "required",
                 "integer",
-                new BelongsToCompany("branches", ["status" => "active"], "La sucursal seleccionada no esta disponible."),
+                new ExistsInTenant("branches", ["status" => "active"], "La sucursal seleccionada no esta disponible."),
             ],
             "customers" => ["required", "array", "min:1", "max:200"],
             "customers.*.customer_id" => ["nullable", "required_without:customers.*.customer_document_number", "integer"],

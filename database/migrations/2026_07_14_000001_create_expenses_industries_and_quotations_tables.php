@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create("business_industries", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("slug", 120);
             $table->string("name", 255);
             $table->string("description", 500)->nullable();
@@ -21,8 +20,7 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->unique(["company_id", "slug"]);
+            $table->unique(["slug"]);
 
         });
 
@@ -36,7 +34,6 @@ return new class extends Migration {
         Schema::create("business_industry_module_sets", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("business_industry_id");
             $table->unsignedBigInteger("sub_section_id");
             $table->boolean("is_enabled_by_default")->default(true);
@@ -48,17 +45,15 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("business_industry_id")->references("id")->on("business_industries")->onDelete("cascade");
             $table->foreign("sub_section_id")->references("id")->on("sub_sections")->onDelete("cascade");
-            $table->unique(["company_id", "business_industry_id", "sub_section_id"], "business_industry_module_set_unique");
+            $table->unique(["business_industry_id", "sub_section_id"], "business_industry_module_set_unique");
 
         });
 
         Schema::create("misc_expense_categories", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("name", 150);
             $table->string("description", 500)->nullable();
             $table->enum("status", ["active", "inactive"])->default("active");
@@ -68,14 +63,12 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
 
         Schema::create("misc_expenses", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id")->nullable();
             $table->unsignedBigInteger("cash_session_id")->nullable();
             $table->unsignedBigInteger("payment_method_id")->nullable();
@@ -97,7 +90,6 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->nullOnDelete();
             $table->foreign("cash_session_id")->references("id")->on("cash_sessions")->nullOnDelete();
             $table->foreign("payment_method_id")->references("id")->on("payment_methods")->nullOnDelete();
@@ -110,7 +102,6 @@ return new class extends Migration {
         Schema::create("quotation_headers", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("branch_id")->nullable();
             $table->unsignedBigInteger("holder_id");
             $table->unsignedBigInteger("seller_id");
@@ -134,22 +125,20 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("branch_id")->references("id")->on("branches")->nullOnDelete();
             $table->foreign("holder_id")->references("id")->on("customers")->restrictOnDelete();
             $table->foreign("seller_id")->references("id")->on("users")->restrictOnDelete();
             $table->foreign("currency_id")->references("id")->on("currencies")->restrictOnDelete();
             $table->foreign("sale_header_id")->references("id")->on("sales_header")->nullOnDelete();
-            $table->unique(["company_id", "reference"], "quotation_headers_company_reference_uq");
-            $table->index(["company_id", "status", "issue_date", "id"], "quotation_headers_company_status_date_idx");
-            $table->index(["company_id", "holder_id", "status", "issue_date", "id"], "quotation_headers_holder_status_date_idx");
+            $table->unique(["reference"], "quotation_headers_reference_uq");
+            $table->index(["status", "issue_date", "id"], "quotation_headers_status_date_idx");
+            $table->index(["holder_id", "status", "issue_date", "id"], "quotation_headers_holder_status_date_idx");
 
         });
 
         Schema::create("quotation_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("quotation_header_id");
             $table->unsignedBigInteger("item_id");
             $table->unsignedBigInteger("currency_id");
@@ -168,19 +157,17 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("quotation_header_id")->references("id")->on("quotation_headers")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->restrictOnDelete();
             $table->foreign("currency_id")->references("id")->on("currencies")->restrictOnDelete();
-            $table->index(["company_id", "quotation_header_id", "status", "id"], "quotation_items_header_status_idx");
-            $table->index(["company_id", "item_id", "status", "id"], "quotation_items_item_status_idx");
+            $table->index(["quotation_header_id", "status", "id"], "quotation_items_header_status_idx");
+            $table->index(["item_id", "status", "id"], "quotation_items_item_status_idx");
 
         });
 
         Schema::create("quotation_taxes", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("quotation_header_id");
             $table->unsignedBigInteger("tax_id")->nullable();
             $table->string("name", 255);
@@ -199,10 +186,9 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("quotation_header_id")->references("id")->on("quotation_headers")->onDelete("cascade");
             $table->foreign("tax_id")->references("id")->on("taxes")->nullOnDelete();
-            $table->index(["company_id", "quotation_header_id", "status"], "quotation_taxes_header_status_idx");
+            $table->index(["quotation_header_id", "status"], "quotation_taxes_header_status_idx");
 
         });
 

@@ -95,7 +95,7 @@ class CategoryController extends BaseController {
 
         try {
 
-            $category = CategoryService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $category = CategoryService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($category)) {
 
@@ -166,7 +166,6 @@ class CategoryController extends BaseController {
     private function prepareCategoryData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "internal_code" => $request->input("internal_code"),
             "name" => $request->input("name"),
             "description" => $request->input("description"),

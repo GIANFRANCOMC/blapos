@@ -95,7 +95,7 @@ class SubscriptionController extends BaseController {
 
         try {
 
-            $item = SubscriptionService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $item = SubscriptionService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!Utilities::isDefined($item)) {
 
@@ -136,7 +136,6 @@ class SubscriptionController extends BaseController {
     private function prepareSubscriptionData($request): array {
 
         return [
-            "company_id" => $this->getCompanyId(),
             "internal_code" => $request->input("internal_code"),
             "name" => $request->input("name"),
             "description" => $request->input("description"),

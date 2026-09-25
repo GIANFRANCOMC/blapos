@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Purchases;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StorePurchaseRequest extends CompanyFormRequest {
     public function authorize(): bool {
@@ -57,24 +57,23 @@ final class StorePurchaseRequest extends CompanyFormRequest {
             "supplier_id" => [
                 "required",
                 "integer",
-                new BelongsToCompany("suppliers", ["status" => "active"], "Selecciona un proveedor activo de tu empresa."),
+                new ExistsInTenant("suppliers", ["status" => "active"], "Selecciona un proveedor activo de tu empresa."),
             ],
             "warehouse_id" => [
                 "required",
                 "integer",
-                new BelongsToCompany(
+                new ExistsInTenant(
                     "warehouses",
                     ["warehouses.status" => "active", "branches.status" => "active"],
                     "Selecciona un almacén activo de tu empresa.",
                     [["branches", "warehouses.branch_id", "=", "branches.id"]],
-                    "branches.company_id",
                     "warehouses.id"
                 ),
             ],
             "currency_id" => [
                 "required",
                 "integer",
-                new BelongsToCompany("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa."),
+                new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa."),
             ],
             "document_type" => ["required", "in:order,invoice"],
             "document_series" => ["nullable", "string", "max:20"],
@@ -93,7 +92,7 @@ final class StorePurchaseRequest extends CompanyFormRequest {
             "taxes.*.tax_id" => [
                 "required_with:taxes",
                 "integer",
-                new BelongsToCompany("taxes", ["status" => "active", "scope" => "purchase"], "Selecciona un tributo activo de compras."),
+                new ExistsInTenant("taxes", ["status" => "active", "scope" => "purchase"], "Selecciona un tributo activo de compras."),
             ],
             "taxes.*.rate" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "taxes.*.calculation_type" => ["nullable", "in:percentage,fixed"],
@@ -106,7 +105,7 @@ final class StorePurchaseRequest extends CompanyFormRequest {
             "payments.*.payment_method_id" => [
                 "required_with:payments",
                 "integer",
-                new BelongsToCompany("payment_methods", ["status" => "active"], "Selecciona un método de pago activo."),
+                new ExistsInTenant("payment_methods", ["status" => "active"], "Selecciona un método de pago activo."),
             ],
             "payments.*.payment_method_variant_id" => ["nullable", "integer"],
             "payments.*.amount" => ["required_with:payments", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
@@ -126,7 +125,7 @@ final class StorePurchaseRequest extends CompanyFormRequest {
                 "required",
                 "integer",
                 "distinct",
-                new BelongsToCompany("items", ["type" => "product", "status" => "active"], "Selecciona un producto activo de tu empresa."),
+                new ExistsInTenant("items", ["type" => "product", "status" => "active"], "Selecciona un producto activo de tu empresa."),
             ],
             "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "items.*.unit_cost" => ["required", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],

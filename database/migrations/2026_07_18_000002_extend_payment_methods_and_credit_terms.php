@@ -36,7 +36,6 @@ return new class extends Migration {
             Schema::create("sale_accounts_receivable", function(Blueprint $table) {
 
                 $table->id();
-                $table->unsignedBigInteger("company_id");
                 $table->unsignedBigInteger("sale_header_id");
                 $table->unsignedBigInteger("customer_id");
                 $table->unsignedBigInteger("currency_id");
@@ -58,13 +57,12 @@ return new class extends Migration {
                 $table->timestamp("canceled_at")->nullable();
                 $table->integer("canceled_by")->nullable();
 
-                $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
                 $table->foreign("sale_header_id")->references("id")->on("sales_header")->onDelete("cascade");
                 $table->foreign("customer_id")->references("id")->on("customers")->restrictOnDelete();
                 $table->foreign("currency_id")->references("id")->on("currencies")->restrictOnDelete();
-                $table->unique(["company_id", "sale_header_id"], "sale_receivables_company_sale_uq");
-                $table->index(["company_id", "customer_id", "status", "issue_date", "id"], "sale_receivables_customer_status_date_idx");
-                $table->index(["company_id", "status", "due_date", "id"], "sale_receivables_status_due_date_idx");
+                $table->unique(["sale_header_id"], "sale_receivables_sale_uq");
+                $table->index(["customer_id", "status", "issue_date", "id"], "sale_receivables_customer_status_date_idx");
+                $table->index(["status", "due_date", "id"], "sale_receivables_status_due_date_idx");
 
             });
 
@@ -75,7 +73,6 @@ return new class extends Migration {
             Schema::create("sale_receivable_installments", function(Blueprint $table) {
 
                 $table->id();
-                $table->unsignedBigInteger("company_id");
                 $table->unsignedBigInteger("sale_account_receivable_id");
                 $table->unsignedInteger("installment_number");
                 $table->date("due_date")->nullable();
@@ -88,10 +85,9 @@ return new class extends Migration {
                 $table->timestamp("updated_at")->nullable();
                 $table->integer("updated_by")->nullable();
 
-                $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
                 $table->foreign("sale_account_receivable_id", "fk_sale_recv_inst_account")->references("id")->on("sale_accounts_receivable")->onDelete("cascade");
-                $table->unique(["company_id", "sale_account_receivable_id", "installment_number"], "sale_recv_installments_account_number_uq");
-                $table->index(["company_id", "status", "due_date", "id"], "sale_recv_installments_status_due_idx");
+                $table->unique(["sale_account_receivable_id", "installment_number"], "sale_recv_installments_account_number_uq");
+                $table->index(["status", "due_date", "id"], "sale_recv_installments_status_due_idx");
 
             });
 
@@ -102,7 +98,6 @@ return new class extends Migration {
             Schema::create("sale_receivable_payments", function(Blueprint $table) {
 
                 $table->id();
-                $table->unsignedBigInteger("company_id");
                 $table->unsignedBigInteger("sale_account_receivable_id");
                 $table->unsignedBigInteger("payment_method_id")->nullable();
                 $table->unsignedBigInteger("payment_method_variant_id")->nullable();
@@ -116,11 +111,10 @@ return new class extends Migration {
                 $table->timestamp("updated_at")->nullable();
                 $table->integer("updated_by")->nullable();
 
-                $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
                 $table->foreign("sale_account_receivable_id", "fk_sale_recv_pay_account")->references("id")->on("sale_accounts_receivable")->onDelete("cascade");
                 $table->foreign("payment_method_id")->references("id")->on("payment_methods")->nullOnDelete();
                 $table->foreign("payment_method_variant_id")->references("id")->on("payment_method_variants")->nullOnDelete();
-                $table->index(["company_id", "sale_account_receivable_id", "status", "paid_at", "id"], "sale_recv_payments_account_status_idx");
+                $table->index(["sale_account_receivable_id", "status", "paid_at", "id"], "sale_recv_payments_account_status_idx");
 
             });
 
@@ -135,7 +129,6 @@ return new class extends Migration {
             Schema::create("purchase_accounts_payable", function(Blueprint $table) {
 
                 $table->id();
-                $table->unsignedBigInteger("company_id");
                 $table->unsignedBigInteger("purchase_header_id");
                 $table->unsignedBigInteger("supplier_id");
                 $table->unsignedBigInteger("currency_id");
@@ -157,13 +150,12 @@ return new class extends Migration {
                 $table->timestamp("canceled_at")->nullable();
                 $table->integer("canceled_by")->nullable();
 
-                $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
                 $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->onDelete("cascade");
                 $table->foreign("supplier_id")->references("id")->on("suppliers")->restrictOnDelete();
                 $table->foreign("currency_id")->references("id")->on("currencies")->restrictOnDelete();
-                $table->unique(["company_id", "purchase_header_id"], "purchase_payables_company_purchase_uq");
-                $table->index(["company_id", "supplier_id", "status", "issue_date", "id"], "purchase_payables_supplier_status_date_idx");
-                $table->index(["company_id", "status", "due_date", "id"], "purchase_payables_status_due_date_idx");
+                $table->unique(["purchase_header_id"], "purchase_payables_purchase_uq");
+                $table->index(["supplier_id", "status", "issue_date", "id"], "purchase_payables_supplier_status_date_idx");
+                $table->index(["status", "due_date", "id"], "purchase_payables_status_due_date_idx");
 
             });
 
@@ -174,7 +166,6 @@ return new class extends Migration {
             Schema::create("purchase_payable_installments", function(Blueprint $table) {
 
                 $table->id();
-                $table->unsignedBigInteger("company_id");
                 $table->unsignedBigInteger("purchase_account_payable_id");
                 $table->unsignedInteger("installment_number");
                 $table->date("due_date")->nullable();
@@ -187,10 +178,9 @@ return new class extends Migration {
                 $table->timestamp("updated_at")->nullable();
                 $table->integer("updated_by")->nullable();
 
-                $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
                 $table->foreign("purchase_account_payable_id", "fk_purchase_pay_inst_account")->references("id")->on("purchase_accounts_payable")->onDelete("cascade");
-                $table->unique(["company_id", "purchase_account_payable_id", "installment_number"], "purchase_pay_installments_account_number_uq");
-                $table->index(["company_id", "status", "due_date", "id"], "purchase_pay_installments_status_due_idx");
+                $table->unique(["purchase_account_payable_id", "installment_number"], "purchase_pay_installments_account_number_uq");
+                $table->index(["status", "due_date", "id"], "purchase_pay_installments_status_due_idx");
 
             });
 
@@ -201,7 +191,6 @@ return new class extends Migration {
             Schema::create("purchase_payable_payments", function(Blueprint $table) {
 
                 $table->id();
-                $table->unsignedBigInteger("company_id");
                 $table->unsignedBigInteger("purchase_account_payable_id");
                 $table->unsignedBigInteger("payment_method_id")->nullable();
                 $table->unsignedBigInteger("payment_method_variant_id")->nullable();
@@ -215,11 +204,10 @@ return new class extends Migration {
                 $table->timestamp("updated_at")->nullable();
                 $table->integer("updated_by")->nullable();
 
-                $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
                 $table->foreign("purchase_account_payable_id", "fk_purchase_pay_pay_account")->references("id")->on("purchase_accounts_payable")->onDelete("cascade");
                 $table->foreign("payment_method_id")->references("id")->on("payment_methods")->nullOnDelete();
                 $table->foreign("payment_method_variant_id")->references("id")->on("payment_method_variants")->nullOnDelete();
-                $table->index(["company_id", "purchase_account_payable_id", "status", "paid_at", "id"], "purchase_pay_payments_account_status_idx");
+                $table->index(["purchase_account_payable_id", "status", "paid_at", "id"], "purchase_pay_payments_account_status_idx");
 
             });
 
@@ -259,14 +247,13 @@ return new class extends Migration {
         foreach($methods as $method) {
 
             DB::table("payment_methods")->updateOrInsert(
-                ["company_id" => $companyId, "code" => $method["code"]],
-                $method + ["company_id" => $companyId, "status" => "active"]
+                ["code" => $method["code"]],
+                $method + ["status" => "active"]
             );
 
         }
 
         DB::table("payment_methods")
-            ->where("company_id", $companyId)
             ->whereIn("code", ["YAPE", "PLIN"])
             ->delete();
 
@@ -275,7 +262,6 @@ return new class extends Migration {
     private function syncPaymentMethodVariants(int $companyId): void {
 
         $methods = DB::table("payment_methods")
-            ->where("company_id", $companyId)
             ->whereIn("code", ["DIGITAL_WALLET", "DEBIT_CARD", "CREDIT_CARD"])
             ->pluck("id", "code");
 
@@ -312,9 +298,8 @@ return new class extends Migration {
             foreach($variants as $variant) {
 
                 DB::table("payment_method_variants")->updateOrInsert(
-                    ["company_id" => $companyId, "payment_method_id" => $methodId, "code" => $variant["code"]],
+                    ["payment_method_id" => $methodId, "code" => $variant["code"]],
                     $variant + [
-                        "company_id" => $companyId,
                         "payment_method_id" => $methodId,
                         "sunat_code" => null,
                         "requires_reference" => true,

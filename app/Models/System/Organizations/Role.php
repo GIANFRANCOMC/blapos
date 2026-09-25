@@ -22,7 +22,6 @@ class Role extends Model {
     ];
 
     protected $fillable = [
-        "company_id",
         "slug",
         "name",
         "is_full_access",
@@ -58,11 +57,6 @@ class Role extends Model {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function users() {
 

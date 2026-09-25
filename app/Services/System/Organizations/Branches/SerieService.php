@@ -26,7 +26,7 @@ class SerieService {
 
         try {
 
-            $maxSequential = Branch::where("company_id", $companyId)
+            $maxSequential = Branch::query()
                 ->where("id", "!=", $branchId)
                 ->count();
 
@@ -58,7 +58,7 @@ class SerieService {
 
         // Get all active document types for the company (only needed fields)
 
-        $documentTypes = DocumentType::where("company_id", $companyId)
+        $documentTypes = DocumentType::query()
             ->whereIn("status", ["active"])
             ->select("id", "code")
             ->get();
@@ -75,7 +75,6 @@ class SerieService {
         $seriesData = $documentTypes->map(function($documentType) use ($companyId, $branchId, $newSequential, $userId, $now) {
 
             return [
-                "company_id" => $companyId,
                 "branch_id" => $branchId,
                 "document_type_id" => $documentType->id,
                 "code" => $documentType->code,
@@ -102,7 +101,6 @@ class SerieService {
             ->join("series", "series.id", "=", "movement.serie_id")
             ->join("branches", "branches.id", "=", "series.branch_id")
             ->leftJoin("users", "users.id", "=", "movement.user_id")
-            ->where("movement.company_id", $companyId)
             ->when($filters["branch_id"] ?? null, fn($query, $id) => $query->where("series.branch_id", $id))
             ->when($filters["serie_id"] ?? null, fn($query, $id) => $query->where("movement.serie_id", $id))
             ->when($filters["user_id"] ?? null, fn($query, $id) => $query->where("movement.user_id", $id))
@@ -131,13 +129,11 @@ class SerieService {
     public static function detectGaps(int $companyId, ?int $branchId = null): array {
 
         return Serie::query()
-            ->where("company_id", $companyId)
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
             ->get()
             ->map(function(Serie $serie) use ($companyId) {
 
                 $issued = DB::table("series_correlative_movements")
-                    ->where("company_id", $companyId)
                     ->where("serie_id", $serie->id)
                     ->where("action", "issued")
                     ->orderBy("sequential")

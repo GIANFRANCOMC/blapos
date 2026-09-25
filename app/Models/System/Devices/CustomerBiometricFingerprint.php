@@ -20,7 +20,6 @@ class CustomerBiometricFingerprint extends Model {
     public static $snakeAttributes = true;
 
     protected $fillable = [
-        "company_id",
         "customer_id",
         "biometric_device_id",
         "device_user_id",
@@ -62,11 +61,6 @@ class CustomerBiometricFingerprint extends Model {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function customer() {
 

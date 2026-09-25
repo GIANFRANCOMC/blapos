@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\General\{Currency};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class QuotationItem extends Model {
-    use BelongsToCompany;
 
     protected $table = "quotation_items";
 
     protected $fillable = [
-        "company_id",
         "quotation_header_id",
         "item_id",
         "currency_id",

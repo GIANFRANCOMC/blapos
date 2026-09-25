@@ -12,7 +12,6 @@ final class BookComplaintAttachment extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id",
         "book_complaint_id",
         "file_name",
         "file_path",

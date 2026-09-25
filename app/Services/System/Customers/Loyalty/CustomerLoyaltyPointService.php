@@ -57,7 +57,6 @@ final class CustomerLoyaltyPointService {
             }
 
             self::insertMovement([
-                "company_id" => $companyId,
                 "customer_id" => (int) $saleHeader->holder_id,
                 "loyalty_point_rule_id" => (int) $rule->id,
                 "sale_header_id" => (int) $saleHeader->id,
@@ -100,7 +99,6 @@ final class CustomerLoyaltyPointService {
         }
 
         $earnedPoints = (float) DB::table("customer_point_movements")
-            ->where("company_id", $companyId)
             ->where("sale_header_id", (int) $saleHeader->id)
             ->where("movement_type", "earned")
             ->where("status", "active")
@@ -113,7 +111,6 @@ final class CustomerLoyaltyPointService {
         }
 
         self::insertMovement([
-            "company_id" => $companyId,
             "customer_id" => (int) $saleHeader->holder_id,
             "loyalty_point_rule_id" => null,
             "sale_header_id" => (int) $saleHeader->id,
@@ -127,7 +124,6 @@ final class CustomerLoyaltyPointService {
         ]);
 
         DB::table("customer_point_movements")
-            ->where("company_id", $companyId)
             ->where("sale_header_id", (int) $saleHeader->id)
             ->where("movement_type", "earned")
             ->update([
@@ -181,7 +177,6 @@ final class CustomerLoyaltyPointService {
         if($scope === "selected_items") {
 
             $itemIds = DB::table("loyalty_point_rule_items")
-                ->where("company_id", (int) $rule->company_id)
                 ->where("loyalty_point_rule_id", (int) $rule->id)
                 ->where("status", "active")
                 ->pluck("item_id")
@@ -205,7 +200,6 @@ final class CustomerLoyaltyPointService {
     private static function insertMovement(array $data): void {
 
         DB::table("customer_point_movements")->insert([
-            "company_id" => $data["company_id"],
             "customer_id" => $data["customer_id"],
             "loyalty_point_rule_id" => $data["loyalty_point_rule_id"],
             "sale_header_id" => $data["sale_header_id"],
@@ -223,11 +217,9 @@ final class CustomerLoyaltyPointService {
 
         DB::table("customer_point_balances")->updateOrInsert(
             [
-                "company_id" => $data["company_id"],
                 "customer_id" => $data["customer_id"],
             ],
             [
-                "company_id" => $data["company_id"],
                 "customer_id" => $data["customer_id"],
                 "updated_at" => now(),
                 "updated_by" => $data["created_by"],
@@ -235,7 +227,6 @@ final class CustomerLoyaltyPointService {
         );
 
         DB::table("customer_point_balances")
-            ->where("company_id", $data["company_id"])
             ->where("customer_id", $data["customer_id"])
             ->increment("points_balance", (float) $data["points"], [
                 "updated_at" => now(),
@@ -260,7 +251,6 @@ final class CustomerLoyaltyPointService {
         $now = now();
 
         return DB::table("loyalty_point_rules")
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->where(function($query) use ($now) {
 
@@ -282,7 +272,6 @@ final class CustomerLoyaltyPointService {
     private static function saleAlreadyAwarded(int $saleHeaderId, int $companyId): bool {
 
         return DB::table("customer_point_movements")
-            ->where("company_id", $companyId)
             ->where("sale_header_id", $saleHeaderId)
             ->where("movement_type", "earned")
             ->exists();
@@ -292,7 +281,6 @@ final class CustomerLoyaltyPointService {
     private static function saleAlreadyReversed(int $saleHeaderId, int $companyId): bool {
 
         return DB::table("customer_point_movements")
-            ->where("company_id", $companyId)
             ->where("sale_header_id", $saleHeaderId)
             ->where("movement_type", "reversal")
             ->exists();

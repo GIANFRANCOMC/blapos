@@ -6,17 +6,18 @@ use App\Models\System\Organizations\{Role};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 
 class RoleObserver {
     public function saved(Role $role): void {
 
-        $this->clear((int) $role->company_id, (int) $role->id);
+        $this->clear(app(TenantCompanyContext::class)->id(), (int) $role->id);
 
     }
 
     public function deleted(Role $role): void {
 
-        $this->clear((int) $role->company_id, (int) $role->id);
+        $this->clear(app(TenantCompanyContext::class)->id(), (int) $role->id);
 
     }
 

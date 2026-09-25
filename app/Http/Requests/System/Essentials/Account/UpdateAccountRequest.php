@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Essentials\Account;
 
-use App\Rules\System\Defaults\{UniqueInCompany};
+use App\Rules\System\Defaults\{UniqueInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 final class UpdateAccountRequest extends FormRequest {
@@ -34,7 +34,7 @@ final class UpdateAccountRequest extends FormRequest {
                 "required",
                 "email",
                 "max:100",
-                new UniqueInCompany("users", "email", (int) $this->user()->id, [], "correo electrónico"),
+                new UniqueInTenant("users", "email", (int) $this->user()->id, [], "correo electrónico"),
             ],
             "phone_number" => ["nullable", "string", "max:15"],
             "gender" => ["nullable", "in:male,female,other"],

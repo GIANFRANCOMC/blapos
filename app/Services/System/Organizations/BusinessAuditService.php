@@ -25,7 +25,6 @@ final class BusinessAuditService {
     ];
 
     public static function record(
-        int $companyId,
         string $module,
         string $action,
         string $summary,
@@ -41,7 +40,6 @@ final class BusinessAuditService {
         $actorId = $userId ?? $request?->user()?->getAuthIdentifier();
 
         return BusinessAuditLog::create([
-            "company_id" => $companyId,
             "branch_id" => $branchId,
             "user_id" => $actorId ? (int) $actorId : null,
             "module" => $module,
@@ -61,20 +59,11 @@ final class BusinessAuditService {
 
     public static function recordModelChange(Model $model, string $action): ?BusinessAuditLog {
 
-        $companyId = (int) ($model->getAttribute("company_id") ?? 0);
-
-        if($companyId <= 0) {
-
-            return null;
-
-        }
-
         $before = $action === "created" ? [] : $model->getOriginal();
 
         $after = $action === "deleted" ? [] : $model->getAttributes();
 
         return self::record(
-            $companyId,
             $model->getTable(),
             $action,
             sprintf("%s #%s: %s", $model->getTable(), (string) $model->getKey(), $action),

@@ -20,17 +20,15 @@ final class BiometricDeviceConfigService extends BaseConfigService {
     protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
 
         $brands = BiometricDeviceBrand::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->orderBy("name")
             ->get(["id", "slug", "name"]);
 
         $models = BiometricDeviceModel::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->with("brand:id,name")
             ->orderBy("name")
-            ->get(["id", "company_id", "biometric_device_brand_id", "slug", "name"]);
+            ->get(["id", "biometric_device_brand_id", "slug", "name"]);
 
         return self::data([
             "branches" => self::data([

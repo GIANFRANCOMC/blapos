@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Catalogs\Recipes;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 
 class StoreRecipeRequest extends CompanyFormRequest {
     public function rules(): array {
@@ -13,14 +13,14 @@ class StoreRecipeRequest extends CompanyFormRequest {
         $round = $this->decimalPrecision();
         $maxValue = $this->numericMaxValue();
 
-        $productFromCompany = fn(string $message) => new BelongsToCompany(
+        $productFromCompany = fn(string $message) => new ExistsInTenant(
             "items",
             ["type" => "product"],
             $message
         );
 
         return [
-            "item_id" => ["required", "integer", new BelongsToCompany("items", [], "El item principal no pertenece a la empresa.")],
+            "item_id" => ["required", "integer", new ExistsInTenant("items", [], "El item principal no pertenece a la empresa.")],
             "yield_quantity" => ["required", "numeric", "min:0.01", "max:{$maxValue}", "decimal:0,{$round}"],
             "waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
             "preparation_notes" => ["nullable", "string", "max:1000"],
@@ -36,8 +36,8 @@ class StoreRecipeRequest extends CompanyFormRequest {
             "toppings.*.name" => ["nullable", "string", "max:100"],
             "toppings.*.description" => ["nullable", "string", "max:255"],
             "toppings.*.price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "toppings.*.currency_id" => ["nullable", "integer", new BelongsToCompany("currencies", ["status" => "active"], "Una moneda del topping no pertenece a la empresa.")],
-            "toppings.*.item_id" => ["nullable", "integer", new BelongsToCompany("items", [], "Un topping vinculado no pertenece a la empresa.")],
+            "toppings.*.currency_id" => ["nullable", "integer", new ExistsInTenant("currencies", ["status" => "active"], "Una moneda del topping no pertenece a la empresa.")],
+            "toppings.*.item_id" => ["nullable", "integer", new ExistsInTenant("items", [], "Un topping vinculado no pertenece a la empresa.")],
             "toppings.*.max_quantity" => ["nullable", "integer", "min:1"],
             "toppings.*.status" => ["nullable", "in:active,inactive"],
             "toppings.*.components" => ["nullable", "array", "max:100"],

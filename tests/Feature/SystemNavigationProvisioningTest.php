@@ -30,12 +30,10 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->count();
 
         $adminRoleId = DB::table("roles")
-            ->where("company_id", 1)
             ->where("is_full_access", true)
             ->value("id");
 
         $adminCount = DB::table("role_sub_sections")
-            ->where("company_id", 1)
             ->where("role_id", $adminRoleId)
             ->where("status", "active")
             ->count();
@@ -67,7 +65,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
     public function test_full_access_role_cannot_bypass_a_company_disabled_module_by_url(): void {
 
         $user = \App\Models\System\Organizations\User::query()
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->firstOrFail();
 
@@ -83,11 +80,11 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     public function test_operational_expense_and_business_profile_defaults_are_provisioned_per_company(): void {
 
-        $this->assertSame(5, DB::table("misc_expense_categories")->where("company_id", 1)->count());
-        $this->assertSame(3, DB::table("business_industries")->where("company_id", 1)->count());
+        $this->assertSame(5, DB::table("misc_expense_categories")->count());
+        $this->assertSame(3, DB::table("business_industries")->count());
         $this->assertGreaterThan(
             0,
-            DB::table("business_industry_module_sets")->where("company_id", 1)->count()
+            DB::table("business_industry_module_sets")->count()
         );
 
         $this->assertNotNull(DB::table("companies")->where("id", 1)->value("business_industry_id"));
@@ -97,7 +94,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
     public function test_company_can_customize_modules_without_disabling_essential_access(): void {
 
         $administratorId = (int) DB::table("users")
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->value("id");
 
@@ -128,7 +124,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
     public function test_disabling_a_module_revokes_role_permissions_and_cannot_fall_back_to_a_sibling_route(): void {
 
         $administrator = \App\Models\System\Organizations\User::query()
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->firstOrFail();
 
@@ -157,7 +152,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
         );
 
         $this->assertDatabaseMissing("role_sub_sections", [
-            "company_id" => 1,
             "sub_section_id" => $salesCreateId,
         ]);
 
@@ -195,7 +189,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
     public function test_tenant_navigation_renders_only_allowed_modules_and_marks_the_current_route(): void {
 
         $user = \App\Models\System\Organizations\User::query()
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->firstOrFail();
 
@@ -275,7 +268,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
     public function test_misc_expenses_and_business_profile_initialization_are_available(): void {
 
         $user = \App\Models\System\Organizations\User::query()
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->firstOrFail();
 
@@ -356,7 +348,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $this->assertSame(["purchases.receipts.index", "accounts_payable.index"], $items->pluck("dom_route")->all());
 
         $user = \App\Models\System\Organizations\User::query()
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->firstOrFail();
 

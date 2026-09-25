@@ -6,6 +6,7 @@ namespace App\Services\System\Organizations\Companies;
 
 use App\Models\System\General\{Section};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
+use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Database\Eloquent\{Collection};
 use Illuminate\Support\Facades\{Cache, DB, Route};
 use InvalidArgumentException;
@@ -52,7 +53,6 @@ final class CompanySectionService {
         RolePermissionService::clearCompanyCache($companyId);
 
         \App\Models\System\Organizations\Role::query()
-            ->where("company_id", $companyId)
             ->pluck("id")
             ->each(fn($roleId) => self::clearCache($companyId, (int) $roleId));
 
@@ -68,8 +68,7 @@ final class CompanySectionService {
             ->unique()
             ->values();
 
-        $permissions = DB::table("role_sub_sections")
-            ->where("company_id", $companyId);
+        $permissions = DB::table("role_sub_sections");
 
         if($enabledIds->isNotEmpty()) {
 
@@ -85,7 +84,7 @@ final class CompanySectionService {
 
         self::validateCompanyId($companyId);
 
-        return self::CACHE_PREFIX.":company:{$companyId}:role:".($roleId ?: "all");
+        return app(TenantContext::class)->cacheNamespace().":".self::CACHE_PREFIX.":role:".($roleId ?: "all");
 
     }
 
@@ -114,7 +113,6 @@ final class CompanySectionService {
                 $subQuery->from("companies_sub_sections")
                     ->join("sub_sections", "sub_sections.id", "=", "companies_sub_sections.sub_section_id")
                     ->whereColumn("sub_sections.section_id", "sections.id")
-                    ->where("companies_sub_sections.company_id", $companyId)
                     ->where("companies_sub_sections.status", "active")
                     ->selectRaw("MIN(companies_sub_sections.section_order)");
 
@@ -157,7 +155,6 @@ final class CompanySectionService {
 
                     $subQuery->from("companies_sub_sections")
                         ->whereColumn("companies_sub_sections.sub_section_id", "sub_sections.id")
-                        ->where("companies_sub_sections.company_id", $companyId)
                         ->where("companies_sub_sections.status", "active")
                         ->selectRaw("MIN(companies_sub_sections.sub_section_order)");
 

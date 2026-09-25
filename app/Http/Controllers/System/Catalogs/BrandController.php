@@ -69,7 +69,7 @@ final class BrandController extends BaseController {
 
         try {
 
-            $brand = BrandService::findByIdAndCompany($id, $this->getCompanyId(), null);
+            $brand = BrandService::findByIdInTenant($id, $this->getCompanyId(), null);
 
             if(!$brand) {
 

@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create("suppliers", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->string("document_type", 20)->nullable();
             $table->string("document_number", 30)->nullable();
             $table->string("name", 255);
@@ -25,14 +24,12 @@ return new class extends Migration {
             $table->integer("created_by")->nullable();
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
         });
 
         Schema::create("supplier_contacts", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("supplier_id");
             $table->string("name", 255);
             $table->string("position", 100)->nullable();
@@ -42,7 +39,6 @@ return new class extends Migration {
             $table->string("status", 20)->default("active");
             $table->timestamps();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("supplier_id")->references("id")->on("suppliers")->onDelete("cascade");
 
         });
@@ -50,7 +46,6 @@ return new class extends Migration {
         Schema::create("supplier_bank_accounts", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("supplier_id");
             $table->string("bank_name", 150);
             $table->string("currency_code", 10);
@@ -60,7 +55,6 @@ return new class extends Migration {
             $table->string("status", 20)->default("active");
             $table->timestamps();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("supplier_id")->references("id")->on("suppliers")->onDelete("cascade");
 
         });
@@ -68,7 +62,6 @@ return new class extends Migration {
         Schema::create("purchase_headers", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("supplier_id");
             $table->unsignedBigInteger("warehouse_id");
             $table->unsignedBigInteger("currency_id");
@@ -107,24 +100,22 @@ return new class extends Migration {
             $table->integer("updated_by")->nullable();
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("supplier_id")->references("id")->on("suppliers")->onDelete("restrict");
             $table->foreign("warehouse_id")->references("id")->on("warehouses")->onDelete("restrict");
             $table->foreign("currency_id")->references("id")->on("currencies")->onDelete("restrict");
             $table->foreign("approved_by")->references("id")->on("users")->nullOnDelete();
-            $table->unique(["company_id", "reference"], "purchase_headers_company_reference_uq");
-            $table->index(["company_id", "status", "issue_date", "id"], "purchase_headers_company_status_date_idx");
-            $table->index(["company_id", "warehouse_id", "status", "expected_date", "id"], "purchase_headers_warehouse_status_date_idx");
-            $table->index(["company_id", "supplier_id", "status", "issue_date", "id"], "purchase_headers_supplier_status_date_idx");
-            $table->index(["company_id", "payment_status", "status", "due_date", "id"], "purchase_headers_payment_status_date_idx");
-            $table->index(["company_id", "approval_status", "status", "id"], "purchase_headers_approval_status_idx");
+            $table->unique(["reference"], "purchase_headers_reference_uq");
+            $table->index(["status", "issue_date", "id"], "purchase_headers_status_date_idx");
+            $table->index(["warehouse_id", "status", "expected_date", "id"], "purchase_headers_warehouse_status_date_idx");
+            $table->index(["supplier_id", "status", "issue_date", "id"], "purchase_headers_supplier_status_date_idx");
+            $table->index(["payment_status", "status", "due_date", "id"], "purchase_headers_payment_status_date_idx");
+            $table->index(["approval_status", "status", "id"], "purchase_headers_approval_status_idx");
 
         });
 
         Schema::create("purchase_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_header_id");
             $table->unsignedBigInteger("item_id");
             $table->string("name", 255);
@@ -139,16 +130,14 @@ return new class extends Migration {
             $table->integer("updated_by")->nullable();
             $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->onDelete("restrict");
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->index(["company_id", "purchase_header_id", "status", "id"], "purchase_items_header_status_idx");
-            $table->index(["company_id", "item_id", "status", "created_at", "id"], "purchase_items_item_status_date_idx");
+            $table->index(["purchase_header_id", "status", "id"], "purchase_items_header_status_idx");
+            $table->index(["item_id", "status", "created_at", "id"], "purchase_items_item_status_date_idx");
 
         });
 
         Schema::create("purchase_receipts", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_header_id");
             $table->unsignedBigInteger("warehouse_id");
             $table->string("reference", 40);
@@ -161,17 +150,15 @@ return new class extends Migration {
             $table->integer("canceled_by")->nullable();
             $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->onDelete("cascade");
             $table->foreign("warehouse_id")->references("id")->on("warehouses")->onDelete("restrict");
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->unique(["company_id", "reference"], "purchase_receipts_company_reference_uq");
-            $table->index(["company_id", "purchase_header_id", "status", "received_at", "id"], "purchase_receipts_header_status_date_idx");
-            $table->index(["company_id", "warehouse_id", "status", "received_at", "id"], "purchase_receipts_warehouse_status_date_idx");
+            $table->unique(["reference"], "purchase_receipts_reference_uq");
+            $table->index(["purchase_header_id", "status", "received_at", "id"], "purchase_receipts_header_status_date_idx");
+            $table->index(["warehouse_id", "status", "received_at", "id"], "purchase_receipts_warehouse_status_date_idx");
 
         });
 
         Schema::create("purchase_receipt_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_receipt_id");
             $table->unsignedBigInteger("purchase_item_id");
             $table->unsignedBigInteger("item_id");
@@ -185,16 +172,14 @@ return new class extends Migration {
             $table->foreign("purchase_item_id")->references("id")->on("purchase_items")->onDelete("cascade");
             $table->foreign("item_id")->references("id")->on("items")->onDelete("restrict");
             $table->foreign("inventory_movement_id")->references("id")->on("inventory_movements")->nullOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->unique(["company_id", "purchase_receipt_id", "purchase_item_id"], "purchase_receipt_items_receipt_item_uq");
-            $table->index(["company_id", "inventory_movement_id"], "purchase_receipt_items_movement_idx");
+            $table->unique(["purchase_receipt_id", "purchase_item_id"], "purchase_receipt_items_receipt_item_uq");
+            $table->index(["inventory_movement_id"], "purchase_receipt_items_movement_idx");
 
         });
 
         Schema::create("purchase_taxes", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_header_id");
             $table->unsignedBigInteger("tax_id")->nullable();
             $table->string("name", 255);
@@ -213,15 +198,13 @@ return new class extends Migration {
             $table->integer("updated_by")->nullable();
             $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->onDelete("cascade");
             $table->foreign("tax_id")->references("id")->on("taxes")->nullOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->index(["company_id", "purchase_header_id", "status"], "purchase_taxes_header_status_idx");
+            $table->index(["purchase_header_id", "status"], "purchase_taxes_header_status_idx");
 
         });
 
         Schema::create("purchase_payments", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_header_id");
             $table->unsignedBigInteger("payment_method_id")->nullable();
             $table->unsignedBigInteger("payment_method_variant_id")->nullable();
@@ -237,16 +220,14 @@ return new class extends Migration {
             $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->onDelete("cascade");
             $table->foreign("payment_method_id")->references("id")->on("payment_methods")->nullOnDelete();
             $table->foreign("payment_method_variant_id")->references("id")->on("payment_method_variants")->nullOnDelete();
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
-            $table->index(["company_id", "purchase_header_id", "status"], "purchase_payments_header_status_idx");
-            $table->index(["company_id", "payment_method_id", "status", "created_at"], "purchase_payments_method_status_date_idx");
+            $table->index(["purchase_header_id", "status"], "purchase_payments_header_status_idx");
+            $table->index(["payment_method_id", "status", "created_at"], "purchase_payments_method_status_date_idx");
 
         });
 
         Schema::create("purchase_expenses", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_header_id");
             $table->string("expense_type", 40);
             $table->string("name", 150);
@@ -255,7 +236,6 @@ return new class extends Migration {
             $table->string("note", 500)->nullable();
             $table->timestamps();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->onDelete("cascade");
 
         });
@@ -263,7 +243,6 @@ return new class extends Migration {
         Schema::create("purchase_returns", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_header_id");
             $table->unsignedBigInteger("purchase_receipt_id")->nullable();
             $table->unsignedBigInteger("warehouse_id");
@@ -276,19 +255,17 @@ return new class extends Migration {
             $table->timestamp("canceled_at")->nullable();
             $table->integer("canceled_by")->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("purchase_header_id")->references("id")->on("purchase_headers")->restrictOnDelete();
             $table->foreign("purchase_receipt_id")->references("id")->on("purchase_receipts")->nullOnDelete();
             $table->foreign("warehouse_id")->references("id")->on("warehouses")->restrictOnDelete();
-            $table->unique(["company_id", "reference"], "purchase_returns_company_reference_uq");
-            $table->index(["company_id", "purchase_header_id", "status", "returned_at", "id"], "purchase_returns_header_status_date_idx");
+            $table->unique(["reference"], "purchase_returns_reference_uq");
+            $table->index(["purchase_header_id", "status", "returned_at", "id"], "purchase_returns_header_status_date_idx");
 
         });
 
         Schema::create("purchase_return_items", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("purchase_return_id");
             $table->unsignedBigInteger("purchase_item_id");
             $table->unsignedBigInteger("item_id");
@@ -300,7 +277,6 @@ return new class extends Migration {
             $table->decimal("total_cost", 15, 3);
             $table->timestamp("created_at")->useCurrent()->nullable();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("purchase_return_id")->references("id")->on("purchase_returns")->onDelete("cascade");
             $table->foreign("purchase_item_id")->references("id")->on("purchase_items")->restrictOnDelete();
             $table->foreign("item_id")->references("id")->on("items")->restrictOnDelete();

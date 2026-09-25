@@ -101,7 +101,6 @@ class TrackingSubscriptionController extends BaseController {
         try {
 
             $subscription = Subscription::query()
-                ->where("company_id", $this->getCompanyId())
                 ->find($id);
 
             if(!$subscription
@@ -128,7 +127,6 @@ class TrackingSubscriptionController extends BaseController {
         try {
 
             $subscription = Subscription::query()
-                ->where("company_id", $this->getCompanyId())
                 ->find($id);
 
             if(!$subscription

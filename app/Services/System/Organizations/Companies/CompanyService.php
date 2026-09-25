@@ -106,7 +106,7 @@ class CompanyService {
      */
     private static function updateOrCreateSocialMedia(Company $company, string $type, ?string $link, ?int $userId): CompanySocialMedia {
 
-        $socialMedia = CompanySocialMedia::where("company_id", $company->id)
+        $socialMedia = CompanySocialMedia::query()
             ->where("type", $type)
             ->first();
 
@@ -121,7 +121,6 @@ class CompanyService {
         }else {
 
             $socialMedia = new CompanySocialMedia();
-            $socialMedia->company_id = $company->id;
             $socialMedia->type = $type;
             $socialMedia->link = $link ?? "";
             $socialMedia->status = "active";
@@ -171,7 +170,7 @@ class CompanyService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdAndCompany(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Company {
+    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Company {
 
         if($id !== $companyId) {
 

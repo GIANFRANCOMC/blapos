@@ -16,7 +16,6 @@ final class InventoryGuideService {
 
             $number = self::nextNumber($companyId, (string) $data["guide_type"]);
             $guide = InventoryGuide::create([
-                "company_id" => $companyId,
                 "warehouse_id" => $data["warehouse_id"],
                 "number" => $number,
                 "guide_type" => $data["guide_type"],
@@ -31,7 +30,6 @@ final class InventoryGuideService {
             foreach($data["items"] as $detail) {
 
                 $movement = InventoryMovementService::apply([
-                    "company_id" => $companyId,
                     "warehouse_id" => (int) $data["warehouse_id"],
                     "item_id" => (int) $detail["item_id"],
                     "user_id" => $userId,
@@ -48,7 +46,6 @@ final class InventoryGuideService {
                 ]);
 
                 InventoryGuideItem::create([
-                    "company_id" => $companyId,
                     "inventory_guide_id" => $guide->id,
                     "item_id" => $detail["item_id"],
                     "inventory_movement_id" => $movement->id,
@@ -67,7 +64,6 @@ final class InventoryGuideService {
     public static function query(int $companyId, array $filters = []) {
 
         return InventoryGuide::query()
-            ->where("company_id", $companyId)
             ->with(["warehouse.branch", "items.item", "confirmedBy"])
             ->when($filters["warehouse_id"] ?? null, fn($query, $id) => $query->where("warehouse_id", $id))
             ->when($filters["guide_type"] ?? null, fn($query, $type) => $query->where("guide_type", $type))
@@ -86,7 +82,6 @@ final class InventoryGuideService {
             $number = $prefix."-".now()->format("Ymd")."-".strtoupper(Str::random(6));
 
         } while(InventoryGuide::query()
-            ->where("company_id", $companyId)
             ->where("number", $number)
             ->exists());
 

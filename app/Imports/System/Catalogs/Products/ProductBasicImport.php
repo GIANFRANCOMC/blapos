@@ -57,7 +57,6 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
                 }
 
                 ProductService::create([
-                    "company_id" => $this->companyId,
                     "internal_code" => $data["internal_code"],
                     "barcode" => $data["barcode"],
                     "name" => $data["name"],
@@ -120,14 +119,13 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
                 "max:50",
                 "regex:/^[A-Za-z0-9._-]+$/",
                 Rule::unique("items", "internal_code")
-                    ->where("company_id", $this->companyId)
                     ->where("type", "product"),
             ],
             "barcode" => [
                 "required",
                 "string",
                 new ValidEan13(),
-                Rule::unique("items", "barcode")->where("company_id", $this->companyId),
+                Rule::unique("items", "barcode"),
             ],
             "name" => ["required", "string", "max:50"],
             "description" => ["nullable", "string", "max:100"],
@@ -155,7 +153,7 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
                 Str::upper(Str::random(7))
             );
 
-        } while(Item::where("company_id", $this->companyId)
+        } while(Item::query()
             ->where("type", "product")
             ->where("internal_code", $code)
             ->exists());
@@ -171,7 +169,7 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
             $base = "200".str_pad((string) random_int(0, 999999999), 9, "0", STR_PAD_LEFT);
             $barcode = $base.$this->ean13CheckDigit($base);
 
-        } while(Item::where("company_id", $this->companyId)
+        } while(Item::query()
             ->where("barcode", $barcode)
             ->exists());
 

@@ -6,17 +6,18 @@ namespace App\Http\Requests\System\Base;
 
 use App\Helpers\System\{ApiResponse};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Http\Exceptions\{HttpResponseException};
 
 /**
- * Shared request contract for company-scoped System modules.
+ * Shared request contract for modules isolated by the current tenant database.
  */
 abstract class CompanyFormRequest extends FormRequest {
     public function authorize(): bool {
 
-        return (int) ($this->user()?->company_id ?? 0) > 0;
+        return $this->user() !== null;
 
     }
 
@@ -188,12 +189,16 @@ abstract class CompanyFormRequest extends FormRequest {
 
     private function numericValidationSettings(): array {
 
-        $companyId = (int) ($this->user()?->company_id ?? config("app.company_id", 0));
-
         return CompanySettingService::group(
-            $companyId,
+            $this->companyId(),
             CompanySettingService::NUMERIC_VALIDATION
         );
+
+    }
+
+    protected function companyId(): int {
+
+        return app(TenantCompanyContext::class)->id();
 
     }
 

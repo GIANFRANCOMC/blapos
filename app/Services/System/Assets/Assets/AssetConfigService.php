@@ -20,7 +20,6 @@ final class AssetConfigService extends BaseConfigService {
         return self::data([
             "internal_code_prefixes" => self::internalCodePrefixes($companyId),
             "categories" => AssetCategory::query()
-                ->where("company_id", $companyId)
                 ->where("status", "active")
                 ->orderBy("name")
                 ->get(["id", "name"]),

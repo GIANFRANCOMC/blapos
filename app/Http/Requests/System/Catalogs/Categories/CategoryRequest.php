@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Catalogs\Categories;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{UniqueInCompany};
+use App\Rules\System\Defaults\{UniqueInTenant};
 use App\Services\System\Base\{InternalCodeService};
 
 abstract class CategoryRequest extends CompanyFormRequest {
@@ -18,13 +18,13 @@ abstract class CategoryRequest extends CompanyFormRequest {
                 "required",
                 "string",
                 "max:50",
-                new UniqueInCompany("categories", "internal_code", $categoryId, [], "código interno"),
+                new UniqueInTenant("categories", "internal_code", $categoryId, [], "código interno"),
             ],
             "name" => [
                 "required",
                 "string",
                 "max:50",
-                new UniqueInCompany("categories", "name", $categoryId, [], "nombre"),
+                new UniqueInTenant("categories", "name", $categoryId, [], "nombre"),
             ],
             "description" => ["nullable", "string", "max:100"],
             "sort_order" => ["nullable", "integer", "min:1", "max:9999"],
@@ -61,7 +61,7 @@ abstract class CategoryRequest extends CompanyFormRequest {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                (int) $this->user()?->company_id,
+                $this->companyId(),
                 "category",
                 $this->input("internal_code")
             ),

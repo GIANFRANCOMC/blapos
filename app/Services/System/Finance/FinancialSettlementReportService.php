@@ -36,7 +36,6 @@ final class FinancialSettlementReportService {
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
-            ->where("detail.company_id", $companyId)
             ->where("detail.status", "active")
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
@@ -54,7 +53,6 @@ final class FinancialSettlementReportService {
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
-            ->where("detail.company_id", $companyId)
             ->where("detail.status", "active")
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))

@@ -8,6 +8,7 @@ use App\Helpers\System\{Utilities};
 use App\Models\System\Organizations\{Branch, User, UserAttendance, UserAttendanceBreak, UserAttendanceCorrection};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
 use App\Services\System\Organizations\{AccessScopeService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use DomainException;
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
@@ -47,7 +48,7 @@ final class UserAttendanceService {
 
         return DB::transaction(function() use ($data) {
 
-            $companyId = (int) $data["company_id"];
+            $companyId = app(TenantCompanyContext::class)->id();
             $branchId = (int) $data["branch_id"];
             $userId = (int) $data["user_id"];
             $actorId = isset($data["actor_id"]) ? (int) $data["actor_id"] : null;
@@ -58,7 +59,6 @@ final class UserAttendanceService {
             self::requireActorBranchAccess($companyId, $actorId, $branchId);
 
             $activeAttendance = UserAttendance::query()
-                ->where("company_id", $companyId)
                 ->where("user_id", $userId)
                 ->where("status", self::STATUS_ACTIVE)
                 ->lockForUpdate()
@@ -72,7 +72,6 @@ final class UserAttendanceService {
             }
 
             return UserAttendance::create([
-                "company_id" => $companyId,
                 "branch_id" => $branchId,
                 "user_id" => $userId,
                 "work_date" => $checkedInAt->toDateString(),
@@ -92,11 +91,11 @@ final class UserAttendanceService {
 
     public static function checkInFromBiometric(array $data): UserAttendance {
 
-        $companyId = (int) $data["company_id"];
+        $companyId = app(TenantCompanyContext::class)->id();
         $deviceId = (int) $data["device_id"];
         $deviceUserId = (int) $data["device_user_id"];
         $branchId = (int) $data["branch_id"];
-        $device = BiometricDeviceService::findByIdAndCompany($deviceId, $companyId, ["active"]);
+        $device = BiometricDeviceService::findByIdInTenant($deviceId, $companyId, ["active"]);
 
         if(!$device || (int) $device->branch_id !== $branchId) {
 
@@ -104,7 +103,7 @@ final class UserAttendanceService {
 
         }
 
-        $user = BiometricDeviceService::findUserByDeviceUserId($deviceId, $deviceUserId, $companyId);
+        $user = BiometricDeviceService::findUserByDeviceUserId($deviceId, $deviceUserId);
 
         if(!$user) {
 
@@ -125,7 +124,7 @@ final class UserAttendanceService {
 
         return DB::transaction(function() use ($data) {
 
-            $companyId = (int) $data["company_id"];
+            $companyId = app(TenantCompanyContext::class)->id();
             $branchId = (int) $data["branch_id"];
             $userId = (int) $data["user_id"];
             $actorId = isset($data["actor_id"]) ? (int) $data["actor_id"] : null;
@@ -136,7 +135,6 @@ final class UserAttendanceService {
             self::requireActorBranchAccess($companyId, $actorId, $branchId);
 
             $attendance = UserAttendance::query()
-                ->where("company_id", $companyId)
                 ->where("user_id", $userId)
                 ->where("status", self::STATUS_ACTIVE)
                 ->lockForUpdate()
@@ -155,7 +153,6 @@ final class UserAttendanceService {
             }
 
             if(UserAttendanceBreak::query()
-                ->where("company_id", $companyId)
                 ->where("user_attendance_id", $attendance->id)
                 ->where("status", "active")
                 ->exists()) {
@@ -196,7 +193,6 @@ final class UserAttendanceService {
         return DB::transaction(function() use ($companyId, $attendanceId, $actorId, $reason) {
 
             $attendance = UserAttendance::query()
-                ->where("company_id", $companyId)
                 ->where("status", self::STATUS_ACTIVE)
                 ->lockForUpdate()
                 ->find($attendanceId);
@@ -210,7 +206,6 @@ final class UserAttendanceService {
             self::requireActorBranchAccess($companyId, $actorId, (int) $attendance->branch_id);
 
             if(UserAttendanceBreak::query()
-                ->where("company_id", $companyId)
                 ->where("user_attendance_id", $attendanceId)
                 ->where("status", "active")
                 ->exists()) {
@@ -220,7 +215,6 @@ final class UserAttendanceService {
             }
 
             return UserAttendanceBreak::create([
-                "company_id" => $companyId,
                 "user_attendance_id" => $attendanceId,
                 "started_at" => now(),
                 "reason" => $reason,
@@ -237,7 +231,6 @@ final class UserAttendanceService {
         return DB::transaction(function() use ($companyId, $attendanceId, $actorId) {
 
             $attendance = UserAttendance::query()
-                ->where("company_id", $companyId)
                 ->lockForUpdate()
                 ->find($attendanceId);
 
@@ -250,7 +243,6 @@ final class UserAttendanceService {
             self::requireActorBranchAccess($companyId, $actorId, (int) $attendance->branch_id);
 
             $break = UserAttendanceBreak::query()
-                ->where("company_id", $companyId)
                 ->where("user_attendance_id", $attendanceId)
                 ->where("status", "active")
                 ->lockForUpdate()
@@ -280,7 +272,6 @@ final class UserAttendanceService {
         return DB::transaction(function() use ($companyId, $attendanceId, $actorId, $data) {
 
             $attendance = UserAttendance::query()
-                ->where("company_id", $companyId)
                 ->lockForUpdate()
                 ->find($attendanceId);
 
@@ -293,7 +284,6 @@ final class UserAttendanceService {
             self::requireActorBranchAccess($companyId, $actorId, (int) $attendance->branch_id);
 
             return UserAttendanceCorrection::create([
-                "company_id" => $companyId,
                 "user_attendance_id" => $attendanceId,
                 "requested_by" => $actorId,
                 "requested_check_in_at" => $data["checked_in_at"] ?? null,
@@ -311,7 +301,6 @@ final class UserAttendanceService {
         return DB::transaction(function() use ($companyId, $correctionId, $actorId, $approve, $note) {
 
             $correction = UserAttendanceCorrection::query()
-                ->where("company_id", $companyId)
                 ->where("status", "pending")
                 ->lockForUpdate()
                 ->find($correctionId);
@@ -323,7 +312,6 @@ final class UserAttendanceService {
             }
 
             $attendance = UserAttendance::query()
-                ->where("company_id", $companyId)
                 ->lockForUpdate()
                 ->find($correction->user_attendance_id);
 
@@ -398,7 +386,6 @@ final class UserAttendanceService {
     ): Builder {
 
         $query = UserAttendance::query()
-            ->where("company_id", $companyId)
             ->with([
                 "branch",
                 "user",
@@ -458,7 +445,6 @@ final class UserAttendanceService {
         $end = $start->copy()->endOfWeek(Carbon::SUNDAY);
 
         $query = UserAttendance::query()
-            ->where("company_id", $companyId)
             ->where("user_id", $userId)
             ->where("status", self::STATUS_FINALIZED)
             ->whereBetween("work_date", [$start->toDateString(), $end->toDateString()]);
@@ -500,7 +486,6 @@ final class UserAttendanceService {
     private static function lockActiveUser(int $companyId, int $userId): User {
 
         $user = User::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->lockForUpdate()
             ->find($userId);
@@ -518,7 +503,6 @@ final class UserAttendanceService {
     private static function requireActiveBranch(int $companyId, int $branchId): Branch {
 
         $branch = Branch::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->find($branchId);
 
@@ -541,7 +525,6 @@ final class UserAttendanceService {
         }
 
         $actor = User::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->find($actorId);
 
@@ -556,7 +539,6 @@ final class UserAttendanceService {
     private static function calculateMetrics(UserAttendance $attendance, Carbon $checkIn, Carbon $checkOut): array {
 
         $breakMinutes = (int) UserAttendanceBreak::query()
-            ->where("company_id", $attendance->company_id)
             ->where("user_attendance_id", $attendance->id)
             ->where("status", "finalized")
             ->sum("duration_minutes");
@@ -564,7 +546,6 @@ final class UserAttendanceService {
         $workedMinutes = max(0, $checkIn->diffInMinutes($checkOut) - $breakMinutes);
         $weekday = $checkIn->dayOfWeekIso;
         $schedule = DB::table("user_work_schedules")
-            ->where("company_id", $attendance->company_id)
             ->where("weekday", $weekday)
             ->where("status", "active")
             ->where(function($query) use ($attendance) {

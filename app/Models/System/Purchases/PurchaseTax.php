@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Finance\{Tax};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class PurchaseTax extends Model {
-    use BelongsToCompany;
 
     protected $table = "purchase_taxes";
 
     protected $fillable = [
-        "company_id",
         "purchase_header_id",
         "tax_id",
         "name",

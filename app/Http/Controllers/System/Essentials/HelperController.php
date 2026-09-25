@@ -9,6 +9,7 @@ use App\Http\Controllers\System\Base\{BaseController};
 use App\Mail\{SaleMail};
 use App\Models\System\Sales\{SaleHeader};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{DB, Mail, Schema, Validator};
 use stdClass;
@@ -23,7 +24,7 @@ class HelperController extends BaseController {
     public function searchDocumentNumber(Request $request): JsonResponse {
 
         $user = $this->getAuthUser();
-        $company = $user->company;
+        $company = app(TenantCompanyContext::class)->get();
         $companyId = (int) $company->id;
 
         $validator = Validator::make($request->all(), [
@@ -105,7 +106,6 @@ class HelperController extends BaseController {
 
             $sale = $request->filled("id")
                 ? SaleHeader::query()
-                    ->where("company_id", $this->getCompanyId())
                     ->whereKey((int) $request->id)
                     ->with(["serie.branch", "holder"])
                     ->first()
@@ -114,7 +114,7 @@ class HelperController extends BaseController {
             $serieSequential = trim((string) ($request->serie_sequential ?: $sale?->serie_sequential));
             $branchName = $sale?->serie?->branch?->name;
             $customerName = $sale?->holder?->name;
-            $company = $this->getAuthUser()->company;
+            $company = app(TenantCompanyContext::class)->get();
 
             $mail = new stdClass();
             $mail->subject = trim(($serieSequential !== "" ? "Venta {$serieSequential}" : "Venta").($branchName ? " - {$branchName}" : ""))." - ".($company?->commercial_name ?: config("app.name"));
@@ -233,7 +233,6 @@ class HelperController extends BaseController {
         }
 
         DB::table("external_api_request_logs")->insert([
-            "company_id" => $companyId,
             "user_id" => $userId,
             "service" => self::DOCUMENT_LOOKUP_SERVICE,
             "action" => self::DOCUMENT_LOOKUP_ACTION,
@@ -267,7 +266,6 @@ class HelperController extends BaseController {
         }
 
         $used = DB::table("external_api_request_logs")
-            ->where("company_id", $companyId)
             ->where("service", self::DOCUMENT_LOOKUP_SERVICE)
             ->where("action", self::DOCUMENT_LOOKUP_ACTION)
             ->where("requested_at", ">=", now()->startOfMonth())

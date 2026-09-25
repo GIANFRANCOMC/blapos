@@ -15,7 +15,6 @@ final class MiscExpenseService {
     public static function query(int $companyId, array $filters = [], ?int $userId = null): Builder {
 
         $query = MiscExpense::query()
-            ->where("company_id", $companyId)
             ->with([
                 "branch:id,name",
                 "cashSession:id,cash_register_id,status",
@@ -91,7 +90,6 @@ final class MiscExpenseService {
             if($cashSessionId) {
 
                 $cashSession = CashSession::query()
-                    ->where("company_id", $companyId)
                     ->where("status", "open")
                     ->findOrFail($cashSessionId);
 
@@ -106,7 +104,6 @@ final class MiscExpenseService {
             }
 
             $expense = MiscExpense::create([
-                "company_id" => $companyId,
                 "branch_id" => $branchId ?? $cashSession?->branch_id,
                 "cash_session_id" => $cashSession?->id,
                 "payment_method_id" => $data["payment_method_id"] ?? null,
@@ -127,7 +124,6 @@ final class MiscExpenseService {
             if($cashSession) {
 
                 CashMovement::create([
-                    "company_id" => $companyId,
                     "branch_id" => $expense->branch_id,
                     "cash_session_id" => $cashSession->id,
                     "payment_method_id" => $expense->payment_method_id,
@@ -156,7 +152,6 @@ final class MiscExpenseService {
         return DB::transaction(function() use ($companyId, $expenseId, $userId) {
 
             $expense = MiscExpense::query()
-                ->where("company_id", $companyId)
                 ->whereKey($expenseId)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -176,7 +171,6 @@ final class MiscExpenseService {
             ]);
 
             CashMovement::query()
-                ->where("company_id", $companyId)
                 ->where("origin_type", "misc_expense")
                 ->where("origin_id", $expense->id)
                 ->update([

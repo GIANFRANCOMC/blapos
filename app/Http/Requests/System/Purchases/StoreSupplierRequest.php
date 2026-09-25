@@ -16,7 +16,6 @@ final class StoreSupplierRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $companyId = (int) $this->user()?->company_id;
         $round = $this->decimalPrecision();
         $maxValue = $this->numericMaxValue();
 
@@ -27,7 +26,6 @@ final class StoreSupplierRequest extends CompanyFormRequest {
                 "string",
                 "max:30",
                 Rule::unique("suppliers", "document_number")
-                    ->where("company_id", $companyId)
                     ->ignore((int) $this->route("id")),
             ],
             "name" => ["required", "string", "max:255"],

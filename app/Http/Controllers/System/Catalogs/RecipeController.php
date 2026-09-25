@@ -76,7 +76,6 @@ class RecipeController extends BaseController {
         try {
 
             $recipe = RecipeDish::query()
-                ->where("company_id", $this->getCompanyId())
                 ->with(["item"])
                 ->findOrFail($id);
 
@@ -109,7 +108,6 @@ class RecipeController extends BaseController {
             "dishToppings.topping.components.item",
             "options.components.item",
         ])
-            ->where("company_id", $this->getCompanyId())
             ->findOrFail($id);
 
         return response()->json($recipe);
@@ -191,7 +189,6 @@ class RecipeController extends BaseController {
         try {
 
             $recipe = RecipeDish::query()
-                ->where("company_id", $this->getCompanyId())
                 ->findOrFail($id);
 
             RecipeService::delete($recipe, $this->getCompanyId());

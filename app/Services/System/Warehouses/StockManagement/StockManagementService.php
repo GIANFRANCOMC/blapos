@@ -53,7 +53,6 @@ class StockManagementService {
     ): Collection {
 
         return Item::query()
-            ->where("company_id", $companyId)
             ->where("type", "product")
             ->with([
                 "warehouseItems" => function($query) use ($allowedWarehouseIds) {
@@ -81,7 +80,7 @@ class StockManagementService {
             })
             ->orderBy("name")
             ->get()
-            ->map(function(Item $item) {
+            ->map(function(Item $item) use ($companyId) {
 
                 $warehouses = $item->warehouseItems->map(function(WarehouseItem $warehouseItem) {
 
@@ -99,7 +98,6 @@ class StockManagementService {
 
                 })->values();
 
-                $companyId = (int) $item->company_id;
                 $item->setAttribute("stock_quantity", Utilities::round((float) $warehouses->sum("quantity"), null, $companyId));
                 $item->setAttribute("minimum_stock", Utilities::round((float) $warehouses->sum("minimum_stock"), null, $companyId));
                 $item->setAttribute("warehouse_breakdown", $warehouses);
@@ -118,7 +116,6 @@ class StockManagementService {
     ): Builder {
 
         $query = Item::query()
-            ->where("company_id", $companyId)
             ->where("type", "product")
             ->withSum(["warehouseItems as stock_quantity" => function($query) use ($warehouseId) {
 
@@ -158,11 +155,6 @@ class StockManagementService {
     public static function validateWarehouse(int $warehouseId, int $companyId): ?Warehouse {
 
         return Warehouse::where("id", $warehouseId)
-            ->whereHas("branch", function($query) use ($companyId) {
-
-                $query->where("company_id", $companyId);
-
-            })
             ->first();
 
     }
@@ -178,7 +170,7 @@ class StockManagementService {
 
         DB::transaction(function() use ($warehouseId, $items, $userId) {
 
-            $warehouse = Warehouse::with("branch:id,company_id")
+            $warehouse = Warehouse::query()
                 ->findOrFail($warehouseId);
 
             foreach($items as $item) {
@@ -187,8 +179,8 @@ class StockManagementService {
                     ->where("item_id", $item["id"])
                     ->first();
 
-                $currentQuantity = Utilities::round((float) ($warehouseItem?->quantity ?? 0), null, (int) $warehouse->branch->company_id);
-                $resultingBalance = Utilities::round((float) ($item["stock_quantity"] ?? 0), null, (int) $warehouse->branch->company_id);
+                $currentQuantity = Utilities::round((float) ($warehouseItem?->quantity ?? 0));
+                $resultingBalance = Utilities::round((float) ($item["stock_quantity"] ?? 0));
 
                 if(abs($currentQuantity - $resultingBalance) < 0.00001) {
 
@@ -197,7 +189,6 @@ class StockManagementService {
                 }
 
                 InventoryMovementService::apply([
-                    "company_id" => (int) $warehouse->branch->company_id,
                     "warehouse_id" => $warehouseId,
                     "item_id" => (int) $item["id"],
                     "user_id" => $userId,
@@ -229,7 +220,6 @@ class StockManagementService {
     ) {
 
         return InventoryMovementService::apply([
-            "company_id" => $companyId,
             "warehouse_id" => $warehouseId,
             "item_id" => $itemId,
             "user_id" => $userId,
@@ -319,7 +309,6 @@ class StockManagementService {
     ) {
 
         return InventoryStockAlert::query()
-            ->where("company_id", $companyId)
             ->with([
                 "warehouseItem.warehouse.branch:id,name",
                 "warehouseItem.item:id,internal_code,barcode,name",

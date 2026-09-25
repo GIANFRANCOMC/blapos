@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Organizations\UserAttendances;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{BelongsToCompany};
+use App\Rules\System\Defaults\{ExistsInTenant};
 use App\Services\System\Organizations\Users\{UserAttendanceService};
 use Illuminate\Validation\{Rule};
 
@@ -16,12 +16,12 @@ final class CheckInUserAttendanceRequest extends CompanyFormRequest {
             "branch_id" => [
                 "required",
                 "integer",
-                new BelongsToCompany("branches", ["status" => "active"], "La sucursal no está disponible."),
+                new ExistsInTenant("branches", ["status" => "active"], "La sucursal no está disponible."),
             ],
             "user_id" => [
                 "required",
                 "integer",
-                new BelongsToCompany("users", ["status" => "active"], "El colaborador no está disponible."),
+                new ExistsInTenant("users", ["status" => "active"], "El colaborador no está disponible."),
             ],
             "checked_in_at" => ["nullable", "date"],
             "source_type" => ["nullable", Rule::in(UserAttendanceService::sourceTypes())],

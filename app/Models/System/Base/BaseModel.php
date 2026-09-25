@@ -70,16 +70,4 @@ abstract class BaseModel extends Model {
 
     }
 
-    /**
-     * Scope: By company
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int  $companyId Company ID
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeByCompany($query, int $companyId) {
-
-        return $query->where("company_id", $companyId);
-
-    }
 }

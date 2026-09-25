@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Catalogs\Brands;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{UniqueInCompany};
+use App\Rules\System\Defaults\{UniqueInTenant};
 use App\Services\System\Base\{InternalCodeService};
 
 abstract class BrandRequest extends CompanyFormRequest {
@@ -19,13 +19,13 @@ abstract class BrandRequest extends CompanyFormRequest {
                 "string",
                 "max:50",
                 "regex:/^[A-Za-z0-9._-]+$/",
-                new UniqueInCompany("brands", "internal_code", $brandId, [], "código interno"),
+                new UniqueInTenant("brands", "internal_code", $brandId, [], "código interno"),
             ],
             "name" => [
                 "required",
                 "string",
                 "max:100",
-                new UniqueInCompany("brands", "name", $brandId, [], "nombre"),
+                new UniqueInTenant("brands", "name", $brandId, [], "nombre"),
             ],
             "description" => ["nullable", "string", "max:250"],
             "logo_path" => ["nullable", "string", "max:500"],
@@ -74,7 +74,7 @@ abstract class BrandRequest extends CompanyFormRequest {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                (int) $this->user()?->company_id,
+                $this->companyId(),
                 "brand",
                 $this->input("internal_code")
             ),

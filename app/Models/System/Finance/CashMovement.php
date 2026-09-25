@@ -11,7 +11,6 @@ final class CashMovement extends Model {
     protected $table = "cash_movements";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "cash_session_id",
         "payment_method_id",

@@ -10,7 +10,6 @@ class RecipeDishTopping extends Model {
     protected $table = "recipe_dish_toppings";
 
     protected $fillable = [
-        "company_id",
         "recipe_dish_id",
         "recipe_topping_id",
         "is_default",

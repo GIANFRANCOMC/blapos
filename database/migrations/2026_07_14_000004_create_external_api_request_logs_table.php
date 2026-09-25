@@ -13,7 +13,6 @@ return new class extends Migration {
         Schema::create("external_api_request_logs", function(Blueprint $table) {
 
             $table->id();
-            $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("user_id")->nullable();
             $table->string("service", 100);
             $table->string("action", 100);
@@ -23,7 +22,6 @@ return new class extends Migration {
             $table->string("ip_address", 45)->nullable();
             $table->timestamp("requested_at")->useCurrent();
 
-            $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
             $table->foreign("user_id")->references("id")->on("users")->onDelete("set null");
 
         });

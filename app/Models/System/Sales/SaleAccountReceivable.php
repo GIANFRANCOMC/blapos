@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\General\{Currency};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Database\Eloquent\{Builder, Model};
 
 final class SaleAccountReceivable extends Model {
-    use BelongsToCompany;
 
     protected $table = "sale_accounts_receivable";
 
     protected $fillable = [
-        "company_id",
         "sale_header_id",
         "customer_id",
         "currency_id",

@@ -24,11 +24,9 @@ final class ServiceOperationPerformanceTest extends TestCase {
         $this->provisionSystemDatabase();
 
         $this->branchId = (int) DB::table("branches")
-            ->where("company_id", 1)
             ->value("id");
 
         $this->userId = (int) DB::table("users")
-            ->where("company_id", 1)
             ->where("email", "admin@example.test")
             ->value("id");
 
@@ -64,7 +62,6 @@ final class ServiceOperationPerformanceTest extends TestCase {
     public function test_restaurant_board_returns_floors_and_stations_in_one_composition(): void {
 
         $floorId = DB::table("service_floors")->insertGetId([
-            "company_id" => 1,
             "branch_id" => $this->branchId,
             "code" => "MAIN",
             "name" => "Salón principal",
@@ -73,7 +70,6 @@ final class ServiceOperationPerformanceTest extends TestCase {
             "status" => "active",
         ]);
         DB::table("service_stations")->insert([
-            "company_id" => 1,
             "branch_id" => $this->branchId,
             "service_floor_id" => $floorId,
             "code" => "M01",
@@ -99,11 +95,9 @@ final class ServiceOperationPerformanceTest extends TestCase {
     private function seedOperationOptions(int $count): void {
 
         $identityDocumentTypeId = (int) DB::table("identity_document_types")
-            ->where("company_id", 1)
             ->value("id");
 
         $currencyId = (int) DB::table("currencies")
-            ->where("company_id", 1)
             ->value("id");
 
         $now = now();
@@ -113,7 +107,6 @@ final class ServiceOperationPerformanceTest extends TestCase {
         foreach(range(1, $count) as $number) {
 
             $customers[] = [
-                "company_id" => 1,
                 "identity_document_type_id" => $identityDocumentTypeId,
                 "document_number" => str_pad((string) $number, 8, "0", STR_PAD_LEFT),
                 "name" => "Cliente {$number}",
@@ -122,7 +115,6 @@ final class ServiceOperationPerformanceTest extends TestCase {
             ];
 
             $items[] = [
-                "company_id" => 1,
                 "internal_code" => "SERVICE-{$number}",
                 "name" => "Servicio {$number}",
                 "price" => 10,

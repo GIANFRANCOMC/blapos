@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Models\Concerns\{BelongsToCompany};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\General\{Currency};
 use App\Models\System\Organizations\{Branch, User};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo, Relations\HasMany, Relations\HasOne};
 
 final class QuotationHeader extends Model {
-    use BelongsToCompany;
 
     protected $table = "quotation_headers";
 
     protected $fillable = [
-        "company_id",
         "branch_id",
         "holder_id",
         "seller_id",

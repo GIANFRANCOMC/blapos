@@ -3,10 +3,10 @@
 namespace App\Http\Requests\System\Auth;
 
 use App\Helpers\System\{Utilities};
-use App\Models\System\Organizations\{Company, User};
+use App\Models\System\Organizations\{User};
 use App\Services\Security\{TurnstileVerificationService};
 use App\Services\System\Auth\{AuthenticationAuditService};
-use App\Services\System\Tenancy\{TenantContext};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
 use Illuminate\Auth\Events\{Lockout};
 use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Http\Exceptions\{HttpResponseException};
@@ -34,7 +34,6 @@ class LoginRequest extends FormRequest {
         return [
             "email" => ["required", "string", "email"],
             "password" => ["required", "string"],
-            "company_id" => ["required", "integer"],
         ];
 
     }
@@ -57,10 +56,7 @@ class LoginRequest extends FormRequest {
         $this->ensureIsNotRateLimited();
 
         $credentials = $this->only("email", "password");
-        $companyId = $this->input("company_id");
-
-        $company = Company::where("id", $companyId)
-            ->first();
+        $company = app(TenantCompanyContext::class)->get();
 
         // Check if the company is active
 
@@ -71,21 +67,16 @@ class LoginRequest extends FormRequest {
                 "login",
                 "blocked",
                 null,
-                (int) $companyId,
                 (string) ($credentials["email"] ?? ""),
                 "Empresa inexistente o inactiva."
             );
 
-            throw new HttpResponseException(
-                redirect("/".Utilities::companyLoginQuery($companyId))
-            );
+            throw new HttpResponseException(redirect("/"));
 
         }
 
         $user = User::where("email", $credentials["email"])
-            ->where("company_id", $companyId)
             ->whereIn("status", ["active"])
-            ->with(["company"])
             ->first();
 
         // Attempt to authenticate the user
@@ -98,7 +89,6 @@ class LoginRequest extends FormRequest {
                 "login",
                 "failure",
                 $user,
-                (int) $companyId,
                 (string) ($credentials["email"] ?? ""),
                 "Credenciales inválidas."
             );
@@ -119,7 +109,6 @@ class LoginRequest extends FormRequest {
                 "login",
                 "blocked",
                 $user,
-                (int) $companyId,
                 (string) $credentials["email"],
                 "Desafío antiabuso rechazado."
             );
@@ -156,7 +145,6 @@ class LoginRequest extends FormRequest {
             "lockout",
             "blocked",
             null,
-            (int) $this->input("company_id"),
             (string) $this->input("email"),
             "Límite de intentos de inicio de sesión alcanzado."
         );

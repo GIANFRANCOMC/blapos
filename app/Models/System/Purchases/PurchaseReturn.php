@@ -13,7 +13,7 @@ final class PurchaseReturn extends Model {
     public $timestamps = false;
 
     protected $fillable = [
-        "company_id", "purchase_header_id", "purchase_receipt_id", "warehouse_id",
+        "purchase_header_id", "purchase_receipt_id", "warehouse_id",
         "reference", "returned_at", "reason", "status", "created_at", "created_by",
         "canceled_at", "canceled_by",
     ];

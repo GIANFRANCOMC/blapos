@@ -30,14 +30,12 @@ final class BookComplaintController extends Controller {
 
             $config->identityDocumentTypes = (object) [
                 "records" => IdentityDocumentType::query()
-                    ->where("company_id", $request->get("company")->id)
                     ->whereIn("id", [1, 2, 4])
                     ->get(),
             ];
 
             $config->branches = (object) [
                 "records" => Branch::query()
-                    ->where("company_id", $request->get("company")->id)
                     ->where("status", "active")
                     ->orderBy("name")
                     ->get(["id", "name", "address"]),
@@ -73,7 +71,6 @@ final class BookComplaintController extends Controller {
         $company = $request->get("company");
         $agent = new Agent();
         $todaySubmissions = BookComplaint::query()
-            ->where("company_id", $company->id)
             ->where("submitted_ip", $request->ip())
             ->whereBetween("created_at", [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()])
             ->count();
@@ -99,7 +96,6 @@ final class BookComplaintController extends Controller {
 
                 $record = BookComplaint::create([
                     ...$payload,
-                    "company_id" => $company->id,
                     "admin_response" => null,
                     "public_response" => null,
                     "tracking_code" => $this->uniqueTrackingCode((int) $company->id),
@@ -113,7 +109,6 @@ final class BookComplaintController extends Controller {
                 ]);
 
                 DB::table("book_complaint_status_histories")->insert([
-                    "company_id" => $company->id,
                     "book_complaint_id" => $record->id,
                     "changed_by" => null,
                     "previous_status" => null,
@@ -134,7 +129,6 @@ final class BookComplaintController extends Controller {
                     $storedPaths[] = $path;
 
                     DB::table("book_complaint_attachments")->insert([
-                        "company_id" => $company->id,
                         "book_complaint_id" => $record->id,
                         "file_name" => mb_substr($file->getClientOriginalName(), 0, 255),
                         "file_path" => $path,
@@ -169,7 +163,6 @@ final class BookComplaintController extends Controller {
 
         $company = $request->get("company");
         $complaint = BookComplaint::query()
-            ->where("company_id", $company->id)
             ->where("tracking_code", Str::upper($trackingCode))
             ->first();
 
@@ -204,7 +197,6 @@ final class BookComplaintController extends Controller {
             $code = Str::upper(Str::random(12));
 
         } while(BookComplaint::query()
-            ->where("company_id", $companyId)
             ->where("tracking_code", $code)
             ->exists());
 

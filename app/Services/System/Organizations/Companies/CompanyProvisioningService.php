@@ -64,8 +64,8 @@ final class CompanyProvisioningService {
 
     public function ensureAdminUser(int $companyId, string $name, string $email, string $password): int {
 
-        $roleId = DB::table("roles")->where("company_id", $companyId)->where("is_full_access", true)->value("id");
-        $identityId = DB::table("identity_document_types")->where("company_id", $companyId)->where("code", "dni")->value("id");
+        $roleId = DB::table("roles")->where("is_full_access", true)->value("id");
+        $identityId = DB::table("identity_document_types")->where("code", "dni")->value("id");
 
         if(!$roleId || !$identityId) {
 
@@ -74,7 +74,7 @@ final class CompanyProvisioningService {
         }
 
         DB::table("users")->updateOrInsert(
-            ["company_id" => $companyId, "email" => $email],
+            ["email" => $email],
             [
                 "role_id" => $roleId,
                 "identity_document_type_id" => $identityId,
@@ -87,13 +87,13 @@ final class CompanyProvisioningService {
             ]
         );
 
-        $userId = (int) DB::table("users")->where("company_id", $companyId)->where("email", $email)->value("id");
-        $branchId = DB::table("branches")->where("company_id", $companyId)->where("name", "Sede Principal")->value("id");
+        $userId = (int) DB::table("users")->where("email", $email)->value("id");
+        $branchId = DB::table("branches")->where("name", "Sede Principal")->value("id");
 
         if($branchId) {
 
             DB::table("user_branches")->updateOrInsert(
-                ["company_id" => $companyId, "user_id" => $userId, "branch_id" => $branchId],
+                ["user_id" => $userId, "branch_id" => $branchId],
                 ["status" => "active", "updated_at" => now()]
             );
 
@@ -116,8 +116,8 @@ final class CompanyProvisioningService {
         foreach($records as $record) {
 
             DB::table("identity_document_types")->updateOrInsert(
-                ["company_id" => $companyId, "code" => $record["code"]],
-                $record + ["company_id" => $companyId, "status" => "active"]
+                ["code" => $record["code"]],
+                $record + ["status" => "active"]
             );
 
         }
@@ -132,8 +132,8 @@ final class CompanyProvisioningService {
         ] as $record) {
 
             DB::table("document_types")->updateOrInsert(
-                ["company_id" => $companyId, "code" => $record["code"]],
-                $record + ["company_id" => $companyId, "status" => "active"]
+                ["code" => $record["code"]],
+                $record + ["status" => "active"]
             );
 
         }
@@ -143,9 +143,8 @@ final class CompanyProvisioningService {
     private function seedCurrencies(int $companyId): void {
 
         DB::table("currencies")->updateOrInsert(
-            ["company_id" => $companyId, "code" => "PEN"],
+            ["code" => "PEN"],
             [
-                "company_id" => $companyId,
                 "code" => "PEN",
                 "sign" => "S/",
                 "singular_name" => "SOL",
@@ -159,12 +158,10 @@ final class CompanyProvisioningService {
     private function ensureCompanyMasterReferences(int $companyId): void {
 
         $identityDocumentTypeId = DB::table("identity_document_types")
-            ->where("company_id", $companyId)
             ->where("code", "ruc")
             ->value("id");
 
         $currencyId = DB::table("currencies")
-            ->where("company_id", $companyId)
             ->where("code", "PEN")
             ->value("id");
 
@@ -247,8 +244,8 @@ final class CompanyProvisioningService {
         foreach($taxes as $tax) {
 
             DB::table("taxes")->updateOrInsert(
-                ["company_id" => $companyId, "code" => $tax["code"]],
-                $tax + ["company_id" => $companyId, "status" => "active"]
+                ["code" => $tax["code"]],
+                $tax + ["status" => "active"]
             );
 
         }
@@ -274,14 +271,13 @@ final class CompanyProvisioningService {
         foreach($methods as $method) {
 
             DB::table("payment_methods")->updateOrInsert(
-                ["company_id" => $companyId, "code" => $method["code"]],
-                $method + ["company_id" => $companyId, "status" => "active"]
+                ["code" => $method["code"]],
+                $method + ["status" => "active"]
             );
 
         }
 
         DB::table("payment_methods")
-            ->where("company_id", $companyId)
             ->whereIn("code", ["YAPE", "PLIN"])
             ->delete();
 
@@ -306,8 +302,8 @@ final class CompanyProvisioningService {
         foreach($methods as $method) {
 
             DB::table("sale_delivery_methods")->updateOrInsert(
-                ["company_id" => $companyId, "code" => $method["code"]],
-                $method + ["company_id" => $companyId, "status" => "active"]
+                ["code" => $method["code"]],
+                $method + ["status" => "active"]
             );
 
         }
@@ -333,8 +329,8 @@ final class CompanyProvisioningService {
         foreach($categories as $category) {
 
             DB::table("misc_expense_categories")->updateOrInsert(
-                ["company_id" => $companyId, "name" => $category["name"]],
-                $category + ["company_id" => $companyId, "status" => "active", "updated_at" => now()]
+                ["name" => $category["name"]],
+                $category + ["status" => "active", "updated_at" => now()]
             );
 
         }
@@ -371,12 +367,11 @@ final class CompanyProvisioningService {
         foreach($profiles as $slug => $profile) {
 
             DB::table("business_industries")->updateOrInsert(
-                ["company_id" => $companyId, "slug" => $slug],
-                $profile + ["company_id" => $companyId, "status" => "active", "updated_at" => now()]
+                ["slug" => $slug],
+                $profile + ["status" => "active", "updated_at" => now()]
             );
 
             $industryId = (int) DB::table("business_industries")
-                ->where("company_id", $companyId)
                 ->where("slug", $slug)
                 ->value("id");
 
@@ -384,7 +379,6 @@ final class CompanyProvisioningService {
 
                 DB::table("business_industry_module_sets")->updateOrInsert(
                     [
-                        "company_id" => $companyId,
                         "business_industry_id" => $industryId,
                         "sub_section_id" => $subSectionId,
                     ],
@@ -401,7 +395,6 @@ final class CompanyProvisioningService {
         }
 
         $defaultIndustryId = (int) DB::table("business_industries")
-            ->where("company_id", $companyId)
             ->where("slug", "gym")
             ->value("id");
 
@@ -421,7 +414,6 @@ final class CompanyProvisioningService {
         }
 
         $methods = DB::table("payment_methods")
-            ->where("company_id", $companyId)
             ->whereIn("code", ["DIGITAL_WALLET", "DEBIT_CARD", "CREDIT_CARD"])
             ->pluck("id", "code");
 
@@ -458,9 +450,8 @@ final class CompanyProvisioningService {
             foreach($variants as $variant) {
 
                 DB::table("payment_method_variants")->updateOrInsert(
-                    ["company_id" => $companyId, "payment_method_id" => $methodId, "code" => $variant["code"]],
+                    ["payment_method_id" => $methodId, "code" => $variant["code"]],
                     $variant + [
-                        "company_id" => $companyId,
                         "payment_method_id" => $methodId,
                         "sunat_code" => null,
                         "requires_reference" => true,
@@ -480,33 +471,32 @@ final class CompanyProvisioningService {
 
         DB::table("branches")->updateOrInsert(
             ["company_id" => $companyId, "name" => "Sede Principal"],
-            ["internal_code" => "SUC-PRINCIPAL", "status" => "active", "updated_at" => now()]
+            ["company_id" => $companyId, "internal_code" => "SUC-PRINCIPAL", "status" => "active", "updated_at" => now()]
         );
 
-        $branchId = (int) DB::table("branches")->where("company_id", $companyId)->where("name", "Sede Principal")->value("id");
+        $branchId = (int) DB::table("branches")->where("name", "Sede Principal")->value("id");
 
         DB::table("warehouses")->updateOrInsert(
-            ["company_id" => $companyId, "branch_id" => $branchId, "name" => "Almacén 1"],
+            ["branch_id" => $branchId, "name" => "Almacén 1"],
             ["status" => "active", "updated_at" => now()]
         );
         DB::table("cash_registers")->updateOrInsert(
-            ["company_id" => $companyId, "branch_id" => $branchId, "name" => "Caja principal"],
+            ["branch_id" => $branchId, "name" => "Caja principal"],
             ["code" => "CAJ-PRINCIPAL", "is_main" => true, "status" => "active", "updated_at" => now()]
         );
 
-        $genericDocumentId = DB::table("identity_document_types")
-            ->where("company_id", $companyId)->where("code", "doc.trib.no.dom.sin.ruc")->value("id");
+        $genericDocumentId = DB::table("identity_document_types")->where("code", "doc.trib.no.dom.sin.ruc")->value("id");
         DB::table("customers")->updateOrInsert(
-            ["company_id" => $companyId, "document_number" => "999999999"],
+            ["document_number" => "999999999"],
             ["identity_document_type_id" => $genericDocumentId, "name" => "Cliente varios", "phone_number" => "", "status" => "active", "updated_at" => now()]
         );
 
-        $documentTypes = DB::table("document_types")->where("company_id", $companyId)->get();
+        $documentTypes = DB::table("document_types")->get();
 
         foreach($documentTypes as $documentType) {
 
             DB::table("series")->updateOrInsert(
-                ["company_id" => $companyId, "branch_id" => $branchId, "document_type_id" => $documentType->id],
+                ["branch_id" => $branchId, "document_type_id" => $documentType->id],
                 ["code" => $documentType->code, "number" => 1, "init" => 1, "status" => "active", "updated_at" => now()]
             );
 
@@ -517,14 +507,12 @@ final class CompanyProvisioningService {
     private function ensureAdminRole(int $companyId): void {
 
         $existingRoleId = DB::table("roles")
-            ->where("company_id", $companyId)
             ->where("is_full_access", true)
             ->value("id");
 
         if(!$existingRoleId) {
 
             DB::table("roles")->insert([
-                "company_id" => $companyId,
                 "slug" => Utilities::generateCode(),
                 "name" => "Administrador",
                 "is_full_access" => true,
@@ -532,7 +520,6 @@ final class CompanyProvisioningService {
             ]);
 
             $existingRoleId = DB::table("roles")
-                ->where("company_id", $companyId)
                 ->where("is_full_access", true)
                 ->value("id");
 
@@ -543,8 +530,8 @@ final class CompanyProvisioningService {
         foreach($subSectionIds as $subSectionId) {
 
             DB::table("role_sub_sections")->updateOrInsert(
-                ["company_id" => $companyId, "role_id" => $existingRoleId, "sub_section_id" => $subSectionId],
-                ["company_id" => $companyId, "role_id" => $existingRoleId, "sub_section_id" => $subSectionId, "status" => "active"]
+                ["role_id" => $existingRoleId, "sub_section_id" => $subSectionId],
+                ["role_id" => $existingRoleId, "sub_section_id" => $subSectionId, "status" => "active"]
             );
 
         }

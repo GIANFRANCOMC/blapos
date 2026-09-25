@@ -113,7 +113,6 @@ class SaleService {
         $sellerId = (int) ($data["seller_id"] ?? $userId);
 
         $exists = User::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->whereKey($sellerId)
             ->exists();
@@ -131,7 +130,6 @@ class SaleService {
     private static function normalizeCommissionDetails(array $details, int $companyId): array {
 
         $items = Item::query()
-            ->where("company_id", $companyId)
             ->whereIn("id", collect($details)->pluck("item_id")->filter()->unique()->values())
             ->get(["id", "commission_rate", "commission_type", "commission_value"])
             ->keyBy("id");
@@ -179,7 +177,6 @@ class SaleService {
             ->values();
 
         return Item::query()
-            ->where("company_id", $companyId)
             ->whereIn("id", $itemIds)
             ->lockForUpdate()
             ->get()
@@ -274,7 +271,6 @@ class SaleService {
         }
 
         $items = Item::query()
-            ->where("company_id", $companyId)
             ->whereIn("id", $capacityPositions->pluck("item_id")->filter()->unique()->values())
             ->lockForUpdate()
             ->get()
@@ -344,7 +340,6 @@ class SaleService {
 
         $saleBody = new SaleBody();
 
-        $saleBody->company_id = $saleHeader->company_id;
         $saleBody->sale_header_id = $saleHeader->id;
         $saleBody->item_id = $detail["item_id"];
         $saleBody->currency_id = $detail["currency_id"];
@@ -356,7 +351,7 @@ class SaleService {
             ? false
             : filter_var($detail["price_includes_tax"] ?? true, FILTER_VALIDATE_BOOL);
 
-        $saleBody->total = Utilities::round((floatval($saleBody->quantity) * floatval($saleBody->price)), null, (int) $saleHeader->company_id);
+        $saleBody->total = Utilities::round((floatval($saleBody->quantity) * floatval($saleBody->price)));
         $saleBody->commission_type = $detail["commission_type"] ?? "none";
         $saleBody->commission_value = $detail["commission_value"] ?? 0;
         $saleBody->commission_amount = $detail["commission_amount"] ?? 0;
@@ -394,7 +389,7 @@ class SaleService {
         array $metadata = []
     ): ?InventoryMovement {
 
-        $companyId = (int) $warehouse->branch->company_id;
+        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
         $allowNegativeStock = (bool) CompanySettingService::value(
             $companyId,
             CompanySettingService::INVENTORY_POLICIES,
@@ -424,7 +419,6 @@ class SaleService {
         $quantity = Utilities::round((float) ($detail["quantity"] ?? $saleBody->quantity), null, $companyId);
 
         return InventoryMovementService::apply([
-            "company_id" => $companyId,
             "warehouse_id" => (int) $warehouse->id,
             "item_id" => (int) $saleBody->item_id,
             "user_id" => $userId,
@@ -475,7 +469,6 @@ class SaleService {
         );
 
         $subscription = new Subscription();
-        $subscription->company_id = $companyId;
         $subscription->branch_id = $branchId;
         $subscription->sale_header_id = $saleHeader->id;
         $subscription->sale_body_id = $saleBody->id;
@@ -506,7 +499,6 @@ class SaleService {
                 $subscription,
                 $subscription->customer,
                 Item::query()
-                    ->where("company_id", $companyId)
                     ->whereKey((int) $saleBody->item_id)
                     ->first(),
                 $userId
@@ -521,7 +513,6 @@ class SaleService {
     private static function validateSubscriptionCustomer(int $companyId, int $customerId): void {
 
         $exists = \App\Models\System\Customers\Customer::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->whereKey($customerId)
             ->exists();
@@ -549,10 +540,9 @@ class SaleService {
         $warehouseQuery = Warehouse::query()
             ->with("branch")
             ->where("branch_id", $data["branch_id"])
-            ->whereHas("branch", function($query) use ($companyId) {
+            ->whereHas("branch", function($query) {
 
-                $query->where("company_id", $companyId)
-                    ->where("status", "active");
+                $query->where("status", "active");
 
             })
             ->where("status", "active");
@@ -608,7 +598,6 @@ class SaleService {
         }
 
         $method = SaleDeliveryMethod::query()
-            ->where("company_id", $companyId)
             ->where("status", "active")
             ->find($methodId);
 
@@ -650,14 +639,13 @@ class SaleService {
 
         $session = CashSession::query()
             ->with("register")
-            ->where("company_id", $companyId)
             ->where("branch_id", (int) $data["branch_id"])
             ->where("status", "open")
             ->find($cashSessionId);
 
         if(!$session
             || !AccessScopeService::canAccess(
-                User::query()->where("company_id", $companyId)->findOrFail($userId),
+                User::query()->findOrFail($userId),
                 AccessScopeService::CASH_REGISTER,
                 (int) $session->cash_register_id
             )) {
@@ -682,7 +670,6 @@ class SaleService {
             ->map(function($payment) use ($saleHeader, $companyId, $branchId, $userId) {
 
                 return [
-                    "company_id" => $companyId,
                     "branch_id" => $branchId,
                     "cash_session_id" => $saleHeader->cash_session_id,
                     "payment_method_id" => $payment["payment_method_id"] ?? null,
@@ -740,7 +727,6 @@ class SaleService {
     ): void {
 
         DB::table("series_correlative_movements")->insert([
-            "company_id" => $companyId,
             "serie_id" => (int) $saleHeader->serie_id,
             "sale_header_id" => (int) $saleHeader->id,
             "user_id" => $userId,
@@ -889,7 +875,6 @@ class SaleService {
             // Create sale header
             $saleHeader = new SaleHeader();
 
-            $saleHeader->company_id = $companyId;
             $saleHeader->serie_id = $data["serie_id"];
             $saleHeader->sequential = $newSequential;
             $saleHeader->holder_id = $data["holder_id"];
@@ -1011,7 +996,6 @@ class SaleService {
             if(Utilities::isDefined($data["quotation_header_id"] ?? null)) {
 
                 QuotationHeader::query()
-                    ->where("company_id", $companyId)
                     ->whereKey((int) $data["quotation_header_id"])
                     ->whereIn("status", ["draft", "sent", "accepted"])
                     ->update([
@@ -1087,7 +1071,6 @@ class SaleService {
 
             $saleMovements = $restoreStockPolicyEnabled && $allPositions->isNotEmpty()
                 ? InventoryMovement::query()
-                    ->where("company_id", $companyId)
                     ->whereIn("origin_type", [
                         InventoryMovementService::ORIGIN_SALE,
                         InventoryMovementService::ORIGIN_SALE_DELIVERY,
@@ -1152,7 +1135,6 @@ class SaleService {
                         }
 
                         InventoryMovementService::apply([
-                            "company_id" => $companyId,
                             "warehouse_id" => (int) $movement->warehouse_id,
                             "item_id" => (int) $movement->item_id,
                             "user_id" => $userId,
@@ -1218,7 +1200,7 @@ class SaleService {
 
             $motive = "Por la anulación de la venta.";
 
-            Subscription::where("company_id", $companyId)
+            Subscription::query()
                 ->where("sale_header_id", $saleHeader->id)
                 ->whereIn("type", ["sale"])
                 ->whereIn("status", ["active"])
@@ -1249,7 +1231,6 @@ class SaleService {
     public static function findById(int $companyId, int $id): ?SaleHeader {
 
         return SaleHeader::query()
-            ->where("company_id", $companyId)
             ->find($id);
 
     }
@@ -1269,7 +1250,7 @@ class SaleService {
         ?int $userId = null
     ) {
 
-        $branchQuery = \App\Models\System\Organizations\Branch::where("company_id", $companyId)
+        $branchQuery = \App\Models\System\Organizations\Branch::query()
             ->with(["series"]);
 
         $branchIds = $userId === null

@@ -98,7 +98,6 @@ final class SystemCatalogSyncService {
         }
 
         $fullAccessRoleIds = DB::table("roles")
-            ->where("company_id", $companyId)
             ->where("is_full_access", true)
             ->pluck("id");
 
@@ -107,7 +106,7 @@ final class SystemCatalogSyncService {
             foreach($items as $item) {
 
                 DB::table("role_sub_sections")->updateOrInsert(
-                    ["company_id" => $companyId, "role_id" => $roleId, "sub_section_id" => $item->id],
+                    ["role_id" => $roleId, "sub_section_id" => $item->id],
                     ["status" => "active", "updated_at" => now()]
                 );
 

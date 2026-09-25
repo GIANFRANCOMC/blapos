@@ -6,7 +6,6 @@ namespace App\Models\System\Organizations;
 
 use App\Helpers\System\{Utilities};
 use App\Models\System\General\{IdentityDocumentType};
-use App\Models\System\Organizations\{Company};
 use App\Models\System\Sales\{SaleHeader};
 use Illuminate\Foundation\Auth\{User as Authenticatable};
 use Illuminate\Notifications\{Notifiable};
@@ -37,7 +36,6 @@ class User extends Authenticatable {
      * @var array<int, string>
      */
     protected $fillable = [
-        "company_id",
         "role_id",
         "branch_scope_mode",
         "cash_register_scope_mode",
@@ -105,17 +103,13 @@ class User extends Authenticatable {
 
         }else {
 
-            $preferences = $this->preferences()
-                ->where("company_id", $this->company_id)
-                ->get();
+            $preferences = $this->preferences()->get();
 
             $this->setRelation("preferences", $preferences);
 
         }
 
-        return $preferences
-            ->where("company_id", (int) $this->company_id)
-            ->mapWithKeys(function($e) {
+        return $preferences->mapWithKeys(function($e) {
 
                 return [$e->slug => json_decode($e->value)];
 
@@ -149,11 +143,6 @@ class User extends Authenticatable {
     }
 
     // Relationships
-    public function company() {
-
-        return $this->belongsTo(Company::class, "company_id", "id");
-
-    }
 
     public function role() {
 
@@ -164,7 +153,7 @@ class User extends Authenticatable {
     public function branches() {
 
         return $this->belongsToMany(Branch::class, "user_branches", "user_id", "branch_id")
-            ->withPivot(["company_id", "status", "created_by", "updated_by"])
+            ->withPivot(["status", "created_by", "updated_by"])
             ->wherePivot("status", "active");
 
     }
@@ -206,8 +195,7 @@ class User extends Authenticatable {
 
     public function navigationMetrics() {
 
-        return $this->hasMany(UserNavigationMetric::class, "user_id", "id")
-            ->where("company_id", $this->company_id);
+        return $this->hasMany(UserNavigationMetric::class, "user_id", "id");
 
     }
 
