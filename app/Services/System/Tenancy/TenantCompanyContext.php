@@ -18,17 +18,26 @@ final class TenantCompanyContext {
 
         }
 
-        $company = Company::query()->orderBy("id")->first();
+        $companies = Company::query()
+            ->orderBy("id")
+            ->limit(2)
+            ->get();
 
-        if(!$company) {
+        if($companies->isEmpty()) {
 
             throw new RuntimeException("El tenant no tiene una empresa aprovisionada.");
 
         }
 
-        $this->company = $company;
+        if($companies->count() !== 1) {
 
-        return $company;
+            throw new RuntimeException("El tenant debe contener exactamente una empresa raíz.");
+
+        }
+
+        $this->company = $companies->first();
+
+        return $this->company;
 
     }
 

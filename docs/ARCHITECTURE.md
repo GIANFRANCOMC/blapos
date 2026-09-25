@@ -108,14 +108,16 @@ Las migraciones principales inicializan grupos funcionales:
 - `create_init_clients_table`: libro de reclamaciones.
 - `create_init_biometrics_table`: dispositivos biometricos y huellas.
 
-## Multiempresa
+## Tenant y empresa raíz
 
-El sistema depende fuertemente de `company_id`. Al modificar codigo, revisar:
+Cada tenant es una empresa y su conexión de base de datos es el límite de aislamiento. Al modificar código, revisar:
 
-- Que consultas internas filtren por empresa del usuario autenticado.
+- Que consultas internas operen exclusivamente sobre la conexión tenant resuelta.
 - Que ids recibidos por request no permitan acceder a datos de otra empresa.
 - Que las rutas publicas usen la empresa cargada por middleware y no datos arbitrarios.
 - Que entidades por sucursal validen que la sucursal pertenece a la empresa.
+
+Solo las cuatro relaciones estructurales descritas en `System/TENANT_COMPANY_BOUNDARY.md` conservan `company_id`.
 
 ## Cache
 

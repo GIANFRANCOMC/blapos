@@ -9,7 +9,6 @@ use App\Models\System\Warehouses\{InventoryMovement};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class SaleDeliveryEventItem extends Model {
-
     protected $table = "sale_delivery_event_items";
 
     public $timestamps = false;

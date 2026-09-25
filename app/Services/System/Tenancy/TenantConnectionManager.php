@@ -11,6 +11,9 @@ use RuntimeException;
 final class TenantConnectionManager {
     public function connect(TenantDatabase $tenant): void {
 
+        app(TenantCompanyContext::class)->forget();
+        app(TenantContext::class)->set($tenant);
+
         $connectionName = config("tenancy.tenant_connection", "tenant");
         $base = config("database.connections.{$connectionName}", config("database.connections.mysql"));
         $databaseName = $tenant->database_name;
@@ -40,6 +43,9 @@ final class TenantConnectionManager {
     }
 
     public function disconnect(): void {
+
+        app(TenantCompanyContext::class)->forget();
+        app(TenantContext::class)->set(null);
 
         $connectionName = config("tenancy.tenant_connection", "tenant");
         $landlordConnection = config("tenancy.landlord_connection", "landlord");

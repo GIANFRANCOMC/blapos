@@ -23,7 +23,7 @@ Permite dar seguimiento a ventas cuya entrega física queda pendiente. La venta 
 
 ## Seguridad y alcance
 
-- Las consultas se filtran por `company_id`.
+- Las consultas se ejecutan sobre la conexión tenant activa.
 - La lista y el registro respetan los almacenes permitidos para el colaborador autenticado.
 - La entrega solo acepta almacenes activos de la empresa.
 

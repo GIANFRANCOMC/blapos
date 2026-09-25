@@ -26,7 +26,6 @@ final class AuthenticationEvent extends Model {
 
     protected $casts = ["occurred_at" => "datetime"];
 
-
     public function user() {
 
         return $this->belongsTo(User::class, "user_id");

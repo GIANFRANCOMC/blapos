@@ -109,6 +109,7 @@ class TrackingCustomerBusinessService {
             case "sales":
                 return SaleHeader::where("holder_id", $customer->id)
                     ->whereHas("serie.branch", function($query) use ($allowedBranchIds) {
+
                         if($allowedBranchIds !== null) {
 
                             $query->whereIn("id", $allowedBranchIds);

@@ -14,7 +14,6 @@ Administra usuarios internos, perfiles, alcance operativo y seguridad de acceso 
 
 ## Campos necesarios
 
-- `company_id`
 - `role_id`
 - `branch_scope_mode`
 - `cash_register_scope_mode`

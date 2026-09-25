@@ -14,7 +14,6 @@ Permite administrar reclamos, quejas y sugerencias recibidas desde System o Gues
 
 ## Campos necesarios
 
-- `company_id`
 - `branch_id`
 - `identity_document_type_id`
 - `document_number`

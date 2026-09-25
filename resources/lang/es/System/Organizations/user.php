@@ -29,7 +29,6 @@ return [
     "retrieve_failed" => "No se pudo obtener el usuario.",
 
     // Mensajes de Validación
-    "company_id_required" => "El ID de la empresa es requerido.",
 
     // Mensajes de Excepción
     "exception_create" => "Error al crear el usuario: :message",

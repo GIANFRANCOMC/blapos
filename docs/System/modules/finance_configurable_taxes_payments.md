@@ -31,7 +31,6 @@ Catálogo configurable de tributos por empresa.
 
 Campos principales:
 
-- `company_id`: empresa propietaria de la configuración.
 - `code`: código interno legible del tributo.
 - `name`: nombre mostrado al usuario. En la interfaz se debe mostrar este nombre, por ejemplo `IGV`, no una etiqueta genérica como `Impuestos`.
 - `description`: explica el ámbito del tributo, a quién aplica, de dónde proviene y cómo debe interpretarse.
@@ -50,7 +49,6 @@ Catálogo configurable de métodos de pago generales por empresa.
 
 Campos principales:
 
-- `company_id`: empresa propietaria de la configuración.
 - `code`: código interno del método.
 - `name`: nombre mostrado al usuario.
 - `category`: naturaleza operativa del método: `cash`, `bank`, `card`, `digital_wallet`, `credit` u `other`.
@@ -76,7 +74,6 @@ Ejemplos base:
 
 Campos principales:
 
-- `company_id`: empresa propietaria de la variante.
 - `payment_method_id`: método general al que pertenece.
 - `code`: código interno de la variante.
 - `name`: nombre mostrado al usuario.

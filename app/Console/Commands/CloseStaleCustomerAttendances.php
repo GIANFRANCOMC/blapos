@@ -13,8 +13,7 @@ use Throwable;
 final class CloseStaleCustomerAttendances extends Command {
     protected $signature = "attendances:close-stale-customers
                             {--tenant= : Procesar únicamente el slug tenant indicado}
-                            {--company= : Procesar únicamente una empresa}
-                            {--limit=500 : Máximo de asistencias por empresa}
+                            {--limit=500 : Máximo de asistencias por tenant}
                             {--force : Ejecuta aunque no haya llegado la hora configurada}";
 
     protected $description = "Cierra asistencias de clientes que quedaron abiertas sin salida";
@@ -25,7 +24,6 @@ final class CloseStaleCustomerAttendances extends Command {
     ): int {
 
         $tenantSlug = $this->option("tenant");
-        $companyId = $this->option("company");
         $tenants = TenantDatabase::query()
             ->where("status", "active")
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
@@ -50,18 +48,17 @@ final class CloseStaleCustomerAttendances extends Command {
 
                 $connectionManager->connect($tenant);
                 $summary = AttendanceMaintenanceService::closeStaleCustomerAttendances(
-                    $companyId === null ? null : (int) $companyId,
                     max(1, (int) $this->option("limit")),
                     (bool) $this->option("force")
                 );
 
-                $rows[] = [$tenant->slug, $summary["companies"], $summary["closed"], $summary["skipped"], "OK"];
+                $rows[] = [$tenant->slug, $summary["closed"], $summary["skipped"], "OK"];
                 $administration->audit($tenant, "close_stale_customer_attendances", "success", $summary, "scheduler");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $rows[] = [$tenant->slug, 0, 0, 0, $exception->getMessage()];
+                $rows[] = [$tenant->slug, 0, 0, $exception->getMessage()];
                 $administration->audit($tenant, "close_stale_customer_attendances", "failure", [
                     "error" => $exception->getMessage(),
                 ], "scheduler");
@@ -74,7 +71,7 @@ final class CloseStaleCustomerAttendances extends Command {
 
         }
 
-        $this->table(["Tenant", "Empresas", "Cerradas", "Omitidas", "Resultado"], $rows);
+        $this->table(["Tenant", "Cerradas", "Omitidas", "Resultado"], $rows);
 
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 

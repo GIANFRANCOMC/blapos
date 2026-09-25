@@ -8,7 +8,6 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 final class InventoryStockAlert extends Model {
-
     protected $table = "inventory_stock_alerts";
 
     protected $fillable = [

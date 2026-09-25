@@ -22,7 +22,6 @@ final class BiometricDeviceModel extends Model {
         "updated_by",
     ];
 
-
     public function brand() {
 
         return $this->belongsTo(BiometricDeviceBrand::class, "biometric_device_brand_id", "id");

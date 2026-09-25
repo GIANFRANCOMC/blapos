@@ -22,6 +22,7 @@ final class LandlordDatabaseProvisionerTest extends TestCase {
         $connection->shouldReceive("getConfig")
             ->once()
             ->andReturn($this->connectionConfig());
+
         $connection->shouldReceive("getPdo")
             ->once()
             ->andReturn(Mockery::mock(PDO::class));
@@ -44,6 +45,7 @@ final class LandlordDatabaseProvisionerTest extends TestCase {
         $landlordConnection->shouldReceive("getConfig")
             ->once()
             ->andReturn($this->connectionConfig());
+
         $landlordConnection->shouldReceive("getPdo")
             ->once()
             ->andThrow(new RuntimeException("Unknown database"));
@@ -81,6 +83,7 @@ final class LandlordDatabaseProvisionerTest extends TestCase {
         $connection->shouldReceive("getConfig")
             ->once()
             ->andReturn($this->connectionConfig("blapos_landlord; DROP DATABASE mysql"));
+
         $connection->shouldReceive("getPdo")->never();
 
         DB::shouldReceive("connection")

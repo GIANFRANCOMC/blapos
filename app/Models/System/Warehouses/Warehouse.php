@@ -9,7 +9,6 @@ use App\Models\System\Organizations\{Branch};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class Warehouse extends Model {
-
     protected $table = "warehouses";
 
     protected $appends = [

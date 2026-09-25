@@ -23,7 +23,7 @@ Registra jornadas laborales de colaboradores, separadas de las visitas de client
 - Una corrección aprobada recalcula las métricas y conserva la solicitud original y su revisor.
 - El dispositivo biométrico no omite validaciones de empresa, sucursal, estado ni jornada activa.
 - Check-in biométrico, resumen semanal, pausas y correcciones usan requests empresariales dedicados; comparten autorización, mensajes y formato de errores.
-- Las pausas y correcciones se localizan por `company_id + id` dentro del servicio y conservan al actor responsable.
+- Las pausas y correcciones se localizan por ID dentro de la conexión tenant y conservan al actor responsable.
 
 ## Endpoints
 

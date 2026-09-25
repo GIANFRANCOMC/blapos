@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\{DB, Hash, Schema};
 use RuntimeException;
 
 final class CompanyProvisioningService {
-    public function createOrUpdate(array $attributes, int $companyId = 1): int {
+    private const ROOT_COMPANY_ID = 1;
+
+    public function createOrUpdate(array $attributes): int {
 
         $payload = [
             "slug" => $attributes["slug"],
@@ -22,9 +24,18 @@ final class CompanyProvisioningService {
             "updated_at" => now(),
         ];
 
-        DB::table("companies")->updateOrInsert(["id" => $companyId], $payload);
+        if(DB::table("companies")->where("id", "!=", self::ROOT_COMPANY_ID)->exists()) {
 
-        return $companyId;
+            throw new RuntimeException("El tenant debe contener exactamente una empresa raíz.");
+
+        }
+
+        DB::table("companies")->updateOrInsert(
+            ["id" => self::ROOT_COMPANY_ID],
+            $payload
+        );
+
+        return self::ROOT_COMPANY_ID;
 
     }
 

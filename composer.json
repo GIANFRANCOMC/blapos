@@ -52,13 +52,13 @@
         ],
         "format:php": [
             "@php scripts/format-php-double-quotes.php",
-            "@php vendor/bin/pint",
-            "@php scripts/format-php-control-structures.php"
+            "@php scripts/format-php-control-structures.php",
+            "@php vendor/bin/pint"
         ],
         "format:php-check": [
             "@php scripts/format-php-double-quotes.php --check",
-            "@php vendor/bin/pint --test",
-            "@php scripts/format-php-control-structures.php --check"
+            "@php scripts/format-php-control-structures.php --check",
+            "@php vendor/bin/pint --test"
         ],
         "check:php-syntax": [
             "@php scripts/check-php-syntax.php"

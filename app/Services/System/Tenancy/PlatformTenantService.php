@@ -20,8 +20,11 @@ final class PlatformTenantService {
 
         try {
 
+            $companyId = $this->rootCompanyId();
+
             $latestCompanyModules = DB::table("companies_sub_sections")
                 ->selectRaw("MAX(id) as id, sub_section_id")
+                ->where("company_id", $companyId)
                 ->groupBy("sub_section_id");
 
             return DB::table("sub_sections as ss")
@@ -57,13 +60,7 @@ final class PlatformTenantService {
 
         try {
 
-            $companyId = (int) DB::table("companies")->orderBy("id")->value("id");
-
-            if($companyId <= 0 || !DB::table("companies")->where("id", $companyId)->exists()) {
-
-                throw new RuntimeException("El tenant no tiene una empresa raíz válida.");
-
-            }
+            $companyId = $this->rootCompanyId();
 
             $enabled = collect($enabledModuleIds)->map(fn($id) => (int) $id)->unique();
 
@@ -95,6 +92,7 @@ final class PlatformTenantService {
                     ->value("id");
 
                 DB::table("companies_sub_sections")
+                    ->where("company_id", $companyId)
                     ->delete();
 
                 if($records !== []) {
@@ -119,6 +117,23 @@ final class PlatformTenantService {
             $this->connections->disconnect();
 
         }
+
+    }
+
+    private function rootCompanyId(): int {
+
+        $companyIds = DB::table("companies")
+            ->orderBy("id")
+            ->limit(2)
+            ->pluck("id");
+
+        if($companyIds->count() !== 1) {
+
+            throw new RuntimeException("El tenant debe contener exactamente una empresa raíz.");
+
+        }
+
+        return (int) $companyIds->first();
 
     }
 }

@@ -9,7 +9,6 @@ use App\Models\System\General\{Currency};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class QuotationItem extends Model {
-
     protected $table = "quotation_items";
 
     protected $fillable = [

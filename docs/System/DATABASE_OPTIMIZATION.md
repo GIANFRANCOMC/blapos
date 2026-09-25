@@ -16,24 +16,24 @@ Las migraciones posteriores solo deben alterar una tabla existente cuando exista
 
 Los campos de acciones y alcances operativos de roles y usuarios viven directamente en la migración maestra. Sus tablas de relación con sucursales, cajas y almacenes se crean en la migración base de empresas, después de existir todos los recursos referenciados.
 
-## Integridad multiempresa
+## Integridad dentro del tenant
 
-La base de datos refuerza las reglas que también valida el backend:
+La base tenant es el límite de empresa. La base de datos refuerza las reglas que también valida el backend:
 
-- marca: `company_id + internal_code` único;
-- ítem: `company_id + type + internal_code` único;
-- código de barras: `company_id + barcode` único;
-- categoría: `company_id + internal_code` único;
-- asignación de categoría: `company_id + category_id + item_id` única;
-- almacén: `company_id + branch_id + name` único;
-- saldo: `company_id + warehouse_id + item_id` único;
-- correlativo de venta: `company_id + serie_id + sequential` único.
+- marca: `internal_code` único;
+- ítem: `type + internal_code` único;
+- código de barras: `barcode` único cuando exista;
+- categoría: `internal_code` único;
+- asignación de categoría: `category_id + item_id` única;
+- almacén: `branch_id + name` único;
+- saldo: `warehouse_id + item_id` único;
+- correlativo de venta: `serie_id + sequential` único.
 
 MySQL permite múltiples valores `NULL` en un índice único, por lo que los ítems no físicos pueden conservar `barcode = NULL`.
 
 ## Índices operativos
 
-No se agregan índices por intuición. Los índices compuestos reflejan consultas existentes y comienzan por `company_id` para mantener el aislamiento y reducir el rango leído:
+No se agregan índices por intuición. Los índices compuestos reflejan filtros, relaciones y ordenamientos existentes; el aislamiento ya está resuelto por la conexión tenant:
 
 - catálogo: estado, tipo, nombre, marca y vencimiento;
 - existencias: ítem, estado y almacén;
@@ -55,10 +55,7 @@ Las referencias desde ventas y Kardex hacia catálogos usan `RESTRICT`. No se pu
 
 ## Convención de modelos
 
-Los modelos multiempresa reutilizan `App\Models\Concerns\BelongsToCompany`, que aporta:
-
-- relación `company()`;
-- scope `forCompany($companyId)`.
+Los modelos operativos no declaran relación `company()` ni scopes redundantes. Las relaciones con empresa se limitan a `Branch`, `CompanySetting`, `CompanySocialMedia` y `CompanySubSection`.
 
 Los modelos de catálogo, inventario y ventas declaran casts numéricos, relaciones tipadas y scopes con intención de dominio como `active`, `ofType`, `forStock`, `pendingDelivery`, `issuedBetween` y `outstanding`. Los métodos públicos anteriores se conservan para mantener compatibilidad.
 

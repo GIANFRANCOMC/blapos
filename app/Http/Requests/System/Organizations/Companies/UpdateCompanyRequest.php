@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Organizations\Companies;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Rules\System\Defaults\{ExistsInTenant, DocumentNumberLength};
+use App\Rules\System\Defaults\{DocumentNumberLength, ExistsInTenant};
 
 class UpdateCompanyRequest extends CompanyFormRequest {
     /**

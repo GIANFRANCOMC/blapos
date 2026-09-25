@@ -55,6 +55,7 @@ final class BusinessProfileService {
                 ->unique();
 
             DB::table("companies_sub_sections")
+                ->where("company_id", $companyId)
                 ->whereIn("sub_section_id", $catalogIds->all())
                 ->update([
                     "status" => "inactive",
@@ -94,6 +95,7 @@ final class BusinessProfileService {
     public static function enabledModuleIds(int $companyId): array {
 
         return DB::table("companies_sub_sections")
+            ->where("company_id", $companyId)
             ->where("status", "active")
             ->pluck("sub_section_id")
             ->map(fn($id) => (int) $id)
@@ -118,6 +120,7 @@ final class BusinessProfileService {
                 ->unique();
 
             DB::table("companies_sub_sections")
+                ->where("company_id", $companyId)
                 ->whereIn("sub_section_id", $catalogIds->all())
                 ->update([
                     "status" => "inactive",

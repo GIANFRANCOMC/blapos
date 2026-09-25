@@ -11,7 +11,7 @@ La creación de tablas, el catálogo global del sistema y los datos de cada orga
 3. `CompanyProvisioningService` crea los datos operativos de una organización.
 4. Los comandos Artisan orquestan estos servicios sin duplicar definiciones.
 
-No se debe insertar una empresa fija desde una migración ni asumir que existe una fila con ID `1`.
+Las migraciones no insertan empresas. El aprovisionador reserva el ID local `1` para la única empresa raíz del tenant y rechaza la existencia de una segunda raíz.
 
 ## Fuentes canónicas
 
@@ -73,7 +73,6 @@ No utilizar `--fresh` en una base con información que deba conservarse.
 
 ```bash
 php artisan system:sync
-php artisan system:sync --company=1
 ```
 
 Sincroniza categorías, secciones, grupos, opciones, asignaciones empresariales y permisos de perfiles con acceso total. Es seguro ejecutarlo más de una vez.
@@ -81,8 +80,8 @@ Sincroniza categorías, secciones, grupos, opciones, asignaciones empresariales 
 ### Aprovisionar una organización existente
 
 ```bash
-php artisan company:enable 1
-php artisan company:enable 1 --skip-modules
+php artisan company:enable
+php artisan company:enable --skip-modules
 ```
 
 Completa datos maestros y operativos faltantes sin duplicar registros. La variante `--skip-modules` evita crear o actualizar el perfil administrativo.
@@ -91,7 +90,6 @@ Completa datos maestros y operativos faltantes sin duplicar registros. La varian
 
 ```bash
 php artisan system:doctor
-php artisan system:doctor --company=1
 ```
 
 Comprueba tablas obligatorias, rutas del menú, referencias de empresa, perfil, sede, almacén y caja. Debe ejecutarse después de una instalación o despliegue con cambios de catálogo.
@@ -134,8 +132,8 @@ Flujo mínimo antes de entregar cambios:
 php artisan system:install [opciones] --no-interaction
 php artisan system:doctor
 php artisan system:sync
-php artisan company:enable 1
-php artisan system:doctor --company=1
+php artisan company:enable
+php artisan system:doctor
 php artisan test --testsuite=Unit
 ```
 

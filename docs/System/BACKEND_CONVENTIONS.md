@@ -8,7 +8,7 @@ Este archivo concentra reglas backend aplicables a controladores, requests y ser
 - El controlador orquesta: obtiene `companyId`, `userId`, datos validados y delega la regla de negocio.
 - El servicio decide negocio, transacciones, trazabilidad y consultas de escritura.
 - El modelo conserva relaciones, casts, scopes simples y accessors tolerantes a columnas ausentes.
-- No poner reglas de negocio en Vue ni depender de `company_id` enviado desde frontend.
+- No poner reglas de negocio en Vue ni aceptar `company_id` enviado desde frontend.
 
 ## Nombres
 
@@ -19,15 +19,15 @@ Este archivo concentra reglas backend aplicables a controladores, requests y ser
 
 ## Requests
 
-- Toda mutacion propiedad de empresa debe usar un FormRequest que extienda `CompanyFormRequest`.
-- `CompanyFormRequest` autoriza solo usuarios autenticados con `company_id`, normaliza strings declarados en `normalizedStringFields()` y devuelve errores JSON homogeneos.
-- Validar IDs directos con `BelongsToCompany` cuando el registro tenga `company_id`.
+- Toda mutación tenant debe usar el FormRequest correspondiente; puede extender `CompanyFormRequest` para compartir normalización y configuración.
+- `CompanyFormRequest` autoriza usuarios autenticados en un tenant válido, normaliza strings declarados en `normalizedStringFields()` y devuelve errores JSON homogéneos.
+- Validar IDs directos con `ExistsInTenant`.
 - Si el scope depende de una relacion, validar pertenencia en el servicio dentro de la transaccion o antes de escribir.
 - Los mensajes bajo campos deben ser cortos: `Campo obligatorio.`, `Ingrese un numero valido.`, `Seleccione una opcion valida.`
 
 ## Seguridad De Datos
 
-- Resolver entidades mutables con `company_id + id` en la misma consulta.
+- Resolver entidades mutables por ID dentro de la conexión tenant activa y aplicar después su alcance funcional.
 - Si una ruta trae `{id}`, ese ID manda sobre cualquier ID recibido en el cuerpo.
 - Aplicar alcance operativo por sucursal, almacen o caja antes de ejecutar escrituras.
 - Registrar `created_by`, `updated_by`, `canceled_by`, `opened_by` o el campo equivalente cuando exista.

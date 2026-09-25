@@ -30,7 +30,6 @@ return [
     "delete_not_implemented" => "Funcionalidad de eliminación no implementada.",
 
     // Mensajes de Validación
-    "company_id_required" => "El ID de la empresa es requerido.",
 
     // Mensajes Generales
     "init_params_error" => "Error al obtener parámetros de inicialización.",

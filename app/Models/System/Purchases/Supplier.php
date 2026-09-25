@@ -7,7 +7,6 @@ namespace App\Models\System\Purchases;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 final class Supplier extends Model {
-
     protected $table = "suppliers";
 
     protected $fillable = [

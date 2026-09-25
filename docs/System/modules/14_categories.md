@@ -6,7 +6,7 @@ Agrupa productos, servicios y membresías por empresa.
 
 ## Backend
 
-- Campos: `company_id`, `internal_code`, `name`, `description`, `sort_order`, `is_public` y `status`.
+- Campos: `internal_code`, `name`, `description`, `sort_order`, `is_public` y `status`.
 - `sort_order` controla orden estable; `is_public` separa uso interno de exposición pública.
 - Solo categorías activas se ofrecen en nuevas asociaciones.
 - Inactivar o eliminar queda bloqueado cuando existen ítems activos asociados; el backend responde `422` con un mensaje directo para que el usuario entienda que primero debe retirar o desactivar esos productos.

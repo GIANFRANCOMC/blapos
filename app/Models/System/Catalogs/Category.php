@@ -9,7 +9,6 @@ use App\Models\System\Catalogs\{CategoryItem};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 class Category extends Model {
-
     protected $table = "categories";
 
     protected $appends = [

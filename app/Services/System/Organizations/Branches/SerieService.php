@@ -72,7 +72,7 @@ class SerieService {
         // Prepare bulk insert data
         $now = now();
 
-        $seriesData = $documentTypes->map(function($documentType) use ($companyId, $branchId, $newSequential, $userId, $now) {
+        $seriesData = $documentTypes->map(function($documentType) use ($branchId, $newSequential, $userId, $now) {
 
             return [
                 "branch_id" => $branchId,
@@ -131,7 +131,7 @@ class SerieService {
         return Serie::query()
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
             ->get()
-            ->map(function(Serie $serie) use ($companyId) {
+            ->map(function(Serie $serie) {
 
                 $issued = DB::table("series_correlative_movements")
                     ->where("serie_id", $serie->id)

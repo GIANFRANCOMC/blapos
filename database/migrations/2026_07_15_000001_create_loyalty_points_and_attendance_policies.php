@@ -35,7 +35,6 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
-
         });
 
         Schema::create("loyalty_point_rule_items", function(Blueprint $table) {

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchasePayableInstallment extends Model {
-
     protected $table = "purchase_payable_installments";
 
     protected $fillable = [

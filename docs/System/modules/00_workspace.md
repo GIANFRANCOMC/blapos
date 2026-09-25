@@ -12,13 +12,12 @@ La tabla `user_navigation_metrics` utiliza una fila agregada por empresa, usuari
 
 | Campo | Uso |
 | --- | --- |
-| `company_id` | Aislamiento explícito por tenant. |
 | `user_id` | Propietario de la preferencia. |
 | `sub_section_id` | Página del catálogo, sin almacenar URLs libres. |
 | `visit_count` | Total acumulado de visitas. |
 | `recent_rank` | Posición reciente entre 1 y 10; `NULL` fuera del límite. |
 
-La clave única `company_id + user_id + sub_section_id` impide duplicar registros por visita. No se almacenan timestamps porque esta funcionalidad no requiere auditoría temporal.
+La clave única `user_id + sub_section_id` impide duplicar registros por visita. No se almacenan timestamps porque esta funcionalidad no requiere auditoría temporal.
 
 ## Flujo
 

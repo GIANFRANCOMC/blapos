@@ -45,7 +45,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - La venta normal y Venta POS/Caja consultan `company_settings.inventory.allow_negative_stock_on_sale`; por defecto no permiten confirmar si algún producto supera el stock disponible del almacén seleccionado.
 - La anulación aplica `company_settings.inventory.restore_stock_on_sale_cancellation`; por defecto no repone productos automáticamente. Si se requiere devolver mercadería, debe registrarse una devolución o reposición desde Inventario.
 - `serie_id` debe pertenecer a la sucursal seleccionada y estar activo; si no coincide, la venta se rechaza antes de generar correlativo.
-- El correlativo está protegido contra concurrencia mediante `lockForUpdate()` y la unicidad `company_id + serie_id + sequential`.
+- El correlativo está protegido contra concurrencia mediante `lockForUpdate()` y la unicidad `serie_id + sequential`.
 - Cada emisión y anulación queda registrada en `series_correlative_movements`; una anulación nunca libera el correlativo.
 - Venta y POS bloquean la acción cuando la sucursal no tiene serie o almacén activo y muestran la configuración que debe corregirse.
 - `details.*.extras` valida duración, fechas, observación, opciones de receta y toppings con una estructura explícita; los identificadores no se aceptan como datos libres.

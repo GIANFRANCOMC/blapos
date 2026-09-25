@@ -9,7 +9,6 @@ use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 final class PurchaseItem extends Model {
-
     protected $table = "purchase_items";
 
     protected $fillable = [

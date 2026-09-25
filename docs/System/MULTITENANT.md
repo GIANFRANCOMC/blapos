@@ -13,7 +13,7 @@ Cada tenant dispone de:
 - un subdominio único de un solo nivel;
 - una base de datos MySQL propia;
 - usuarios, sesiones, caché lógica y datos operativos aislados;
-- un `company_id` interno que permite empresa raíz y subcompañías dentro de la misma BD tenant;
+- una única empresa raíz, resuelta desde la propia BD tenant;
 - almacenamiento con prefijo `tenants/{slug}` para impedir colisiones entre clientes.
 
 No se aceptan IPs, `localhost`, el dominio raíz, hosts desconocidos ni subdominios reservados. La solicitud se rechaza antes de iniciar sesión o consultar modelos tenant.
@@ -181,7 +181,7 @@ php artisan db:seed --class=LandlordTenantDemoSeeder --force
 
 ## Reglas obligatorias
 
-- Nunca confiar en un `company_id` recibido del frontend.
+- Nunca aceptar `company_id` como selector de contexto desde el frontend.
 - Nunca resolver un tenant solo por slug; host, dominio y estados deben coincidir.
 - Nunca guardar credenciales en `tenant_databases`.
 - Nunca habilitar `SESSION_DOMAIN` compartido.

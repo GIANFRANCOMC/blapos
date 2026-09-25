@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Database;
 
 use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Support\Facades\{DB, Schema};
 use Illuminate\Support\{Collection};
 use RuntimeException;
@@ -14,9 +15,9 @@ use RuntimeException;
  * full-access roles. It never defines or overwrites the navigation catalog.
  */
 final class SystemCatalogSyncService {
-    public function sync(?int $companyId = null): array {
+    public function sync(): array {
 
-        return DB::transaction(function() use ($companyId): array {
+        return DB::transaction(function(): array {
 
             $categories = DB::table("menu_categories")->where("status", "active")->orderBy("order")->get();
             $sections = DB::table("sections")->where("status", "active")->orderBy("order")->get();
@@ -29,23 +30,16 @@ final class SystemCatalogSyncService {
 
             }
 
-            $companyIds = $companyId
-                ? collect([$companyId])
-                : DB::table("companies")->pluck("id");
+            $companyId = app(TenantCompanyContext::class)->id();
 
-            foreach($companyIds as $id) {
-
-                $this->syncCompanyAccess((int) $id, $categories, $sections, $items);
-                CompanySectionService::clearCompanyCache((int) $id);
-
-            }
+            $this->syncCompanyAccess($companyId, $categories, $sections, $items);
+            CompanySectionService::clearCompanyCache($companyId);
 
             return [
                 "categories" => $categories->count(),
                 "sections" => $sections->count(),
                 "groups" => $groups->count(),
                 "items" => $items->count(),
-                "companies" => $companyIds->count(),
             ];
 
         });

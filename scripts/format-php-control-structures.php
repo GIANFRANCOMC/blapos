@@ -195,18 +195,20 @@ foreach($roots as $root) {
 
         $path = $file->getPathname();
 
-        $source = file_get_contents($path);
+        $originalSource = file_get_contents($path);
 
-        if($source === false) {
+        if($originalSource === false) {
 
             throw new RuntimeException("No se pudo leer {$path}.");
 
         }
 
+        $source = str_replace(["\r\n", "\r"], "\n", $originalSource);
+
         $tokens = token_get_all($source);
 
         $tokenCount = count($tokens);
-        $lineEnding = str_contains($source, "\r\n") ? "\r\n" : "\n";
+        $lineEnding = "\n";
 
         for($index = 0; $index < $tokenCount; $index++) {
 
@@ -540,7 +542,7 @@ foreach($roots as $root) {
 
         $formatted = $normalizeImports($formatted);
 
-        if($formatted === $source) {
+        if($formatted === $originalSource) {
 
             continue;
 
@@ -560,7 +562,12 @@ foreach($roots as $root) {
 
 if($checkOnly && $changedFiles !== []) {
 
-    fwrite(STDERR, "Hay ".count($changedFiles)." archivos PHP fuera de la convencion estructural.\n");
+    fwrite(
+        STDERR,
+        "Hay ".count($changedFiles)." archivos PHP fuera de la convencion estructural:\n"
+            .implode("\n", array_map(fn(string $path) => "- {$path}", $changedFiles))
+            ."\n"
+    );
     exit(1);
 
 }

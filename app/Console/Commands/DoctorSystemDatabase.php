@@ -8,7 +8,7 @@ use Illuminate\Console\{Command};
 use Illuminate\Support\Facades\{DB, Route, Schema};
 
 final class DoctorSystemDatabase extends Command {
-    protected $signature = "system:doctor {--company= : Valida una organización específica}";
+    protected $signature = "system:doctor";
 
     protected $description = "Diagnostica esquema, catálogo, rutas y referencias esenciales de organizaciones.";
 
@@ -55,9 +55,13 @@ final class DoctorSystemDatabase extends Command {
 
         }
 
-        $companies = DB::table("companies")
-            ->when($this->option("company"), fn($query) => $query->where("id", (int) $this->option("company")))
-            ->get();
+        $companies = DB::table("companies")->get();
+
+        if($companies->count() !== 1) {
+
+            $errors[] = "La base tenant debe contener exactamente una empresa raíz; se encontraron {$companies->count()}.";
+
+        }
 
         foreach($companies as $company) {
 
@@ -100,8 +104,8 @@ final class DoctorSystemDatabase extends Command {
         }
 
         $this->components->info(sprintf(
-            "Base consistente: %d organizaciones y %d opciones de menú verificadas.",
-            $companies->count(), $navigationItems->count()
+            "Base consistente: empresa raíz y %d opciones de menú verificadas.",
+            $navigationItems->count()
         ));
 
         return self::SUCCESS;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Organizations\Users;
 
-use App\Rules\System\Defaults\{ExistsInTenant, DocumentNumberLength, UniqueInTenant};
+use App\Rules\System\Defaults\{DocumentNumberLength, ExistsInTenant, UniqueInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 class UpdateUserRequest extends FormRequest {

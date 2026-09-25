@@ -32,7 +32,6 @@ final class AttendanceCorrection extends Model {
         "reviewed_at" => "datetime",
     ];
 
-
     public function attendance() {
 
         return $this->belongsTo(Attendance::class);

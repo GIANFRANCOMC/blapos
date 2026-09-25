@@ -73,6 +73,7 @@ class BranchService {
     private static function prepareBranchDataForCreate(array $data, int $companyId, int $userId): array {
 
         $branchData = [
+            "company_id" => $companyId,
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -216,7 +217,9 @@ class BranchService {
      */
     public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["series.documentType", "warehouses"]): ?Branch {
 
-        $query = Branch::where("id", $id);
+        $query = Branch::query()
+            ->where("id", $id)
+            ->where("company_id", $companyId);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -244,6 +247,7 @@ class BranchService {
     public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $query = Branch::query()
+            ->where("company_id", $companyId)
             ->with(["series.documentType", "warehouses"]);
 
         // Apply filters

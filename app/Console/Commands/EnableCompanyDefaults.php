@@ -17,7 +17,7 @@ final class EnableCompanyDefaults extends Command {
     public function handle(CompanyProvisioningService $provisioning, SystemCatalogSyncService $catalog): int {
 
         $companyId = app(TenantCompanyContext::class)->id();
-        $catalog->sync($companyId);
+        $catalog->sync();
         $provisioning->enable($companyId, !$this->option("skip-modules"));
         $this->components->info("Empresa del tenant aprovisionada correctamente.");
 

@@ -10,7 +10,6 @@ La tabla `series` define los correlativos disponibles por empresa, sucursal y ti
 
 Campos principales:
 
-- `company_id`: empresa propietaria de la configuración.
 - `branch_id`: sucursal que emite el comprobante.
 - `document_type_id`: tipo de comprobante.
 - `code` y `number`: identificación visible de la serie.
@@ -23,7 +22,7 @@ Campos principales:
 
 Campos principales:
 
-- `company_id`, `serie_id` y `sale_header_id` identifican empresa, serie y venta.
+- `serie_id` y `sale_header_id` identifican la serie y la venta.
 - `user_id` identifica al responsable.
 - `sequential` conserva el correlativo utilizado.
 - `action` distingue `issued` y `canceled`.
@@ -32,7 +31,7 @@ Campos principales:
 
 Anular una venta no libera ni reutiliza su correlativo. Se agrega un movimiento `canceled` y se conserva el movimiento `issued` original.
 
-La combinación `company_id + serie_id + sequential` es única en `sales_header`. Antes de calcular el siguiente número, la serie se obtiene con `lockForUpdate()`, evitando que dos ventas concurrentes reciban el mismo correlativo.
+La combinación `serie_id + sequential` es única en `sales_header`. Antes de calcular el siguiente número, la serie se obtiene con `lockForUpdate()`, evitando que dos ventas concurrentes reciban el mismo correlativo.
 
 ## Almacenes
 
@@ -40,7 +39,7 @@ Las tablas `warehouses` y `warehouse_items` administran existencias por sucursal
 
 Campos principales:
 
-- `warehouses.company_id` y `warehouses.branch_id` delimitan empresa y sucursal.
+- `warehouses.branch_id` delimita la sucursal dentro del tenant.
 - `warehouses.name` identifica el almacén.
 - `warehouse_items.warehouse_id` y `warehouse_items.item_id` identifican el producto almacenado.
 - `warehouse_items.quantity` conserva la existencia actual.

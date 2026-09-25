@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Model};
 
 final class SaleReceivablePayment extends Model {
-
     protected $table = "sale_receivable_payments";
 
     protected $fillable = [

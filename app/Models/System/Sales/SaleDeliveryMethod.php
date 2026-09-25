@@ -7,7 +7,6 @@ namespace App\Models\System\Sales;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 final class SaleDeliveryMethod extends Model {
-
     protected $table = "sale_delivery_methods";
 
     protected $fillable = [

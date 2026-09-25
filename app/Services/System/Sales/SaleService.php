@@ -667,7 +667,7 @@ class SaleService {
         }
 
         CashMovement::insert($paymentLines
-            ->map(function($payment) use ($saleHeader, $companyId, $branchId, $userId) {
+            ->map(function($payment) use ($saleHeader, $branchId, $userId) {
 
                 return [
                     "branch_id" => $branchId,

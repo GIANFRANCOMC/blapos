@@ -11,7 +11,6 @@ return [
     "create_failed" => "No se pudo agregar la marca.",
     "update_failed" => "No se pudo editar la marca.",
     "delete_failed" => "No se pudo eliminar la marca.",
-    "company_id_required" => "La empresa es obligatoria.",
     "exception_create" => "Error al agregar la marca: :message",
     "exception_update" => "Error al editar la marca: :message",
     "exception_delete" => "Error al eliminar la marca: :message",

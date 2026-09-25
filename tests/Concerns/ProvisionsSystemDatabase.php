@@ -20,7 +20,7 @@ trait ProvisionsSystemDatabase {
             "document_number" => "20999999999",
             "email" => "admin@example.test",
         ], 1);
-        app(SystemCatalogSyncService::class)->sync(1);
+        app(SystemCatalogSyncService::class)->sync();
         $provisioning->enable(1);
         $provisioning->ensureAdminUser(1, "Administrador de pruebas", "admin@example.test", "password");
 

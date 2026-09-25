@@ -42,6 +42,7 @@ final class LandlordDatabaseProvisioner {
         }
 
         $provisioningConnection = "landlord_provisioning";
+
         $connectionConfig["database"] = null;
         $connectionConfig["url"] = null;
 

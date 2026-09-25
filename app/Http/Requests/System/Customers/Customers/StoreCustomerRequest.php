@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Customers\Customers;
 
-use App\Rules\System\Defaults\{ExistsInTenant, DocumentNumberLength, UniqueInTenant};
+use App\Rules\System\Defaults\{DocumentNumberLength, ExistsInTenant, UniqueInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 final class StoreCustomerRequest extends FormRequest {

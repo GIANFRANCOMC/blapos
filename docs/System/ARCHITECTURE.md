@@ -2,7 +2,7 @@
 
 ## Proposito
 
-System es una aplicacion Laravel 10 con frontend Vue 3 montado sobre vistas Blade. Esta orientada a usuarios internos de una empresa. Cada usuario autenticado pertenece a una empresa mediante `company_id`, y la mayoria de operaciones deben quedar acotadas a esa empresa.
+System es una aplicación Laravel 10 con frontend Vue 3 montado sobre vistas Blade. Está orientada a usuarios internos de una empresa. Cada conexión tenant representa una única empresa y acota todas sus operaciones.
 
 ## Capas
 
@@ -30,27 +30,27 @@ Un modulo System normalmente tiene:
 
 ## Multi-tenant por base de datos
 
-La separación física por cliente está documentada en `MULTITENANT.md`. La aplicación solo atiende subdominios de un nivel registrados bajo `TENANCY_BASE_DOMAIN`; el dominio raíz usa otro proyecto. `landlord` resuelve el nombre de la BD y `tenant` opera sobre ella con credenciales externas al registry. Esta capa no reemplaza `company_id`: dentro de cada tenant se conserva para subcompañías internas, permisos, filtros y trazabilidad.
+La separación física por cliente está documentada en `MULTITENANT.md`. La aplicación solo atiende subdominios de un nivel registrados bajo `TENANCY_BASE_DOMAIN`; el dominio raíz usa otro proyecto. `landlord` resuelve el nombre de la BD y `tenant` opera sobre ella con credenciales externas al registry. No existen subcompañías dentro de una base tenant; el contrato completo está en `TENANT_COMPANY_BOUNDARY.md`.
 
 `ResolveTenant` es middleware global para proteger rutas web y API antes de cualquier consulta funcional. El grupo `web` se aplica una sola vez desde `RouteServiceProvider`; no debe volver a declararse dentro de `routes/web.php`.
-## Multiempresa
+## Tenant y empresa raíz
 
-Regla fuerte: toda consulta operativa debe filtrar por `company_id` o validar que la entidad pertenece a una sucursal/serie/empresa del usuario autenticado.
+Regla fuerte: toda consulta operativa usa la conexión tenant resuelta y valida los alcances funcionales de sucursal, almacén, caja o documento cuando correspondan.
 
 Cuando se reciba un id por request:
 
-- Validar empresa directa si la tabla tiene `company_id`.
+- Validar que el registro exista en el tenant actual.
 - Validar sucursal si la tabla depende de `branch_id`.
 - Validar serie mediante su sucursal si la venta usa `serie_id`.
 - Evitar confiar en ids enviados por frontend.
 
-Las mutaciones nuevas de entidades con `company_id` deben extender `CompanyFormRequest`. Este contrato:
+Las mutaciones tenant pueden extender `CompanyFormRequest`. Este contrato:
 
-- Autoriza únicamente usuarios con empresa válida.
+- Autoriza únicamente usuarios con tenant y empresa raíz válidos.
 - Permite normalizar cadenas antes de ejecutar reglas.
 - Evita repetir autorización básica en cada Store/Update Request.
 
-`BelongsToCompany` valida relaciones directas y también admite joins para entidades cuya empresa se obtiene de otra tabla. Productos lo usa para categorías, marcas y almacenes; en almacenes llega a `branches.company_id` mediante join.
+`ExistsInTenant` valida relaciones directas en la base activa. Los servicios aplican adicionalmente el alcance operativo cuando una entidad depende de una sucursal, almacén o caja.
 
 La validación HTTP no reemplaza las restricciones de base de datos ni las comprobaciones del servicio. Para relaciones sensibles se aplican tres niveles: FormRequest, defensa de negocio en Service y claves/índices en migración.
 
@@ -69,10 +69,10 @@ Estados observados:
 
 Todos los servicios `*ConfigService` heredan de `BaseConfigService`.
 
-- La clave incluye módulo, empresa y página: `init_params:{modulo}:company:{id}:page:{page}`.
+- La clave incluye namespace tenant, módulo y página.
 - El TTL predeterminado es una hora.
 - Cada servicio implementa únicamente `getCachePrefix()` y `buildConfig()`.
-- Los servicios dependientes del colaborador añaden `userId` a la clave y registran ese ID en `init_params:user_index:company:{companyId}`.
+- Los servicios dependientes del colaborador añaden `userId` a la clave y mantienen su índice dentro del mismo namespace tenant.
 - Los módulos con más de una página declaran `cachePages()`; actualmente Ventas usa `main` y `list`.
 - Una página vacía o desconocida se normaliza a la primera página soportada.
 - `clearAllCache($companyId)` elimina todas las páginas declaradas por el módulo.

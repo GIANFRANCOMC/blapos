@@ -14,8 +14,7 @@ use Throwable;
 final class CancelExpiredSubscriptions extends Command {
     protected $signature = "subscriptions:cancel-expired
                             {--tenant= : Procesar únicamente el slug tenant indicado}
-                            {--company= : Procesar únicamente una empresa}
-                            {--limit=1000 : Máximo de membresías por empresa}";
+                            {--limit=1000 : Máximo de membresías por tenant}";
 
     protected $description = "Inactiva membresías vencidas con contexto tenant";
 
@@ -25,7 +24,6 @@ final class CancelExpiredSubscriptions extends Command {
     ): int {
 
         $tenantSlug = $this->option("tenant");
-        $companyId = $this->option("company");
         $tenants = TenantDatabase::query()
             ->where("status", "active")
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
@@ -49,10 +47,7 @@ final class CancelExpiredSubscriptions extends Command {
             try {
 
                 $connectionManager->connect($tenant);
-                $summary = $this->expireSubscriptions(
-                    $companyId === null ? null : (int) $companyId,
-                    max(1, (int) $this->option("limit"))
-                );
+                $summary = $this->expireSubscriptions(max(1, (int) $this->option("limit")));
 
                 $rows[] = [$tenant->slug, $summary["processed"], $summary["expired"], "OK"];
                 $administration->audit($tenant, "cancel_expired_subscriptions", "success", $summary, "scheduler");
@@ -79,11 +74,11 @@ final class CancelExpiredSubscriptions extends Command {
 
     }
 
-    private function expireSubscriptions(?int $companyId, int $limit): array {
+    private function expireSubscriptions(int $limit): array {
 
         $subscriptions = Subscription::query()
             ->where("status", "active")
-            
+
             ->where("end_date", "<=", now())
             ->orderBy("end_date")
             ->limit($limit)

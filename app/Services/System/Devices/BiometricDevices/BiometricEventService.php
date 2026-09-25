@@ -39,7 +39,7 @@ final class BiometricEventService {
 
         }
 
-        return DB::transaction(function() use ($companyId, $device, $payload) {
+        return DB::transaction(function() use ($device, $payload) {
 
             $event = BiometricDeviceEvent::query()->firstOrCreate(
                 [

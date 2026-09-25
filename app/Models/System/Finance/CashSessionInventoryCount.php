@@ -35,7 +35,6 @@ class CashSessionInventoryCount extends Model {
         "difference_quantity" => "App\\Casts\\System\\ConfigurableDecimal",
     ];
 
-
     public function branch() {
 
         return $this->belongsTo(Branch::class, "branch_id", "id");

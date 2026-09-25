@@ -11,4 +11,4 @@
 
 ## Seguridad
 
-El menú es una representación, no una autorización. Toda ruta System exige `module.permission`; los recursos operativos exigen además `resource.scope`. Los perfiles de acceso total siguen sujetos al aislamiento por tenant y `company_id`.
+El menú es una representación, no una autorización. Toda ruta System exige `module.permission`; los recursos operativos exigen además `resource.scope`. Los perfiles de acceso total siguen sujetos al aislamiento de la conexión tenant.

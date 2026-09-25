@@ -21,7 +21,6 @@ final class BiometricDeviceBrand extends Model {
         "updated_by",
     ];
 
-
     public function models() {
 
         return $this->hasMany(BiometricDeviceModel::class, "biometric_device_brand_id", "id");

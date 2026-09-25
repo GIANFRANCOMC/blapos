@@ -7,7 +7,7 @@ Guía única para instalar, desarrollar y desplegar Blapos.
 | Base | Contenido | Comando principal |
 |---|---|---|
 | Landlord | Tenants, dominios, administradores de plataforma, avisos y auditoría central | `php artisan platform:install` |
-| Tenant | Datos independientes de cada cliente | `php artisan tenant:create <slug>` |
+| Tenant | Una empresa raíz y todos sus datos independientes | `php artisan tenant:create <slug>` |
 
 Regla: nunca ejecutar migraciones tenant sobre landlord ni migraciones landlord sobre un tenant.
 
@@ -153,7 +153,7 @@ El comando solicita la contraseña de forma oculta y realiza el flujo completo:
 1. crea la base tenant;
 2. registra tenant y dominio en landlord;
 3. ejecuta migraciones y seeders tenant;
-4. crea empresa, permisos, sede, almacén, caja y administrador.
+4. crea la única empresa raíz, permisos, sede, almacén, caja y administrador.
 
 También puede crearse el cliente desde `app.blapos.test`. No ejecutar ambos flujos para la misma alta.
 

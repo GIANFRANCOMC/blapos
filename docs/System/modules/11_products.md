@@ -52,7 +52,6 @@ En escritorio, la descarga se presenta como un botón verde compacto con el icon
 
 ### Identificación
 
-- `items.company_id`: empresa propietaria.
 - `items.brand_id`: marca opcional de la empresa; una marca puede agrupar muchos productos.
 - `items.internal_code`: código interno único entre productos de la empresa.
 - `items.barcode`: código de barras validado como único entre todos los items de la empresa desde el backend; técnicamente usa formato EAN-13.
@@ -210,10 +209,10 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - La caché de `initParams` ya no se invalida de forma aislada. Productos declara una mutación del recurso compartido `items`, por lo que también refresca la configuración de Ventas.
 - Cuando se crea o modifica una categoría, `InitParamsCacheInvalidationService` elimina la caché de Productos para que el selector muestre inmediatamente las categorías activas de la empresa.
 - Cuando se crea o modifica una marca, la dependencia `BRANDS` elimina la caché de Marcas y Productos para actualizar el selector sin esperar el TTL.
-- `ProductRequest` extiende `CompanyFormRequest`, normaliza cadenas y usa `BelongsToCompany` tanto para relaciones directas como para almacenes cuya empresa se obtiene mediante sucursal.
-- `items.barcode` no declara índices únicos ni índices compuestos adicionales en la migración base. La regla de negocio de unicidad se aplica en backend mediante `UniqueInCompany`.
+- `ProductRequest` extiende `CompanyFormRequest`, normaliza cadenas y usa `ExistsInTenant` para sus relaciones directas; el almacén se valida además por alcance de sucursal.
+- `items.barcode` tiene unicidad tenant-wide en backend y base de datos cuando el valor no es nulo.
 - La tabla `items`, su relación opcional con `brands` y el menú de Marcas se definen directamente en las migraciones iniciales. Mientras el proyecto permita reiniciar el esquema, no se crean migraciones incrementales para modificar estas tablas existentes.
-- `UniqueInCompany` cuenta con pruebas para empresa autenticada, duplicados, exclusión durante edición y filtros adicionales como `type`.
+- `UniqueInTenant` cuenta con pruebas para duplicados, exclusión durante edición y filtros adicionales como `type`.
 
 - Código de barras generado, editable y validado con formato EAN-13.
 - Unicidad de código de barras por empresa.
@@ -366,7 +365,7 @@ Incluye:
 - Stock inicial por cada almacen activo de la empresa demo.
 - Movimiento de inventario `initial_stock` para dejar trazabilidad del stock cargado por seeder.
 
-El seeder es idempotente por `company_id + internal_code`: si se vuelve a ejecutar, actualiza los registros demo y sincroniza el stock demo por almacen.
+El seeder es idempotente por `type + internal_code`: si se vuelve a ejecutar, actualiza los registros demo y sincroniza el stock demo por almacén.
 ## Estado y disponibilidad operativa
 
 - El estado `active` permite que el producto, servicio o membresía participe en ventas, Venta POS, compras e inventario.

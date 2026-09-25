@@ -27,7 +27,6 @@ return [
     "delete_failed" => "No se pudo eliminar la categoría.",
 
     // Mensajes de Validación
-    "company_id_required" => "El ID de la empresa es requerido.",
     "internal_code_exists" => "El código interno ya está en uso para esta empresa.",
 
     // Mensajes de Excepción

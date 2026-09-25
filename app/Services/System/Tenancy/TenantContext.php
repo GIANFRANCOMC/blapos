@@ -37,10 +37,10 @@ final class TenantContext {
         }
 
         $connection = DB::getDefaultConnection();
+
         $database = (string) DB::connection($connection)->getDatabaseName();
 
         return "tenant:".hash("sha256", $connection.":".$database);
 
     }
-
 }

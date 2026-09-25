@@ -19,7 +19,7 @@ class NotificationService {
      *
      * @return array{processed:int, sent:int, failed:int}
      */
-    public static function sendSubscriptionEmails(?int $companyId = null, int $limit = 100): array {
+    public static function sendSubscriptionEmails(int $limit = 100): array {
 
         $summary = ["processed" => 0, "sent" => 0, "failed" => 0];
 
@@ -32,7 +32,7 @@ class NotificationService {
                     ->orWhere("next_attempt_at", "<=", now());
 
             })
-            
+
             ->orderBy("id")
             ->limit(max(1, min($limit, 500)))
             ->get();

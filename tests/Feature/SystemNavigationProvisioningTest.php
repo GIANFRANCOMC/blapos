@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Services\System\Organizations\{BusinessProfileService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{Auth, DB, Route};
+use RuntimeException;
 use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
@@ -59,6 +61,32 @@ final class SystemNavigationProvisioningTest extends TestCase {
                 ->where("status", "inactive")
                 ->count()
         );
+
+    }
+
+    public function test_tenant_rejects_more_than_one_root_company(): void {
+
+        $company = DB::table("companies")->where("id", 1)->first();
+
+        DB::table("companies")->insert([
+            "slug" => "unexpected-second-company",
+            "internal_code" => "SECOND",
+            "identity_document_type_id" => $company->identity_document_type_id,
+            "document_number" => "99999999998",
+            "legal_name" => "SEGUNDA EMPRESA NO VÁLIDA",
+            "commercial_name" => "Segunda empresa",
+            "currency_id" => $company->currency_id,
+            "status" => "active",
+            "created_at" => now(),
+        ]);
+
+        $context = app(TenantCompanyContext::class);
+        $context->forget();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("exactamente una empresa raíz");
+
+        $context->id();
 
     }
 

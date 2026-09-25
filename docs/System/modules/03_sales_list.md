@@ -41,7 +41,7 @@ Lista ventas realizadas, permite filtrar y acceder a detalle, anulacion o impres
 ## Estado de mejoras
 
 - El backend valida empresa y alcance de sucursal antes de anular.
-- La venta se obtiene por `sales_header.company_id + id`; no se carga un documento de otra empresa antes de autorizarlo.
+- La venta se obtiene por `sales_header.id` dentro de la conexión tenant y luego se valida su alcance operativo.
 - El listado acepta `start_date`, `end_date` y `branch_id`, además de los filtros existentes.
 - La vista del listado expone filtros de sucursal, serie, secuencia, rango de emisión, cliente y estado usando `br-filter-bar`.
 - La paginación conserva los filtros activos para no perder contexto al cambiar de página.

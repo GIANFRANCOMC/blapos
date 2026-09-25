@@ -16,7 +16,6 @@ Administra los clientes de una empresa. Un cliente puede comprar, recibir membre
 
 ## Campos Necesarios
 
-- `company_id`
 - `identity_document_type_id`
 - `document_number`
 - `name`

@@ -24,7 +24,7 @@ Controla atenciones con inicio y fin reales para barberías, salones, clínicas,
 - Cada detalle conserva nombre, tipo, precio histórico, duración y comisión estimada.
 - Los detalles KDS disponen de estados pendiente, preparando, listo y entregado.
 - Todo acceso se limita por empresa y alcance de sucursal.
-- Pausas y detalles se consultan y actualizan con `company_id + service_session_id + id` dentro de transacción para impedir cruces entre sesiones.
+- Pausas y detalles se consultan y actualizan con `service_session_id + id` dentro de la conexión tenant y una transacción para impedir cruces entre sesiones.
 - La configuración inicial no incluye colecciones crecientes de clientes ni ítems; se consultan bajo demanda desde los selectores.
 - Los índices compuestos siguen los filtros reales del tablero, sesiones, detalles y eventos para evitar degradación al crecer el tenant.
 

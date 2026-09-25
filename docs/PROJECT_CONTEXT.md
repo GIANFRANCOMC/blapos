@@ -43,10 +43,10 @@ El sistema combina administracion interna y portal publico por empresa. Internam
 
 ## Reglas transversales entendidas
 
-- El sistema es multiempresa por `company_id`.
+- Cada base tenant representa exactamente una empresa.
 - Las rutas internas estan protegidas por `auth` y `verified`.
 - Las rutas publicas usan `{company_slug}` y middleware `company.exists`.
-- Muchos listados filtran por `company_id` del usuario autenticado.
+- Los listados operan sobre la conexión tenant y aplican alcances de sucursal, almacén o caja cuando corresponde.
 - Los estados se modelan con strings/enums: `active`, `inactive`, `canceled`, `finalized`, `pending`, `resolved`, etc.
 - Los cambios importantes guardan auditoria basica: `created_by`, `updated_by`, `canceled_by`, `deleted_by` segun tabla.
 - Los módulos internos publican únicamente las operaciones que implementan: normalmente `index`, `initParams`, `list`, `store` y `update`, más acciones de negocio explícitas.

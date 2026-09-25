@@ -12,7 +12,6 @@ use Exception;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 class SaleBody extends Model {
-
     protected $table = "sales_body";
 
     protected $appends = [

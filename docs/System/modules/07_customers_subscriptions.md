@@ -15,7 +15,6 @@ Lista y administra membresias reales asignadas a clientes. Estas pueden originar
 
 ## Campos necesarios
 
-- `company_id`
 - `branch_id`
 - `customer_id`
 - `start_date`

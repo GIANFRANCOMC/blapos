@@ -30,7 +30,6 @@ final class ServiceFloor extends Model {
         "sort_order" => "integer",
     ];
 
-
     public function branch() {
 
         return $this->belongsTo(Branch::class, "branch_id", "id");

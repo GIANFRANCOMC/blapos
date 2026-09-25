@@ -37,7 +37,7 @@ Inicio y Dashboard se excluyen del directorio de Home porque son accesos estruct
 10. Después de guardar, Home emite el evento `br:preferences-updated`.
 11. El layout escucha el evento y actualiza la lista y el contador sin recargar la página.
 
-La lectura de preferencias debe cargar siempre la relación `preferences` por `company_id` antes de exponer `window.preferences`. Si la relación no llega precargada, el accesor `formatted_preferences` consulta las preferencias activas del usuario y evita que Home vuelva a valores por defecto después de recargar la pantalla.
+La lectura de preferencias debe cargar siempre la relación `preferences` del usuario antes de exponer `window.preferences`. Si la relación no llega precargada, el accesor `formatted_preferences` consulta sus preferencias activas y evita que Home vuelva a valores por defecto después de recargar la pantalla.
 
 La caché del menú se invalida automáticamente mediante `CompanySubSectionObserver` cuando cambia la habilitación de módulos para una empresa. Ya no depende de un listener ejecutado al autenticar al usuario.
 

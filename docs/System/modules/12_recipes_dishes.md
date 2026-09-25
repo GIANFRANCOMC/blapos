@@ -59,4 +59,4 @@ Se agrega `cash_session_inventory_counts` para registrar conteos fisicos al cier
 - `GET /recipes/{id}/theoretical-cost?warehouse_id=...` calcula costo base por porción, opciones y toppings usando el costo promedio del almacén; también informa insumos sin costo disponible.
 - `GET /recipes/waste-records` consulta mermas reales por receta, almacén, insumo y fecha.
 - `POST /recipes/{id}/waste-records` registra la merma, su costo histórico y el movimiento de inventario en una sola transacción.
-- Actualizar, eliminar, calcular costo y registrar merma resuelven la receta y el almacén con `company_id + id`; un ID de otro tenant no puede atravesar el controlador.
+- Actualizar, eliminar, calcular costo y registrar merma resuelven la receta y el almacén dentro de la conexión tenant; un ID de otra base no puede atravesar el contexto.

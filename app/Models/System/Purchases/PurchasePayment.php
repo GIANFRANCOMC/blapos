@@ -8,7 +8,6 @@ use App\Models\System\Finance\{PaymentMethod, PaymentMethodVariant};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class PurchasePayment extends Model {
-
     protected $table = "purchase_payments";
 
     protected $fillable = [

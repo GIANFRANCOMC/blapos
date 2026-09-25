@@ -73,7 +73,7 @@ final class MiscExpenseService {
 
     public static function create(int $companyId, int $userId, array $data): MiscExpense {
 
-        return DB::transaction(function() use ($companyId, $userId, $data) {
+        return DB::transaction(function() use ($userId, $data) {
 
             $branchId = isset($data["branch_id"]) ? (int) $data["branch_id"] : null;
 
@@ -149,7 +149,7 @@ final class MiscExpenseService {
 
     public static function cancel(int $companyId, int $expenseId, int $userId): MiscExpense {
 
-        return DB::transaction(function() use ($companyId, $expenseId, $userId) {
+        return DB::transaction(function() use ($expenseId, $userId) {
 
             $expense = MiscExpense::query()
                 ->whereKey($expenseId)

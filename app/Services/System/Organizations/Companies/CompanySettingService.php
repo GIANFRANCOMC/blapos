@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Organizations\Companies;
 
 use App\Models\System\Organizations\{CompanySetting};
+use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Support\Facades\{Schema};
 
 final class CompanySettingService {
@@ -103,7 +104,7 @@ final class CompanySettingService {
 
     public static function group(int $companyId, string $group): array {
 
-        $cacheKey = "{$companyId}:{$group}";
+        $cacheKey = self::cachePrefix($companyId).$group;
 
         if(array_key_exists($cacheKey, self::$groupCache)) {
 
@@ -133,6 +134,7 @@ final class CompanySettingService {
         }
 
         $settings = CompanySetting::query()
+            ->where("company_id", $companyId)
             ->where("group", $group)
             ->where("status", "active")
             ->orderBy("id")
@@ -166,15 +168,23 @@ final class CompanySettingService {
 
         }
 
+        $cachePrefix = self::cachePrefix($companyId);
+
         foreach(array_keys(self::$groupCache) as $cacheKey) {
 
-            if(str_starts_with($cacheKey, "{$companyId}:")) {
+            if(str_starts_with($cacheKey, $cachePrefix)) {
 
                 unset(self::$groupCache[$cacheKey]);
 
             }
 
         }
+
+    }
+
+    private static function cachePrefix(int $companyId): string {
+
+        return app(TenantContext::class)->cacheNamespace().":{$companyId}:";
 
     }
 

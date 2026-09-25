@@ -130,7 +130,7 @@ final class QuotationService {
 
             if($taxLines->isNotEmpty()) {
 
-                QuotationTax::insert($taxLines->map(function($tax) use ($companyId, $userId, $quotation) {
+                QuotationTax::insert($taxLines->map(function($tax) use ($userId, $quotation) {
 
                     unset($tax["_total_impact"]);
 

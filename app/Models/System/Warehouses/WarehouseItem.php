@@ -9,7 +9,6 @@ use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class WarehouseItem extends Model {
-
     protected $table = "warehouse_items";
 
     protected $appends = [

@@ -54,7 +54,7 @@ class DocumentNumberLength implements ValidationRule {
 
         $identityDocumentType = IdentityDocumentType::query()
             ->whereKey($identityDocumentTypeId)
-            
+
             ->first();
 
         if(!$identityDocumentType) {

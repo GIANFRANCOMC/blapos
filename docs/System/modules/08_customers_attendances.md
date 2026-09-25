@@ -19,7 +19,6 @@ Esta lógica es independiente de `user_attendances`, que controla jornadas labor
 
 ## Campos necesarios
 
-- `company_id`.
 - `branch_id`.
 - `customer_id` o `customer_document_number`.
 - `start_date`.

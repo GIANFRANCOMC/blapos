@@ -33,7 +33,6 @@ La relación elegida es uno a muchos:
 Campos:
 
 - `id`: identificador.
-- `company_id`: empresa propietaria.
 - `internal_code`: código interno; su unicidad dentro de la empresa se valida en backend.
 - `name`: nombre comercial; su unicidad dentro de la empresa se valida en backend.
 - `description`: descripción opcional de hasta 250 caracteres en la API.
@@ -45,7 +44,7 @@ Campos:
 
 Restricciones estructurales:
 
-- Clave foránea `company_id -> companies.id` con eliminación en cascada.
+- `internal_code` es único dentro de la base tenant.
 
 La tabla `brands`, la relación `items.brand_id`, la subsección de menú y su habilitación inicial se consolidan en las migraciones base. En la etapa actual del proyecto, los cambios sobre tablas existentes se realizan directamente en esos archivos y se aplican mediante reinicio de migraciones.
 
@@ -62,14 +61,13 @@ La tabla `brands`, la relación `items.brand_id`, la subsección de menú y su h
 
 ## Validaciones
 
-- La petición requiere un usuario autenticado con `company_id`.
+- La petición requiere un usuario autenticado en el tenant actual.
 - Código interno y nombre se recortan antes de validar.
 - Las cadenas vacías se convierten a `null`.
 - El código interno solo admite letras, números, punto, guion y guion bajo.
-- Código interno y nombre son únicos por empresa mediante `UniqueInCompany` en el FormRequest.
-- La tabla no declara restricciones únicas ni índices compuestos para estos campos; la regla permanece en backend para poder evolucionar sin acoplarla a MySQL.
+- El código interno se valida mediante `UniqueInTenant` y cuenta con una restricción única para proteger concurrencia.
 - El estado solo admite `active` o `inactive`.
-- El servicio vuelve a comprobar el `company_id` al editar, evitando actualizaciones cruzadas aunque se invoque fuera del controlador.
+- El servicio resuelve la marca dentro de la conexión tenant antes de editar.
 - El frontend valida campos obligatorios, pero el backend mantiene la autoridad final.
 
 ## Caché
@@ -116,7 +114,7 @@ Esto limpia:
 
 - No agregar columnas específicas de proveedor a `brands`; proveedor y marca son conceptos distintos.
 - Si se requiere país con catálogo formal, crear un maestro de países y migrar `origin_country_code` a una relación explícita sin retirar el valor actual hasta terminar la transición.
-- Si se necesita una marca global compartida por empresas, crear un maestro separado y una relación explícita; no retirar `company_id` de esta tabla.
+- Si se necesita una marca global compartida entre tenants, crear un catálogo landlord separado y una relación explícita.
 - Antes de implementar eliminación desde UI, definir si debe bloquearse cuando existen productos o si debe conservarse el comportamiento `SET NULL`.
 
 ## Estado backend implementado

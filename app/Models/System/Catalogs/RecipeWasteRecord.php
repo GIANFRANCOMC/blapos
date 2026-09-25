@@ -35,7 +35,6 @@ final class RecipeWasteRecord extends Model {
         "created_at" => "datetime",
     ];
 
-
     public function recipe() {
 
         return $this->belongsTo(RecipeDish::class, "recipe_dish_id");

@@ -179,7 +179,7 @@ if(["createUpdateEntity"].includes(functionName)) {
 $userAuth = Auth::user();
 
 $branch = Branch::where("id", $request->branch_id)
-                ->where("company_id", $userAuth->company_id)
+                ->where("branch_id", $branchId)
                 ->first();
 
 $branchItems = array_unique(array_column($request->items, "branch_id"));

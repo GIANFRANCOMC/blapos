@@ -92,18 +92,6 @@ return new class extends Migration {
             $table->foreign("currency_id")->references("id")->on("currencies")->restrictOnDelete();
 
         });
-        Schema::table("identity_document_types", function(Blueprint $table) {
-
-
-        });
-        Schema::table("document_types", function(Blueprint $table) {
-
-
-        });
-        Schema::table("currencies", function(Blueprint $table) {
-
-
-        });
         Schema::create("menu_categories", function(Blueprint $table) {
 
             $table->id();
@@ -211,7 +199,6 @@ return new class extends Migration {
             $table->integer("created_by")->nullable();
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
-
 
         });
         Schema::create("role_sub_sections", function(Blueprint $table) {

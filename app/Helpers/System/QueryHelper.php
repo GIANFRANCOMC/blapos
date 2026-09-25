@@ -138,5 +138,4 @@ class QueryHelper {
         return $query->orderBy($orderBy, $orderDirection);
 
     }
-
 }

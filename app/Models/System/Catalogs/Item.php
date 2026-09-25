@@ -11,7 +11,6 @@ use App\Models\System\Warehouses\{InventoryMovement, WarehouseItem};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class Item extends Model {
-
     public const STATUS_ACTIVE = "active";
 
     public const TYPE_PRODUCT = "product";

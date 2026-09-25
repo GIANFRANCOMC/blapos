@@ -226,14 +226,14 @@ Se busca mejorar sin romper el sistema:
 - Validar pertenencia a empresa/sucursal.
 - Usar `FormRequest` en mutaciones.
 - Extender `CompanyFormRequest` en nuevos CRUD propiedad de una empresa.
-- Usar `BelongsToCompany` para ids directos; si la empresa depende de otra tabla, configurar joins y columnas calificadas en la misma regla.
+- Usar `ExistsInTenant` para IDs directos y validar el alcance funcional en el servicio.
 - Normalizar strings mediante `normalizedStringFields()` y no repetir `trim()` en controladores.
 - Reforzar relaciones estructurales con claves foráneas.
-- Mantener las reglas comerciales de unicidad en backend mediante una regla reutilizable como `UniqueInCompany`; no añadir restricciones únicas o índices compuestos solo para representar esa validación.
+- Mantener las reglas comerciales de unicidad en backend mediante `UniqueInTenant` y respaldarlas con restricciones únicas cuando la integridad también deba garantizarse ante concurrencia.
 - Añadir una comprobación de servicio cuando la entidad pueda modificarse fuera del `FormRequest` del endpoint.
 - No exponer datos de otra empresa en listados o initParams.
-- No confiar en `company_id` enviado desde frontend.
-- Resolver entidades mutables con `company_id + id` en la misma consulta. No cargar primero por ID para comprobar la empresa después.
+- No aceptar `company_id` enviado desde frontend.
+- Resolver entidades mutables dentro de la conexión tenant activa y comprobar su alcance funcional antes de escribir.
 - Cuando una ruta contiene el ID del recurso, ese ID es la referencia autoritativa. No sustituirlo por IDs enviados en el cuerpo para decidir qué registro actualizar.
 - Aplicar el alcance operativo después de comprobar pertenencia empresarial y antes de ejecutar el servicio de escritura.
 - Registrar al usuario que crea, actualiza, cancela o elimina.

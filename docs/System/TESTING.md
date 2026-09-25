@@ -15,12 +15,12 @@ La suite unitaria no debe depender de tablas ni registros existentes. Las prueba
 - `phpunit.xml` fuerza `DB_DATABASE=blapos_testing`. No retirar este aislamiento ni apuntarlo a una base de desarrollo o producción.
 - La base `blapos_testing` debe existir antes de ejecutar pruebas funcionales.
 - No asumir que las migraciones insertan una organización, moneda, usuario, sede o almacén.
-- No fijar IDs autoincrementales entre pruebas; las transacciones no reinician siempre el contador MySQL.
+- Solo la empresa raíz reserva el ID local `1`; no fijar otros IDs autoincrementales entre pruebas porque las transacciones no reinician siempre el contador MySQL.
 - Resolver IDs por claves naturales estables como código, correo o nombre dentro de la empresa.
 - Usar `CompanyProvisioningService` y `SystemCatalogSyncService` para reproducir el arranque real.
 - No ejecutar la suite contra una base con información que deba conservarse: `RefreshDatabase` puede reconstruirla.
 
-El trait `ProvisionsSystemDatabase` crea una organización de pruebas, sus datos operativos y el administrador `admin@example.test`.
+El trait `ProvisionsSystemDatabase` crea la empresa raíz de pruebas, sus datos operativos y el administrador `admin@example.test`.
 
 ## Caché de configuración
 
@@ -45,7 +45,7 @@ Blapos no usa el scaffolding estándar de Breeze para registro público, perfil,
 La cobertura vigente comprueba:
 
 - renderizado del login empresarial;
-- autenticación válida indicando `company_id`;
+- autenticación válida resolviendo la única empresa del tenant;
 - rechazo de contraseña incorrecta;
 - cierre de sesión y redirección al login de la empresa;
 

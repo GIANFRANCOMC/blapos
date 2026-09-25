@@ -111,9 +111,9 @@ class User extends Authenticatable {
 
         return $preferences->mapWithKeys(function($e) {
 
-                return [$e->slug => json_decode($e->value)];
+            return [$e->slug => json_decode($e->value)];
 
-            });
+        });
 
     }
 

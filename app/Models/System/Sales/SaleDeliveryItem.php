@@ -8,7 +8,6 @@ use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class SaleDeliveryItem extends Model {
-
     protected $table = "sale_delivery_items";
 
     protected $appends = [

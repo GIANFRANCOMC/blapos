@@ -107,6 +107,7 @@ class CompanyService {
     private static function updateOrCreateSocialMedia(Company $company, string $type, ?string $link, ?int $userId): CompanySocialMedia {
 
         $socialMedia = CompanySocialMedia::query()
+            ->where("company_id", $company->id)
             ->where("type", $type)
             ->first();
 
@@ -121,6 +122,7 @@ class CompanyService {
         }else {
 
             $socialMedia = new CompanySocialMedia();
+            $socialMedia->company_id = $company->id;
             $socialMedia->type = $type;
             $socialMedia->link = $link ?? "";
             $socialMedia->status = "active";

@@ -21,7 +21,7 @@ Genera reportes y exportes de clientes, items, sucursales, ventas, usuarios y co
 
 ## Estado de mejoras
 
-- Todos los queries se filtran por `company_id` y, cuando corresponde, por sucursales autorizadas.
+- Todos los queries usan la conexión tenant y, cuando corresponde, filtran por sucursales autorizadas.
 - `reports.export_max_rows` rechaza exportaciones excesivas con un mensaje accionable.
 - Los archivos usan `blapos-{recurso}-{Ymd-His}.{extensión}`.
 - Ventas admite `by_month`, `range_months`, `by_date` y `range_dates`; clientes, usuarios, items y sucursales aceptan sus filtros documentados por endpoint.

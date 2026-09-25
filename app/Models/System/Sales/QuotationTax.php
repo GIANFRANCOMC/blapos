@@ -8,7 +8,6 @@ use App\Models\System\Finance\{Tax};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class QuotationTax extends Model {
-
     protected $table = "quotation_taxes";
 
     protected $fillable = [

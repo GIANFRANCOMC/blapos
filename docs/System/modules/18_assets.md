@@ -27,8 +27,8 @@ Administra bienes fisicos por empresa, con clasificacion, identificacion interna
 
 ## Seguridad
 
-- Ninguna asignacion acepta `company_id` desde frontend.
-- La sucursal se resuelve por `company_id + branch_id`.
+- Ninguna asignación acepta un selector de empresa desde frontend.
+- La sucursal se resuelve dentro del tenant y se valida el alcance del usuario.
 - Las asignaciones de colaboradores validan que la cantidad total no exceda la cantidad disponible en la sucursal.
 - Cada asignacion, retiro o devolucion registra un evento en `asset_assignment_logs`.
 

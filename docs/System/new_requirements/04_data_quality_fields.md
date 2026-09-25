@@ -31,6 +31,6 @@ Las migraciones, modelos, requests y servicios ya incorporan estos campos. Su re
 
 ## Estado backend
 
-Los campos descritos ya forman parte de sus contratos de migración, modelos, requests y servicios. El criterio transversal de longitudes, `nullable`, claves foráneas y `company_id` está documentado en `docs/GENERALIDADES.md` y `docs/System/TABLES.md`.
+Los campos descritos ya forman parte de sus contratos de migración, modelos, requests y servicios. El criterio transversal de longitudes, `nullable`, claves foráneas y aislamiento tenant está documentado en `docs/GENERALIDADES.md` y `docs/System/TABLES.md`.
 
 Los archivos backend y documentación usan UTF-8; cualquier dato persistido con codificación dañada debe corregirse mediante una operación de datos auditada, no mediante una reescritura silenciosa.

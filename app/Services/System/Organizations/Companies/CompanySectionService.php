@@ -113,6 +113,7 @@ final class CompanySectionService {
                 $subQuery->from("companies_sub_sections")
                     ->join("sub_sections", "sub_sections.id", "=", "companies_sub_sections.sub_section_id")
                     ->whereColumn("sub_sections.section_id", "sections.id")
+                    ->where("companies_sub_sections.company_id", $companyId)
                     ->where("companies_sub_sections.status", "active")
                     ->selectRaw("MIN(companies_sub_sections.section_order)");
 
@@ -155,6 +156,7 @@ final class CompanySectionService {
 
                     $subQuery->from("companies_sub_sections")
                         ->whereColumn("companies_sub_sections.sub_section_id", "sub_sections.id")
+                        ->where("companies_sub_sections.company_id", $companyId)
                         ->where("companies_sub_sections.status", "active")
                         ->selectRaw("MIN(companies_sub_sections.sub_section_order)");
 

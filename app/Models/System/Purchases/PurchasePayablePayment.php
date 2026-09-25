@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchasePayablePayment extends Model {
-
     protected $table = "purchase_payable_payments";
 
     protected $fillable = [

@@ -35,7 +35,6 @@ final class ServiceStation extends Model {
         "position_y" => "App\\Casts\\System\\ConfigurableDecimal",
     ];
 
-
     public function branch() {
 
         return $this->belongsTo(Branch::class, "branch_id", "id");

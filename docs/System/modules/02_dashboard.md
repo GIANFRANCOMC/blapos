@@ -24,7 +24,7 @@ Entrega indicadores operativos agregados para una fecha empresarial y, opcionalm
 - `company_settings.localization.timezone` define la zona horaria; el fallback es `America/Lima`.
 - `company_settings.dashboard.membership_expiration_window_days` define la ventana; el fallback es 7 días.
 - `branch_id` es opcional. Cuando se envía, `resource.scope` valida que el usuario tenga acceso a esa sucursal.
-- Todas las consultas filtran `company_id` y usan `COUNT`/`SUM` en base de datos.
+- Todas las consultas usan la conexión tenant y ejecutan `COUNT`/`SUM` en base de datos.
 
 ## Contrato
 

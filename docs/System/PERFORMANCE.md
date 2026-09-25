@@ -6,7 +6,7 @@
 
 Las colecciones crecientes deben resolverse con endpoints de búsqueda o listados que cumplan estas reglas:
 
-- filtro obligatorio por `company_id` y, cuando corresponda, por alcance de sucursal;
+- conexión tenant obligatoria y, cuando corresponda, filtro por alcance de sucursal;
 - selección exclusiva de las columnas consumidas por la interfaz;
 - límite o paginación desde la base de datos, nunca después de cargar la colección;
 - búsqueda con debounce en el frontend;

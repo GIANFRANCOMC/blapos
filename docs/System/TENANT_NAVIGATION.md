@@ -37,7 +37,7 @@ La navegación se registra mediante `UserNavigationService` únicamente para pet
 
 Durante una recreación progresiva de bases tenant, `UserNavigationService` comprueba la disponibilidad de `user_navigation_metrics`. Si una base todavía no contiene la tabla, la navegación continúa sin registrar métricas y Mi espacio muestra accesos iniciales; no se generan excepciones ni se bloquea la carga de otros módulos.
 
-`user_navigation_metrics` no es un historial de eventos. Conserva una sola fila por combinación `company_id`, `user_id` y `sub_section_id` con:
+`user_navigation_metrics` no es un historial de eventos. Conserva una sola fila por combinación `user_id` y `sub_section_id` con:
 
 - `visit_count`: contador acumulado y atómico;
 - `recent_rank`: posición de 1 a 10, o `NULL` cuando la página ya no pertenece a las últimas diez.

@@ -5,113 +5,100 @@ declare(strict_types=1);
 namespace App\Services\System\Customers\Tracking;
 
 use App\Models\System\Customers\{Attendance};
-use App\Models\System\Organizations\{Company};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use Illuminate\Support\Facades\{DB};
 
 final class AttendanceMaintenanceService {
     public static function closeStaleCustomerAttendances(
-        ?int $companyId = null,
         int $limit = 500,
         bool $force = false
     ): array {
 
         $summary = [
-            "companies" => 0,
             "closed" => 0,
             "skipped" => 0,
         ];
 
-        $companies = Company::query()
-            ->when($companyId, fn($query) => $query->whereKey($companyId))
-            ->where("status", "active")
-            ->get(["id"]);
+        $company = app(TenantCompanyContext::class)->get();
+        $companyId = (int) $company->id;
 
-        foreach($companies as $company) {
+        if($company->status !== "active") {
 
-            $summary["companies"]++;
+            $summary["skipped"]++;
 
-            if(!self::isAutoCloseEnabled((int) $company->id) && !$force) {
-
-                $summary["skipped"]++;
-
-                continue;
-
-            }
-
-            if(!self::canRunAutoCloseNow((int) $company->id) && !$force) {
-
-                $summary["skipped"]++;
-
-                continue;
-
-            }
-
-            $summary["closed"] += self::closeCompanyAttendances((int) $company->id, $limit);
+            return $summary;
 
         }
+
+        if(!self::isAutoCloseEnabled($companyId) && !$force) {
+
+            $summary["skipped"]++;
+
+            return $summary;
+
+        }
+
+        if(!self::canRunAutoCloseNow($companyId) && !$force) {
+
+            $summary["skipped"]++;
+
+            return $summary;
+
+        }
+
+        $summary["closed"] = self::closeCompanyAttendances($companyId, $limit);
 
         return $summary;
 
     }
 
     public static function pruneCustomerAttendances(
-        ?int $companyId = null,
         ?int $months = null,
         int $limit = 1000,
         bool $dryRun = false
     ): array {
 
         $summary = [
-            "companies" => 0,
             "eligible" => 0,
             "deleted" => 0,
             "dry_run" => $dryRun,
         ];
 
-        $companies = Company::query()
-            ->when($companyId, fn($query) => $query->whereKey($companyId))
-            ->where("status", "active")
-            ->get(["id"]);
+        $companyId = app(TenantCompanyContext::class)->id();
+        $retentionMonths = max(4, (int) ($months ?? CompanySettingService::value(
+            $companyId,
+            CompanySettingService::CUSTOMER_ATTENDANCE,
+            "retention_months",
+            5
+        )));
 
-        foreach($companies as $company) {
+        $cutoff = now()->subMonths($retentionMonths);
 
-            $summary["companies"]++;
-            $retentionMonths = max(4, (int) ($months ?? CompanySettingService::value(
-                (int) $company->id,
-                CompanySettingService::CUSTOMER_ATTENDANCE,
-                "retention_months",
-                5
-            )));
+        $query = Attendance::query()
+            ->whereIn("status", ["finalized", "canceled", "inactive", "absent"])
+            ->where(function($query) use ($cutoff) {
 
-            $cutoff = now()->subMonths($retentionMonths);
+                $query->where("end_date", "<", $cutoff)
+                    ->orWhere(function($query) use ($cutoff) {
 
-            $query = Attendance::query()
-                ->whereIn("status", ["finalized", "canceled", "inactive", "absent"])
-                ->where(function($query) use ($cutoff) {
+                        $query->whereNull("end_date")
+                            ->where("created_at", "<", $cutoff);
 
-                    $query->where("end_date", "<", $cutoff)
-                        ->orWhere(function($query) use ($cutoff) {
+                    });
 
-                            $query->whereNull("end_date")
-                                ->where("created_at", "<", $cutoff);
+            })
+            ->limit($limit);
 
-                        });
+        $ids = $query->pluck("id");
+        $summary["eligible"] = $ids->count();
 
-                })
-                ->limit($limit);
+        if(!$dryRun && $ids->isNotEmpty()) {
 
-            $ids = $query->pluck("id");
-            $summary["eligible"] += $ids->count();
-
-            if(!$dryRun && $ids->isNotEmpty()) {
-
-                $summary["deleted"] += Attendance::query()
-                    ->whereIn("id", $ids)
-                    ->delete();
-
-            }
+            $summary["deleted"] = Attendance::query()
+                ->whereIn("id", $ids)
+                ->delete();
 
         }
 

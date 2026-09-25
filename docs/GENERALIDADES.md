@@ -32,19 +32,19 @@ Evitar colocar reglas críticas sólo en Vue. El frontend guía al usuario; el b
 
 Blapos opera exclusivamente desde subdominios registrados y con una base de datos por cliente. El dominio raíz pertenece a otro proyecto. El registro central mínimo vive en `landlord`; la operación del cliente se ejecuta en `tenant`. La guía completa está en `System/MULTITENANT.md`.
 
-Aunque exista una BD por cliente, `company_id` se mantiene en las tablas tenant para subcompañías internas y como defensa de aislamiento lógico. En tablas tenant, todo `company_id` debe tener FK local a `companies` salvo casos imposibles por diseño, como el registro central landlord.
+Cada base tenant representa exactamente una empresa. El aislamiento operativo depende de la conexión resuelta, no de repetir `company_id` en cada fila. La regla y sus cuatro excepciones estructurales están en `System/TENANT_COMPANY_BOUNDARY.md`.
 
 La sesión también se aísla por tenant. `ResolveTenant` cambia el nombre de cookie antes de iniciar sesión y `EnsureTenantSession` invalida cualquier sesión que intente cruzar de un tenant a otro. Para producción, usar HTTPS, `SESSION_SECURE_COOKIE=true` y mantener `SESSION_DOMAIN` vacío. Ver `System/SECURITY_AND_AUTH.md`.
-## Multiempresa
+## Tenant y empresa raíz
 
-Toda tabla operativa, hija o maestro configurable debe tener `company_id` cuando el dato pertenece a una empresa. Esto aplica también a maestros que antes podían parecer globales, como monedas, tipos de documento o comprobantes, porque cada empresa puede tener reglas distintas.
+Los datos operativos, hijos y maestros viven exclusivamente en la base tenant activa. Solo `branches`, `company_settings`, `company_socials_media` y `companies_sub_sections` conservan la relación estructural con `companies`.
 
 Criterios esperados:
 
-- No confiar en `company_id` enviado desde frontend.
-- Obtener empresa desde usuario autenticado, sucursal, almacén, cabecera o middleware público.
-- Validar ids con reglas reutilizables como `BelongsToCompany`.
-- Usar `UniqueInCompany` para unicidad lógica por empresa cuando corresponda.
+- No aceptar `company_id` desde frontend.
+- Resolver la empresa raíz con `TenantCompanyContext`.
+- Validar IDs con `ExistsInTenant` y unicidad con `UniqueInTenant`.
+- Usar `UniqueInTenant` para unicidad lógica dentro del tenant.
 - Evitar índices explícitos salvo decisión justificada; conservar claves primarias, foráneas y `unique` cuando expresen integridad real.
 
 ## Branding
@@ -188,7 +188,7 @@ Reglas:
 - Invalidar por recurso usando `InitParamsCacheInvalidationService`.
 - No usar `Cache::flush()` para resolver dependencias funcionales.
 - Si un catálogo alimenta varios módulos, invalidar todos los consumidores registrados.
-- Para maestros configurables por empresa, usar servicios como `MasterReferenceDataService` con limpieza por `company_id`.
+- Para maestros tenant, usar servicios como `MasterReferenceDataService` con claves de caché aisladas por `TenantContext::cacheNamespace()`.
 
 ## Inventario y Trazabilidad
 
@@ -225,7 +225,7 @@ Durante la etapa reiniciable del proyecto, se puede refactorizar migraciones bas
 - Separar por dominio: maestros, empresas, catálogo, inventario, ventas, compras, caja, biometría y reportes.
 - Usar `decimal(15, 3)` como estándar para cantidades y montos cuando se requieran hasta 12 enteros.
 - Limitar `string` con tamaño explícito, máximo recomendado `500`; usar `text` o `longText` si corresponde.
-- Agregar `company_id` donde el dato sea por empresa y declarar FK explícita a `companies`. En maestros que la empresa también referencia, permitir arranque nullable y actualizar la referencia después de sembrar maestros.
+- No agregar `company_id` a tablas operativas. Una extensión directa de `companies` requiere justificación arquitectónica y una prueba de límite actualizada.
 - Evitar comentarios decorativos, símbolos extraños o encoding roto.
 - Tabular y espaciar consistentemente.
 
@@ -259,7 +259,7 @@ Las reglas visuales transversales se administran en este archivo. Las mejoras pu
 - Las migraciones crean esquema y transformaciones históricas necesarias; catálogos vigentes y defaults organizacionales se sincronizan mediante servicios idempotentes.
 - Los servicios de escritura, configuración y referencias reciben `companyId` y `userId` explícitos. Los observers de auditoría pueden obtener el actor desde el request de frontera, sin consultar `Auth` dentro del dominio.
 - Las pruebas automatizadas se incorporan únicamente cuando el usuario las solicite; no deben crearse de forma implícita.
-- Usar `php artisan system:install` para una base vacía, `system:sync` para el catálogo, `company:enable {company_id}` para defaults y `system:doctor` para validar integridad.
+- Usar `php artisan system:install` para una base vacía, `system:sync` para el catálogo, `company:enable` para defaults y `system:doctor` para validar integridad.
 - Mantener sincronizados los nuevos endpoints con `config/permissions.php` cuando compartan un prefijo entre varias páginas.
 - Los reportes deben reutilizar consultas filtradas, declarar límites por empresa y rechazar volúmenes excesivos antes de materializar colecciones.
 - Los reportes compartibles fuera de sesión deben usar rutas firmadas y con expiración. No compartir rutas basadas solo en ids o parámetros codificados.

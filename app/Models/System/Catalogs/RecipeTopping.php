@@ -47,7 +47,6 @@ class RecipeTopping extends Model {
 
     }
 
-
     public function currency() {
 
         return $this->belongsTo(Currency::class, "currency_id", "id");

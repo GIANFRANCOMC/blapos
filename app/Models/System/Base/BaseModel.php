@@ -69,5 +69,4 @@ abstract class BaseModel extends Model {
         return $query->where("status", "inactive");
 
     }
-
 }

@@ -13,9 +13,8 @@ use Throwable;
 final class PruneCustomerAttendances extends Command {
     protected $signature = "attendances:prune-customers
                             {--tenant= : Procesar únicamente el slug tenant indicado}
-                            {--company= : Procesar únicamente una empresa}
                             {--months= : Meses de retención; mínimo 4}
-                            {--limit=1000 : Máximo de asistencias por empresa}
+                            {--limit=1000 : Máximo de asistencias por tenant}
                             {--dry-run : Solo cuenta registros elegibles}";
 
     protected $description = "Depura asistencias antiguas de clientes respetando la retención configurada";
@@ -26,7 +25,6 @@ final class PruneCustomerAttendances extends Command {
     ): int {
 
         $tenantSlug = $this->option("tenant");
-        $companyId = $this->option("company");
         $months = $this->option("months") === null ? null : max(4, (int) $this->option("months"));
         $tenants = TenantDatabase::query()
             ->where("status", "active")
@@ -52,19 +50,18 @@ final class PruneCustomerAttendances extends Command {
 
                 $connectionManager->connect($tenant);
                 $summary = AttendanceMaintenanceService::pruneCustomerAttendances(
-                    $companyId === null ? null : (int) $companyId,
                     $months,
                     max(1, (int) $this->option("limit")),
                     (bool) $this->option("dry-run")
                 );
 
-                $rows[] = [$tenant->slug, $summary["companies"], $summary["eligible"], $summary["deleted"], "OK"];
+                $rows[] = [$tenant->slug, $summary["eligible"], $summary["deleted"], "OK"];
                 $administration->audit($tenant, "prune_customer_attendances", "success", $summary, "scheduler");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $rows[] = [$tenant->slug, 0, 0, 0, $exception->getMessage()];
+                $rows[] = [$tenant->slug, 0, 0, $exception->getMessage()];
                 $administration->audit($tenant, "prune_customer_attendances", "failure", [
                     "error" => $exception->getMessage(),
                 ], "scheduler");
@@ -77,7 +74,7 @@ final class PruneCustomerAttendances extends Command {
 
         }
 
-        $this->table(["Tenant", "Empresas", "Elegibles", "Eliminadas", "Resultado"], $rows);
+        $this->table(["Tenant", "Elegibles", "Eliminadas", "Resultado"], $rows);
 
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 

@@ -80,7 +80,7 @@ final class CreateTenantCompany extends Command {
                     "email" => (string) $this->option("admin-email"),
                 ]);
 
-                $catalog->sync($companyId);
+                $catalog->sync();
                 $provisioning->enable($companyId);
 
                 $adminPassword = (string) $this->option("admin-password");

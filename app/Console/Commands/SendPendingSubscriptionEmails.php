@@ -13,7 +13,6 @@ use Throwable;
 final class SendPendingSubscriptionEmails extends Command {
     protected $signature = "notifications:send-subscriptions
                             {--tenant= : Procesar únicamente el slug tenant indicado}
-                            {--company= : Procesar únicamente una empresa}
                             {--limit=100 : Máximo de notificaciones por ejecución}";
 
     protected $description = "Envía notificaciones pendientes con contexto tenant y reintentos controlados";
@@ -23,7 +22,6 @@ final class SendPendingSubscriptionEmails extends Command {
         TenantAdministrationService $administration
     ): int {
 
-        $companyId = $this->option("company");
         $tenantSlug = $this->option("tenant");
         $tenants = TenantDatabase::query()
             ->where("status", "active")
@@ -49,7 +47,6 @@ final class SendPendingSubscriptionEmails extends Command {
 
                 $connectionManager->connect($tenant);
                 $summary = NotificationService::sendSubscriptionEmails(
-                    $companyId === null ? null : (int) $companyId,
                     (int) $this->option("limit")
                 );
 
