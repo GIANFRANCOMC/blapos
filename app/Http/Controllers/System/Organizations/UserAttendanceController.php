@@ -69,7 +69,6 @@ final class UserAttendanceController extends BaseController {
         );
 
         $limit = max(100, (int) CompanySettingService::value(
-            $this->getCompanyId(),
             "reports",
             "export_max_rows",
             25000

@@ -41,7 +41,7 @@ final class CashRegisterController extends BaseController {
 
         return response()->json([
             "bool" => true,
-            "data" => $this->service->listRegisters($this->getCompanyId(), $this->getUserId()),
+            "data" => $this->service->listRegisters($this->getUserId()),
         ]);
 
     }
@@ -51,7 +51,6 @@ final class CashRegisterController extends BaseController {
         try {
 
             $register = $this->service->createRegister(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             );

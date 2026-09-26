@@ -11,9 +11,9 @@ use DomainException;
 use Illuminate\Support\Facades\{DB};
 
 final class PurchaseReturnService {
-    public static function create(int $companyId, int $purchaseId, int $userId, array $data): PurchaseReturn {
+    public static function create(int $purchaseId, int $userId, array $data): PurchaseReturn {
 
-        return DB::transaction(function() use ($companyId, $purchaseId, $userId, $data) {
+        return DB::transaction(function() use ($purchaseId, $userId, $data) {
 
             $purchase = PurchaseHeader::query()
                 ->whereIn("status", ["partial", "received"])
@@ -63,8 +63,8 @@ final class PurchaseReturnService {
                     ->where("purchase_returns.status", "confirmed")
                     ->sum("purchase_return_items.quantity");
 
-                $quantity = Utilities::round((float) $line["quantity"], null, $companyId);
-                $available = Utilities::round((float) $purchaseItem->received_quantity - $previouslyReturned, null, $companyId);
+                $quantity = Utilities::round((float) $line["quantity"]);
+                $available = Utilities::round((float) $purchaseItem->received_quantity - $previouslyReturned);
 
                 if($quantity > $available) {
 
@@ -92,7 +92,7 @@ final class PurchaseReturnService {
                     "inventory_movement_id" => $movement->id,
                     "quantity" => $quantity,
                     "unit_cost" => $purchaseItem->unit_cost,
-                    "total_cost" => Utilities::round($quantity * (float) $purchaseItem->unit_cost, null, $companyId),
+                    "total_cost" => Utilities::round($quantity * (float) $purchaseItem->unit_cost),
                     "created_at" => now(),
                 ]);
 

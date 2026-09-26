@@ -66,7 +66,7 @@ class CustomerService {
      * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareCustomerDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareCustomerDataForCreate(array $data, int $userId): array {
 
         $customerData = [
             "status" => $data["status"] ?? "active",
@@ -121,14 +121,14 @@ class CustomerService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?Customer {
+    public static function create(array $data, int $userId): ?Customer {
 
         $customer = null;
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$customer) {
+        DB::transaction(function() use ($data, $userId, &$customer) {
 
             // Prepare data with only allowed fields
-            $customerData = self::prepareCustomerDataForCreate($data, $companyId, $userId);
+            $customerData = self::prepareCustomerDataForCreate($data, $userId);
 
             // Create the record
 
@@ -179,7 +179,7 @@ class CustomerService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Customer {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Customer {
 
         $query = Customer::where("id", $id);
 
@@ -206,7 +206,7 @@ class CustomerService {
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $query = Customer::query()
             ->with(["identityDocumentType"]);

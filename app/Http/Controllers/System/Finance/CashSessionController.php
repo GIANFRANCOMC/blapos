@@ -27,7 +27,6 @@ final class CashSessionController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => $this->service->listSessions(
-                $this->getCompanyId(),
                 $this->cashFilters($request),
                 $this->getPerPage($request),
                 $this->getUserId()
@@ -40,7 +39,7 @@ final class CashSessionController extends BaseController {
 
         try {
 
-            $session = $this->service->openSession($this->getCompanyId(), $this->getUserId(), $request->validated());
+            $session = $this->service->openSession($this->getUserId(), $request->validated());
 
             return response()->json(["bool" => true, "msg" => "Caja aperturada correctamente.", "data" => $session]);
 
@@ -56,7 +55,7 @@ final class CashSessionController extends BaseController {
 
         try {
 
-            $session = $this->service->closeSession($this->getCompanyId(), $this->getUserId(), $request->validated());
+            $session = $this->service->closeSession($this->getUserId(), $request->validated());
 
             return response()->json([
                 "bool" => true,

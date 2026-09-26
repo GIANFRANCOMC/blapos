@@ -43,7 +43,7 @@ class CustomerController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return CustomerService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return CustomerService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -66,7 +66,7 @@ class CustomerController extends BaseController {
         try {
 
             $data = $this->prepareCustomerData($request);
-            $customer = CustomerService::create($data, $this->getCompanyId(), $this->getUserId());
+            $customer = CustomerService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($customer)) {
 
@@ -75,8 +75,7 @@ class CustomerController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::CUSTOMERS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::CUSTOMERS
             );
 
             return $this->createdResponse($customer, "created", "customer");
@@ -99,7 +98,7 @@ class CustomerController extends BaseController {
         try {
 
             $data = $request->validated();
-            $customer = CustomerService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $customer = CustomerService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($customer)) {
 
@@ -118,8 +117,7 @@ class CustomerController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::CUSTOMERS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::CUSTOMERS
             );
 
             return $this->updatedResponse($customer, "updated", "customer");
@@ -173,7 +171,7 @@ class CustomerController extends BaseController {
 
         try {
 
-            $customer = CustomerService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $customer = CustomerService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($customer)) {
 
@@ -206,7 +204,7 @@ class CustomerController extends BaseController {
 
         try {
 
-            $customer = CustomerService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $customer = CustomerService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($customer)) {
 
@@ -238,8 +236,7 @@ class CustomerController extends BaseController {
                 $biometricDeviceId,
                 (int) $deviceUserId,
                 $fingerIndex,
-                $this->getUserId(),
-                $this->getCompanyId()
+                $this->getUserId()
             );
 
             return $this->createdResponse($fingerprint, "fingerprint_registered", "biometric_fingerprint");

@@ -9,7 +9,6 @@ use App\Models\System\Catalogs\{Brand};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
-use InvalidArgumentException;
 
 final class BrandService {
     private const ALLOWED_FIELDS = [
@@ -30,9 +29,9 @@ final class BrandService {
         "website_url",
     ];
 
-    public static function create(array $data, int $companyId, int $userId): Brand {
+    public static function create(array $data, int $userId): Brand {
 
-        self::validateContext($companyId, $userId);
+        self::validateUser($userId);
 
         return DB::transaction(function() use ($data, $userId) {
 
@@ -45,9 +44,9 @@ final class BrandService {
 
     }
 
-    public static function update(Brand $brand, array $data, int $companyId, int $userId): Brand {
+    public static function update(Brand $brand, array $data, int $userId): Brand {
 
-        self::validateContext($companyId, $userId);
+        self::validateUser($userId);
 
         DB::transaction(function() use ($brand, $data, $userId) {
 
@@ -68,7 +67,6 @@ final class BrandService {
 
     public static function findByIdInTenant(
         int $id,
-        int $companyId,
         ?array $statuses = ["active"]
     ): ?Brand {
 
@@ -86,7 +84,6 @@ final class BrandService {
     }
 
     public static function getPaginatedList(
-        int $companyId,
         array $filters = [],
         int $perPage = 15
     ): LengthAwarePaginator {
@@ -159,11 +156,11 @@ final class BrandService {
 
     }
 
-    private static function validateContext(int $companyId, int $userId): void {
+    private static function validateUser(int $userId): void {
 
-        if($companyId <= 0 || $userId <= 0) {
+        if($userId <= 0) {
 
-            throw new InvalidArgumentException("La empresa y el usuario autenticado son obligatorios.");
+            throw new \InvalidArgumentException("El usuario autenticado es obligatorio.");
 
         }
 

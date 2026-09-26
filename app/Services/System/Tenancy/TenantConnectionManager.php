@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Services\System\Tenancy;
 
 use App\Models\System\Tenancy\{TenantDatabase};
-use Illuminate\Support\Facades\{Config, DB};
+use App\Services\System\Organizations\Companies\{CompanySettingService};
+use Illuminate\Support\Facades\{Config, DB, Log};
 use RuntimeException;
 
 final class TenantConnectionManager {
@@ -13,7 +14,13 @@ final class TenantConnectionManager {
 
         app(BranchContext::class)->forget();
         app(TenantCompanyContext::class)->forget();
+        CompanySettingService::clearCache();
         app(TenantContext::class)->set($tenant);
+
+        Log::shareContext([
+            "tenant_id" => (string) $tenant->public_id,
+            "database_name" => (string) $tenant->database_name,
+        ]);
 
         $connectionName = config("tenancy.tenant_connection", "tenant");
         $base = config("database.connections.{$connectionName}", config("database.connections.mysql"));
@@ -47,7 +54,9 @@ final class TenantConnectionManager {
 
         app(BranchContext::class)->forget();
         app(TenantCompanyContext::class)->forget();
+        CompanySettingService::clearCache();
         app(TenantContext::class)->set(null);
+        Log::flushSharedContext();
 
         $connectionName = config("tenancy.tenant_connection", "tenant");
         $landlordConnection = config("tenancy.landlord_connection", "landlord");

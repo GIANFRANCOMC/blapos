@@ -193,7 +193,7 @@ final class InitParamsCacheInvalidationService {
         ],
     ];
 
-    public static function invalidate(string $resource, int $companyId): void {
+    public static function invalidate(string $resource): void {
 
         $services = self::DEPENDENCIES[$resource] ?? null;
 

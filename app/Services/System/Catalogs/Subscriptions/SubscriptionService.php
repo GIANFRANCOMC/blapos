@@ -78,7 +78,7 @@ class SubscriptionService {
      * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareSubscriptionDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareSubscriptionDataForCreate(array $data, int $userId): array {
 
         $itemData = [
             "type" => "subscription",
@@ -240,14 +240,14 @@ class SubscriptionService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?Item {
+    public static function create(array $data, int $userId): ?Item {
 
         $item = null;
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$item) {
+        DB::transaction(function() use ($data, $userId, &$item) {
 
             // Prepare data with only allowed fields
-            $itemData = self::prepareSubscriptionDataForCreate($data, $companyId, $userId);
+            $itemData = self::prepareSubscriptionDataForCreate($data, $userId);
 
             // Create the record
 
@@ -314,7 +314,7 @@ class SubscriptionService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["currency", "categoryItems"]): ?Item {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["currency", "categoryItems"]): ?Item {
 
         $query = Item::where("id", $id)
             ->where("type", "subscription");
@@ -342,7 +342,7 @@ class SubscriptionService {
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         Item::expireActiveItems();
 

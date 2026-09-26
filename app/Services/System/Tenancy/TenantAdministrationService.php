@@ -157,22 +157,18 @@ final class TenantAdministrationService {
 
         }
 
-        $previousStatus = $tenant->status;
+        return $this->persistStatus($tenant, $status, $actor, $reason);
 
-        $tenant->forceFill([
-            "status" => $status,
-            "status_reason" => $reason,
-            "status_changed_at" => now(),
-            "updated_at" => now(),
-        ])->save();
-        $this->clearResolverCache($tenant);
-        $this->audit($tenant, "status_changed", "success", [
-            "previous_status" => $previousStatus,
-            "new_status" => $status,
-            "reason" => $reason,
-        ], $actor);
+    }
 
-        return $tenant->fresh("domains");
+    public function setSystemStatus(
+        TenantDatabase $tenant,
+        TenantStatus $status,
+        ?string $reason = null,
+        ?string $actor = "system"
+    ): TenantDatabase {
+
+        return $this->persistStatus($tenant, $status->value, $actor, $reason);
 
     }
 
@@ -234,6 +230,33 @@ final class TenantAdministrationService {
         }catch(Throwable) {
             // La auditoría no debe convertir un rechazo seguro o un comando operativo en un error 500.
         }
+
+    }
+
+    private function persistStatus(
+        TenantDatabase $tenant,
+        string $status,
+        ?string $actor,
+        ?string $reason
+    ): TenantDatabase {
+
+        $previousStatus = (string) $tenant->status;
+
+        $tenant->forceFill([
+            "status" => $status,
+            "status_reason" => $reason,
+            "status_changed_at" => now(),
+            "updated_at" => now(),
+        ])->save();
+
+        $this->clearResolverCache($tenant, $actor);
+        $this->audit($tenant, "status_changed", "success", [
+            "previous_status" => $previousStatus,
+            "new_status" => $status,
+            "reason" => $reason,
+        ], $actor);
+
+        return $tenant->fresh("domains");
 
     }
 }

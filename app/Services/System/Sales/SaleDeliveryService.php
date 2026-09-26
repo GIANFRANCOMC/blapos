@@ -67,7 +67,7 @@ final class SaleDeliveryService {
 
     }
 
-    public static function queryPending(int $companyId, array $filters = [], ?int $userId = null): Builder {
+    public static function queryPending(array $filters = [], ?int $userId = null): Builder {
 
         $query = SaleDelivery::query()
             ->whereIn("status", ["pending", "partial"])
@@ -163,22 +163,21 @@ final class SaleDeliveryService {
     }
 
     public static function paginatePending(
-        int $companyId,
         array $filters = [],
         int $perPage = 15,
         ?int $userId = null
     ): LengthAwarePaginator {
 
-        return self::queryPending($companyId, $filters, $userId)
+        return self::queryPending($filters, $userId)
             ->orderBy("status")
             ->orderBy("id")
             ->paginate($perPage);
 
     }
 
-    public static function deliver(SaleDelivery $delivery, array $data, int $companyId, int $userId): SaleDelivery {
+    public static function deliver(SaleDelivery $delivery, array $data, int $userId): SaleDelivery {
 
-        return DB::transaction(function() use ($delivery, $data, $companyId, $userId) {
+        return DB::transaction(function() use ($delivery, $data, $userId) {
 
             $delivery = SaleDelivery::query()
                 ->whereKey($delivery->id)
@@ -247,9 +246,9 @@ final class SaleDeliveryService {
 
                 }
 
-                $quantity = Utilities::round((float) ($payload["quantity"] ?? 0), null, $companyId);
+                $quantity = Utilities::round((float) ($payload["quantity"] ?? 0));
 
-                $pending = Utilities::round((float) $deliveryItem->quantity_pending, null, $companyId);
+                $pending = Utilities::round((float) $deliveryItem->quantity_pending);
 
                 if($quantity <= 0) {
 
@@ -282,8 +281,8 @@ final class SaleDeliveryService {
                     ]
                 );
 
-                $delivered = Utilities::round((float) $deliveryItem->quantity_delivered + $quantity, null, $companyId);
-                $newPending = Utilities::round((float) $deliveryItem->quantity_ordered - $delivered, null, $companyId);
+                $delivered = Utilities::round((float) $deliveryItem->quantity_delivered + $quantity);
+                $newPending = Utilities::round((float) $deliveryItem->quantity_ordered - $delivered);
 
                 $deliveryItem->update([
                     "quantity_delivered" => $delivered,
@@ -315,10 +314,10 @@ final class SaleDeliveryService {
             }
 
             $event->update([
-                "total_quantity" => Utilities::round($totalDeliveredNow, null, $companyId),
+                "total_quantity" => Utilities::round($totalDeliveredNow),
             ]);
 
-            self::refreshDeliveryStatus($delivery, $companyId, $userId, (int) $warehouse->id);
+            self::refreshDeliveryStatus($delivery, $userId, (int) $warehouse->id);
 
             return $delivery->fresh([
                 "saleHeader.serie.documentType",
@@ -335,7 +334,7 @@ final class SaleDeliveryService {
 
     }
 
-    public static function cancelForSale(SaleHeader $saleHeader, int $companyId, int $userId): void {
+    public static function cancelForSale(SaleHeader $saleHeader, int $userId): void {
 
         $delivery = SaleDelivery::query()
             ->where("sale_header_id", (int) $saleHeader->id)
@@ -364,15 +363,15 @@ final class SaleDeliveryService {
 
     }
 
-    private static function refreshDeliveryStatus(SaleDelivery $delivery, int $companyId, int $userId, int $warehouseId): void {
+    private static function refreshDeliveryStatus(SaleDelivery $delivery, int $userId, int $warehouseId): void {
 
         $items = SaleDeliveryItem::query()
             ->where("sale_delivery_id", (int) $delivery->id)
             ->get();
 
-        $total = Utilities::round((float) $items->sum("quantity_ordered"), null, $companyId);
-        $delivered = Utilities::round((float) $items->sum("quantity_delivered"), null, $companyId);
-        $pending = Utilities::round((float) $items->sum("quantity_pending"), null, $companyId);
+        $total = Utilities::round((float) $items->sum("quantity_ordered"));
+        $delivered = Utilities::round((float) $items->sum("quantity_delivered"));
+        $pending = Utilities::round((float) $items->sum("quantity_pending"));
         $status = $pending <= 0 ? "delivered" : ($delivered > 0 ? "partial" : "pending");
 
         $delivery->update([

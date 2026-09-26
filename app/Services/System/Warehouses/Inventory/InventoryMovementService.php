@@ -303,19 +303,17 @@ final class InventoryMovementService {
     }
 
     public static function getPaginatedKardex(
-        int $companyId,
         array $filters = [],
         int $perPage = 15
     ): LengthAwarePaginator {
 
-        return self::getKardexQuery($companyId, $filters)
+        return self::getKardexQuery($filters)
             ->orderByDesc("id")
             ->paginate($perPage);
 
     }
 
     public static function getKardexQuery(
-        int $companyId,
         array $filters = []
     ): Builder {
 
@@ -566,7 +564,6 @@ final class InventoryMovementService {
     ): void {
 
         $enabled = (bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::INVENTORY_POLICIES,
             "stock_alert_email_enabled",
             false
@@ -579,7 +576,6 @@ final class InventoryMovementService {
         }
 
         $recipient = (string) CompanySettingService::value(
-            $companyId,
             CompanySettingService::INVENTORY_POLICIES,
             "stock_alert_email_to",
             ""

@@ -28,6 +28,14 @@ return [
 
     "platform_session_cookie" => env("PLATFORM_SESSION_COOKIE", "blapos_platform_session"),
 
+    "backups" => [
+        "disk" => env("TENANT_BACKUP_DISK", "local"),
+        "retention" => max(1, (int) env("TENANT_BACKUP_RETENTION", 10)),
+        "timeout_seconds" => max(60, (int) env("TENANT_BACKUP_TIMEOUT", 900)),
+        "dump_binary" => env("MYSQL_DUMP_BINARY", "mysqldump"),
+        "client_binary" => env("MYSQL_CLIENT_BINARY", "mysql"),
+    ],
+
     "platform_admin" => [
         "name" => env("PLATFORM_ADMIN_NAME", "Administrador SaaS"),
         "email" => strtolower((string) env("PLATFORM_ADMIN_EMAIL", "admin@app.blapos.test")),

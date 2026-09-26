@@ -6,9 +6,9 @@ namespace App\Services\System\Tenancy;
 
 use App\Models\System\Organizations\{User};
 use App\Services\System\Organizations\{AccessScopeService};
+use Illuminate\Auth\Access\{AuthorizationException};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{Auth};
-use RuntimeException;
 
 final class BranchContext {
     private bool $resolved = false;
@@ -16,6 +16,8 @@ final class BranchContext {
     private ?int $userId = null;
 
     private ?array $allowedIds = null;
+
+    private ?int $selectedId = null;
 
     public function setUser(?User $user): void {
 
@@ -61,9 +63,22 @@ final class BranchContext {
 
         if(!$this->allows($branchId)) {
 
-            throw new RuntimeException("No tienes acceso a la sucursal seleccionada.");
+            throw new AuthorizationException("No tienes acceso a la sucursal seleccionada.");
 
         }
+
+    }
+
+    public function select(int $branchId): void {
+
+        $this->authorize($branchId);
+        $this->selectedId = $branchId;
+
+    }
+
+    public function selectedId(): ?int {
+
+        return $this->selectedId;
 
     }
 
@@ -82,6 +97,7 @@ final class BranchContext {
         $this->resolved = false;
         $this->userId = null;
         $this->allowedIds = null;
+        $this->selectedId = null;
 
     }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Base;
 
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
+use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Support\Facades\{Cache};
 use InvalidArgumentException;
 use stdClass;
@@ -20,7 +20,7 @@ abstract class BaseConfigService {
 
     abstract protected static function getCachePrefix(): string;
 
-    abstract protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass;
+    abstract protected static function buildConfig(string $page, ?int $userId = null): stdClass;
 
     protected static function usesUserScopedCache(): bool {
 
@@ -42,8 +42,6 @@ abstract class BaseConfigService {
     public static function getInitParams(string $page, int $userId): stdClass {
 
         $page = self::normalizePage($page);
-        $companyId = app(TenantCompanyContext::class)->id();
-
         if(static::usesUserScopedCache()) {
 
             static::registerUserCacheScope($userId);
@@ -53,7 +51,7 @@ abstract class BaseConfigService {
         return Cache::remember(
             static::cacheKey($page, $userId),
             static::CACHE_TTL,
-            fn() => static::createInitParams($companyId, static::buildConfig($companyId, $page, $userId))
+            fn() => static::createInitParams(static::buildConfig($page, $userId))
         );
 
     }
@@ -185,18 +183,17 @@ abstract class BaseConfigService {
 
     }
 
-    protected static function internalCodePrefixes(int $companyId): array {
+    protected static function internalCodePrefixes(): array {
 
         return CompanySettingService::group(
-            $companyId,
             CompanySettingService::INTERNAL_CODE_PREFIXES
         );
 
     }
 
-    private static function createInitParams(int $companyId, stdClass $config): stdClass {
+    private static function createInitParams(stdClass $config): stdClass {
 
-        $config->generalConfig = self::frontendGeneralConfig($companyId);
+        $config->generalConfig = self::frontendGeneralConfig();
 
         return self::data([
             "config" => $config,
@@ -205,10 +202,9 @@ abstract class BaseConfigService {
 
     }
 
-    private static function frontendGeneralConfig(int $companyId): stdClass {
+    private static function frontendGeneralConfig(): stdClass {
 
         $numeric = CompanySettingService::group(
-            $companyId,
             CompanySettingService::NUMERIC_VALIDATION
         );
 

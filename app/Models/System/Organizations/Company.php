@@ -5,6 +5,7 @@ namespace App\Models\System\Organizations;
 use App\Helpers\System\{Utilities};
 use App\Models\System\General\{Currency, IdentityDocumentType};
 use Illuminate\Database\Eloquent\{Model};
+use RuntimeException;
 
 class Company extends Model {
     protected $table = "companies";
@@ -45,6 +46,20 @@ class Company extends Model {
         "updated_at",
         "updated_by",
     ];
+
+    protected static function booted(): void {
+
+        self::creating(function(Company $company): void {
+
+            if(self::query()->exists()) {
+
+                throw new RuntimeException("El tenant solo puede contener una empresa raíz.");
+
+            }
+
+        });
+
+    }
 
     // Appends
     public function getFormattedStatusAttribute() {

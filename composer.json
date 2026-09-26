@@ -64,7 +64,7 @@
             "@php scripts/check-php-syntax.php"
         ],
         "check:tenant-boundary": [
-            "@php artisan test tests/Unit/Architecture/TenantCompanyBoundaryTest.php tests/Feature/TenantCompanyDatabaseBoundaryTest.php"
+            "@php artisan test tests/Unit/Architecture/TenantCompanyBoundaryTest.php tests/Unit/Architecture/TenantRuntimeArchitectureTest.php tests/Unit/Services/TenantRuntimeContextTest.php tests/Feature/BranchContextTest.php tests/Feature/TenantCompanyDatabaseBoundaryTest.php"
         ]
     },
     "extra": {

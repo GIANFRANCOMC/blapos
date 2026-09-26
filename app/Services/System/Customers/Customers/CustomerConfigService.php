@@ -17,7 +17,7 @@ final class CustomerConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $references = CompanyReferenceDataService::forUser($userId);
 
@@ -26,7 +26,7 @@ final class CustomerConfigService extends BaseConfigService {
                 "records" => $references->biometricDevices(),
             ]),
             "identityDocumentTypes" => self::data([
-                "records" => MasterReferenceDataService::customerIdentityDocuments($companyId),
+                "records" => MasterReferenceDataService::customerIdentityDocuments(),
             ]),
             "genders" => Customer::getGenders(),
             "statuses" => Customer::getStatuses(),

@@ -35,9 +35,9 @@ final class ServiceOperationPerformanceTest extends TestCase {
     public function test_initial_configuration_does_not_embed_growing_catalogs(): void {
 
         $this->seedOperationOptions(40);
-        ServiceOperationConfigService::clearCache(1);
+        ServiceOperationConfigService::clearCache();
 
-        $params = ServiceOperationConfigService::getInitParams(1, "restaurant", $this->userId);
+        $params = ServiceOperationConfigService::getInitParams("restaurant", $this->userId);
 
         $this->assertSame([], $params->config->customers);
         $this->assertSame([], $params->config->items);
@@ -49,8 +49,8 @@ final class ServiceOperationPerformanceTest extends TestCase {
 
         $this->seedOperationOptions(40);
 
-        $customers = ServiceOperationService::options(1, "customers", "Cliente");
-        $items = ServiceOperationService::options(1, "items", "Servicio", "service");
+        $customers = ServiceOperationService::options("customers", "Cliente");
+        $items = ServiceOperationService::options("items", "Servicio", "service");
 
         $this->assertCount(30, $customers);
         $this->assertCount(30, $items);
@@ -83,7 +83,7 @@ final class ServiceOperationPerformanceTest extends TestCase {
             "status" => "active",
         ]);
 
-        $board = ServiceOperationService::board(1, $this->userId, $this->branchId);
+        $board = ServiceOperationService::board($this->userId, $this->branchId);
 
         $this->assertSame($floorId, $board["selected_floor_id"]);
         $this->assertCount(1, $board["floors"]);

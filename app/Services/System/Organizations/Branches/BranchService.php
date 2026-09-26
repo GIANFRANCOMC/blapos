@@ -8,6 +8,7 @@ use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Assets\{AssetAssignment};
 use App\Models\System\Organizations\{Branch};
 use App\Services\System\Organizations\Branches\{SerieService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Warehouses\Warehouses\{WarehouseService};
 use Exception;
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
@@ -70,10 +71,10 @@ class BranchService {
      * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareBranchDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareBranchDataForCreate(array $data, int $userId): array {
 
         $branchData = [
-            "company_id" => $companyId,
+            "company_id" => app(TenantCompanyContext::class)->id(),
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -131,21 +132,24 @@ class BranchService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?Branch {
+    public static function create(array $data, int $userId): ?Branch {
 
         $branch = null;
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$branch) {
+        DB::transaction(function() use ($data, $userId, &$branch) {
 
             // Prepare data with only allowed fields
-            $branchData = self::prepareBranchDataForCreate($data, $companyId, $userId);
+            $branchData = self::prepareBranchDataForCreate($data, $userId);
 
             // Create the record
 
             $branch = Branch::create($branchData);
 
             // Create related series for document types
-            SerieService::createForBranch($branch->id, $companyId, $userId);
+            SerieService::createForBranch(
+                $branch->id,
+                $userId
+            );
 
             // Create default warehouse
             WarehouseService::createDefaultForBranch($branch, $userId);
@@ -215,11 +219,10 @@ class BranchService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["series.documentType", "warehouses"]): ?Branch {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["series.documentType", "warehouses"]): ?Branch {
 
         $query = Branch::query()
-            ->where("id", $id)
-            ->where("company_id", $companyId);
+            ->where("id", $id);
 
         if($statuses !== null && !empty($statuses)) {
 
@@ -244,10 +247,9 @@ class BranchService {
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $query = Branch::query()
-            ->where("company_id", $companyId)
             ->with(["series.documentType", "warehouses"]);
 
         // Apply filters

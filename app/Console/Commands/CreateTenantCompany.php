@@ -104,6 +104,16 @@ final class CreateTenantCompany extends Command {
                     $adminPassword
                 );
 
+                $doctorExitCode = Artisan::call("system:doctor");
+
+                if($doctorExitCode !== self::SUCCESS) {
+
+                    throw new InvalidArgumentException(
+                        trim(Artisan::output()) ?: "El diagnóstico final del tenant no fue satisfactorio."
+                    );
+
+                }
+
             }
 
             DB::connection("landlord")

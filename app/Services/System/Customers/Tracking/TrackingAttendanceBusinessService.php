@@ -8,7 +8,6 @@ use App\Helpers\System\{Utilities};
 use App\Models\System\Customers\{Attendance, Customer, Subscription};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use Illuminate\Support\Facades\{DB};
 
@@ -17,8 +16,6 @@ use Illuminate\Support\Facades\{DB};
  * Handles complex business logic for attendance validation and creation
  */
 class TrackingAttendanceBusinessService {
-    public function __construct(private readonly TenantCompanyContext $companyContext) {
-    }
 
     /**
      * Validate start date format
@@ -37,7 +34,7 @@ class TrackingAttendanceBusinessService {
      * @param  int  $companyId Company ID
      * @param  string  $type Search type: "document_number" or "carnet"
      */
-    public function getValidCustomer($code, int $companyId, string $type = ""): ?Customer {
+    public function getValidCustomer($code, string $type = ""): ?Customer {
 
         if($this->normalizeLookupType($type) === "document_number") {
 
@@ -60,7 +57,7 @@ class TrackingAttendanceBusinessService {
      * @param  Carbon  $startDate Start date
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getValidSubscriptions(int $companyId, int $branchId, int $customerId, Carbon $startDate) {
+    public function getValidSubscriptions(int $branchId, int $customerId, Carbon $startDate) {
 
         return Subscription::query()
             ->where("branch_id", $branchId)
@@ -82,7 +79,7 @@ class TrackingAttendanceBusinessService {
      * @param  Carbon  $startDate Start date
      * @param  int  $limit Daily limit
      */
-    public function checkAttendanceLimits(int $companyId, int $branchId, int $customerId, Carbon $startDate, int $limit): array {
+    public function checkAttendanceLimits(int $branchId, int $customerId, Carbon $startDate, int $limit): array {
 
         $dailyAttendances = Attendance::query()
             ->where("customer_id", $customerId)
@@ -92,7 +89,6 @@ class TrackingAttendanceBusinessService {
             ]);
 
         $scope = (string) CompanySettingService::value(
-            $companyId,
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "daily_limit_scope",
             "branch"
@@ -163,7 +159,6 @@ class TrackingAttendanceBusinessService {
             "msg" => "",
         ];
 
-        $companyId = $this->companyContext->id();
         $branchId = $data["branch_id"];
         $customerId = $data["customer_id"] ?? "";
         $customerDocumentNumber = $data["customer_document_number"] ?? "";
@@ -181,7 +176,6 @@ class TrackingAttendanceBusinessService {
         if($action === "checkout"
             && in_array($type, ["biometric", "qr_camera", "qr_scanner", "qr_public"], true)
             && !(bool) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::CUSTOMER_ATTENDANCE,
                 "allow_automatic_checkout",
                 false
@@ -219,17 +213,16 @@ class TrackingAttendanceBusinessService {
 
             $customer = BiometricDeviceService::findCustomerByDeviceUserId(
                 $deviceId,
-                $deviceUserId,
-                $companyId
+                $deviceUserId
             );
 
         }elseif($customerAttendanceType === "document_number") {
 
-            $customer = $this->getValidCustomer($customerDocumentNumber, $companyId, $customerAttendanceType);
+            $customer = $this->getValidCustomer($customerDocumentNumber, $customerAttendanceType);
 
         }else {
 
-            $customer = $this->getValidCustomer($customerId, $companyId, $customerAttendanceType);
+            $customer = $this->getValidCustomer($customerId, $customerAttendanceType);
 
         }
 
@@ -258,7 +251,6 @@ class TrackingAttendanceBusinessService {
         if($type === "biometric" && Utilities::isDefined($deviceId)) {
 
             $tolerance = max(0, (int) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::CUSTOMER_ATTENDANCE,
                 "biometric_duplicate_tolerance_seconds",
                 10
@@ -300,7 +292,7 @@ class TrackingAttendanceBusinessService {
             ->latest("start_date")
             ->first();
 
-        $maxActiveHours = $this->maxActiveHours($companyId);
+        $maxActiveHours = $this->maxActiveHours();
 
         // Handle checkout
 
@@ -389,7 +381,7 @@ class TrackingAttendanceBusinessService {
         }
 
         // Validate subscriptions
-        $subscriptions = $this->getValidSubscriptions($companyId, $branchId, $customer->id, $startDate);
+        $subscriptions = $this->getValidSubscriptions($branchId, $customer->id, $startDate);
 
         if($subscriptions->isEmpty()) {
 
@@ -404,7 +396,7 @@ class TrackingAttendanceBusinessService {
         $limitPerDay = intval($subscription->attendance_limit_per_day);
 
         // Check attendance limits
-        $check = $this->checkAttendanceLimits($companyId, $branchId, $customer->id, $startDate, $limitPerDay);
+        $check = $this->checkAttendanceLimits($branchId, $customer->id, $startDate, $limitPerDay);
 
         if($check["hasActive"]) {
 
@@ -451,10 +443,9 @@ class TrackingAttendanceBusinessService {
 
     }
 
-    private function maxActiveHours(int $companyId): int {
+    private function maxActiveHours(): int {
 
         return max(1, (int) CompanySettingService::value(
-            $companyId,
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "max_active_hours",
             20

@@ -126,7 +126,6 @@ abstract class ProductRequest extends CompanyFormRequest {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                $this->companyId(),
                 "product",
                 $this->input("internal_code")
             ),

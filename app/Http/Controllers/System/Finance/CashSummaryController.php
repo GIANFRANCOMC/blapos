@@ -25,7 +25,6 @@ final class CashSummaryController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => $this->service->summary(
-                $this->getCompanyId(),
                 $this->cashFilters($request),
                 $this->getUserId()
             ),

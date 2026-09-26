@@ -32,7 +32,6 @@ class WarehouseService {
 
         WarehouseItemService::createForWarehouse(
             (int) $warehouse->id,
-            app(TenantCompanyContext::class)->id(),
             $userId
         );
 

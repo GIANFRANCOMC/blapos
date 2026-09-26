@@ -27,7 +27,6 @@ final class CashMovementController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => $this->service->listMovements(
-                $this->getCompanyId(),
                 $this->cashFilters($request),
                 $this->getPerPage($request),
                 $this->getUserId()
@@ -41,7 +40,6 @@ final class CashMovementController extends BaseController {
         try {
 
             $movement = $this->service->registerMovement(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             );
@@ -63,7 +61,6 @@ final class CashMovementController extends BaseController {
     public function export(Request $request): Response {
 
         $rows = $this->service->movementsForExport(
-            $this->getCompanyId(),
             $this->cashFilters($request),
             $this->getUserId()
         );

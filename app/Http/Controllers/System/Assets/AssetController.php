@@ -40,7 +40,7 @@ class AssetController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return AssetService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return AssetService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -63,7 +63,7 @@ class AssetController extends BaseController {
         try {
 
             $data = $this->prepareAssetData($request);
-            $asset = AssetService::create($data, $this->getCompanyId(), $this->getUserId());
+            $asset = AssetService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($asset)) {
 
@@ -72,8 +72,7 @@ class AssetController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ASSETS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ASSETS
             );
 
             return $this->createdResponse($asset, "created", "asset");
@@ -95,7 +94,7 @@ class AssetController extends BaseController {
 
         try {
 
-            $asset = AssetService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $asset = AssetService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($asset)) {
 
@@ -114,8 +113,7 @@ class AssetController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ASSETS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ASSETS
             );
 
             return $this->updatedResponse($asset, "updated", "asset");

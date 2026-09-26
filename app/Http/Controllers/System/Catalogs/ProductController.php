@@ -47,7 +47,7 @@ class ProductController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return ProductService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return ProductService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -59,7 +59,7 @@ class ProductController extends BaseController {
         $fileName = "productos_".now()->format("Y-m-d_His").".xlsx";
 
         return Excel::download(
-            new ProductListExport($this->getCompanyId(), $this->getFilters($request)),
+            new ProductListExport($this->getFilters($request)),
             $fileName
         );
 
@@ -79,8 +79,7 @@ class ProductController extends BaseController {
         try {
 
             $warehouse = StockManagementService::validateWarehouse(
-                (int) $request->validated("warehouse_id"),
-                $this->getCompanyId()
+                (int) $request->validated("warehouse_id")
             );
 
             if(!$warehouse) {
@@ -95,7 +94,6 @@ class ProductController extends BaseController {
             $currencyId = (int) Company::whereKey($this->getCompanyId())->value("currency_id");
 
             $import = new ProductBasicImport(
-                $this->getCompanyId(),
                 $currencyId,
                 (int) $warehouse->id,
                 $this->getUserId()
@@ -104,8 +102,7 @@ class ProductController extends BaseController {
             Excel::import($import, $request->file("file"));
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ITEMS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ITEMS
             );
 
             return response()->json([
@@ -148,7 +145,7 @@ class ProductController extends BaseController {
         try {
 
             $data = $this->prepareProductData($request);
-            $item = ProductService::create($data, $this->getCompanyId(), $this->getUserId());
+            $item = ProductService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($item)) {
 
@@ -157,8 +154,7 @@ class ProductController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ITEMS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ITEMS
             );
 
             return $this->createdResponse($item, "created", "item");
@@ -180,7 +176,7 @@ class ProductController extends BaseController {
 
         try {
 
-            $item = ProductService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $item = ProductService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($item)) {
 
@@ -199,8 +195,7 @@ class ProductController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ITEMS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ITEMS
             );
 
             return $this->updatedResponse($item, "updated", "item");

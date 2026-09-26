@@ -45,7 +45,7 @@ class StockManagementController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_max);
 
         if(
-            !StockManagementService::validateWarehouse($warehouseId, $this->getCompanyId())
+            !StockManagementService::validateWarehouse($warehouseId)
             || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)
         ) {
 
@@ -57,7 +57,6 @@ class StockManagementController extends BaseController {
         }
 
         return StockManagementService::getPaginatedList(
-            $this->getCompanyId(),
             $warehouseId,
             $perPage,
             (string) $request->input("product_search", "")
@@ -75,7 +74,6 @@ class StockManagementController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => StockManagementService::getConsolidatedStock(
-                $this->getCompanyId(),
                 (string) $request->input("product_search", ""),
                 $allowedWarehouseIds
             ),
@@ -116,7 +114,6 @@ class StockManagementController extends BaseController {
         }
 
         return StockManagementService::getKardex(
-            $this->getCompanyId(),
             $filters,
             $perPage
         );
@@ -134,7 +131,6 @@ class StockManagementController extends BaseController {
         }
 
         return StockManagementService::getStockAlerts(
-            $this->getCompanyId(),
             $request->only(["warehouse_id", "status"]),
             $this->getPerPage($request, Utilities::$per_page_max)
         );
@@ -149,7 +145,6 @@ class StockManagementController extends BaseController {
         );
 
         return InventoryGuideService::query(
-            $this->getCompanyId(),
             $request->only(["warehouse_id", "guide_type", "date_from", "date_to"])
         )
             ->when(
@@ -173,7 +168,6 @@ class StockManagementController extends BaseController {
             }
 
             $guide = InventoryGuideService::create(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             );
@@ -195,8 +189,7 @@ class StockManagementController extends BaseController {
         try {
 
             $warehouse = StockManagementService::validateWarehouse(
-                (int) $data["warehouse_id"],
-                $this->getCompanyId()
+                (int) $data["warehouse_id"]
             );
 
             if(!$warehouse || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, (int) $warehouse->id)) {
@@ -206,7 +199,6 @@ class StockManagementController extends BaseController {
             }
 
             $movements = StockManagementService::createManualMovements(
-                $this->getCompanyId(),
                 (int) $warehouse->id,
                 (string) $data["movement_type"],
                 (string) $data["origin_type"],
@@ -254,7 +246,7 @@ class StockManagementController extends BaseController {
         if(($filters["warehouse_id"] ?? null) !== "all") {
 
             $warehouseId = (int) ($filters["warehouse_id"] ?? 0);
-            $warehouse = StockManagementService::validateWarehouse($warehouseId, $this->getCompanyId());
+            $warehouse = StockManagementService::validateWarehouse($warehouseId);
 
             if(!$warehouse || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
 
@@ -273,7 +265,7 @@ class StockManagementController extends BaseController {
         $fileName = "inventario_{$view}_".now()->format("Y-m-d_His").".xlsx";
 
         return Excel::download(
-            new InventoryReportExport($this->getCompanyId(), $view, $filters),
+            new InventoryReportExport($view, $filters),
             $fileName
         );
 
@@ -286,8 +278,7 @@ class StockManagementController extends BaseController {
         try {
 
             $warehouse = StockManagementService::validateWarehouse(
-                (int) $data["warehouse_id"],
-                $this->getCompanyId()
+                (int) $data["warehouse_id"]
             );
 
             if(!$warehouse || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, (int) $warehouse->id)) {
@@ -297,7 +288,6 @@ class StockManagementController extends BaseController {
             }
 
             $movement = StockManagementService::createManualMovement(
-                $this->getCompanyId(),
                 (int) $warehouse->id,
                 (int) $data["item_id"],
                 (string) $data["movement_type"],

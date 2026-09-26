@@ -42,7 +42,7 @@ class BiometricDeviceController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return BiometricDeviceService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return BiometricDeviceService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -65,7 +65,7 @@ class BiometricDeviceController extends BaseController {
         try {
 
             $data = $this->prepareBiometricDeviceData($request);
-            $device = BiometricDeviceService::create($data, $this->getCompanyId(), $this->getUserId());
+            $device = BiometricDeviceService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($device)) {
 
@@ -74,8 +74,7 @@ class BiometricDeviceController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::BIOMETRIC_DEVICES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::BIOMETRIC_DEVICES
             );
 
             return $this->createdResponse($device, "created", "biometric_device");
@@ -97,7 +96,7 @@ class BiometricDeviceController extends BaseController {
 
         try {
 
-            $device = BiometricDeviceService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $device = BiometricDeviceService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($device)) {
 
@@ -116,8 +115,7 @@ class BiometricDeviceController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::BIOMETRIC_DEVICES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::BIOMETRIC_DEVICES
             );
 
             return $this->updatedResponse($device, "updated", "biometric_device");
@@ -134,7 +132,7 @@ class BiometricDeviceController extends BaseController {
 
         try {
 
-            $device = BiometricDeviceService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $device = BiometricDeviceService::findByIdInTenant($id, null);
 
             if(!$device) {
 
@@ -161,7 +159,6 @@ class BiometricDeviceController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => BiometricDeviceService::getDeviceEvents(
-                $this->getCompanyId(),
                 $id,
                 [
                     "processing_status" => $request->input("processing_status"),

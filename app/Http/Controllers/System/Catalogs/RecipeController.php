@@ -39,7 +39,6 @@ class RecipeController extends BaseController {
     public function list(Request $request) {
 
         return RecipeService::getPaginatedList(
-            $this->getCompanyId(),
             $this->getFilters($request),
             $this->getPerPage($request, Utilities::$per_page_default)
         );
@@ -50,8 +49,8 @@ class RecipeController extends BaseController {
 
         try {
 
-            $recipe = RecipeService::create($request->validated(), $this->getCompanyId(), $this->getUserId());
-            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS, $this->getCompanyId());
+            $recipe = RecipeService::create($request->validated(), $this->getUserId());
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS);
 
             return response()->json([
                 "bool" => true,
@@ -78,8 +77,8 @@ class RecipeController extends BaseController {
                 ->with(["item"])
                 ->findOrFail($id);
 
-            $recipe = RecipeService::update($recipe, $request->validated(), $this->getCompanyId(), $this->getUserId());
-            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS, $this->getCompanyId());
+            $recipe = RecipeService::update($recipe, $request->validated(), $this->getUserId());
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS);
 
             return response()->json([
                 "bool" => true,
@@ -124,7 +123,6 @@ class RecipeController extends BaseController {
                 "data" => RecipeService::theoreticalCost(
                     $id,
                     (int) $data["warehouse_id"],
-                    $this->getCompanyId(),
                     CompanyReferenceDataService::forUser($this->getUserId())
                         ->allowedWarehouseIds()
                 ),
@@ -190,8 +188,8 @@ class RecipeController extends BaseController {
             $recipe = RecipeDish::query()
                 ->findOrFail($id);
 
-            RecipeService::delete($recipe, $this->getCompanyId());
-            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS, $this->getCompanyId());
+            RecipeService::delete($recipe);
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS);
 
             return response()->json([
                 "bool" => true,

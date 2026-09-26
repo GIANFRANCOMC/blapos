@@ -46,7 +46,6 @@ final class PurchaseController extends BaseController {
     public function list(Request $request) {
 
         return PurchaseService::getFilteredQuery(
-            $this->getCompanyId(),
             [
                 "word" => $request->input("word"),
                 "status" => $request->input("status"),
@@ -61,7 +60,6 @@ final class PurchaseController extends BaseController {
         try {
 
             $purchase = PurchaseService::create(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             );
@@ -92,7 +90,7 @@ final class PurchaseController extends BaseController {
 
     public function show(int $id): JsonResponse {
 
-        return response()->json(PurchaseService::find($this->getCompanyId(), $id));
+        return response()->json(PurchaseService::find($id));
 
     }
 
@@ -101,7 +99,6 @@ final class PurchaseController extends BaseController {
         try {
 
             $receipt = PurchaseService::receive(
-                $this->getCompanyId(),
                 $id,
                 $this->getUserId(),
                 $request->validated()
@@ -129,7 +126,6 @@ final class PurchaseController extends BaseController {
         try {
 
             $purchase = PurchaseService::cancel(
-                $this->getCompanyId(),
                 $id,
                 $this->getUserId()
             );
@@ -162,7 +158,6 @@ final class PurchaseController extends BaseController {
         try {
 
             $return = PurchaseReturnService::create(
-                $this->getCompanyId(),
                 $id,
                 $this->getUserId(),
                 $request->validated()
@@ -189,7 +184,7 @@ final class PurchaseController extends BaseController {
             return response()->json([
                 "bool" => true,
                 "msg" => "Orden aprobada correctamente.",
-                "data" => PurchaseService::approve($this->getCompanyId(), $id, $this->getUserId()),
+                "data" => PurchaseService::approve($id, $this->getUserId()),
             ]);
 
         }catch(\Throwable $exception) {
@@ -203,7 +198,7 @@ final class PurchaseController extends BaseController {
     public function export(Request $request): BinaryFileResponse {
 
         return Excel::download(
-            new PurchaseListExport($this->getCompanyId(), [
+            new PurchaseListExport([
                 "word" => $request->input("word"),
                 "status" => $request->input("status"),
             ], $this->getUserId()),

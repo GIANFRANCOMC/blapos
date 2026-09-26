@@ -11,6 +11,7 @@ use App\Models\System\Operations\{ServiceFloor, ServiceSession, ServiceSessionIt
 use App\Models\System\Organizations\{Branch, User};
 use App\Services\System\Base\{CompanyReferenceDataService};
 use App\Services\System\Organizations\{AccessScopeService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use DomainException;
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
@@ -112,8 +113,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function createFloor(int $companyId, int $actorId, array $data): ServiceFloor {
+    public static function createFloor(int $actorId, array $data): ServiceFloor {
 
+        $companyId = self::companyId();
         self::requireBranch($companyId, (int) $data["branch_id"], $actorId);
 
         $duplicate = ServiceFloor::query()
@@ -142,8 +144,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function floors(int $companyId, int $actorId, int $branchId) {
+    public static function floors(int $actorId, int $branchId) {
 
+        $companyId = self::companyId();
         self::requireBranch($companyId, $branchId, $actorId);
 
         return ServiceFloor::query()
@@ -157,8 +160,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function updateFloor(int $companyId, int $actorId, int $floorId, array $data): ServiceFloor {
+    public static function updateFloor(int $actorId, int $floorId, array $data): ServiceFloor {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $floorId, $data) {
 
             $branchId = (int) $data["branch_id"];
@@ -207,8 +211,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function createStation(int $companyId, int $actorId, array $data): ServiceStation {
+    public static function createStation(int $actorId, array $data): ServiceStation {
 
+        $companyId = self::companyId();
         self::requireBranch($companyId, (int) $data["branch_id"], $actorId);
         $floor = self::requireOptionalFloor(
             $companyId,
@@ -252,21 +257,22 @@ final class ServiceOperationService {
 
     }
 
-    public static function stations(int $companyId, int $actorId, int $branchId, ?int $floorId = null) {
+    public static function stations(int $actorId, int $branchId, ?int $floorId = null) {
 
+        $companyId = self::companyId();
         self::requireBranch($companyId, $branchId, $actorId);
 
-        return self::stationQuery($companyId, $branchId, $floorId)->get();
+        return self::stationQuery($branchId, $floorId)->get();
 
     }
 
     public static function board(
-        int $companyId,
         int $actorId,
         int $branchId,
         ?int $floorId = null
     ): array {
 
+        $companyId = self::companyId();
         self::requireBranch($companyId, $branchId, $actorId);
 
         $floors = ServiceFloor::query()
@@ -286,14 +292,13 @@ final class ServiceOperationService {
             "floors" => $floors,
             "selected_floor_id" => $selectedFloor?->id,
             "stations" => $selectedFloor
-                ? self::stationQuery($companyId, $branchId, (int) $selectedFloor->id)->get()
+                ? self::stationQuery($branchId, (int) $selectedFloor->id)->get()
                 : collect(),
         ];
 
     }
 
     public static function options(
-        int $companyId,
         string $resource,
         string $search = "",
         ?string $itemType = null,
@@ -360,7 +365,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function stationQuery(int $companyId, int $branchId, ?int $floorId = null): Builder {
+    private static function stationQuery(int $branchId, ?int $floorId = null): Builder {
 
         return ServiceStation::query()
             ->where("branch_id", $branchId)
@@ -376,8 +381,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function updateStation(int $companyId, int $actorId, int $stationId, array $data): ServiceStation {
+    public static function updateStation(int $actorId, int $stationId, array $data): ServiceStation {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $stationId, $data) {
 
             $branchId = (int) $data["branch_id"];
@@ -433,11 +439,12 @@ final class ServiceOperationService {
     }
 
     public static function updateStationLayout(
-        int $companyId,
         int $actorId,
         int $stationId,
         array $data
     ): ServiceStation {
+
+        $companyId = self::companyId();
 
         return DB::transaction(function() use ($companyId, $actorId, $stationId, $data) {
 
@@ -475,7 +482,6 @@ final class ServiceOperationService {
     }
 
     public static function sessions(
-        int $companyId,
         int $actorId,
         array $filters = [],
         int $perPage = 15
@@ -528,7 +534,7 @@ final class ServiceOperationService {
 
     }
 
-    public static function find(int $companyId, int $sessionId, ?int $actorId = null): ServiceSession {
+    public static function find(int $sessionId, ?int $actorId = null): ServiceSession {
 
         $session = ServiceSession::query()
             ->with([
@@ -551,6 +557,7 @@ final class ServiceOperationService {
 
         if($actorId) {
 
+            $companyId = self::companyId();
             self::requireBranch($companyId, (int) $session->branch_id, $actorId);
 
         }
@@ -559,8 +566,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function open(int $companyId, int $actorId, array $data): ServiceSession {
+    public static function open(int $actorId, array $data): ServiceSession {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $data) {
 
             $branchId = (int) $data["branch_id"];
@@ -626,7 +634,7 @@ final class ServiceOperationService {
 
             if(!empty($data["item_id"])) {
 
-                self::addItem($companyId, $actorId, $session->id, [
+                self::addItem($actorId, $session->id, [
                     "item_id" => (int) $data["item_id"],
                     "assigned_user_id" => $data["assigned_user_id"] ?? null,
                     "quantity" => $data["quantity"] ?? 1,
@@ -635,14 +643,15 @@ final class ServiceOperationService {
 
             }
 
-            return self::find($companyId, (int) $session->id, $actorId);
+            return self::find((int) $session->id, $actorId);
 
         });
 
     }
 
-    public static function addItem(int $companyId, int $actorId, int $sessionId, array $data): ServiceSessionItem {
+    public static function addItem(int $actorId, int $sessionId, array $data): ServiceSessionItem {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $data) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -692,8 +701,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function start(int $companyId, int $actorId, int $sessionId): ServiceSession {
+    public static function start(int $actorId, int $sessionId): ServiceSession {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $sessionId) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -701,7 +711,7 @@ final class ServiceOperationService {
 
             if($session->status === self::STATUS_IN_PROGRESS) {
 
-                return self::find($companyId, $sessionId, $actorId);
+                return self::find($sessionId, $actorId);
 
             }
 
@@ -713,30 +723,33 @@ final class ServiceOperationService {
             $session->save();
             self::recordEvent($session, $actorId, "started", self::STATUS_PENDING, self::STATUS_IN_PROGRESS);
 
-            return self::find($companyId, $sessionId, $actorId);
+            return self::find($sessionId, $actorId);
 
         });
 
     }
 
-    public static function startItem(int $companyId, int $actorId, int $itemId): ServiceSessionItem {
+    public static function startItem(int $actorId, int $itemId): ServiceSessionItem {
 
+        $companyId = self::companyId();
         return self::changeItemTiming($companyId, $actorId, $itemId, false);
 
     }
 
-    public static function completeItem(int $companyId, int $actorId, int $itemId): ServiceSessionItem {
+    public static function completeItem(int $actorId, int $itemId): ServiceSessionItem {
 
+        $companyId = self::companyId();
         return self::changeItemTiming($companyId, $actorId, $itemId, true);
 
     }
 
     public static function updatePreparationStatus(
-        int $companyId,
         int $actorId,
         int $itemId,
         string $status
     ): ServiceSessionItem {
+
+        $companyId = self::companyId();
 
         return DB::transaction(function() use ($companyId, $actorId, $itemId, $status) {
 
@@ -804,11 +817,12 @@ final class ServiceOperationService {
     }
 
     public static function complete(
-        int $companyId,
         int $actorId,
         int $sessionId,
         ?int $saleHeaderId = null
     ): ServiceSession {
+
+        $companyId = self::companyId();
 
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $saleHeaderId) {
 
@@ -856,20 +870,21 @@ final class ServiceOperationService {
             $session->save();
             self::recordEvent($session, $actorId, "completed", $previousStatus, self::STATUS_COMPLETED);
 
-            return self::find($companyId, $sessionId, $actorId);
+            return self::find($sessionId, $actorId);
 
         });
 
     }
 
-    public static function attachSale(int $companyId, int $actorId, int $sessionId, int $saleHeaderId): ServiceSession {
+    public static function attachSale(int $actorId, int $sessionId, int $saleHeaderId): ServiceSession {
 
-        return self::complete($companyId, $actorId, $sessionId, $saleHeaderId);
+        return self::complete($actorId, $sessionId, $saleHeaderId);
 
     }
 
-    public static function reassign(int $companyId, int $actorId, int $sessionId, int $assignedUserId, ?string $note = null): ServiceSession {
+    public static function reassign(int $actorId, int $sessionId, int $assignedUserId, ?string $note = null): ServiceSession {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $assignedUserId, $note) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -886,14 +901,15 @@ final class ServiceOperationService {
                 "assigned_user_id" => $assignedUserId,
             ]);
 
-            return self::find($companyId, $sessionId, $actorId);
+            return self::find($sessionId, $actorId);
 
         });
 
     }
 
-    public static function pause(int $companyId, int $actorId, int $sessionId, ?int $itemId, ?string $reason): array {
+    public static function pause(int $actorId, int $sessionId, ?int $itemId, ?string $reason): array {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $itemId, $reason) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -939,8 +955,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function resume(int $companyId, int $actorId, int $sessionId): array {
+    public static function resume(int $actorId, int $sessionId): array {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $sessionId) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -991,8 +1008,9 @@ final class ServiceOperationService {
 
     }
 
-    public static function cancel(int $companyId, int $actorId, int $sessionId, string $reason): ServiceSession {
+    public static function cancel(int $actorId, int $sessionId, string $reason): ServiceSession {
 
+        $companyId = self::companyId();
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $reason) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -1008,13 +1026,13 @@ final class ServiceOperationService {
 
             self::recordEvent($session, $actorId, "canceled", $previous, self::STATUS_CANCELED, $reason);
 
-            return self::find($companyId, $sessionId, $actorId);
+            return self::find($sessionId, $actorId);
 
         });
 
     }
 
-    public static function reports(int $companyId, int $actorId, array $filters = []): array {
+    public static function reports(int $actorId, array $filters = []): array {
 
         $dateFrom = !empty($filters["date_from"])
             ? Carbon::parse($filters["date_from"])->startOfDay()
@@ -1370,6 +1388,12 @@ final class ServiceOperationService {
             ->sortByDesc("quantity")
             ->values()
             ->all();
+
+    }
+
+    private static function companyId(): int {
+
+        return app(TenantCompanyContext::class)->id();
 
     }
 

@@ -25,6 +25,9 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
+            $table->index(["status", "name", "id"], "suppliers_status_name_idx");
+            $table->index(["document_number"], "suppliers_document_number_idx");
+
         });
 
         Schema::create("supplier_contacts", function(Blueprint $table) {
@@ -40,6 +43,7 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign("supplier_id")->references("id")->on("suppliers")->onDelete("cascade");
+            $table->index(["supplier_id", "status", "is_primary"], "supplier_contacts_access_idx");
 
         });
 
@@ -56,6 +60,7 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign("supplier_id")->references("id")->on("suppliers")->onDelete("cascade");
+            $table->index(["supplier_id", "status", "is_primary"], "supplier_accounts_access_idx");
 
         });
 

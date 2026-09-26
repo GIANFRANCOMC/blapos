@@ -25,9 +25,18 @@ final class InitializeTenantExecutionContext {
         $requestId = $requestId !== "" && strlen($requestId) <= 100
             ? $requestId
             : (string) Str::uuid();
+        $request->headers->set("X-Request-ID", $requestId);
 
         $user = $request->user();
         $this->branchContext->setUser($user instanceof User ? $user : null);
+
+        $requestedBranchId = filter_var($request->input("branch_id"), FILTER_VALIDATE_INT);
+
+        if($requestedBranchId !== false && $requestedBranchId > 0) {
+
+            $this->branchContext->select((int) $requestedBranchId);
+
+        }
 
         $tenant = $this->tenantContext->get();
 
@@ -37,6 +46,7 @@ final class InitializeTenantExecutionContext {
             "tenant_domain" => $request->getHost(),
             "database_name" => $tenant?->database_name,
             "user_id" => $user?->getAuthIdentifier(),
+            "branch_id" => $this->branchContext->selectedId(),
         ]);
 
         try {

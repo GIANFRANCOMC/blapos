@@ -34,7 +34,6 @@ final class QuotationController extends BaseController {
     public function list(Request $request) {
 
         return QuotationService::query(
-            $this->getCompanyId(),
             [
                 "word" => $request->input("word"),
                 "status" => $request->input("status"),
@@ -45,7 +44,7 @@ final class QuotationController extends BaseController {
 
     public function show(int $id): JsonResponse {
 
-        return response()->json(QuotationService::find($this->getCompanyId(), $id));
+        return response()->json(QuotationService::find($id));
 
     }
 
@@ -55,7 +54,7 @@ final class QuotationController extends BaseController {
 
             return response()->json([
                 "bool" => true,
-                "data" => QuotationService::saleDraft($this->getCompanyId(), $id),
+                "data" => QuotationService::saleDraft($id),
             ]);
 
         }catch(\Throwable $exception) {
@@ -108,7 +107,7 @@ final class QuotationController extends BaseController {
             return response()->json([
                 "bool" => true,
                 "msg" => "Cotización registrada correctamente.",
-                "data" => QuotationService::create($this->getCompanyId(), $this->getUserId(), $validator->validated()),
+                "data" => QuotationService::create($this->getUserId(), $validator->validated()),
             ], 201);
 
         }catch(\Throwable $exception) {
@@ -126,7 +125,7 @@ final class QuotationController extends BaseController {
             return response()->json([
                 "bool" => true,
                 "msg" => "Cotización anulada correctamente.",
-                "data" => QuotationService::cancel($this->getCompanyId(), $id, $this->getUserId()),
+                "data" => QuotationService::cancel($id, $this->getUserId()),
             ]);
 
         }catch(\Throwable $exception) {

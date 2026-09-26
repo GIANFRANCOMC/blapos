@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Tenancy;
 
+use App\Enums\System\Tenancy\{TenantStatus};
 use App\Models\System\Tenancy\{TenantDatabase};
 use Illuminate\Support\Facades\{Artisan, Cache};
 use RuntimeException;
@@ -25,6 +26,17 @@ final class PlatformTenantProvisioner {
 
         try {
 
+            $existing = TenantDatabase::query()->where("slug", $slug)->first();
+
+            if($existing && !in_array((string) $existing->status, [
+                TenantStatus::PROVISIONING->value,
+                TenantStatus::PROVISIONING_FAILED->value,
+            ], true)) {
+
+                throw new RuntimeException("El cliente ya existe y no se encuentra en un estado reintentable.");
+
+            }
+
             $exitCode = Artisan::call("tenant:create", [
                 "slug" => $slug,
                 "--commercial-name" => $data["commercial_name"],
@@ -34,6 +46,7 @@ final class PlatformTenantProvisioner {
                 "--admin-email" => $data["admin_email"],
                 "--admin-password" => $data["admin_password"],
                 "--skip-cache-clear" => true,
+                "--force" => $existing !== null,
             ]);
 
         }finally {

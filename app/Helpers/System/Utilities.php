@@ -99,7 +99,6 @@ class Utilities {
         if($companyId !== null && $companyId > 0) {
 
             return max(0, min(8, (int) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::NUMERIC_VALIDATION,
                 "decimal_precision",
                 self::$inputs["round"]

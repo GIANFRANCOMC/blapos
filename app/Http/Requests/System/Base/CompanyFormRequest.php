@@ -190,7 +190,6 @@ abstract class CompanyFormRequest extends FormRequest {
     private function numericValidationSettings(): array {
 
         return CompanySettingService::group(
-            $this->companyId(),
             CompanySettingService::NUMERIC_VALIDATION
         );
 

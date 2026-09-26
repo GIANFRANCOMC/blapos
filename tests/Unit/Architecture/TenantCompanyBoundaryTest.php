@@ -22,7 +22,7 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "app/Observers/System/Organizations/CompanySubSectionObserver.php" => 3,
         "app/Services/System/Database/SystemCatalogSyncService.php" => 1,
         "app/Services/System/Essentials/UserNavigationService.php" => 1,
-        "app/Services/System/Organizations/Branches/BranchService.php" => 3,
+        "app/Services/System/Organizations/Branches/BranchService.php" => 1,
         "app/Services/System/Organizations/BusinessProfileService.php" => 5,
         "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 6,
         "app/Services/System/Organizations/Companies/CompanySectionService.php" => 4,

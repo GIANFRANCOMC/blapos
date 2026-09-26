@@ -155,9 +155,21 @@ El comando solicita la contraseña de forma oculta y realiza el flujo completo:
 3. ejecuta migraciones y seeders tenant;
 4. crea la única empresa raíz, permisos, sede, almacén, caja y administrador.
 
+Antes de activar el tenant, el proceso ejecuta `system:doctor`. Si una etapa falla, el registro queda en `provisioning_failed` con el motivo y puede reintentarse de forma segura desde la plataforma.
+
 También puede crearse el cliente desde `app.blapos.test`. No ejecutar ambos flujos para la misma alta.
 
-### 4.5 Configurar dominios locales
+### 4.5 Respaldo y restauración por tenant
+
+```bash
+php artisan tenant:backup demo
+php artisan tenant:restore demo demo-20260925-120000.sql --force
+composer check:tenant-boundary
+```
+
+Configurar `MYSQL_DUMP_BINARY` y `MYSQL_CLIENT_BINARY` cuando MySQL no esté disponible en `PATH`. `TENANT_BACKUP_DISK`, `TENANT_BACKUP_RETENTION` y `TENANT_BACKUP_TIMEOUT` controlan almacenamiento, retención y tiempo máximo. La contraseña nunca se envía como argumento del proceso.
+
+### 4.6 Configurar dominios locales
 
 El proyecto debe estar en:
 

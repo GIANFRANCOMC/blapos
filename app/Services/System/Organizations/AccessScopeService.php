@@ -61,7 +61,7 @@ final class AccessScopeService {
 
     }
 
-    public static function clearUserCache(int $companyId, int $userId): void {
+    public static function clearUserCache(int $userId): void {
 
         Cache::forget(self::cacheKey($userId));
 
@@ -78,12 +78,12 @@ final class AccessScopeService {
 
     }
 
-    public static function clearRoleCache(int $companyId, int $roleId): void {
+    public static function clearRoleCache(int $roleId): void {
 
         User::query()
             ->where("role_id", $roleId)
             ->pluck("id")
-            ->each(fn($userId) => self::clearUserCache($companyId, (int) $userId));
+            ->each(fn($userId) => self::clearUserCache((int) $userId));
 
     }
 

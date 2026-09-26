@@ -68,7 +68,6 @@ final class AttendanceMaintenanceService {
 
         $companyId = app(TenantCompanyContext::class)->id();
         $retentionMonths = max(4, (int) ($months ?? CompanySettingService::value(
-            $companyId,
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "retention_months",
             5
@@ -111,7 +110,6 @@ final class AttendanceMaintenanceService {
         return DB::transaction(function() use ($companyId, $limit) {
 
             $maxActiveHours = max(1, (int) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::CUSTOMER_ATTENDANCE,
                 "max_active_hours",
                 20
@@ -164,7 +162,6 @@ final class AttendanceMaintenanceService {
     private static function isAutoCloseEnabled(int $companyId): bool {
 
         return (bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "auto_close_stale_enabled",
             true
@@ -174,9 +171,8 @@ final class AttendanceMaintenanceService {
 
     private static function canRunAutoCloseNow(int $companyId): bool {
 
-        $timezone = (string) CompanySettingService::value($companyId, "localization", "timezone", "America/Lima");
+        $timezone = (string) CompanySettingService::value("localization", "timezone", "America/Lima");
         $afterTime = (string) CompanySettingService::value(
-            $companyId,
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "auto_close_after_time",
             "01:00"
@@ -192,7 +188,6 @@ final class AttendanceMaintenanceService {
     private static function technicalCloseDate(string $startDate, int $companyId): Carbon {
 
         $endTime = (string) CompanySettingService::value(
-            $companyId,
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "auto_close_end_time",
             "23:50"

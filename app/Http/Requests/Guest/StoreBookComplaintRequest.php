@@ -56,7 +56,6 @@ final class StoreBookComplaintRequest extends FormRequest {
     private function numericMaxFileSizeKb(int $companyId): int {
 
         $settings = CompanySettingService::group(
-            $companyId,
             CompanySettingService::NUMERIC_VALIDATION
         );
 

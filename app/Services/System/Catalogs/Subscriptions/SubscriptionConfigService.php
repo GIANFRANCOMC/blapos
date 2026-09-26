@@ -17,7 +17,7 @@ final class SubscriptionConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $references = CompanyReferenceDataService::forUser($userId);
 
@@ -26,9 +26,9 @@ final class SubscriptionConfigService extends BaseConfigService {
                 "records" => $references->categories(),
             ]),
             "currencies" => self::data([
-                "records" => MasterReferenceDataService::currencies($companyId),
+                "records" => MasterReferenceDataService::currencies(),
             ]),
-            "internal_code_prefixes" => self::internalCodePrefixes($companyId),
+            "internal_code_prefixes" => self::internalCodePrefixes(),
             "durationTypes" => Item::getDurationTypes(),
             "statuses" => Item::getStatuses(),
         ]);

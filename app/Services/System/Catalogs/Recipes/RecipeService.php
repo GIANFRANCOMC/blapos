@@ -22,13 +22,13 @@ final class RecipeService {
         "options.components.item",
     ];
 
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
-        return self::getFilteredListQuery($companyId, $filters)->paginate($perPage);
+        return self::getFilteredListQuery($filters)->paginate($perPage);
 
     }
 
-    public static function getFilteredListQuery(int $companyId, array $filters = []): Builder {
+    public static function getFilteredListQuery(array $filters = []): Builder {
 
         $query = RecipeDish::query()
             ->with(self::RELATIONS);
@@ -79,11 +79,11 @@ final class RecipeService {
 
     }
 
-    public static function create(array $data, int $companyId, int $userId): RecipeDish {
+    public static function create(array $data, int $userId): RecipeDish {
 
-        return DB::transaction(function() use ($data, $companyId, $userId) {
+        return DB::transaction(function() use ($data, $userId) {
 
-            self::assertItemExistsInTenant((int) $data["item_id"], $companyId);
+            self::assertItemExistsInTenant((int) $data["item_id"]);
 
             $recipe = RecipeDish::create([
                 "item_id" => (int) $data["item_id"],
@@ -95,7 +95,7 @@ final class RecipeService {
                 "created_by" => $userId,
             ]);
 
-            self::syncChildren($recipe, $data, $companyId, $userId);
+            self::syncChildren($recipe, $data, $userId);
 
             return $recipe->fresh(self::RELATIONS);
 
@@ -103,11 +103,11 @@ final class RecipeService {
 
     }
 
-    public static function update(RecipeDish $recipe, array $data, int $companyId, int $userId): RecipeDish {
+    public static function update(RecipeDish $recipe, array $data, int $userId): RecipeDish {
 
-        return DB::transaction(function() use ($recipe, $data, $companyId, $userId) {
+        return DB::transaction(function() use ($recipe, $data, $userId) {
 
-            self::assertItemExistsInTenant((int) $data["item_id"], $companyId);
+            self::assertItemExistsInTenant((int) $data["item_id"]);
 
             $recipe->update([
                 "item_id" => (int) $data["item_id"],
@@ -119,7 +119,7 @@ final class RecipeService {
                 "updated_by" => $userId,
             ]);
 
-            self::syncChildren($recipe, $data, $companyId, $userId);
+            self::syncChildren($recipe, $data, $userId);
 
             return $recipe->fresh(self::RELATIONS);
 
@@ -127,7 +127,7 @@ final class RecipeService {
 
     }
 
-    public static function delete(RecipeDish $recipe, int $companyId): void {
+    public static function delete(RecipeDish $recipe): void {
 
         DB::transaction(function() use ($recipe) {
 
@@ -150,7 +150,6 @@ final class RecipeService {
     public static function theoreticalCost(
         int $recipeId,
         int $warehouseId,
-        int $companyId,
         ?array $allowedWarehouseIds = null
     ): array {
 
@@ -203,24 +202,24 @@ final class RecipeService {
 
         $yield = max(0.0001, (float) $recipe->yield_quantity);
         $recipeWasteFactor = 1 + (max(0, (float) $recipe->waste_percentage) / 100);
-        $base = self::costComponents($recipe->components, $costs, $recipeWasteFactor / $yield, $companyId);
+        $base = self::costComponents($recipe->components, $costs, $recipeWasteFactor / $yield);
         $options = $recipe->options->map(fn($option) => [
             "id" => $option->id,
             "name" => $option->name,
-            "cost" => self::costComponents($option->components, $costs, $recipeWasteFactor, $companyId)["total"],
+            "cost" => self::costComponents($option->components, $costs, $recipeWasteFactor)["total"],
         ])->values();
 
         $toppings = $recipe->dishToppings->map(fn($link) => [
             "id" => $link->id,
             "name" => $link->topping?->name,
-            "cost" => self::costComponents($link->topping?->components ?? collect(), $costs, $recipeWasteFactor, $companyId)["total"],
+            "cost" => self::costComponents($link->topping?->components ?? collect(), $costs, $recipeWasteFactor)["total"],
         ])->values();
 
         return [
             "recipe_id" => $recipe->id,
             "item" => $recipe->item,
             "warehouse" => $warehouse,
-            "yield_quantity" => Utilities::round($yield, null, $companyId),
+            "yield_quantity" => Utilities::round($yield),
             "base_components" => $base["components"],
             "base_cost" => $base["total"],
             "option_costs" => $options,
@@ -233,15 +232,15 @@ final class RecipeService {
 
     }
 
-    private static function syncChildren(RecipeDish $recipe, array $data, int $companyId, int $userId): void {
+    private static function syncChildren(RecipeDish $recipe, array $data, int $userId): void {
 
-        self::syncComponents($recipe, $data["components"] ?? [], $companyId, $userId);
-        self::syncToppings($recipe, $data["toppings"] ?? [], $companyId, $userId);
-        self::syncOptions($recipe, $data["options"] ?? [], $companyId, $userId);
+        self::syncComponents($recipe, $data["components"] ?? [], $userId);
+        self::syncToppings($recipe, $data["toppings"] ?? [], $userId);
+        self::syncOptions($recipe, $data["options"] ?? [], $userId);
 
     }
 
-    private static function syncComponents(RecipeDish $recipe, array $components, int $companyId, int $userId): void {
+    private static function syncComponents(RecipeDish $recipe, array $components, int $userId): void {
 
         RecipeDishComponent::where("recipe_dish_id", $recipe->id)->delete();
 
@@ -256,7 +255,7 @@ final class RecipeService {
 
             }
 
-            self::assertItemExistsInTenant($itemId, $companyId);
+            self::assertItemExistsInTenant($itemId);
 
             RecipeDishComponent::create([
                 "recipe_dish_id" => $recipe->id,
@@ -273,7 +272,7 @@ final class RecipeService {
 
     }
 
-    private static function syncToppings(RecipeDish $recipe, array $toppings, int $companyId, int $userId): void {
+    private static function syncToppings(RecipeDish $recipe, array $toppings, int $userId): void {
 
         $recipe->loadMissing("item");
 
@@ -322,13 +321,13 @@ final class RecipeService {
                 "created_by" => $userId,
             ]);
 
-            self::syncToppingComponents($topping, $toppingData["components"] ?? [], $companyId, $userId);
+            self::syncToppingComponents($topping, $toppingData["components"] ?? [], $userId);
 
         }
 
     }
 
-    private static function syncToppingComponents(RecipeTopping $topping, array $components, int $companyId, int $userId): void {
+    private static function syncToppingComponents(RecipeTopping $topping, array $components, int $userId): void {
 
         foreach($components as $component) {
 
@@ -341,7 +340,7 @@ final class RecipeService {
 
             }
 
-            self::assertItemExistsInTenant($itemId, $companyId);
+            self::assertItemExistsInTenant($itemId);
 
             RecipeToppingComponent::create([
                 "recipe_topping_id" => $topping->id,
@@ -358,7 +357,7 @@ final class RecipeService {
 
     }
 
-    private static function syncOptions(RecipeDish $recipe, array $options, int $companyId, int $userId): void {
+    private static function syncOptions(RecipeDish $recipe, array $options, int $userId): void {
 
         RecipeDishOption::where("recipe_dish_id", $recipe->id)->delete();
 
@@ -393,7 +392,7 @@ final class RecipeService {
 
                 }
 
-                self::assertItemExistsInTenant($itemId, $companyId);
+                self::assertItemExistsInTenant($itemId);
 
                 RecipeDishOptionComponent::create([
                     "recipe_dish_option_id" => $option->id,
@@ -412,7 +411,7 @@ final class RecipeService {
 
     }
 
-    private static function assertItemExistsInTenant(int $itemId, int $companyId): void {
+    private static function assertItemExistsInTenant(int $itemId): void {
 
         if($itemId <= 0 || !Item::whereKey($itemId)->exists()) {
 
@@ -422,27 +421,27 @@ final class RecipeService {
 
     }
 
-    private static function costComponents($components, $costs, float $multiplier, int $companyId): array {
+    private static function costComponents($components, $costs, float $multiplier): array {
 
-        $rows = collect($components)->map(function($component) use ($costs, $multiplier, $companyId) {
+        $rows = collect($components)->map(function($component) use ($costs, $multiplier) {
 
             $wasteFactor = 1 + (max(0, (float) $component->waste_percentage) / 100);
-            $quantity = Utilities::round((float) $component->quantity * $multiplier * $wasteFactor, null, $companyId);
-            $unitCost = Utilities::round((float) ($costs->get($component->item_id) ?? 0), null, $companyId);
+            $quantity = Utilities::round((float) $component->quantity * $multiplier * $wasteFactor);
+            $unitCost = Utilities::round((float) ($costs->get($component->item_id) ?? 0));
 
             return [
                 "item_id" => (int) $component->item_id,
                 "item" => $component->item,
                 "quantity_with_waste" => $quantity,
                 "average_unit_cost" => $unitCost,
-                "cost" => Utilities::round($quantity * $unitCost, null, $companyId),
+                "cost" => Utilities::round($quantity * $unitCost),
             ];
 
         })->values();
 
         return [
             "components" => $rows,
-            "total" => Utilities::round((float) $rows->sum("cost"), null, $companyId),
+            "total" => Utilities::round((float) $rows->sum("cost")),
         ];
 
     }

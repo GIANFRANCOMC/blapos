@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Arr};
 
 final class SupplierService {
-    public static function query(int $companyId, string $word = "") {
+    public static function query(string $word = "") {
 
         $query = Supplier::query()
             ->with(["contacts", "bankAccounts"])
@@ -34,16 +34,16 @@ final class SupplierService {
 
     }
 
-    public static function create(int $companyId, int $userId, array $data): Supplier {
+    public static function create(int $userId, array $data): Supplier {
 
-        return DB::transaction(function() use ($companyId, $userId, $data) {
+        return DB::transaction(function() use ($userId, $data) {
 
             $supplier = Supplier::create([
                 ...Arr::except($data, ["contacts", "bank_accounts"]),
                 "created_at" => now(),
                 "created_by" => $userId,
             ]);
-            self::syncRelated($supplier, $companyId, $data);
+            self::syncRelated($supplier, $data);
 
             return $supplier->load(["contacts", "bankAccounts"]);
 
@@ -52,13 +52,12 @@ final class SupplierService {
     }
 
     public static function update(
-        int $companyId,
         int $supplierId,
         int $userId,
         array $data
     ): Supplier {
 
-        return DB::transaction(function() use ($companyId, $supplierId, $userId, $data) {
+        return DB::transaction(function() use ($supplierId, $userId, $data) {
 
             $supplier = Supplier::query()
                 ->lockForUpdate()
@@ -69,7 +68,7 @@ final class SupplierService {
                 "updated_at" => now(),
                 "updated_by" => $userId,
             ]);
-            self::syncRelated($supplier, $companyId, $data);
+            self::syncRelated($supplier, $data);
 
             return $supplier->fresh(["contacts", "bankAccounts"]);
 
@@ -77,7 +76,7 @@ final class SupplierService {
 
     }
 
-    private static function syncRelated(Supplier $supplier, int $companyId, array $data): void {
+    private static function syncRelated(Supplier $supplier, array $data): void {
 
         if(array_key_exists("contacts", $data)) {
 

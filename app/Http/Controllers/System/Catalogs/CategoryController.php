@@ -40,7 +40,7 @@ class CategoryController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return CategoryService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return CategoryService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -63,7 +63,7 @@ class CategoryController extends BaseController {
         try {
 
             $data = $this->prepareCategoryData($request);
-            $category = CategoryService::create($data, $this->getCompanyId(), $this->getUserId());
+            $category = CategoryService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($category)) {
 
@@ -72,8 +72,7 @@ class CategoryController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::CATEGORIES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::CATEGORIES
             );
 
             return $this->createdResponse($category, "created", "category");
@@ -95,7 +94,7 @@ class CategoryController extends BaseController {
 
         try {
 
-            $category = CategoryService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $category = CategoryService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($category)) {
 
@@ -114,8 +113,7 @@ class CategoryController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::CATEGORIES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::CATEGORIES
             );
 
             return $this->updatedResponse($category, "updated", "category");
@@ -142,10 +140,9 @@ class CategoryController extends BaseController {
 
         try {
 
-            CategoryService::delete($this->getCompanyId(), $id);
+            CategoryService::delete($id);
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::CATEGORIES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::CATEGORIES
             );
 
             return response()->json(["bool" => true, "msg" => "Categoría eliminada correctamente."]);

@@ -95,7 +95,7 @@ final class UserAttendanceService {
         $deviceId = (int) $data["device_id"];
         $deviceUserId = (int) $data["device_user_id"];
         $branchId = (int) $data["branch_id"];
-        $device = BiometricDeviceService::findByIdInTenant($deviceId, $companyId, ["active"]);
+        $device = BiometricDeviceService::findByIdInTenant($deviceId, ["active"]);
 
         if(!$device || (int) $device->branch_id !== $branchId) {
 

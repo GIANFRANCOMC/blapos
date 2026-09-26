@@ -155,14 +155,13 @@ final class MasterDataService {
 
                 if($resource === "company-settings") {
 
-                    CompanySettingService::clearCache($companyId);
+                    CompanySettingService::clearCache();
 
                 }
 
-                MasterReferenceDataService::clearCache($companyId);
+                MasterReferenceDataService::clearCache();
                 InitParamsCacheInvalidationService::invalidate(
-                    self::invalidationResource($resource),
-                    $companyId
+                    self::invalidationResource($resource)
                 );
 
                 return $record->fresh();

@@ -6,6 +6,7 @@ namespace App\Services\System\Organizations\Companies;
 
 use App\Models\System\Organizations\{Company};
 use App\Services\System\Base\{BaseConfigService, MasterReferenceDataService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use stdClass;
 
 final class CompanyConfigService extends BaseConfigService {
@@ -15,18 +16,16 @@ final class CompanyConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $config = self::data([
             "statuses" => Company::getStatuses(),
             "identityDocumentTypes" => self::data([
-                "records" => MasterReferenceDataService::companyIdentityDocuments($companyId),
+                "records" => MasterReferenceDataService::companyIdentityDocuments(),
             ]),
         ]);
 
-        $company = Company::query()
-            ->with("socialsMedia")
-            ->find($companyId);
+        $company = app(TenantCompanyContext::class)->get()->load("socialsMedia");
 
         if(!$company) {
 

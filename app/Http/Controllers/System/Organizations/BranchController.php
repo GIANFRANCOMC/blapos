@@ -42,7 +42,7 @@ class BranchController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return BranchService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return BranchService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -65,7 +65,7 @@ class BranchController extends BaseController {
         try {
 
             $data = $this->prepareBranchData($request);
-            $branch = BranchService::create($data, $this->getCompanyId(), $this->getUserId());
+            $branch = BranchService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($branch)) {
 
@@ -74,8 +74,7 @@ class BranchController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::BRANCHES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::BRANCHES
             );
 
             return $this->createdResponse($branch, "created", "branch");
@@ -97,7 +96,7 @@ class BranchController extends BaseController {
 
         try {
 
-            $branch = BranchService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $branch = BranchService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -116,8 +115,7 @@ class BranchController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::BRANCHES,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::BRANCHES
             );
 
             return $this->updatedResponse($branch, "updated", "branch");
@@ -138,10 +136,9 @@ class BranchController extends BaseController {
 
         return response()->json([
             "bool" => true,
-            "data" => SerieService::auditQuery($this->getCompanyId(), $filters)
+            "data" => SerieService::auditQuery($filters)
                 ->paginate($this->getPerPage($request, Utilities::$per_page_default)),
             "gaps" => SerieService::detectGaps(
-                $this->getCompanyId(),
                 $request->filled("branch_id") ? (int) $request->branch_id : null
             ),
         ]);
@@ -150,7 +147,7 @@ class BranchController extends BaseController {
 
     public function exportSeriesAudit(Request $request) {
 
-        $rows = SerieService::auditQuery($this->getCompanyId(), $request->only([
+        $rows = SerieService::auditQuery($request->only([
             "branch_id", "serie_id", "user_id", "source", "action", "date_from", "date_to",
         ]))->get();
 
@@ -184,7 +181,7 @@ class BranchController extends BaseController {
 
     public function publicAttendanceLink(Request $request, int $id): JsonResponse {
 
-        $branch = BranchService::findByIdInTenant($id, $this->getCompanyId(), ["active"]);
+        $branch = BranchService::findByIdInTenant($id, ["active"]);
 
         if(!$branch) {
 

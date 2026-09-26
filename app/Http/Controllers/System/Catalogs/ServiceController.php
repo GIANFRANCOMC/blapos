@@ -40,7 +40,7 @@ class ServiceController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return ServiceService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return ServiceService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -63,7 +63,7 @@ class ServiceController extends BaseController {
         try {
 
             $data = $this->prepareServiceData($request);
-            $item = ServiceService::create($data, $this->getCompanyId(), $this->getUserId());
+            $item = ServiceService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($item)) {
 
@@ -72,8 +72,7 @@ class ServiceController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ITEMS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ITEMS
             );
 
             return $this->createdResponse($item, "created", "item");
@@ -95,7 +94,7 @@ class ServiceController extends BaseController {
 
         try {
 
-            $item = ServiceService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $item = ServiceService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($item)) {
 
@@ -114,8 +113,7 @@ class ServiceController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::ITEMS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::ITEMS
             );
 
             return $this->updatedResponse($item, "updated", "item");

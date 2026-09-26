@@ -26,8 +26,7 @@ class RoleObserver {
         RolePermissionService::clearRoleCache($companyId, $roleId);
         CompanySectionService::clearCache($companyId, $roleId);
         InitParamsCacheInvalidationService::invalidate(
-            InitParamsCacheInvalidationService::ROLES,
-            $companyId
+            InitParamsCacheInvalidationService::ROLES
         );
 
     }

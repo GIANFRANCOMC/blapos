@@ -17,12 +17,11 @@ class TrackingNotificationService {
     /**
      * Get paginated list of subscription emails with filters
      *
-     * @param  int  $companyId Company ID
      * @param  array  $filters Filters array
      * @param  int  $perPage Items per page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public static function getPaginatedList(int $companyId, array $filters, int $perPage) {
+    public static function getPaginatedList(array $filters, int $perPage) {
 
         $status = $filters["status"] ?? null;
 
@@ -40,7 +39,7 @@ class TrackingNotificationService {
 
     }
 
-    public static function retry(int $companyId, int $userId, int $notificationId): SubscriptionEmail {
+    public static function retry(int $userId, int $notificationId): SubscriptionEmail {
 
         $notification = SubscriptionEmail::query()
             ->findOrFail($notificationId);

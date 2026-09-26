@@ -52,7 +52,6 @@ class SaleController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
         return SaleService::getPaginatedList(
-            $this->getCompanyId(),
             $filters,
             $perPage,
             $this->getUserId()
@@ -71,7 +70,6 @@ class SaleController extends BaseController {
         ];
 
         return SaleDeliveryService::paginatePending(
-            $this->getCompanyId(),
             $filters,
             $this->getPerPage($request, Utilities::$per_page_default),
             $this->getUserId()
@@ -121,7 +119,7 @@ class SaleController extends BaseController {
         try {
 
             $data = $this->prepareSaleData($request);
-            $sale = SaleService::create($data, $this->getCompanyId(), $this->getUserId());
+            $sale = SaleService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($sale)) {
 
@@ -148,7 +146,7 @@ class SaleController extends BaseController {
 
         try {
 
-            $sale = SaleService::findById($this->getCompanyId(), $id);
+            $sale = SaleService::findById($id);
 
             if(!Utilities::isDefined($sale)) {
 
@@ -171,7 +169,7 @@ class SaleController extends BaseController {
 
             }
 
-            $sale = SaleService::cancel($sale, $this->getCompanyId(), $this->getUserId());
+            $sale = SaleService::cancel($sale, $this->getUserId());
 
             if(!Utilities::isDefined($sale)) {
 
@@ -226,7 +224,6 @@ class SaleController extends BaseController {
             $delivery = SaleDeliveryService::deliver(
                 $delivery,
                 $request->validated(),
-                $this->getCompanyId(),
                 $this->getUserId()
             );
 

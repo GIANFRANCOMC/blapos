@@ -7,10 +7,9 @@ namespace App\Services\System\Base;
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 
 final class InternalCodeService {
-    public static function prefix(int $companyId, string $entity): string {
+    public static function prefix(string $entity): string {
 
         $prefix = CompanySettingService::value(
-            $companyId,
             CompanySettingService::INTERNAL_CODE_PREFIXES,
             $entity,
             ""
@@ -20,10 +19,10 @@ final class InternalCodeService {
 
     }
 
-    public static function applyPrefix(int $companyId, string $entity, mixed $code): string {
+    public static function applyPrefix(string $entity, mixed $code): string {
 
         $code = trim((string) $code);
-        $prefix = self::prefix($companyId, $entity);
+        $prefix = self::prefix($entity);
 
         if($prefix === "" || $code === "") {
 

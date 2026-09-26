@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Organizations;
 
 use App\Models\System\Organizations\{BusinessAuditLog};
+use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Database\Eloquent\{Model};
 
 final class BusinessAuditService {
@@ -38,6 +39,14 @@ final class BusinessAuditService {
 
         $request = app()->bound("request") ? request() : null;
         $actorId = $userId ?? $request?->user()?->getAuthIdentifier();
+        $tenant = app(TenantContext::class)->get();
+        $auditContext = array_merge([
+            "request_id" => $request?->headers->get("X-Request-ID"),
+            "tenant_id" => $tenant?->public_id,
+            "tenant_domain" => $request?->getHost(),
+            "database_name" => $tenant?->database_name,
+            "branch_id" => $branchId,
+        ], $context);
 
         return BusinessAuditLog::create([
             "branch_id" => $branchId,
@@ -49,7 +58,10 @@ final class BusinessAuditService {
             "summary" => $summary,
             "before_data" => self::sanitize($before),
             "after_data" => self::sanitize($after),
-            "context" => self::sanitize($context),
+            "context" => self::sanitize(array_filter(
+                $auditContext,
+                fn(mixed $value): bool => $value !== null && $value !== ""
+            )),
             "ip_address" => $request?->ip(),
             "user_agent" => $request ? mb_substr((string) $request->userAgent(), 0, 500) : null,
             "occurred_at" => now(),

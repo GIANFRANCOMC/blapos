@@ -12,9 +12,9 @@ use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 
 final class AccountsReceivableService {
-    public function paginate(int $companyId, int $userId, array $filters, int $perPage): LengthAwarePaginator {
+    public function paginate(int $userId, array $filters, int $perPage): LengthAwarePaginator {
 
-        $paginator = $this->query($companyId, $userId, $filters)
+        $paginator = $this->query($userId, $filters)
             ->with($this->listRelations())
             ->orderByRaw("CASE WHEN status IN ('paid', 'canceled') THEN 1 ELSE 0 END")
             ->orderBy("due_date")
@@ -29,9 +29,9 @@ final class AccountsReceivableService {
 
     }
 
-    public function find(int $companyId, int $userId, int $accountId): array {
+    public function find(int $userId, int $accountId): array {
 
-        $account = $this->query($companyId, $userId)
+        $account = $this->query($userId)
             ->with([
                 ...$this->listRelations(),
                 "payments" => fn($query) => $query
@@ -44,9 +44,9 @@ final class AccountsReceivableService {
 
     }
 
-    public function summary(int $companyId, int $userId, array $filters = []): array {
+    public function summary(int $userId, array $filters = []): array {
 
-        $query = $this->query($companyId, $userId, $filters)
+        $query = $this->query($userId, $filters)
             ->where("status", "!=", "canceled");
 
         $amounts = (clone $query)
@@ -54,15 +54,15 @@ final class AccountsReceivableService {
             ->with("currency:id,code,sign")
             ->groupBy("currency_id")
             ->get()
-            ->map(function($row) use ($companyId) {
+            ->map(function($row) {
 
                 return [
                     "currency_id" => (int) $row->currency_id,
                     "code" => $row->currency?->code ?? "",
                     "sign" => $row->currency?->sign ?? "",
-                    "total" => Utilities::round((float) $row->total_amount, null, $companyId),
-                    "paid" => Utilities::round((float) $row->paid_amount, null, $companyId),
-                    "pending" => Utilities::round((float) $row->pending_amount, null, $companyId),
+                    "total" => Utilities::round((float) $row->total_amount),
+                    "paid" => Utilities::round((float) $row->paid_amount),
+                    "pending" => Utilities::round((float) $row->pending_amount),
                 ];
 
             })
@@ -85,12 +85,10 @@ final class AccountsReceivableService {
                     ->where("pending_amount", ">", 0)
                     ->whereDate("due_date", "<", now()->toDateString()))
                 ->count(),
-            "amounts" => $amounts->map(function($amount) use ($overdueAmounts, $companyId) {
+            "amounts" => $amounts->map(function($amount) use ($overdueAmounts) {
 
                 $amount["overdue"] = Utilities::round(
-                    (float) ($overdueAmounts[$amount["currency_id"]] ?? 0),
-                    null,
-                    $companyId
+                    (float) ($overdueAmounts[$amount["currency_id"]] ?? 0)
                 );
 
                 return $amount;
@@ -100,7 +98,7 @@ final class AccountsReceivableService {
 
     }
 
-    private function query(int $companyId, int $userId, array $filters = []): Builder {
+    private function query(int $userId, array $filters = []): Builder {
 
         $query = SaleAccountReceivable::query();
         $branchIds = CompanyReferenceDataService::forUser($userId)->allowedBranchIds();

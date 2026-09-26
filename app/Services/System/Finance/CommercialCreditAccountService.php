@@ -25,11 +25,11 @@ final class CommercialCreditAccountService {
 
     }
 
-    public static function paymentStatus(float $total, float $paid, ?int $companyId = null): string {
+    public static function paymentStatus(float $total, float $paid): string {
 
-        $total = Utilities::round($total, null, $companyId);
-        $paid = Utilities::round($paid, null, $companyId);
-        $balance = Utilities::round($total - $paid, null, $companyId);
+        $total = Utilities::round($total);
+        $paid = Utilities::round($paid);
+        $balance = Utilities::round($total - $paid);
 
         return match (true) {
             $paid <= 0 => "unpaid",

@@ -12,7 +12,6 @@ use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
 class WarehouseItemService {
     public static function syncProductInventory(
         int $itemId,
-        int $companyId,
         array $inventory,
         ?int $userId = null,
         bool $setInitialStock = false
@@ -63,7 +62,7 @@ class WarehouseItemService {
 
             $warehouseItem->save();
 
-            $initialStock = Utilities::round((float) ($inventoryRecord["initial_stock"] ?? 0), null, $companyId);
+            $initialStock = Utilities::round((float) ($inventoryRecord["initial_stock"] ?? 0));
 
             if($isNew && $setInitialStock && $initialStock > 0) {
 
@@ -84,7 +83,7 @@ class WarehouseItemService {
 
     }
 
-    public static function createForWarehouse(int $warehouseId, int $companyId, ?int $userId = null): void {
+    public static function createForWarehouse(int $warehouseId, ?int $userId = null): void {
 
         $productIds = Item::query()
             ->where("type", "product")

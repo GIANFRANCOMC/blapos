@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Str};
 
 final class InventoryGuideService {
-    public static function create(int $companyId, int $userId, array $data): InventoryGuide {
+    public static function create(int $userId, array $data): InventoryGuide {
 
-        return DB::transaction(function() use ($companyId, $userId, $data) {
+        return DB::transaction(function() use ($userId, $data) {
 
-            $number = self::nextNumber($companyId, (string) $data["guide_type"]);
+            $number = self::nextNumber((string) $data["guide_type"]);
             $guide = InventoryGuide::create([
                 "warehouse_id" => $data["warehouse_id"],
                 "number" => $number,
@@ -61,7 +61,7 @@ final class InventoryGuideService {
 
     }
 
-    public static function query(int $companyId, array $filters = []) {
+    public static function query(array $filters = []) {
 
         return InventoryGuide::query()
             ->with(["warehouse.branch", "items.item", "confirmedBy"])
@@ -73,7 +73,7 @@ final class InventoryGuideService {
 
     }
 
-    private static function nextNumber(int $companyId, string $type): string {
+    private static function nextNumber(string $type): string {
 
         $prefix = $type === "entry" ? "GE" : "GS";
 

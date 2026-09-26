@@ -87,7 +87,7 @@ class CompanyService {
 
         $fileName = "{$fieldName}.{$extension}";
         $filePath = $file->storeAs(
-            TenantStoragePath::for("{$company->internal_code}/branding"),
+            TenantStoragePath::branding(),
             $fileName,
             "public"
         );

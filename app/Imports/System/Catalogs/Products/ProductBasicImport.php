@@ -17,7 +17,6 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
     private int $importedCount = 0;
 
     public function __construct(
-        private readonly int $companyId,
         private readonly int $currencyId,
         private readonly int $warehouseId,
         private readonly int $userId
@@ -75,7 +74,7 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
                         "initial_stock" => (float) ($data["initial_stock"] ?? 0),
                         "minimum_stock" => (float) ($data["minimum_stock"] ?? 0),
                     ]],
-                ], $this->companyId, $this->userId);
+                ], $this->userId);
 
                 $this->importedCount++;
 
@@ -98,7 +97,7 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
 
         return [
             "internal_code" => $internalCode !== ""
-                ? InternalCodeService::applyPrefix($this->companyId, "product", $internalCode)
+                ? InternalCodeService::applyPrefix("product", $internalCode)
                 : $this->generateInternalCode(),
             "barcode" => $barcode !== "" ? $barcode : $this->generateBarcode(),
             "name" => trim((string) ($row["nombre"] ?? "")),
@@ -148,7 +147,6 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
         do {
 
             $code = InternalCodeService::applyPrefix(
-                $this->companyId,
                 "product",
                 Str::upper(Str::random(7))
             );

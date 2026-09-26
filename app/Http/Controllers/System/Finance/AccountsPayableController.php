@@ -32,8 +32,8 @@ final class AccountsPayableController extends BaseController {
 
         return response()->json([
             "bool" => true,
-            "data" => $this->service->paginate($this->getCompanyId(), $this->getUserId(), $filters, $this->getPerPage($request, Utilities::$per_page_default)),
-            "summary" => $this->service->summary($this->getCompanyId(), $this->getUserId(), $filters),
+            "data" => $this->service->paginate($this->getUserId(), $filters, $this->getPerPage($request, Utilities::$per_page_default)),
+            "summary" => $this->service->summary($this->getUserId(), $filters),
         ]);
 
     }
@@ -42,7 +42,7 @@ final class AccountsPayableController extends BaseController {
 
         return response()->json([
             "bool" => true,
-            "data" => $this->service->find($this->getCompanyId(), $this->getUserId(), $id),
+            "data" => $this->service->find($this->getUserId(), $id),
         ]);
 
     }

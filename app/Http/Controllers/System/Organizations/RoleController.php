@@ -107,8 +107,7 @@ class RoleController extends BaseController {
         \App\Services\System\Organizations\Companies\CompanySectionService::clearCompanyCache($this->getCompanyId());
         RoleConfigService::clearAllCache();
         InitParamsCacheInvalidationService::invalidate(
-            InitParamsCacheInvalidationService::ROLES,
-            $this->getCompanyId()
+            InitParamsCacheInvalidationService::ROLES
         );
 
     }

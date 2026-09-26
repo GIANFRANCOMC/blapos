@@ -180,6 +180,11 @@ return new class extends Migration {
 
             $table->foreign("branch_id")->references("id")->on("branches")->nullOnDelete();
             $table->foreign("user_id")->references("id")->on("users")->nullOnDelete();
+            $table->index(["occurred_at", "id"], "business_audit_timeline_idx");
+            $table->index(["user_id", "occurred_at", "id"], "business_audit_user_timeline_idx");
+            $table->index(["branch_id", "occurred_at", "id"], "business_audit_branch_timeline_idx");
+            $table->index(["module", "action", "occurred_at"], "business_audit_module_action_idx");
+            $table->index(["auditable_type", "auditable_id", "occurred_at"], "business_audit_record_idx");
 
         });
 

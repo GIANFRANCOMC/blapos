@@ -15,10 +15,10 @@ final class AssetConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         return self::data([
-            "internal_code_prefixes" => self::internalCodePrefixes($companyId),
+            "internal_code_prefixes" => self::internalCodePrefixes(),
             "categories" => AssetCategory::query()
                 ->where("status", "active")
                 ->orderBy("name")

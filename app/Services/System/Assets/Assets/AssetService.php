@@ -63,7 +63,7 @@ class AssetService {
      * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareAssetDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareAssetDataForCreate(array $data, int $userId): array {
 
         $assetData = [
             "management_type" => "stock",
@@ -123,14 +123,14 @@ class AssetService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?Asset {
+    public static function create(array $data, int $userId): ?Asset {
 
         $asset = null;
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$asset) {
+        DB::transaction(function() use ($data, $userId, &$asset) {
 
             // Prepare data with only allowed fields
-            $assetData = self::prepareAssetDataForCreate($data, $companyId, $userId);
+            $assetData = self::prepareAssetDataForCreate($data, $userId);
 
             // Create the record
 
@@ -181,7 +181,7 @@ class AssetService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = []): ?Asset {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = []): ?Asset {
 
         $query = Asset::where("id", $id);
 
@@ -208,7 +208,7 @@ class AssetService {
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $query = Asset::query();
 

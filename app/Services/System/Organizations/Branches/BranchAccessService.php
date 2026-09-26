@@ -6,7 +6,7 @@ namespace App\Services\System\Organizations\Branches;
 
 use App\Models\System\Organizations\{Branch, User};
 use App\Services\System\Organizations\{AccessScopeService};
-use App\Services\System\Tenancy\{BranchContext, TenantCompanyContext};
+use App\Services\System\Tenancy\{BranchContext};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -55,10 +55,7 @@ final class BranchAccessService {
 
     public function clearFor(User $user): void {
 
-        AccessScopeService::clearUserCache(
-            app(TenantCompanyContext::class)->id(),
-            (int) $user->getKey()
-        );
+        AccessScopeService::clearUserCache((int) $user->getKey());
 
         $this->context->forget();
 

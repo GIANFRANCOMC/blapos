@@ -248,7 +248,6 @@ class HelperController extends BaseController {
     private function getExternalApiMonthlyUsage(int $companyId): array {
 
         $threshold = max(1, (int) CompanySettingService::value(
-            $companyId,
             CompanySettingService::EXTERNAL_API,
             "document_lookup_monthly_warning_threshold",
             80

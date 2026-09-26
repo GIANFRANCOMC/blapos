@@ -26,28 +26,25 @@ class StockManagementService {
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public static function getPaginatedList(
-        int $companyId,
         int $warehouseId,
         int $perPage,
         string $search = ""
     ) {
 
-        return self::stockQuery($companyId, $warehouseId, $search)->paginate($perPage);
+        return self::stockQuery($warehouseId, $search)->paginate($perPage);
 
     }
 
     public static function getStockReport(
-        int $companyId,
         int $warehouseId,
         string $search = ""
     ): Collection {
 
-        return self::stockQuery($companyId, $warehouseId, $search)->get();
+        return self::stockQuery($warehouseId, $search)->get();
 
     }
 
     public static function getConsolidatedStock(
-        int $companyId,
         string $search = "",
         ?array $allowedWarehouseIds = null
     ): Collection {
@@ -80,7 +77,7 @@ class StockManagementService {
             })
             ->orderBy("name")
             ->get()
-            ->map(function(Item $item) use ($companyId) {
+            ->map(function(Item $item) {
 
                 $warehouses = $item->warehouseItems->map(function(WarehouseItem $warehouseItem) {
 
@@ -98,8 +95,8 @@ class StockManagementService {
 
                 })->values();
 
-                $item->setAttribute("stock_quantity", Utilities::round((float) $warehouses->sum("quantity"), null, $companyId));
-                $item->setAttribute("minimum_stock", Utilities::round((float) $warehouses->sum("minimum_stock"), null, $companyId));
+                $item->setAttribute("stock_quantity", Utilities::round((float) $warehouses->sum("quantity")));
+                $item->setAttribute("minimum_stock", Utilities::round((float) $warehouses->sum("minimum_stock")));
                 $item->setAttribute("warehouse_breakdown", $warehouses);
                 $item->setAttribute("alert_warehouses_count", $warehouses->where("requires_attention", true)->count());
 
@@ -110,7 +107,6 @@ class StockManagementService {
     }
 
     private static function stockQuery(
-        int $companyId,
         int $warehouseId,
         string $search = ""
     ): Builder {
@@ -152,7 +148,7 @@ class StockManagementService {
      * @param  int  $warehouseId Warehouse ID
      * @param  int  $companyId Company ID
      */
-    public static function validateWarehouse(int $warehouseId, int $companyId): ?Warehouse {
+    public static function validateWarehouse(int $warehouseId): ?Warehouse {
 
         return Warehouse::where("id", $warehouseId)
             ->first();
@@ -207,7 +203,6 @@ class StockManagementService {
     }
 
     public static function createManualMovement(
-        int $companyId,
         int $warehouseId,
         int $itemId,
         string $movementType,
@@ -234,7 +229,6 @@ class StockManagementService {
     }
 
     public static function createManualMovements(
-        int $companyId,
         int $warehouseId,
         string $movementType,
         string $originType,
@@ -244,7 +238,6 @@ class StockManagementService {
     ): array {
 
         return DB::transaction(function() use (
-            $companyId,
             $warehouseId,
             $movementType,
             $originType,
@@ -258,7 +251,6 @@ class StockManagementService {
             foreach($items as $item) {
 
                 $movements[] = self::createManualMovement(
-                    $companyId,
                     $warehouseId,
                     (int) $item["item_id"],
                     $movementType,
@@ -282,15 +274,15 @@ class StockManagementService {
 
     }
 
-    public static function getKardex(int $companyId, array $filters, int $perPage) {
+    public static function getKardex(array $filters, int $perPage) {
 
-        return InventoryMovementService::getPaginatedKardex($companyId, $filters, $perPage);
+        return InventoryMovementService::getPaginatedKardex($filters, $perPage);
 
     }
 
-    public static function getKardexReport(int $companyId, array $filters): Collection {
+    public static function getKardexReport(array $filters): Collection {
 
-        return InventoryMovementService::getKardexQuery($companyId, $filters)
+        return InventoryMovementService::getKardexQuery($filters)
             ->orderByDesc("id")
             ->get();
 
@@ -303,7 +295,6 @@ class StockManagementService {
     }
 
     public static function getStockAlerts(
-        int $companyId,
         array $filters,
         int $perPage
     ) {

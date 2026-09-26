@@ -264,6 +264,9 @@ return new class extends Migration {
             $table->timestamp("occurred_at")->useCurrent();
 
             $table->foreign("user_id")->references("id")->on("users")->nullOnDelete();
+            $table->index(["occurred_at", "id"], "authentication_events_timeline_idx");
+            $table->index(["user_id", "event_type", "occurred_at"], "authentication_events_user_type_idx");
+            $table->index(["ip_address", "result", "occurred_at"], "authentication_events_ip_result_idx");
 
         });
         Schema::create("user_preferences", function(Blueprint $table) {
@@ -280,6 +283,8 @@ return new class extends Migration {
             $table->integer("updated_by")->nullable();
 
             $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
+            $table->unique(["user_id", "slug"], "user_preferences_user_slug_uq");
+            $table->index(["user_id", "status"], "user_preferences_user_status_idx");
 
         });
         Schema::create("user_navigation_metrics", function(Blueprint $table) {

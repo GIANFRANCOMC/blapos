@@ -17,7 +17,7 @@ final class CashRegisterConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $references = CompanyReferenceDataService::forUser($userId);
 

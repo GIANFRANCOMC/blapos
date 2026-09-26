@@ -11,7 +11,6 @@ use Illuminate\Support\{Collection};
 
 final class CommercialDocumentSettlementService {
     public static function taxes(
-        int $companyId,
         string $scope,
         float $baseAmount,
         int $userId,
@@ -19,28 +18,26 @@ final class CommercialDocumentSettlementService {
         array $selectedTaxQuantities = []
     ): Collection {
 
-        return self::activeTaxCatalog($companyId, $scope, $selectedTaxIds)
+        return self::activeTaxCatalog($scope, $selectedTaxIds)
             ->map(fn(Tax $tax) => self::taxLine($tax, $baseAmount, $userId, self::taxQuantity($tax, $selectedTaxQuantities)))
             ->values();
 
     }
 
     public static function saleTaxes(
-        int $companyId,
         array $details,
         int $userId,
         array $selectedTaxIds = [],
         array $selectedTaxQuantities = []
     ): Collection {
 
-        return self::activeTaxCatalog($companyId, "sale", $selectedTaxIds)
+        return self::activeTaxCatalog("sale", $selectedTaxIds)
             ->map(fn(Tax $tax) => self::saleTaxLine($tax, $details, $userId, self::taxQuantity($tax, $selectedTaxQuantities)))
             ->values();
 
     }
 
     public static function payments(
-        int $companyId,
         string $scope,
         float $total,
         array $selectedPayments,
@@ -79,20 +76,20 @@ final class CommercialDocumentSettlementService {
 
         }
 
-        $methods = self::paymentCatalog($companyId, $scope, $selectedPayments)
+        $methods = self::paymentCatalog($scope, $selectedPayments)
             ->keyBy("id");
 
-        $variants = self::paymentVariantCatalog($companyId, $selectedPayments)
+        $variants = self::paymentVariantCatalog($selectedPayments)
             ->keyBy("id");
 
         $payments = collect($selectedPayments)
-            ->map(fn($paymentData) => self::paymentLine($methods, $variants, $paymentData, $userId, $companyId))
+            ->map(fn($paymentData) => self::paymentLine($methods, $variants, $paymentData, $userId))
             ->filter()
             ->values();
 
-        $paid = Utilities::round((float) $payments->sum("amount"), null, $companyId);
-        $documentTotal = Utilities::round($total, null, $companyId);
-        $tolerance = self::decimalTolerance($companyId);
+        $paid = Utilities::round((float) $payments->sum("amount"));
+        $documentTotal = Utilities::round($total);
+        $tolerance = self::decimalTolerance();
 
         if($requireExactTotal && abs($paid - $documentTotal) > $tolerance) {
 
@@ -110,7 +107,7 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function activeTaxCatalog(int $companyId, string $scope, array $selectedTaxIds = []): Collection {
+    private static function activeTaxCatalog(string $scope, array $selectedTaxIds = []): Collection {
 
         $selectedTaxIds = collect($selectedTaxIds)
             ->filter()
@@ -139,7 +136,7 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function paymentCatalog(int $companyId, string $scope, array $selectedPayments): Collection {
+    private static function paymentCatalog(string $scope, array $selectedPayments): Collection {
 
         $ids = collect($selectedPayments)
             ->pluck("payment_method_id")
@@ -170,7 +167,7 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function paymentVariantCatalog(int $companyId, array $selectedPayments): Collection {
+    private static function paymentVariantCatalog(array $selectedPayments): Collection {
 
         $ids = collect($selectedPayments)
             ->pluck("payment_method_variant_id")
@@ -203,9 +200,8 @@ final class CommercialDocumentSettlementService {
 
     private static function taxLine(Tax $tax, float $baseAmount, int $userId, int $quantity = 1): array {
 
-        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
-        $rate = Utilities::round((float) $tax->rate, null, $companyId);
-        $base = Utilities::round($baseAmount, null, $companyId);
+        $rate = Utilities::round((float) $tax->rate);
+        $base = Utilities::round($baseAmount);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
             ? $tax->calculation_type
             : "percentage";
@@ -214,7 +210,7 @@ final class CommercialDocumentSettlementService {
             ? $tax->operation_type
             : "addition";
 
-        $amount = self::taxAmount($base, $rate, $calculationType, $operationType, $quantity, $companyId);
+        $amount = self::taxAmount($base, $rate, $calculationType, $operationType, $quantity);
 
         return [
             "tax_id" => $tax->id,
@@ -236,8 +232,7 @@ final class CommercialDocumentSettlementService {
 
     private static function saleTaxLine(Tax $tax, array $details, int $userId, int $quantity = 1): array {
 
-        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
-        $rate = Utilities::round((float) $tax->rate, null, $companyId);
+        $rate = Utilities::round((float) $tax->rate);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
             ? $tax->calculation_type
             : "percentage";
@@ -253,14 +248,14 @@ final class CommercialDocumentSettlementService {
 
         if($calculationType === "fixed") {
 
-            $amount = self::taxAmount(0, $rate, $calculationType, $operationType, $quantity, $companyId);
+            $amount = self::taxAmount(0, $rate, $calculationType, $operationType, $quantity);
             $totalImpact = $amount;
 
         }else {
 
             foreach($details as $detail) {
 
-                $lineTotal = Utilities::round((float) ($detail["quantity"] ?? 0) * (float) ($detail["price"] ?? 0), null, $companyId);
+                $lineTotal = Utilities::round((float) ($detail["quantity"] ?? 0) * (float) ($detail["price"] ?? 0));
 
                 if($lineTotal <= 0) {
 
@@ -280,8 +275,8 @@ final class CommercialDocumentSettlementService {
 
                 if($taxIsIncluded) {
 
-                    $lineBase = Utilities::round($lineTotal / (1 + ($rate / 100)), null, $companyId);
-                    $lineAmount = Utilities::round($lineTotal - $lineBase, null, $companyId);
+                    $lineBase = Utilities::round($lineTotal / (1 + ($rate / 100)));
+                    $lineAmount = Utilities::round($lineTotal - $lineBase);
                     $base += $lineBase;
                     $amount += $lineAmount;
 
@@ -289,7 +284,7 @@ final class CommercialDocumentSettlementService {
 
                 }
 
-                $lineAmount = self::taxAmount($lineTotal, $rate, $calculationType, $operationType, 1, $companyId);
+                $lineAmount = self::taxAmount($lineTotal, $rate, $calculationType, $operationType);
 
                 $base += $lineTotal;
                 $amount += $lineAmount;
@@ -308,9 +303,9 @@ final class CommercialDocumentSettlementService {
             "operation_type" => $operationType,
             "is_required" => (bool) $tax->is_required,
             "quantity" => $calculationType === "fixed" ? $quantity : 1,
-            "base_amount" => Utilities::round($base, null, $companyId),
-            "amount" => Utilities::round($amount, null, $companyId),
-            "_total_impact" => Utilities::round($totalImpact, null, $companyId),
+            "base_amount" => Utilities::round($base),
+            "amount" => Utilities::round($amount),
+            "_total_impact" => Utilities::round($totalImpact),
             "status" => "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -318,13 +313,13 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function taxAmount(float $base, float $rate, string $calculationType, string $operationType, int $quantity = 1, ?int $companyId = null): float {
+    private static function taxAmount(float $base, float $rate, string $calculationType, string $operationType, int $quantity = 1): float {
 
         $quantity = max(1, $quantity);
 
         $amount = match ($calculationType) {
-            "fixed" => Utilities::round($rate * $quantity, null, $companyId),
-            default => Utilities::round($base * ($rate / 100), null, $companyId)
+            "fixed" => Utilities::round($rate * $quantity),
+            default => Utilities::round($base * ($rate / 100))
         };
 
         if($operationType === "subtraction") {
@@ -333,7 +328,7 @@ final class CommercialDocumentSettlementService {
 
         }
 
-        return Utilities::round($amount, null, $companyId);
+        return Utilities::round($amount);
 
     }
 
@@ -363,7 +358,7 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function paymentLine(Collection $methods, Collection $variants, array $paymentData, int $userId, int $companyId): ?array {
+    private static function paymentLine(Collection $methods, Collection $variants, array $paymentData, int $userId): ?array {
 
         $methodId = (int) ($paymentData["payment_method_id"] ?? 0);
 
@@ -377,7 +372,7 @@ final class CommercialDocumentSettlementService {
 
         $variantId = (int) ($paymentData["payment_method_variant_id"] ?? 0);
         $variant = $variantId > 0 ? $variants->get($variantId) : null;
-        $amount = Utilities::round((float) ($paymentData["amount"] ?? 0), null, $companyId);
+        $amount = Utilities::round((float) ($paymentData["amount"] ?? 0));
 
         if($amount <= 0) {
 
@@ -413,9 +408,9 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function decimalTolerance(int $companyId): float {
+    private static function decimalTolerance(): float {
 
-        return 1 / (10 ** max(1, Utilities::decimalPrecision($companyId)));
+        return 1 / (10 ** max(1, Utilities::decimalPrecision()));
 
     }
 }

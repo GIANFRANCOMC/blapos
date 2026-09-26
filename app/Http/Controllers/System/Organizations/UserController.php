@@ -75,8 +75,7 @@ class UserController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::USERS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::USERS
             );
 
             return $this->createdResponse($user, "created", "user");
@@ -117,8 +116,7 @@ class UserController extends BaseController {
             }
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::USERS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::USERS
             );
 
             return $this->updatedResponse($user, "updated", "user");
@@ -210,7 +208,7 @@ class UserController extends BaseController {
 
             $deviceId = (int) $data["biometric_device_id"];
 
-            $device = BiometricDeviceService::findByIdInTenant($deviceId, $this->getCompanyId(), ["active"]);
+            $device = BiometricDeviceService::findByIdInTenant($deviceId, ["active"]);
 
             if(!$device) {
 
@@ -227,8 +225,7 @@ class UserController extends BaseController {
                 $deviceId,
                 $deviceUserId,
                 (int) ($data["finger_index"] ?? 0),
-                $this->getUserId(),
-                $this->getCompanyId()
+                $this->getUserId()
             );
 
             return $this->createdResponse($fingerprint, "fingerprint_registered", "biometric_fingerprint");

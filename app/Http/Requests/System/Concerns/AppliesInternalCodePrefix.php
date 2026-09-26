@@ -19,7 +19,6 @@ trait AppliesInternalCodePrefix {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                $this->companyId(),
                 $this->internalCodeEntity(),
                 $this->input("internal_code")
             ),

@@ -7,7 +7,6 @@ namespace App\Services\System\Catalogs\Products;
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Services\System\Catalogs\Categories\{CategoryItemService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Warehouses\Warehouses\{WarehouseItemService};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
@@ -96,7 +95,7 @@ class ProductService {
      * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareProductDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareProductDataForCreate(array $data, int $userId): array {
 
         $itemData = [
             "type" => "product",
@@ -254,16 +253,16 @@ class ProductService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?Item {
+    public static function create(array $data, int $userId): ?Item {
 
         $item = null;
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$item) {
+        DB::transaction(function() use ($data, $userId, &$item) {
 
-            self::assertBrandCanBeAssigned($data["brand_id"] ?? null, $companyId);
+            self::assertBrandCanBeAssigned($data["brand_id"] ?? null);
 
             // Prepare data with only allowed fields
-            $itemData = self::prepareProductDataForCreate($data, $companyId, $userId);
+            $itemData = self::prepareProductDataForCreate($data, $userId);
 
             // Create the record
 
@@ -272,7 +271,6 @@ class ProductService {
             // Create warehouse items for products
             WarehouseItemService::syncProductInventory(
                 $item->id,
-                $companyId,
                 $data["inventory"] ?? [],
                 $userId,
                 true
@@ -304,11 +302,8 @@ class ProductService {
 
         DB::transaction(function() use ($item, $data, $userId) {
 
-            $companyId = app(TenantCompanyContext::class)->id();
-
             self::assertBrandCanBeAssigned(
                 $data["brand_id"] ?? null,
-                $companyId,
                 $item
             );
 
@@ -336,7 +331,6 @@ class ProductService {
 
             WarehouseItemService::syncProductInventory(
                 $item->id,
-                $companyId,
                 $data["inventory"] ?? [],
                 $userId,
                 false
@@ -356,7 +350,7 @@ class ProductService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["brand", "currency", "categoryItems", "warehouseItems.warehouse.branch"]): ?Item {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["brand", "currency", "categoryItems", "warehouseItems.warehouse.branch"]): ?Item {
 
         $query = Item::where("id", $id)
             ->where("type", "product");
@@ -384,11 +378,11 @@ class ProductService {
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         Item::expireActiveItems();
 
-        return self::getFilteredListQuery($companyId, $filters)
+        return self::getFilteredListQuery($filters)
             ->paginate($perPage);
 
     }
@@ -402,7 +396,7 @@ class ProductService {
      * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      */
-    public static function getFilteredListQuery(int $companyId, array $filters = []): Builder {
+    public static function getFilteredListQuery(array $filters = []): Builder {
 
         $query = Item::query()
             ->where("type", "product")
@@ -469,7 +463,7 @@ class ProductService {
 
     }
 
-    private static function assertBrandCanBeAssigned(?int $brandId, int $companyId, ?Item $currentItem = null): void {
+    private static function assertBrandCanBeAssigned(?int $brandId, ?Item $currentItem = null): void {
 
         if(!$brandId) {
 

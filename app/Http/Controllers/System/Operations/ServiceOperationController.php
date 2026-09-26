@@ -36,7 +36,6 @@ final class ServiceOperationController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => ServiceOperationService::stations(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 (int) $request->input("branch_id"),
                 $request->filled("service_floor_id") ? (int) $request->input("service_floor_id") : null
@@ -55,7 +54,6 @@ final class ServiceOperationController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => ServiceOperationService::board(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 (int) $data["branch_id"],
                 isset($data["service_floor_id"]) ? (int) $data["service_floor_id"] : null
@@ -75,7 +73,6 @@ final class ServiceOperationController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => ServiceOperationService::options(
-                $this->getCompanyId(),
                 (string) $data["resource"],
                 trim((string) ($data["search"] ?? "")),
                 $data["item_type"] ?? null
@@ -91,7 +88,6 @@ final class ServiceOperationController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => ServiceOperationService::floors(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 (int) $request->input("branch_id")
             ),
@@ -103,7 +99,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::createFloor(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             ),
@@ -116,7 +111,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::updateFloor(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 $request->validated()
@@ -131,7 +125,6 @@ final class ServiceOperationController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => ServiceOperationService::sessions(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->only([
                     "branch_id",
@@ -153,7 +146,6 @@ final class ServiceOperationController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => ServiceOperationService::reports(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->only([
                     "branch_id",
@@ -171,7 +163,7 @@ final class ServiceOperationController extends BaseController {
     public function show(int $id): JsonResponse {
 
         return $this->execute(
-            fn() => ServiceOperationService::find($this->getCompanyId(), $id, $this->getUserId())
+            fn() => ServiceOperationService::find($id, $this->getUserId())
         );
 
     }
@@ -180,7 +172,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::createStation(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             ),
@@ -193,7 +184,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::updateStation(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 $request->validated()
@@ -207,7 +197,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::updateStationLayout(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 $request->validated()
@@ -221,7 +210,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::open(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $request->validated()
             ),
@@ -234,7 +222,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::addItem(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 $request->validated()
@@ -247,7 +234,7 @@ final class ServiceOperationController extends BaseController {
     public function startSession(int $id): JsonResponse {
 
         return $this->execute(
-            fn() => ServiceOperationService::start($this->getCompanyId(), $this->getUserId(), $id),
+            fn() => ServiceOperationService::start($this->getUserId(), $id),
             "Servicio iniciado."
         );
 
@@ -256,7 +243,7 @@ final class ServiceOperationController extends BaseController {
     public function completeSession(int $id): JsonResponse {
 
         return $this->execute(
-            fn() => ServiceOperationService::complete($this->getCompanyId(), $this->getUserId(), $id),
+            fn() => ServiceOperationService::complete($this->getUserId(), $id),
             "Servicio finalizado correctamente."
         );
 
@@ -265,7 +252,7 @@ final class ServiceOperationController extends BaseController {
     public function startItem(int $id): JsonResponse {
 
         return $this->execute(
-            fn() => ServiceOperationService::startItem($this->getCompanyId(), $this->getUserId(), $id),
+            fn() => ServiceOperationService::startItem($this->getUserId(), $id),
             "Detalle iniciado."
         );
 
@@ -274,7 +261,7 @@ final class ServiceOperationController extends BaseController {
     public function completeItem(int $id): JsonResponse {
 
         return $this->execute(
-            fn() => ServiceOperationService::completeItem($this->getCompanyId(), $this->getUserId(), $id),
+            fn() => ServiceOperationService::completeItem($this->getUserId(), $id),
             "Detalle finalizado."
         );
 
@@ -284,7 +271,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::updatePreparationStatus(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 (string) $request->validated("status")
@@ -300,7 +286,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::reassign(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 (int) $data["assigned_user_id"],
@@ -317,7 +302,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::pause(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 isset($data["service_session_item_id"]) ? (int) $data["service_session_item_id"] : null,
@@ -331,7 +315,7 @@ final class ServiceOperationController extends BaseController {
     public function resumeSession(int $id): JsonResponse {
 
         return $this->execute(
-            fn() => ServiceOperationService::resume($this->getCompanyId(), $this->getUserId(), $id),
+            fn() => ServiceOperationService::resume($this->getUserId(), $id),
             "Atención reanudada correctamente."
         );
 
@@ -343,7 +327,6 @@ final class ServiceOperationController extends BaseController {
 
         return $this->execute(
             fn() => ServiceOperationService::cancel(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id,
                 $data["reason"]

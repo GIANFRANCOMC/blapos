@@ -40,6 +40,8 @@ La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declara
 
 `TenantCompanyDatabaseBoundaryTest` inspecciona `INFORMATION_SCHEMA` después de migrar MySQL y verifica que las cuatro columnas sean obligatorias y tengan clave foránea hacia `companies`.
 
+La operación completa de contextos, sucursales, aprovisionamiento, jobs, almacenamiento, observabilidad y respaldos está definida en [TENANT_OPERATIONS.md](TENANT_OPERATIONS.md).
+
 ## Verificación de base de datos
 
 La reconstrucción de pruebas debe apuntar explícitamente a `blapos_testing`. Nunca ejecutar `migrate:fresh` sobre la base de desarrollo.

@@ -365,7 +365,7 @@ class UserService {
 
         }
 
-        AccessScopeService::clearUserCache($companyId, (int) $user->id);
+        AccessScopeService::clearUserCache((int) $user->id);
 
     }
 

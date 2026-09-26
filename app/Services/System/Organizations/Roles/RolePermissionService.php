@@ -269,7 +269,7 @@ final class RolePermissionService {
     public static function clearRoleCache(int $companyId, int $roleId): void {
 
         Cache::forget(self::cacheKey($companyId, $roleId));
-        AccessScopeService::clearRoleCache($companyId, $roleId);
+        AccessScopeService::clearRoleCache($roleId);
 
     }
 

@@ -391,7 +391,6 @@ class SaleService {
 
         $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
         $allowNegativeStock = (bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::INVENTORY_POLICIES,
             "allow_negative_stock_on_sale",
             false
@@ -460,7 +459,6 @@ class SaleService {
         self::validateSubscriptionCustomer($companyId, $subscriptionCustomerId);
 
         TrackingSubscriptionService::assertDatesAvailable(
-            $companyId,
             $branchId,
             $subscriptionCustomerId,
             (string) $extras->start_date,
@@ -489,7 +487,6 @@ class SaleService {
         $subscription->save();
 
         if((bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::SUBSCRIPTIONS,
             "send_welcome_email_on_sale",
             true
@@ -619,7 +616,6 @@ class SaleService {
 
         $cashSessionId = (int) ($data["cash_session_id"] ?? 0);
         $required = (bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::CASH,
             "require_open_session_on_sale",
             false
@@ -755,9 +751,10 @@ class SaleService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?SaleHeader {
+    public static function create(array $data, int $userId): ?SaleHeader {
 
         $saleHeader = null;
+        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
 
         DB::transaction(function() use ($data, $companyId, $userId, &$saleHeader) {
 
@@ -814,7 +811,6 @@ class SaleService {
                 ->all();
 
             $taxLines = CommercialDocumentSettlementService::saleTaxes(
-                (int) $companyId,
                 $data["details"],
                 (int) $userId,
                 $selectedTaxIds,
@@ -827,7 +823,6 @@ class SaleService {
             $subtotal = Utilities::round($grossSubtotal - $includedTaxTotal, null, (int) $companyId);
             $baseTotal = Utilities::round($grossSubtotal + $taxImpactTotal, null, (int) $companyId);
             $defaultPaymentModality = (string) CompanySettingService::value(
-                (int) $companyId,
                 CompanySettingService::SALES,
                 "default_payment_modality",
                 CommercialCreditAccountService::PAID_NOW
@@ -839,7 +834,6 @@ class SaleService {
             );
 
             $paymentLines = CommercialDocumentSettlementService::payments(
-                (int) $companyId,
                 "sale",
                 (float) $baseTotal,
                 $data["payments"] ?? [],
@@ -860,7 +854,6 @@ class SaleService {
 
             $installmentExtraPercentage = $paymentModality === CommercialCreditAccountService::INSTALLMENTS && $financedPrincipal > 0
                 ? (float) CompanySettingService::value(
-                    (int) $companyId,
                     CompanySettingService::SALES,
                     "installment_extra_percentage",
                     0
@@ -870,7 +863,7 @@ class SaleService {
             $installmentExtraAmount = Utilities::round($financedPrincipal * ($installmentExtraPercentage / 100), null, (int) $companyId);
             $total = Utilities::round($baseTotal + $installmentExtraAmount, null, (int) $companyId);
             $balanceDue = Utilities::round($total - $paidAmount, null, (int) $companyId);
-            $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount, (int) $companyId);
+            $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount);
 
             // Create sale header
             $saleHeader = new SaleHeader();
@@ -985,7 +978,6 @@ class SaleService {
             if(Utilities::isDefined($data["service_session_id"] ?? null)) {
 
                 ServiceOperationService::attachSale(
-                    (int) $companyId,
                     (int) $userId,
                     (int) $data["service_session_id"],
                     (int) $saleHeader->id
@@ -1027,10 +1019,11 @@ class SaleService {
      *
      * @throws Exception
      */
-    public static function cancel(SaleHeader $saleHeader, int $companyId, int $userId): SaleHeader {
+    public static function cancel(SaleHeader $saleHeader, int $userId): SaleHeader {
 
         $stockRestored = false;
         $restoreStockPolicyEnabled = false;
+        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
 
         DB::transaction(function() use (
             $saleHeader,
@@ -1041,7 +1034,6 @@ class SaleService {
         ) {
 
             $restoreStockPolicyEnabled = (bool) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::INVENTORY_POLICIES,
                 "restore_stock_on_sale_cancellation",
                 false
@@ -1060,7 +1052,7 @@ class SaleService {
             );
 
             $allPositions = $saleHeader->allPositions;
-            SaleDeliveryService::cancelForSale($saleHeader, (int) $companyId, (int) $userId);
+            SaleDeliveryService::cancelForSale($saleHeader, (int) $userId);
             self::restoreItemCapacityForCanceledSale($allPositions, (int) $companyId, (int) $userId);
             CustomerLoyaltyPointService::reverseForCanceledSale($saleHeader, (int) $companyId, (int) $userId);
 
@@ -1228,7 +1220,7 @@ class SaleService {
      *
      * @param  int  $id Sale header ID
      */
-    public static function findById(int $companyId, int $id): ?SaleHeader {
+    public static function findById(int $id): ?SaleHeader {
 
         return SaleHeader::query()
             ->find($id);
@@ -1244,7 +1236,6 @@ class SaleService {
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public static function getPaginatedList(
-        int $companyId,
         array $filters = [],
         int $perPage = 15,
         ?int $userId = null

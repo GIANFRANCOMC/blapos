@@ -60,7 +60,7 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
 
     }
 
-    public function test_business_uniqueness_is_tenant_wide_without_company_id(): void {
+    public function test_tenant_wide_business_constraints_and_operational_indexes(): void {
 
         $database = DB::connection()->getDatabaseName();
         $indexes = collect(DB::select(
@@ -68,9 +68,8 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
                     GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) AS columns_list
              FROM INFORMATION_SCHEMA.STATISTICS
              WHERE TABLE_SCHEMA = ?
-               AND NON_UNIQUE = 0
                AND INDEX_NAME <> 'PRIMARY'
-               AND TABLE_NAME IN (?, ?, ?, ?, ?, ?, ?)
+               AND TABLE_NAME IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              GROUP BY TABLE_NAME, INDEX_NAME",
             [
                 $database,
@@ -81,6 +80,9 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
                 "sales_header",
                 "warehouse_items",
                 "warehouses",
+                "business_audit_logs",
+                "authentication_events",
+                "suppliers",
             ]
         ))->pluck("columns_list", "index_key");
 
@@ -96,6 +98,19 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
         $this->assertSame("serie_id,sequential", $indexes["sales_header.sales_header_serie_sequential_uq"] ?? null);
         $this->assertSame("warehouse_id,item_id", $indexes["warehouse_items.warehouse_items_warehouse_item_uq"] ?? null);
         $this->assertSame("branch_id,name", $indexes["warehouses.warehouses_branch_name_uq"] ?? null);
+
+        $this->assertSame(
+            "auditable_type,auditable_id,occurred_at",
+            $indexes["business_audit_logs.business_audit_record_idx"] ?? null
+        );
+        $this->assertSame(
+            "user_id,event_type,occurred_at",
+            $indexes["authentication_events.authentication_events_user_type_idx"] ?? null
+        );
+        $this->assertSame(
+            "status,name,id",
+            $indexes["suppliers.suppliers_status_name_idx"] ?? null
+        );
 
     }
 }

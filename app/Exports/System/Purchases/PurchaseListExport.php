@@ -11,7 +11,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class PurchaseListExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithStyles {
     public function __construct(
-        private readonly int $companyId,
         private readonly array $filters = [],
         private readonly ?int $userId = null
     ) {
@@ -19,7 +18,7 @@ final class PurchaseListExport implements FromQuery, ShouldAutoSize, WithHeading
 
     public function query() {
 
-        return PurchaseService::getFilteredQuery($this->companyId, $this->filters, $this->userId);
+        return PurchaseService::getFilteredQuery($this->filters, $this->userId);
 
     }
 

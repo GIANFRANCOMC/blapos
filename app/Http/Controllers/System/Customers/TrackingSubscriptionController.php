@@ -48,7 +48,7 @@ class TrackingSubscriptionController extends BaseController {
 
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return TrackingSubscriptionService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return TrackingSubscriptionService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -76,7 +76,6 @@ class TrackingSubscriptionController extends BaseController {
             }
 
             $subscription = TrackingSubscriptionService::createManual(
-                $this->getCompanyId(),
                 $validated,
                 $this->getUserId()
             );

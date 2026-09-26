@@ -6,6 +6,8 @@
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS blapos_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 php artisan test --testsuite=Unit
 composer check:tenant-boundary
+php artisan test tests/Unit/Architecture/TenantRuntimeArchitectureTest.php
+php artisan test tests/Feature/BranchContextTest.php
 php artisan test
 ```
 
@@ -28,14 +30,10 @@ El trait `ProvisionsSystemDatabase` crea la empresa raíz de pruebas, sus datos 
 `BaseConfigServiceTest` debe implementar exactamente:
 
 ```php
-protected static function buildConfig(
-    int $companyId,
-    string $page,
-    ?int $userId = null
-): stdClass;
+protected static function buildConfig(string $page, ?int $userId = null): stdClass;
 ```
 
-`getInitParams` recibe empresa, página y usuario. En servicios no dependientes del usuario, el ID no forma parte de la clave, pero el contrato continúa siendo explícito.
+`getInitParams` recibe página y usuario. La empresa no se transporta como alcance operativo: la configuración raíz se resuelve mediante `TenantCompanyContext` y la clave se aísla con el namespace del tenant.
 
 Los servicios con `USER_SCOPED_CACHE=true` registran los usuarios que generaron caché. Las pruebas de invalidación registran el alcance con `registerUserCacheScope`; no crean ni consultan una tabla `users` falsa.
 

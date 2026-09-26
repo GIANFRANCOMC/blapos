@@ -28,7 +28,7 @@ final class AssetCategoryController extends BaseController {
             "status" => $data["status"] ?? "active",
             "created_by" => $this->getUserId(),
         ]);
-        InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ASSETS, $this->getCompanyId());
+        InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ASSETS);
 
         return response()->json(["bool" => true, "msg" => "Categoría de activo agregada.", "data" => $category], 201);
 
@@ -39,7 +39,7 @@ final class AssetCategoryController extends BaseController {
         $category = AssetCategory::query()->findOrFail($id);
         $data = $request->validated();
         $category->fill([...$data, "updated_by" => $this->getUserId()])->save();
-        InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ASSETS, $this->getCompanyId());
+        InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ASSETS);
 
         return response()->json(["bool" => true, "msg" => "Categoría de activo actualizada.", "data" => $category]);
 

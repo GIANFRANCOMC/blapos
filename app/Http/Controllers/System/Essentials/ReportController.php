@@ -42,7 +42,6 @@ class ReportController extends BaseController {
     private function assertExportLimit(Builder $query): void {
 
         $limit = max(100, (int) CompanySettingService::value(
-            $this->getCompanyId(),
             "reports",
             "export_max_rows",
             25000
@@ -117,7 +116,6 @@ class ReportController extends BaseController {
         }
 
         $ttlMinutes = max(5, min(43200, (int) CompanySettingService::value(
-            $this->getCompanyId(),
             CompanySettingService::REPORTS,
             "sale_share_ttl_minutes",
             4320

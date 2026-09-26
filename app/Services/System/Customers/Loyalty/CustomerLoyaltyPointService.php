@@ -86,7 +86,6 @@ final class CustomerLoyaltyPointService {
         }
 
         $enabled = (bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::LOYALTY,
             "reverse_points_on_sale_cancellation",
             true
@@ -238,7 +237,6 @@ final class CustomerLoyaltyPointService {
     private static function isEnabled(int $companyId): bool {
 
         return (bool) CompanySettingService::value(
-            $companyId,
             CompanySettingService::LOYALTY,
             "enabled",
             false

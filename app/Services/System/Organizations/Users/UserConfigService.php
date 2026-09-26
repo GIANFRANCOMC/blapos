@@ -17,13 +17,13 @@ final class UserConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $references = CompanyReferenceDataService::forUser($userId);
 
         return self::data([
             "identityDocumentTypes" => self::data([
-                "records" => MasterReferenceDataService::defaultIdentityDocuments($companyId),
+                "records" => MasterReferenceDataService::defaultIdentityDocuments(),
             ]),
             "roles" => self::data([
                 "records" => $references->roles(),

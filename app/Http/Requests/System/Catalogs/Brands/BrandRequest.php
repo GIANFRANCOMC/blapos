@@ -74,7 +74,6 @@ abstract class BrandRequest extends CompanyFormRequest {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                $this->companyId(),
                 "brand",
                 $this->input("internal_code")
             ),

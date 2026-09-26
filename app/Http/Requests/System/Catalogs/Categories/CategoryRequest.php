@@ -61,7 +61,6 @@ abstract class CategoryRequest extends CompanyFormRequest {
 
         $this->merge([
             "internal_code" => InternalCodeService::applyPrefix(
-                $this->companyId(),
                 "category",
                 $this->input("internal_code")
             ),

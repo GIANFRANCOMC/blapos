@@ -17,7 +17,7 @@ final class ProductConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $references = CompanyReferenceDataService::forUser($userId);
 
@@ -29,12 +29,12 @@ final class ProductConfigService extends BaseConfigService {
                 "records" => $references->categories(),
             ]),
             "currencies" => self::data([
-                "records" => MasterReferenceDataService::currencies($companyId),
+                "records" => MasterReferenceDataService::currencies(),
             ]),
             "warehouses" => self::data([
                 "records" => $references->stockWarehouses(),
             ]),
-            "internal_code_prefixes" => self::internalCodePrefixes($companyId),
+            "internal_code_prefixes" => self::internalCodePrefixes(),
             "statuses" => Item::getStatuses(),
         ]);
 

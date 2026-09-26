@@ -15,10 +15,10 @@ final class CategoryConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         return self::data([
-            "internal_code_prefixes" => self::internalCodePrefixes($companyId),
+            "internal_code_prefixes" => self::internalCodePrefixes(),
             "statuses" => Category::getStatuses(),
         ]);
 

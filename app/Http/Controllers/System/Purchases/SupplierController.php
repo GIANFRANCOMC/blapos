@@ -23,7 +23,6 @@ final class SupplierController extends BaseController {
     public function list(Request $request) {
 
         return SupplierService::query(
-            $this->getCompanyId(),
             (string) $request->input("word", "")
         )->paginate($this->getPerPage($request, Utilities::$per_page_default));
 
@@ -32,14 +31,12 @@ final class SupplierController extends BaseController {
     public function store(StoreSupplierRequest $request): JsonResponse {
 
         $supplier = SupplierService::create(
-            $this->getCompanyId(),
             $this->getUserId(),
             $request->validated()
         );
 
         InitParamsCacheInvalidationService::invalidate(
-            InitParamsCacheInvalidationService::SUPPLIERS,
-            $this->getCompanyId()
+            InitParamsCacheInvalidationService::SUPPLIERS
         );
 
         return response()->json([
@@ -53,15 +50,13 @@ final class SupplierController extends BaseController {
     public function update(StoreSupplierRequest $request, int $id): JsonResponse {
 
         $supplier = SupplierService::update(
-            $this->getCompanyId(),
             $id,
             $this->getUserId(),
             $request->validated()
         );
 
         InitParamsCacheInvalidationService::invalidate(
-            InitParamsCacheInvalidationService::SUPPLIERS,
-            $this->getCompanyId()
+            InitParamsCacheInvalidationService::SUPPLIERS
         );
 
         return response()->json([

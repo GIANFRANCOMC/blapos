@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Str};
 
 final class QuotationService {
-    public static function query(int $companyId, array $filters = []): Builder {
+    public static function query(array $filters = []): Builder {
 
         $query = QuotationHeader::query()
             ->with(["holder:id,name,document_number", "seller:id,name", "currency:id,code,sign", "branch:id,name"]);
@@ -42,9 +42,9 @@ final class QuotationService {
 
     }
 
-    public static function create(int $companyId, int $userId, array $data): QuotationHeader {
+    public static function create(int $userId, array $data): QuotationHeader {
 
-        return DB::transaction(function() use ($companyId, $userId, $data) {
+        return DB::transaction(function() use ($userId, $data) {
 
             $details = collect($data["details"] ?? []);
 
@@ -92,7 +92,6 @@ final class QuotationService {
 
             $grossSubtotal = Utilities::round((float) $normalizedDetails->sum("total"));
             $taxLines = CommercialDocumentSettlementService::saleTaxes(
-                $companyId,
                 $normalizedDetails->all(),
                 $userId,
                 collect($data["taxes"] ?? [])->pluck("tax_id")->filter()->map(fn($id) => (int) $id)->all(),
@@ -110,7 +109,7 @@ final class QuotationService {
                 "holder_id" => (int) $data["holder_id"],
                 "seller_id" => $userId,
                 "currency_id" => (int) $data["currency_id"],
-                "reference" => self::generateReference($companyId),
+                "reference" => self::generateReference(),
                 "issue_date" => $data["issue_date"],
                 "valid_until" => $data["valid_until"] ?? null,
                 "subtotal" => $subtotal,
@@ -146,13 +145,13 @@ final class QuotationService {
 
             SaleConfigService::clearCache("main");
 
-            return self::find($companyId, $quotation->id);
+            return self::find($quotation->id);
 
         });
 
     }
 
-    public static function find(int $companyId, int $quotationId): QuotationHeader {
+    public static function find(int $quotationId): QuotationHeader {
 
         return QuotationHeader::query()
             ->with(["items.item", "taxes", "holder", "currency", "branch"])
@@ -160,9 +159,9 @@ final class QuotationService {
 
     }
 
-    public static function saleDraft(int $companyId, int $quotationId): array {
+    public static function saleDraft(int $quotationId): array {
 
-        $quotation = self::find($companyId, $quotationId);
+        $quotation = self::find($quotationId);
 
         if(!in_array($quotation->status, ["draft", "sent", "accepted"], true)) {
 
@@ -206,9 +205,9 @@ final class QuotationService {
 
     }
 
-    public static function cancel(int $companyId, int $quotationId, int $userId): QuotationHeader {
+    public static function cancel(int $quotationId, int $userId): QuotationHeader {
 
-        $quotation = self::find($companyId, $quotationId);
+        $quotation = self::find($quotationId);
 
         if($quotation->status === "converted") {
 
@@ -230,7 +229,7 @@ final class QuotationService {
 
     }
 
-    private static function generateReference(int $companyId): string {
+    private static function generateReference(): string {
 
         do {
 

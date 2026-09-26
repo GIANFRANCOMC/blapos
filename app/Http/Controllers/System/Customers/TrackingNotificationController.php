@@ -38,7 +38,7 @@ class TrackingNotificationController extends BaseController {
         $filters = ["status" => $request->input("status")];
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return TrackingNotificationService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return TrackingNotificationService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -58,7 +58,6 @@ class TrackingNotificationController extends BaseController {
         try {
 
             $notification = TrackingNotificationService::retry(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $id
             );

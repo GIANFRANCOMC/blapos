@@ -27,7 +27,7 @@ final class SaleConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $references = CompanyReferenceDataService::forUser($userId);
 
@@ -73,11 +73,11 @@ final class SaleConfigService extends BaseConfigService {
                 "records" => $references->stockWarehouses(),
             ]),
             "currencies" => self::data([
-                "records" => MasterReferenceDataService::currencies($companyId),
+                "records" => MasterReferenceDataService::currencies(),
             ]),
             "customers" => self::data([
                 "records" => $references->activeCustomers(),
-                "identityDocumentTypes" => MasterReferenceDataService::customerIdentityDocuments($companyId),
+                "identityDocumentTypes" => MasterReferenceDataService::customerIdentityDocuments(),
                 "genders" => Customer::getGenders(),
                 "statuses" => Customer::getStatuses(),
             ]),
@@ -119,13 +119,11 @@ final class SaleConfigService extends BaseConfigService {
                     ->values(),
                 "paymentModalities" => SaleHeader::getPaymentModalities(),
                 "defaultPaymentModality" => CompanySettingService::value(
-                    $companyId,
                     CompanySettingService::SALES,
                     "default_payment_modality",
                     "paid_now"
                 ),
                 "installmentExtraPercentage" => (float) CompanySettingService::value(
-                    $companyId,
                     CompanySettingService::SALES,
                     "installment_extra_percentage",
                     0

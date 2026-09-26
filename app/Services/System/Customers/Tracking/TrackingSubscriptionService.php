@@ -38,11 +38,10 @@ class TrackingSubscriptionService {
     /**
      * Get paginated list of subscriptions
      *
-     * @param  int  $companyId Company ID
      * @param  array  $filters Filter parameters
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $branch = Branch::where("id", $filters["branch_id"] ?? null)
             ->first();
@@ -132,7 +131,6 @@ class TrackingSubscriptionService {
     }
 
     public static function assertDatesAvailable(
-        int $companyId,
         int $branchId,
         int $customerId,
         string $startDate,
@@ -148,7 +146,6 @@ class TrackingSubscriptionService {
         }
 
         $policy = (string) CompanySettingService::value(
-            $companyId,
             CompanySettingService::SUBSCRIPTIONS,
             "overlap_policy",
             "block"
@@ -182,7 +179,6 @@ class TrackingSubscriptionService {
         return DB::transaction(function() use ($source, $data, $userId) {
 
             self::assertDatesAvailable(
-                app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id(),
                 (int) $source->branch_id,
                 (int) $source->customer_id,
                 (string) $data["start_date"],
@@ -215,9 +211,9 @@ class TrackingSubscriptionService {
 
     }
 
-    public static function createManual(int $companyId, array $data, ?int $userId = null): Subscription {
+    public static function createManual(array $data, ?int $userId = null): Subscription {
 
-        return DB::transaction(function() use ($companyId, $data, $userId) {
+        return DB::transaction(function() use ($data, $userId) {
 
             $customer = Customer::query()
                 ->where("status", "active")
@@ -235,7 +231,6 @@ class TrackingSubscriptionService {
             }
 
             self::assertDatesAvailable(
-                $companyId,
                 (int) $data["branch_id"],
                 (int) $customer->id,
                 (string) $data["start_date"],

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class MiscExpenseService {
-    public static function query(int $companyId, array $filters = [], ?int $userId = null): Builder {
+    public static function query(array $filters = [], ?int $userId = null): Builder {
 
         $query = MiscExpense::query()
             ->with([
@@ -71,7 +71,7 @@ final class MiscExpenseService {
 
     }
 
-    public static function create(int $companyId, int $userId, array $data): MiscExpense {
+    public static function create(int $userId, array $data): MiscExpense {
 
         return DB::transaction(function() use ($userId, $data) {
 
@@ -147,7 +147,7 @@ final class MiscExpenseService {
 
     }
 
-    public static function cancel(int $companyId, int $expenseId, int $userId): MiscExpense {
+    public static function cancel(int $expenseId, int $userId): MiscExpense {
 
         return DB::transaction(function() use ($expenseId, $userId) {
 

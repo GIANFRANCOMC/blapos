@@ -17,7 +17,7 @@ final class BiometricDeviceConfigService extends BaseConfigService {
 
     }
 
-    protected static function buildConfig(int $companyId, string $page, ?int $userId = null): stdClass {
+    protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
         $brands = BiometricDeviceBrand::query()
             ->where("status", "active")

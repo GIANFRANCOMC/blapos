@@ -26,7 +26,6 @@ final class BrandController extends BaseController {
     public function list(Request $request) {
 
         return BrandService::getPaginatedList(
-            $this->getCompanyId(),
             $this->getFilters($request),
             $this->getPerPage($request, Utilities::$per_page_default)
         );
@@ -45,13 +44,11 @@ final class BrandController extends BaseController {
 
             $brand = BrandService::create(
                 $request->validated(),
-                $this->getCompanyId(),
                 $this->getUserId()
             );
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::BRANDS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::BRANDS
             );
 
             return $this->createdResponse($brand, "created", "brand");
@@ -68,7 +65,7 @@ final class BrandController extends BaseController {
 
         try {
 
-            $brand = BrandService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $brand = BrandService::findByIdInTenant($id, null);
 
             if(!$brand) {
 
@@ -79,13 +76,11 @@ final class BrandController extends BaseController {
             $brand = BrandService::update(
                 $brand,
                 $request->validated(),
-                $this->getCompanyId(),
                 $this->getUserId()
             );
 
             InitParamsCacheInvalidationService::invalidate(
-                InitParamsCacheInvalidationService::BRANDS,
-                $this->getCompanyId()
+                InitParamsCacheInvalidationService::BRANDS
             );
 
             return $this->updatedResponse($brand, "updated", "brand");

@@ -19,7 +19,6 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
     private array $attentionRows = [];
 
     public function __construct(
-        private readonly int $companyId,
         private readonly string $view,
         private readonly array $filters
     ) {
@@ -32,7 +31,6 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             if(($this->filters["warehouse_id"] ?? null) === "all") {
 
                 return StockManagementService::getConsolidatedStock(
-                    $this->companyId,
                     (string) ($this->filters["product_search"] ?? ""),
                     $this->filters["allowed_warehouse_ids"] ?? null
                 );
@@ -40,7 +38,6 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             }
 
             return StockManagementService::getStockReport(
-                $this->companyId,
                 (int) ($this->filters["warehouse_id"] ?? 0),
                 (string) ($this->filters["product_search"] ?? "")
             );
@@ -49,7 +46,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         if($this->view === "guides") {
 
-            return InventoryGuideService::query($this->companyId, $this->filters)->get();
+            return InventoryGuideService::query($this->filters)->get();
 
         }
 
@@ -61,7 +58,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         }
 
-        return StockManagementService::getKardexReport($this->companyId, $filters);
+        return StockManagementService::getKardexReport($filters);
 
     }
 

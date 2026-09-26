@@ -24,14 +24,13 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
     private int $currentRow = 1;
 
     public function __construct(
-        private readonly int $companyId,
         private readonly array $filters = []
     ) {
     }
 
     public function query(): Builder {
 
-        return ProductService::getFilteredListQuery($this->companyId, $this->filters);
+        return ProductService::getFilteredListQuery($this->filters);
 
     }
 
@@ -242,7 +241,7 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
 
     private function formatDecimal(mixed $value): string {
 
-        return Utilities::formatDecimal($value, $this->companyId);
+        return Utilities::formatDecimal($value);
 
     }
 }

@@ -7,7 +7,6 @@ namespace App\Services\System\Customers\Tracking;
 use App\Helpers\System\{Utilities};
 use App\Models\System\Customers\{Attendance, Customer, Subscription};
 use App\Models\System\Sales\{SaleHeader};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 
 /**
@@ -15,8 +14,6 @@ use Carbon\{Carbon};
  * Handles complex business logic for tracking customer information
  */
 class TrackingCustomerBusinessService {
-    public function __construct(private readonly TenantCompanyContext $companyContext) {
-    }
 
     /**
      * Get valid customer by code or document number
@@ -25,7 +22,7 @@ class TrackingCustomerBusinessService {
      * @param  int  $companyId Company ID
      * @param  string  $type Search type: "document_number" or empty
      */
-    public function getValidCustomer($code, int $companyId, string $type = ""): ?Customer {
+    public function getValidCustomer($code, string $type = ""): ?Customer {
 
         $query = Customer::query()
             ->with(["identityDocumentType"]);
@@ -157,7 +154,6 @@ class TrackingCustomerBusinessService {
             "msg" => "",
         ];
 
-        $companyId = $this->companyContext->id();
         $customerId = $data["customer_id"] ?? "";
         $customerDocumentNumber = $data["customer_document_number"] ?? "";
         $periodType = $data["period_type"] ?? "last_3_months";
@@ -167,7 +163,6 @@ class TrackingCustomerBusinessService {
         // Get customer
         $customer = $this->getValidCustomer(
             $customerDocumentNumber ?: $customerId,
-            $companyId,
             $customerDocumentNumber ? "document_number" : ""
         );
 

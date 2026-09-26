@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Organizations\Companies;
 
 use App\Models\System\Organizations\{CompanySetting};
-use App\Services\System\Tenancy\{TenantContext};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
 use Illuminate\Support\Facades\{Schema};
 
 final class CompanySettingService {
@@ -102,9 +102,9 @@ final class CompanySettingService {
 
     private static array $groupCache = [];
 
-    public static function group(int $companyId, string $group): array {
+    public static function group(string $group): array {
 
-        $cacheKey = self::cachePrefix($companyId).$group;
+        $cacheKey = self::cachePrefix().$group;
 
         if(array_key_exists($cacheKey, self::$groupCache)) {
 
@@ -133,6 +133,14 @@ final class CompanySettingService {
 
         }
 
+        $companyId = app(TenantCompanyContext::class)->idOrNull();
+
+        if($companyId === null) {
+
+            return self::$groupCache[$cacheKey] = $values;
+
+        }
+
         $settings = CompanySetting::query()
             ->where("company_id", $companyId)
             ->where("group", $group)
@@ -150,41 +158,23 @@ final class CompanySettingService {
 
     }
 
-    public static function value(int $companyId, string $group, string $key, mixed $default = null): mixed {
+    public static function value(string $group, string $key, mixed $default = null): mixed {
 
-        $values = self::group($companyId, $group);
+        $values = self::group($group);
 
         return array_key_exists($key, $values) ? $values[$key] : $default;
 
     }
 
-    public static function clearCache(?int $companyId = null): void {
+    public static function clearCache(): void {
 
-        if($companyId === null) {
-
-            self::$groupCache = [];
-
-            return;
-
-        }
-
-        $cachePrefix = self::cachePrefix($companyId);
-
-        foreach(array_keys(self::$groupCache) as $cacheKey) {
-
-            if(str_starts_with($cacheKey, $cachePrefix)) {
-
-                unset(self::$groupCache[$cacheKey]);
-
-            }
-
-        }
+        self::$groupCache = [];
 
     }
 
-    private static function cachePrefix(int $companyId): string {
+    private static function cachePrefix(): string {
 
-        return app(TenantContext::class)->cacheNamespace().":{$companyId}:";
+        return app(TenantContext::class)->cacheNamespace().":company_settings:";
 
     }
 

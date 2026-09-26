@@ -20,7 +20,7 @@ class SerieService {
      *
      * @param  int  $companyId Company ID
      */
-    public static function getNewSequential(int $companyId, int $branchId): int {
+    public static function getNewSequential(int $branchId): int {
 
         $newSequential = 0;
 
@@ -51,10 +51,10 @@ class SerieService {
      * @param  int|null  $userId User ID creating the series
      * @return array Collection of created series
      */
-    public static function createForBranch(int $branchId, int $companyId, ?int $userId = null): array {
+    public static function createForBranch(int $branchId, ?int $userId = null): array {
 
         // Get new sequential number for the branch
-        $newSequential = self::getNewSequential($companyId, $branchId);
+        $newSequential = self::getNewSequential($branchId);
 
         // Get all active document types for the company (only needed fields)
 
@@ -95,7 +95,7 @@ class SerieService {
 
     }
 
-    public static function auditQuery(int $companyId, array $filters = []) {
+    public static function auditQuery(array $filters = []) {
 
         return DB::table("series_correlative_movements as movement")
             ->join("series", "series.id", "=", "movement.serie_id")
@@ -126,7 +126,7 @@ class SerieService {
 
     }
 
-    public static function detectGaps(int $companyId, ?int $branchId = null): array {
+    public static function detectGaps(?int $branchId = null): array {
 
         return Serie::query()
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))

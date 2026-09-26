@@ -61,7 +61,7 @@ class CategoryService {
      * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareCategoryDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareCategoryDataForCreate(array $data, int $userId): array {
 
         $categoryData = [
             "status" => $data["status"] ?? "active",
@@ -120,14 +120,14 @@ class CategoryService {
      *
      * @throws Exception
      */
-    public static function create(array $data, int $companyId, int $userId): ?Category {
+    public static function create(array $data, int $userId): ?Category {
 
         $category = null;
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$category) {
+        DB::transaction(function() use ($data, $userId, &$category) {
 
             // Prepare data with only allowed fields
-            $categoryData = self::prepareCategoryDataForCreate($data, $companyId, $userId);
+            $categoryData = self::prepareCategoryDataForCreate($data, $userId);
 
             // Create the record
 
@@ -154,7 +154,6 @@ class CategoryService {
             if(($data["status"] ?? null) === "inactive" && $category->status !== "inactive") {
 
                 self::assertCategoryHasNoActiveItems(
-                    app(TenantCompanyContext::class)->id(),
                     (int) $category->id,
                     "No puedes inactivar una categoría asociada a productos activos."
                 );
@@ -188,7 +187,7 @@ class CategoryService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = []): ?Category {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = []): ?Category {
 
         $query = Category::where("id", $id);
 
@@ -215,7 +214,7 @@ class CategoryService {
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $query = Category::query()
             ->withCount([
@@ -277,14 +276,14 @@ class CategoryService {
 
     }
 
-    public static function delete(int $companyId, int $categoryId): void {
+    public static function delete(int $categoryId): void {
 
-        DB::transaction(function() use ($companyId, $categoryId) {
+        DB::transaction(function() use ($categoryId) {
 
             $category = Category::query()
                 ->lockForUpdate()
                 ->findOrFail($categoryId);
-            self::assertCategoryHasNoActiveItems($companyId, $categoryId, "No puedes eliminar una categoría asociada a productos activos.");
+            self::assertCategoryHasNoActiveItems($categoryId, "No puedes eliminar una categoría asociada a productos activos.");
 
             $category->delete();
 
@@ -292,7 +291,7 @@ class CategoryService {
 
     }
 
-    private static function assertCategoryHasNoActiveItems(int $companyId, int $categoryId, string $message): void {
+    private static function assertCategoryHasNoActiveItems(int $categoryId, string $message): void {
 
         $hasActiveItems = DB::table("category_items")
             ->join("items", "items.id", "=", "category_items.item_id")

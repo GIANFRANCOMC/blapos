@@ -63,7 +63,6 @@ final class MiscExpenseController extends BaseController {
     public function list(Request $request) {
 
         return MiscExpenseService::query(
-            $this->getCompanyId(),
             [
                 "word" => $request->input("word"),
                 "status" => $request->input("status"),
@@ -76,7 +75,6 @@ final class MiscExpenseController extends BaseController {
 
     public function store(Request $request): JsonResponse {
 
-        $companyId = $this->getCompanyId();
         $validator = Validator::make($request->all(), [
             "branch_id" => ["nullable", "integer", Rule::exists("branches", "id")],
             "cash_session_id" => ["nullable", "integer", Rule::exists("cash_sessions", "id")->where("status", "open")],
@@ -109,7 +107,7 @@ final class MiscExpenseController extends BaseController {
             return response()->json([
                 "bool" => true,
                 "msg" => "Gasto registrado correctamente.",
-                "data" => MiscExpenseService::create($this->getCompanyId(), $this->getUserId(), $validator->validated()),
+                "data" => MiscExpenseService::create($this->getUserId(), $validator->validated()),
             ], 201);
 
         }catch(\Throwable $exception) {
@@ -127,7 +125,7 @@ final class MiscExpenseController extends BaseController {
             return response()->json([
                 "bool" => true,
                 "msg" => "Gasto anulado correctamente.",
-                "data" => MiscExpenseService::cancel($this->getCompanyId(), $id, $this->getUserId()),
+                "data" => MiscExpenseService::cancel($id, $this->getUserId()),
             ]);
 
         }catch(\Throwable $exception) {

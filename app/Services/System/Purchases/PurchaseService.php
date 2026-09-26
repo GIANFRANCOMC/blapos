@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\{DB, Schema};
 use Illuminate\Support\{Str};
 
 final class PurchaseService {
-    private static function allocateExpenses(array $details, array $expenses, int $companyId): array {
+    private static function allocateExpenses(array $details, array $expenses): array {
 
         $allocations = collect($details)
             ->mapWithKeys(fn($detail) => [(int) $detail["item_id"] => 0.0])
@@ -25,7 +25,7 @@ final class PurchaseService {
 
         foreach($expenses as $expense) {
 
-            $amount = Utilities::round((float) ($expense["amount"] ?? 0), null, $companyId);
+            $amount = Utilities::round((float) ($expense["amount"] ?? 0));
 
             if($amount <= 0) {
 
@@ -62,8 +62,8 @@ final class PurchaseService {
             foreach($weights as $itemId => $weight) {
 
                 $allocated = (int) $itemId === $lastItemId
-                    ? Utilities::round($amount - $distributed, null, $companyId)
-                    : Utilities::round($amount * ((float) $weight / $denominator), null, $companyId);
+                    ? Utilities::round($amount - $distributed)
+                    : Utilities::round($amount * ((float) $weight / $denominator));
 
                 $allocations[(int) $itemId] += $allocated;
                 $distributed += $allocated;
@@ -76,7 +76,7 @@ final class PurchaseService {
 
     }
 
-    private static function generateReference(int $companyId): string {
+    private static function generateReference(): string {
 
         do {
 
@@ -90,7 +90,7 @@ final class PurchaseService {
 
     }
 
-    public static function getFilteredQuery(int $companyId, array $filters = [], ?int $userId = null): Builder {
+    public static function getFilteredQuery(array $filters = [], ?int $userId = null): Builder {
 
         $query = PurchaseHeader::query()
             ->with([
@@ -154,20 +154,18 @@ final class PurchaseService {
     }
 
     public static function create(
-        int $companyId,
         int $userId,
         array $data
     ): PurchaseHeader {
 
-        return DB::transaction(function() use ($companyId, $userId, $data) {
+        return DB::transaction(function() use ($userId, $data) {
 
             $supplier = Supplier::query()
                 ->whereKey((int) $data["supplier_id"])
                 ->firstOrFail();
 
             $warehouse = StockManagementService::validateWarehouse(
-                (int) $data["warehouse_id"],
-                $companyId
+                (int) $data["warehouse_id"]
             );
 
             if(!$warehouse || $supplier->status !== "active") {
@@ -219,7 +217,7 @@ final class PurchaseService {
 
             }
 
-            $subtotal = collect($data["items"])->sum(fn($item) => Utilities::round((float) $item["quantity"] * (float) $item["unit_cost"], null, $companyId)
+            $subtotal = collect($data["items"])->sum(fn($item) => Utilities::round((float) $item["quantity"] * (float) $item["unit_cost"])
             );
 
             $selectedTaxIds = collect($data["taxes"] ?? [])
@@ -236,7 +234,6 @@ final class PurchaseService {
                 ->all();
 
             $taxLines = CommercialDocumentSettlementService::taxes(
-                $companyId,
                 "purchase",
                 (float) $subtotal,
                 $userId,
@@ -244,13 +241,12 @@ final class PurchaseService {
                 $selectedTaxQuantities
             );
 
-            $tax = Utilities::round((float) $taxLines->sum("amount"), null, $companyId);
+            $tax = Utilities::round((float) $taxLines->sum("amount"));
             $expenses = is_array($data["expenses"] ?? null) ? $data["expenses"] : [];
-            $expenseTotal = Utilities::round((float) collect($expenses)->sum("amount"), null, $companyId);
-            $allocatedExpenses = self::allocateExpenses($data["items"], $expenses, $companyId);
-            $total = Utilities::round($subtotal + $tax + $expenseTotal, null, $companyId);
+            $expenseTotal = Utilities::round((float) collect($expenses)->sum("amount"));
+            $allocatedExpenses = self::allocateExpenses($data["items"], $expenses);
+            $total = Utilities::round($subtotal + $tax + $expenseTotal);
             $defaultPaymentModality = (string) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::PURCHASES,
                 "default_payment_modality",
                 CommercialCreditAccountService::PAID_NOW
@@ -263,17 +259,15 @@ final class PurchaseService {
 
             $installmentExtraPercentage = $paymentModality === CommercialCreditAccountService::INSTALLMENTS
                 ? (float) CompanySettingService::value(
-                    $companyId,
                     CompanySettingService::PURCHASES,
                     "installment_extra_percentage",
                     0
                 )
                 : 0.0;
 
-            $installmentExtraAmount = Utilities::round($total * ($installmentExtraPercentage / 100), null, $companyId);
-            $total = Utilities::round($total + $installmentExtraAmount, null, $companyId);
+            $installmentExtraAmount = Utilities::round($total * ($installmentExtraPercentage / 100));
+            $total = Utilities::round($total + $installmentExtraAmount);
             $paymentLines = CommercialDocumentSettlementService::payments(
-                $companyId,
                 "purchase",
                 (float) $total,
                 $data["payments"] ?? [],
@@ -281,16 +275,16 @@ final class PurchaseService {
                 $paymentModality === CommercialCreditAccountService::PAID_NOW
             );
 
-            $paidAmount = Utilities::round((float) $paymentLines->sum("amount"), null, $companyId);
-            $balanceDue = Utilities::round($total - $paidAmount, null, $companyId);
-            $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount, (int) $companyId);
+            $paidAmount = Utilities::round((float) $paymentLines->sum("amount"));
+            $balanceDue = Utilities::round($total - $paidAmount);
+            $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount);
 
             $purchaseData = [
                 "supplier_id" => $supplier->id,
                 "warehouse_id" => $warehouse->id,
                 "currency_id" => (int) $data["currency_id"],
                 "document_type" => $data["document_type"],
-                "reference" => self::generateReference($companyId),
+                "reference" => self::generateReference(),
                 "document_number" => $documentNumber ?: null,
                 "issue_date" => $data["issue_date"],
                 "expected_date" => $data["expected_date"] ?? null,
@@ -366,11 +360,11 @@ final class PurchaseService {
             foreach($data["items"] as $detail) {
 
                 $item = $items->get((int) $detail["item_id"]);
-                $quantity = Utilities::round((float) $detail["quantity"], null, $companyId);
-                $unitCost = Utilities::round((float) $detail["unit_cost"], null, $companyId);
-                $allocatedExpense = Utilities::round((float) ($allocatedExpenses[$item->id] ?? 0), null, $companyId);
+                $quantity = Utilities::round((float) $detail["quantity"]);
+                $unitCost = Utilities::round((float) $detail["unit_cost"]);
+                $allocatedExpense = Utilities::round((float) ($allocatedExpenses[$item->id] ?? 0));
                 $inventoryUnitCost = $quantity > 0
-                    ? Utilities::round($unitCost + ($allocatedExpense / $quantity), null, $companyId)
+                    ? Utilities::round($unitCost + ($allocatedExpense / $quantity))
                     : $unitCost;
 
                 PurchaseItem::create([
@@ -382,7 +376,7 @@ final class PurchaseService {
                     "unit_cost" => $unitCost,
                     "allocated_expense_total" => $allocatedExpense,
                     "inventory_unit_cost" => $inventoryUnitCost,
-                    "subtotal" => Utilities::round($quantity * $unitCost, null, $companyId),
+                    "subtotal" => Utilities::round($quantity * $unitCost),
                     "status" => "pending",
                     "created_at" => now(),
                     "created_by" => $userId,
@@ -395,7 +389,7 @@ final class PurchaseService {
 
                 $purchase->load("items");
 
-                self::receive($companyId, $purchase->id, $userId, [
+                self::receive($purchase->id, $userId, [
                     "received_at" => now()->toDateTimeString(),
                     "observation" => "Entrega inmediata registrada al crear la compra.",
                     "items" => $purchase->items
@@ -408,20 +402,19 @@ final class PurchaseService {
 
             }
 
-            return self::find($companyId, $purchase->id);
+            return self::find($purchase->id);
 
         });
 
     }
 
     public static function receive(
-        int $companyId,
         int $purchaseId,
         int $userId,
         array $data
     ): PurchaseReceipt {
 
-        return DB::transaction(function() use ($companyId, $purchaseId, $userId, $data) {
+        return DB::transaction(function() use ($purchaseId, $userId, $data) {
 
             $purchase = PurchaseHeader::query()
                 ->whereKey($purchaseId)
@@ -464,9 +457,9 @@ final class PurchaseService {
 
                 }
 
-                $quantity = Utilities::round((float) $receivedItem["quantity"], null, $companyId);
+                $quantity = Utilities::round((float) $receivedItem["quantity"]);
 
-                $remaining = Utilities::round((float) $purchaseItem->quantity - (float) $purchaseItem->received_quantity, null, $companyId);
+                $remaining = Utilities::round((float) $purchaseItem->quantity - (float) $purchaseItem->received_quantity);
 
                 if($quantity <= 0 || $quantity > $remaining) {
 
@@ -500,12 +493,12 @@ final class PurchaseService {
                     "inventory_movement_id" => $movement->id,
                     "quantity" => $quantity,
                     "unit_cost" => $purchaseItem->inventory_unit_cost,
-                    "total_cost" => Utilities::round($quantity * (float) $purchaseItem->inventory_unit_cost, null, $companyId),
+                    "total_cost" => Utilities::round($quantity * (float) $purchaseItem->inventory_unit_cost),
                     "created_at" => now(),
                     "created_by" => $userId,
                 ]);
 
-                $receivedQuantity = Utilities::round((float) $purchaseItem->received_quantity + $quantity, null, $companyId);
+                $receivedQuantity = Utilities::round((float) $purchaseItem->received_quantity + $quantity);
                 $purchaseItem->update([
                     "received_quantity" => $receivedQuantity,
                     "status" => $receivedQuantity >= (float) $purchaseItem->quantity
@@ -534,12 +527,11 @@ final class PurchaseService {
 
     }
 
-    public static function cancel(int $companyId, int $purchaseId, int $userId): PurchaseHeader {
+    public static function cancel(int $purchaseId, int $userId): PurchaseHeader {
 
-        return DB::transaction(function() use ($companyId, $purchaseId, $userId) {
+        return DB::transaction(function() use ($purchaseId, $userId) {
 
             $restoreStockPolicyEnabled = (bool) CompanySettingService::value(
-                $companyId,
                 CompanySettingService::INVENTORY_POLICIES,
                 "restore_stock_on_purchase_cancellation",
                 false
@@ -624,7 +616,7 @@ final class PurchaseService {
                 "updated_by" => $userId,
             ]);
 
-            $result = self::find($companyId, $purchase->id);
+            $result = self::find($purchase->id);
             $result->setAttribute("inventory_reverted_on_cancellation", $restoreStockPolicyEnabled && $hadReceipts);
             $result->setAttribute("had_inventory_receipts", $hadReceipts);
 
@@ -634,9 +626,9 @@ final class PurchaseService {
 
     }
 
-    public static function approve(int $companyId, int $purchaseId, int $userId): PurchaseHeader {
+    public static function approve(int $purchaseId, int $userId): PurchaseHeader {
 
-        return DB::transaction(function() use ($companyId, $purchaseId, $userId) {
+        return DB::transaction(function() use ($purchaseId, $userId) {
 
             $purchase = PurchaseHeader::query()
                 ->where("status", "confirmed")
@@ -655,13 +647,13 @@ final class PurchaseService {
 
             }
 
-            return self::find($companyId, $purchaseId);
+            return self::find($purchaseId);
 
         });
 
     }
 
-    public static function find(int $companyId, int $purchaseId): PurchaseHeader {
+    public static function find(int $purchaseId): PurchaseHeader {
 
         return PurchaseHeader::query()
             ->with([

@@ -8,7 +8,7 @@ use Carbon\{CarbonImmutable};
 use Illuminate\Support\Facades\{DB};
 
 final class DashboardService {
-    public static function getDashboardData(int $companyId, string $date, ?int $branchId = null): array {
+    public static function getDashboardData(string $date, ?int $branchId = null): array {
 
         $timezone = (string) (DB::table("company_settings")
             ->where("group", "localization")
