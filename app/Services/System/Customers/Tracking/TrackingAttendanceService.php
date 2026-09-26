@@ -39,18 +39,16 @@ class TrackingAttendanceService {
     /**
      * Get paginated list of attendances
      *
-     * @param  int  $companyId Company ID
      * @param  array  $filters Filter parameters
      * @param  int  $perPage Items per page
      */
     public static function getPaginatedList(
-        int $companyId,
         array $filters = [],
         int $perPage = 15,
         ?array $allowedBranchIds = null
     ): LengthAwarePaginator {
 
-        $query = self::query($companyId, $filters, $allowedBranchIds);
+        $query = self::query($filters, $allowedBranchIds);
 
         if($query === null) {
 
@@ -63,12 +61,11 @@ class TrackingAttendanceService {
     }
 
     public static function getForExport(
-        int $companyId,
         array $filters = [],
         ?array $allowedBranchIds = null
     ): Collection {
 
-        $query = self::query($companyId, $filters, $allowedBranchIds);
+        $query = self::query($filters, $allowedBranchIds);
 
         if($query === null) {
 
@@ -88,7 +85,7 @@ class TrackingAttendanceService {
 
     }
 
-    private static function query(int $companyId, array $filters, ?array $allowedBranchIds) {
+    private static function query(array $filters, ?array $allowedBranchIds) {
 
         $branch = Branch::query()
             ->where("id", $filters["branch_id"] ?? null)

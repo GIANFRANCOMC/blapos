@@ -400,7 +400,6 @@ class SaleService {
             $warehouse,
             $saleBody,
             $detail,
-            $companyId,
             $userId,
             $allowNegativeStock
         )) {
@@ -971,7 +970,6 @@ class SaleService {
             CustomerLoyaltyPointService::awardForSale(
                 $saleHeader,
                 $saleBodies,
-                (int) $companyId,
                 (int) $userId
             );
 
@@ -1054,7 +1052,7 @@ class SaleService {
             $allPositions = $saleHeader->allPositions;
             SaleDeliveryService::cancelForSale($saleHeader, (int) $userId);
             self::restoreItemCapacityForCanceledSale($allPositions, (int) $companyId, (int) $userId);
-            CustomerLoyaltyPointService::reverseForCanceledSale($saleHeader, (int) $companyId, (int) $userId);
+            CustomerLoyaltyPointService::reverseForCanceledSale($saleHeader, (int) $userId);
 
             $productPositions = $allPositions->where("type", "product");
             $fallbackWarehouse = $restoreStockPolicyEnabled && $productPositions->isNotEmpty()

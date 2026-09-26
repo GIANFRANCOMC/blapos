@@ -42,6 +42,7 @@ abstract class BaseConfigService {
     public static function getInitParams(string $page, int $userId): stdClass {
 
         $page = self::normalizePage($page);
+
         if(static::usesUserScopedCache()) {
 
             static::registerUserCacheScope($userId);
@@ -237,5 +238,4 @@ abstract class BaseConfigService {
             : ($pages[0] ?? "main");
 
     }
-
 }

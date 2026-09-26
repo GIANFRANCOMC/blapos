@@ -48,7 +48,7 @@ class BookComplaintController extends BaseController {
 
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return BookComplaintService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return BookComplaintService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -72,7 +72,7 @@ class BookComplaintController extends BaseController {
 
         try {
 
-            $bookComplaint = BookComplaintService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $bookComplaint = BookComplaintService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($bookComplaint)) {
 

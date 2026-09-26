@@ -26,11 +26,10 @@ class BookComplaintService {
     /**
      * Get paginated list of book complaints with filters
      *
-     * @param  int  $companyId Company ID
      * @param  array  $filters Filter parameters
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         return BookComplaint::query()
             ->with(["branch", "identityDocumentType", "attachments", "statusHistories.changedBy", "respondedBy"])
@@ -68,13 +67,12 @@ class BookComplaintService {
     }
 
     /**
-     * Find book complaint by ID and company ID
+     * Find book complaint by ID in the current tenant database.
      *
      * @param  int  $id Book complaint ID
-     * @param  int  $companyId Company ID
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $relations = null): ?BookComplaint {
+    public static function findByIdInTenant(int $id, ?array $relations = null): ?BookComplaint {
 
         return BookComplaint::query()
             ->with($relations ?? ["branch", "identityDocumentType", "attachments", "statusHistories.changedBy", "respondedBy"])

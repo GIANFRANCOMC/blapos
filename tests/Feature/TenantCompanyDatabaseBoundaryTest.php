@@ -103,10 +103,12 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
             "auditable_type,auditable_id,occurred_at",
             $indexes["business_audit_logs.business_audit_record_idx"] ?? null
         );
+
         $this->assertSame(
             "user_id,event_type,occurred_at",
             $indexes["authentication_events.authentication_events_user_type_idx"] ?? null
         );
+
         $this->assertSame(
             "status,name,id",
             $indexes["suppliers.suppliers_status_name_idx"] ?? null

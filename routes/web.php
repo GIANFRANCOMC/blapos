@@ -26,7 +26,7 @@ Route::prefix("{company_slug}/home")->middleware("company.exists")->group($guest
 Route::prefix("{company_slug}/tracking_attendances")->middleware("company.exists")->group($guestRoute."/TrackingAttendance.php");
 Route::prefix("{company_slug}/biometric_devices")->middleware("company.exists")->group($guestRoute."/BiometricDevice.php");
 
-Route::get("/shared/reports/sale/{company}/{sale}/{type}", [ReportController::class, "sharedSale"])
+Route::get("/shared/reports/sale/{sale}/{type}", [ReportController::class, "sharedSale"])
     ->middleware(["signed", "throttle:guest-status"])
     ->name("reports.sale.shared");
 

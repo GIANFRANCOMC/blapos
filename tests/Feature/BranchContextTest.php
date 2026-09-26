@@ -39,6 +39,7 @@ final class BranchContextTest extends TestCase {
             "warehouse_scope_mode" => "all",
             "status" => "active",
         ]);
+
         $userId = (int) DB::table("users")->insertGetId([
             "role_id" => $roleId,
             "branch_scope_mode" => "restricted",

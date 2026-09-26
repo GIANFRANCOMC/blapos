@@ -6,19 +6,12 @@ namespace App\Services\Guest;
 
 use App\Models\Guest\{Category, Item};
 use Illuminate\Database\Eloquent\{Collection};
-use InvalidArgumentException;
 
 /**
  * Provides the public catalog exposed to a company's visitors.
  */
 final class GuestCatalogService {
-    public static function publicItems(int $companyId): Collection {
-
-        if($companyId <= 0) {
-
-            throw new InvalidArgumentException("Company ID must be greater than zero.");
-
-        }
+    public static function publicItems(): Collection {
 
         return Item::query()
             ->select([
@@ -44,13 +37,7 @@ final class GuestCatalogService {
 
     }
 
-    public static function publicCategories(int $companyId): Collection {
-
-        if($companyId <= 0) {
-
-            throw new InvalidArgumentException("Company ID must be greater than zero.");
-
-        }
+    public static function publicCategories(): Collection {
 
         return Category::query()
             ->where("is_public", true)

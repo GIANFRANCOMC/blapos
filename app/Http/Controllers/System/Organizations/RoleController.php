@@ -32,7 +32,6 @@ class RoleController extends BaseController {
     public function list(Request $request) {
 
         return RoleService::query(
-            $this->getCompanyId(),
             (string) $request->input("word", "")
         )->paginate($this->getPerPage($request, Utilities::$per_page_default));
 
@@ -40,14 +39,13 @@ class RoleController extends BaseController {
 
     public function show(int $id): JsonResponse {
 
-        return response()->json(RoleService::find($this->getCompanyId(), $id));
+        return response()->json(RoleService::find($id));
 
     }
 
     public function store(StoreRoleRequest $request): JsonResponse {
 
         $role = RoleService::create(
-            $this->getCompanyId(),
             $this->getUserId(),
             $request->validated()
         );
@@ -65,7 +63,6 @@ class RoleController extends BaseController {
     public function update(StoreRoleRequest $request, int $id): JsonResponse {
 
         $role = RoleService::update(
-            $this->getCompanyId(),
             $id,
             $this->getUserId(),
             $request->validated()
@@ -85,7 +82,6 @@ class RoleController extends BaseController {
 
         $data = $request->validated();
         $role = RoleService::duplicate(
-            $this->getCompanyId(),
             $id,
             $this->getUserId(),
             $data["name"]

@@ -22,7 +22,7 @@ final class MasterDataController extends BaseController {
 
             return response()->json([
                 "bool" => true,
-                "data" => MasterDataService::list($this->getCompanyId(), $resource),
+                "data" => MasterDataService::list($resource),
             ]);
 
         }catch(\Throwable $e) {
@@ -56,7 +56,6 @@ final class MasterDataController extends BaseController {
         try {
 
             $record = MasterDataService::save(
-                $this->getCompanyId(),
                 $this->getUserId(),
                 $resource,
                 $request->validated(),

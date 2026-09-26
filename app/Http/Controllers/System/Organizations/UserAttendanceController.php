@@ -37,7 +37,6 @@ final class UserAttendanceController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => UserAttendanceService::getPaginatedList(
-                $this->getCompanyId(),
                 [
                     "branch_id" => $request->input("branch_id"),
                     "user_id" => $request->input("user_id"),
@@ -63,7 +62,6 @@ final class UserAttendanceController extends BaseController {
         ];
 
         $query = UserAttendanceService::getFilteredQuery(
-            $this->getCompanyId(),
             $filters,
             $this->allowedBranchIds()
         );
@@ -210,7 +208,6 @@ final class UserAttendanceController extends BaseController {
         return response()->json([
             "bool" => true,
             "summary" => UserAttendanceService::weeklySummary(
-                $this->getCompanyId(),
                 (int) $data["user_id"],
                 $data["week_start"] ?? null,
                 isset($data["branch_id"]) ? (int) $data["branch_id"] : null,
@@ -227,7 +224,6 @@ final class UserAttendanceController extends BaseController {
         return $this->domainResponse(function() use ($attendanceId, $data) {
 
             $break = UserAttendanceService::startBreak(
-                $this->getCompanyId(),
                 $attendanceId,
                 $this->getUserId(),
                 $data["reason"] ?? null
@@ -244,7 +240,6 @@ final class UserAttendanceController extends BaseController {
         return $this->domainResponse(function() use ($attendanceId) {
 
             $break = UserAttendanceService::endBreak(
-                $this->getCompanyId(),
                 $attendanceId,
                 $this->getUserId()
             );
@@ -262,7 +257,6 @@ final class UserAttendanceController extends BaseController {
         return $this->domainResponse(function() use ($attendanceId, $data) {
 
             $correction = UserAttendanceService::requestCorrection(
-                $this->getCompanyId(),
                 $attendanceId,
                 $this->getUserId(),
                 $data
@@ -281,7 +275,6 @@ final class UserAttendanceController extends BaseController {
         return $this->domainResponse(function() use ($correctionId, $data) {
 
             $correction = UserAttendanceService::reviewCorrection(
-                $this->getCompanyId(),
                 $correctionId,
                 $this->getUserId(),
                 (bool) $data["approve"],

@@ -6,6 +6,25 @@ Cada tenant contiene exactamente una empresa raíz. La base de datos física es 
 
 Los únicos usos estructurales permitidos de `company_id` son `branches`, `companies_sub_sections`, `company_settings` y `company_socials_media`.
 
+## Controles implementados
+
+| # | Control | Implementación vigente |
+|---:|---|---|
+| 1 | API operativa sin selector de empresa | Controladores y servicios operativos no reciben `company_id` ni `$companyId`. La prueba de arquitectura rechaza cualquier reintroducción. |
+| 2 | Contextos separados | `TenantContext`, `TenantCompanyContext` y `BranchContext` resuelven tenant, empresa raíz y sucursal sin mezclar responsabilidades. |
+| 3 | Acceso centralizado por sucursal | `BranchAccessService` valida selección, disponibilidad y alcance del usuario antes de establecer `BranchContext`. |
+| 4 | Una empresa raíz | El modelo y el aprovisionamiento impiden crear una segunda fila raíz dentro de la base tenant. |
+| 5 | Aprovisionamiento recuperable | El proceso usa bloqueo, pasos idempotentes, diagnóstico final, registro del fallo y reintento seguro. |
+| 6 | Estados operativos del tenant | Solo `active` admite tráfico. También existen `provisioning`, `inactive`, `suspended`, `provisioning_failed` y `maintenance`. |
+| 7 | Pruebas de aislamiento | Se inspeccionan migraciones, esquema MySQL, claves foráneas, índices, contexto de sucursal, firmas de servicios y ausencia de selectores en HTTP/frontend. |
+| 8 | Jobs conscientes del tenant | Todo job en cola implementa `TenantAwareJob`, transporta el tenant landlord y restablece/libera el contexto en cada ejecución. |
+| 9 | Almacenamiento por UUID | `TenantStoragePath` guarda archivos bajo el UUID público, nunca bajo el ID local de empresa o un slug mutable. |
+| 10 | Respaldo y restauración | Comandos dedicados aplican retención, evitan secretos en argumentos y usan `maintenance` durante una restauración. |
+| 11 | Observabilidad correlacionada | Logs y auditorías comparten solicitud, tenant, base, usuario y sucursal autorizada. |
+| 12 | Índices orientados al dominio | Los índices operativos comienzan por sucursal, almacén, estado, fecha o relación funcional; no por `company_id`. |
+
+Los enlaces firmados para comprobantes tampoco incluyen el ID local de la empresa. El dominio resuelve el tenant y la empresa raíz se obtiene desde su conexión activa.
+
 ## Contextos
 
 | Contexto | Responsabilidad |

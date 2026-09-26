@@ -125,7 +125,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->where("email", "admin@example.test")
             ->value("id");
 
-        BusinessProfileService::updateModules(1, [], $administratorId);
+        BusinessProfileService::updateModules([], $administratorId);
 
         $protectedRoutes = ["workspace.index", "home.index", "account.index", "business_profile.index"];
         $protectedIds = DB::table("sub_sections")->whereIn("dom_route", $protectedRoutes)->pluck("id");
@@ -163,7 +163,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->where("dom_route", "sales.create")
             ->value("id");
 
-        BusinessProfileService::updateModules(1, [$salesIndexId], (int) $administrator->id);
+        BusinessProfileService::updateModules([$salesIndexId], (int) $administrator->id);
 
         $this->assertTrue(
             \App\Services\System\Organizations\Roles\RolePermissionService::canAccessRoute(

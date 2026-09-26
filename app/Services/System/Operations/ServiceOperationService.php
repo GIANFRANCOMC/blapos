@@ -163,6 +163,7 @@ final class ServiceOperationService {
     public static function updateFloor(int $actorId, int $floorId, array $data): ServiceFloor {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $floorId, $data) {
 
             $branchId = (int) $data["branch_id"];
@@ -384,6 +385,7 @@ final class ServiceOperationService {
     public static function updateStation(int $actorId, int $stationId, array $data): ServiceStation {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $stationId, $data) {
 
             $branchId = (int) $data["branch_id"];
@@ -569,6 +571,7 @@ final class ServiceOperationService {
     public static function open(int $actorId, array $data): ServiceSession {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $data) {
 
             $branchId = (int) $data["branch_id"];
@@ -652,6 +655,7 @@ final class ServiceOperationService {
     public static function addItem(int $actorId, int $sessionId, array $data): ServiceSessionItem {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $data) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -704,6 +708,7 @@ final class ServiceOperationService {
     public static function start(int $actorId, int $sessionId): ServiceSession {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $sessionId) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -732,6 +737,7 @@ final class ServiceOperationService {
     public static function startItem(int $actorId, int $itemId): ServiceSessionItem {
 
         $companyId = self::companyId();
+
         return self::changeItemTiming($companyId, $actorId, $itemId, false);
 
     }
@@ -739,6 +745,7 @@ final class ServiceOperationService {
     public static function completeItem(int $actorId, int $itemId): ServiceSessionItem {
 
         $companyId = self::companyId();
+
         return self::changeItemTiming($companyId, $actorId, $itemId, true);
 
     }
@@ -885,6 +892,7 @@ final class ServiceOperationService {
     public static function reassign(int $actorId, int $sessionId, int $assignedUserId, ?string $note = null): ServiceSession {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $assignedUserId, $note) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -910,6 +918,7 @@ final class ServiceOperationService {
     public static function pause(int $actorId, int $sessionId, ?int $itemId, ?string $reason): array {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $itemId, $reason) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -958,6 +967,7 @@ final class ServiceOperationService {
     public static function resume(int $actorId, int $sessionId): array {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $sessionId) {
 
             $session = self::lockOpenSession($companyId, $sessionId);
@@ -1011,6 +1021,7 @@ final class ServiceOperationService {
     public static function cancel(int $actorId, int $sessionId, string $reason): ServiceSession {
 
         $companyId = self::companyId();
+
         return DB::transaction(function() use ($companyId, $actorId, $sessionId, $reason) {
 
             $session = self::lockOpenSession($companyId, $sessionId);

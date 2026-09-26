@@ -13,7 +13,6 @@ use Throwable;
 
 final class BiometricEventService {
     public static function receive(
-        int $companyId,
         string $accessKey,
         string $signature,
         string $rawPayload,

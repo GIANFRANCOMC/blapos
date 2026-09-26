@@ -144,7 +144,6 @@ class RecipeController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => RecipeWasteService::list(
-                $this->getCompanyId(),
                 $request->only(["recipe_dish_id", "warehouse_id", "item_id", "date_from", "date_to"]),
                 $this->getPerPage($request),
                 CompanyReferenceDataService::forUser($this->getUserId())
@@ -165,7 +164,6 @@ class RecipeController extends BaseController {
                 "msg" => "Merma registrada y descontada del inventario.",
                 "data" => RecipeWasteService::register(
                     $id,
-                    $this->getCompanyId(),
                     $this->getUserId(),
                     $data,
                     CompanyReferenceDataService::forUser($this->getUserId())

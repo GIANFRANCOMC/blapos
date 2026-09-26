@@ -43,7 +43,6 @@ class TrackingAttendanceController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_max);
 
         return TrackingAttendanceService::getPaginatedList(
-            $this->getCompanyId(),
             $this->filters($request),
             $perPage,
             AccessScopeService::allowedIds($this->getAuthUser(), AccessScopeService::BRANCH)
@@ -56,7 +55,6 @@ class TrackingAttendanceController extends BaseController {
         try {
 
             $records = TrackingAttendanceService::getForExport(
-                $this->getCompanyId(),
                 $this->filters($request),
                 AccessScopeService::allowedIds($this->getAuthUser(), AccessScopeService::BRANCH)
             );

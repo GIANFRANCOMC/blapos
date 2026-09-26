@@ -140,9 +140,10 @@ class UserService {
      * @param  int|null  $userId User creating the record
      * @return User|null Created record instance or null on failure
      */
-    public static function create(array $data, int $companyId, int $userId): ?User {
+    public static function create(array $data, int $userId): ?User {
 
         $user = null;
+        $companyId = app(TenantCompanyContext::class)->id();
 
         DB::transaction(function() use ($data, $companyId, $userId, &$user) {
 
@@ -414,14 +415,13 @@ class UserService {
     }
 
     /**
-     * Find record by ID and company ID
+     * Find a record by ID in the current tenant database.
      *
      * @param  int  $id Record
-     * @param  int  $companyId Company
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]): ?User {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]): ?User {
 
         $query = User::where("id", $id);
 
@@ -444,11 +444,10 @@ class UserService {
     /**
      * Get paginated list of records with filters
      *
-     * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
-    public static function getPaginatedList(int $companyId, array $filters = [], int $perPage = 15): LengthAwarePaginator {
+    public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
         $query = User::query()
             ->with(["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]);

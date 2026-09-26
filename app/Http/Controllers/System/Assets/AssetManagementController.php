@@ -37,7 +37,7 @@ class AssetManagementController extends BaseController {
 
         $branchId = intval($request->input("branch_id"));
 
-        $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+        $branch = AssetManagementService::validateBranch($branchId);
 
         if(!Utilities::isDefined($branch)) {
 
@@ -72,7 +72,7 @@ class AssetManagementController extends BaseController {
             $data = $request->validated();
             $branchId = (int) $data["branch_id"];
 
-            $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+            $branch = AssetManagementService::validateBranch($branchId);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -83,7 +83,6 @@ class AssetManagementController extends BaseController {
             $information = AssetManagementService::assignAssetsToBranch(
                 $branch->id,
                 $data["branch_assets"],
-                $this->getCompanyId(),
                 $this->getUserId()
             );
 
@@ -115,7 +114,7 @@ class AssetManagementController extends BaseController {
             $data = $request->validated();
             $branchId = (int) $data["branch_id"];
 
-            $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+            $branch = AssetManagementService::validateBranch($branchId);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -159,7 +158,7 @@ class AssetManagementController extends BaseController {
             $validated = $request->validated();
             $branchId = (int) $validated["branch_id"];
 
-            $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+            $branch = AssetManagementService::validateBranch($branchId);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -211,7 +210,7 @@ class AssetManagementController extends BaseController {
 
             $branchId = intval($request->input("branch_id"));
 
-            $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+            $branch = AssetManagementService::validateBranch($branchId);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -245,7 +244,7 @@ class AssetManagementController extends BaseController {
             $data = $request->validated();
             $branchId = (int) $data["branch_id"];
 
-            $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+            $branch = AssetManagementService::validateBranch($branchId);
 
             if(!Utilities::isDefined($branch)) {
 
@@ -317,7 +316,7 @@ class AssetManagementController extends BaseController {
             $data = $request->validated();
             $branchId = (int) $data["branch_id"];
 
-            $branch = AssetManagementService::validateBranch($branchId, $this->getCompanyId());
+            $branch = AssetManagementService::validateBranch($branchId);
 
             if(!Utilities::isDefined($branch)) {
 

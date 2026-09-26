@@ -44,6 +44,7 @@ final class RestoreTenant extends Command {
                 (string) $this->argument("backup"),
                 get_current_user() ?: "console"
             );
+
             $this->info("Tenant restaurado y verificado correctamente.");
 
             return self::SUCCESS;

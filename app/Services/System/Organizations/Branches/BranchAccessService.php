@@ -8,7 +8,7 @@ use App\Models\System\Organizations\{Branch, User};
 use App\Services\System\Organizations\{AccessScopeService};
 use App\Services\System\Tenancy\{BranchContext};
 use Illuminate\Database\Eloquent\{Builder};
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\{ModelNotFoundException};
 
 final class BranchAccessService {
     public function __construct(private readonly BranchContext $context) {

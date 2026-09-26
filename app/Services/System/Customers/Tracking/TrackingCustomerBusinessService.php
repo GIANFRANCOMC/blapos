@@ -14,7 +14,6 @@ use Carbon\{Carbon};
  * Handles complex business logic for tracking customer information
  */
 class TrackingCustomerBusinessService {
-
     /**
      * Get valid customer by code or document number
      *

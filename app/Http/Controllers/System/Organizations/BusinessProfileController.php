@@ -22,8 +22,8 @@ final class BusinessProfileController extends BaseController {
 
         return response()->json([
             "bool" => true,
-            "industries" => BusinessProfileService::industries($this->getCompanyId()),
-            "enabled_module_ids" => BusinessProfileService::enabledModuleIds($this->getCompanyId()),
+            "industries" => BusinessProfileService::industries(),
+            "enabled_module_ids" => BusinessProfileService::enabledModuleIds(),
             "modules" => SubSection::query()
                 ->with("section:id,dom_label,order")
                 ->where("status", "active")
@@ -42,7 +42,6 @@ final class BusinessProfileController extends BaseController {
         ]);
 
         BusinessProfileService::updateModules(
-            $this->getCompanyId(),
             $data["enabled_module_ids"],
             $this->getUserId()
         );
@@ -61,7 +60,6 @@ final class BusinessProfileController extends BaseController {
         ]);
 
         BusinessProfileService::applyIndustry(
-            $this->getCompanyId(),
             (int) $request->input("business_industry_id"),
             $this->getUserId()
         );

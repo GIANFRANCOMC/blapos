@@ -51,6 +51,7 @@ final class TenantBackupService {
         }
 
         $this->prune($tenant);
+
         $this->administration->audit($tenant, "tenant_backup_created", "success", [
             "path" => $relativePath,
             "bytes" => filesize($absolutePath),
@@ -72,6 +73,7 @@ final class TenantBackupService {
         }
 
         $absolutePath = Storage::disk($disk)->path($relativePath);
+
         $config = $this->connectionConfig($tenant);
         $previousStatus = (string) $tenant->status;
 
@@ -99,6 +101,7 @@ final class TenantBackupService {
                 null,
                 (float) config("tenancy.backups.timeout_seconds", 900)
             );
+
             $process->setInput($stream);
             $process->run();
 
@@ -109,6 +112,7 @@ final class TenantBackupService {
             }
 
             $targetStatus = TenantStatus::tryFrom($previousStatus) ?? TenantStatus::INACTIVE;
+
             $this->administration->setSystemStatus($tenant, $targetStatus, null, $actor);
             $this->administration->audit($tenant, "tenant_backup_restored", "success", ["path" => $relativePath], $actor);
 
@@ -120,6 +124,7 @@ final class TenantBackupService {
                 "La restauración falló: ".mb_substr($exception->getMessage(), 0, 1500),
                 $actor
             );
+
             $this->administration->audit($tenant, "tenant_restore_failed", "failure", [
                 "path" => $relativePath,
                 "reason" => $exception->getMessage(),

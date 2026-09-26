@@ -18,7 +18,7 @@ final class TenantRuntimeArchitectureTest extends TestCase {
 
             $content = file_get_contents($file->getPathname());
 
-            if(!str_contains($content, 'protected $connection = "landlord"')) {
+            if(!str_contains($content, "protected \$connection = \"landlord\"")) {
 
                 continue;
 
@@ -40,9 +40,9 @@ final class TenantRuntimeArchitectureTest extends TestCase {
 
             $content = file_get_contents($file->getPathname());
 
-            $this->assertStringNotContainsString('input("company_id"', $content, $file->getPathname());
-            $this->assertStringNotContainsString('input("companyId"', $content, $file->getPathname());
-            $this->assertStringNotContainsString('"company_id" => [', $content, $file->getPathname());
+            $this->assertStringNotContainsString("input(\"company_id\"", $content, $file->getPathname());
+            $this->assertStringNotContainsString("input(\"companyId\"", $content, $file->getPathname());
+            $this->assertStringNotContainsString("\"company_id\" => [", $content, $file->getPathname());
 
         }
 
@@ -105,12 +105,12 @@ final class TenantRuntimeArchitectureTest extends TestCase {
         ));
 
         $this->assertStringContainsString("PROVISIONING_FAILED", $provisioner);
-        $this->assertStringContainsString('"--force" => $existing !== null', $provisioner);
-        $this->assertStringContainsString('Artisan::call("system:doctor")', $command);
+        $this->assertStringContainsString("\"--force\" => \$existing !== null", $provisioner);
+        $this->assertStringContainsString("Artisan::call(\"system:doctor\")", $command);
         $this->assertStringContainsString("PROVISIONING_FAILED", $command);
-        $this->assertStringContainsString('"provisioning_failed"', $migration);
-        $this->assertStringContainsString('"maintenance"', $migration);
-        $this->assertStringContainsString('"status_reason"', $migration);
+        $this->assertStringContainsString("\"provisioning_failed\"", $migration);
+        $this->assertStringContainsString("\"maintenance\"", $migration);
+        $this->assertStringContainsString("\"status_reason\"", $migration);
 
     }
 
@@ -120,7 +120,7 @@ final class TenantRuntimeArchitectureTest extends TestCase {
 
         $this->assertStringContainsString("MYSQL_PWD", $service);
         $this->assertStringNotContainsString("--password", $service);
-        $this->assertStringContainsString('"tenants/{$tenant->public_id}/backups"', $service);
+        $this->assertStringContainsString("\"tenants/{\$tenant->public_id}/backups\"", $service);
 
     }
 
@@ -147,8 +147,8 @@ final class TenantRuntimeArchitectureTest extends TestCase {
 
     private function className(string $content): string {
 
-        preg_match('/namespace\s+([^;]+);/', $content, $namespace);
-        preg_match('/(?:final\s+)?class\s+(\w+)/', $content, $class);
+        preg_match("/namespace\\s+([^;]+);/", $content, $namespace);
+        preg_match("/(?:final\\s+)?class\\s+(\\w+)/", $content, $class);
 
         return trim($namespace[1])."\\".$class[1];
 

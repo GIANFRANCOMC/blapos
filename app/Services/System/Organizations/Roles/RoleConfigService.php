@@ -29,6 +29,7 @@ final class RoleConfigService extends BaseConfigService {
             app(TenantCompanyContext::class)->id(),
             $user?->role_id
         );
+
         $delegableActions = $user ? RolePermissionService::allowedActionsBySubSection($user) : [];
         $references = CompanyReferenceDataService::forUser($userId);
 

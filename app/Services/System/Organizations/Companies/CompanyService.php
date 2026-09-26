@@ -6,7 +6,7 @@ namespace App\Services\System\Organizations\Companies;
 
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Organizations\{Company, CompanySocialMedia};
-use App\Services\System\Tenancy\{TenantStoragePath};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantStoragePath};
 use Exception;
 use Illuminate\Http\{UploadedFile};
 use Illuminate\Support\Facades\{DB, Storage};
@@ -165,16 +165,15 @@ class CompanyService {
     }
 
     /**
-     * Find record by ID and company ID
+     * Find the root company by ID in the current tenant.
      *
      * @param  int  $id Record
-     * @param  int  $companyId Company (must match id for Company model)
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, int $companyId, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Company {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["identityDocumentType"]): ?Company {
 
-        if($id !== $companyId) {
+        if($id !== app(TenantCompanyContext::class)->id()) {
 
             return null;
 

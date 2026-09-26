@@ -9,7 +9,7 @@ use App\Models\System\General\{Currency, DocumentType, IdentityDocumentType};
 use App\Models\System\Organizations\{CompanySetting};
 use App\Services\System\Base\{InitParamsCacheInvalidationService, MasterReferenceDataService};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantStoragePath};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantStoragePath};
 use DomainException;
 use Illuminate\Database\Eloquent\{Model};
 use Illuminate\Http\{UploadedFile};
@@ -27,7 +27,7 @@ final class MasterDataService {
         "company-settings" => ["model" => CompanySetting::class],
     ];
 
-    public static function list(int $companyId, string $resource) {
+    public static function list(string $resource) {
 
         $definition = self::definition($resource);
 
@@ -38,13 +38,13 @@ final class MasterDataService {
     }
 
     public static function save(
-        int $companyId,
         int $userId,
         string $resource,
         array $data,
         ?int $id = null
     ): Model {
 
+        $companyId = app(TenantCompanyContext::class)->id();
         $definition = self::definition($resource);
         $newImagePath = null;
         $obsoleteImagePath = null;

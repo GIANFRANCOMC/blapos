@@ -39,6 +39,12 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "company_socials_media",
     ];
 
+    private const STRUCTURAL_COMPANY_SERVICES = [
+        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php",
+        "app/Services/System/Organizations/Companies/CompanySectionService.php",
+        "app/Services/System/Organizations/Roles/RolePermissionService.php",
+    ];
+
     public function test_only_structural_tenant_tables_define_company_id(): void {
 
         $tables = [];
@@ -126,6 +132,39 @@ final class TenantCompanyBoundaryTest extends TestCase {
                 file_get_contents($file->getPathname()),
                 $file->getPathname()
             );
+
+        }
+
+    }
+
+    public function test_operational_service_apis_do_not_accept_a_company_selector(): void {
+
+        foreach($this->phpFiles(app_path("Services")) as $file) {
+
+            $relativePath = $this->relativePath($file->getPathname());
+
+            if(in_array($relativePath, self::STRUCTURAL_COMPANY_SERVICES, true)) {
+
+                continue;
+
+            }
+
+            $content = file_get_contents($file->getPathname());
+            preg_match_all(
+                "/public\\s+(?:static\\s+)?function\\s+\\w+\\s*\\((.*?)\\)\\s*(?::[^\\{]+)?\\{/s",
+                $content,
+                $matches
+            );
+
+            foreach($matches[1] as $parameters) {
+
+                $this->assertStringNotContainsString(
+                    "\$companyId",
+                    $parameters,
+                    "La API operativa {$relativePath} no debe recibir el selector redundante de empresa."
+                );
+
+            }
 
         }
 

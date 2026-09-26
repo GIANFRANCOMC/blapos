@@ -7,6 +7,7 @@ namespace App\Services\System\Organizations;
 use App\Models\System\General\{SubSection};
 use App\Models\System\Organizations\{BusinessIndustry, BusinessIndustryModuleSet};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Support\Facades\{DB};
 
 final class BusinessProfileService {
@@ -17,7 +18,7 @@ final class BusinessProfileService {
         "business_profile.index",
     ];
 
-    public static function industries(int $companyId) {
+    public static function industries() {
 
         return BusinessIndustry::query()
             ->where("status", "active")
@@ -27,8 +28,9 @@ final class BusinessProfileService {
 
     }
 
-    public static function applyIndustry(int $companyId, int $industryId, int $userId): void {
+    public static function applyIndustry(int $industryId, int $userId): void {
 
+        $companyId = app(TenantCompanyContext::class)->id();
         DB::transaction(function() use ($companyId, $industryId, $userId) {
 
             $industry = BusinessIndustry::query()
@@ -92,7 +94,9 @@ final class BusinessProfileService {
 
     }
 
-    public static function enabledModuleIds(int $companyId): array {
+    public static function enabledModuleIds(): array {
+
+        $companyId = app(TenantCompanyContext::class)->id();
 
         return DB::table("companies_sub_sections")
             ->where("company_id", $companyId)
@@ -103,8 +107,9 @@ final class BusinessProfileService {
 
     }
 
-    public static function updateModules(int $companyId, array $enabledIds, int $userId): void {
+    public static function updateModules(array $enabledIds, int $userId): void {
 
+        $companyId = app(TenantCompanyContext::class)->id();
         DB::transaction(function() use ($companyId, $enabledIds, $userId) {
 
             $catalogIds = SubSection::query()

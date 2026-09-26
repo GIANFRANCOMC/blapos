@@ -8,12 +8,13 @@ use App\Helpers\System\{Utilities};
 use App\Models\System\Organizations\{Role, RoleSubSection, User};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Organizations\{AccessScopeService, BusinessAuditService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Auth\Access\{AuthorizationException};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class RoleService {
-    public static function query(int $companyId, string $word = ""): Builder {
+    public static function query(string $word = ""): Builder {
 
         $query = Role::query()
             ->with([
@@ -39,7 +40,7 @@ final class RoleService {
 
     }
 
-    public static function find(int $companyId, int $roleId): Role {
+    public static function find(int $roleId): Role {
 
         return Role::query()
             ->with([
@@ -52,8 +53,9 @@ final class RoleService {
 
     }
 
-    public static function create(int $companyId, int $userId, array $data): Role {
+    public static function create(int $userId, array $data): Role {
 
+        $companyId = app(TenantCompanyContext::class)->id();
         self::assertCanDelegate($companyId, $userId, $data);
 
         return DB::transaction(function() use ($companyId, $userId, $data) {
@@ -72,22 +74,23 @@ final class RoleService {
 
             self::syncPermissions($companyId, $role, $data, $userId);
             self::syncScopes($companyId, $role, $data, $userId);
-            self::auditRoleSecurityChange($companyId, $role->id, $userId, [], self::roleSnapshot(self::find($companyId, $role->id)), "created");
+            self::auditRoleSecurityChange($companyId, $role->id, $userId, [], self::roleSnapshot(self::find($role->id)), "created");
 
-            return self::find($companyId, $role->id);
+            return self::find($role->id);
 
         });
 
     }
 
-    public static function update(int $companyId, int $roleId, int $userId, array $data): Role {
+    public static function update(int $roleId, int $userId, array $data): Role {
 
+        $companyId = app(TenantCompanyContext::class)->id();
         self::assertCanDelegate($companyId, $userId, $data, $roleId);
         self::assertCompanyKeepsAdministrator($companyId, $roleId, $data);
 
         return DB::transaction(function() use ($companyId, $roleId, $userId, $data) {
 
-            $before = self::roleSnapshot(self::find($companyId, $roleId));
+            $before = self::roleSnapshot(self::find($roleId));
             $role = Role::query()
                 ->findOrFail($roleId);
 
@@ -104,17 +107,18 @@ final class RoleService {
 
             self::syncPermissions($companyId, $role, $data, $userId);
             self::syncScopes($companyId, $role, $data, $userId);
-            self::auditRoleSecurityChange($companyId, $role->id, $userId, $before, self::roleSnapshot(self::find($companyId, $role->id)), "updated");
+            self::auditRoleSecurityChange($companyId, $role->id, $userId, $before, self::roleSnapshot(self::find($role->id)), "updated");
 
-            return self::find($companyId, $role->id);
+            return self::find($role->id);
 
         });
 
     }
 
-    public static function duplicate(int $companyId, int $roleId, int $userId, string $name): Role {
+    public static function duplicate(int $roleId, int $userId, string $name): Role {
 
-        $source = self::find($companyId, $roleId);
+        $companyId = app(TenantCompanyContext::class)->id();
+        $source = self::find($roleId);
 
         $permissions = $source->is_full_access
             ? self::enabledSubSectionIds($companyId)->map(fn($subSectionId) => [
@@ -126,7 +130,7 @@ final class RoleService {
                 "actions" => $permission->actions,
             ])->values()->all();
 
-        return self::create($companyId, $userId, [
+        return self::create($userId, [
             "name" => trim($name),
             "is_full_access" => false,
             "permissions" => $permissions,

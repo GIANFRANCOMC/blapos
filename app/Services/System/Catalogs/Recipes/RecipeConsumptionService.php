@@ -16,7 +16,6 @@ final class RecipeConsumptionService {
         Warehouse $warehouse,
         SaleBody $saleBody,
         array $detail,
-        int $companyId,
         int $userId,
         bool $allowNegative
     ): bool {
@@ -103,7 +102,7 @@ final class RecipeConsumptionService {
                 "movement_type" => InventoryMovementService::TYPE_EXIT,
                 "origin_type" => InventoryMovementService::ORIGIN_RECIPE_SALE,
                 "origin_id" => $saleBody->id,
-                "quantity" => Utilities::round($quantity, null, $companyId),
+                "quantity" => Utilities::round($quantity),
                 "reason" => "Consumo de insumos por venta de receta.",
                 "allow_negative" => $allowNegative,
                 "metadata" => [

@@ -25,6 +25,7 @@ final class InitializeTenantExecutionContext {
         $requestId = $requestId !== "" && strlen($requestId) <= 100
             ? $requestId
             : (string) Str::uuid();
+
         $request->headers->set("X-Request-ID", $requestId);
 
         $user = $request->user();

@@ -43,7 +43,7 @@ class UserController extends BaseController {
         $filters = $this->getFilters($request);
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
-        return UserService::getPaginatedList($this->getCompanyId(), $filters, $perPage);
+        return UserService::getPaginatedList($filters, $perPage);
 
     }
 
@@ -66,7 +66,7 @@ class UserController extends BaseController {
         try {
 
             $data = $this->prepareUserData($request);
-            $user = UserService::create($data, $this->getCompanyId(), $this->getUserId());
+            $user = UserService::create($data, $this->getUserId());
 
             if(!Utilities::isDefined($user)) {
 
@@ -97,7 +97,7 @@ class UserController extends BaseController {
 
         try {
 
-            $user = UserService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $user = UserService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($user)) {
 
@@ -131,7 +131,7 @@ class UserController extends BaseController {
 
     public function authenticationEvents(Request $request, int $id): JsonResponse {
 
-        $user = UserService::findByIdInTenant($id, $this->getCompanyId(), null, []);
+        $user = UserService::findByIdInTenant($id, null, []);
 
         if(!$user) {
 
@@ -159,7 +159,7 @@ class UserController extends BaseController {
 
         try {
 
-            $user = UserService::findByIdInTenant($id, $this->getCompanyId(), null, []);
+            $user = UserService::findByIdInTenant($id, null, []);
 
             if(!$user) {
 
@@ -198,7 +198,7 @@ class UserController extends BaseController {
 
         try {
 
-            $user = UserService::findByIdInTenant($id, $this->getCompanyId(), ["active"]);
+            $user = UserService::findByIdInTenant($id, ["active"]);
 
             if(!$user) {
 

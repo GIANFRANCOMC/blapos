@@ -14,23 +14,22 @@ final class CustomerLoyaltyPointService {
     public static function awardForSale(
         SaleHeader $saleHeader,
         Collection $saleBodies,
-        int $companyId,
         int $userId
     ): void {
 
-        if(!self::isEnabled($companyId) || !self::hasTables()) {
+        if(!self::isEnabled() || !self::hasTables()) {
 
             return;
 
         }
 
-        if(self::saleAlreadyAwarded((int) $saleHeader->id, $companyId)) {
+        if(self::saleAlreadyAwarded((int) $saleHeader->id)) {
 
             return;
 
         }
 
-        $rules = self::activeRules($companyId);
+        $rules = self::activeRules();
 
         if($rules->isEmpty()) {
 
@@ -75,7 +74,6 @@ final class CustomerLoyaltyPointService {
 
     public static function reverseForCanceledSale(
         SaleHeader $saleHeader,
-        int $companyId,
         int $userId
     ): void {
 
@@ -91,7 +89,7 @@ final class CustomerLoyaltyPointService {
             true
         );
 
-        if(!$enabled || self::saleAlreadyReversed((int) $saleHeader->id, $companyId)) {
+        if(!$enabled || self::saleAlreadyReversed((int) $saleHeader->id)) {
 
             return;
 
@@ -234,7 +232,7 @@ final class CustomerLoyaltyPointService {
 
     }
 
-    private static function isEnabled(int $companyId): bool {
+    private static function isEnabled(): bool {
 
         return (bool) CompanySettingService::value(
             CompanySettingService::LOYALTY,
@@ -244,7 +242,7 @@ final class CustomerLoyaltyPointService {
 
     }
 
-    private static function activeRules(int $companyId): Collection {
+    private static function activeRules(): Collection {
 
         $now = now();
 
@@ -267,7 +265,7 @@ final class CustomerLoyaltyPointService {
 
     }
 
-    private static function saleAlreadyAwarded(int $saleHeaderId, int $companyId): bool {
+    private static function saleAlreadyAwarded(int $saleHeaderId): bool {
 
         return DB::table("customer_point_movements")
             ->where("sale_header_id", $saleHeaderId)
@@ -276,7 +274,7 @@ final class CustomerLoyaltyPointService {
 
     }
 
-    private static function saleAlreadyReversed(int $saleHeaderId, int $companyId): bool {
+    private static function saleAlreadyReversed(int $saleHeaderId): bool {
 
         return DB::table("customer_point_movements")
             ->where("sale_header_id", $saleHeaderId)

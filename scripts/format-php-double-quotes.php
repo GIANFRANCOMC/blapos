@@ -73,6 +73,12 @@ foreach($roots as $root) {
 
         $path = $file->getPathname();
 
+        if(str_contains($path, DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache".DIRECTORY_SEPARATOR)) {
+
+            continue;
+
+        }
+
         $source = file_get_contents($path);
 
         if($source === false) {

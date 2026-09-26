@@ -10,7 +10,6 @@ use Illuminate\Support\{Collection};
 
 final class FinancialSettlementReportService {
     public static function summarize(
-        int $companyId,
         string $type,
         string $scope,
         ?string $dateFrom,
@@ -21,14 +20,14 @@ final class FinancialSettlementReportService {
 
         return collect($scopes)
             ->flatMap(fn($currentScope) => $type === "payments"
-                ? self::payments($companyId, $currentScope, $dateFrom, $dateTo)
-                : self::taxes($companyId, $currentScope, $dateFrom, $dateTo)
+                ? self::payments($currentScope, $dateFrom, $dateTo)
+                : self::taxes($currentScope, $dateFrom, $dateTo)
             )
             ->values();
 
     }
 
-    private static function taxes(int $companyId, string $scope, ?string $from, ?string $to): Collection {
+    private static function taxes(string $scope, ?string $from, ?string $to): Collection {
 
         [$detailTable, $headerTable, $foreignKey, $dateColumn] = $scope === "purchase"
             ? ["purchase_taxes", "purchase_headers", "purchase_header_id", "issue_date"]
@@ -45,7 +44,7 @@ final class FinancialSettlementReportService {
 
     }
 
-    private static function payments(int $companyId, string $scope, ?string $from, ?string $to): Collection {
+    private static function payments(string $scope, ?string $from, ?string $to): Collection {
 
         [$detailTable, $headerTable, $foreignKey, $dateColumn] = $scope === "purchase"
             ? ["purchase_payments", "purchase_headers", "purchase_header_id", "issue_date"]

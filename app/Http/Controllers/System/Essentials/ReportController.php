@@ -128,7 +128,6 @@ class ReportController extends BaseController {
                     "reports.sale.shared",
                     now()->addMinutes($ttlMinutes),
                     [
-                        "company" => $this->getCompanyId(),
                         "sale" => (int) $saleHeader->id,
                         "type" => $validated["type"],
                     ]
@@ -140,7 +139,7 @@ class ReportController extends BaseController {
 
     }
 
-    public function sharedSale(Request $request, int $company, int $sale, string $type) {
+    public function sharedSale(Request $request, int $sale, string $type) {
 
         if(!in_array($type, ["a4", "mm80"], true)) {
 
@@ -148,7 +147,7 @@ class ReportController extends BaseController {
 
         }
 
-        return $this->renderSalePdf($company, $sale, $type);
+        return $this->renderSalePdf($sale, $type);
 
     }
 
@@ -192,7 +191,6 @@ class ReportController extends BaseController {
             if($expirationDate->greaterThanOrEqualTo($currentDate)) {
 
                 return $this->renderSalePdf(
-                    $this->getCompanyId(),
                     (int) $document,
                     (string) $printType,
                     $this->allowedBranchIds()
@@ -210,7 +208,7 @@ class ReportController extends BaseController {
 
     }
 
-    private function renderSalePdf(int $companyId, int $saleId, string $printType, ?array $allowedBranchIds = null) {
+    private function renderSalePdf(int $saleId, string $printType, ?array $allowedBranchIds = null) {
 
         $saleHeader = SaleHeader::query()
             ->whereKey($saleId)
@@ -223,7 +221,7 @@ class ReportController extends BaseController {
             ->with(["serie.documentType", "holder", "allPositions"])
             ->first();
 
-        $company = Company::find($companyId);
+        $company = Company::query()->first();
 
         if(!Utilities::isDefined($saleHeader) || !Utilities::isDefined($company)) {
 
@@ -520,7 +518,6 @@ class ReportController extends BaseController {
         return response()->json([
             "bool" => true,
             "data" => FinancialSettlementReportService::summarize(
-                $this->getCompanyId(),
                 $validated["type"],
                 $validated["scope"] ?? "both",
                 $validated["date_from"] ?? null,

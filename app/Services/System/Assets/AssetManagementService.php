@@ -36,11 +36,10 @@ class AssetManagementService {
      *
      * @param  int  $branchId Branch ID
      * @param  array  $branchAssets Array of branch assets data
-     * @param  int  $companyId Company ID
      * @param  int|null  $userId User ID performing the action
      * @return array Information about success and error counters
      */
-    public static function assignAssetsToBranch(int $branchId, array $branchAssets, int $companyId, ?int $userId = null): array {
+    public static function assignAssetsToBranch(int $branchId, array $branchAssets, ?int $userId = null): array {
 
         $information = [
             "success" => [
@@ -481,9 +480,8 @@ class AssetManagementService {
      * Validate branch belongs to company
      *
      * @param  int  $branchId Branch ID
-     * @param  int  $companyId Company ID
      */
-    public static function validateBranch(int $branchId, int $companyId): ?Branch {
+    public static function validateBranch(int $branchId): ?Branch {
 
         return Branch::where("id", $branchId)
             ->first();

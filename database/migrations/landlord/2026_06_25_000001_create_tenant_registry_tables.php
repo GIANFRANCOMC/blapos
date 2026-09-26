@@ -40,6 +40,7 @@ return new class extends Migration {
                 "provisioning_failed",
                 "maintenance",
             ])->default("provisioning");
+
             $table->text("status_reason")->nullable();
             $table->timestamp("status_changed_at")->nullable();
             $table->timestamp("last_resolved_at")->nullable();

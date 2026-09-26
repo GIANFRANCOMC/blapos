@@ -15,7 +15,6 @@ final class BiometricEventController extends Controller {
         try {
 
             $event = BiometricEventService::receive(
-                (int) $request->get("company")->id,
                 (string) $request->header("X-Device-Key"),
                 (string) $request->header("X-Device-Signature"),
                 $request->getContent(),

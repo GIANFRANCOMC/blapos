@@ -33,10 +33,10 @@ class HomeController extends Controller {
             $company->ownerApp = Utilities::getOwnerApp();
 
             $config->items = new stdClass();
-            $config->items->records = GuestCatalogService::publicItems($company->id);
+            $config->items->records = GuestCatalogService::publicItems();
 
             $config->categories = new stdClass();
-            $config->categories->records = GuestCatalogService::publicCategories($company->id);
+            $config->categories->records = GuestCatalogService::publicCategories();
 
             foreach($config->items->records as $record) {
 

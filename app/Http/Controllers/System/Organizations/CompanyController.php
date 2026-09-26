@@ -49,7 +49,7 @@ class CompanyController extends BaseController {
 
         try {
 
-            $company = CompanyService::findByIdInTenant($id, $this->getCompanyId(), null);
+            $company = CompanyService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($company)) {
 

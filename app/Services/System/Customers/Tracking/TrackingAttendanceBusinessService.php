@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\{DB};
  * Handles complex business logic for attendance validation and creation
  */
 class TrackingAttendanceBusinessService {
-
     /**
      * Validate start date format
      */

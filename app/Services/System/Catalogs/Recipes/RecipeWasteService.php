@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\{DB};
 
 final class RecipeWasteService {
     public static function list(
-        int $companyId,
         array $filters,
         int $perPage,
         ?array $allowedWarehouseIds = null
@@ -36,13 +35,12 @@ final class RecipeWasteService {
 
     public static function register(
         int $recipeId,
-        int $companyId,
         int $userId,
         array $data,
         ?array $allowedWarehouseIds = null
     ): RecipeWasteRecord {
 
-        return DB::transaction(function() use ($recipeId, $companyId, $userId, $data, $allowedWarehouseIds) {
+        return DB::transaction(function() use ($recipeId, $userId, $data, $allowedWarehouseIds) {
 
             $warehouseId = (int) $data["warehouse_id"];
             $itemId = (int) $data["item_id"];
@@ -64,7 +62,7 @@ final class RecipeWasteService {
 
             }
 
-            $quantity = Utilities::round((float) $data["quantity"], null, $companyId);
+            $quantity = Utilities::round((float) $data["quantity"]);
 
             $unitCost = round((float) (WarehouseItem::query()
                 ->where("warehouse_id", $warehouseId)
@@ -92,7 +90,7 @@ final class RecipeWasteService {
                 "inventory_movement_id" => $movement->id,
                 "quantity" => $quantity,
                 "unit_cost" => $unitCost,
-                "total_cost" => Utilities::round($quantity * $unitCost, null, $companyId),
+                "total_cost" => Utilities::round($quantity * $unitCost),
                 "reason" => trim((string) $data["reason"]),
                 "occurred_at" => Carbon::parse($data["occurred_at"] ?? now()),
                 "created_at" => now(),

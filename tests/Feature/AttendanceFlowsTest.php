@@ -153,7 +153,7 @@ final class AttendanceFlowsTest extends TestCase {
         $this->assertSame(UserAttendanceService::STATUS_FINALIZED, $attendance->status);
         $this->assertSame(480, $attendance->worked_minutes);
 
-        $summary = UserAttendanceService::weeklySummary(1, $this->userId, "2026-06-29");
+        $summary = UserAttendanceService::weeklySummary($this->userId, "2026-06-29");
 
         $this->assertSame(480, $summary["total_minutes"]);
         $this->assertSame(8.0, $summary["total_hours"]);
