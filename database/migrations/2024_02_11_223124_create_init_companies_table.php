@@ -52,6 +52,9 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
+            $table->unique(["code"], "taxes_code_uq");
+            $table->index(["scope", "status", "name"], "taxes_scope_status_idx");
+
         });
 
         Schema::create("payment_methods", function(Blueprint $table) {

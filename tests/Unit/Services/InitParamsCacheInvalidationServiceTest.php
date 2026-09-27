@@ -23,15 +23,15 @@ use Tests\{TestCase};
 class InitParamsCacheInvalidationServiceTest extends TestCase {
     public function test_category_changes_clear_all_dependent_config_caches(): void {
 
-        $companyId = 91;
+        $scopeSeed = 91;
         $keys = [
             CategoryConfigService::cacheKey(),
-            ProductConfigService::cacheKey("main", $this->userId($companyId)),
-            ServiceConfigService::cacheKey("main", $this->userId($companyId)),
-            SubscriptionConfigService::cacheKey("main", $this->userId($companyId)),
+            ProductConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            ServiceConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            SubscriptionConfigService::cacheKey("main", $this->userId($scopeSeed)),
         ];
 
-        $this->seedCache($keys, $companyId);
+        $this->seedCache($keys, $scopeSeed);
 
         InitParamsCacheInvalidationService::invalidate(
             InitParamsCacheInvalidationService::CATEGORIES
@@ -43,13 +43,13 @@ class InitParamsCacheInvalidationServiceTest extends TestCase {
 
     public function test_brand_changes_clear_brand_and_product_config_caches(): void {
 
-        $companyId = 90;
+        $scopeSeed = 90;
         $keys = [
             BrandConfigService::cacheKey(),
-            ProductConfigService::cacheKey("main", $this->userId($companyId)),
+            ProductConfigService::cacheKey("main", $this->userId($scopeSeed)),
         ];
 
-        $this->seedCache($keys, $companyId);
+        $this->seedCache($keys, $scopeSeed);
 
         InitParamsCacheInvalidationService::invalidate(
             InitParamsCacheInvalidationService::BRANDS
@@ -61,16 +61,16 @@ class InitParamsCacheInvalidationServiceTest extends TestCase {
 
     public function test_item_changes_clear_sale_pages_and_catalog_config_caches(): void {
 
-        $companyId = 92;
+        $scopeSeed = 92;
         $keys = [
-            ProductConfigService::cacheKey("main", $this->userId($companyId)),
-            ServiceConfigService::cacheKey("main", $this->userId($companyId)),
-            SubscriptionConfigService::cacheKey("main", $this->userId($companyId)),
-            SaleConfigService::cacheKey("list", $this->userId($companyId)),
-            SaleConfigService::cacheKey("main", $this->userId($companyId)),
+            ProductConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            ServiceConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            SubscriptionConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            SaleConfigService::cacheKey("list", $this->userId($scopeSeed)),
+            SaleConfigService::cacheKey("main", $this->userId($scopeSeed)),
         ];
 
-        $this->seedCache($keys, $companyId);
+        $this->seedCache($keys, $scopeSeed);
 
         InitParamsCacheInvalidationService::invalidate(
             InitParamsCacheInvalidationService::ITEMS
@@ -82,20 +82,20 @@ class InitParamsCacheInvalidationServiceTest extends TestCase {
 
     public function test_branch_changes_clear_product_warehouse_options_and_other_dependents(): void {
 
-        $companyId = 93;
+        $scopeSeed = 93;
         $keys = [
             BranchConfigService::cacheKey(),
-            ProductConfigService::cacheKey("main", $this->userId($companyId)),
-            SaleConfigService::cacheKey("main", $this->userId($companyId)),
-            SaleConfigService::cacheKey("list", $this->userId($companyId)),
-            TrackingAttendanceConfigService::cacheKey("main", $this->userId($companyId)),
-            TrackingSubscriptionConfigService::cacheKey("main", $this->userId($companyId)),
-            BiometricDeviceConfigService::cacheKey("main", $this->userId($companyId)),
-            AssetManagementConfigService::cacheKey("main", $this->userId($companyId)),
-            StockManagementConfigService::cacheKey("main", $this->userId($companyId)),
+            ProductConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            SaleConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            SaleConfigService::cacheKey("list", $this->userId($scopeSeed)),
+            TrackingAttendanceConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            TrackingSubscriptionConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            BiometricDeviceConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            AssetManagementConfigService::cacheKey("main", $this->userId($scopeSeed)),
+            StockManagementConfigService::cacheKey("main", $this->userId($scopeSeed)),
         ];
 
-        $this->seedCache($keys, $companyId);
+        $this->seedCache($keys, $scopeSeed);
 
         InitParamsCacheInvalidationService::invalidate(
             InitParamsCacheInvalidationService::BRANCHES
@@ -138,9 +138,9 @@ class InitParamsCacheInvalidationServiceTest extends TestCase {
 
     }
 
-    private function seedCache(array $keys, int $companyId): void {
+    private function seedCache(array $keys, int $scopeSeed): void {
 
-        ProductConfigService::registerUserCacheScope($this->userId($companyId));
+        ProductConfigService::registerUserCacheScope($this->userId($scopeSeed));
 
         foreach($keys as $key) {
 
@@ -150,9 +150,9 @@ class InitParamsCacheInvalidationServiceTest extends TestCase {
 
     }
 
-    private function userId(int $companyId): int {
+    private function userId(int $scopeSeed): int {
 
-        return $companyId * 10;
+        return $scopeSeed * 10;
 
     }
 

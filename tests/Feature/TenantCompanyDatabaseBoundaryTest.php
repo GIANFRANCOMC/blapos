@@ -69,7 +69,7 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
              FROM INFORMATION_SCHEMA.STATISTICS
              WHERE TABLE_SCHEMA = ?
                AND INDEX_NAME <> 'PRIMARY'
-               AND TABLE_NAME IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               AND TABLE_NAME IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              GROUP BY TABLE_NAME, INDEX_NAME",
             [
                 $database,
@@ -83,6 +83,8 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
                 "business_audit_logs",
                 "authentication_events",
                 "suppliers",
+                "taxes",
+                "misc_expense_categories",
             ]
         ))->pluck("columns_list", "index_key");
 
@@ -112,6 +114,13 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
         $this->assertSame(
             "status,name,id",
             $indexes["suppliers.suppliers_status_name_idx"] ?? null
+        );
+
+        $this->assertSame("code", $indexes["taxes.taxes_code_uq"] ?? null);
+        $this->assertSame("scope,status,name", $indexes["taxes.taxes_scope_status_idx"] ?? null);
+        $this->assertSame(
+            "name",
+            $indexes["misc_expense_categories.misc_expense_categories_name_uq"] ?? null
         );
 
     }

@@ -4,7 +4,7 @@
 
 Cada base de datos tenant representa exactamente una empresa. La conexión tenant es el límite de aislamiento de datos; `company_id` ya no se replica en tablas operativas, catálogos, transacciones, usuarios ni auditorías.
 
-La empresa raíz se obtiene con `TenantCompanyContext`. Ningún formulario, endpoint, comando, helper ni método operativo —público o privado— debe aceptar un identificador de empresa como fuente de autoridad.
+La empresa raíz se obtiene con `TenantCompanyContext`. Ningún formulario, endpoint, comando, helper, migración ni método del backend —público o privado— debe aceptar un identificador de empresa como fuente de autoridad.
 
 ## Tablas que conservan `company_id`
 
@@ -36,7 +36,7 @@ Solo cuatro tablas tenant mantienen la relación porque describen estructura dir
 
 El proyecto todavía no está en producción, por lo que la estructura se corrigió en las migraciones de origen. No existe una migración incremental que copie o elimine columnas históricas. Una instalación limpia crea directamente el modelo vigente.
 
-La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método operativo y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo métodos privados y protegidos. Solo el aprovisionamiento inicial puede transportar explícitamente el ID que acaba de crear; módulos, perfiles, permisos, navegación y caché resuelven la empresa raíz desde `TenantCompanyContext`.
+La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método del backend y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo aprovisionamiento, métodos privados y protegidos. Todos resuelven la empresa raíz desde `TenantCompanyContext`; el ID solamente se materializa como variable local al consultar o persistir una relación estructural.
 
 Las APIs `CompanySectionService` y `RolePermissionService` reciben únicamente el rol o los datos funcionales. Sus claves se aíslan con `TenantContext::cacheNamespace()` y la invalidación opera sobre el tenant conectado, evitando propagar un ID local que se repite entre bases.
 

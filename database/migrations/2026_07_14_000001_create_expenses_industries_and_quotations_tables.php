@@ -63,6 +63,8 @@ return new class extends Migration {
             $table->timestamp("updated_at")->nullable();
             $table->integer("updated_by")->nullable();
 
+            $table->unique(["name"], "misc_expense_categories_name_uq");
+
         });
 
         Schema::create("misc_expenses", function(Blueprint $table) {

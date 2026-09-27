@@ -217,18 +217,20 @@ return new class extends Migration {
 
     private function syncReferenceData(): void {
 
-        foreach(DB::table("companies")->pluck("id") as $companyId) {
+        if(!DB::table("companies")->exists()) {
 
-            $companyId = (int) $companyId;
-            $this->syncPaymentMethods($companyId);
-            $this->syncPaymentMethodVariants($companyId);
-            $this->syncPaymentSettings($companyId);
+            return;
 
         }
 
+        $this->syncPaymentMethods();
+
+        $this->syncPaymentMethodVariants();
+        $this->syncPaymentSettings();
+
     }
 
-    private function syncPaymentMethods(int $companyId): void {
+    private function syncPaymentMethods(): void {
 
         $methods = [
             ["code" => "CASH", "category" => "cash", "sunat_code" => "008", "name" => "Efectivo", "description" => "Pago realizado con dinero físico al momento de la operación.", "image_path" => "System/assets/img/payment-methods/cash.svg", "scope" => "both", "requires_reference" => false, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => true],
@@ -259,7 +261,7 @@ return new class extends Migration {
 
     }
 
-    private function syncPaymentMethodVariants(int $companyId): void {
+    private function syncPaymentMethodVariants(): void {
 
         $methods = DB::table("payment_methods")
             ->whereIn("code", ["DIGITAL_WALLET", "DEBIT_CARD", "CREDIT_CARD"])
@@ -315,7 +317,15 @@ return new class extends Migration {
 
     }
 
-    private function syncPaymentSettings(int $companyId): void {
+    private function syncPaymentSettings(): void {
+
+        $companyId = (int) DB::table("companies")->value("id");
+
+        if($companyId <= 0) {
+
+            return;
+
+        }
 
         $settings = [
             [

@@ -70,7 +70,7 @@ final class InstallSystemDatabase extends Command {
 
         $slug = Str::slug((string) $this->option("slug"));
 
-        $companyId = $provisioning->createOrUpdate([
+        $provisioning->createOrUpdate([
             "slug" => $slug,
             "commercial_name" => (string) $this->option("commercial-name"),
             "legal_name" => (string) $this->option("legal-name"),
@@ -79,9 +79,8 @@ final class InstallSystemDatabase extends Command {
         ]);
 
         $catalog->sync();
-        $provisioning->enable($companyId);
+        $provisioning->enable();
         $provisioning->ensureAdminUser(
-            $companyId,
             (string) $this->option("admin-name"),
             (string) $this->option("admin-email"),
             $password

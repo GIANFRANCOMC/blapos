@@ -23,7 +23,7 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "app/Services/System/Essentials/UserNavigationService.php" => 1,
         "app/Services/System/Organizations/Branches/BranchService.php" => 1,
         "app/Services/System/Organizations/BusinessProfileService.php" => 5,
-        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 6,
+        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 4,
         "app/Services/System/Organizations/Companies/CompanySectionService.php" => 4,
         "app/Services/System/Organizations/Companies/CompanyService.php" => 2,
         "app/Services/System/Organizations/Companies/CompanySettingService.php" => 1,
@@ -36,10 +36,6 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "companies_sub_sections",
         "company_settings",
         "company_socials_media",
-    ];
-
-    private const STRUCTURAL_COMPANY_SERVICES = [
-        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php",
     ];
 
     public function test_only_structural_tenant_tables_define_company_id(): void {
@@ -134,22 +130,15 @@ final class TenantCompanyBoundaryTest extends TestCase {
 
     }
 
-    public function test_operational_methods_do_not_accept_a_company_selector(): void {
+    public function test_backend_methods_do_not_accept_a_company_selector(): void {
 
-        $paths = [app_path("Services"), app_path("Helpers"), app_path("Http")];
+        $paths = [app_path(), database_path("migrations")];
 
         foreach($paths as $path) {
 
             foreach($this->phpFiles($path) as $file) {
 
                 $relativePath = $this->relativePath($file->getPathname());
-
-                if(in_array($relativePath, self::STRUCTURAL_COMPANY_SERVICES, true)) {
-
-                    continue;
-
-                }
-
                 $content = file_get_contents($file->getPathname());
                 preg_match_all(
                     "/(?:public|protected|private)\\s+(?:static\\s+)?function\\s+\\w+\\s*\\((.*?)\\)\\s*(?::[^\\{]+)?\\{/s",
@@ -162,7 +151,7 @@ final class TenantCompanyBoundaryTest extends TestCase {
                     $this->assertStringNotContainsString(
                         "\$companyId",
                         $parameters,
-                        "El método operativo {$relativePath} no debe recibir el selector redundante de empresa."
+                        "El método {$relativePath} no debe recibir el selector redundante de empresa."
                     );
 
                 }
@@ -170,6 +159,32 @@ final class TenantCompanyBoundaryTest extends TestCase {
             }
 
         }
+
+    }
+
+    public function test_provisioning_uses_the_root_context_and_batch_writes(): void {
+
+        $content = file_get_contents(
+            app_path("Services/System/Organizations/Companies/CompanyProvisioningService.php")
+        );
+
+        $this->assertStringContainsString(
+            "public function createOrUpdate(array \$attributes): void",
+            $content
+        );
+
+        $this->assertStringContainsString(
+            "public function enable(bool \$enableModules = true): void",
+            $content
+        );
+
+        $this->assertStringContainsString(
+            "public function ensureAdminUser(string \$name, string \$email, string \$password): int",
+            $content
+        );
+
+        $this->assertStringContainsString("TenantCompanyContext::class", $content);
+        $this->assertGreaterThanOrEqual(8, substr_count($content, "->upsert("));
 
     }
 

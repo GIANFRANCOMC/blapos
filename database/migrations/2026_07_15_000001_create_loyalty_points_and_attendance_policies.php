@@ -156,40 +156,41 @@ return new class extends Migration {
 
         }
 
-        foreach(DB::table("companies")->pluck("id") as $companyId) {
+        $companyId = (int) DB::table("companies")->value("id");
 
-            $settings = [
-                ["customer_attendance", "auto_close_stale_enabled", "true", "Activa el cierre técnico de asistencias de clientes que quedaron abiertas sin salida.", "boolean"],
-                ["customer_attendance", "auto_close_after_time", "01:00", "Hora local desde la cual el scheduler puede cerrar asistencias del día anterior que quedaron abiertas.", "string"],
-                ["customer_attendance", "auto_close_end_time", "23:50", "Hora local usada como salida técnica cuando una asistencia quedó abierta sin checkout.", "string"],
-                ["customer_attendance", "retention_months", "5", "Cantidad de meses que se conservan asistencias de clientes finalizadas, anuladas, inactivas o ausentes antes de permitir su depuración.", "integer"],
-                ["subscriptions", "send_welcome_email_on_sale", "true", "Encola un correo de agradecimiento cuando una venta genera una membresía para un cliente.", "boolean"],
-                ["loyalty", "enabled", "false", "Activa el cálculo de puntos para clientes en ventas confirmadas. Requiere reglas activas en loyalty_point_rules.", "boolean"],
-                ["loyalty", "reverse_points_on_sale_cancellation", "true", "Revierte puntos ganados cuando se anula la venta que los originó.", "boolean"],
-            ];
+        if($companyId <= 0) {
 
-            foreach($settings as [$group, $key, $value, $description, $valueType]) {
-
-                DB::table("company_settings")->updateOrInsert(
-                    [
-                        "company_id" => (int) $companyId,
-                        "group" => $group,
-                        "key" => $key,
-                    ],
-                    [
-                        "company_id" => (int) $companyId,
-                        "group" => $group,
-                        "key" => $key,
-                        "value" => $value,
-                        "description" => $description,
-                        "value_type" => $valueType,
-                        "status" => "active",
-                    ]
-                );
-
-            }
+            return;
 
         }
+
+        $settings = [
+            ["customer_attendance", "auto_close_stale_enabled", "true", "Activa el cierre técnico de asistencias de clientes que quedaron abiertas sin salida.", "boolean"],
+            ["customer_attendance", "auto_close_after_time", "01:00", "Hora local desde la cual el scheduler puede cerrar asistencias del día anterior que quedaron abiertas.", "string"],
+            ["customer_attendance", "auto_close_end_time", "23:50", "Hora local usada como salida técnica cuando una asistencia quedó abierta sin checkout.", "string"],
+            ["customer_attendance", "retention_months", "5", "Cantidad de meses que se conservan asistencias de clientes finalizadas, anuladas, inactivas o ausentes antes de permitir su depuración.", "integer"],
+            ["subscriptions", "send_welcome_email_on_sale", "true", "Encola un correo de agradecimiento cuando una venta genera una membresía para un cliente.", "boolean"],
+            ["loyalty", "enabled", "false", "Activa el cálculo de puntos para clientes en ventas confirmadas. Requiere reglas activas en loyalty_point_rules.", "boolean"],
+            ["loyalty", "reverse_points_on_sale_cancellation", "true", "Revierte puntos ganados cuando se anula la venta que los originó.", "boolean"],
+        ];
+
+        $records = collect($settings)
+            ->map(fn($setting) => [
+                "company_id" => $companyId,
+                "group" => $setting[0],
+                "key" => $setting[1],
+                "value" => $setting[2],
+                "description" => $setting[3],
+                "value_type" => $setting[4],
+                "status" => "active",
+            ])
+            ->all();
+
+        DB::table("company_settings")->upsert(
+            $records,
+            ["company_id", "group", "key"],
+            ["value", "description", "value_type", "status"]
+        );
 
     }
 };

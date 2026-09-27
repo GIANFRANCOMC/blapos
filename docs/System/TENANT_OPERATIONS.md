@@ -10,7 +10,7 @@ Los únicos usos estructurales permitidos de `company_id` son `branches`, `compa
 
 | # | Control | Implementación vigente |
 |---:|---|---|
-| 1 | API operativa sin selector de empresa | Controladores, requests, helpers y servicios operativos no reciben `company_id` ni `$companyId`, tampoco en métodos internos. La prueba de arquitectura rechaza cualquier reintroducción. |
+| 1 | Backend sin selector de empresa | Controladores, requests, helpers, comandos y servicios —incluido el aprovisionamiento— no reciben `company_id` ni `$companyId`, tampoco en métodos internos. La prueba de arquitectura rechaza cualquier reintroducción. |
 | 2 | Contextos separados | `TenantContext`, `TenantCompanyContext` y `BranchContext` resuelven tenant, empresa raíz y sucursal sin mezclar responsabilidades. |
 | 3 | Acceso centralizado por sucursal | `BranchAccessService` valida selección, disponibilidad y alcance del usuario antes de establecer `BranchContext`. |
 | 4 | Una empresa raíz | El modelo y el aprovisionamiento impiden crear una segunda fila raíz dentro de la base tenant. |
@@ -35,7 +35,9 @@ Los enlaces firmados para comprobantes tampoco incluyen el ID local de la empres
 
 Los controladores no reciben `company_id` ni `companyId`. Los catálogos maestros, parámetros iniciales, códigos internos y cachés se resuelven desde el contexto tenant.
 
-La administración de módulos y permisos tampoco recibe el ID raíz: `CompanySectionService` y `RolePermissionService` trabajan sobre la conexión activa. El ID solo se materializa dentro de las consultas de las cuatro relaciones estructurales. El aprovisionador es la única excepción porque debe encadenar la creación de la empresa con sus referencias iniciales.
+La administración de módulos y permisos tampoco recibe el ID raíz: `CompanySectionService` y `RolePermissionService` trabajan sobre la conexión activa. El ID solo se materializa dentro de las consultas de las cuatro relaciones estructurales.
+
+El aprovisionador tampoco recibe ni devuelve el ID raíz. `createOrUpdate()`, `enable()` y `ensureAdminUser()` operan sobre la conexión tenant activa; los catálogos, perfiles de negocio y permisos iniciales se escriben en lotes idempotentes para reducir consultas.
 
 ## Ciclo de vida
 

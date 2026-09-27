@@ -19,10 +19,10 @@ trait ProvisionsSystemDatabase {
             "legal_name" => "EMPRESA DE PRUEBAS S.A.C.",
             "document_number" => "20999999999",
             "email" => "admin@example.test",
-        ], 1);
+        ]);
         app(SystemCatalogSyncService::class)->sync();
-        $provisioning->enable(1);
-        $provisioning->ensureAdminUser(1, "Administrador de pruebas", "admin@example.test", "password");
+        $provisioning->enable();
+        $provisioning->ensureAdminUser("Administrador de pruebas", "admin@example.test", "password");
 
     }
 }

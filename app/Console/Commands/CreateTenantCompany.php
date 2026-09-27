@@ -73,7 +73,7 @@ final class CreateTenantCompany extends Command {
                     "--force" => true,
                 ]);
 
-                $companyId = $provisioning->createOrUpdate([
+                $provisioning->createOrUpdate([
                     "slug" => $slug,
                     "commercial_name" => $this->option("commercial-name") ?: Str::headline($slug),
                     "legal_name" => $this->option("legal-name") ?: Str::upper(Str::headline($slug)),
@@ -82,7 +82,7 @@ final class CreateTenantCompany extends Command {
                 ]);
 
                 $catalog->sync();
-                $provisioning->enable($companyId);
+                $provisioning->enable();
 
                 $adminPassword = (string) $this->option("admin-password");
 
@@ -98,7 +98,6 @@ final class CreateTenantCompany extends Command {
 
                 }
                 $provisioning->ensureAdminUser(
-                    $companyId,
                     (string) $this->option("admin-name"),
                     (string) $this->option("admin-email"),
                     $adminPassword

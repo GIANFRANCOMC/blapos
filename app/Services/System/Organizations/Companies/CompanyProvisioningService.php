@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Services\System\Organizations\Companies;
 
 use App\Helpers\System\{Utilities};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Support\Facades\{DB, Hash, Schema};
 use RuntimeException;
 
 final class CompanyProvisioningService {
     private const ROOT_COMPANY_ID = 1;
 
-    public function createOrUpdate(array $attributes): int {
+    public function createOrUpdate(array $attributes): void {
 
         $payload = [
             "slug" => $attributes["slug"],
@@ -35,45 +36,45 @@ final class CompanyProvisioningService {
             $payload
         );
 
-        return self::ROOT_COMPANY_ID;
+        app(TenantCompanyContext::class)->forget();
 
     }
 
-    public function enable(int $companyId, bool $enableModules = true): void {
+    public function enable(bool $enableModules = true): void {
 
-        $company = DB::table("companies")->where("id", $companyId)->first();
+        $this->rootCompanyId();
 
-        if(!$company) {
+        DB::transaction(function() use ($enableModules): void {
 
-            throw new RuntimeException("No existe una organización con ID {$companyId}.");
-
-        }
-
-        DB::transaction(function() use ($companyId, $enableModules): void {
-
-            $this->seedIdentityDocumentTypes($companyId);
-            $this->seedDocumentTypes($companyId);
-            $this->seedCurrencies($companyId);
-            $this->ensureCompanyMasterReferences($companyId);
-            $this->seedSettings($companyId);
-            $this->seedTaxes($companyId);
-            $this->seedPaymentMethods($companyId);
-            $this->seedSaleDeliveryMethods($companyId);
-            $this->seedOperationalDefaults($companyId);
-            $this->seedMiscExpenseCategories($companyId);
-            $this->seedBusinessProfiles($companyId);
+            $this->seedIdentityDocumentTypes();
+            $this->seedDocumentTypes();
+            $this->seedCurrencies();
+            $this->ensureCompanyMasterReferences();
+            $this->seedSettings();
+            $this->seedTaxes();
+            $this->seedPaymentMethods();
+            $this->seedSaleDeliveryMethods();
+            $this->seedOperationalDefaults();
+            $this->seedMiscExpenseCategories();
+            $this->seedBusinessProfiles();
 
             if($enableModules) {
 
-                $this->ensureAdminRole($companyId);
+                $this->ensureAdminRole();
 
             }
 
         });
 
+        app(TenantCompanyContext::class)->forget();
+        CompanySettingService::clearCache();
+        CompanySectionService::clearTenantCache();
+
     }
 
-    public function ensureAdminUser(int $companyId, string $name, string $email, string $password): int {
+    public function ensureAdminUser(string $name, string $email, string $password): int {
+
+        $this->rootCompanyId();
 
         $roleId = DB::table("roles")->where("is_full_access", true)->value("id");
         $identityId = DB::table("identity_document_types")->where("code", "dni")->value("id");
@@ -114,7 +115,7 @@ final class CompanyProvisioningService {
 
     }
 
-    private function seedIdentityDocumentTypes(int $companyId): void {
+    private function seedIdentityDocumentTypes(): void {
 
         $records = [
             ["code" => "doc.trib.no.dom.sin.ruc", "name" => "Doc. trib. no dom. sin RUC", "is_searchable" => false, "min_length" => 15, "max_length" => 15],
@@ -124,34 +125,34 @@ final class CompanyProvisioningService {
             ["code" => "pasaporte", "name" => "Pasaporte", "is_searchable" => false, "min_length" => 8, "max_length" => 8],
         ];
 
-        foreach($records as $record) {
-
-            DB::table("identity_document_types")->updateOrInsert(
-                ["code" => $record["code"]],
-                $record + ["status" => "active"]
-            );
-
-        }
+        DB::table("identity_document_types")->upsert(
+            collect($records)
+                ->map(fn($record) => $record + ["status" => "active"])
+                ->all(),
+            ["code"],
+            ["name", "is_searchable", "min_length", "max_length", "status"]
+        );
 
     }
 
-    private function seedDocumentTypes(int $companyId): void {
+    private function seedDocumentTypes(): void {
 
-        foreach([
+        $records = [
             ["code" => "BV", "name" => "BOLETA"],
             ["code" => "FA", "name" => "FACTURA"],
-        ] as $record) {
+        ];
 
-            DB::table("document_types")->updateOrInsert(
-                ["code" => $record["code"]],
-                $record + ["status" => "active"]
-            );
-
-        }
+        DB::table("document_types")->upsert(
+            collect($records)
+                ->map(fn($record) => $record + ["status" => "active"])
+                ->all(),
+            ["code"],
+            ["name", "status"]
+        );
 
     }
 
-    private function seedCurrencies(int $companyId): void {
+    private function seedCurrencies(): void {
 
         DB::table("currencies")->updateOrInsert(
             ["code" => "PEN"],
@@ -166,8 +167,9 @@ final class CompanyProvisioningService {
 
     }
 
-    private function ensureCompanyMasterReferences(int $companyId): void {
+    private function ensureCompanyMasterReferences(): void {
 
+        $companyId = $this->rootCompanyId();
         $identityDocumentTypeId = DB::table("identity_document_types")
             ->where("code", "ruc")
             ->value("id");
@@ -185,8 +187,9 @@ final class CompanyProvisioningService {
 
     }
 
-    private function seedSettings(int $companyId): void {
+    private function seedSettings(): void {
 
+        $companyId = $this->rootCompanyId();
         $settings = [
             ["group" => "internal_code_prefixes", "key" => "product", "value" => "PRO", "description" => "Prefijo usado para generar códigos internos de productos. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "service", "value" => "SER", "description" => "Prefijo usado para generar códigos internos de servicios. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
@@ -200,15 +203,6 @@ final class CompanyProvisioningService {
             ["group" => "inventory", "key" => "restore_stock_on_sale_cancellation", "value" => "false", "description" => "Define si al anular una venta se devuelven automáticamente los productos al almacén original. Por defecto es false: la devolución física debe registrarse desde Inventario si corresponde.", "value_type" => "boolean"],
             ["group" => "inventory", "key" => "valuation_method", "value" => "weighted_average", "description" => "Método usado para valorizar inventario y kardex. El valor inicial weighted_average calcula costo promedio ponderado sobre entradas y saldos.", "value_type" => "string"],
         ];
-
-        foreach($settings as $setting) {
-
-            DB::table("company_settings")->updateOrInsert(
-                ["company_id" => $companyId, "group" => $setting["group"], "key" => $setting["key"]],
-                $setting + ["company_id" => $companyId]
-            );
-
-        }
 
         $attendanceSettings = [
             ["group" => "customer_attendance", "key" => "daily_limit_scope", "value" => "branch", "description" => "Define si el limite diario de asistencia de clientes se cuenta por sucursal o por empresa.", "value_type" => "string"],
@@ -232,18 +226,22 @@ final class CompanyProvisioningService {
             ["group" => "numeric_validation", "key" => "max_file_size_kb", "value" => "4096", "description" => "Tamanio maximo por defecto, en KB, para archivos validados desde formularios de la empresa.", "value_type" => "integer"],
         ];
 
-        foreach($attendanceSettings as $setting) {
+        $records = collect([...$settings, ...$attendanceSettings])
+            ->map(fn($setting) => $setting + [
+                "company_id" => $companyId,
+                "status" => "active",
+            ])
+            ->all();
 
-            DB::table("company_settings")->updateOrInsert(
-                ["company_id" => $companyId, "group" => $setting["group"], "key" => $setting["key"]],
-                $setting + ["company_id" => $companyId]
-            );
-
-        }
+        DB::table("company_settings")->upsert(
+            $records,
+            ["company_id", "group", "key"],
+            ["value", "description", "value_type", "status"]
+        );
 
     }
 
-    private function seedTaxes(int $companyId): void {
+    private function seedTaxes(): void {
 
         $taxes = [
             ["code" => "SALE-IGV", "name" => "IGV", "description" => "Impuesto General a las Ventas del Perú aplicado a ventas. Si el item incluye IGV, se calcula como tributo contenido; si no lo incluye, se suma al total.", "scope" => "sale", "calculation_type" => "percentage", "rate" => 18, "min_apply_quantity" => null, "max_apply_quantity" => null, "operation_type" => "addition", "is_required" => true, "is_default" => true],
@@ -252,18 +250,21 @@ final class CompanyProvisioningService {
             ["code" => "PURCHASE-ICBP", "name" => "ICBP", "description" => "Impuesto al Consumo de Bolsas Plásticas aplicado a compras cuando corresponde. Es opcional porque no todas las compras incluyen bolsa gravada.", "scope" => "purchase", "calculation_type" => "fixed", "rate" => 0.5, "min_apply_quantity" => 0, "max_apply_quantity" => null, "operation_type" => "addition", "is_required" => false, "is_default" => false],
         ];
 
-        foreach($taxes as $tax) {
-
-            DB::table("taxes")->updateOrInsert(
-                ["code" => $tax["code"]],
-                $tax + ["status" => "active"]
-            );
-
-        }
+        DB::table("taxes")->upsert(
+            collect($taxes)
+                ->map(fn($tax) => $tax + ["status" => "active"])
+                ->all(),
+            ["code"],
+            [
+                "name", "description", "rate", "calculation_type", "operation_type",
+                "min_apply_quantity", "max_apply_quantity", "scope", "is_required",
+                "is_default", "status",
+            ]
+        );
 
     }
 
-    private function seedPaymentMethods(int $companyId): void {
+    private function seedPaymentMethods(): void {
 
         $methods = [
             ["code" => "CASH", "category" => "cash", "sunat_code" => "008", "name" => "Efectivo", "description" => "Pago realizado con dinero físico al momento de la operación.", "image_path" => "System/assets/img/payment-methods/cash.svg", "scope" => "both", "requires_reference" => false, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => true],
@@ -279,24 +280,27 @@ final class CompanyProvisioningService {
             ["code" => "LETTER_OF_CREDIT", "category" => "bank", "sunat_code" => null, "name" => "Carta de crédito", "description" => "Carta de crédito usada principalmente en compras u operaciones empresariales.", "image_path" => "System/assets/img/payment-methods/letter-of-credit.svg", "scope" => "purchase", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
         ];
 
-        foreach($methods as $method) {
-
-            DB::table("payment_methods")->updateOrInsert(
-                ["code" => $method["code"]],
-                $method + ["status" => "active"]
-            );
-
-        }
+        DB::table("payment_methods")->upsert(
+            collect($methods)
+                ->map(fn($method) => $method + ["status" => "active"])
+                ->all(),
+            ["code"],
+            [
+                "category", "sunat_code", "name", "description", "image_path", "scope",
+                "requires_reference", "supports_variants", "allows_partial_payment",
+                "is_default", "status",
+            ]
+        );
 
         DB::table("payment_methods")
             ->whereIn("code", ["YAPE", "PLIN"])
             ->delete();
 
-        $this->seedPaymentMethodVariants($companyId);
+        $this->seedPaymentMethodVariants();
 
     }
 
-    private function seedSaleDeliveryMethods(int $companyId): void {
+    private function seedSaleDeliveryMethods(): void {
 
         if(!Schema::hasTable("sale_delivery_methods")) {
 
@@ -310,18 +314,17 @@ final class CompanyProvisioningService {
             ["code" => "shipping", "name" => "Envío", "description" => "Lo vendido se remite mediante transporte propio o un tercero.", "sort_order" => 30, "is_default" => false],
         ];
 
-        foreach($methods as $method) {
-
-            DB::table("sale_delivery_methods")->updateOrInsert(
-                ["code" => $method["code"]],
-                $method + ["status" => "active"]
-            );
-
-        }
+        DB::table("sale_delivery_methods")->upsert(
+            collect($methods)
+                ->map(fn($method) => $method + ["status" => "active"])
+                ->all(),
+            ["code"],
+            ["name", "description", "sort_order", "is_default", "status"]
+        );
 
     }
 
-    private function seedMiscExpenseCategories(int $companyId): void {
+    private function seedMiscExpenseCategories(): void {
 
         if(!Schema::hasTable("misc_expense_categories")) {
 
@@ -337,24 +340,25 @@ final class CompanyProvisioningService {
             ["name" => "Otros gastos", "description" => "Gastos operativos que no encajan en una categoría específica."],
         ];
 
-        foreach($categories as $category) {
-
-            DB::table("misc_expense_categories")->updateOrInsert(
-                ["name" => $category["name"]],
-                $category + ["status" => "active", "updated_at" => now()]
-            );
-
-        }
+        DB::table("misc_expense_categories")->upsert(
+            collect($categories)
+                ->map(fn($category) => $category + ["status" => "active", "updated_at" => now()])
+                ->all(),
+            ["name"],
+            ["description", "status", "updated_at"]
+        );
 
     }
 
-    private function seedBusinessProfiles(int $companyId): void {
+    private function seedBusinessProfiles(): void {
 
         if(!Schema::hasTable("business_industries") || !Schema::hasTable("business_industry_module_sets")) {
 
             return;
 
         }
+
+        $companyId = $this->rootCompanyId();
 
         $profiles = [
             "gym" => [
@@ -371,37 +375,61 @@ final class CompanyProvisioningService {
             ],
         ];
 
+        $now = now();
+        $industryRecords = collect($profiles)
+            ->map(fn($profile, $slug) => $profile + [
+                "slug" => $slug,
+                "status" => "active",
+                "updated_at" => $now,
+            ])
+            ->values()
+            ->all();
+
+        DB::table("business_industries")->upsert(
+            $industryRecords,
+            ["slug"],
+            ["name", "description", "status", "updated_at"]
+        );
+
+        $industries = DB::table("business_industries")
+            ->whereIn("slug", array_keys($profiles))
+            ->pluck("id", "slug");
+
         $subSectionIds = DB::table("sub_sections")
             ->where("status", "active")
             ->pluck("id");
 
-        foreach($profiles as $slug => $profile) {
+        $moduleSetRecords = collect($profiles)
+            ->flatMap(function($profile, $slug) use ($industries, $subSectionIds, $now) {
 
-            DB::table("business_industries")->updateOrInsert(
-                ["slug" => $slug],
-                $profile + ["status" => "active", "updated_at" => now()]
+                $industryId = (int) ($industries[$slug] ?? 0);
+
+                if($industryId <= 0) {
+
+                    return [];
+
+                }
+
+                return $subSectionIds->map(fn($subSectionId) => [
+                    "business_industry_id" => $industryId,
+                    "sub_section_id" => (int) $subSectionId,
+                    "is_enabled_by_default" => true,
+                    "reason" => "Módulo disponible para el rubro {$profile["name"]}.",
+                    "status" => "active",
+                    "updated_at" => $now,
+                ]);
+
+            })
+            ->values()
+            ->all();
+
+        if($moduleSetRecords !== []) {
+
+            DB::table("business_industry_module_sets")->upsert(
+                $moduleSetRecords,
+                ["business_industry_id", "sub_section_id"],
+                ["is_enabled_by_default", "reason", "status", "updated_at"]
             );
-
-            $industryId = (int) DB::table("business_industries")
-                ->where("slug", $slug)
-                ->value("id");
-
-            foreach($subSectionIds as $subSectionId) {
-
-                DB::table("business_industry_module_sets")->updateOrInsert(
-                    [
-                        "business_industry_id" => $industryId,
-                        "sub_section_id" => $subSectionId,
-                    ],
-                    [
-                        "is_enabled_by_default" => true,
-                        "reason" => "Módulo disponible para el rubro {$profile["name"]}.",
-                        "status" => "active",
-                        "updated_at" => now(),
-                    ]
-                );
-
-            }
 
         }
 
@@ -416,7 +444,7 @@ final class CompanyProvisioningService {
 
     }
 
-    private function seedPaymentMethodVariants(int $companyId): void {
+    private function seedPaymentMethodVariants(): void {
 
         if(!Schema::hasTable("payment_method_variants")) {
 
@@ -448,38 +476,49 @@ final class CompanyProvisioningService {
             ],
         ];
 
-        foreach($variantsByMethod as $methodCode => $variants) {
+        $now = now();
+        $records = collect($variantsByMethod)
+            ->flatMap(function($variants, $methodCode) use ($methods, $now) {
 
-            $methodId = $methods[$methodCode] ?? null;
+                $methodId = (int) ($methods[$methodCode] ?? 0);
 
-            if(!$methodId) {
+                if($methodId <= 0) {
 
-                continue;
+                    return [];
 
-            }
+                }
 
-            foreach($variants as $variant) {
+                return collect($variants)->map(fn($variant) => $variant + [
+                    "payment_method_id" => $methodId,
+                    "sunat_code" => null,
+                    "requires_reference" => true,
+                    "is_default" => false,
+                    "status" => "active",
+                    "updated_at" => $now,
+                ]);
 
-                DB::table("payment_method_variants")->updateOrInsert(
-                    ["payment_method_id" => $methodId, "code" => $variant["code"]],
-                    $variant + [
-                        "payment_method_id" => $methodId,
-                        "sunat_code" => null,
-                        "requires_reference" => true,
-                        "is_default" => false,
-                        "status" => "active",
-                        "updated_at" => now(),
-                    ]
-                );
+            })
+            ->values()
+            ->all();
 
-            }
+        if($records !== []) {
+
+            DB::table("payment_method_variants")->upsert(
+                $records,
+                ["payment_method_id", "code"],
+                [
+                    "name", "sunat_code", "image_path", "description", "requires_reference",
+                    "is_default", "status", "updated_at",
+                ]
+            );
 
         }
 
     }
 
-    private function seedOperationalDefaults(int $companyId): void {
+    private function seedOperationalDefaults(): void {
 
+        $companyId = $this->rootCompanyId();
         DB::table("branches")->updateOrInsert(
             ["company_id" => $companyId, "name" => "Sede Principal"],
             ["company_id" => $companyId, "internal_code" => "SUC-PRINCIPAL", "status" => "active", "updated_at" => now()]
@@ -515,7 +554,7 @@ final class CompanyProvisioningService {
 
     }
 
-    private function ensureAdminRole(int $companyId): void {
+    private function ensureAdminRole(): void {
 
         $existingRoleId = DB::table("roles")
             ->where("is_full_access", true)
@@ -538,14 +577,29 @@ final class CompanyProvisioningService {
 
         $subSectionIds = DB::table("sub_sections")->pluck("id");
 
-        foreach($subSectionIds as $subSectionId) {
+        $roleSubSections = $subSectionIds
+            ->map(fn($subSectionId) => [
+                "role_id" => (int) $existingRoleId,
+                "sub_section_id" => (int) $subSectionId,
+                "status" => "active",
+            ])
+            ->all();
 
-            DB::table("role_sub_sections")->updateOrInsert(
-                ["role_id" => $existingRoleId, "sub_section_id" => $subSectionId],
-                ["role_id" => $existingRoleId, "sub_section_id" => $subSectionId, "status" => "active"]
+        if($roleSubSections !== []) {
+
+            DB::table("role_sub_sections")->upsert(
+                $roleSubSections,
+                ["role_id", "sub_section_id"],
+                ["status"]
             );
 
         }
+
+    }
+
+    private function rootCompanyId(): int {
+
+        return app(TenantCompanyContext::class)->id();
 
     }
 }

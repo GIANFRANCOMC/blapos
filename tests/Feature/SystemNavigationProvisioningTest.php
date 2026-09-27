@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
 use App\Services\System\Organizations\{BusinessProfileService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
@@ -61,6 +62,40 @@ final class SystemNavigationProvisioningTest extends TestCase {
                 ->where("status", "inactive")
                 ->count()
         );
+
+    }
+
+    public function test_root_company_provisioning_is_idempotent_without_a_company_selector(): void {
+
+        $tables = [
+            "business_industries",
+            "business_industry_module_sets",
+            "company_settings",
+            "misc_expense_categories",
+            "payment_methods",
+            "payment_method_variants",
+            "roles",
+            "role_sub_sections",
+            "users",
+        ];
+
+        $before = collect($tables)
+            ->mapWithKeys(fn($table) => [$table => DB::table($table)->count()])
+            ->all();
+
+        $provisioning = app(CompanyProvisioningService::class);
+        $provisioning->enable();
+        $provisioning->ensureAdminUser(
+            "Administrador de pruebas",
+            "admin@example.test",
+            "password"
+        );
+
+        $after = collect($tables)
+            ->mapWithKeys(fn($table) => [$table => DB::table($table)->count()])
+            ->all();
+
+        $this->assertSame($before, $after);
 
     }
 
