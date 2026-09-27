@@ -6,7 +6,6 @@ namespace App\Http\Controllers\System\Base;
 
 use App\Http\Controllers\System\Concerns\{HandlesApiResponses, HandlesExceptions};
 use App\Http\Controllers\{Controller};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Http\{Request};
 use Illuminate\Support\Facades\{Auth};
 
@@ -25,15 +24,6 @@ abstract class BaseController extends Controller {
     protected function getAuthUser() {
 
         return Auth::user();
-
-    }
-
-    /**
-     * Get authenticated user's company ID
-     */
-    protected function getCompanyId(): int {
-
-        return app(TenantCompanyContext::class)->id();
 
     }
 

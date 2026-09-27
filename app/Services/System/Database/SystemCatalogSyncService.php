@@ -30,10 +30,8 @@ final class SystemCatalogSyncService {
 
             }
 
-            $companyId = app(TenantCompanyContext::class)->id();
-
-            $this->syncCompanyAccess($companyId, $categories, $sections, $items);
-            CompanySectionService::clearCompanyCache($companyId);
+            $this->syncCompanyAccess($categories, $sections, $items);
+            CompanySectionService::clearTenantCache();
 
             return [
                 "categories" => $categories->count(),
@@ -47,17 +45,12 @@ final class SystemCatalogSyncService {
     }
 
     private function syncCompanyAccess(
-        int $companyId,
         Collection $categories,
         Collection $sections,
         Collection $items
     ): void {
 
-        if(!DB::table("companies")->where("id", $companyId)->exists()) {
-
-            throw new RuntimeException("No existe la organización {$companyId}.");
-
-        }
+        $companyId = app(TenantCompanyContext::class)->id();
 
         $categoryOrders = $categories->pluck("order", "id");
 

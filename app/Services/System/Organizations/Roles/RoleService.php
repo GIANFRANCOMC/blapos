@@ -8,7 +8,6 @@ use App\Helpers\System\{Utilities};
 use App\Models\System\Organizations\{Role, RoleSubSection, User};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Organizations\{AccessScopeService, BusinessAuditService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Auth\Access\{AuthorizationException};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
@@ -55,10 +54,9 @@ final class RoleService {
 
     public static function create(int $userId, array $data): Role {
 
-        $companyId = app(TenantCompanyContext::class)->id();
-        self::assertCanDelegate($companyId, $userId, $data);
+        self::assertCanDelegate($userId, $data);
 
-        return DB::transaction(function() use ($companyId, $userId, $data) {
+        return DB::transaction(function() use ($userId, $data) {
 
             $role = Role::create([
                 "slug" => Utilities::generateCode(),
@@ -72,9 +70,9 @@ final class RoleService {
                 "created_by" => $userId,
             ]);
 
-            self::syncPermissions($companyId, $role, $data, $userId);
-            self::syncScopes($companyId, $role, $data, $userId);
-            self::auditRoleSecurityChange($companyId, $role->id, $userId, [], self::roleSnapshot(self::find($role->id)), "created");
+            self::syncPermissions($role, $data, $userId);
+            self::syncScopes($role, $data, $userId);
+            self::auditRoleSecurityChange($role->id, $userId, [], self::roleSnapshot(self::find($role->id)), "created");
 
             return self::find($role->id);
 
@@ -84,11 +82,10 @@ final class RoleService {
 
     public static function update(int $roleId, int $userId, array $data): Role {
 
-        $companyId = app(TenantCompanyContext::class)->id();
-        self::assertCanDelegate($companyId, $userId, $data, $roleId);
-        self::assertCompanyKeepsAdministrator($companyId, $roleId, $data);
+        self::assertCanDelegate($userId, $data, $roleId);
+        self::assertTenantKeepsAdministrator($roleId, $data);
 
-        return DB::transaction(function() use ($companyId, $roleId, $userId, $data) {
+        return DB::transaction(function() use ($roleId, $userId, $data) {
 
             $before = self::roleSnapshot(self::find($roleId));
             $role = Role::query()
@@ -105,9 +102,9 @@ final class RoleService {
                 "updated_by" => $userId,
             ]);
 
-            self::syncPermissions($companyId, $role, $data, $userId);
-            self::syncScopes($companyId, $role, $data, $userId);
-            self::auditRoleSecurityChange($companyId, $role->id, $userId, $before, self::roleSnapshot(self::find($role->id)), "updated");
+            self::syncPermissions($role, $data, $userId);
+            self::syncScopes($role, $data, $userId);
+            self::auditRoleSecurityChange($role->id, $userId, $before, self::roleSnapshot(self::find($role->id)), "updated");
 
             return self::find($role->id);
 
@@ -117,11 +114,10 @@ final class RoleService {
 
     public static function duplicate(int $roleId, int $userId, string $name): Role {
 
-        $companyId = app(TenantCompanyContext::class)->id();
         $source = self::find($roleId);
 
         $permissions = $source->is_full_access
-            ? self::enabledSubSectionIds($companyId)->map(fn($subSectionId) => [
+            ? self::enabledSubSectionIds()->map(fn($subSectionId) => [
                 "sub_section_id" => (int) $subSectionId,
                 "actions" => RolePermissionService::actionCodes(),
             ])->values()->all()
@@ -146,13 +142,12 @@ final class RoleService {
     }
 
     private static function syncPermissions(
-        int $companyId,
         Role $role,
         array $data,
         int $userId
     ): void {
 
-        $enabledIds = self::enabledSubSectionIds($companyId);
+        $enabledIds = self::enabledSubSectionIds();
         $allActions = RolePermissionService::actionCodes();
         $permissions = collect($data["permissions"] ?? [])->map(function($permission) use ($allActions) {
 
@@ -193,8 +188,7 @@ final class RoleService {
 
         if($role->is_full_access || $permissions->isEmpty()) {
 
-            RolePermissionService::clearRoleCache($companyId, (int) $role->id);
-            \App\Services\System\Organizations\Companies\CompanySectionService::clearCache($companyId, (int) $role->id);
+            self::clearRoleCaches((int) $role->id);
 
             return;
 
@@ -209,12 +203,11 @@ final class RoleService {
             "created_by" => $userId,
         ])->all());
 
-        RolePermissionService::clearRoleCache($companyId, (int) $role->id);
-        \App\Services\System\Organizations\Companies\CompanySectionService::clearCache($companyId, (int) $role->id);
+        self::clearRoleCaches((int) $role->id);
 
     }
 
-    private static function syncScopes(int $companyId, Role $role, array $data, int $userId): void {
+    private static function syncScopes(Role $role, array $data, int $userId): void {
 
         $definitions = [
             "branch" => ["table" => "role_branches", "key" => "branch_id", "resource" => "branches"],
@@ -222,7 +215,7 @@ final class RoleService {
             "warehouse" => ["table" => "role_warehouses", "key" => "warehouse_id", "resource" => "warehouses"],
         ];
 
-        $branchIds = self::validScopeIds($companyId, "branches", $data["branch_ids"] ?? []);
+        $branchIds = self::validScopeIds("branches", $data["branch_ids"] ?? []);
 
         foreach($definitions as $type => $definition) {
 
@@ -237,7 +230,6 @@ final class RoleService {
             $ids = $type === "branch"
                 ? $branchIds
                 : self::validScopeIds(
-                    $companyId,
                     $definition["resource"],
                     $data["{$type}_ids"] ?? [],
                     $branchIds
@@ -259,12 +251,11 @@ final class RoleService {
 
         }
 
-        RolePermissionService::clearRoleCache($companyId, (int) $role->id);
+        RolePermissionService::clearRoleCache((int) $role->id);
 
     }
 
     private static function validScopeIds(
-        int $companyId,
         string $table,
         array $ids,
         ?array $branchIds = null
@@ -330,7 +321,6 @@ final class RoleService {
     }
 
     private static function auditRoleSecurityChange(
-        int $companyId,
         int $roleId,
         int $userId,
         array $before,
@@ -358,9 +348,9 @@ final class RoleService {
 
     }
 
-    private static function enabledSubSectionIds(int $companyId) {
+    private static function enabledSubSectionIds() {
 
-        return CompanySectionService::getSections($companyId)
+        return CompanySectionService::getSections()
             ->pluck("subSections")
             ->flatten()
             ->pluck("id")
@@ -369,7 +359,6 @@ final class RoleService {
     }
 
     private static function assertCanDelegate(
-        int $companyId,
         int $actorId,
         array $data,
         ?int $targetRoleId = null
@@ -460,7 +449,7 @@ final class RoleService {
 
     }
 
-    private static function assertCompanyKeepsAdministrator(int $companyId, int $roleId, array $data): void {
+    private static function assertTenantKeepsAdministrator(int $roleId, array $data): void {
 
         $role = Role::query()->findOrFail($roleId);
         $removesFullAccess = $role->is_full_access && (
@@ -487,6 +476,13 @@ final class RoleService {
             throw new AuthorizationException("La empresa debe conservar al menos un usuario con acceso total.");
 
         }
+
+    }
+
+    private static function clearRoleCaches(int $roleId): void {
+
+        RolePermissionService::clearRoleCache($roleId);
+        CompanySectionService::clearCache($roleId);
 
     }
 }

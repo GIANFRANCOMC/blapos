@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Services\System\Organizations\Companies;
 
 use App\Models\System\General\{Section};
+use App\Models\System\Organizations\{Role};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
-use App\Services\System\Tenancy\{TenantContext};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
 use Illuminate\Database\Eloquent\{Collection};
 use Illuminate\Support\Facades\{Cache, DB, Route};
-use InvalidArgumentException;
 
 /**
  * Resolves and caches the modules enabled for a company.
@@ -19,11 +19,9 @@ final class CompanySectionService {
 
     private const CACHE_PREFIX = "company_sections";
 
-    public static function getSections(int $companyId, ?int $roleId = null, bool $forceRefresh = false): Collection {
+    public static function getSections(?int $roleId = null, bool $forceRefresh = false): Collection {
 
-        self::validateCompanyId($companyId);
-
-        $cacheKey = self::cacheKey($companyId, $roleId);
+        $cacheKey = self::cacheKey($roleId);
 
         if($forceRefresh) {
 
@@ -34,33 +32,33 @@ final class CompanySectionService {
         return Cache::remember(
             $cacheKey,
             self::CACHE_TTL,
-            fn() => self::querySections($companyId, $roleId)
+            fn() => self::querySections($roleId)
         );
 
     }
 
-    public static function clearCache(int $companyId, ?int $roleId = null): void {
+    public static function clearCache(?int $roleId = null): void {
 
-        self::validateCompanyId($companyId);
-
-        Cache::forget(self::cacheKey($companyId, $roleId));
+        Cache::forget(self::cacheKey($roleId));
 
     }
 
-    public static function clearCompanyCache(int $companyId): void {
+    public static function clearTenantCache(): void {
 
-        self::clearCache($companyId);
-        RolePermissionService::clearCompanyCache($companyId);
+        self::clearCache();
 
-        \App\Models\System\Organizations\Role::query()
+        Role::query()
             ->pluck("id")
-            ->each(fn($roleId) => self::clearCache($companyId, (int) $roleId));
+            ->each(function($roleId): void {
+
+                RolePermissionService::clearRoleCache((int) $roleId);
+                self::clearCache((int) $roleId);
+
+            });
 
     }
 
-    public static function revokeDisabledRolePermissions(int $companyId, array $enabledSubSectionIds): int {
-
-        self::validateCompanyId($companyId);
+    public static function revokeDisabledRolePermissions(array $enabledSubSectionIds): int {
 
         $enabledIds = collect($enabledSubSectionIds)
             ->map(fn($id) => (int) $id)
@@ -80,19 +78,18 @@ final class CompanySectionService {
 
     }
 
-    public static function cacheKey(int $companyId, ?int $roleId = null): string {
-
-        self::validateCompanyId($companyId);
+    public static function cacheKey(?int $roleId = null): string {
 
         return app(TenantContext::class)->cacheNamespace().":".self::CACHE_PREFIX.":role:".($roleId ?: "all");
 
     }
 
-    private static function querySections(int $companyId, ?int $roleId = null): Collection {
+    private static function querySections(?int $roleId = null): Collection {
 
-        $mustFilterByRole = $roleId && !RolePermissionService::isFullAccess($companyId, $roleId);
+        $companyId = app(TenantCompanyContext::class)->id();
+        $mustFilterByRole = $roleId && !RolePermissionService::isFullAccess($roleId);
         $allowedSubSectionIds = $mustFilterByRole
-            ? RolePermissionService::allowedSubSectionIds($companyId, $roleId)
+            ? RolePermissionService::allowedSubSectionIds($roleId)
             : [];
 
         $query = Section::query()
@@ -195,16 +192,6 @@ final class CompanySectionService {
                 });
 
             });
-
-    }
-
-    private static function validateCompanyId(int $companyId): void {
-
-        if($companyId <= 0) {
-
-            throw new InvalidArgumentException("Company ID must be greater than zero.");
-
-        }
 
     }
 }

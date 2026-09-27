@@ -78,7 +78,7 @@ final class BusinessProfileService {
 
             }
 
-            CompanySectionService::revokeDisabledRolePermissions($companyId, $selectedIds->values()->all());
+            CompanySectionService::revokeDisabledRolePermissions($selectedIds->values()->all());
 
             DB::table("companies")
                 ->where("id", $companyId)
@@ -88,7 +88,7 @@ final class BusinessProfileService {
                     "updated_by" => $userId,
                 ]);
 
-            CompanySectionService::clearCompanyCache($companyId);
+            CompanySectionService::clearTenantCache();
 
         });
 
@@ -146,9 +146,9 @@ final class BusinessProfileService {
 
             }
 
-            CompanySectionService::revokeDisabledRolePermissions($companyId, $selected->values()->all());
+            CompanySectionService::revokeDisabledRolePermissions($selected->values()->all());
 
-            CompanySectionService::clearCompanyCache($companyId);
+            CompanySectionService::clearTenantCache();
 
         });
 

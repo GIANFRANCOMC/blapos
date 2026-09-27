@@ -7,8 +7,7 @@ namespace App\Http\Controllers\System\Organizations;
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Organizations\Roles\{DuplicateRoleRequest, StoreRoleRequest};
-use App\Services\System\Base\{InitParamsCacheInvalidationService};
-use App\Services\System\Organizations\Roles\{RoleConfigService, RolePermissionService, RoleService};
+use App\Services\System\Organizations\Roles\{RoleConfigService, RoleService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class RoleController extends BaseController {
@@ -50,8 +49,6 @@ class RoleController extends BaseController {
             $request->validated()
         );
 
-        $this->invalidate();
-
         return response()->json([
             "bool" => true,
             "msg" => "Perfil agregado correctamente.",
@@ -67,8 +64,6 @@ class RoleController extends BaseController {
             $this->getUserId(),
             $request->validated()
         );
-
-        $this->invalidate();
 
         return response()->json([
             "bool" => true,
@@ -87,24 +82,11 @@ class RoleController extends BaseController {
             $data["name"]
         );
 
-        $this->invalidate();
-
         return response()->json([
             "bool" => true,
             "msg" => "Perfil duplicado correctamente.",
             "data" => $role,
         ], 201);
-
-    }
-
-    private function invalidate(): void {
-
-        RolePermissionService::clearCompanyCache($this->getCompanyId());
-        \App\Services\System\Organizations\Companies\CompanySectionService::clearCompanyCache($this->getCompanyId());
-        RoleConfigService::clearAllCache();
-        InitParamsCacheInvalidationService::invalidate(
-            InitParamsCacheInvalidationService::ROLES
-        );
 
     }
 

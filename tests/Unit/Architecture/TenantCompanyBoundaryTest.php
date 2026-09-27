@@ -19,7 +19,6 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "app/Models/System/Organizations/CompanySetting.php" => 2,
         "app/Models/System/Organizations/CompanySocialMedia.php" => 2,
         "app/Models/System/Organizations/CompanySubSection.php" => 2,
-        "app/Observers/System/Organizations/CompanySubSectionObserver.php" => 3,
         "app/Services/System/Database/SystemCatalogSyncService.php" => 1,
         "app/Services/System/Essentials/UserNavigationService.php" => 1,
         "app/Services/System/Organizations/Branches/BranchService.php" => 1,
@@ -40,11 +39,7 @@ final class TenantCompanyBoundaryTest extends TestCase {
     ];
 
     private const STRUCTURAL_COMPANY_SERVICES = [
-        "app/Services/System/Database/SystemCatalogSyncService.php",
         "app/Services/System/Organizations/Companies/CompanyProvisioningService.php",
-        "app/Services/System/Organizations/Companies/CompanySectionService.php",
-        "app/Services/System/Organizations/Roles/RolePermissionService.php",
-        "app/Services/System/Organizations/Roles/RoleService.php",
     ];
 
     public function test_only_structural_tenant_tables_define_company_id(): void {

@@ -35,6 +35,8 @@ Los enlaces firmados para comprobantes tampoco incluyen el ID local de la empres
 
 Los controladores no reciben `company_id` ni `companyId`. Los catálogos maestros, parámetros iniciales, códigos internos y cachés se resuelven desde el contexto tenant.
 
+La administración de módulos y permisos tampoco recibe el ID raíz: `CompanySectionService` y `RolePermissionService` trabajan sobre la conexión activa. El ID solo se materializa dentro de las consultas de las cuatro relaciones estructurales. El aprovisionador es la única excepción porque debe encadenar la creación de la empresa con sus referencias iniciales.
+
 ## Ciclo de vida
 
 - `provisioning`: creación en curso.

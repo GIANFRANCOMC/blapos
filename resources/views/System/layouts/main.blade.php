@@ -6,7 +6,7 @@
     $company  = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->get();
     $role     = $user->role;
     $systemAssetsPath = rtrim(asset('System/assets'), '/').'/';
-    $sections = \App\Services\System\Organizations\Companies\CompanySectionService::getSections($company->id, $role?->id);
+    $sections = \App\Services\System\Organizations\Companies\CompanySectionService::getSections($role?->id);
     $user->load("preferences");
     $preferences = $user->formatted_preferences;
     $userInitials = collect(preg_split('/\s+/', trim($user->name)))

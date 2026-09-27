@@ -9,9 +9,9 @@ use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Catalogs\Products\{ImportProductsRequest, StoreProductRequest, UpdateProductRequest};
 use App\Imports\System\Catalogs\Products\{ProductBasicImport};
-use App\Models\System\Organizations\{Company};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Products\{ProductConfigService, ProductService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\{ValidationException};
@@ -91,7 +91,7 @@ class ProductController extends BaseController {
 
             }
 
-            $currencyId = (int) Company::whereKey($this->getCompanyId())->value("currency_id");
+            $currencyId = (int) app(TenantCompanyContext::class)->get()->currency_id;
 
             $import = new ProductBasicImport(
                 $currencyId,

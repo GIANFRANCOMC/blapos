@@ -8,7 +8,6 @@ use App\Models\System\Tenancy\{TenantDatabase};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
-use RuntimeException;
 
 final class PlatformTenantService {
     public function __construct(private readonly TenantConnectionManager $connections) {
@@ -20,19 +19,18 @@ final class PlatformTenantService {
 
         try {
 
-            $companyId = $this->rootCompanyId();
-
-            $latestCompanyModules = DB::table("companies_sub_sections")
-                ->selectRaw("MAX(id) as id, sub_section_id")
-                ->where("company_id", $companyId)
-                ->groupBy("sub_section_id");
+            $companyId = app(TenantCompanyContext::class)->id();
 
             return DB::table("sub_sections as ss")
                 ->join("sections as s", "s.id", "=", "ss.section_id")
                 ->join("menu_categories as mc", "mc.id", "=", "s.menu_category_id")
                 ->leftJoin("menu_groups as mg", "mg.id", "=", "ss.menu_group_id")
-                ->leftJoinSub($latestCompanyModules, "latest_css", "latest_css.sub_section_id", "=", "ss.id")
-                ->leftJoin("companies_sub_sections as css", "css.id", "=", "latest_css.id")
+                ->leftJoin("companies_sub_sections as css", function($join) use ($companyId): void {
+
+                    $join->on("css.sub_section_id", "=", "ss.id")
+                        ->where("css.company_id", $companyId);
+
+                })
                 ->where("ss.status", "active")
                 ->orderBy("mc.order")
                 ->orderBy("s.order")
@@ -60,7 +58,7 @@ final class PlatformTenantService {
 
         try {
 
-            $companyId = $this->rootCompanyId();
+            $companyId = app(TenantCompanyContext::class)->id();
 
             $enabled = collect($enabledModuleIds)->map(fn($id) => (int) $id)->unique();
 
@@ -102,13 +100,12 @@ final class PlatformTenantService {
                 }
 
                 CompanySectionService::revokeDisabledRolePermissions(
-                    $companyId,
                     $enabled->intersect($modules->pluck("id"))->values()->all()
                 );
 
             });
 
-            CompanySectionService::clearCompanyCache($companyId);
+            CompanySectionService::clearTenantCache();
 
             return $enabled->intersect($modules->pluck("id")->map(fn($id) => (int) $id))->count();
 
@@ -117,23 +114,6 @@ final class PlatformTenantService {
             $this->connections->disconnect();
 
         }
-
-    }
-
-    private function rootCompanyId(): int {
-
-        $companyIds = DB::table("companies")
-            ->orderBy("id")
-            ->limit(2)
-            ->pluck("id");
-
-        if($companyIds->count() !== 1) {
-
-            throw new RuntimeException("El tenant debe contener exactamente una empresa raíz.");
-
-        }
-
-        return (int) $companyIds->first();
 
     }
 }

@@ -177,10 +177,7 @@ final class UserNavigationService {
 
     private function allowedCatalog(User $user): Collection {
 
-        return CompanySectionService::getSections(
-            app(TenantCompanyContext::class)->id(),
-            (int) $user->role_id
-        )
+        return CompanySectionService::getSections((int) $user->role_id)
             ->flatMap(function($section) {
 
                 return $section->subSections

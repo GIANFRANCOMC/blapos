@@ -7,18 +7,25 @@ namespace Tests\Unit\Services;
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use Illuminate\Database\Eloquent\{Collection};
 use Illuminate\Support\Facades\{Cache};
-use InvalidArgumentException;
 use Tests\{TestCase};
 
 class CompanySectionServiceTest extends TestCase {
+    protected function tearDown(): void {
+
+        Cache::forget(CompanySectionService::cacheKey());
+        Cache::forget(CompanySectionService::cacheKey(10));
+
+        parent::tearDown();
+
+    }
+
     public function test_it_returns_cached_sections_without_requerying(): void {
 
-        $companyId = 201;
         $sections = new Collection([(object) ["id" => 1]]);
 
-        Cache::put(CompanySectionService::cacheKey($companyId), $sections, 1800);
+        Cache::put(CompanySectionService::cacheKey(), $sections, 1800);
 
-        $result = CompanySectionService::getSections($companyId);
+        $result = CompanySectionService::getSections();
 
         $this->assertCount(1, $result);
         $this->assertSame(1, $result->first()->id);
@@ -27,21 +34,23 @@ class CompanySectionServiceTest extends TestCase {
 
     public function test_clear_cache_forgets_company_sections(): void {
 
-        $companyId = 202;
-        $cacheKey = CompanySectionService::cacheKey($companyId);
+        $cacheKey = CompanySectionService::cacheKey();
 
         Cache::put($cacheKey, new Collection(), 1800);
-        CompanySectionService::clearCache($companyId);
+        CompanySectionService::clearCache();
 
         $this->assertFalse(Cache::has($cacheKey));
 
     }
 
-    public function test_invalid_company_id_is_rejected(): void {
+    public function test_role_cache_keys_are_isolated_inside_the_tenant_namespace(): void {
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->assertNotSame(
+            CompanySectionService::cacheKey(),
+            CompanySectionService::cacheKey(10)
+        );
 
-        CompanySectionService::getSections(0);
+        $this->assertStringEndsWith(":role:10", CompanySectionService::cacheKey(10));
 
     }
 }

@@ -36,7 +36,9 @@ Solo cuatro tablas tenant mantienen la relación porque describen estructura dir
 
 El proyecto todavía no está en producción, por lo que la estructura se corrigió en las migraciones de origen. No existe una migración incremental que copie o elimine columnas históricas. Una instalación limpia crea directamente el modelo vigente.
 
-La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método operativo y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo métodos privados y protegidos. Solo los servicios estructurales de aprovisionamiento, sincronización de catálogo, módulos, perfiles y permisos pueden recibir explícitamente el ID de la empresa raíz.
+La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método operativo y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo métodos privados y protegidos. Solo el aprovisionamiento inicial puede transportar explícitamente el ID que acaba de crear; módulos, perfiles, permisos, navegación y caché resuelven la empresa raíz desde `TenantCompanyContext`.
+
+Las APIs `CompanySectionService` y `RolePermissionService` reciben únicamente el rol o los datos funcionales. Sus claves se aíslan con `TenantContext::cacheNamespace()` y la invalidación opera sobre el tenant conectado, evitando propagar un ID local que se repite entre bases.
 
 La precisión decimal también se resuelve directamente desde `CompanySettingService`; `Utilities::round()`, `Utilities::formatDecimal()` y `Utilities::decimalPrecision()` no aceptan un selector de empresa.
 
