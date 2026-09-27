@@ -3,7 +3,6 @@
 namespace App\Helpers\System;
 
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use DateTime;
 use Exception;
@@ -92,35 +91,27 @@ class Utilities {
 
     }
 
-    public static function decimalPrecision(?int $companyId = null): int {
+    public static function decimalPrecision(): int {
 
-        $companyId ??= app(TenantCompanyContext::class)->idOrNull();
-
-        if($companyId !== null && $companyId > 0) {
-
-            return max(0, min(8, (int) CompanySettingService::value(
-                CompanySettingService::NUMERIC_VALIDATION,
-                "decimal_precision",
-                self::$inputs["round"]
-            )));
-
-        }
-
-        return max(0, min(8, (int) self::$inputs["round"]));
+        return max(0, min(8, (int) CompanySettingService::value(
+            CompanySettingService::NUMERIC_VALIDATION,
+            "decimal_precision",
+            self::$inputs["round"]
+        )));
 
     }
 
-    public static function round($value, $decimals = null, ?int $companyId = null) {
+    public static function round($value, $decimals = null) {
 
-        return round((float) $value, $decimals ?? self::decimalPrecision($companyId));
+        return round((float) $value, $decimals ?? self::decimalPrecision());
 
     }
 
-    public static function formatDecimal($value, ?int $companyId = null, ?int $decimals = null): string {
+    public static function formatDecimal($value, ?int $decimals = null): string {
 
         return number_format(
             (float) ($value ?? 0),
-            $decimals ?? self::decimalPrecision($companyId),
+            $decimals ?? self::decimalPrecision(),
             ".",
             ","
         );

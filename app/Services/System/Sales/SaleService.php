@@ -56,13 +56,13 @@ class SaleService {
      *
      * @param  array  $details Sale details
      */
-    private static function calculateTotal(array $details, int $companyId): float {
+    private static function calculateTotal(array $details): float {
 
         $total = 0;
 
         foreach($details as $detail) {
 
-            $total += Utilities::round(floatval($detail["quantity"]) * floatval($detail["price"]), null, $companyId);
+            $total += Utilities::round(floatval($detail["quantity"]) * floatval($detail["price"]));
 
         }
 
@@ -90,17 +90,17 @@ class SaleService {
 
     }
 
-    private static function calculateCommissionAmount(float $quantity, float $price, string $type, float $value, int $companyId): float {
+    private static function calculateCommissionAmount(float $quantity, float $price, string $type, float $value): float {
 
         if($type === "percentage") {
 
-            return Utilities::round(($quantity * $price) * ($value / 100), null, $companyId);
+            return Utilities::round(($quantity * $price) * ($value / 100));
 
         }
 
         if($type === "fixed") {
 
-            return Utilities::round($quantity * $value, null, $companyId);
+            return Utilities::round($quantity * $value);
 
         }
 
@@ -108,7 +108,7 @@ class SaleService {
 
     }
 
-    private static function resolveSellerId(array $data, int $companyId, int $userId): int {
+    private static function resolveSellerId(array $data, int $userId): int {
 
         $sellerId = (int) ($data["seller_id"] ?? $userId);
 
@@ -127,14 +127,14 @@ class SaleService {
 
     }
 
-    private static function normalizeCommissionDetails(array $details, int $companyId): array {
+    private static function normalizeCommissionDetails(array $details): array {
 
         $items = Item::query()
             ->whereIn("id", collect($details)->pluck("item_id")->filter()->unique()->values())
             ->get(["id", "commission_rate", "commission_type", "commission_value"])
             ->keyBy("id");
 
-        return array_map(function(array $detail) use ($items, $companyId) {
+        return array_map(function(array $detail) use ($items) {
 
             $item = $items->get((int) ($detail["item_id"] ?? 0));
             $fallbackRate = (float) ($item?->commission_rate ?? 0);
@@ -157,8 +157,7 @@ class SaleService {
                 (float) ($detail["quantity"] ?? 0),
                 (float) ($detail["price"] ?? 0),
                 $type,
-                $value,
-                $companyId
+                $value
             );
 
             return $detail;
@@ -167,7 +166,7 @@ class SaleService {
 
     }
 
-    private static function lockCatalogItemsForSale(array $details, int $companyId) {
+    private static function lockCatalogItemsForSale(array $details) {
 
         $itemIds = collect($details)
             ->pluck("item_id")
@@ -260,7 +259,7 @@ class SaleService {
 
     }
 
-    private static function restoreItemCapacityForCanceledSale($positions, int $companyId, int $userId): void {
+    private static function restoreItemCapacityForCanceledSale($positions, int $userId): void {
 
         $capacityPositions = $positions->filter(fn($position) => in_array($position->type, ["service", "subscription"], true));
 
@@ -389,7 +388,6 @@ class SaleService {
         array $metadata = []
     ): ?InventoryMovement {
 
-        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
         $allowNegativeStock = (bool) CompanySettingService::value(
             CompanySettingService::INVENTORY_POLICIES,
             "allow_negative_stock_on_sale",
@@ -414,7 +412,7 @@ class SaleService {
 
         }
 
-        $quantity = Utilities::round((float) ($detail["quantity"] ?? $saleBody->quantity), null, $companyId);
+        $quantity = Utilities::round((float) ($detail["quantity"] ?? $saleBody->quantity));
 
         return InventoryMovementService::apply([
             "warehouse_id" => (int) $warehouse->id,
@@ -439,11 +437,10 @@ class SaleService {
      * @param  SaleHeader  $saleHeader Sale header instance
      * @param  SaleBody  $saleBody Sale body instance
      * @param  array  $detail Sale detail data
-     * @param  int  $companyId Company ID
      * @param  int  $branchId Branch ID
      * @param  int  $userId User ID
      */
-    private static function createSubscription(SaleHeader $saleHeader, SaleBody $saleBody, array $detail, int $companyId, int $branchId, int $userId): ?Subscription {
+    private static function createSubscription(SaleHeader $saleHeader, SaleBody $saleBody, array $detail, int $branchId, int $userId): ?Subscription {
 
         if(!in_array($saleBody->type, ["subscription"])) {
 
@@ -455,7 +452,7 @@ class SaleService {
 
         $subscriptionCustomerId = (int) ($detail["customer_id"] ?? $saleHeader->holder_id);
 
-        self::validateSubscriptionCustomer($companyId, $subscriptionCustomerId);
+        self::validateSubscriptionCustomer($subscriptionCustomerId);
 
         TrackingSubscriptionService::assertDatesAvailable(
             $branchId,
@@ -506,7 +503,7 @@ class SaleService {
 
     }
 
-    private static function validateSubscriptionCustomer(int $companyId, int $customerId): void {
+    private static function validateSubscriptionCustomer(int $customerId): void {
 
         $exists = \App\Models\System\Customers\Customer::query()
             ->where("status", "active")
@@ -531,7 +528,7 @@ class SaleService {
 
     }
 
-    private static function resolveWarehouse(array $data, int $companyId): Warehouse {
+    private static function resolveWarehouse(array $data): Warehouse {
 
         $warehouseQuery = Warehouse::query()
             ->with("branch")
@@ -577,7 +574,7 @@ class SaleService {
 
     }
 
-    private static function resolveDeliveryMethodId(array $data, int $companyId, bool $requiresPhysicalDelivery): ?int {
+    private static function resolveDeliveryMethodId(array $data, bool $requiresPhysicalDelivery): ?int {
 
         if(!$requiresPhysicalDelivery) {
 
@@ -609,7 +606,6 @@ class SaleService {
 
     private static function resolveCashSession(
         array $data,
-        int $companyId,
         int $userId
     ): ?CashSession {
 
@@ -653,7 +649,7 @@ class SaleService {
 
     }
 
-    private static function createCashMovements(SaleHeader $saleHeader, $paymentLines, int $companyId, int $branchId, int $userId): void {
+    private static function createCashMovements(SaleHeader $saleHeader, $paymentLines, int $branchId, int $userId): void {
 
         if(!Utilities::isDefined($saleHeader->cash_session_id) || $paymentLines->isEmpty()) {
 
@@ -716,7 +712,6 @@ class SaleService {
     private static function recordCorrelativeMovement(
         SaleHeader $saleHeader,
         string $action,
-        int $companyId,
         int $userId,
         string $source = "sale"
     ): void {
@@ -744,7 +739,6 @@ class SaleService {
      * Create a new sale
      *
      * @param  array  $data Sale data from request
-     * @param  int  $companyId Company that owns the sale
      * @param  int  $userId User ID creating the sale
      * @return SaleHeader|null Created sale header instance or null on failure
      *
@@ -753,25 +747,24 @@ class SaleService {
     public static function create(array $data, int $userId): ?SaleHeader {
 
         $saleHeader = null;
-        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$saleHeader) {
+        DB::transaction(function() use ($data, $userId, &$saleHeader) {
 
-            $cashSession = self::resolveCashSession($data, (int) $companyId, (int) $userId);
-            $sellerId = self::resolveSellerId($data, (int) $companyId, (int) $userId);
+            $cashSession = self::resolveCashSession($data, (int) $userId);
+            $sellerId = self::resolveSellerId($data, (int) $userId);
             self::validateSerieBelongsToBranch((int) $data["serie_id"], (int) $data["branch_id"]);
-            $data["details"] = self::normalizeCommissionDetails($data["details"], (int) $companyId);
-            $catalogItems = self::lockCatalogItemsForSale($data["details"], (int) $companyId);
+            $data["details"] = self::normalizeCommissionDetails($data["details"]);
+            $catalogItems = self::lockCatalogItemsForSale($data["details"]);
             self::validateSaleCatalogItems($data["details"], $catalogItems);
             $data["details"] = self::normalizeTaxFlags($data["details"], $catalogItems);
             $requiresWarehouse = self::saleRequiresWarehouse($data["details"]);
-            $warehouse = $requiresWarehouse ? self::resolveWarehouse($data, (int) $companyId) : null;
+            $warehouse = $requiresWarehouse ? self::resolveWarehouse($data) : null;
             $usesSaleDeliveryFlow = SaleDeliveryPolicy::usesManagedDelivery(
                 (string) ($data["source_channel"] ?? "sale"),
                 $requiresWarehouse
             );
 
-            $deliveryMethodId = self::resolveDeliveryMethodId($data, (int) $companyId, $usesSaleDeliveryFlow);
+            $deliveryMethodId = self::resolveDeliveryMethodId($data, $usesSaleDeliveryFlow);
             $deliveryStatus = SaleDeliveryPolicy::initialStatus(
                 $data["delivery_status"] ?? null,
                 $usesSaleDeliveryFlow
@@ -788,13 +781,13 @@ class SaleService {
             }
 
             // Calculate totals
-            $grossSubtotal = self::calculateTotal($data["details"], (int) $companyId);
+            $grossSubtotal = self::calculateTotal($data["details"]);
 
             $commissionTotal = Utilities::round(array_reduce($data["details"], function($carry, $detail) {
 
                 return $carry + (float) ($detail["commission_amount"] ?? 0);
 
-            }, 0), null, (int) $companyId);
+            }, 0));
 
             $selectedTaxIds = collect($data["taxes"] ?? [])
                 ->pluck("tax_id")
@@ -816,11 +809,11 @@ class SaleService {
                 $selectedTaxQuantities
             );
 
-            $taxTotal = Utilities::round((float) $taxLines->sum("amount"), null, (int) $companyId);
-            $taxImpactTotal = Utilities::round((float) $taxLines->sum("_total_impact"), null, (int) $companyId);
-            $includedTaxTotal = Utilities::round($taxTotal - $taxImpactTotal, null, (int) $companyId);
-            $subtotal = Utilities::round($grossSubtotal - $includedTaxTotal, null, (int) $companyId);
-            $baseTotal = Utilities::round($grossSubtotal + $taxImpactTotal, null, (int) $companyId);
+            $taxTotal = Utilities::round((float) $taxLines->sum("amount"));
+            $taxImpactTotal = Utilities::round((float) $taxLines->sum("_total_impact"));
+            $includedTaxTotal = Utilities::round($taxTotal - $taxImpactTotal);
+            $subtotal = Utilities::round($grossSubtotal - $includedTaxTotal);
+            $baseTotal = Utilities::round($grossSubtotal + $taxImpactTotal);
             $defaultPaymentModality = (string) CompanySettingService::value(
                 CompanySettingService::SALES,
                 "default_payment_modality",
@@ -840,9 +833,9 @@ class SaleService {
                 $paymentModality === CommercialCreditAccountService::PAID_NOW
             );
 
-            $paidAmount = Utilities::round((float) $paymentLines->sum("amount"), null, (int) $companyId);
+            $paidAmount = Utilities::round((float) $paymentLines->sum("amount"));
             $financedPrincipal = $paymentModality === CommercialCreditAccountService::INSTALLMENTS
-                ? Utilities::round($baseTotal - $paidAmount, null, (int) $companyId)
+                ? Utilities::round($baseTotal - $paidAmount)
                 : 0.0;
 
             if($paymentModality === CommercialCreditAccountService::INSTALLMENTS && $financedPrincipal <= 0) {
@@ -859,9 +852,9 @@ class SaleService {
                 )
                 : 0.0;
 
-            $installmentExtraAmount = Utilities::round($financedPrincipal * ($installmentExtraPercentage / 100), null, (int) $companyId);
-            $total = Utilities::round($baseTotal + $installmentExtraAmount, null, (int) $companyId);
-            $balanceDue = Utilities::round($total - $paidAmount, null, (int) $companyId);
+            $installmentExtraAmount = Utilities::round($financedPrincipal * ($installmentExtraPercentage / 100));
+            $total = Utilities::round($baseTotal + $installmentExtraAmount);
+            $balanceDue = Utilities::round($total - $paidAmount);
             $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount);
 
             // Create sale header
@@ -903,7 +896,6 @@ class SaleService {
             self::recordCorrelativeMovement(
                 $saleHeader,
                 self::CORRELATIVE_ISSUED,
-                (int) $companyId,
                 (int) $userId,
                 (string) ($data["source_channel"] ?? "sale")
             );
@@ -928,7 +920,7 @@ class SaleService {
                     ->map(fn($payment) => ["sale_header_id" => $saleHeader->id] + $payment)
                     ->all());
 
-                self::createCashMovements($saleHeader, $paymentLines, (int) $companyId, (int) $data["branch_id"], (int) $userId);
+                self::createCashMovements($saleHeader, $paymentLines, (int) $data["branch_id"], (int) $userId);
 
             }
 
@@ -956,7 +948,7 @@ class SaleService {
                 }
 
                 // Create subscription for subscription items
-                self::createSubscription($saleHeader, $saleBody, $detail, $companyId, $data["branch_id"], $userId);
+                self::createSubscription($saleHeader, $saleBody, $detail, $data["branch_id"], $userId);
                 self::consumeItemCapacity($catalogItems->get((int) $detail["item_id"]), $saleBody, $userId);
 
             }
@@ -1011,7 +1003,6 @@ class SaleService {
      * Cancel a sale
      *
      * @param  SaleHeader  $saleHeader Sale header instance
-     * @param  int  $companyId Company that owns the sale
      * @param  int  $userId User ID canceling the sale
      * @return SaleHeader Updated sale header instance
      *
@@ -1021,11 +1012,9 @@ class SaleService {
 
         $stockRestored = false;
         $restoreStockPolicyEnabled = false;
-        $companyId = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->id();
 
         DB::transaction(function() use (
             $saleHeader,
-            $companyId,
             $userId,
             &$stockRestored,
             &$restoreStockPolicyEnabled
@@ -1051,7 +1040,7 @@ class SaleService {
 
             $allPositions = $saleHeader->allPositions;
             SaleDeliveryService::cancelForSale($saleHeader, (int) $userId);
-            self::restoreItemCapacityForCanceledSale($allPositions, (int) $companyId, (int) $userId);
+            self::restoreItemCapacityForCanceledSale($allPositions, (int) $userId);
             CustomerLoyaltyPointService::reverseForCanceledSale($saleHeader, (int) $userId);
 
             $productPositions = $allPositions->where("type", "product");
@@ -1170,7 +1159,6 @@ class SaleService {
             self::recordCorrelativeMovement(
                 $saleHeader,
                 self::CORRELATIVE_CANCELED,
-                $companyId,
                 (int) $userId,
                 $correlativeSource
             );
@@ -1228,7 +1216,6 @@ class SaleService {
     /**
      * Get paginated list of sales
      *
-     * @param  int  $companyId Company ID
      * @param  array  $filters Filter parameters
      * @param  int  $perPage Items per page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator

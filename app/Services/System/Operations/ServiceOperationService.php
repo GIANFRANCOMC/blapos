@@ -11,7 +11,6 @@ use App\Models\System\Operations\{ServiceFloor, ServiceSession, ServiceSessionIt
 use App\Models\System\Organizations\{Branch, User};
 use App\Services\System\Base\{CompanyReferenceDataService};
 use App\Services\System\Organizations\{AccessScopeService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\{Carbon};
 use DomainException;
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
@@ -115,8 +114,7 @@ final class ServiceOperationService {
 
     public static function createFloor(int $actorId, array $data): ServiceFloor {
 
-        $companyId = self::companyId();
-        self::requireBranch($companyId, (int) $data["branch_id"], $actorId);
+        self::requireBranch((int) $data["branch_id"], $actorId);
 
         $duplicate = ServiceFloor::query()
             ->where("branch_id", (int) $data["branch_id"])
@@ -146,8 +144,7 @@ final class ServiceOperationService {
 
     public static function floors(int $actorId, int $branchId) {
 
-        $companyId = self::companyId();
-        self::requireBranch($companyId, $branchId, $actorId);
+        self::requireBranch($branchId, $actorId);
 
         return ServiceFloor::query()
             ->where("branch_id", $branchId)
@@ -162,12 +159,10 @@ final class ServiceOperationService {
 
     public static function updateFloor(int $actorId, int $floorId, array $data): ServiceFloor {
 
-        $companyId = self::companyId();
-
-        return DB::transaction(function() use ($companyId, $actorId, $floorId, $data) {
+        return DB::transaction(function() use ($actorId, $floorId, $data) {
 
             $branchId = (int) $data["branch_id"];
-            self::requireBranch($companyId, $branchId, $actorId);
+            self::requireBranch($branchId, $actorId);
 
             $floor = ServiceFloor::query()
                 ->lockForUpdate()
@@ -214,10 +209,8 @@ final class ServiceOperationService {
 
     public static function createStation(int $actorId, array $data): ServiceStation {
 
-        $companyId = self::companyId();
-        self::requireBranch($companyId, (int) $data["branch_id"], $actorId);
+        self::requireBranch((int) $data["branch_id"], $actorId);
         $floor = self::requireOptionalFloor(
-            $companyId,
             (int) $data["branch_id"],
             $data["service_floor_id"] ?? null
         );
@@ -234,7 +227,6 @@ final class ServiceOperationService {
         }
 
         $position = self::nextStationPosition(
-            $companyId,
             (int) $data["branch_id"],
             $floor?->id
         );
@@ -260,8 +252,7 @@ final class ServiceOperationService {
 
     public static function stations(int $actorId, int $branchId, ?int $floorId = null) {
 
-        $companyId = self::companyId();
-        self::requireBranch($companyId, $branchId, $actorId);
+        self::requireBranch($branchId, $actorId);
 
         return self::stationQuery($branchId, $floorId)->get();
 
@@ -273,8 +264,7 @@ final class ServiceOperationService {
         ?int $floorId = null
     ): array {
 
-        $companyId = self::companyId();
-        self::requireBranch($companyId, $branchId, $actorId);
+        self::requireBranch($branchId, $actorId);
 
         $floors = ServiceFloor::query()
             ->where("branch_id", $branchId)
@@ -384,12 +374,10 @@ final class ServiceOperationService {
 
     public static function updateStation(int $actorId, int $stationId, array $data): ServiceStation {
 
-        $companyId = self::companyId();
-
-        return DB::transaction(function() use ($companyId, $actorId, $stationId, $data) {
+        return DB::transaction(function() use ($actorId, $stationId, $data) {
 
             $branchId = (int) $data["branch_id"];
-            self::requireBranch($companyId, $branchId, $actorId);
+            self::requireBranch($branchId, $actorId);
 
             $station = ServiceStation::query()
                 ->lockForUpdate()
@@ -401,7 +389,7 @@ final class ServiceOperationService {
 
             }
 
-            $floor = self::requireOptionalFloor($companyId, $branchId, $data["service_floor_id"] ?? null);
+            $floor = self::requireOptionalFloor($branchId, $data["service_floor_id"] ?? null);
 
             $duplicate = ServiceStation::query()
                 ->where("branch_id", $branchId)
@@ -446,9 +434,7 @@ final class ServiceOperationService {
         array $data
     ): ServiceStation {
 
-        $companyId = self::companyId();
-
-        return DB::transaction(function() use ($companyId, $actorId, $stationId, $data) {
+        return DB::transaction(function() use ($actorId, $stationId, $data) {
 
             $station = ServiceStation::query()
                 ->lockForUpdate()
@@ -460,10 +446,9 @@ final class ServiceOperationService {
 
             }
 
-            self::requireBranch($companyId, (int) $station->branch_id, $actorId);
+            self::requireBranch((int) $station->branch_id, $actorId);
 
             $floor = self::requireOptionalFloor(
-                $companyId,
                 (int) $station->branch_id,
                 $data["service_floor_id"] ?? $station->service_floor_id
             );
@@ -559,8 +544,7 @@ final class ServiceOperationService {
 
         if($actorId) {
 
-            $companyId = self::companyId();
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            self::requireBranch((int) $session->branch_id, $actorId);
 
         }
 
@@ -570,18 +554,16 @@ final class ServiceOperationService {
 
     public static function open(int $actorId, array $data): ServiceSession {
 
-        $companyId = self::companyId();
-
-        return DB::transaction(function() use ($companyId, $actorId, $data) {
+        return DB::transaction(function() use ($actorId, $data) {
 
             $branchId = (int) $data["branch_id"];
             $stationId = !empty($data["service_station_id"])
                 ? (int) $data["service_station_id"]
                 : null;
 
-            self::requireBranch($companyId, $branchId, $actorId);
-            self::requireOptionalUser($companyId, $data["assigned_user_id"] ?? null);
-            self::requireOptionalCustomer($companyId, $data["customer_id"] ?? null);
+            self::requireBranch($branchId, $actorId);
+            self::requireOptionalUser($data["assigned_user_id"] ?? null);
+            self::requireOptionalCustomer($data["customer_id"] ?? null);
 
             if($stationId) {
 
@@ -654,12 +636,10 @@ final class ServiceOperationService {
 
     public static function addItem(int $actorId, int $sessionId, array $data): ServiceSessionItem {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId, $data) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId, $data) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
             $item = Item::query()
                 ->where("status", "active")
                 ->find((int) $data["item_id"]);
@@ -670,7 +650,7 @@ final class ServiceOperationService {
 
             }
 
-            self::requireOptionalUser($companyId, $data["assigned_user_id"] ?? null);
+            self::requireOptionalUser($data["assigned_user_id"] ?? null);
 
             $startedAt = !empty($data["start_immediately"]) ? now() : null;
 
@@ -707,12 +687,10 @@ final class ServiceOperationService {
 
     public static function start(int $actorId, int $sessionId): ServiceSession {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
 
             if($session->status === self::STATUS_IN_PROGRESS) {
 
@@ -736,17 +714,13 @@ final class ServiceOperationService {
 
     public static function startItem(int $actorId, int $itemId): ServiceSessionItem {
 
-        $companyId = self::companyId();
-
-        return self::changeItemTiming($companyId, $actorId, $itemId, false);
+        return self::changeItemTiming($actorId, $itemId, false);
 
     }
 
     public static function completeItem(int $actorId, int $itemId): ServiceSessionItem {
 
-        $companyId = self::companyId();
-
-        return self::changeItemTiming($companyId, $actorId, $itemId, true);
+        return self::changeItemTiming($actorId, $itemId, true);
 
     }
 
@@ -756,9 +730,7 @@ final class ServiceOperationService {
         string $status
     ): ServiceSessionItem {
 
-        $companyId = self::companyId();
-
-        return DB::transaction(function() use ($companyId, $actorId, $itemId, $status) {
+        return DB::transaction(function() use ($actorId, $itemId, $status) {
 
             $item = ServiceSessionItem::query()
                 ->with("session")
@@ -767,7 +739,7 @@ final class ServiceOperationService {
 
             $session = $item->session;
 
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            self::requireBranch((int) $session->branch_id, $actorId);
 
             if(in_array($session->status, [self::STATUS_COMPLETED, self::STATUS_CANCELED], true)) {
 
@@ -829,12 +801,10 @@ final class ServiceOperationService {
         ?int $saleHeaderId = null
     ): ServiceSession {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId, $saleHeaderId) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId, $saleHeaderId) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
 
             if(DB::table("service_session_pauses")
                 ->where("service_session_id", $sessionId)
@@ -891,13 +861,11 @@ final class ServiceOperationService {
 
     public static function reassign(int $actorId, int $sessionId, int $assignedUserId, ?string $note = null): ServiceSession {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId, $assignedUserId, $note) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId, $assignedUserId, $note) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
-            self::requireOptionalUser($companyId, $assignedUserId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
+            self::requireOptionalUser($assignedUserId);
             $previousUserId = $session->assigned_user_id;
             $session->assigned_user_id = $assignedUserId;
             $session->updated_by = $actorId;
@@ -917,12 +885,10 @@ final class ServiceOperationService {
 
     public static function pause(int $actorId, int $sessionId, ?int $itemId, ?string $reason): array {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId, $itemId, $reason) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId, $itemId, $reason) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
 
             if(DB::table("service_session_pauses")
                 ->where("service_session_id", $sessionId)
@@ -966,12 +932,10 @@ final class ServiceOperationService {
 
     public static function resume(int $actorId, int $sessionId): array {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
             $pause = DB::table("service_session_pauses")
                 ->where("service_session_id", $sessionId)
                 ->where("status", "active")
@@ -1020,12 +984,10 @@ final class ServiceOperationService {
 
     public static function cancel(int $actorId, int $sessionId, string $reason): ServiceSession {
 
-        $companyId = self::companyId();
+        return DB::transaction(function() use ($actorId, $sessionId, $reason) {
 
-        return DB::transaction(function() use ($companyId, $actorId, $sessionId, $reason) {
-
-            $session = self::lockOpenSession($companyId, $sessionId);
-            self::requireBranch($companyId, (int) $session->branch_id, $actorId);
+            $session = self::lockOpenSession($sessionId);
+            self::requireBranch((int) $session->branch_id, $actorId);
             $previous = $session->status;
             $session->status = self::STATUS_CANCELED;
             $session->cancellation_reason = $reason;
@@ -1115,12 +1077,12 @@ final class ServiceOperationService {
                 "open_sessions" => $sessions->whereIn("status", [self::STATUS_PENDING, self::STATUS_IN_PROGRESS])->count(),
                 "completed_sessions" => $completed->count(),
                 "canceled_sessions" => $sessions->where("status", self::STATUS_CANCELED)->count(),
-                "average_duration_minutes" => Utilities::round((float) $completed->avg("duration_minutes"), null, $companyId),
+                "average_duration_minutes" => Utilities::round((float) $completed->avg("duration_minutes")),
                 "sla_late_sessions" => $late->count(),
                 "sla_compliance_rate" => $withSla->count()
-                    ? Utilities::round((($withSla->count() - $late->count()) / $withSla->count()) * 100, null, $companyId)
+                    ? Utilities::round((($withSla->count() - $late->count()) / $withSla->count()) * 100)
                     : null,
-                "commission_total" => Utilities::round($commissionTotal, null, $companyId),
+                "commission_total" => Utilities::round($commissionTotal),
             ],
             "by_branch" => self::reportGroup($sessions, "branch", "Sucursal"),
             "by_station" => self::reportGroup($sessions, "station", "Estación"),
@@ -1131,13 +1093,12 @@ final class ServiceOperationService {
     }
 
     private static function changeItemTiming(
-        int $companyId,
         int $actorId,
         int $itemId,
         bool $complete
     ): ServiceSessionItem {
 
-        return DB::transaction(function() use ($companyId, $actorId, $itemId, $complete) {
+        return DB::transaction(function() use ($actorId, $itemId, $complete) {
 
             $item = ServiceSessionItem::query()
                 ->with("session")
@@ -1156,7 +1117,7 @@ final class ServiceOperationService {
 
             }
 
-            self::requireBranch($companyId, (int) $item->session->branch_id, $actorId);
+            self::requireBranch((int) $item->session->branch_id, $actorId);
 
             $previousStatus = (string) $item->status;
 
@@ -1207,7 +1168,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function lockOpenSession(int $companyId, int $sessionId): ServiceSession {
+    private static function lockOpenSession(int $sessionId): ServiceSession {
 
         $session = ServiceSession::query()
             ->whereIn("status", [self::STATUS_PENDING, self::STATUS_IN_PROGRESS])
@@ -1224,7 +1185,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function requireBranch(int $companyId, int $branchId, ?int $actorId = null): Branch {
+    private static function requireBranch(int $branchId, ?int $actorId = null): Branch {
 
         $branch = Branch::query()
             ->where("status", "active")
@@ -1254,7 +1215,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function requireOptionalUser(int $companyId, mixed $userId): ?User {
+    private static function requireOptionalUser(mixed $userId): ?User {
 
         if(empty($userId)) {
 
@@ -1276,7 +1237,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function requireOptionalCustomer(int $companyId, mixed $customerId): ?Customer {
+    private static function requireOptionalCustomer(mixed $customerId): ?Customer {
 
         if(empty($customerId)) {
 
@@ -1298,7 +1259,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function requireOptionalFloor(int $companyId, int $branchId, mixed $floorId): ?ServiceFloor {
+    private static function requireOptionalFloor(int $branchId, mixed $floorId): ?ServiceFloor {
 
         if(empty($floorId)) {
 
@@ -1321,7 +1282,7 @@ final class ServiceOperationService {
 
     }
 
-    private static function nextStationPosition(int $companyId, int $branchId, ?int $floorId): array {
+    private static function nextStationPosition(int $branchId, ?int $floorId): array {
 
         $position = ServiceStation::query()
             ->where("branch_id", $branchId)
@@ -1399,12 +1360,6 @@ final class ServiceOperationService {
             ->sortByDesc("quantity")
             ->values()
             ->all();
-
-    }
-
-    private static function companyId(): int {
-
-        return app(TenantCompanyContext::class)->id();
 
     }
 

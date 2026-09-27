@@ -68,7 +68,6 @@ class BranchService {
      * Prepare data for creation
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company
      * @param  int  $userId User
      */
     private static function prepareBranchDataForCreate(array $data, int $userId): array {
@@ -126,7 +125,6 @@ class BranchService {
      * Create a new record
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company that owns the branch
      * @param  int  $userId User creating the record
      * @return Branch|null Created record instance or null on failure
      *
@@ -215,7 +213,6 @@ class BranchService {
      * Find record by ID and company ID
      *
      * @param  int  $id Record
-     * @param  int  $companyId Company
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
@@ -243,7 +240,6 @@ class BranchService {
     /**
      * Get paginated list of records with filters
      *
-     * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */

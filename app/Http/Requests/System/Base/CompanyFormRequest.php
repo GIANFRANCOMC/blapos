@@ -6,7 +6,6 @@ namespace App\Http\Requests\System\Base;
 
 use App\Helpers\System\{ApiResponse};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Http\Exceptions\{HttpResponseException};
@@ -192,12 +191,6 @@ abstract class CompanyFormRequest extends FormRequest {
         return CompanySettingService::group(
             CompanySettingService::NUMERIC_VALIDATION
         );
-
-    }
-
-    protected function companyId(): int {
-
-        return app(TenantCompanyContext::class)->id();
 
     }
 

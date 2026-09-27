@@ -75,7 +75,6 @@ class SubscriptionService {
      * Prepare data for creation
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company
      * @param  int  $userId User
      */
     private static function prepareSubscriptionDataForCreate(array $data, int $userId): array {
@@ -310,7 +309,6 @@ class SubscriptionService {
      * Find record by ID and company ID
      *
      * @param  int  $id Record
-     * @param  int  $companyId Company
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
@@ -338,7 +336,6 @@ class SubscriptionService {
     /**
      * Get paginated list of records with filters
      *
-     * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */

@@ -30,7 +30,6 @@ class TrackingAttendanceBusinessService {
      * Get valid customer by code or document number
      *
      * @param  string|int  $code Customer ID or document number
-     * @param  int  $companyId Company ID
      * @param  string  $type Search type: "document_number" or "carnet"
      */
     public function getValidCustomer($code, string $type = ""): ?Customer {
@@ -50,7 +49,6 @@ class TrackingAttendanceBusinessService {
     /**
      * Get valid active subscriptions for customer
      *
-     * @param  int  $companyId Company ID
      * @param  int  $branchId Branch ID
      * @param  int  $customerId Customer ID
      * @param  Carbon  $startDate Start date
@@ -72,7 +70,6 @@ class TrackingAttendanceBusinessService {
     /**
      * Check attendance limits for customer
      *
-     * @param  int  $companyId Company ID
      * @param  int  $branchId Branch ID
      * @param  int  $customerId Customer ID
      * @param  Carbon  $startDate Start date

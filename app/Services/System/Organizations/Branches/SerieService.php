@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\{DB};
 class SerieService {
     /**
      * Get new sequential number for branch (based on company branch count)
-     *
-     * @param  int  $companyId Company ID
      */
     public static function getNewSequential(int $branchId): int {
 
@@ -47,7 +45,6 @@ class SerieService {
      * Uses bulk insert for better performance
      *
      * @param  int  $branchId Branch ID
-     * @param  int  $companyId Company ID
      * @param  int|null  $userId User ID creating the series
      * @return array Collection of created series
      */

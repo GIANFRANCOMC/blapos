@@ -22,7 +22,6 @@ final class AttendanceMaintenanceService {
         ];
 
         $company = app(TenantCompanyContext::class)->get();
-        $companyId = (int) $company->id;
 
         if($company->status !== "active") {
 
@@ -32,7 +31,7 @@ final class AttendanceMaintenanceService {
 
         }
 
-        if(!self::isAutoCloseEnabled($companyId) && !$force) {
+        if(!self::isAutoCloseEnabled() && !$force) {
 
             $summary["skipped"]++;
 
@@ -40,7 +39,7 @@ final class AttendanceMaintenanceService {
 
         }
 
-        if(!self::canRunAutoCloseNow($companyId) && !$force) {
+        if(!self::canRunAutoCloseNow() && !$force) {
 
             $summary["skipped"]++;
 
@@ -48,7 +47,7 @@ final class AttendanceMaintenanceService {
 
         }
 
-        $summary["closed"] = self::closeCompanyAttendances($companyId, $limit);
+        $summary["closed"] = self::closeCompanyAttendances($limit);
 
         return $summary;
 
@@ -66,7 +65,6 @@ final class AttendanceMaintenanceService {
             "dry_run" => $dryRun,
         ];
 
-        $companyId = app(TenantCompanyContext::class)->id();
         $retentionMonths = max(4, (int) ($months ?? CompanySettingService::value(
             CompanySettingService::CUSTOMER_ATTENDANCE,
             "retention_months",
@@ -105,9 +103,9 @@ final class AttendanceMaintenanceService {
 
     }
 
-    private static function closeCompanyAttendances(int $companyId, int $limit): int {
+    private static function closeCompanyAttendances(int $limit): int {
 
-        return DB::transaction(function() use ($companyId, $limit) {
+        return DB::transaction(function() use ($limit) {
 
             $maxActiveHours = max(1, (int) CompanySettingService::value(
                 CompanySettingService::CUSTOMER_ATTENDANCE,
@@ -133,7 +131,7 @@ final class AttendanceMaintenanceService {
 
             foreach($attendances as $attendance) {
 
-                $closeAt = self::technicalCloseDate((string) $attendance->start_date, $companyId);
+                $closeAt = self::technicalCloseDate((string) $attendance->start_date);
 
                 if($closeAt->greaterThan(now())) {
 
@@ -159,7 +157,7 @@ final class AttendanceMaintenanceService {
 
     }
 
-    private static function isAutoCloseEnabled(int $companyId): bool {
+    private static function isAutoCloseEnabled(): bool {
 
         return (bool) CompanySettingService::value(
             CompanySettingService::CUSTOMER_ATTENDANCE,
@@ -169,7 +167,7 @@ final class AttendanceMaintenanceService {
 
     }
 
-    private static function canRunAutoCloseNow(int $companyId): bool {
+    private static function canRunAutoCloseNow(): bool {
 
         $timezone = (string) CompanySettingService::value("localization", "timezone", "America/Lima");
         $afterTime = (string) CompanySettingService::value(
@@ -185,7 +183,7 @@ final class AttendanceMaintenanceService {
 
     }
 
-    private static function technicalCloseDate(string $startDate, int $companyId): Carbon {
+    private static function technicalCloseDate(string $startDate): Carbon {
 
         $endTime = (string) CompanySettingService::value(
             CompanySettingService::CUSTOMER_ATTENDANCE,

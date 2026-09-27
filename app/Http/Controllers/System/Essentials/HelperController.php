@@ -25,7 +25,6 @@ class HelperController extends BaseController {
 
         $user = $this->getAuthUser();
         $company = app(TenantCompanyContext::class)->get();
-        $companyId = (int) $company->id;
 
         $validator = Validator::make($request->all(), [
             "document_number" => ["required", "regex:/^\d{8,11}$/"],
@@ -39,7 +38,7 @@ class HelperController extends BaseController {
 
         if($validator->fails()) {
 
-            $this->logExternalApiRequest($request, $companyId, $user->id ?? null, "blocked");
+            $this->logExternalApiRequest($request, $user->id ?? null, "blocked");
 
             return ApiResponse::validationError(
                 $validator->errors()->toArray(),
@@ -50,10 +49,10 @@ class HelperController extends BaseController {
 
         if(empty($company->token_api_misc)) {
 
-            $this->logExternalApiRequest($request, $companyId, $user->id ?? null, "blocked");
+            $this->logExternalApiRequest($request, $user->id ?? null, "blocked");
 
             return ApiResponse::success([
-                "external_request_usage" => $this->getExternalApiMonthlyUsage($companyId),
+                "external_request_usage" => $this->getExternalApiMonthlyUsage(),
             ], "Debe ingresar el Token API - Misc.");
 
         }
@@ -64,9 +63,9 @@ class HelperController extends BaseController {
             (string) $company->token_api_misc
         );
 
-        $this->logExternalApiRequest($request, $companyId, $user->id ?? null, $success ? "success" : "failed");
+        $this->logExternalApiRequest($request, $user->id ?? null, $success ? "success" : "failed");
 
-        $usage = $this->getExternalApiMonthlyUsage($companyId);
+        $usage = $this->getExternalApiMonthlyUsage();
         $data["external_request_usage"] = $usage;
 
         if($usage["has_warning"]) {
@@ -221,7 +220,6 @@ class HelperController extends BaseController {
 
     private function logExternalApiRequest(
         Request $request,
-        int $companyId,
         ?int $userId,
         string $result
     ): void {
@@ -245,7 +243,7 @@ class HelperController extends BaseController {
 
     }
 
-    private function getExternalApiMonthlyUsage(int $companyId): array {
+    private function getExternalApiMonthlyUsage(): array {
 
         $threshold = max(1, (int) CompanySettingService::value(
             CompanySettingService::EXTERNAL_API,

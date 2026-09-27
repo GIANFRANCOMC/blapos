@@ -10,7 +10,7 @@ Los únicos usos estructurales permitidos de `company_id` son `branches`, `compa
 
 | # | Control | Implementación vigente |
 |---:|---|---|
-| 1 | API operativa sin selector de empresa | Controladores y servicios operativos no reciben `company_id` ni `$companyId`. La prueba de arquitectura rechaza cualquier reintroducción. |
+| 1 | API operativa sin selector de empresa | Controladores, requests, helpers y servicios operativos no reciben `company_id` ni `$companyId`, tampoco en métodos internos. La prueba de arquitectura rechaza cualquier reintroducción. |
 | 2 | Contextos separados | `TenantContext`, `TenantCompanyContext` y `BranchContext` resuelven tenant, empresa raíz y sucursal sin mezclar responsabilidades. |
 | 3 | Acceso centralizado por sucursal | `BranchAccessService` valida selección, disponibilidad y alcance del usuario antes de establecer `BranchContext`. |
 | 4 | Una empresa raíz | El modelo y el aprovisionamiento impiden crear una segunda fila raíz dentro de la base tenant. |

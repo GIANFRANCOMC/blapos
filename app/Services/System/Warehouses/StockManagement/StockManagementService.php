@@ -20,7 +20,6 @@ class StockManagementService {
     /**
      * Get paginated list of items with stock information
      *
-     * @param  int  $companyId Company ID
      * @param  int  $warehouseId Warehouse ID
      * @param  int  $perPage Items per page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -146,7 +145,6 @@ class StockManagementService {
      * Validate warehouse belongs to company
      *
      * @param  int  $warehouseId Warehouse ID
-     * @param  int  $companyId Company ID
      */
     public static function validateWarehouse(int $warehouseId): ?Warehouse {
 

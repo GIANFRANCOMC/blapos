@@ -18,8 +18,7 @@ final class StoreBookComplaintRequest extends FormRequest {
 
     public function rules(): array {
 
-        $companyId = (int) $this->attributes->get("company")?->id;
-        $maxFileSizeKb = $this->numericMaxFileSizeKb($companyId);
+        $maxFileSizeKb = $this->numericMaxFileSizeKb();
 
         return [
             "branch_id" => [
@@ -53,7 +52,7 @@ final class StoreBookComplaintRequest extends FormRequest {
 
     }
 
-    private function numericMaxFileSizeKb(int $companyId): int {
+    private function numericMaxFileSizeKb(): int {
 
         $settings = CompanySettingService::group(
             CompanySettingService::NUMERIC_VALIDATION

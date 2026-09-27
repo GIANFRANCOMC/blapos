@@ -92,7 +92,6 @@ class ProductService {
      * Prepare data for creation
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company
      * @param  int  $userId User
      */
     private static function prepareProductDataForCreate(array $data, int $userId): array {
@@ -247,7 +246,6 @@ class ProductService {
      * Create a new record
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company that owns the product
      * @param  int  $userId User creating the record
      * @return Item|null Created record instance or null on failure
      *
@@ -346,7 +344,6 @@ class ProductService {
      * Find record by ID and company ID
      *
      * @param  int  $id Record
-     * @param  int  $companyId Company
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
@@ -374,7 +371,6 @@ class ProductService {
     /**
      * Get paginated list of records with filters
      *
-     * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
@@ -393,7 +389,6 @@ class ProductService {
      * Pagination and exports must use this method so filters, relationships
      * and ordering cannot drift between the screen and downloaded reports.
      *
-     * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      */
     public static function getFilteredListQuery(array $filters = []): Builder {

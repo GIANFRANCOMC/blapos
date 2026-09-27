@@ -7,7 +7,6 @@ namespace App\Services\System\Warehouses\Inventory;
 use App\Helpers\System\{Utilities};
 use App\Mail\{InventoryStockAlertMail};
 use App\Models\System\Catalogs\{Item};
-use App\Models\System\Organizations\{Company};
 use App\Models\System\Warehouses\{InventoryMovement, InventoryStockAlert, Warehouse, WarehouseItem};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
@@ -65,7 +64,6 @@ final class InventoryMovementService {
 
         return DB::transaction(function() use ($data) {
 
-            $companyId = app(TenantCompanyContext::class)->id();
             $warehouseId = (int) ($data["warehouse_id"] ?? 0);
             $itemId = (int) ($data["item_id"] ?? 0);
             $type = (string) ($data["movement_type"] ?? "");
@@ -112,12 +110,12 @@ final class InventoryMovementService {
 
             }
 
-            $quantityBefore = Utilities::round((float) $warehouseItem->quantity, null, $companyId);
+            $quantityBefore = Utilities::round((float) $warehouseItem->quantity);
 
             $quantityChange = self::resolveQuantityChange($type, $quantityBefore, $data);
-            $quantityAfter = Utilities::round($quantityBefore + $quantityChange, null, $companyId);
-            $valueBefore = Utilities::round((float) ($warehouseItem->inventory_value ?? 0), null, $companyId);
-            $currentAverageCost = Utilities::round((float) ($warehouseItem->average_cost ?? 0), null, $companyId);
+            $quantityAfter = Utilities::round($quantityBefore + $quantityChange);
+            $valueBefore = Utilities::round((float) ($warehouseItem->inventory_value ?? 0));
+            $currentAverageCost = Utilities::round((float) ($warehouseItem->average_cost ?? 0));
 
             if(abs($quantityChange) < 0.00001) {
 
@@ -133,8 +131,8 @@ final class InventoryMovementService {
 
             $unitCost = self::resolveUnitCost($type, $quantityChange, $currentAverageCost, $data);
 
-            $valueChange = Utilities::round($quantityChange * $unitCost, null, $companyId);
-            $valueAfter = Utilities::round($valueBefore + $valueChange, null, $companyId);
+            $valueChange = Utilities::round($quantityChange * $unitCost);
+            $valueAfter = Utilities::round($valueBefore + $valueChange);
             $averageCost = self::resolveAverageCost(
                 $type,
                 $quantityBefore,
@@ -182,7 +180,6 @@ final class InventoryMovementService {
 
             self::syncMinimumStockAlert(
                 $warehouseItem->fresh(),
-                $companyId,
                 $data["user_id"] ?? null
             );
 
@@ -196,7 +193,6 @@ final class InventoryMovementService {
 
         return DB::transaction(function() use ($data) {
 
-            $companyId = app(TenantCompanyContext::class)->id();
             $sourceWarehouseId = (int) ($data["source_warehouse_id"] ?? 0);
             $destinationWarehouseId = (int) ($data["destination_warehouse_id"] ?? 0);
             $items = is_array($data["items"] ?? null) ? $data["items"] : [];
@@ -234,7 +230,7 @@ final class InventoryMovementService {
             foreach($items as $item) {
 
                 $itemId = (int) ($item["item_id"] ?? 0);
-                $quantity = Utilities::round((float) ($item["quantity"] ?? 0), null, $companyId);
+                $quantity = Utilities::round((float) ($item["quantity"] ?? 0));
 
                 if($quantity <= 0) {
 
@@ -504,7 +500,6 @@ final class InventoryMovementService {
 
     private static function syncMinimumStockAlert(
         WarehouseItem $warehouseItem,
-        int $companyId,
         ?int $userId
     ): void {
 
@@ -538,7 +533,7 @@ final class InventoryMovementService {
                 "detected_at" => now(),
             ]);
 
-            self::notifyMinimumStockAlert($alert, $companyId);
+            self::notifyMinimumStockAlert($alert);
 
             return;
 
@@ -558,10 +553,7 @@ final class InventoryMovementService {
 
     }
 
-    private static function notifyMinimumStockAlert(
-        InventoryStockAlert $alert,
-        int $companyId
-    ): void {
+    private static function notifyMinimumStockAlert(InventoryStockAlert $alert): void {
 
         $enabled = (bool) CompanySettingService::value(
             CompanySettingService::INVENTORY_POLICIES,
@@ -583,7 +575,7 @@ final class InventoryMovementService {
 
         if($recipient === "") {
 
-            $recipient = (string) Company::whereKey($companyId)->value("email");
+            $recipient = (string) app(TenantCompanyContext::class)->get()->email;
 
         }
 

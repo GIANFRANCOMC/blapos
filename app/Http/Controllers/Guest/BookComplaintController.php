@@ -88,7 +88,7 @@ final class BookComplaintController extends Controller {
 
         try {
 
-            $bookComplaint = DB::transaction(function() use ($request, $company, $agent, &$storedPaths) {
+            $bookComplaint = DB::transaction(function() use ($request, $agent, &$storedPaths) {
 
                 $payload = collect($request->validated())
                     ->except(["attachments", "cf-turnstile-response", "website"])
@@ -98,7 +98,7 @@ final class BookComplaintController extends Controller {
                     ...$payload,
                     "admin_response" => null,
                     "public_response" => null,
-                    "tracking_code" => $this->uniqueTrackingCode((int) $company->id),
+                    "tracking_code" => $this->uniqueTrackingCode(),
                     "submitted_ip" => $request->ip(),
                     "submitted_user_agent" => $request->userAgent(),
                     "submitted_platform" => $agent->platform(),
@@ -190,7 +190,7 @@ final class BookComplaintController extends Controller {
 
     }
 
-    private function uniqueTrackingCode(int $companyId): string {
+    private function uniqueTrackingCode(): string {
 
         do {
 

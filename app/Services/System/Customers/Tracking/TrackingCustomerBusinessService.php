@@ -18,7 +18,6 @@ class TrackingCustomerBusinessService {
      * Get valid customer by code or document number
      *
      * @param  string|int  $code Customer ID or document number
-     * @param  int  $companyId Company ID
      * @param  string  $type Search type: "document_number" or empty
      */
     public function getValidCustomer($code, string $type = ""): ?Customer {

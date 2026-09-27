@@ -8,7 +8,6 @@ use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Organizations\{Role, User};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Organizations\{AccessScopeService, BusinessAuditService};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Auth\Access\{AuthorizationException};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
@@ -69,10 +68,9 @@ class UserService {
      * Prepare data for creation
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company
      * @param  int  $userId User
      */
-    private static function prepareUserDataForCreate(array $data, int $companyId, int $userId): array {
+    private static function prepareUserDataForCreate(array $data, int $userId): array {
 
         $userData = [
             "gender" => $data["gender"] ?? "other",
@@ -143,20 +141,19 @@ class UserService {
     public static function create(array $data, int $userId): ?User {
 
         $user = null;
-        $companyId = app(TenantCompanyContext::class)->id();
 
-        DB::transaction(function() use ($data, $companyId, $userId, &$user) {
+        DB::transaction(function() use ($data, $userId, &$user) {
 
-            self::assertRoleAssignable($companyId, (int) $userId, (int) ($data["role_id"] ?? 0));
+            self::assertRoleAssignable((int) $userId, (int) ($data["role_id"] ?? 0));
 
             // Prepare data with only allowed fields
-            $userData = self::prepareUserDataForCreate($data, $companyId, $userId);
+            $userData = self::prepareUserDataForCreate($data, $userId);
 
             // Create the record
 
             $user = User::create($userData);
-            self::syncBranches($user, $data["branch_ids"] ?? [], $companyId, $userId);
-            self::syncResourceScopes($user, $data, $companyId, $userId);
+            self::syncBranches($user, $data["branch_ids"] ?? [], $userId);
+            self::syncResourceScopes($user, $data, $userId);
 
         });
 
@@ -176,10 +173,7 @@ class UserService {
 
         DB::transaction(function() use ($user, $data, $userId) {
 
-            $companyId = app(TenantCompanyContext::class)->id();
-
             self::assertRoleAssignable(
-                $companyId,
                 (int) $userId,
                 (int) ($data["role_id"] ?? $user->role_id)
             );
@@ -216,11 +210,10 @@ class UserService {
 
             }
 
-            self::syncBranches($user, $data["branch_ids"] ?? [], $companyId, $userId);
-            self::syncResourceScopes($user, $data, $companyId, $userId);
+            self::syncBranches($user, $data["branch_ids"] ?? [], $userId);
+            self::syncResourceScopes($user, $data, $userId);
 
             self::auditSensitiveChange(
-                $companyId,
                 $user,
                 $userId,
                 $sensitiveBefore,
@@ -265,7 +258,7 @@ class UserService {
 
     }
 
-    private static function syncBranches(User $user, array $branchIds, int $companyId, ?int $userId = null): void {
+    private static function syncBranches(User $user, array $branchIds, ?int $userId = null): void {
 
         DB::table("user_branches")
             ->where("user_id", $user->id)
@@ -308,7 +301,7 @@ class UserService {
 
     }
 
-    private static function assertRoleAssignable(int $companyId, int $actorId, int $roleId): void {
+    private static function assertRoleAssignable(int $actorId, int $roleId): void {
 
         $actor = User::query()->findOrFail($actorId);
         $role = Role::query()->findOrFail($roleId);
@@ -324,7 +317,6 @@ class UserService {
     private static function syncResourceScopes(
         User $user,
         array $data,
-        int $companyId,
         ?int $userId = null
     ): void {
 
@@ -387,7 +379,6 @@ class UserService {
     }
 
     private static function auditSensitiveChange(
-        int $companyId,
         User $user,
         int $actorId,
         array $before,

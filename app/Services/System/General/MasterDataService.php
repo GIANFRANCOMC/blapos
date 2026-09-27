@@ -9,7 +9,7 @@ use App\Models\System\General\{Currency, DocumentType, IdentityDocumentType};
 use App\Models\System\Organizations\{CompanySetting};
 use App\Services\System\Base\{InitParamsCacheInvalidationService, MasterReferenceDataService};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantCompanyContext, TenantStoragePath};
+use App\Services\System\Tenancy\{TenantStoragePath};
 use DomainException;
 use Illuminate\Database\Eloquent\{Model};
 use Illuminate\Http\{UploadedFile};
@@ -44,7 +44,6 @@ final class MasterDataService {
         ?int $id = null
     ): Model {
 
-        $companyId = app(TenantCompanyContext::class)->id();
         $definition = self::definition($resource);
         $newImagePath = null;
         $obsoleteImagePath = null;
@@ -52,7 +51,6 @@ final class MasterDataService {
         try {
 
             $record = DB::transaction(function() use (
-                $companyId,
                 $userId,
                 $resource,
                 $definition,
@@ -86,7 +84,7 @@ final class MasterDataService {
 
                 if(($data["status"] ?? $record->status) === "inactive" && $id) {
 
-                    self::assertCanDeactivate($companyId, $resource, $id);
+                    self::assertCanDeactivate($resource, $id);
 
                 }
 
@@ -190,7 +188,7 @@ final class MasterDataService {
 
     }
 
-    private static function assertCanDeactivate(int $companyId, string $resource, int $id): void {
+    private static function assertCanDeactivate(string $resource, int $id): void {
 
         $references = match ($resource) {
             "identity-documents" => [
@@ -223,7 +221,6 @@ final class MasterDataService {
 
             if(DB::table($table)
                 ->where($column, $id)
-                ->when($table === "companies", fn($query) => $query->where("id", $companyId))
                 ->exists()) {
 
                 throw new DomainException("No se puede inactivar el registro porque está siendo utilizado.");

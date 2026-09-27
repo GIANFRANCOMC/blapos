@@ -4,7 +4,7 @@
 
 Cada base de datos tenant representa exactamente una empresa. La conexión tenant es el límite de aislamiento de datos; `company_id` ya no se replica en tablas operativas, catálogos, transacciones, usuarios ni auditorías.
 
-La empresa raíz se obtiene con `TenantCompanyContext`. Ningún formulario, endpoint o comando tenant debe aceptar un identificador de empresa enviado por el cliente como fuente de autoridad.
+La empresa raíz se obtiene con `TenantCompanyContext`. Ningún formulario, endpoint, comando, helper ni método operativo —público o privado— debe aceptar un identificador de empresa como fuente de autoridad.
 
 ## Tablas que conservan `company_id`
 
@@ -36,7 +36,9 @@ Solo cuatro tablas tenant mantienen la relación porque describen estructura dir
 
 El proyecto todavía no está en producción, por lo que la estructura se corrigió en las migraciones de origen. No existe una migración incremental que copie o elimine columnas históricas. Una instalación limpia crea directamente el modelo vigente.
 
-La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en APIs operativas y evita que regresen primitivas de alcance anteriores. Solo los servicios estructurales de aprovisionamiento, módulos y permisos pueden recibir explícitamente el ID de la empresa raíz.
+La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas, limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método operativo y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo métodos privados y protegidos. Solo los servicios estructurales de aprovisionamiento, sincronización de catálogo, módulos, perfiles y permisos pueden recibir explícitamente el ID de la empresa raíz.
+
+La precisión decimal también se resuelve directamente desde `CompanySettingService`; `Utilities::round()`, `Utilities::formatDecimal()` y `Utilities::decimalPrecision()` no aceptan un selector de empresa.
 
 `TenantCompanyDatabaseBoundaryTest` inspecciona `INFORMATION_SCHEMA` después de migrar MySQL y verifica que las cuatro columnas sean obligatorias y tengan clave foránea hacia `companies`.
 

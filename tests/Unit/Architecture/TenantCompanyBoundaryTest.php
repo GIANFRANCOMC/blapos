@@ -40,9 +40,11 @@ final class TenantCompanyBoundaryTest extends TestCase {
     ];
 
     private const STRUCTURAL_COMPANY_SERVICES = [
+        "app/Services/System/Database/SystemCatalogSyncService.php",
         "app/Services/System/Organizations/Companies/CompanyProvisioningService.php",
         "app/Services/System/Organizations/Companies/CompanySectionService.php",
         "app/Services/System/Organizations/Roles/RolePermissionService.php",
+        "app/Services/System/Organizations/Roles/RoleService.php",
     ];
 
     public function test_only_structural_tenant_tables_define_company_id(): void {
@@ -137,32 +139,38 @@ final class TenantCompanyBoundaryTest extends TestCase {
 
     }
 
-    public function test_operational_service_apis_do_not_accept_a_company_selector(): void {
+    public function test_operational_methods_do_not_accept_a_company_selector(): void {
 
-        foreach($this->phpFiles(app_path("Services")) as $file) {
+        $paths = [app_path("Services"), app_path("Helpers"), app_path("Http")];
 
-            $relativePath = $this->relativePath($file->getPathname());
+        foreach($paths as $path) {
 
-            if(in_array($relativePath, self::STRUCTURAL_COMPANY_SERVICES, true)) {
+            foreach($this->phpFiles($path) as $file) {
 
-                continue;
+                $relativePath = $this->relativePath($file->getPathname());
 
-            }
+                if(in_array($relativePath, self::STRUCTURAL_COMPANY_SERVICES, true)) {
 
-            $content = file_get_contents($file->getPathname());
-            preg_match_all(
-                "/public\\s+(?:static\\s+)?function\\s+\\w+\\s*\\((.*?)\\)\\s*(?::[^\\{]+)?\\{/s",
-                $content,
-                $matches
-            );
+                    continue;
 
-            foreach($matches[1] as $parameters) {
+                }
 
-                $this->assertStringNotContainsString(
-                    "\$companyId",
-                    $parameters,
-                    "La API operativa {$relativePath} no debe recibir el selector redundante de empresa."
+                $content = file_get_contents($file->getPathname());
+                preg_match_all(
+                    "/(?:public|protected|private)\\s+(?:static\\s+)?function\\s+\\w+\\s*\\((.*?)\\)\\s*(?::[^\\{]+)?\\{/s",
+                    $content,
+                    $matches
                 );
+
+                foreach($matches[1] as $parameters) {
+
+                    $this->assertStringNotContainsString(
+                        "\$companyId",
+                        $parameters,
+                        "El método operativo {$relativePath} no debe recibir el selector redundante de empresa."
+                    );
+
+                }
 
             }
 

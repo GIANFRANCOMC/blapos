@@ -66,7 +66,6 @@ class BiometricDeviceService {
      * Prepare data for creation
      *
      * @param  array  $data Input data
-     * @param  int  $companyId Company
      * @param  int  $userId User
      */
     private static function prepareBiometricDeviceDataForCreate(array $data, int $userId): array {
@@ -219,7 +218,6 @@ class BiometricDeviceService {
      * Find record by ID and company ID
      *
      * @param  int  $id Record
-     * @param  int  $companyId Company
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
@@ -246,7 +244,6 @@ class BiometricDeviceService {
     /**
      * Get paginated list of records with filters
      *
-     * @param  int  $companyId Company
      * @param  array  $filters Filter parameters (filter_by, word)
      * @param  int  $perPage Items per page
      */
@@ -309,7 +306,6 @@ class BiometricDeviceService {
      * Find record by IP and company
      *
      * @param  string  $ipAddress IP
-     * @param  int  $companyId Company
      */
     public static function findByIpInTenant(string $ipAddress): ?BiometricDevice {
 
@@ -343,7 +339,6 @@ class BiometricDeviceService {
     /**
      * Get all active records for a company
      *
-     * @param  int  $companyId Company
      * @param  int|null  $branchId Branch (optional)
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -370,7 +365,6 @@ class BiometricDeviceService {
      * @param  int  $deviceUserId User in the device
      * @param  int  $fingerIndex Finger index (0-9)
      * @param  int  $userId User who creates the record
-     * @param  int  $companyId Company
      */
     public static function registerFingerprint(int $customerId, int $biometricDeviceId, int $deviceUserId, int $fingerIndex = 0, int $userId = 0): CustomerBiometricFingerprint {
 
@@ -405,7 +399,6 @@ class BiometricDeviceService {
      *
      * @param  int  $deviceId Device
      * @param  int  $deviceUserId User in device
-     * @param  int  $companyId Company
      */
     public static function findCustomerByDeviceUserId(int $deviceId, int $deviceUserId): ?Customer {
 
