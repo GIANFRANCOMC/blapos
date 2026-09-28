@@ -2,14 +2,13 @@
 
 use Illuminate\Database\Migrations\{Migration};
 use Illuminate\Database\Schema\{Blueprint};
-use Illuminate\Support\Facades\{DB, Schema};
+use Illuminate\Support\Facades\{Schema};
 
 return new class extends Migration {
     public function up(): void {
 
         $this->createAccountsReceivable();
         $this->createAccountsPayable();
-        $this->syncReferenceData();
 
     }
 
@@ -21,11 +20,6 @@ return new class extends Migration {
         Schema::dropIfExists("sale_receivable_payments");
         Schema::dropIfExists("sale_receivable_installments");
         Schema::dropIfExists("sale_accounts_receivable");
-
-        DB::table("company_settings")
-            ->whereIn("group", ["sales", "purchases"])
-            ->whereIn("key", ["default_payment_modality", "installment_extra_percentage"])
-            ->delete();
 
     }
 
@@ -210,160 +204,6 @@ return new class extends Migration {
                 $table->index(["purchase_account_payable_id", "status", "paid_at", "id"], "purchase_pay_payments_account_status_idx");
 
             });
-
-        }
-
-    }
-
-    private function syncReferenceData(): void {
-
-        if(!DB::table("companies")->exists()) {
-
-            return;
-
-        }
-
-        $this->syncPaymentMethods();
-
-        $this->syncPaymentMethodVariants();
-        $this->syncPaymentSettings();
-
-    }
-
-    private function syncPaymentMethods(): void {
-
-        $methods = [
-            ["code" => "CASH", "category" => "cash", "sunat_code" => "008", "name" => "Efectivo", "description" => "Pago realizado con dinero físico al momento de la operación.", "image_path" => "System/assets/img/payment-methods/cash.svg", "scope" => "both", "requires_reference" => false, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => true],
-            ["code" => "BANK_DEPOSIT", "category" => "bank", "sunat_code" => "001", "name" => "Depósito en cuenta", "description" => "Depósito realizado en una cuenta bancaria de la empresa o del proveedor.", "image_path" => "System/assets/img/payment-methods/bank-deposit.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "MONEY_ORDER", "category" => "bank", "sunat_code" => "002", "name" => "Giro", "description" => "Giro u orden bancaria reconocida como medio de pago.", "image_path" => "System/assets/img/payment-methods/money-order.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "BANK_TRANSFER", "category" => "bank", "sunat_code" => "003", "name" => "Transferencia de fondos", "description" => "Transferencia bancaria entre cuentas o entidades financieras.", "image_path" => "System/assets/img/payment-methods/bank-transfer.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "PAYMENT_ORDER", "category" => "bank", "sunat_code" => "004", "name" => "Orden de pago", "description" => "Orden emitida mediante el sistema financiero para cancelar una operación.", "image_path" => "System/assets/img/payment-methods/payment-order.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "DEBIT_CARD", "category" => "card", "sunat_code" => "005", "name" => "Tarjeta de débito", "description" => "Pago con tarjeta de débito; puede registrar marca o red como variante.", "image_path" => "System/assets/img/payment-methods/debit-card.svg", "scope" => "sale", "requires_reference" => true, "supports_variants" => true, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "CREDIT_CARD", "category" => "card", "sunat_code" => "006", "name" => "Tarjeta de crédito", "description" => "Pago con tarjeta de crédito; puede registrar marca o red como variante.", "image_path" => "System/assets/img/payment-methods/credit-card.svg", "scope" => "sale", "requires_reference" => true, "supports_variants" => true, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "CHECK", "category" => "bank", "sunat_code" => "007", "name" => "Cheque no negociable", "description" => "Cheque emitido como medio de pago bancarizado.", "image_path" => "System/assets/img/payment-methods/check.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "DIGITAL_WALLET", "category" => "digital_wallet", "sunat_code" => null, "name" => "Billetera digital", "description" => "Método general para pagos con billeteras digitales como Yape, Plin, Agora PAY, Bim o IzipayYA.", "image_path" => "System/assets/img/payment-methods/digital-wallet.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => true, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "REMITTANCE", "category" => "bank", "sunat_code" => null, "name" => "Remesa", "description" => "Remesa canalizada por el sistema financiero.", "image_path" => "System/assets/img/payment-methods/remittance.svg", "scope" => "both", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-            ["code" => "LETTER_OF_CREDIT", "category" => "bank", "sunat_code" => null, "name" => "Carta de crédito", "description" => "Carta de crédito usada principalmente en compras u operaciones empresariales.", "image_path" => "System/assets/img/payment-methods/letter-of-credit.svg", "scope" => "purchase", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
-        ];
-
-        foreach($methods as $method) {
-
-            DB::table("payment_methods")->updateOrInsert(
-                ["code" => $method["code"]],
-                $method + ["status" => "active"]
-            );
-
-        }
-
-        DB::table("payment_methods")
-            ->whereIn("code", ["YAPE", "PLIN"])
-            ->delete();
-
-    }
-
-    private function syncPaymentMethodVariants(): void {
-
-        $methods = DB::table("payment_methods")
-            ->whereIn("code", ["DIGITAL_WALLET", "DEBIT_CARD", "CREDIT_CARD"])
-            ->pluck("id", "code");
-
-        $variantsByMethod = [
-            "DIGITAL_WALLET" => [
-                ["code" => "YAPE", "name" => "Yape", "image_path" => "System/assets/img/payment-methods/yape.svg", "description" => "Billetera digital de uso masivo en Perú."],
-                ["code" => "PLIN", "name" => "Plin", "image_path" => "System/assets/img/payment-methods/plin.svg", "description" => "Billetera digital interoperable en Perú."],
-                ["code" => "AGORA_PAY", "name" => "Agora PAY", "image_path" => "System/assets/img/payment-methods/agora-pay.svg", "description" => "Billetera digital disponible en Perú."],
-                ["code" => "BIM", "name" => "Bim", "image_path" => "System/assets/img/payment-methods/bim.svg", "description" => "Billetera móvil peruana orientada a pagos digitales."],
-                ["code" => "IZIPAYYA", "name" => "IzipayYA", "image_path" => "System/assets/img/payment-methods/izipayya.svg", "description" => "Billetera digital antes conocida como Tunki."],
-            ],
-            "DEBIT_CARD" => [
-                ["code" => "VISA_DEBIT", "name" => "Visa débito", "image_path" => "System/assets/img/payment-methods/visa.svg", "description" => "Pago con tarjeta de débito Visa."],
-                ["code" => "MASTERCARD_DEBIT", "name" => "Mastercard débito", "image_path" => "System/assets/img/payment-methods/mastercard.svg", "description" => "Pago con tarjeta de débito Mastercard."],
-            ],
-            "CREDIT_CARD" => [
-                ["code" => "VISA_CREDIT", "name" => "Visa crédito", "image_path" => "System/assets/img/payment-methods/visa.svg", "description" => "Pago con tarjeta de crédito Visa."],
-                ["code" => "MASTERCARD_CREDIT", "name" => "Mastercard crédito", "image_path" => "System/assets/img/payment-methods/mastercard.svg", "description" => "Pago con tarjeta de crédito Mastercard."],
-                ["code" => "AMEX_CREDIT", "name" => "American Express", "image_path" => "System/assets/img/payment-methods/american-express.svg", "description" => "Pago con tarjeta American Express."],
-                ["code" => "DINERS_CREDIT", "name" => "Diners Club", "image_path" => "System/assets/img/payment-methods/diners-club.svg", "description" => "Pago con tarjeta Diners Club."],
-            ],
-        ];
-
-        foreach($variantsByMethod as $methodCode => $variants) {
-
-            $methodId = $methods[$methodCode] ?? null;
-
-            if(!$methodId) {
-
-                continue;
-
-            }
-
-            foreach($variants as $variant) {
-
-                DB::table("payment_method_variants")->updateOrInsert(
-                    ["payment_method_id" => $methodId, "code" => $variant["code"]],
-                    $variant + [
-                        "payment_method_id" => $methodId,
-                        "sunat_code" => null,
-                        "requires_reference" => true,
-                        "is_default" => false,
-                        "status" => "active",
-                        "updated_at" => now(),
-                    ]
-                );
-
-            }
-
-        }
-
-    }
-
-    private function syncPaymentSettings(): void {
-
-        $companyId = (int) DB::table("companies")->value("id");
-
-        if($companyId <= 0) {
-
-            return;
-
-        }
-
-        $settings = [
-            [
-                "group" => "sales",
-                "key" => "default_payment_modality",
-                "value" => "paid_now",
-                "description" => "Modalidad de pago sugerida por defecto al registrar una venta. Valores: paid_now, cash_on_delivery o installments.",
-                "value_type" => "string",
-            ],
-            [
-                "group" => "sales",
-                "key" => "installment_extra_percentage",
-                "value" => "0",
-                "description" => "Porcentaje adicional aplicado al total de una venta cuando la modalidad de pago es por cuotas.",
-                "value_type" => "decimal",
-            ],
-            [
-                "group" => "purchases",
-                "key" => "default_payment_modality",
-                "value" => "paid_now",
-                "description" => "Modalidad de pago sugerida por defecto al registrar una compra. Valores: paid_now, cash_on_delivery o installments.",
-                "value_type" => "string",
-            ],
-            [
-                "group" => "purchases",
-                "key" => "installment_extra_percentage",
-                "value" => "0",
-                "description" => "Porcentaje adicional aplicado al total de una compra cuando la modalidad de pago es por cuotas.",
-                "value_type" => "decimal",
-            ],
-        ];
-
-        foreach($settings as $setting) {
-
-            DB::table("company_settings")->updateOrInsert(
-                ["company_id" => $companyId, "group" => $setting["group"], "key" => $setting["key"]],
-                $setting + ["company_id" => $companyId, "status" => "active"]
-            );
 
         }
 

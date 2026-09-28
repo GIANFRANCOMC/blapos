@@ -162,6 +162,28 @@ final class TenantCompanyBoundaryTest extends TestCase {
 
     }
 
+    public function test_tenant_migrations_do_not_seed_runtime_reference_data(): void {
+
+        foreach($this->phpFiles(database_path("migrations")) as $file) {
+
+            if(str_contains($file->getPathname(), DIRECTORY_SEPARATOR."landlord".DIRECTORY_SEPARATOR)) {
+
+                continue;
+
+            }
+
+            $content = file_get_contents($file->getPathname());
+
+            $this->assertStringNotContainsString(
+                "DB::table(",
+                $content,
+                "La migración {$this->relativePath($file->getPathname())} debe limitarse al esquema; los datos base pertenecen al aprovisionamiento."
+            );
+
+        }
+
+    }
+
     public function test_provisioning_uses_the_root_context_and_batch_writes(): void {
 
         $content = file_get_contents(

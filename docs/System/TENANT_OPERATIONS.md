@@ -39,6 +39,8 @@ La administración de módulos y permisos tampoco recibe el ID raíz: `CompanySe
 
 El aprovisionador tampoco recibe ni devuelve el ID raíz. `createOrUpdate()`, `enable()` y `ensureAdminUser()` operan sobre la conexión tenant activa; los catálogos, perfiles de negocio y permisos iniciales se escriben en lotes idempotentes para reducir consultas.
 
+Las migraciones tenant administran únicamente el esquema. Los valores iniciales de configuraciones, métodos de pago, variantes, impuestos, rubros, módulos y permisos se concentran en `CompanyProvisioningService`; así una instalación nueva y un reintento ejecutan la misma ruta idempotente y no dependen de datos insertados durante `migrate`.
+
 ## Ciclo de vida
 
 - `provisioning`: creación en curso.
