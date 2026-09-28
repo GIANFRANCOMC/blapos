@@ -112,6 +112,7 @@ return new class extends Migration {
             );
 
             $table->index(["sale_header_id", "action", "occurred_at"], "series_corr_sale_action_date_idx");
+            $table->index(["serie_id", "action", "sequential"], "series_corr_serie_action_seq_idx");
 
         });
         Schema::create("sales_body", function(Blueprint $table) {

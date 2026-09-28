@@ -62,21 +62,23 @@ final class SystemCatalogSyncService {
 
         });
 
-        foreach($items as $item) {
+        $timestamp = now();
+        $companyModules = $items
+            ->map(fn(object $item): array => [
+                "company_id" => $companyId,
+                "sub_section_id" => (int) $item->id,
+                "section_order" => $sectionOrders[$item->section_id] ?? 999,
+                "sub_section_order" => (int) $item->order,
+                "status" => (bool) $item->is_enabled_by_default ? "active" : "inactive",
+                "updated_at" => $timestamp,
+            ])
+            ->all();
 
-            $defaultStatus = (bool) $item->is_enabled_by_default ? "active" : "inactive";
-
-            DB::table("companies_sub_sections")->updateOrInsert(
-                ["company_id" => $companyId, "sub_section_id" => $item->id],
-                [
-                    "section_order" => $sectionOrders[$item->section_id] ?? 999,
-                    "sub_section_order" => $item->order,
-                    "status" => $defaultStatus,
-                    "updated_at" => now(),
-                ]
-            );
-
-        }
+        DB::table("companies_sub_sections")->upsert(
+            $companyModules,
+            ["company_id", "sub_section_id"],
+            ["section_order", "sub_section_order", "updated_at"]
+        );
 
         if(!Schema::hasTable("role_sub_sections")) {
 
@@ -88,18 +90,28 @@ final class SystemCatalogSyncService {
             ->where("is_full_access", true)
             ->pluck("id");
 
-        foreach($fullAccessRoleIds as $roleId) {
+        $roleModules = $fullAccessRoleIds
+            ->flatMap(fn($roleId) => $items
+                ->map(fn(object $item): array => [
+                    "role_id" => (int) $roleId,
+                    "sub_section_id" => (int) $item->id,
+                    "status" => "active",
+                    "updated_at" => $timestamp,
+                ]))
+            ->values()
+            ->all();
 
-            foreach($items as $item) {
+        if($roleModules === []) {
 
-                DB::table("role_sub_sections")->updateOrInsert(
-                    ["role_id" => $roleId, "sub_section_id" => $item->id],
-                    ["status" => "active", "updated_at" => now()]
-                );
-
-            }
+            return;
 
         }
+
+        DB::table("role_sub_sections")->upsert(
+            $roleModules,
+            ["role_id", "sub_section_id"],
+            ["status", "updated_at"]
+        );
 
     }
 }

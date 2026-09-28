@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{BusinessIndustry, BusinessIndustryModuleSet
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Support\Facades\{DB};
+use Illuminate\Support\{Collection};
 
 final class BusinessProfileService {
     private const PROTECTED_ROUTES = [
@@ -56,29 +57,7 @@ final class BusinessProfileService {
                 ->intersect($catalogIds)
                 ->unique();
 
-            DB::table("companies_sub_sections")
-                ->where("company_id", $companyId)
-                ->whereIn("sub_section_id", $catalogIds->all())
-                ->update([
-                    "status" => "inactive",
-                    "updated_at" => now(),
-                    "updated_by" => $userId,
-                ]);
-
-            foreach($selectedIds as $subSectionId) {
-
-                DB::table("companies_sub_sections")->updateOrInsert(
-                    ["company_id" => $companyId, "sub_section_id" => $subSectionId],
-                    [
-                        "status" => "active",
-                        "updated_at" => now(),
-                        "updated_by" => $userId,
-                    ]
-                );
-
-            }
-
-            CompanySectionService::revokeDisabledRolePermissions($selectedIds->values()->all());
+            self::replaceEnabledModules($catalogIds, $selectedIds, $userId);
 
             DB::table("companies")
                 ->where("id", $companyId)
@@ -87,8 +66,6 @@ final class BusinessProfileService {
                     "updated_at" => now(),
                     "updated_by" => $userId,
                 ]);
-
-            CompanySectionService::clearTenantCache();
 
         });
 
@@ -109,8 +86,7 @@ final class BusinessProfileService {
 
     public static function updateModules(array $enabledIds, int $userId): void {
 
-        $companyId = app(TenantCompanyContext::class)->id();
-        DB::transaction(function() use ($companyId, $enabledIds, $userId) {
+        DB::transaction(function() use ($enabledIds, $userId) {
 
             $catalogIds = SubSection::query()
                 ->where("status", "active")
@@ -124,31 +100,7 @@ final class BusinessProfileService {
                 ->merge($protectedIds)
                 ->unique();
 
-            DB::table("companies_sub_sections")
-                ->where("company_id", $companyId)
-                ->whereIn("sub_section_id", $catalogIds->all())
-                ->update([
-                    "status" => "inactive",
-                    "updated_at" => now(),
-                    "updated_by" => $userId,
-                ]);
-
-            foreach($selected as $subSectionId) {
-
-                DB::table("companies_sub_sections")->updateOrInsert(
-                    ["company_id" => $companyId, "sub_section_id" => $subSectionId],
-                    [
-                        "status" => "active",
-                        "updated_at" => now(),
-                        "updated_by" => $userId,
-                    ]
-                );
-
-            }
-
-            CompanySectionService::revokeDisabledRolePermissions($selected->values()->all());
-
-            CompanySectionService::clearTenantCache();
+            self::replaceEnabledModules($catalogIds, $selected, $userId);
 
         });
 
@@ -160,6 +112,50 @@ final class BusinessProfileService {
             ->whereIn("dom_route", self::PROTECTED_ROUTES)
             ->pluck("id")
             ->map(fn($id) => (int) $id);
+
+    }
+
+    private static function replaceEnabledModules(
+        Collection $catalogIds,
+        Collection $selectedIds,
+        int $userId
+    ): void {
+
+        $companyId = app(TenantCompanyContext::class)->id();
+        $timestamp = now();
+
+        DB::table("companies_sub_sections")
+            ->where("company_id", $companyId)
+            ->whereIn("sub_section_id", $catalogIds->all())
+            ->update([
+                "status" => "inactive",
+                "updated_at" => $timestamp,
+                "updated_by" => $userId,
+            ]);
+
+        $records = $selectedIds
+            ->map(fn($subSectionId): array => [
+                "company_id" => $companyId,
+                "sub_section_id" => (int) $subSectionId,
+                "status" => "active",
+                "updated_at" => $timestamp,
+                "updated_by" => $userId,
+            ])
+            ->values()
+            ->all();
+
+        if($records !== []) {
+
+            DB::table("companies_sub_sections")->upsert(
+                $records,
+                ["company_id", "sub_section_id"],
+                ["status", "updated_at", "updated_by"]
+            );
+
+        }
+
+        CompanySectionService::revokeDisabledRolePermissions($selectedIds->values()->all());
+        CompanySectionService::clearTenantCache();
 
     }
 }

@@ -69,7 +69,7 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
              FROM INFORMATION_SCHEMA.STATISTICS
              WHERE TABLE_SCHEMA = ?
                AND INDEX_NAME <> 'PRIMARY'
-               AND TABLE_NAME IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               AND TABLE_NAME IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              GROUP BY TABLE_NAME, INDEX_NAME",
             [
                 $database,
@@ -85,6 +85,7 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
                 "suppliers",
                 "taxes",
                 "misc_expense_categories",
+                "series",
             ]
         ))->pluck("columns_list", "index_key");
 
@@ -98,6 +99,11 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
         $this->assertSame("barcode", $indexes["items.items_barcode_uq"] ?? null);
         $this->assertSame("type,internal_code", $indexes["items.items_type_code_uq"] ?? null);
         $this->assertSame("serie_id,sequential", $indexes["sales_header.sales_header_serie_sequential_uq"] ?? null);
+        $this->assertSame(
+            "branch_id,document_type_id",
+            $indexes["series.series_branch_document_type_uq"] ?? null
+        );
+
         $this->assertSame("warehouse_id,item_id", $indexes["warehouse_items.warehouse_items_warehouse_item_uq"] ?? null);
         $this->assertSame("branch_id,name", $indexes["warehouses.warehouses_branch_name_uq"] ?? null);
 
@@ -122,6 +128,22 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
             "name",
             $indexes["misc_expense_categories.misc_expense_categories_name_uq"] ?? null
         );
+
+    }
+
+    public function test_correlative_gap_lookup_has_an_ordered_index(): void {
+
+        $database = DB::connection()->getDatabaseName();
+        $columns = DB::select(
+            "SELECT GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) AS columns_list
+             FROM INFORMATION_SCHEMA.STATISTICS
+             WHERE TABLE_SCHEMA = ?
+               AND TABLE_NAME = ?
+               AND INDEX_NAME = ?",
+            [$database, "series_correlative_movements", "series_corr_serie_action_seq_idx"]
+        );
+
+        $this->assertSame("serie_id,action,sequential", $columns[0]->columns_list);
 
     }
 }

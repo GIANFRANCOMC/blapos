@@ -31,9 +31,13 @@ final class CompanyProvisioningService {
 
         }
 
-        DB::table("companies")->updateOrInsert(
-            ["id" => self::ROOT_COMPANY_ID],
-            $payload
+        DB::table("companies")->upsert(
+            [["id" => self::ROOT_COMPANY_ID] + $payload],
+            ["id"],
+            [
+                "slug", "internal_code", "document_number", "legal_name",
+                "commercial_name", "email", "updated_at",
+            ]
         );
 
         app(TenantCompanyContext::class)->forget();
@@ -85,29 +89,31 @@ final class CompanyProvisioningService {
 
         }
 
-        DB::table("users")->updateOrInsert(
-            ["email" => $email],
-            [
-                "role_id" => $roleId,
-                "identity_document_type_id" => $identityId,
-                "document_number" => "00000000",
-                "name" => $name,
-                "password" => Hash::make($password),
-                "email_verified_at" => now(),
-                "status" => "active",
-                "updated_at" => now(),
-            ]
-        );
+        DB::table("users")->insertOrIgnore([
+            "email" => $email,
+            "role_id" => $roleId,
+            "identity_document_type_id" => $identityId,
+            "document_number" => "00000000",
+            "name" => $name,
+            "password" => Hash::make($password),
+            "email_verified_at" => now(),
+            "status" => "active",
+            "updated_at" => now(),
+        ]);
 
         $userId = (int) DB::table("users")->where("email", $email)->value("id");
-        $branchId = DB::table("branches")->where("name", "Sede Principal")->value("id");
+        $branchId = DB::table("branches")
+            ->where("internal_code", "SUC-PRINCIPAL")
+            ->value("id");
 
         if($branchId) {
 
-            DB::table("user_branches")->updateOrInsert(
-                ["user_id" => $userId, "branch_id" => $branchId],
-                ["status" => "active", "updated_at" => now()]
-            );
+            DB::table("user_branches")->insertOrIgnore([
+                "user_id" => $userId,
+                "branch_id" => $branchId,
+                "status" => "active",
+                "updated_at" => now(),
+            ]);
 
         }
 
@@ -125,12 +131,10 @@ final class CompanyProvisioningService {
             ["code" => "pasaporte", "name" => "Pasaporte", "is_searchable" => false, "min_length" => 8, "max_length" => 8],
         ];
 
-        DB::table("identity_document_types")->upsert(
+        DB::table("identity_document_types")->insertOrIgnore(
             collect($records)
                 ->map(fn($record) => $record + ["status" => "active"])
-                ->all(),
-            ["code"],
-            ["name", "is_searchable", "min_length", "max_length", "status"]
+                ->all()
         );
 
     }
@@ -142,28 +146,23 @@ final class CompanyProvisioningService {
             ["code" => "FA", "name" => "FACTURA"],
         ];
 
-        DB::table("document_types")->upsert(
+        DB::table("document_types")->insertOrIgnore(
             collect($records)
                 ->map(fn($record) => $record + ["status" => "active"])
-                ->all(),
-            ["code"],
-            ["name", "status"]
+                ->all()
         );
 
     }
 
     private function seedCurrencies(): void {
 
-        DB::table("currencies")->updateOrInsert(
-            ["code" => "PEN"],
-            [
-                "code" => "PEN",
-                "sign" => "S/",
-                "singular_name" => "SOL",
-                "plural_name" => "SOLES",
-                "status" => "active",
-            ]
-        );
+        DB::table("currencies")->insertOrIgnore([
+            "code" => "PEN",
+            "sign" => "S/",
+            "singular_name" => "SOL",
+            "plural_name" => "SOLES",
+            "status" => "active",
+        ]);
 
     }
 
@@ -180,10 +179,13 @@ final class CompanyProvisioningService {
 
         DB::table("companies")
             ->where("id", $companyId)
-            ->update([
-                "identity_document_type_id" => $identityDocumentTypeId,
-                "currency_id" => $currencyId,
-            ]);
+            ->whereNull("identity_document_type_id")
+            ->update(["identity_document_type_id" => $identityDocumentTypeId]);
+
+        DB::table("companies")
+            ->where("id", $companyId)
+            ->whereNull("currency_id")
+            ->update(["currency_id" => $currencyId]);
 
     }
 
@@ -233,11 +235,7 @@ final class CompanyProvisioningService {
             ])
             ->all();
 
-        DB::table("company_settings")->upsert(
-            $records,
-            ["company_id", "group", "key"],
-            ["value", "description", "value_type", "status"]
-        );
+        DB::table("company_settings")->insertOrIgnore($records);
 
     }
 
@@ -250,16 +248,10 @@ final class CompanyProvisioningService {
             ["code" => "PURCHASE-ICBP", "name" => "ICBP", "description" => "Impuesto al Consumo de Bolsas Plásticas aplicado a compras cuando corresponde. Es opcional porque no todas las compras incluyen bolsa gravada.", "scope" => "purchase", "calculation_type" => "fixed", "rate" => 0.5, "min_apply_quantity" => 0, "max_apply_quantity" => null, "operation_type" => "addition", "is_required" => false, "is_default" => false],
         ];
 
-        DB::table("taxes")->upsert(
+        DB::table("taxes")->insertOrIgnore(
             collect($taxes)
                 ->map(fn($tax) => $tax + ["status" => "active"])
-                ->all(),
-            ["code"],
-            [
-                "name", "description", "rate", "calculation_type", "operation_type",
-                "min_apply_quantity", "max_apply_quantity", "scope", "is_required",
-                "is_default", "status",
-            ]
+                ->all()
         );
 
     }
@@ -280,21 +272,11 @@ final class CompanyProvisioningService {
             ["code" => "LETTER_OF_CREDIT", "category" => "bank", "sunat_code" => null, "name" => "Carta de crédito", "description" => "Carta de crédito usada principalmente en compras u operaciones empresariales.", "image_path" => "System/assets/img/payment-methods/letter-of-credit.svg", "scope" => "purchase", "requires_reference" => true, "supports_variants" => false, "allows_partial_payment" => true, "is_default" => false],
         ];
 
-        DB::table("payment_methods")->upsert(
+        DB::table("payment_methods")->insertOrIgnore(
             collect($methods)
                 ->map(fn($method) => $method + ["status" => "active"])
-                ->all(),
-            ["code"],
-            [
-                "category", "sunat_code", "name", "description", "image_path", "scope",
-                "requires_reference", "supports_variants", "allows_partial_payment",
-                "is_default", "status",
-            ]
+                ->all()
         );
-
-        DB::table("payment_methods")
-            ->whereIn("code", ["YAPE", "PLIN"])
-            ->delete();
 
         $this->seedPaymentMethodVariants();
 
@@ -314,12 +296,10 @@ final class CompanyProvisioningService {
             ["code" => "shipping", "name" => "Envío", "description" => "Lo vendido se remite mediante transporte propio o un tercero.", "sort_order" => 30, "is_default" => false],
         ];
 
-        DB::table("sale_delivery_methods")->upsert(
+        DB::table("sale_delivery_methods")->insertOrIgnore(
             collect($methods)
                 ->map(fn($method) => $method + ["status" => "active"])
-                ->all(),
-            ["code"],
-            ["name", "description", "sort_order", "is_default", "status"]
+                ->all()
         );
 
     }
@@ -340,12 +320,10 @@ final class CompanyProvisioningService {
             ["name" => "Otros gastos", "description" => "Gastos operativos que no encajan en una categoría específica."],
         ];
 
-        DB::table("misc_expense_categories")->upsert(
+        DB::table("misc_expense_categories")->insertOrIgnore(
             collect($categories)
                 ->map(fn($category) => $category + ["status" => "active", "updated_at" => now()])
-                ->all(),
-            ["name"],
-            ["description", "status", "updated_at"]
+                ->all()
         );
 
     }
@@ -385,11 +363,7 @@ final class CompanyProvisioningService {
             ->values()
             ->all();
 
-        DB::table("business_industries")->upsert(
-            $industryRecords,
-            ["slug"],
-            ["name", "description", "status", "updated_at"]
-        );
+        DB::table("business_industries")->insertOrIgnore($industryRecords);
 
         $industries = DB::table("business_industries")
             ->whereIn("slug", array_keys($profiles))
@@ -425,11 +399,7 @@ final class CompanyProvisioningService {
 
         if($moduleSetRecords !== []) {
 
-            DB::table("business_industry_module_sets")->upsert(
-                $moduleSetRecords,
-                ["business_industry_id", "sub_section_id"],
-                ["is_enabled_by_default", "reason", "status", "updated_at"]
-            );
+            DB::table("business_industry_module_sets")->insertOrIgnore($moduleSetRecords);
 
         }
 
@@ -503,14 +473,7 @@ final class CompanyProvisioningService {
 
         if($records !== []) {
 
-            DB::table("payment_method_variants")->upsert(
-                $records,
-                ["payment_method_id", "code"],
-                [
-                    "name", "sunat_code", "image_path", "description", "requires_reference",
-                    "is_default", "status", "updated_at",
-                ]
-            );
+            DB::table("payment_method_variants")->insertOrIgnore($records);
 
         }
 
@@ -519,36 +482,72 @@ final class CompanyProvisioningService {
     private function seedOperationalDefaults(): void {
 
         $companyId = $this->rootCompanyId();
-        DB::table("branches")->updateOrInsert(
-            ["company_id" => $companyId, "name" => "Sede Principal"],
-            ["company_id" => $companyId, "internal_code" => "SUC-PRINCIPAL", "status" => "active", "updated_at" => now()]
-        );
+        DB::table("branches")->insertOrIgnore([
+            "company_id" => $companyId,
+            "internal_code" => "SUC-PRINCIPAL",
+            "name" => "Sede Principal",
+            "status" => "active",
+        ]);
 
-        $branchId = (int) DB::table("branches")->where("name", "Sede Principal")->value("id");
+        $branchId = (int) DB::table("branches")
+            ->where("company_id", $companyId)
+            ->where("internal_code", "SUC-PRINCIPAL")
+            ->value("id");
 
-        DB::table("warehouses")->updateOrInsert(
-            ["branch_id" => $branchId, "name" => "Almacén 1"],
-            ["status" => "active", "updated_at" => now()]
-        );
-        DB::table("cash_registers")->updateOrInsert(
-            ["branch_id" => $branchId, "name" => "Caja principal"],
-            ["code" => "CAJ-PRINCIPAL", "is_main" => true, "status" => "active", "updated_at" => now()]
-        );
+        if($branchId <= 0) {
+
+            throw new RuntimeException("No se pudo resolver la sucursal raíz del tenant.");
+
+        }
+
+        if(!DB::table("warehouses")->where("branch_id", $branchId)->exists()) {
+
+            DB::table("warehouses")->insertOrIgnore([
+                "branch_id" => $branchId,
+                "name" => "Almacén 1",
+                "status" => "active",
+            ]);
+
+        }
+
+        if(!DB::table("cash_registers")->where("branch_id", $branchId)->exists()) {
+
+            DB::table("cash_registers")->insertOrIgnore([
+                "branch_id" => $branchId,
+                "name" => "Caja principal",
+                "code" => "CAJ-PRINCIPAL",
+                "is_main" => true,
+                "status" => "active",
+            ]);
+
+        }
 
         $genericDocumentId = DB::table("identity_document_types")->where("code", "doc.trib.no.dom.sin.ruc")->value("id");
-        DB::table("customers")->updateOrInsert(
-            ["document_number" => "999999999"],
-            ["identity_document_type_id" => $genericDocumentId, "name" => "Cliente varios", "phone_number" => "", "status" => "active", "updated_at" => now()]
-        );
+        DB::table("customers")->insertOrIgnore([
+            "identity_document_type_id" => $genericDocumentId,
+            "document_number" => "999999999",
+            "name" => "Cliente varios",
+            "phone_number" => "",
+            "status" => "active",
+        ]);
 
-        $documentTypes = DB::table("document_types")->get();
+        $timestamp = now();
+        $series = DB::table("document_types")
+            ->get(["id", "code"])
+            ->map(fn(object $documentType): array => [
+                "branch_id" => $branchId,
+                "document_type_id" => (int) $documentType->id,
+                "code" => (string) $documentType->code,
+                "number" => 1,
+                "init" => 1,
+                "status" => "active",
+                "updated_at" => $timestamp,
+            ])
+            ->all();
 
-        foreach($documentTypes as $documentType) {
+        if($series !== []) {
 
-            DB::table("series")->updateOrInsert(
-                ["branch_id" => $branchId, "document_type_id" => $documentType->id],
-                ["code" => $documentType->code, "number" => 1, "init" => 1, "status" => "active", "updated_at" => now()]
-            );
+            DB::table("series")->insertOrIgnore($series);
 
         }
 

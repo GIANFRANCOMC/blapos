@@ -208,6 +208,7 @@ return new class extends Migration {
 
             $table->foreign("branch_id")->references("id")->on("branches")->onDelete("cascade");
             $table->foreign("document_type_id")->references("id")->on("document_types")->onDelete("cascade");
+            $table->unique(["branch_id", "document_type_id"], "series_branch_document_type_uq");
 
         });
         Schema::create("brands", function(Blueprint $table) {

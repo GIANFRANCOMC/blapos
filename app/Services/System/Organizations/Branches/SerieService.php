@@ -125,35 +125,72 @@ class SerieService {
 
     public static function detectGaps(?int $branchId = null): array {
 
-        return Serie::query()
+        $series = Serie::query()
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
             ->get()
-            ->map(function(Serie $serie) {
+            ->keyBy("id");
 
-                $issued = DB::table("series_correlative_movements")
-                    ->where("serie_id", $serie->id)
-                    ->where("action", "issued")
-                    ->orderBy("sequential")
-                    ->pluck("sequential")
-                    ->map(fn($value) => (int) $value)
-                    ->all();
+        if($series->isEmpty()) {
 
-                if(count($issued) < 2) {
+            return [];
+
+        }
+
+        $progress = [];
+
+        $movements = DB::table("series_correlative_movements")
+            ->whereIn("serie_id", $series->keys()->all())
+            ->where("action", "issued")
+            ->orderBy("serie_id")
+            ->orderBy("sequential")
+            ->cursor();
+
+        foreach($movements as $movement) {
+
+            $serieId = (int) $movement->serie_id;
+            $sequential = (int) $movement->sequential;
+
+            if(!isset($progress[$serieId])) {
+
+                $progress[$serieId] = [
+                    "first" => $sequential,
+                    "last" => $sequential,
+                    "missing" => [],
+                ];
+
+                continue;
+
+            }
+
+            $previous = $progress[$serieId]["last"];
+
+            for($number = $previous + 1; $number < $sequential; $number++) {
+
+                $progress[$serieId]["missing"][] = $number;
+
+            }
+
+            $progress[$serieId]["last"] = $sequential;
+
+        }
+
+        return $series
+            ->map(function(Serie $serie) use ($progress): ?array {
+
+                $issued = $progress[$serie->id] ?? null;
+
+                if($issued === null || $issued["missing"] === []) {
 
                     return null;
 
                 }
 
-                $expected = range(min($issued), max($issued));
-
-                $missing = array_values(array_diff($expected, $issued));
-
-                return empty($missing) ? null : [
+                return [
                     "serie_id" => $serie->id,
                     "serie" => $serie->legible_serie,
-                    "first" => min($issued),
-                    "last" => max($issued),
-                    "missing" => $missing,
+                    "first" => $issued["first"],
+                    "last" => $issued["last"],
+                    "missing" => $issued["missing"],
                 ];
 
             })

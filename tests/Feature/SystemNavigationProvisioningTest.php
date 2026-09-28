@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Services\System\Catalogs\Categories\{CategoryItemService};
+use App\Services\System\Database\{SystemCatalogSyncService};
+use App\Services\System\Organizations\Branches\{SerieService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
 use App\Services\System\Organizations\{BusinessProfileService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
+use App\Services\System\Warehouses\Warehouses\{WarehouseItemService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
-use Illuminate\Support\Facades\{Auth, DB, Route};
+use Illuminate\Support\Facades\{Auth, DB, Hash, Route};
 use RuntimeException;
 use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
@@ -96,6 +100,445 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->all();
 
         $this->assertSame($before, $after);
+
+    }
+
+    public function test_reprovisioning_does_not_reset_the_initial_administrator(): void {
+
+        $admin = DB::table("users")->where("email", "admin@example.test")->first();
+        $passwordHash = Hash::make("changed-password");
+
+        DB::table("users")
+            ->where("id", $admin->id)
+            ->update([
+                "name" => "Administrador personalizado",
+                "password" => $passwordHash,
+                "status" => "inactive",
+            ]);
+
+        DB::table("user_branches")
+            ->where("user_id", $admin->id)
+            ->update(["status" => "inactive"]);
+
+        $resolvedId = app(CompanyProvisioningService::class)->ensureAdminUser(
+            "Administrador inicial",
+            "admin@example.test",
+            "initial-password"
+        );
+
+        $this->assertSame((int) $admin->id, $resolvedId);
+        $this->assertDatabaseHas("users", [
+            "id" => $admin->id,
+            "name" => "Administrador personalizado",
+            "password" => $passwordHash,
+            "status" => "inactive",
+        ]);
+
+        $this->assertDatabaseHas("user_branches", [
+            "user_id" => $admin->id,
+            "status" => "inactive",
+        ]);
+
+    }
+
+    public function test_reprovisioning_does_not_reset_an_issued_document_series(): void {
+
+        $series = DB::table("series")->first();
+
+        DB::table("series")
+            ->where("id", $series->id)
+            ->update([
+                "number" => 24,
+                "init" => 318,
+                "status" => "inactive",
+            ]);
+
+        app(CompanyProvisioningService::class)->enable();
+
+        $this->assertDatabaseHas("series", [
+            "id" => $series->id,
+            "number" => 24,
+            "init" => 318,
+            "status" => "inactive",
+        ]);
+
+        $this->assertSame(
+            1,
+            DB::table("series")
+                ->where("branch_id", $series->branch_id)
+                ->where("document_type_id", $series->document_type_id)
+                ->count()
+        );
+
+    }
+
+    public function test_reprovisioning_preserves_tenant_preferences_and_restores_missing_defaults(): void {
+
+        $currencyId = (int) DB::table("currencies")->insertGetId([
+            "code" => "USD",
+            "sign" => "$",
+            "singular_name" => "DÓLAR",
+            "plural_name" => "DÓLARES",
+            "status" => "active",
+        ]);
+
+        DB::table("companies")
+            ->where("id", 1)
+            ->update(["currency_id" => $currencyId]);
+
+        DB::table("company_settings")
+            ->where("company_id", 1)
+            ->where("group", "inventory")
+            ->where("key", "allow_negative_stock_on_sale")
+            ->update(["value" => "true"]);
+
+        DB::table("company_settings")
+            ->where("company_id", 1)
+            ->where("group", "inventory")
+            ->where("key", "restore_stock_on_sale_cancellation")
+            ->delete();
+
+        DB::table("taxes")
+            ->where("code", "SALE-ICBP")
+            ->update(["rate" => 0.75]);
+
+        DB::table("payment_methods")
+            ->where("code", "CASH")
+            ->update(["status" => "inactive"]);
+
+        DB::table("business_industry_module_sets")
+            ->where("business_industry_id", DB::table("business_industries")->where("slug", "gym")->value("id"))
+            ->limit(1)
+            ->update(["is_enabled_by_default" => false]);
+
+        app(CompanyProvisioningService::class)->enable();
+
+        $this->assertDatabaseHas("company_settings", [
+            "company_id" => 1,
+            "group" => "inventory",
+            "key" => "allow_negative_stock_on_sale",
+            "value" => "true",
+        ]);
+
+        $this->assertDatabaseHas("company_settings", [
+            "company_id" => 1,
+            "group" => "inventory",
+            "key" => "restore_stock_on_sale_cancellation",
+            "value" => "false",
+        ]);
+
+        $this->assertDatabaseHas("taxes", [
+            "code" => "SALE-ICBP",
+            "rate" => 0.75,
+        ]);
+
+        $this->assertDatabaseHas("payment_methods", [
+            "code" => "CASH",
+            "status" => "inactive",
+        ]);
+
+        $this->assertDatabaseHas("companies", [
+            "id" => 1,
+            "currency_id" => $currencyId,
+        ]);
+
+        $this->assertSame(
+            1,
+            DB::table("business_industry_module_sets")
+                ->where("business_industry_id", DB::table("business_industries")->where("slug", "gym")->value("id"))
+                ->where("is_enabled_by_default", false)
+                ->count()
+        );
+
+    }
+
+    public function test_reprovisioning_company_metadata_does_not_reactivate_an_inactive_company(): void {
+
+        DB::table("companies")->where("id", 1)->update(["status" => "inactive"]);
+
+        app(CompanyProvisioningService::class)->createOrUpdate([
+            "slug" => "tests",
+            "commercial_name" => "Empresa renombrada",
+            "legal_name" => "EMPRESA DE PRUEBAS S.A.C.",
+            "document_number" => "20999999999",
+            "email" => "admin@example.test",
+        ]);
+
+        $this->assertDatabaseHas("companies", [
+            "id" => 1,
+            "commercial_name" => "Empresa renombrada",
+            "status" => "inactive",
+        ]);
+
+    }
+
+    public function test_reprovisioning_preserves_operational_resources_after_renaming_the_branch(): void {
+
+        $branchId = (int) DB::table("branches")
+            ->where("internal_code", "SUC-PRINCIPAL")
+            ->value("id");
+
+        DB::table("branches")
+            ->where("id", $branchId)
+            ->update(["name" => "Sede Lima"]);
+
+        DB::table("warehouses")
+            ->where("branch_id", $branchId)
+            ->update(["status" => "inactive"]);
+
+        DB::table("cash_registers")
+            ->where("branch_id", $branchId)
+            ->update(["status" => "inactive"]);
+
+        DB::table("customers")
+            ->where("document_number", "999999999")
+            ->update(["status" => "inactive"]);
+
+        $provisioning = app(CompanyProvisioningService::class);
+        $provisioning->enable();
+        $adminId = $provisioning->ensureAdminUser(
+            "Administrador de pruebas",
+            "admin@example.test",
+            "password"
+        );
+
+        $this->assertDatabaseHas("branches", [
+            "id" => $branchId,
+            "name" => "Sede Lima",
+        ]);
+
+        $this->assertSame(1, DB::table("branches")->count());
+        $this->assertDatabaseHas("warehouses", ["branch_id" => $branchId, "status" => "inactive"]);
+        $this->assertDatabaseHas("cash_registers", ["branch_id" => $branchId, "status" => "inactive"]);
+        $this->assertDatabaseHas("customers", ["document_number" => "999999999", "status" => "inactive"]);
+        $this->assertDatabaseHas("user_branches", ["user_id" => $adminId, "branch_id" => $branchId]);
+
+    }
+
+    public function test_series_gaps_are_detected_across_multiple_series(): void {
+
+        $series = DB::table("series")->orderBy("id")->limit(2)->get();
+        $customerId = (int) DB::table("customers")->value("id");
+        $sellerId = (int) DB::table("users")->value("id");
+        $currencyId = (int) DB::table("currencies")->value("id");
+
+        foreach([[1, 3], [7, 8]] as $index => $numbers) {
+
+            foreach($numbers as $number) {
+
+                $saleId = (int) DB::table("sales_header")->insertGetId([
+                    "serie_id" => $series[$index]->id,
+                    "sequential" => $number,
+                    "holder_id" => $customerId,
+                    "seller_id" => $sellerId,
+                    "currency_id" => $currencyId,
+                    "issue_date" => now()->toDateString(),
+                    "total" => 1,
+                ]);
+
+                DB::table("series_correlative_movements")->insert([
+                    "serie_id" => $series[$index]->id,
+                    "sale_header_id" => $saleId,
+                    "sequential" => $number,
+                    "action" => "issued",
+                    "source" => "sale",
+                ]);
+
+            }
+
+        }
+
+        $this->assertSame([
+            [
+                "serie_id" => $series[0]->id,
+                "serie" => $series[0]->code.$series[0]->number,
+                "first" => 1,
+                "last" => 3,
+                "missing" => [2],
+            ],
+        ], SerieService::detectGaps());
+
+        $this->assertSame(
+            [],
+            SerieService::detectGaps((int) $series[1]->branch_id + 1000)
+        );
+
+    }
+
+    public function test_catalog_sync_preserves_company_choices_and_repairs_full_access_roles(): void {
+
+        $subSectionId = (int) DB::table("sub_sections")
+            ->where("dom_route", "sales.create")
+            ->value("id");
+
+        $roleId = (int) DB::table("roles")
+            ->where("is_full_access", true)
+            ->value("id");
+
+        DB::table("companies_sub_sections")
+            ->where("company_id", 1)
+            ->where("sub_section_id", $subSectionId)
+            ->update(["status" => "inactive"]);
+
+        DB::table("role_sub_sections")
+            ->where("role_id", $roleId)
+            ->where("sub_section_id", $subSectionId)
+            ->update(["status" => "inactive"]);
+
+        app(SystemCatalogSyncService::class)->sync();
+
+        $this->assertDatabaseHas("companies_sub_sections", [
+            "company_id" => 1,
+            "sub_section_id" => $subSectionId,
+            "status" => "inactive",
+        ]);
+
+        $this->assertDatabaseHas("role_sub_sections", [
+            "role_id" => $roleId,
+            "sub_section_id" => $subSectionId,
+            "status" => "active",
+        ]);
+
+    }
+
+    public function test_warehouse_inventory_projection_is_idempotent(): void {
+
+        $currencyId = (int) DB::table("currencies")->value("id");
+        $warehouseId = (int) DB::table("warehouses")->value("id");
+        $timestamp = now();
+
+        $products = collect(range(1, 3))
+            ->map(fn(int $number): array => [
+                "internal_code" => "BATCH-PRODUCT-{$number}",
+                "name" => "Producto por lote {$number}",
+                "price" => 10,
+                "currency_id" => $currencyId,
+                "type" => "product",
+                "status" => "active",
+                "created_at" => $timestamp,
+            ])
+            ->all();
+
+        DB::table("items")->insert($products);
+
+        WarehouseItemService::createForWarehouse($warehouseId, 1);
+
+        $productIds = DB::table("items")
+            ->where("internal_code", "like", "BATCH-PRODUCT-%")
+            ->pluck("id");
+
+        $this->assertSame(
+            3,
+            DB::table("warehouse_items")
+                ->where("warehouse_id", $warehouseId)
+                ->whereIn("item_id", $productIds)
+                ->count()
+        );
+
+        $firstProductId = (int) $productIds->first();
+
+        DB::table("warehouse_items")
+            ->where("warehouse_id", $warehouseId)
+            ->where("item_id", $firstProductId)
+            ->update(["minimum_stock" => 7]);
+
+        WarehouseItemService::createForWarehouse($warehouseId, 1);
+
+        $this->assertSame(
+            "7.000",
+            DB::table("warehouse_items")
+                ->where("warehouse_id", $warehouseId)
+                ->where("item_id", $firstProductId)
+                ->value("minimum_stock")
+        );
+
+        WarehouseItemService::syncProductInventory(
+            $firstProductId,
+            [[
+                "warehouse_id" => $warehouseId,
+                "minimum_stock" => 4,
+            ]],
+            1
+        );
+
+        $this->assertSame(
+            "4.000",
+            DB::table("warehouse_items")
+                ->where("warehouse_id", $warehouseId)
+                ->where("item_id", $firstProductId)
+                ->value("minimum_stock")
+        );
+
+    }
+
+    public function test_category_projection_is_deduplicated_and_idempotent(): void {
+
+        $currencyId = (int) DB::table("currencies")->value("id");
+        $timestamp = now();
+
+        $itemId = (int) DB::table("items")->insertGetId([
+            "internal_code" => "CATEGORY-BATCH-ITEM",
+            "name" => "Ítem con categorías",
+            "price" => 10,
+            "currency_id" => $currencyId,
+            "type" => "product",
+            "status" => "active",
+            "created_at" => $timestamp,
+        ]);
+
+        $firstCategoryId = (int) DB::table("categories")->insertGetId([
+            "internal_code" => "CATEGORY-BATCH-1",
+            "name" => "Categoría por lote 1",
+            "status" => "active",
+            "created_at" => $timestamp,
+        ]);
+
+        $secondCategoryId = (int) DB::table("categories")->insertGetId([
+            "internal_code" => "CATEGORY-BATCH-2",
+            "name" => "Categoría por lote 2",
+            "status" => "active",
+            "created_at" => $timestamp,
+        ]);
+
+        CategoryItemService::sync($itemId, [
+            ["category_id" => $firstCategoryId],
+            ["category_id" => $secondCategoryId],
+            ["category_id" => $secondCategoryId],
+            [],
+        ], 1);
+
+        $this->assertSame(
+            2,
+            DB::table("category_items")
+                ->where("item_id", $itemId)
+                ->where("status", "active")
+                ->count()
+        );
+
+        CategoryItemService::sync(
+            $itemId,
+            [["category_id" => $secondCategoryId]],
+            1
+        );
+
+        $this->assertDatabaseHas("category_items", [
+            "item_id" => $itemId,
+            "category_id" => $firstCategoryId,
+            "status" => "inactive",
+        ]);
+
+        $this->assertDatabaseHas("category_items", [
+            "item_id" => $itemId,
+            "category_id" => $secondCategoryId,
+            "status" => "active",
+        ]);
+
+        $this->assertSame(
+            2,
+            DB::table("category_items")
+                ->where("item_id", $itemId)
+                ->count()
+        );
 
     }
 

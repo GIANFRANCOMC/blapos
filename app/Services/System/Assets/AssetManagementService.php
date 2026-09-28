@@ -66,11 +66,15 @@ class AssetManagementService {
 
         DB::transaction(function() use ($branchId, $branchAssets, $company, $userId, &$information) {
 
+            $existingAssets = BranchAsset::query()
+                ->where("branch_id", $branchId)
+                ->whereIn("asset_id", array_column($branchAssets, "asset_id"))
+                ->get()
+                ->keyBy("asset_id");
+
             foreach($branchAssets as $record) {
 
-                $branchAsset = BranchAsset::where("branch_id", $branchId)
-                    ->where("asset_id", $record["asset_id"])
-                    ->first();
+                $branchAsset = $existingAssets->get($record["asset_id"]);
 
                 if(!Utilities::isDefined($branchAsset)) {
 
@@ -86,6 +90,7 @@ class AssetManagementService {
                     $branchAsset->created_at = now();
                     $branchAsset->created_by = $userId;
                     $branchAsset->save();
+                    $existingAssets->put($record["asset_id"], $branchAsset);
 
                     self::recordLog([
                         "action_by" => $userId,
@@ -167,15 +172,20 @@ class AssetManagementService {
 
         DB::transaction(function() use ($branchId, $branchAssets, $userId, &$information) {
 
+            $existingAssets = BranchAsset::query()
+                ->where("branch_id", $branchId)
+                ->whereIn("id", array_column($branchAssets, "id"))
+                ->whereIn("status", ["active", "maintenance"])
+                ->get()
+                ->keyBy("id");
+
             foreach($branchAssets as $record) {
 
-                $branchAsset = BranchAsset::where("id", $record["id"])
-                    ->where("branch_id", $branchId)
-                    ->where("asset_id", $record["asset_id"])
-                    ->whereIn("status", ["active", "maintenance"])
-                    ->first();
+                $branchAsset = $existingAssets->get($record["id"]);
 
-                if(Utilities::isDefined($branchAsset)) {
+                if(Utilities::isDefined($branchAsset)
+                    && (int) $branchAsset->asset_id === (int) $record["asset_id"]
+                    && in_array($branchAsset->status, ["active", "maintenance"], true)) {
 
                     $branchAsset->status = "retired";
                     $branchAsset->updated_at = now();

@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Platform;
 use App\Enums\System\Tenancy\{TenantStatus};
 use App\Http\Controllers\{Controller};
 use App\Models\System\Tenancy\{TenantAnnouncement, TenantDatabase};
-use App\Services\System\Tenancy\{PlatformTenantProvisioner, PlatformTenantService, TenantAdministrationService};
+use App\Services\System\Tenancy\{PlatformTenantProvisioner, PlatformTenantService, TenantAdministrationService, TenantAnnouncementService};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\Rules\{Password};
 use Illuminate\Validation\{Rule, ValidationException};
@@ -153,7 +153,11 @@ final class TenantController extends Controller {
 
     }
 
-    public function announcement(Request $request, TenantDatabase $tenant): JsonResponse {
+    public function announcement(
+        Request $request,
+        TenantDatabase $tenant,
+        TenantAnnouncementService $announcements
+    ): JsonResponse {
 
         $data = $request->validate([
             "title" => ["required", "string", "max:180"],
@@ -173,6 +177,8 @@ final class TenantController extends Controller {
             "updated_by" => $user->id,
         ]);
 
+        $announcements->forgetFor($tenant);
+
         return response()->json([
             "message" => "Aviso publicado en el tenant.",
             "data" => $announcement,
@@ -183,13 +189,15 @@ final class TenantController extends Controller {
     public function announcementStatus(
         Request $request,
         TenantDatabase $tenant,
-        TenantAnnouncement $announcement
+        TenantAnnouncement $announcement,
+        TenantAnnouncementService $announcements
     ): JsonResponse {
 
         abort_unless((int) $announcement->tenant_database_id === (int) $tenant->id, 404);
         $data = $request->validate(["status" => ["required", Rule::in(["active", "inactive"])]]);
         $user = $request->attributes->get("platformUser");
         $announcement->forceFill($data + ["updated_by" => $user->id])->save();
+        $announcements->forgetFor($tenant);
 
         return response()->json([
             "message" => "Estado del aviso actualizado.",

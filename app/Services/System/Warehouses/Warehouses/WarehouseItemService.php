@@ -22,6 +22,7 @@ class WarehouseItemService {
         );
 
         $warehouses = Warehouse::where("status", "active")
+            ->select("id")
             ->whereHas("branch", function($query) {
 
                 $query->where("status", "active");
@@ -29,55 +30,87 @@ class WarehouseItemService {
             })
             ->get();
 
-        foreach($warehouses as $warehouse) {
+        if($warehouses->isEmpty()) {
 
-            $inventoryRecord = $inventoryByWarehouse->get((int) $warehouse->id, []);
-            $warehouseItem = WarehouseItem::firstOrNew([
-                "warehouse_id" => $warehouse->id,
-                "item_id" => $itemId,
-            ]);
+            return;
 
-            $isNew = !$warehouseItem->exists;
+        }
 
-            if($isNew) {
+        $warehouseIds = $warehouses->pluck("id")->map(fn($id) => (int) $id);
 
-                $warehouseItem->quantity = 0;
-                $warehouseItem->created_at = now();
-                $warehouseItem->created_by = $userId;
+        $existingInventory = WarehouseItem::query()
+            ->where("item_id", $itemId)
+            ->whereIn("warehouse_id", $warehouseIds->all())
+            ->get()
+            ->keyBy(fn(WarehouseItem $warehouseItem) => (int) $warehouseItem->warehouse_id);
 
-            }
+        $newWarehouseIds = $warehouseIds
+            ->reject(fn(int $warehouseId): bool => $existingInventory->has($warehouseId));
 
-            $warehouseItem->minimum_stock = (float) (
-                $inventoryRecord["minimum_stock"] ?? $warehouseItem->minimum_stock ?? 0
-            );
+        $timestamp = now();
+        $records = $warehouseIds
+            ->map(function(int $warehouseId) use (
+                $existingInventory,
+                $inventoryByWarehouse,
+                $itemId,
+                $timestamp,
+                $userId
+            ): array {
 
-            $warehouseItem->status = "active";
+                $current = $existingInventory->get($warehouseId);
+                $inventoryRecord = $inventoryByWarehouse->get($warehouseId, []);
+                $isNew = $current === null;
 
-            if(!$isNew) {
+                return [
+                    "warehouse_id" => $warehouseId,
+                    "item_id" => $itemId,
+                    "quantity" => 0,
+                    "minimum_stock" => (float) (
+                        $inventoryRecord["minimum_stock"] ?? $current?->minimum_stock ?? 0
+                    ),
+                    "status" => "active",
+                    "created_at" => $timestamp,
+                    "created_by" => $userId,
+                    "updated_at" => $isNew ? null : $timestamp,
+                    "updated_by" => $isNew ? null : $userId,
+                ];
 
-                $warehouseItem->updated_at = now();
-                $warehouseItem->updated_by = $userId;
+            })
+            ->all();
 
-            }
+        WarehouseItem::query()->upsert(
+            $records,
+            ["warehouse_id", "item_id"],
+            ["minimum_stock", "status", "updated_at", "updated_by"]
+        );
 
-            $warehouseItem->save();
+        if(!$setInitialStock) {
 
+            return;
+
+        }
+
+        foreach($newWarehouseIds as $warehouseId) {
+
+            $inventoryRecord = $inventoryByWarehouse->get($warehouseId, []);
             $initialStock = Utilities::round((float) ($inventoryRecord["initial_stock"] ?? 0));
 
-            if($isNew && $setInitialStock && $initialStock > 0) {
+            if($initialStock <= 0) {
 
-                InventoryMovementService::apply([
-                    "warehouse_id" => (int) $warehouse->id,
-                    "item_id" => $itemId,
-                    "user_id" => $userId,
-                    "movement_type" => InventoryMovementService::TYPE_ENTRY,
-                    "origin_type" => InventoryMovementService::ORIGIN_PRODUCT_OPENING,
-                    "origin_id" => $itemId,
-                    "quantity" => $initialStock,
-                    "reason" => "Stock inicial registrado al crear el producto.",
-                ]);
+                continue;
 
             }
+
+            InventoryMovementService::apply([
+                "warehouse_id" => $warehouseId,
+                "item_id" => $itemId,
+                "user_id" => $userId,
+                "movement_type" => InventoryMovementService::TYPE_ENTRY,
+                "origin_type" => InventoryMovementService::ORIGIN_PRODUCT_OPENING,
+                "origin_id" => $itemId,
+                "quantity" => $initialStock,
+                "reason" => "Stock inicial registrado al crear el producto.",
+            ]);
 
         }
 
@@ -85,27 +118,28 @@ class WarehouseItemService {
 
     public static function createForWarehouse(int $warehouseId, ?int $userId = null): void {
 
-        $productIds = Item::query()
+        $timestamp = now();
+
+        Item::query()
+            ->select("id")
             ->where("type", "product")
-            ->pluck("id");
+            ->chunkById(500, function($products) use ($timestamp, $userId, $warehouseId): void {
 
-        foreach($productIds as $itemId) {
+                $records = $products
+                    ->map(fn(Item $item): array => [
+                        "warehouse_id" => $warehouseId,
+                        "item_id" => (int) $item->id,
+                        "quantity" => 0,
+                        "minimum_stock" => 0,
+                        "status" => "active",
+                        "created_at" => $timestamp,
+                        "created_by" => $userId,
+                    ])
+                    ->all();
 
-            WarehouseItem::firstOrCreate(
-                [
-                    "warehouse_id" => $warehouseId,
-                    "item_id" => $itemId,
-                ],
-                [
-                    "quantity" => 0,
-                    "minimum_stock" => 0,
-                    "status" => "active",
-                    "created_at" => now(),
-                    "created_by" => $userId,
-                ]
-            );
+                WarehouseItem::query()->insertOrIgnore($records);
 
-        }
+            });
 
     }
 }

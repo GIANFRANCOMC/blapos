@@ -27,22 +27,15 @@ final class CancelExpiredSubscriptions extends Command {
         $tenants = TenantDatabase::query()
             ->where("status", "active")
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
-            ->orderBy("id")
-            ->get();
-
-        if($tenants->isEmpty()) {
-
-            $this->error("No existen tenants activos para procesar.");
-
-            return self::FAILURE;
-
-        }
+            ->lazyById(100);
 
         $rows = [];
-
         $hasFailure = false;
+        $processedTenants = 0;
 
         foreach($tenants as $tenant) {
+
+            $processedTenants++;
 
             try {
 
@@ -65,6 +58,14 @@ final class CancelExpiredSubscriptions extends Command {
                 $connectionManager->disconnect();
 
             }
+
+        }
+
+        if($processedTenants === 0) {
+
+            $this->error("No existen tenants activos para procesar.");
+
+            return self::FAILURE;
 
         }
 

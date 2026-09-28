@@ -149,7 +149,7 @@ class BranchController extends BaseController {
 
         $rows = SerieService::auditQuery($request->only([
             "branch_id", "serie_id", "user_id", "source", "action", "date_from", "date_to",
-        ]))->get();
+        ]))->cursor();
 
         return response()->streamDownload(function() use ($rows) {
 

@@ -19,11 +19,11 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "app/Models/System/Organizations/CompanySetting.php" => 2,
         "app/Models/System/Organizations/CompanySocialMedia.php" => 2,
         "app/Models/System/Organizations/CompanySubSection.php" => 2,
-        "app/Services/System/Database/SystemCatalogSyncService.php" => 1,
+        "app/Services/System/Database/SystemCatalogSyncService.php" => 2,
         "app/Services/System/Essentials/UserNavigationService.php" => 1,
         "app/Services/System/Organizations/Branches/BranchService.php" => 1,
-        "app/Services/System/Organizations/BusinessProfileService.php" => 5,
-        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 4,
+        "app/Services/System/Organizations/BusinessProfileService.php" => 4,
+        "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 3,
         "app/Services/System/Organizations/Companies/CompanySectionService.php" => 4,
         "app/Services/System/Organizations/Companies/CompanyService.php" => 2,
         "app/Services/System/Organizations/Companies/CompanySettingService.php" => 1,
@@ -206,7 +206,45 @@ final class TenantCompanyBoundaryTest extends TestCase {
         );
 
         $this->assertStringContainsString("TenantCompanyContext::class", $content);
-        $this->assertGreaterThanOrEqual(8, substr_count($content, "->upsert("));
+        $this->assertGreaterThanOrEqual(
+            8,
+            substr_count($content, "->upsert(") + substr_count($content, "->insertOrIgnore(")
+        );
+
+    }
+
+    public function test_catalog_and_inventory_projections_use_batch_writes(): void {
+
+        $catalogSync = file_get_contents(
+            app_path("Services/System/Database/SystemCatalogSyncService.php")
+        );
+
+        $businessProfile = file_get_contents(
+            app_path("Services/System/Organizations/BusinessProfileService.php")
+        );
+
+        $categoryItems = file_get_contents(
+            app_path("Services/System/Catalogs/Categories/CategoryItemService.php")
+        );
+
+        $warehouseInventory = file_get_contents(
+            app_path("Services/System/Warehouses/Warehouses/WarehouseItemService.php")
+        );
+
+        $this->assertGreaterThanOrEqual(2, substr_count($catalogSync, "->upsert("));
+        $this->assertStringNotContainsString("->updateOrInsert(", $catalogSync);
+
+        $this->assertStringContainsString("->upsert(", $businessProfile);
+        $this->assertStringNotContainsString("->updateOrInsert(", $businessProfile);
+
+        $this->assertStringContainsString("->upsert(", $categoryItems);
+        $this->assertStringNotContainsString("::updateOrInsert(", $categoryItems);
+
+        $this->assertStringContainsString("->upsert(", $warehouseInventory);
+        $this->assertStringContainsString("->insertOrIgnore(", $warehouseInventory);
+        $this->assertStringContainsString("->chunkById(", $warehouseInventory);
+        $this->assertStringNotContainsString("::firstOrNew(", $warehouseInventory);
+        $this->assertStringNotContainsString("::firstOrCreate(", $warehouseInventory);
 
     }
 

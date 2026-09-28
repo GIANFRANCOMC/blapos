@@ -47,6 +47,28 @@ No se agregan índices por intuición. Los índices compuestos reflejan filtros,
 
 Al añadir un filtro nuevo de alta frecuencia, primero se debe revisar la consulta y su plan con `EXPLAIN`; no se debe duplicar un índice cuyo prefijo ya cubre la consulta.
 
+## Proyecciones y escrituras por lote
+
+Las proyecciones derivadas no deben ejecutar una escritura por registro:
+
+- `SystemCatalogSyncService` sincroniza módulos de empresa y permisos de roles con `upsert` por lote. Al actualizar ordenamientos conserva el estado que la empresa eligió para cada módulo.
+- `BusinessProfileService` desactiva el conjunto anterior con una sola actualización y activa el conjunto seleccionado mediante un único `upsert`.
+- `WarehouseItemService` consulta una vez los saldos existentes y sincroniza todos los almacenes mediante `upsert`. Al crear un almacén procesa productos en bloques de 500 e inserta únicamente las relaciones faltantes.
+- `CategoryItemService` normaliza y elimina categorías duplicadas antes de actualizar todas las relaciones mediante un único `upsert`.
+- El aprovisionamiento crea las series documentarias por lote y la restricción `series_branch_document_type_uq` garantiza una sola serie base por tipo de documento y sucursal.
+
+El catálogo de navegación, los mínimos de inventario y otras preferencias existentes no deben reiniciarse durante una resincronización técnica. Las pruebas de arquitectura rechazan el regreso de `updateOrInsert`, `firstOrNew` o `firstOrCreate` dentro de estas proyecciones.
+
+El aprovisionamiento de datos iniciales usa inserciones idempotentes para configuraciones, impuestos, métodos de pago, rubros, recursos operativos y series. Al reintentarlo, agrega los registros faltantes sin restablecer tasas, preferencias, estados o correlativos existentes. La sucursal inicial se identifica por `SUC-PRINCIPAL`, aunque se cambie su nombre visible.
+
+El informe de saltos de correlativo lee movimientos emitidos ordenados con el índice `serie_id, action, sequential`; el CSV de auditoría se transmite con cursor. Los comandos de asistencia, membresías y notificaciones recorren el registro landlord en bloques de 100 tenants. Los avisos visibles usan una caché de 30 segundos por UUID de tenant, se invalidan al publicarse o cambiar de estado y se filtran por fecha en cada solicitud.
+
+La asignación y el retiro de activos precargan los registros de la sucursal en una consulta por lote; las escrituras y los eventos de auditoría permanecen individuales para conservar su trazabilidad. Una prueba comprueba el límite de consultas de lectura.
+
+En `blapos_testing`, `EXPLAIN` seleccionó los índices de estado y fecha de ventas y compras, y los índices de estado y vencimiento de cuentas por cobrar y pagar. El conjunto de prueba es pequeño, por lo que estos planes confirman la estructura disponible, pero no sustituyen una medición con datos de volumen real.
+
+La carga inicial de Nueva venta todavía incluye clientes e ítems completos desde `SaleConfigService`; migrarla exige adaptar a la vez el selector de clientes, el Catálogo comercial y la aplicación de cotizaciones en Vue. Es la siguiente optimización de mayor impacto; limitar únicamente el backend ocultaría opciones válidas al usuario.
+
 ## Conservación del historial
 
 Las referencias desde ventas y Kardex hacia catálogos usan `RESTRICT`. No se puede borrar una serie, cliente, vendedor, moneda, ítem, almacén o saldo si existen documentos o movimientos históricos que lo referencian. La inactivación mediante `status` es el flujo operativo esperado.
