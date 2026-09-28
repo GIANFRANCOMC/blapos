@@ -855,7 +855,7 @@ export default {
         },
         async initParams() {
             this.loading = true;
-            const result = await Requests.get({route: this.config.routes.initParams});
+            const result = await Requests.get({route: this.config.routes.initParams, data: {page: "pos"}});
             this.loading = false;
 
             if(!Requests.valid({result})) {

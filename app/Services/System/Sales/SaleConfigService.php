@@ -23,7 +23,7 @@ final class SaleConfigService extends BaseConfigService {
 
     protected static function cachePages(): array {
 
-        return ["main", "list", "deliveries"];
+        return ["main", "pos", "list", "deliveries"];
 
     }
 
@@ -65,6 +65,8 @@ final class SaleConfigService extends BaseConfigService {
 
         }
 
+        $isPos = $page === "pos";
+
         return self::data([
             "branches" => self::data([
                 "records" => $references->branchesWithSeries(),
@@ -76,14 +78,21 @@ final class SaleConfigService extends BaseConfigService {
                 "records" => MasterReferenceDataService::currencies(),
             ]),
             "customers" => self::data([
-                "records" => $references->activeCustomers(),
+                "records" => $isPos
+                    ? $references->activeCustomers()
+                    : Customer::query()
+                        ->where("status", "active")
+                        ->where("document_number", "999999999")
+                        ->with("identityDocumentType")
+                        ->limit(1)
+                        ->get(),
                 "identityDocumentTypes" => MasterReferenceDataService::customerIdentityDocuments(),
                 "genders" => Customer::getGenders(),
                 "statuses" => Customer::getStatuses(),
             ]),
             "items" => self::data([
                 "durationTypes" => Item::getDurationTypes(),
-                "records" => $references->saleItems(),
+                "records" => $isPos ? $references->saleItems() : [],
             ]),
             "categories" => self::data([
                 "records" => $references->categories(),

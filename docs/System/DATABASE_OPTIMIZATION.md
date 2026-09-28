@@ -61,13 +61,19 @@ El catálogo de navegación, los mínimos de inventario y otras preferencias exi
 
 El aprovisionamiento de datos iniciales usa inserciones idempotentes para configuraciones, impuestos, métodos de pago, rubros, recursos operativos y series. Al reintentarlo, agrega los registros faltantes sin restablecer tasas, preferencias, estados o correlativos existentes. La sucursal inicial se identifica por `SUC-PRINCIPAL`, aunque se cambie su nombre visible.
 
-El informe de saltos de correlativo lee movimientos emitidos ordenados con el índice `serie_id, action, sequential`; el CSV de auditoría se transmite con cursor. Los comandos de asistencia, membresías y notificaciones recorren el registro landlord en bloques de 100 tenants. Los avisos visibles usan una caché de 30 segundos por UUID de tenant, se invalidan al publicarse o cambiar de estado y se filtran por fecha en cada solicitud.
+El informe de saltos de correlativo lee movimientos emitidos ordenados con el índice `serie_id, action, sequential`; el CSV de auditoría se transmite con cursor. Los comandos de asistencia, membresías y notificaciones recorren el registro landlord en bloques de 100 tenants y emiten tablas en lotes de 50 filas, sin acumular toda la salida en memoria. Los avisos visibles usan una caché de 30 segundos por UUID de tenant, se invalidan al publicarse o cambiar de estado y se filtran por fecha en cada solicitud.
 
 La asignación y el retiro de activos precargan los registros de la sucursal en una consulta por lote; las escrituras y los eventos de auditoría permanecen individuales para conservar su trazabilidad. Una prueba comprueba el límite de consultas de lectura.
 
 En `blapos_testing`, `EXPLAIN` seleccionó los índices de estado y fecha de ventas y compras, y los índices de estado y vencimiento de cuentas por cobrar y pagar. El conjunto de prueba es pequeño, por lo que estos planes confirman la estructura disponible, pero no sustituyen una medición con datos de volumen real.
 
-La carga inicial de Nueva venta todavía incluye clientes e ítems completos desde `SaleConfigService`; migrarla exige adaptar a la vez el selector de clientes, el Catálogo comercial y la aplicación de cotizaciones en Vue. Es la siguiente optimización de mayor impacto; limitar únicamente el backend ocultaría opciones válidas al usuario.
+Nueva venta y Nueva cotización ya no envían el catálogo completo en `initParams`: solo conservan el cliente genérico inicial y los metadatos del formulario. `CommercialSelectionService` sirve clientes e ítems en páginas de 25 con búsqueda; ambos componentes Vue solicitan páginas al abrir y buscar, ofrecen «Cargar más» y descartan respuestas obsoletas. Al aplicar una cotización, el borrador incluye el cliente y los ítems seleccionados para mantenerlos visibles aunque no formen parte de la página remota actual. `sales.options` y `quotations.options` requieren el permiso del respectivo módulo de creación.
+
+El POS usa la página de configuración `pos` y conserva su catálogo completo y su interfaz actual; no se le aplica la búsqueda remota de Nueva venta.
+
+La prueba `ServiceOperationPerformanceTest` construye 1000 clientes, 1000 servicios, 1000 productos, 1000 ventas y 1000 saldos de almacén en `blapos_testing`. En una ejecución local, la configuración de Nueva venta entregó 0 ítems y 1 cliente (16 923 bytes, 25 consultas, 151 ms); la primera página de ítems entregó 25 (40 296 bytes, 5 consultas, 108 ms); el listado de ventas entregó 25 de 1000 (67 816 bytes, 12 consultas, 149 ms); el inventario entregó 25 de 1000 (23 702 bytes, 2 consultas, 53 ms). Los tiempos son orientativos y varían por máquina; la prueba protege tamaños de página y presupuestos de consultas, no tiempos de pared.
+
+`ConcurrentOperationalWritesTest` lanza procesos PHP independientes contra la base de pruebas. Comprueba que un segundo aprovisionamiento no atraviesa el bloqueo, que dos ventas obtienen correlativos distintos y que dos salidas de una única unidad de stock producen exactamente una salida válida. Ninguna de estas pruebas opera sobre una base de producción.
 
 ## Conservación del historial
 

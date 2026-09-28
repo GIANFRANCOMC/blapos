@@ -171,13 +171,17 @@ final class QuotationService {
 
         $items = Item::query()
             ->whereIn("id", $quotation->items->pluck("item_id"))
+            ->with(["currency", "brand", "categoryItems.category", "warehouseItems.warehouse"])
             ->get()
             ->keyBy("id");
+
+        $quotation->holder?->load("identityDocumentType");
 
         return [
             "quotation_header_id" => $quotation->id,
             "branch_id" => $quotation->branch_id,
             "holder_id" => $quotation->holder_id,
+            "customer" => $quotation->holder,
             "currency_id" => $quotation->currency_id,
             "observation" => "Venta generada desde {$quotation->reference}",
             "details" => $quotation->items->map(function(QuotationItem $detail) use ($items) {
@@ -187,6 +191,7 @@ final class QuotationService {
 
                 return [
                     "item_id" => $detail->item_id,
+                    "item" => $item,
                     "type" => $detail->type,
                     "currency_id" => $detail->currency_id,
                     "name" => $item?->name ?? $detail->name,

@@ -111,6 +111,10 @@
                                     :clearable="false"
                                     :disabled="hasQuotationApplied"
                                     :searchable="true"
+                                    :filterable="false"
+                                    :loading="commercialSelection.customers.loading"
+                                    @open="openCommercialOptions('customers')"
+                                    @search="searchCommercialOptions('customers', $event)"
                                     placeholder="Seleccione">
                                     <template #selected-option="option">
                                         <span class="br-document-holder-option">
@@ -124,6 +128,12 @@
                                             <span v-text="holderDocumentDescription(option)"></span>
                                         </span>
                                     </template>
+                                    <template #list-footer>
+                                        <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                        </li>
+                                    </template>
+                                    <template #no-options>Sin clientes para esta búsqueda.</template>
                                 </v-select>
                             </template>
                         </InputSlot>
@@ -1120,6 +1130,10 @@
                                     :clearable="false"
                                     :disabled="isModalDetailUpdate"
                                     :searchable="true"
+                                    :filterable="false"
+                                    :loading="commercialSelection.items.loading"
+                                    @open="openCommercialOptions('items')"
+                                    @search="searchCommercialOptions('items', $event)"
                                     append-to-body
                                     placeholder="Seleccione">
                                     <template #selected-option="{ label }">
@@ -1169,6 +1183,12 @@
                                             </div>
                                         </div>
                                     </template>
+                                    <template #list-footer>
+                                        <li v-if="commercialSelection.items.hasMore" class="px-2 py-1">
+                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('items')">Cargar más ítems</button>
+                                        </li>
+                                    </template>
+                                    <template #no-options>Sin ítems para esta búsqueda.</template>
                                 </v-select>
                             </template>
                         </InputSlot>
@@ -1655,6 +1675,7 @@ import * as Constants      from "@System/Helpers/Constants.js";
 import { initCrudModule }  from "@System/Helpers/ModuleFactory.js";
 import * as Requests       from "@System/Helpers/Requests.js";
 import * as Utils          from "@System/Helpers/Utils.js";
+import commercialSelection from "../commercialSelection.js";
 
 const IS_POS_MODE = window.location.pathname.split("?")[0].endsWith("/sales/pos");
 
@@ -1734,6 +1755,7 @@ const MODULE = {
 };
 
 export default {
+    mixins: [commercialSelection],
     name: "SalesMain",
     data() {
 
@@ -1861,6 +1883,7 @@ export default {
 
         return {
             ...crudModule,
+            commercialSelectionEntity: "sales",
             MODULE: MODULE,
             selectedCatalogInfoExpanded: false,
             syncingDetailModal: false
@@ -2273,12 +2296,17 @@ export default {
             form.quotation = quotation;
             form.quotation_header_id = draft.quotation_header_id;
             form.branch = this.branches.find(branch => Number(branch.code) === Number(draft.branch_id)) || form.branch;
-            form.holder = this.holders.find(holder => Number(holder.code) === Number(draft.holder_id)) || form.holder;
+            form.holder = this.holders.find(holder => Number(holder.code) === Number(draft.holder_id))
+                || (draft.customer ? {
+                    code: draft.customer.id,
+                    label: `${draft.customer.document_number} - ${draft.customer.name}`,
+                    data: draft.customer
+                } : form.holder);
             form.currency = this.currencies.find(currency => Number(currency.code) === Number(draft.currency_id)) || form.currency;
             form.observation = draft.observation || form.observation;
             form.details = (draft.details || []).map(detail => {
                 const option = this.items.find(item => Number(item.code) === Number(detail.item_id));
-                const itemData = option?.data || {};
+                const itemData = option?.data || detail.item || {};
                 const currency = itemData.currency || form.currency?.data || null;
 
                 return {

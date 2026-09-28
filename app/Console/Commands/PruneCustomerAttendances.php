@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Console\Support\{TenantCommandBatchLimit, TenantCommandReport};
 use App\Models\System\Tenancy\{TenantDatabase};
 use App\Services\System\Customers\Tracking\{AttendanceMaintenanceService};
 use App\Services\System\Tenancy\{TenantAdministrationService, TenantConnectionManager};
@@ -31,7 +32,7 @@ final class PruneCustomerAttendances extends Command {
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
             ->lazyById(100);
 
-        $rows = [];
+        $report = new TenantCommandReport($this, ["Tenant", "Elegibles", "Eliminadas", "Resultado"]);
         $hasFailure = false;
         $processedTenants = 0;
 
@@ -44,17 +45,17 @@ final class PruneCustomerAttendances extends Command {
                 $connectionManager->connect($tenant);
                 $summary = AttendanceMaintenanceService::pruneCustomerAttendances(
                     $months,
-                    max(1, (int) $this->option("limit")),
+                    TenantCommandBatchLimit::normalize($this->option("limit")),
                     (bool) $this->option("dry-run")
                 );
 
-                $rows[] = [$tenant->slug, $summary["eligible"], $summary["deleted"], "OK"];
+                $report->add([$tenant->slug, $summary["eligible"], $summary["deleted"], "OK"]);
                 $administration->audit($tenant, "prune_customer_attendances", "success", $summary, "scheduler");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $rows[] = [$tenant->slug, 0, 0, $exception->getMessage()];
+                $report->add([$tenant->slug, 0, 0, $exception->getMessage()]);
                 $administration->audit($tenant, "prune_customer_attendances", "failure", [
                     "error" => $exception->getMessage(),
                 ], "scheduler");
@@ -75,7 +76,7 @@ final class PruneCustomerAttendances extends Command {
 
         }
 
-        $this->table(["Tenant", "Elegibles", "Eliminadas", "Resultado"], $rows);
+        $report->flush();
 
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Console\Support\{TenantCommandBatchLimit, TenantCommandReport};
 use App\Models\System\Tenancy\{TenantDatabase};
 use App\Services\System\Notifications\{NotificationService};
 use App\Services\System\Tenancy\{TenantAdministrationService, TenantConnectionManager};
@@ -28,7 +29,7 @@ final class SendPendingSubscriptionEmails extends Command {
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
             ->lazyById(100);
 
-        $rows = [];
+        $report = new TenantCommandReport($this, ["Tenant", "Procesadas", "Enviadas", "Fallidas", "Resultado"]);
         $hasFailure = false;
         $processedTenants = 0;
 
@@ -40,16 +41,16 @@ final class SendPendingSubscriptionEmails extends Command {
 
                 $connectionManager->connect($tenant);
                 $summary = NotificationService::sendSubscriptionEmails(
-                    (int) $this->option("limit")
+                    TenantCommandBatchLimit::normalize($this->option("limit"))
                 );
 
-                $rows[] = [$tenant->slug, $summary["processed"], $summary["sent"], $summary["failed"], "OK"];
+                $report->add([$tenant->slug, $summary["processed"], $summary["sent"], $summary["failed"], "OK"]);
                 $administration->audit($tenant, "scheduled_notifications", "success", $summary, "scheduler");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $rows[] = [$tenant->slug, 0, 0, 0, $exception->getMessage()];
+                $report->add([$tenant->slug, 0, 0, 0, $exception->getMessage()]);
                 $administration->audit($tenant, "scheduled_notifications", "failure", [
                     "error" => $exception->getMessage(),
                 ], "scheduler");
@@ -70,10 +71,7 @@ final class SendPendingSubscriptionEmails extends Command {
 
         }
 
-        $this->table(
-            ["Tenant", "Procesadas", "Enviadas", "Fallidas", "Resultado"],
-            $rows
-        );
+        $report->flush();
 
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 

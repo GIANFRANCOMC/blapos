@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Console\Support\{TenantCommandBatchLimit, TenantCommandReport};
 use App\Models\System\Tenancy\{TenantDatabase};
 use App\Services\System\Customers\Tracking\{AttendanceMaintenanceService};
 use App\Services\System\Tenancy\{TenantAdministrationService, TenantConnectionManager};
@@ -29,7 +30,7 @@ final class CloseStaleCustomerAttendances extends Command {
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
             ->lazyById(100);
 
-        $rows = [];
+        $report = new TenantCommandReport($this, ["Tenant", "Cerradas", "Omitidas", "Resultado"]);
         $hasFailure = false;
         $processedTenants = 0;
 
@@ -41,17 +42,17 @@ final class CloseStaleCustomerAttendances extends Command {
 
                 $connectionManager->connect($tenant);
                 $summary = AttendanceMaintenanceService::closeStaleCustomerAttendances(
-                    max(1, (int) $this->option("limit")),
+                    TenantCommandBatchLimit::normalize($this->option("limit")),
                     (bool) $this->option("force")
                 );
 
-                $rows[] = [$tenant->slug, $summary["closed"], $summary["skipped"], "OK"];
+                $report->add([$tenant->slug, $summary["closed"], $summary["skipped"], "OK"]);
                 $administration->audit($tenant, "close_stale_customer_attendances", "success", $summary, "scheduler");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $rows[] = [$tenant->slug, 0, 0, $exception->getMessage()];
+                $report->add([$tenant->slug, 0, 0, $exception->getMessage()]);
                 $administration->audit($tenant, "close_stale_customer_attendances", "failure", [
                     "error" => $exception->getMessage(),
                 ], "scheduler");
@@ -72,7 +73,7 @@ final class CloseStaleCustomerAttendances extends Command {
 
         }
 
-        $this->table(["Tenant", "Cerradas", "Omitidas", "Resultado"], $rows);
+        $report->flush();
 
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 

@@ -6,7 +6,7 @@ namespace App\Http\Controllers\System\Sales;
 
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Services\System\Sales\{QuotationService, SaleConfigService};
+use App\Services\System\Sales\{CommercialSelectionService, QuotationService, SaleConfigService};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Validator};
 
@@ -28,6 +28,25 @@ final class QuotationController extends BaseController {
     public function initParams(Request $request) {
 
         return SaleConfigService::getInitParams("main", $this->getUserId());
+
+    }
+
+    public function options(Request $request): JsonResponse {
+
+        $data = $request->validate([
+            "resource" => ["required", "in:customers,items"],
+            "search" => ["nullable", "string", "max:100"],
+            "page" => ["nullable", "integer", "min:1", "max:10000"],
+        ]);
+
+        return response()->json([
+            "bool" => true,
+            "data" => CommercialSelectionService::search(
+                $data["resource"],
+                $data["search"] ?? "",
+                (int) ($data["page"] ?? 1)
+            ),
+        ]);
 
     }
 

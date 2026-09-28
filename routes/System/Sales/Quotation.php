@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\{Route};
 $entity = "quotations";
 
 Route::get("/initParams", [QuotationController::class, "initParams"])->name("$entity.initParams");
+Route::get("/options", [QuotationController::class, "options"])->name("$entity.options");
 Route::get("/list", [QuotationController::class, "list"])->name("$entity.list");
 Route::get("", [QuotationController::class, "index"])->name("$entity.index");
 Route::get("/create", [QuotationController::class, "create"])->name("$entity.create");

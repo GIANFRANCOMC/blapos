@@ -90,11 +90,13 @@ return [
         "assets.categories.store" => ["assets.index"],
         "assets.categories.update" => ["assets.index"],
         "sales.initParams" => ["sales.index", "sales.create", "sales.deliveries.index", "sales.pos"],
+        "sales.options" => ["sales.create"],
         "sales.list" => ["sales.index"],
         "sales.cancel" => ["sales.index"],
         "sales.store" => ["sales.create", "sales.pos"],
         "sales.deliveries" => ["sales.deliveries.index"],
         "sales.deliveries.deliver" => ["sales.deliveries.index"],
+        "quotations.options" => ["quotations.create"],
 
         "user_attendances.initParams" => ["user_attendances.index"],
         "user_attendances.list" => ["user_attendances.index"],

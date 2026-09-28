@@ -37,9 +37,11 @@ Los controladores no reciben `company_id` ni `companyId`. Los catálogos maestro
 
 La administración de módulos y permisos tampoco recibe el ID raíz: `CompanySectionService` y `RolePermissionService` trabajan sobre la conexión activa. El ID solo se materializa dentro de las consultas de las cuatro relaciones estructurales.
 
+Las asociaciones explícitas de rutas y acciones en `config/permissions.php` usan claves planas como `sales.options`. `RolePermissionService` las consulta como claves exactas del arreglo, no con notación de puntos anidados; así un endpoint de Nueva venta no hereda por accidente el permiso de un módulo hermano como POS o listado.
+
 El aprovisionador tampoco recibe ni devuelve el ID raíz. `createOrUpdate()`, `enable()` y `ensureAdminUser()` operan sobre la conexión tenant activa; los catálogos, perfiles de negocio y permisos iniciales se escriben en lotes idempotentes para reducir consultas.
 
-Los reintentos de `enable()` insertan valores iniciales ausentes y conservan la configuración que el tenant ya modificó, así como estados operativos y series documentarias. `ensureAdminUser()` solo crea el administrador inicial si falta: un reintento no cambia su contraseña, perfil ni estado y tampoco reactiva su acceso a la sucursal. La sucursal raíz se resuelve por su código interno estable. Los comandos programados leen el registro landlord por bloques para no cargar todos los tenants simultáneamente.
+Los reintentos de `enable()` insertan valores iniciales ausentes y conservan la configuración que el tenant ya modificó, así como estados operativos y series documentarias. `ensureAdminUser()` solo crea el administrador inicial si falta: un reintento no cambia su contraseña, perfil ni estado y tampoco reactiva su acceso a la sucursal. La sucursal raíz se resuelve por su código interno estable. Los comandos programados leen el registro landlord por bloques y emiten informes en lotes fijos para no cargar todos los tenants ni todas las filas de salida simultáneamente. El trabajo por tenant se limita a 1000 registros por ejecución en membresías y asistencias; las notificaciones conservan su límite interno de 500.
 
 Las migraciones tenant administran únicamente el esquema. Los valores iniciales de configuraciones, métodos de pago, variantes, impuestos, rubros, módulos y permisos se concentran en `CompanyProvisioningService`; así una instalación nueva y un reintento ejecutan la misma ruta idempotente y no dependen de datos insertados durante `migrate`.
 

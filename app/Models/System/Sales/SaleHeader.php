@@ -100,7 +100,7 @@ class SaleHeader extends Model {
 
         try {
 
-            $serie_sequential = $this->serie->legible_serie."-".str_pad($this->sequential, 8, "0", STR_PAD_LEFT);
+            $serie_sequential = $this->serie->legible_serie."-".str_pad((string) $this->sequential, 8, "0", STR_PAD_LEFT);
 
         }catch(Exception $e) {
 

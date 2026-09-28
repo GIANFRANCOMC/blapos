@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Console\Support\{TenantCommandBatchLimit, TenantCommandReport};
 use App\Events\{SubscriptionExpired};
 use App\Models\System\Customers\{Subscription};
 use App\Models\System\Tenancy\{TenantDatabase};
@@ -29,7 +30,7 @@ final class CancelExpiredSubscriptions extends Command {
             ->when($tenantSlug, fn($query) => $query->where("slug", $tenantSlug))
             ->lazyById(100);
 
-        $rows = [];
+        $report = new TenantCommandReport($this, ["Tenant", "Procesadas", "Vencidas", "Resultado"]);
         $hasFailure = false;
         $processedTenants = 0;
 
@@ -40,15 +41,15 @@ final class CancelExpiredSubscriptions extends Command {
             try {
 
                 $connectionManager->connect($tenant);
-                $summary = $this->expireSubscriptions(max(1, (int) $this->option("limit")));
+                $summary = $this->expireSubscriptions(TenantCommandBatchLimit::normalize($this->option("limit")));
 
-                $rows[] = [$tenant->slug, $summary["processed"], $summary["expired"], "OK"];
+                $report->add([$tenant->slug, $summary["processed"], $summary["expired"], "OK"]);
                 $administration->audit($tenant, "cancel_expired_subscriptions", "success", $summary, "scheduler");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $rows[] = [$tenant->slug, 0, 0, $exception->getMessage()];
+                $report->add([$tenant->slug, 0, 0, $exception->getMessage()]);
                 $administration->audit($tenant, "cancel_expired_subscriptions", "failure", [
                     "error" => $exception->getMessage(),
                 ], "scheduler");
@@ -69,7 +70,7 @@ final class CancelExpiredSubscriptions extends Command {
 
         }
 
-        $this->table(["Tenant", "Procesadas", "Vencidas", "Resultado"], $rows);
+        $report->flush();
 
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 

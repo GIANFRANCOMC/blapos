@@ -203,7 +203,18 @@
                                         :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="true"
-                                        placeholder="Seleccione cliente"/>
+                                        :filterable="false"
+                                        :loading="commercialSelection.customers.loading"
+                                        @open="openCommercialOptions('customers')"
+                                        @search="searchCommercialOptions('customers', $event)"
+                                        placeholder="Seleccione cliente">
+                                        <template #list-footer>
+                                            <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                                <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                            </li>
+                                        </template>
+                                        <template #no-options>Sin clientes para esta búsqueda.</template>
+                                    </v-select>
                                 </template>
                             </InputSlot>
 
@@ -245,9 +256,20 @@
                                                     :class="config.forms.classes.select2"
                                                     :clearable="false"
                                                     :searchable="true"
+                                                    :filterable="false"
+                                                    :loading="commercialSelection.items.loading"
+                                                    @open="openCommercialOptions('items')"
+                                                    @search="searchCommercialOptions('items', $event)"
                                                     append-to-body
                                                     placeholder="Seleccione ítem"
-                                                    @option:selected="syncDetailItem(detail)"/>
+                                                    @option:selected="syncDetailItem(detail)">
+                                                    <template #list-footer>
+                                                        <li v-if="commercialSelection.items.hasMore" class="px-2 py-1">
+                                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('items')">Cargar más ítems</button>
+                                                        </li>
+                                                    </template>
+                                                    <template #no-options>Sin ítems para esta búsqueda.</template>
+                                                </v-select>
                                             </td>
                                             <td>
                                                 <InputNumber
@@ -374,6 +396,7 @@ import { generalConfig } from "../../../Helpers/Constants.js";
 import * as Alerts from "../../../Helpers/Alerts.js";
 import * as Requests from "../../../Helpers/Requests.js";
 import * as Utils from "../../../Helpers/Utils.js";
+import commercialSelection from "../commercialSelection.js";
 
 const MODULE = {
     entity: "quotations",
@@ -381,6 +404,7 @@ const MODULE = {
 };
 
 export default {
+    mixins: [commercialSelection],
     name: "SalesQuotationsMain",
     data() {
         return {
@@ -390,6 +414,7 @@ export default {
                 messages: generalConfig.messages
             },
             options: {},
+            commercialSelectionEntity: "quotations",
             loading: {
                 init: false,
                 list: false,

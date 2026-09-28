@@ -47,7 +47,8 @@ final class RolePermissionService {
         $permissions = self::getPermissions((int) $user->role_id);
 
         $action = self::actionForRoute($routeName, $httpMethod);
-        $candidates = config("permissions.route_modules.{$routeName}");
+        $routeModules = config("permissions.route_modules", []);
+        $candidates = $routeModules[$routeName] ?? null;
 
         if($routeName === "sales.store" && $context === "pos") {
 
@@ -79,7 +80,8 @@ final class RolePermissionService {
 
     public static function actionForRoute(string $routeName, string $httpMethod = "GET"): string {
 
-        $configuredAction = config("permissions.route_actions.{$routeName}");
+        $routeActions = config("permissions.route_actions", []);
+        $configuredAction = $routeActions[$routeName] ?? null;
 
         if(is_string($configuredAction) && in_array($configuredAction, self::actionCodes(), true)) {
 

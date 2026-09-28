@@ -1264,49 +1264,49 @@ class SaleService {
      */
     private static function applyFilters($query, array $filters): void {
 
-        if(Utilities::isDefined($filters["serie_id"])) {
+        if(Utilities::isDefined($filters["serie_id"] ?? null)) {
 
             $query->where("serie_id", $filters["serie_id"]);
 
         }
 
-        if(Utilities::isDefined($filters["sequential"])) {
+        if(Utilities::isDefined($filters["sequential"] ?? null)) {
 
             $query->where("sequential", $filters["sequential"]);
 
         }
 
-        if(Utilities::isDefined($filters["issue_date"])) {
+        if(Utilities::isDefined($filters["issue_date"] ?? null)) {
 
             $query->where("issue_date", $filters["issue_date"]);
 
         }
 
-        if(Utilities::isDefined($filters["start_date"])) {
+        if(Utilities::isDefined($filters["start_date"] ?? null)) {
 
             $query->where("issue_date", ">=", Utilities::startOfDay($filters["start_date"]));
 
         }
 
-        if(Utilities::isDefined($filters["end_date"])) {
+        if(Utilities::isDefined($filters["end_date"] ?? null)) {
 
             $query->where("issue_date", "<=", Utilities::endOfDay($filters["end_date"]));
 
         }
 
-        if(Utilities::isDefined($filters["branch_id"])) {
+        if(Utilities::isDefined($filters["branch_id"] ?? null)) {
 
             $query->whereHas("serie", fn($serie) => $serie->where("branch_id", $filters["branch_id"]));
 
         }
 
-        if(Utilities::isDefined($filters["holder_id"])) {
+        if(Utilities::isDefined($filters["holder_id"] ?? null)) {
 
             $query->where("holder_id", $filters["holder_id"]);
 
         }
 
-        if(Utilities::isDefined($filters["status"])) {
+        if(Utilities::isDefined($filters["status"] ?? null)) {
 
             $query->where("status", $filters["status"]);
 
