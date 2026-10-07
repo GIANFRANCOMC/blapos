@@ -94,6 +94,7 @@
   /* Tipografía operativa única: mismo tamaño que el menú lateral. */
   --br-ui-font-size: 0.705rem;
   --br-ui-line-height: 1.25;
+  --br-control-affix-font-size: calc(var(--br-ui-font-size) - 0.035rem);
 
   /* Compatibilidad con plantilla / Bootstrap heredado */
   --br-vuexy-primary: var(--br-primary);

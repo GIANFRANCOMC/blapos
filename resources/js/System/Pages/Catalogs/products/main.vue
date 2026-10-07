@@ -197,7 +197,7 @@
                                 <WithoutData
                                     class="br-products-empty-state"
                                     type="image"
-                                    image-src="/System/assets/img/utils/without_data/empty_products.png"/>
+                                    image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
                             </td>
                         </tr>
                     </tbody>
@@ -400,6 +400,10 @@ export default {
         async downloadRecords() {
 
             if(this.isExporting) return;
+
+            const confirmed = await Alerts.confirmDownload({resource: "el listado de productos"});
+
+            if(!confirmed) return;
 
             this.isExporting = true;
             Alerts.swals({

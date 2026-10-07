@@ -196,9 +196,9 @@ export default {
     display: inline-flex;
     align-items: baseline;
     justify-content: center;
-    color: color-mix(in srgb, var(--br-secondary, #1a1a35) 72%, var(--br-text-muted, #64748b));
-    font-size: 0.625rem;
-    font-weight: 600;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
     line-height: 1;
     letter-spacing: 0;
 }

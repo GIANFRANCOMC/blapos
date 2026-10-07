@@ -86,7 +86,6 @@
                 lg="5">
                 <template #input>
                     <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({})">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                         <span>Buscar</span>
                     </button>
                     <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @click="clearFilters">

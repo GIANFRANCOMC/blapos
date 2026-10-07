@@ -11,9 +11,8 @@
             lg="12">
             <template v-slot:input>
                 <template v-if="isDefined({value: customerCurrent?.customer})">
-                    <button type="button" class="btn btn-primary btn-sm waves-effect" @click="modalCreateUpdateEntity({})">
-                        <i class="fa fa-search"></i>
-                        <span class="ms-2">Realizar otra búsqueda</span>
+                    <button type="button" class="br-btn br-btn-sm br-btn-search waves-effect" @click="modalCreateUpdateEntity({})">
+                        <span>Buscar</span>
                     </button>
                     <button type="button" class="btn btn-info-1 btn-sm waves-effect" @click="getTrackingCustomers({refresh: true})">
                         <i class="fa fa-sync"></i>
@@ -180,9 +179,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn waves-effect btn-primary" @click="getTrackingCustomers({refresh: false})">
-                        <i class="fa fa-search"></i>
-                        <span class="ms-2">Buscar</span>
+                    <button type="button" class="br-btn br-btn-search waves-effect" @click="getTrackingCustomers({refresh: false})">
+                        <span>Buscar</span>
                     </button>
                 </div>
             </div>

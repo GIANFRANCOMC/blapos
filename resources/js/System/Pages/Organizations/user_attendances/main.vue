@@ -17,8 +17,7 @@
                     <input v-model="filters.weekStart" type="date" class="form-control">
                 </div>
                 <div class="col-xl-2 col-md-6 d-flex gap-2">
-                    <button type="button" class="br-btn br-btn-primary flex-grow-1" @click="refresh">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <button type="button" class="br-btn br-btn-search flex-grow-1" @click="refresh">
                         <span>Consultar</span>
                     </button>
                     <button

@@ -86,10 +86,9 @@
                         <button
                             v-if="activeView === 'stock'"
                             type="button"
-                            class="br-btn br-btn-sm br-btn-action-search"
+                            class="br-btn br-btn-sm br-btn-search"
                             :disabled="isCurrentViewLoading"
                             @click="handleProductSearch">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <span>Buscar</span>
                         </button>
                         <button
@@ -240,11 +239,10 @@
                         </div>
                         <button
                             type="button"
-                            class="br-btn br-btn-action-search"
+                            class="br-btn br-btn-search"
                             :disabled="loadingKardex"
                             @click="listKardex({})">
-                            <i class="fa-solid fa-filter" aria-hidden="true"></i>
-                            <span>Aplicar filtros</span>
+                            <span>Filtrar</span>
                         </button>
                     </div>
 
@@ -540,11 +538,10 @@
                         </div>
                         <button
                             type="button"
-                            class="br-btn br-btn-action-search"
+                            class="br-btn br-btn-search"
                             :disabled="loadingGuides"
                             @click="listGuides({})">
-                            <i class="fa-solid fa-filter" aria-hidden="true"></i>
-                            <span>Aplicar filtros</span>
+                            <span>Filtrar</span>
                         </button>
                     </div>
 

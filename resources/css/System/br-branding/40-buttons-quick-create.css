@@ -105,25 +105,25 @@
   border-color: var(--br-danger-hover);
 }
 
-/* Acciones secundarias agrupadas: variante reutilizable con su menú. */
+/* El botón y su menú heredan el mismo acento; naranja es la variante base. */
 .br-btn.br-btn-actions {
   gap: 0.6rem;
-  border-color: var(--br-actions-orange);
-  background: var(--br-actions-orange);
+  border-color: var(--br-dropdown-accent, var(--br-actions-orange));
+  background: var(--br-dropdown-accent, var(--br-actions-orange));
   color: var(--br-on-actions);
 }
 
 .br-btn.br-btn-actions:hover,
 .br-btn.br-btn-actions.show {
-  border-color: var(--br-actions-orange-hover);
-  background: var(--br-actions-orange-hover);
+  border-color: var(--br-dropdown-accent-hover, var(--br-actions-orange-hover));
+  background: var(--br-dropdown-accent-hover, var(--br-actions-orange-hover));
   color: var(--br-on-actions);
 }
 
 .br-btn.br-btn-actions:focus-visible {
-  border-color: var(--br-actions-orange-hover);
+  border-color: var(--br-dropdown-accent-hover, var(--br-actions-orange-hover));
   color: var(--br-on-actions);
-  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-actions-orange) 28%, transparent);
+  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-dropdown-accent, var(--br-actions-orange)) 28%, transparent);
 }
 
 .br-btn-actions__chevron {
@@ -137,14 +137,14 @@
 .br-btn-actions-menu {
   min-width: 12rem;
   padding: 0.3rem;
-  border: 1px solid color-mix(in srgb, var(--br-actions-orange) 28%, var(--br-border));
+  border: 1px solid color-mix(in srgb, var(--br-dropdown-accent, var(--br-actions-orange)) 28%, var(--br-border));
   border-radius: var(--br-radius-sm);
   background: var(--br-white);
   box-shadow: var(--br-shadow);
-  --bs-dropdown-link-hover-bg: var(--br-warning-soft);
-  --bs-dropdown-link-hover-color: var(--br-orange-strong);
-  --bs-dropdown-link-active-bg: var(--br-warning-soft);
-  --bs-dropdown-link-active-color: var(--br-orange-strong);
+  --bs-dropdown-link-hover-bg: var(--br-dropdown-accent-soft, var(--br-warning-soft));
+  --bs-dropdown-link-hover-color: var(--br-dropdown-accent-text, var(--br-orange-strong));
+  --bs-dropdown-link-active-bg: var(--br-dropdown-accent-soft, var(--br-warning-soft));
+  --bs-dropdown-link-active-color: var(--br-dropdown-accent-text, var(--br-orange-strong));
 }
 
 .br-btn-actions-menu .dropdown-item {
@@ -159,7 +159,7 @@
 
 .br-btn-actions-menu .dropdown-item i {
   width: 1rem;
-  color: var(--br-orange-hover);
+  color: var(--br-dropdown-accent, var(--br-actions-orange));
   text-align: center;
 }
 
@@ -167,8 +167,12 @@
 .br-btn-actions-menu .dropdown-item:focus,
 .br-btn-actions-menu .dropdown-item:active,
 .br-btn-actions-menu .dropdown-item.active {
-  background: var(--br-warning-soft);
-  color: var(--br-orange-strong);
+  background-color: var(--br-dropdown-accent-soft, var(--br-warning-soft)) !important;
+  color: var(--br-dropdown-accent-text, var(--br-orange-strong)) !important;
+}
+
+.br-btn-actions-menu .dropdown-item:is(:hover, :focus, :active, .active) :is(i, span) {
+  color: var(--br-dropdown-accent-text, var(--br-orange-strong)) !important;
 }
 
 .br-btn-actions-menu .dropdown-item:disabled {
@@ -507,8 +511,8 @@
   justify-content: center;
   padding-inline: 0.22rem;
   background: var(--br-surface-elevated) !important;
-  color: color-mix(in srgb, var(--br-secondary) 82%, var(--br-text-muted));
-  font-size: 0.68rem;
+  color: var(--br-text-muted);
+  font-size: var(--br-control-affix-font-size);
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -520,8 +524,8 @@
   padding-right: 0.22rem !important;
   padding-left: 0.5rem !important;
   background: var(--br-surface-elevated) !important;
-  color: color-mix(in srgb, var(--br-secondary) 82%, var(--br-text-muted)) !important;
-  font-size: var(--br-ui-font-size) !important;
+  color: var(--br-text-muted) !important;
+  font-size: var(--br-control-affix-font-size) !important;
   font-weight: 600 !important;
   line-height: 1 !important;
   letter-spacing: 0.04em !important;

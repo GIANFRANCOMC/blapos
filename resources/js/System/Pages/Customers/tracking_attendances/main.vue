@@ -138,9 +138,8 @@
             lg="12">
             <template v-slot:input>
                 <template v-if="forms.entity.createUpdate.config.viewFilters">
-                    <button type="button" class="btn btn-info-1 waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                        <i class="fa fa-filter"></i>
-                        <span class="ms-2">Filtrar asistencias</span>
+                    <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                        <span>Filtrar</span>
                     </button>
                 </template>
                 <button type="button" class="btn btn-primary waves-effect" @click="selectModeEntity('manual', true)" :disabled="lists.entity.extras.loading">

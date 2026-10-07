@@ -33,7 +33,6 @@
                             class="br-btn br-btn-sm br-btn-search"
                             :disabled="lists.entity.extras.loading"
                             @click="listEntity({})">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <span>Buscar</span>
                         </button>
                     </template>

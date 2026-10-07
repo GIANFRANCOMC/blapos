@@ -115,8 +115,8 @@
                                 lg="6">
                                 <template v-slot:inputGroupPrepend>
                                     <template v-if="isDocumentTypeSearchable">
-                                        <button :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
-                                            <i class="fa fa-search"></i>
+                                        <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
+                                            <span>Buscar</span>
                                         </button>
                                     </template>
                                 </template>

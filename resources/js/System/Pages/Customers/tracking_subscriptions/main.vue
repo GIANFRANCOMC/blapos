@@ -100,9 +100,8 @@
             xl="12"
             lg="12">
             <template v-slot:input>
-                <button type="button" class="btn btn-info-1 waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                    <i class="fa fa-filter"></i>
-                    <span class="ms-2">Filtrar membresías</span>
+                <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                    <span>Filtrar</span>
                 </button>
                 <button type="button" class="br-btn br-btn-action-create waves-effect" @click="createManualEntity">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>

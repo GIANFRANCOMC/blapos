@@ -431,41 +431,73 @@ export function close() {
 
 }
 
-export function toastrs({type = "success", options = null, code = null, title = null, subtitle = null}) {
+/** Confirma una descarga antes de iniciar la petición y mostrar el loader. */
+export async function confirmDownload({resource = "el archivo", format = "Excel"} = {}) {
 
-    let toastrOptions = {};
+    const result = await Swal.fire({
+        ...SWAL_INSTANT_TRANSITION,
+        target: document.body,
+        title: `¿Descargar ${format}?`,
+        text: `Se preparará ${resource} en formato ${format}. La descarga comenzará automáticamente cuando esté listo y puede tardar unos segundos.`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Descargar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+        focusCancel: true,
+        allowOutsideClick: false,
+        buttonsStyling: false,
+        customClass: {
+            container: "br-swal-backdrop",
+            popup: "br-swal-alert br-swal-alert--question",
+            confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--question",
+            cancelButton: "br-btn br-btn-cancel"
+        }
+    });
+
+    return result.isConfirmed;
+
+}
+
+export function toastrs({type = "success", options = null, code = null, title = null, subtitle = null}) {
 
     if(!title) {
 
         switch(type) {
             case "error":
-                title = "¡Ups! Algo salió mal";
+                title = "Error";
                 break;
 
             case "success":
-                title = "Exitoso";
+                title = "Listo";
                 break;
 
             case "warning":
                 title = "Atención";
                 break;
+
+            case "info":
+                title = "Información";
+                break;
         }
 
     }
 
-    if(!options) {
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
-        toastrOptions = {
-            closeButton: true,
-            progressBar: true,
-            positionClass: "toast-top-right",
-            showMethod: "slideDown",
-            timeOut: 2000
-        };
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
+        showDuration: reducedMotion ? 0 : 160,
+        hideDuration: reducedMotion ? 0 : 140,
+        timeOut: ["error", "warning"].includes(type) ? 5500 : 4000,
+        extendedTimeOut: 1500,
+        ...options
+    };
 
-    }
-
-    toastr.options = toastrOptions;
     toastr[type](subtitle ?? "", title ?? "");
 
 }

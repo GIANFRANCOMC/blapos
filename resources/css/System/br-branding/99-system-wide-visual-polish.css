@@ -674,14 +674,6 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   --bs-gutter-x: 1.25rem;
 }
 
-.br-breadcrumb {
-  margin-bottom: 0.55rem;
-}
-
-.br-breadcrumb__list {
-  font-size: var(--br-ui-font-size);
-}
-
 /* -------------------------------------------------------------------------
  * Formularios, inputs, selects, checks y ayuda
  * ------------------------------------------------------------------------- */
@@ -744,15 +736,21 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 .br-layout .input-group-text {
-  color: color-mix(in srgb, var(--br-secondary) 80%, var(--br-text-muted));
-  font-weight: 650;
+  color: var(--br-text-muted);
+  font-size: var(--br-control-affix-font-size);
+  font-weight: 600;
 }
 
-.br-layout .character-counter,
-.br-layout .counter-number {
-  color: color-mix(in srgb, var(--br-secondary) 70%, var(--br-text-muted));
-  font-size: var(--br-ui-font-size);
-  font-weight: 700;
+.br-layout .character-counter {
+  color: var(--br-text-muted);
+  font-size: var(--br-control-affix-font-size);
+  font-weight: 600;
+}
+
+.br-layout .character-counter .counter-number {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 .br-layout .form-check-input {
@@ -848,9 +846,13 @@ body > .vs__dropdown-menu,
 
 .br-icon-action:hover,
 .br-copy-button:hover,
-.br-barcode-download:hover,
-.br-input-action:hover {
+.br-barcode-download:hover {
   transform: translateY(-1px);
+}
+
+.br-layout .br-input-action:hover,
+.br-layout .br-input-action:focus-visible {
+  transform: none;
 }
 
 .br-quick-create-trigger,

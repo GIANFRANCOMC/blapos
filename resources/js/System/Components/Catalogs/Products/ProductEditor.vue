@@ -7,7 +7,7 @@
         tabindex="-1"
         role="dialog"
         aria-modal="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header br-entity-modal__header">
                     <div>
@@ -252,92 +252,17 @@
                             role="tabpanel">
                             <div class="row g-3">
 
-                                <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                    <label class="form-label fw-bold colon-at-end fs-6">Precio incluye IGV</label>
-                                    <div class="br-entity-publication-settings br-tax-inclusion-control">
-                                        <label class="br-entity-switch" :for="`${modalId}-price-includes-tax`">
-                                            <input
-                                                :id="`${modalId}-price-includes-tax`"
-                                                v-model="productForm.data.price_includes_tax"
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                :disabled="productForm.data.igv_exempt"
-                                                role="switch">
-                                            <span>
-                                                <strong>Incluye IGV</strong>
-                                                <small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                    <label class="form-label fw-bold colon-at-end fs-6">IGV exonerado</label>
-                                    <div class="br-entity-publication-settings br-tax-inclusion-control">
-                                        <label class="br-entity-switch" :for="`${modalId}-igv-exempt`">
-                                            <input
-                                                :id="`${modalId}-igv-exempt`"
-                                                v-model="productForm.data.igv_exempt"
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                role="switch"
-                                                @change="syncTaxExemption(productForm.data)">
-                                            <span>
-                                                <strong>Exonerado de IGV</strong>
-                                                <small>Si está activo, el IGV no se calcula para este producto al vender.</small>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <InputDate
-                                    v-model="productForm.data.expires_at"
+                                <InputText
+                                    v-model="productForm.data.description"
                                     hasDiv
-                                    :title="MODULE.texts.form.expiresAt"
+                                    :title="MODULE.texts.form.commercialDescription"
                                     :titleClass="[config.forms.classes.title]"
+                                    maxlength="100"
+                                    showCharCounter
                                     hasTextBottom
-                                    :textBottomInfo="productForm.errors?.expires_at"
-                                    xl="4"
-                                    lg="4"/>
-
-                                <InputSlot
-                                    hasDiv
-                                    title="Comisión"
-                                    :titleClass="[config.forms.classes.title]"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.commission_type"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-slot:input>
-                                        <v-select
-                                            v-model="productForm.data.commission_type"
-                                            :options="commissionTypeOptions"
-                                            :reduce="option => option.code"
-                                            :class="config.forms.classes.select2"
-                                            :clearable="false"
-                                            :searchable="false"
-                                            append-to-body/>
-                                    </template>
-                                </InputSlot>
-
-                                <InputNumber
-                                    v-model="productForm.data.commission_value"
-                                    hasDiv
-                                    title="Valor de comisión"
-                                    :titleClass="[config.forms.classes.title]"
-                                    :disabled="productForm.data.commission_type === 'none'"
-                                    :minValue="0"
-                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.commission_value"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-currency-prefix">
-                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
-                                        </span>
-                                    </template>
-                                </InputNumber>
+                                    :textBottomInfo="productForm.errors?.description"
+                                    xl="12"
+                                    lg="12"/>
 
                                 <InputSlot
                                     hasDiv
@@ -391,8 +316,8 @@
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.categories"
-                                    xl="12"
-                                    lg="12">
+                                    xl="8"
+                                    lg="8">
                                     <template #defaultAppend>
                                         <AddCategory
                                             trigger-mode="link"
@@ -432,17 +357,91 @@
                                     </template>
                                 </InputSlot>
 
-                                <InputText
-                                    v-model="productForm.data.description"
+                                <InputDate
+                                    v-model="productForm.data.expires_at"
                                     hasDiv
-                                    :title="MODULE.texts.form.commercialDescription"
+                                    :title="MODULE.texts.form.expiresAt"
                                     :titleClass="[config.forms.classes.title]"
-                                    maxlength="100"
-                                    showCharCounter
                                     hasTextBottom
-                                    :textBottomInfo="productForm.errors?.description"
-                                    xl="12"
-                                    lg="12"/>
+                                    :textBottomInfo="productForm.errors?.expires_at"
+                                    xl="4"
+                                    lg="4"/>
+
+                                <InputSlot
+                                    hasDiv
+                                    title="Comisión"
+                                    :titleClass="[config.forms.classes.title]"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.commission_type"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:input>
+                                        <v-select
+                                            v-model="productForm.data.commission_type"
+                                            :options="commissionTypeOptions"
+                                            :reduce="option => option.code"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"
+                                            append-to-body
+                                            @update:modelValue="resetCommissionValue"/>
+                                    </template>
+                                </InputSlot>
+
+                                <InputNumber
+                                    v-model="productForm.data.commission_value"
+                                    hasDiv
+                                    title="Valor de comisión"
+                                    :titleClass="[config.forms.classes.title]"
+                                    :isRequired="productForm.data.commission_type !== 'none'"
+                                    :disabled="productForm.data.commission_type === 'none'"
+                                    :minValue="0"
+                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.commission_value"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:inputGroupPrepend>
+                                        <span class="input-group-text br-currency-prefix">
+                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
+                                        </span>
+                                    </template>
+                                </InputNumber>
+
+                                <div class="col-12">
+                                    <div class="br-entity-publication-intro">
+                                        <strong>Impuestos</strong>
+                                    </div>
+                                    <div class="br-entity-publication-settings">
+                                        <label class="br-entity-switch" :for="`${modalId}-igv-exempt`">
+                                            <input
+                                                :id="`${modalId}-igv-exempt`"
+                                                v-model="productForm.data.igv_exempt"
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                                @change="syncTaxExemption(productForm.data)">
+                                            <span>
+                                                <strong>IGV exonerado</strong>
+                                                <small>Si está activo, el IGV no se calcula para este producto al vender.</small>
+                                            </span>
+                                        </label>
+
+                                        <label class="br-entity-switch" :for="`${modalId}-price-includes-tax`">
+                                            <input
+                                                :id="`${modalId}-price-includes-tax`"
+                                                v-model="productForm.data.price_includes_tax"
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                :disabled="productForm.data.igv_exempt"
+                                                role="switch">
+                                            <span>
+                                                <strong>Precio incluye IGV</strong>
+                                                <small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
 
                                 <div class="col-12">
                                     <div class="br-entity-publication-intro">
@@ -837,6 +836,12 @@ export default {
 
             }
 
+            if(this.productForm.data.commission_type === "none") {
+
+                this.productForm.data.commission_value = "";
+
+            }
+
             Alerts.modals({type: "show", id: this.productForm.extras.modals.default.id});
             this.$nextTick(() => Alerts.tooltips({}));
 
@@ -904,6 +909,12 @@ export default {
 
             this.productForm.data.barcode = generateEan13();
             Alerts.dismissTooltip(event?.currentTarget);
+
+        },
+        resetCommissionValue() {
+
+            this.productForm.data.commission_value = "";
+            delete this.productForm.errors.commission_value;
 
         },
         syncPublicationSettings() {
@@ -1025,6 +1036,24 @@ export default {
         validateFormData(formData) {
 
             const result = Forms.validateFormData(formData, this.validationRules, {isDescriptive: true, errorLabels: this.MODULE.errorLabels});
+
+            if(formData.commission_type !== "none" && !result.errors.commission_value) {
+
+                const commissionValue = Number(formData.commission_value);
+
+                if(formData.commission_value === "" || !Number.isFinite(commissionValue) || commissionValue <= 0) {
+
+                    result.errors.commission_value = ["Debe ser mayor que 0 cuando el producto tiene comisión."];
+                    result.bool = false;
+
+                }else if(formData.commission_type === "percentage" && commissionValue > 100) {
+
+                    result.errors.commission_value = ["No puede superar el 100%."];
+                    result.bool = false;
+
+                }
+
+            }
 
             if(!isValidEan13(formData.barcode)) {
 

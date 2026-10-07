@@ -55,7 +55,6 @@
             </label>
             <div class="br-filter-bar__actions">
                 <button type="button" class="br-btn br-btn-search" @click="loadAccounts()">
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <span>Buscar</span>
                 </button>
                 <button type="button" class="br-btn br-btn-cancel" :disabled="!hasFilters" @click="clearFilters">

@@ -8,8 +8,8 @@ export const FORM_TABS = [
     {
         id: "commercial",
         label: "Atributos e impuestos",
-        description: "Impuestos, clasificación y publicación",
-        fields: ["price_includes_tax", "igv_exempt", "expires_at", "commission_type", "commission_value", "brand", "brand_id", "categories", "description", "see_my_web", "see_my_web_price"]
+        description: "Atributos, impuestos y publicación",
+        fields: ["description", "brand", "brand_id", "categories", "expires_at", "commission_type", "commission_value", "igv_exempt", "price_includes_tax", "see_my_web", "see_my_web_price"]
     },
     {
         id: "inventory",

@@ -120,7 +120,6 @@
                 lg="6">
                 <template #input>
                     <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                         <span>Buscar</span>
                     </button>
                     <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="clearFilters" :disabled="lists.entity.extras.loading">

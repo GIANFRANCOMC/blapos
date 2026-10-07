@@ -43,7 +43,6 @@
                             class="br-btn br-btn-sm br-btn-search"
                             :disabled="loading.list"
                             @click="listQuotations({})">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <span>Buscar</span>
                         </button>
                         <a :href="createUrl" class="br-btn br-btn-sm br-btn-primary">

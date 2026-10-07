@@ -63,7 +63,6 @@
                         class="br-btn br-btn-sm br-btn-search waves-effect"
                         @click="$emit('search')"
                         :disabled="loading">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                         <span v-text="searchButtonText"></span>
                     </button>
                     <button
@@ -134,7 +133,7 @@
                         data-bs-placement="top"
                         :title="downloadButtonTooltip"
                         :aria-label="downloadButtonTooltip">
-                        <i :class="downloadButtonIcon" aria-hidden="true"></i>
+                        <i v-if="downloadButtonClass !== 'br-btn-search'" :class="downloadButtonIcon" aria-hidden="true"></i>
                         <span class="br-btn-action-export__label" v-text="downloadButtonText"></span>
                     </button>
                     <button
@@ -331,4 +330,3 @@ export default {
 
 <style scoped>
 </style>
-

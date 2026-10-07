@@ -464,7 +464,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   justify-content: center;
   border-color: var(--bs-border-color, var(--br-border)) !important;
   background: var(--br-surface-elevated) !important;
-  color: var(--br-secondary) !important;
+  color: var(--br-text-muted) !important;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -472,9 +472,9 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 
 .br-currency-prefix__symbol {
   display: inline-block;
-  color: var(--br-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
   line-height: 1;
   transform: translateY(-0.01rem);
 }
