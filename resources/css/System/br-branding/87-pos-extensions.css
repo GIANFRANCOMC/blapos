@@ -321,7 +321,7 @@
 }
 
 .br-pos-payment .form-control {
-  height: 2.32rem;
+  height: var(--br-control-height);
   text-align: right;
 }
 

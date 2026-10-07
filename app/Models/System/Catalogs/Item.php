@@ -181,7 +181,8 @@ class Item extends Model {
 
     public function hasCapacityControl(): bool {
 
-        return (bool) ($this->attributes["capacity_control_enabled"] ?? false);
+        return in_array($this->attributes["type"] ?? null, ["service", "subscription"], true)
+            && (bool) ($this->attributes["capacity_control_enabled"] ?? false);
 
     }
 
@@ -257,10 +258,12 @@ class Item extends Model {
             })
             ->where(function($subQuery) {
 
-                $subQuery->where("capacity_control_enabled", false)
+                $subQuery->where("type", "product")
+                    ->orWhere("capacity_control_enabled", false)
                     ->orWhere(function($capacityQuery) {
 
-                        $capacityQuery->where("capacity_control_enabled", true)
+                        $capacityQuery->whereIn("type", ["service", "subscription"])
+                            ->where("capacity_control_enabled", true)
                             ->whereNotNull("capacity_limit")
                             ->whereColumn("capacity_used", "<", "capacity_limit");
 

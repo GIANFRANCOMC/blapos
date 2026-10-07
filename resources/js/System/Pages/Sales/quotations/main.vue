@@ -40,7 +40,7 @@
                     <template #input>
                         <button
                             type="button"
-                            class="br-btn br-btn-sm br-btn-action-search"
+                            class="br-btn br-btn-sm br-btn-search"
                             :disabled="loading.list"
                             @click="listQuotations({})">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>

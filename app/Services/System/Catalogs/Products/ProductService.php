@@ -39,8 +39,6 @@ class ProductService {
         "commission_type",
         "commission_value",
         "currency_id",
-        "capacity_control_enabled",
-        "capacity_limit",
         "expires_at",
         "see_my_web",
         "see_my_web_price",
@@ -101,6 +99,9 @@ class ProductService {
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,
+            "capacity_control_enabled" => false,
+            "capacity_limit" => null,
+            "capacity_used" => 0,
         ];
 
         foreach(self::ALLOWED_FIELDS as $field) {
@@ -110,21 +111,6 @@ class ProductService {
                 if(in_array($field, ["min_price", "max_price"])) {
 
                     $itemData[$field] = self::normalizeOptionalPrice($data[$field]);
-
-                }elseif($field === "capacity_control_enabled") {
-
-                    $enabled = (bool) $data[$field];
-                    $itemData["capacity_control_enabled"] = $enabled;
-                    $itemData["capacity_limit"] = $enabled ? max(1, (int) ($data["capacity_limit"] ?? 1)) : null;
-                    $itemData["capacity_used"] = $enabled ? (int) ($itemData["capacity_used"] ?? 0) : 0;
-
-                }elseif($field === "capacity_limit") {
-
-                    if(($itemData["capacity_control_enabled"] ?? false) === true) {
-
-                        $itemData[$field] = max(1, (int) $data[$field]);
-
-                    }
 
                 }elseif($field === "see_my_web_price") {
 
@@ -174,44 +160,6 @@ class ProductService {
 
                     }
 
-                }elseif($field === "capacity_control_enabled") {
-
-                    $enabled = (bool) $data[$field];
-
-                    if($enabled !== (bool) $item->capacity_control_enabled) {
-
-                        $updateData["capacity_control_enabled"] = $enabled;
-
-                    }
-
-                    $limit = $enabled ? max(1, (int) ($data["capacity_limit"] ?? 1)) : null;
-
-                    if($limit !== ($item->capacity_limit === null ? null : (int) $item->capacity_limit)) {
-
-                        $updateData["capacity_limit"] = $limit;
-
-                    }
-
-                    if(!$enabled && (int) $item->capacity_used !== 0) {
-
-                        $updateData["capacity_used"] = 0;
-
-                    }
-
-                }elseif($field === "capacity_limit") {
-
-                    if(($updateData["capacity_control_enabled"] ?? (bool) $item->capacity_control_enabled) === true) {
-
-                        $value = max(1, (int) $data[$field]);
-
-                        if($value !== (int) ($item->capacity_limit ?? 0)) {
-
-                            $updateData[$field] = $value;
-
-                        }
-
-                    }
-
                 }elseif($field === "see_my_web_price") {
 
                     $value = ($data["see_my_web"] ?? $item->see_my_web) ? ($data[$field] ?? false) : false;
@@ -235,6 +183,14 @@ class ProductService {
         if((bool) ($updateData["igv_exempt"] ?? $item->igv_exempt ?? false)) {
 
             $updateData["price_includes_tax"] = false;
+
+        }
+
+        if($item->capacity_control_enabled || $item->capacity_limit !== null || (int) $item->capacity_used !== 0) {
+
+            $updateData["capacity_control_enabled"] = false;
+            $updateData["capacity_limit"] = null;
+            $updateData["capacity_used"] = 0;
 
         }
 

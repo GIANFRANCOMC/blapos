@@ -10,11 +10,12 @@
   --br-font-size-table: var(--br-ui-font-size);
   --br-font-size-table-head: var(--br-ui-font-size);
   --br-font-size-title-sm: var(--br-ui-font-size);
+  --br-placeholder-font-size: 0.74rem;
 
-  --br-control-height: 2.16rem;
-  --br-control-height-sm: 1.96rem;
+  --br-control-height: var(--br-btn-height);
+  --br-control-height-sm: var(--br-btn-height-sm);
   --br-control-padding-x: 0.68rem;
-  --br-control-padding-y: 0.38rem;
+  --br-control-padding-y: 0.28rem;
 
   --br-btn-height: 2rem;
   --br-btn-height-sm: 1.78rem;
@@ -131,6 +132,10 @@ body.br-layout .form-group {
   padding: var(--br-control-padding-y) var(--br-control-padding-x);
 }
 
+.br-layout .select2-container--default .select2-selection--single {
+  height: var(--br-control-height);
+}
+
 .br-layout textarea.form-control {
   height: auto;
   min-height: calc(var(--br-control-height) * 1.8);
@@ -142,9 +147,13 @@ body.br-layout .form-group {
 
 .br-filter-bar .form-control,
 .br-filter-bar .vs__dropdown-toggle,
-.br-layout .v-select.vs--single .vs__dropdown-toggle,
-.br-layout .v-select.vs--multiple .vs__dropdown-toggle {
+.br-layout .v-select.vs--single .vs__dropdown-toggle {
   height: var(--br-control-height);
+  min-height: var(--br-control-height);
+}
+
+.br-layout .v-select.vs--multiple .vs__dropdown-toggle {
+  height: auto;
   min-height: var(--br-control-height);
 }
 
@@ -199,6 +208,10 @@ body > .vs__dropdown-menu .vs__dropdown-option {
   font-size: var(--br-btn-font-size-sm);
 }
 
+.br-filter-bar__actions .br-btn {
+  min-height: var(--br-control-height);
+}
+
 .br-btn-xs {
   min-height: var(--br-btn-height-xs);
   padding: 0.22rem 0.42rem;
@@ -224,11 +237,6 @@ body > .vs__dropdown-menu .vs__dropdown-option {
 .br-btn-action-create:hover,
 .br-layout .btn-primary:hover {
   box-shadow: 0 4px 10px color-mix(in srgb, var(--br-primary) 22%, transparent);
-}
-
-.br-btn-action-search {
-  background: var(--br-secondary);
-  border-color: var(--br-secondary);
 }
 
 .br-btn-action-export {
@@ -383,6 +391,20 @@ body.br-layout .modal-header.br-modal-header {
 
 .br-filter-bar__actions {
   gap: 0.42rem;
+}
+
+.br-products-empty-state .br-empty-state__custom-image {
+  width: min(16rem, 70vw);
+  height: 9.5rem;
+  object-fit: cover;
+}
+
+.br-product-editor .br-entity-form-section {
+  animation: none;
+}
+
+.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+  transition: none;
 }
 
 .br-layout .card,
@@ -2353,7 +2375,6 @@ body.br-layout :where(.bg-primary, .btn-primary, .progress-bar.bg-primary, .badg
 @media (max-width: 767.98px) {
   :root {
     --br-font-size-page: var(--br-ui-font-size);
-    --br-control-height: 2.12rem;
     --br-btn-height: 1.96rem;
     --br-table-cell-pad-x: 0.58rem;
   }

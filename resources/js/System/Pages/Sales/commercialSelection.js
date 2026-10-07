@@ -22,13 +22,14 @@ export default {
     beforeUnmount() {
         for(const state of Object.values(this.commercialSelection)) {
             clearTimeout(state.timer);
+            state.requestToken += 1;
         }
     },
     methods: {
         openCommercialOptions(resource) {
             const state = this.commercialSelection[resource];
 
-            if(!state.loaded) {
+            if(!state.loaded && !state.loading && !state.timer) {
                 this.loadCommercialOptions(resource, 1, state.requestToken);
             }
         },
@@ -36,7 +37,7 @@ export default {
             const state = this.commercialSelection[resource];
             const normalized = String(term || "").trim();
 
-            if(state.term === normalized && state.loaded) return;
+            if(state.term === normalized && (state.loaded || state.loading || state.timer)) return;
 
             clearTimeout(state.timer);
             state.term = normalized;
@@ -46,6 +47,7 @@ export default {
             state.loading = false;
 
             state.timer = setTimeout(() => {
+                state.timer = null;
                 this.loadCommercialOptions(resource, 1, state.requestToken);
             }, 250);
         },
@@ -61,7 +63,7 @@ export default {
             state.loading = true;
 
             const result = await Requests.get({
-                route: `${Requests.config({entity: this.commercialSelectionEntity, type: "consult"})}/options`,
+                route: this.commercialSelectionRoute || `${Requests.config({entity: this.commercialSelectionEntity, type: "consult"})}/options`,
                 data: {resource, search: state.term, page}
             });
 

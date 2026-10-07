@@ -122,7 +122,7 @@
 }
 
 .br-roles__permission-search .form-control {
-    min-height: 2.45rem;
+    min-height: var(--br-control-height);
     padding-left: 2rem;
     border-color: var(--br-border);
 }
@@ -366,7 +366,7 @@ input.input-number-no-range[type=number] {
 .vs__search::placeholder {
     color: var(--br-template-muted) !important;
     font-style: italic !important;
-    font-size: var(--br-ui-font-size) !important;
+    font-size: var(--br-placeholder-font-size) !important;
 }
 
 /* BACKGROUND */
@@ -709,7 +709,7 @@ input.input-number-no-range[type=number] {
 }
 
 .br-home-search__input.form-control {
-    min-height: 2.25rem;
+    min-height: var(--br-control-height);
     padding-right: 2.5rem;
     padding-left: 2.25rem;
     border-color: var(--br-border);
@@ -1988,7 +1988,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-readonly-metric {
     display: flex;
-    min-height: 2.35rem;
+    min-height: var(--br-control-height);
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
@@ -2029,7 +2029,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-entity-inventory__field .form-control {
-    min-height: 2.35rem;
+    min-height: var(--br-control-height);
 }
 
 .br-entity-inventory-empty {

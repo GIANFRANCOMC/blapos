@@ -35,7 +35,7 @@
                 </select>
             </div>
             <div class="br-filter-bar__actions">
-                <button type="button" class="br-btn br-btn-action-search" @click="loadExpenses()">
+                <button type="button" class="br-btn br-btn-search" @click="loadExpenses()">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <span>Buscar</span>
                 </button>

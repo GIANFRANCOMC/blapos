@@ -232,8 +232,8 @@
 }
 
 .br-layout .br-dashboard-date--split .br-dashboard-date__input-wrap .form-control {
-  min-height: 2.75rem;
-  padding: 0.5rem 0.75rem;
+  min-height: var(--br-control-height);
+  padding: var(--br-control-padding-y) 0.75rem;
   font-size: 1rem;
   font-weight: 600;
   color: var(--br-text);

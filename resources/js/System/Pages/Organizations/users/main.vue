@@ -178,7 +178,7 @@
                                 <template #input>
                                     <button
                                         type="button"
-                                        class="br-btn br-btn-sm br-btn-action-search"
+                                        class="br-btn br-btn-sm br-btn-search"
                                         :disabled="authenticationEvents.loading"
                                         @click="listAuthenticationEvents({})">
                                         <i class="fa-solid fa-filter" aria-hidden="true"></i>

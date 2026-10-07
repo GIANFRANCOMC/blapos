@@ -92,6 +92,23 @@ final class ServiceOperationPerformanceTest extends TestCase {
 
     }
 
+    public function test_sale_list_and_delivery_config_do_not_embed_the_customer_catalog(): void {
+
+        $this->seedOperationOptions(80);
+        SaleConfigService::clearCache("list");
+        SaleConfigService::clearCache("deliveries");
+
+        foreach(["list", "deliveries"] as $page) {
+
+            $config = SaleConfigService::getInitParams($page, $this->userId)->config;
+
+            $this->assertFalse(property_exists($config, "customers"));
+            $this->assertLessThan(30000, strlen(json_encode($config, JSON_THROW_ON_ERROR)));
+
+        }
+
+    }
+
     public function test_remote_sales_options_require_the_corresponding_creation_module(): void {
 
         $this->seedOperationOptions(40);
@@ -120,10 +137,36 @@ final class ServiceOperationPerformanceTest extends TestCase {
 
         BusinessProfileService::updateModules([$salesIndexId], $this->userId);
 
+        DB::table("customers")
+            ->where("document_number", "00000040")
+            ->update(["status" => "inactive"]);
+
+        $customerOptions = $this->getJson(route("sales.customerOptions", ["search" => "Cliente 40"]))
+            ->assertOk()
+            ->assertJsonPath("data.records.0.name", "Cliente 40");
+
+        $this->assertSame(
+            ["id", "name", "document_number"],
+            array_keys($customerOptions->json("data.records.0"))
+        );
+
         $this->getJson(route("sales.options", ["resource" => "items"]))
             ->assertForbidden();
 
         $this->getJson(route("quotations.options", ["resource" => "customers"]))
+            ->assertForbidden();
+
+        $deliveriesId = (int) DB::table("sub_sections")
+            ->where("dom_route", "sales.deliveries.index")
+            ->value("id");
+
+        BusinessProfileService::updateModules([$deliveriesId], $this->userId);
+
+        $this->getJson(route("sales.customerOptions", ["search" => "Cliente 40"]))
+            ->assertOk()
+            ->assertJsonPath("data.records.0.name", "Cliente 40");
+
+        $this->getJson(route("sales.options", ["resource" => "items"]))
             ->assertForbidden();
 
     }

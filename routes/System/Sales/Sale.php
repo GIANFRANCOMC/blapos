@@ -8,6 +8,7 @@ $entity = "sales";
 Route::get("", [SaleController::class, "index"])->name("$entity.index");
 Route::get("/initParams", [SaleController::class, "initParams"])->name("$entity.initParams");
 Route::get("/options", [SaleController::class, "options"])->name("$entity.options");
+Route::get("/customer-options", [SaleController::class, "customerOptions"])->name("$entity.customerOptions");
 Route::get("/list", [SaleController::class, "list"])->name("$entity.list");
 Route::get("/create", [SaleController::class, "create"])->name("$entity.create");
 Route::get("/pos", [SaleController::class, "pos"])->name("$entity.pos");

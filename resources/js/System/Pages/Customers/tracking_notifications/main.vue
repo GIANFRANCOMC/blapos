@@ -30,7 +30,7 @@
                     <template #input>
                         <button
                             type="button"
-                            class="br-btn br-btn-sm br-btn-action-search"
+                            class="br-btn br-btn-sm br-btn-search"
                             :disabled="lists.entity.extras.loading"
                             @click="listEntity({})">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>

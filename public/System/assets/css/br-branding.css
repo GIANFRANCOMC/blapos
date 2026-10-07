@@ -145,6 +145,9 @@
   --br-orange: #d97706;
   --br-orange-hover: #b45309;
   --br-orange-strong: #a15c00;
+  --br-actions-orange: #ba5b08;
+  --br-actions-orange-hover: #a54e07;
+  --br-on-actions: #ffffff;
   --br-twitter: #1da1f2;
   --br-twitter-hover: #1a91da;
   --br-blue-soft: #eff6ff;
@@ -2144,6 +2147,81 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 .br-btn-danger:hover {
   background-color: var(--br-danger-hover);
   border-color: var(--br-danger-hover);
+}
+
+/* Acciones secundarias agrupadas: variante reutilizable con su menú. */
+.br-btn.br-btn-actions {
+  gap: 0.6rem;
+  border-color: var(--br-actions-orange);
+  background: var(--br-actions-orange);
+  color: var(--br-on-actions);
+}
+
+.br-btn.br-btn-actions:hover,
+.br-btn.br-btn-actions.show {
+  border-color: var(--br-actions-orange-hover);
+  background: var(--br-actions-orange-hover);
+  color: var(--br-on-actions);
+}
+
+.br-btn.br-btn-actions:focus-visible {
+  border-color: var(--br-actions-orange-hover);
+  color: var(--br-on-actions);
+  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-actions-orange) 28%, transparent);
+}
+
+.br-btn-actions__chevron {
+  transition: transform 0.16s ease;
+}
+
+.br-btn-actions.show .br-btn-actions__chevron {
+  transform: rotate(180deg);
+}
+
+.br-btn-actions-menu {
+  min-width: 12rem;
+  padding: 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--br-actions-orange) 28%, var(--br-border));
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+  box-shadow: var(--br-shadow);
+  --bs-dropdown-link-hover-bg: var(--br-warning-soft);
+  --bs-dropdown-link-hover-color: var(--br-orange-strong);
+  --bs-dropdown-link-active-bg: var(--br-warning-soft);
+  --bs-dropdown-link-active-color: var(--br-orange-strong);
+}
+
+.br-btn-actions-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.48rem 0.65rem;
+  border-radius: 0.25rem;
+  color: var(--br-text);
+  font-size: var(--br-ui-font-size);
+}
+
+.br-btn-actions-menu .dropdown-item i {
+  width: 1rem;
+  color: var(--br-orange-hover);
+  text-align: center;
+}
+
+.br-btn-actions-menu .dropdown-item:hover,
+.br-btn-actions-menu .dropdown-item:focus,
+.br-btn-actions-menu .dropdown-item:active,
+.br-btn-actions-menu .dropdown-item.active {
+  background: var(--br-warning-soft);
+  color: var(--br-orange-strong);
+}
+
+.br-btn-actions-menu .dropdown-item:disabled {
+  color: var(--br-text-muted);
+  opacity: 0.55;
+}
+
+.br-btn-actions-menu .dropdown-item:disabled i {
+  color: var(--br-text-muted);
 }
 
 /* --- [br] Botón outline --- */
@@ -5547,8 +5625,8 @@ body.br-layout .form-check-input:disabled {
 }
 
 .br-layout .br-dashboard-date--split .br-dashboard-date__input-wrap .form-control {
-  min-height: 2.75rem;
-  padding: 0.5rem 0.75rem;
+  min-height: var(--br-control-height);
+  padding: var(--br-control-padding-y) 0.75rem;
   font-size: 1rem;
   font-weight: 600;
   color: var(--br-text);
@@ -6395,11 +6473,12 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   --br-font-size-table: var(--br-ui-font-size);
   --br-font-size-table-head: var(--br-ui-font-size);
   --br-font-size-title-sm: var(--br-ui-font-size);
+  --br-placeholder-font-size: 0.74rem;
 
-  --br-control-height: 2.16rem;
-  --br-control-height-sm: 1.96rem;
+  --br-control-height: var(--br-btn-height);
+  --br-control-height-sm: var(--br-btn-height-sm);
   --br-control-padding-x: 0.68rem;
-  --br-control-padding-y: 0.38rem;
+  --br-control-padding-y: 0.28rem;
 
   --br-btn-height: 2rem;
   --br-btn-height-sm: 1.78rem;
@@ -6516,6 +6595,10 @@ body.br-layout .form-group {
   padding: var(--br-control-padding-y) var(--br-control-padding-x);
 }
 
+.br-layout .select2-container--default .select2-selection--single {
+  height: var(--br-control-height);
+}
+
 .br-layout textarea.form-control {
   height: auto;
   min-height: calc(var(--br-control-height) * 1.8);
@@ -6527,9 +6610,13 @@ body.br-layout .form-group {
 
 .br-filter-bar .form-control,
 .br-filter-bar .vs__dropdown-toggle,
-.br-layout .v-select.vs--single .vs__dropdown-toggle,
-.br-layout .v-select.vs--multiple .vs__dropdown-toggle {
+.br-layout .v-select.vs--single .vs__dropdown-toggle {
   height: var(--br-control-height);
+  min-height: var(--br-control-height);
+}
+
+.br-layout .v-select.vs--multiple .vs__dropdown-toggle {
+  height: auto;
   min-height: var(--br-control-height);
 }
 
@@ -6582,6 +6669,10 @@ body > .vs__dropdown-menu .vs__dropdown-option {
   min-height: var(--br-btn-height-sm);
   padding: 0.32rem 0.66rem;
   font-size: var(--br-btn-font-size-sm);
+}
+
+.br-filter-bar__actions .br-btn {
+  min-height: var(--br-control-height);
 }
 
 .br-btn-xs {
@@ -6768,6 +6859,20 @@ body.br-layout .modal-header.br-modal-header {
 
 .br-filter-bar__actions {
   gap: 0.42rem;
+}
+
+.br-products-empty-state .br-empty-state__custom-image {
+  width: min(16rem, 70vw);
+  height: 9.5rem;
+  object-fit: cover;
+}
+
+.br-product-editor .br-entity-form-section {
+  animation: none;
+}
+
+.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+  transition: none;
 }
 
 .br-layout .card,
@@ -8738,7 +8843,6 @@ body.br-layout :where(.bg-primary, .btn-primary, .progress-bar.bg-primary, .badg
 @media (max-width: 767.98px) {
   :root {
     --br-font-size-page: var(--br-ui-font-size);
-    --br-control-height: 2.12rem;
     --br-btn-height: 1.96rem;
     --br-table-cell-pad-x: 0.58rem;
   }
@@ -9585,7 +9689,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 }
 
 .br-roles__permission-search .form-control {
-    min-height: 2.45rem;
+    min-height: var(--br-control-height);
     padding-left: 2rem;
     border-color: var(--br-border);
 }
@@ -9829,7 +9933,7 @@ input.input-number-no-range[type=number] {
 .vs__search::placeholder {
     color: var(--br-template-muted) !important;
     font-style: italic !important;
-    font-size: var(--br-ui-font-size) !important;
+    font-size: var(--br-placeholder-font-size) !important;
 }
 
 /* BACKGROUND */
@@ -10172,7 +10276,7 @@ input.input-number-no-range[type=number] {
 }
 
 .br-home-search__input.form-control {
-    min-height: 2.25rem;
+    min-height: var(--br-control-height);
     padding-right: 2.5rem;
     padding-left: 2.25rem;
     border-color: var(--br-border);
@@ -11451,7 +11555,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-readonly-metric {
     display: flex;
-    min-height: 2.35rem;
+    min-height: var(--br-control-height);
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
@@ -11492,7 +11596,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-entity-inventory__field .form-control {
-    min-height: 2.35rem;
+    min-height: var(--br-control-height);
 }
 
 .br-entity-inventory-empty {
@@ -13279,7 +13383,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-pos-search .form-control {
-  height: 2.55rem;
+  height: var(--br-control-height);
   padding-left: 2.25rem;
   border-color: var(--br-border);
   background: var(--br-white);
@@ -14580,7 +14684,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-pos-payment .form-control {
-  height: 2.32rem;
+  height: var(--br-control-height);
   text-align: right;
 }
 
@@ -16544,7 +16648,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-master-data-search .form-control {
-  min-height: 2.35rem;
+  min-height: var(--br-control-height);
   padding-left: 2.1rem;
 }
 
@@ -17051,9 +17155,13 @@ body.br-layout ::selection {
 
 body.br-layout ::placeholder {
   color: color-mix(in srgb, var(--br-text-placeholder) 86%, var(--br-white));
-  font-size: 0.86em;
+  font-size: var(--br-placeholder-font-size) !important;
   font-weight: 500;
   opacity: 1;
+}
+
+body.br-layout .select2-selection__placeholder {
+  font-size: var(--br-placeholder-font-size) !important;
 }
 
 /* -------------------------------------------------------------------------

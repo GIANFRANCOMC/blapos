@@ -6,6 +6,7 @@ namespace App\Services\System\Sales;
 
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Customers\{Customer};
+use Illuminate\Database\Eloquent\{Builder};
 use InvalidArgumentException;
 
 final class CommercialSelectionService {
@@ -18,17 +19,9 @@ final class CommercialSelectionService {
 
         if($resource === "customers") {
 
-            $query = Customer::query()
+            $query = self::customersQuery($search)
                 ->where("status", "active")
-                ->with("identityDocumentType")
-                ->when($search !== "", fn($query) => $query->where(function($query) use ($search) {
-
-                    $query->where("name", "like", "%{$search}%")
-                        ->orWhere("document_number", "like", "%{$search}%");
-
-                }))
-                ->orderBy("name")
-                ->orderBy("id");
+                ->with("identityDocumentType");
 
         }elseif($resource === "items") {
 
@@ -52,7 +45,45 @@ final class CommercialSelectionService {
 
         }
 
-        $results = $query->simplePaginate(self::PAGE_SIZE, ["*"], "page", $page);
+        return self::paginate($query, ["*"], $page);
+
+    }
+
+    public static function searchCustomerFilters(string $search = "", int $page = 1): array {
+
+        $result = self::paginate(
+            self::customersQuery(trim($search)),
+            ["id", "name", "document_number"],
+            max(1, $page)
+        );
+
+        $result["records"] = array_map(static fn(Customer $customer) => [
+            "id" => $customer->id,
+            "name" => $customer->name,
+            "document_number" => $customer->document_number,
+        ], $result["records"]);
+
+        return $result;
+
+    }
+
+    private static function customersQuery(string $search): Builder {
+
+        return Customer::query()
+            ->when($search !== "", fn($query) => $query->where(function($query) use ($search) {
+
+                $query->where("name", "like", "%{$search}%")
+                    ->orWhere("document_number", "like", "%{$search}%");
+
+            }))
+            ->orderBy("name")
+            ->orderBy("id");
+
+    }
+
+    private static function paginate(Builder $query, array $columns, int $page): array {
+
+        $results = $query->simplePaginate(self::PAGE_SIZE, $columns, "page", $page);
 
         return [
             "records" => $results->items(),

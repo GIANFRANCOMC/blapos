@@ -75,16 +75,26 @@
                     <v-select
                         v-model="lists.entity.filters.holder"
                         :options="holders"
+                        :filterable="false"
+                        :loading="commercialSelection.customers.loading"
                         :class="config.forms.classes.select2"
                         :clearable="true"
                         append-to-body
-                        placeholder="Todos los clientes">
+                        placeholder="Todos los clientes"
+                        @open="openCommercialOptions('customers')"
+                        @search="searchCommercialOptions('customers', $event)">
                         <template #option="{ label }">
                             <span v-text="truncate({value: label, length: 50})" class="d-block"></span>
                         </template>
                         <template #selected-option="{ label }">
                             <span class="br-select-selected-text" :title="label">{{ label }}</span>
                         </template>
+                        <template #list-footer>
+                            <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                            </li>
+                        </template>
+                        <template #no-options>Sin clientes para esta búsqueda.</template>
                     </v-select>
                 </template>
             </InputSlot>
@@ -109,7 +119,7 @@
                 xl="5"
                 lg="6">
                 <template #input>
-                    <button type="button" class="br-btn br-btn-sm br-btn-action-search" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                    <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({})" :disabled="lists.entity.extras.loading">
                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                         <span>Buscar</span>
                     </button>
@@ -256,6 +266,7 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
+import commercialSelection from "../commercialSelection.js";
 
 const MODULE = {
     texts: {
@@ -269,6 +280,7 @@ const MODULE = {
 };
 
 export default {
+    mixins: [commercialSelection],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
@@ -288,6 +300,7 @@ export default {
     },
     data() {
         return {
+            commercialSelectionRoute: `${Requests.config({entity: "sales", type: "consult"})}/customer-options`,
             lists: {
                 entity: {
                     extras: {
@@ -358,7 +371,8 @@ export default {
             let initParams = await Requests.get({route: this.config.entity.routes.initParams, data: {page: "list"}, showAlert: true});
 
             this.options.branches    = initParams.data?.config?.branches;
-            this.options.holders     = initParams.data?.config?.customers;
+            this.options.customers   = {records: []};
+            this.options.holders     = this.options.customers;
             this.options.salesHeader = initParams.data?.config?.salesHeader;
 
             return Requests.valid({result: initParams});

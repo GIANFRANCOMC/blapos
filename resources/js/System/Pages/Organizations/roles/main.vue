@@ -15,7 +15,7 @@
                     @enterKeyPressed="listRoles({})"/>
                 <div class="form-group col-xl-4 col-lg-4">
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-sm br-btn-action-search" @click="listRoles({})">
+                        <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({})">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <span>Buscar</span>
                         </button>

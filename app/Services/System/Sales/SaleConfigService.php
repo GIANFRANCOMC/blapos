@@ -40,9 +40,6 @@ final class SaleConfigService extends BaseConfigService {
                 "warehouses" => self::data([
                     "records" => $references->stockWarehouses(),
                 ]),
-                "customers" => self::data([
-                    "records" => $references->customers(),
-                ]),
                 "salesHeader" => self::data([
                     "statuses" => SaleHeader::getStatuses(),
                 ]),

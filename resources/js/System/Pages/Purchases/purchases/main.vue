@@ -320,7 +320,7 @@
                 </div>
                 <div class="form-group col-xl-4 col-lg-4 col-md-12">
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-sm br-btn-action-search" @click="listPurchases({})">
+                        <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listPurchases({})">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <span>Buscar</span>
                         </button>

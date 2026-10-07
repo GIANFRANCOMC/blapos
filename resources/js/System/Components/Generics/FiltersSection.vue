@@ -47,20 +47,20 @@
                 :titleClass="titleClass"
                 :placeholder="searchPlaceholder"
                 :disabled="loading"
-                xl="5"
-                lg="5"/>
+                xl="4"
+                lg="4"/>
             <slot name="extraFilters"></slot>
             <InputSlot
                 hasDiv
                 :isInputGroup="false"
                 :divInputClass="['br-filter-bar__actions']"
-                xl="4"
-                lg="4">
+                xl="5"
+                lg="5">
                 <template v-slot:input>
                     <button
                         v-if="showSearchButton"
                         type="button"
-                        class="br-btn br-btn-sm br-btn-action-search waves-effect"
+                        class="br-btn br-btn-sm br-btn-search waves-effect"
                         @click="$emit('search')"
                         :disabled="loading">
                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
@@ -76,7 +76,37 @@
                         <span v-text="addButtonText"></span>
                     </button>
                     <button
-                        v-if="showImportButton"
+                        v-if="groupSecondaryActions && (showImportButton || showDownloadButton || showLabelsButton)"
+                        type="button"
+                        class="br-btn br-btn-sm br-btn-actions"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        :disabled="loading">
+                        <span v-text="secondaryActionsLabel"></span>
+                        <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                    </button>
+                    <ul v-if="groupSecondaryActions && (showImportButton || showDownloadButton || showLabelsButton)" class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                        <li v-if="showImportButton">
+                            <button type="button" class="dropdown-item" :disabled="loading || importing" @click="$emit('import')">
+                                <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
+                                <span v-text="importButtonText"></span>
+                            </button>
+                        </li>
+                        <li v-if="showDownloadButton">
+                            <button type="button" class="dropdown-item" :disabled="loading || downloading" @click="$emit('download')">
+                                <i :class="downloadButtonIcon" aria-hidden="true"></i>
+                                <span v-text="downloadButtonText"></span>
+                            </button>
+                        </li>
+                        <li v-if="showLabelsButton">
+                            <button type="button" class="dropdown-item" :disabled="loading || labelsLoading" @click="$emit('labels')">
+                                <i class="fa-solid fa-tags" aria-hidden="true"></i>
+                                <span v-text="labelsButtonText"></span>
+                            </button>
+                        </li>
+                    </ul>
+                    <button
+                        v-if="showImportButton && !groupSecondaryActions"
                         type="button"
                         class="br-btn br-btn-sm br-btn-action-import waves-effect"
                         @click="$emit('import')"
@@ -89,7 +119,7 @@
                         <span class="br-btn-action-import__label" v-text="importButtonText"></span>
                     </button>
                     <button
-                        v-if="showDownloadButton"
+                        v-if="showDownloadButton && !groupSecondaryActions"
                         type="button"
                         :class="[
                             'br-btn',
@@ -108,7 +138,7 @@
                         <span class="br-btn-action-export__label" v-text="downloadButtonText"></span>
                     </button>
                     <button
-                        v-if="showLabelsButton"
+                        v-if="showLabelsButton && !groupSecondaryActions"
                         type="button"
                         class="br-btn br-btn-sm br-btn-action-print waves-effect"
                         @click="$emit('labels')"
@@ -209,6 +239,14 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        groupSecondaryActions: {
+            type: Boolean,
+            default: false
+        },
+        secondaryActionsLabel: {
+            type: String,
+            default: "Acciones"
         },
         importButtonText: {
             type: String,

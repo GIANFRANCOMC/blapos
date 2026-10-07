@@ -24,7 +24,7 @@
 }
 
 .br-pos-search .form-control {
-  height: 2.55rem;
+  height: var(--br-control-height);
   padding-left: 2.25rem;
   border-color: var(--br-border);
   background: var(--br-white);

@@ -19,13 +19,16 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 - Regla EAN-13: `app/Rules/System/Catalogs/ValidEan13.php`
 - Modelo: `app/Models/System/Catalogs/Item.php`
 - Vue: `resources/js/System/Pages/Catalogs/products/main.vue`
+- Editor reutilizable: `resources/js/System/Components/Catalogs/Products/ProductEditor.vue`
+- Disparador reutilizable: `resources/js/System/Components/Catalogs/Products/AddProduct.vue`
+- Configuración del formulario: `resources/js/System/Components/Catalogs/Products/productFormConfig.js`
 - Generador PNG reutilizable: `resources/js/System/Components/BarcodeDownloadButton.vue`
-- Estilos: `public/System/assets/css/br-branding.css`, parcial `br-branding/81-core-roles-entities.css`
+- Estilos: `public/System/assets/css/br-branding.css`, parciales `br-branding/40-buttons-quick-create.css`, `br-branding/70-visual-density-brand-refresh.css` y `br-branding/81-core-roles-entities.css`
 - Tablas: `items`, `brands`, `category_items`, `categories`, `warehouses`, `warehouse_items`
 
 ## Exportación Excel
 
-La barra de filtros permite usar `Descargar Excel` junto a `Agregar producto`. La acción está habilitada en la configuración del módulo mediante `hasDownloadRecords: true`; el componente reutilizable `FiltersSection` mantiene `showDownloadButton: false` por defecto para no mostrarla en módulos que todavía no ofrecen exportación.
+La barra conserva `Agregar producto` como acción principal. `Carga masiva`, `Descargar Excel` y `Etiquetas` están agrupadas en el menú `Acciones`, con una flecha que indica si está abierto o cerrado. La variante reutilizable `br-btn-actions` usa naranja con texto blanco de alto contraste; su menú conserva la misma paleta en los estados de interacción. `FiltersSection` solo activa esta agrupación cuando recibe `groupSecondaryActions`; los demás módulos mantienen su presentación actual. El campo de búsqueda compartido ocupa una columna menos en escritorio para dejar más aire a las acciones.
 
 El endpoint `GET /products/export` recibe `filter_by` y `word`, exactamente los mismos parámetros del listado. No recibe `page` ni `per_page`: descarga todos los registros que coinciden con el filtro actual y conserva el orden alfabético por producto.
 
@@ -46,7 +49,7 @@ La descarga frontend usa `Requests.download()`, helper genérico que solicita un
 
 Esta exportación vive exclusivamente bajo `System/Catalogs/Products`, porque contiene información operativa de la empresa autenticada. `Guest` no comparte la ruta, consulta ni exportador.
 
-En escritorio, la descarga se presenta como un botón verde compacto con el icono de Excel y el tooltip `Descargar Excel`; por debajo de `992px` recupera icono y texto para que la acción sea explícita y fácil de pulsar. Este comportamiento se activa mediante `downloadIconOnlyOnDesktop`, deshabilitado por defecto en `FiltersSection`.
+La opción `Descargar Excel` está disponible dentro de `Acciones` con icono y texto visibles en todas las resoluciones.
 
 ## Datos del producto
 
@@ -70,9 +73,8 @@ En escritorio, la descarga se presenta como un botón verde compacto con el icon
 - `items.max_price`: límite superior opcional.
 - `items.commission_type`: regla interna de comisión para ventas del producto (`none`, `percentage`, `fixed`).
 - `items.commission_value`: valor de la comisión. Si es porcentaje aplica sobre el total de línea; si es monto fijo aplica por unidad vendida.
-- `items.capacity_control_enabled`: activa cupos comerciales opcionales para el producto, adicionales al stock físico.
-- `items.capacity_limit`: cantidad máxima comercial disponible cuando el control de cupos está activo.
-- `items.capacity_used`: cupos ya consumidos por ventas confirmadas.
+
+Los campos compartidos de cupos de `items` se reservan para servicios y membresías. Productos usa `warehouse_items` como fuente de disponibilidad.
 
 ### Publicación
 
@@ -102,6 +104,8 @@ El módulo `recipes.index` usa `items` como base comercial vendible. Esto evita 
 Cuando un producto representa un platillo, la fórmula operativa vive en `recipe_dishes` y sus tablas hijas. Productos sigue administrando precio, marca, categorías, código de barras, publicación y stock inicial; Recetas y platillos administra insumos, toppings, extras, sabores, merma y rendimiento.
 
 ## Flujo de creación
+
+`AddProduct.vue` es el punto de entrada reutilizable para abrir el mismo editor desde cualquier vista Vue que tenga permiso de Productos. Carga el editor solo al primer uso, acepta `initialOptions` si la vista ya dispone de los catálogos y emite `created` con el producto guardado para incorporarlo al selector que lo invocó. Sin opciones iniciales, el editor consulta `products.initParams`. El listado de Productos usa ese mismo componente tanto para alta como para edición y refresca la tabla al guardar.
 
 1. Vue carga categorías, monedas, estados y todos los almacenes activos de la empresa.
 2. Se generan valores iniciales para código interno y código de barras.
@@ -148,9 +152,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - `igv_exempt` se guarda como booleano y tiene prioridad sobre `price_includes_tax`: el detalle no genera IGV, no aporta base gravada y el precio completo queda como precio del producto.
 - La comisión es opcional y no altera el precio ni el total cobrado al cliente; se guarda como dato interno para liquidaciones y reportes.
 - Si la comisión es porcentual, no puede superar el 100%. Si es monto fijo, se calcula por unidad vendida.
-- El control de cupos es opcional. Si está desactivado, `capacity_limit` queda nulo y `capacity_used` queda en cero.
-- Si se activa control de cupos, `capacity_limit` es obligatorio, entero y no puede ser menor que los cupos ya consumidos.
-- Los cupos no reemplazan el inventario físico del producto; sirven para campañas, packs, cupos comerciales o disponibilidad limitada adicional al stock por almacén.
+- Los requests de productos rechazan `capacity_control_enabled` y `capacity_limit`; el servicio fuerza valores inactivos al crear y limpia valores heredados al editar. Los productos existentes con cupos heredados siguen disponibles para venta según sus demás reglas hasta su próxima edición.
 - El precio debe respetar los límites mínimo y máximo configurados.
 - Los almacenes enviados deben estar activos y pertenecer a sucursales activas de la empresa autenticada.
 - Las categorías deben estar activas y pertenecer a la empresa autenticada.
@@ -164,19 +166,20 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 
 ## Interfaz
 
-- Tabla compacta con producto, identificación, precio, inventario, publicación, estado y acción.
+- Tabla compacta con producto, identificación, precio, inventario, estado y acción.
 - Código interno y código de barras se muestran como identificadores distintos; el formato EAN-13 se explica únicamente como ayuda técnica en tooltips y documentación.
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
 - La marca aparece inmediatamente debajo del nombre en una cápsula compacta de azul suave, con icono y nombre. Se diferencia del código interno sin añadir otra columna; el icono muestra el tooltip `Marca`.
 - Cuando existe descripción, se conserva una separación adicional después de la marca para que ambos datos puedan leerse como niveles distintos.
-- Los iconos de publicación distinguen disponibilidad del producto y visibilidad del precio.
-- El formulario se organiza en tres pestañas: Datos y precio, Inventario e Información adicional.
-- La primera pestaña agrupa nombre, código interno y código de barras en una fila; precio de venta, precio mínimo y precio máximo en otra.
+- El formulario se organiza en tres pestañas: Información general, Atributos e impuestos e Inventario.
+- Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
+- Los placeholders del sistema toman `--br-placeholder-font-size` para mantener una lectura consistente en inputs, `vue-select` y Select2.
+- El estado sin registros del listado usa la ilustración `public/System/assets/img/utils/without_data/empty_products.png`.
+- Información general sigue el orden: código interno, código de barras, nombre, precio de venta, precio mínimo, precio máximo y estado.
 - El estado se selecciona mediante el selector reutilizable `vue-select`, con las mismas reglas visuales y de interacción que el resto de selectores del sistema.
 - El selector de estado ocupa cuatro columnas en escritorio para evitar opciones innecesariamente anchas.
-- En resoluciones `lg`, el selector de estado ocupa seis columnas para conservar una proporción cómoda.
-- La primera pestaña contiene también Marca inmediatamente antes de Estado, evitando separar datos básicos de clasificación durante el alta.
-- La segunda pestaña corresponde a Inventario y la tercera, `Información adicional`, presenta primero la descripción comercial, luego el control opcional de cupos, las categorías y finalmente la visibilidad para clientes.
+- Atributos e impuestos sigue el orden: precio incluye IGV, IGV exonerado, vencimiento, comisión, valor de comisión, marca, categorías, descripción comercial adicional y visibilidad para clientes.
+- Inventario conserva el stock inicial o actual y el mínimo por almacén.
 - La sección `Visibilidad para clientes` explica expresamente que publicar el producto o mostrar su precio controla la información visible fuera de la plataforma y no modifica el estado interno Activo o Inactivo.
 - Marca y Categorías incluyen una acción contextual `Agregar` presentada como enlace azul primary, acompañada por un icono circular de suma alineado verticalmente con el texto. Cada acción abre un modal rápido sin cerrar ni limpiar el formulario de Producto.
 - Al crear una Marca o Categoría, el registro se incorpora a las opciones disponibles sin reemplazar ni ampliar automáticamente la selección actual del producto.
@@ -254,7 +257,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Los errores inline son breves; los resúmenes frontend/backend muestran el nombre del campo mediante `Forms.getDescriptiveErrors`.
 - La validación frontend se ejecuta antes de abrir el loader global. Los errores locales aparecen inmediatamente; el bloqueo visual se reserva para la petición asíncrona al backend.
 - Ante errores en otra pestaña, el resumen se muestra primero y el formulario cambia a la primera sección afectada solo después de cerrar el aviso. Así se evita movimiento visual detrás de SweetAlert.
-- El contenido de las pestañas usa una transición de entrada de `120ms`, limitada a opacidad y dos píxeles de desplazamiento.
+- El editor de productos desactiva la animación de entrada y la transición de las pestañas para que el cambio de sección sea inmediato; otros formularios conservan sus transiciones.
 - El listado muestra nombre, marca y descripción. Se retiró la cantidad de categorías para reducir ruido visual.
 - El prefijo monetario usa `br-currency-prefix__symbol` para controlar su escala de forma independiente, con color secondary, peso medio y separación compacta respecto del importe.
 - El CTA utiliza “Agregar producto” o “Editar producto”; durante el proceso muestra “Agregando” o “Editando” sin puntos suspensivos.
@@ -304,7 +307,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 
 ## Carga masiva básica
 
-Productos incorpora una acción compacta **Carga masiva** junto a Descargar Excel.
+Productos ofrece **Carga masiva** dentro del menú **Acciones**.
 
 - La modal permite descargar la plantilla oficial.
 - Descargar la plantilla muestra un loading global mientras se genera el archivo y lo cierra al finalizar.

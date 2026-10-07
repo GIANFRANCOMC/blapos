@@ -37,7 +37,7 @@
                     @keyup.enter="refreshActiveView"/>
             </div>
             <div class="br-filter-bar__actions">
-                <button type="button" class="br-btn br-btn-action-search" @click="refreshActiveView">
+                <button type="button" class="br-btn br-btn-search" @click="refreshActiveView">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <span>Buscar</span>
                 </button>
@@ -391,7 +391,7 @@
                             </div>
                             <button
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-action-search"
+                                class="br-btn br-btn-sm br-btn-search"
                                 @click="fillInventoryCountWithSystemStock">
                                 <i class="fa-solid fa-check-double" aria-hidden="true"></i>
                                 <span>Usar saldo sistema</span>

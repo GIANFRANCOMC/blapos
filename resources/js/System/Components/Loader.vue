@@ -5,9 +5,13 @@
         role="status"
         aria-live="polite"
         :aria-label="label">
-        <span class="br-loader__indicator" aria-hidden="true">
-            <span></span>
-        </span>
+        <img
+            class="br-loader__image"
+            :src="loaderImageSrc"
+            alt=""
+            width="52"
+            height="52"
+            decoding="async"/>
         <div v-if="showLabel" class="br-feedback-state__content">
             <strong class="br-feedback-state__title" v-text="label"></strong>
             <small v-if="hint" class="br-feedback-state__description" v-text="hint"></small>
@@ -16,6 +20,8 @@
 </template>
 
 <script>
+import {LOADER_IMAGE_SRC} from "@System/Helpers/BrandAssets.js";
+
 export default {
     name: "Loader",
     emits: [],
@@ -39,6 +45,13 @@ export default {
             type: String,
             required: false,
             default: "Espera un momento."
+        }
+    },
+    computed: {
+        loaderImageSrc() {
+
+            return LOADER_IMAGE_SRC;
+
         }
     }
 };

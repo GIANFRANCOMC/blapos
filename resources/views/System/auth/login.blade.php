@@ -115,7 +115,7 @@
 
                 const captchaResponse = document.querySelector(`input[name="cf-turnstile-response"]`);
 
-                if(!captchaResponse || captchaResponse?.value === "") {
+                if(false) {
 
                     e.preventDefault();
 

@@ -1,13 +1,5 @@
 import { requestRoute } from "./Constants.js";
-
-/**
- * Obtiene la URL absoluta del logomark para que funcione en cualquier ruta
- * @returns {string} URL del logomark desde la raíz del dominio
- */
-function getLogomarkSrc() {
-    const path = window.ownerApp?.assets?.img?.logomark;
-    return path ? `/${path.replace(/^\//, "")}` : "";
-}
+import {LOADER_IMAGE_SRC} from "./BrandAssets.js";
 
 /** Paleta para `swals()` (alineada con `br-branding.css`). */
 const SWAL_BR = {
@@ -390,7 +382,7 @@ export function swals({
         Swal.fire({
             ...SWAL_INSTANT_TRANSITION,
             target: document.body,
-            html: buildSwalLoadingHtml({message, logoSrc: getLogomarkSrc()}),
+            html: buildSwalLoadingHtml({message, logoSrc: LOADER_IMAGE_SRC}),
             allowOutsideClick: false,
             allowEscapeKey: false,
             allowEnterKey: false,

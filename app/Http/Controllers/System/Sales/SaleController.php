@@ -50,6 +50,23 @@ class SaleController extends BaseController {
 
     }
 
+    public function customerOptions(Request $request): JsonResponse {
+
+        $data = $request->validate([
+            "search" => ["nullable", "string", "max:100"],
+            "page" => ["nullable", "integer", "min:1", "max:10000"],
+        ]);
+
+        return response()->json([
+            "bool" => true,
+            "data" => CommercialSelectionService::searchCustomerFilters(
+                $data["search"] ?? "",
+                (int) ($data["page"] ?? 1)
+            ),
+        ]);
+
+    }
+
     /**
      * Get paginated list of sales with filters
      *

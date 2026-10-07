@@ -530,7 +530,7 @@ export default {
         },
         primaryActionClass() {
             return this.selectedReportCode === "settlements"
-                ? "br-btn-action-search"
+                ? "br-btn-search"
                 : "br-btn-action-export";
         },
         quickSearchPlaceholder() {

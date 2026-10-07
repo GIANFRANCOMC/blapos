@@ -59,7 +59,7 @@
                 <input v-model="filters.date_to" type="date" class="form-control">
             </label>
             <div class="br-filter-bar__actions">
-                <button type="button" class="br-btn br-btn-action-search" @click="loadAccounts()">
+                <button type="button" class="br-btn br-btn-search" @click="loadAccounts()">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <span>Buscar</span>
                 </button>

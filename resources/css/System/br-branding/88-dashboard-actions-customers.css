@@ -1188,7 +1188,7 @@
 }
 
 .br-master-data-search .form-control {
-  min-height: 2.35rem;
+  min-height: var(--br-control-height);
   padding-left: 2.1rem;
 }
 

@@ -34,9 +34,13 @@ body.br-layout ::selection {
 
 body.br-layout ::placeholder {
   color: color-mix(in srgb, var(--br-text-placeholder) 86%, var(--br-white));
-  font-size: 0.86em;
+  font-size: var(--br-placeholder-font-size) !important;
   font-weight: 500;
   opacity: 1;
+}
+
+body.br-layout .select2-selection__placeholder {
+  font-size: var(--br-placeholder-font-size) !important;
 }
 
 /* -------------------------------------------------------------------------

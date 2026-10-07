@@ -32,8 +32,8 @@ abstract class ProductRequest extends CompanyFormRequest {
             "commission_type" => ["required", "in:none,percentage,fixed"],
             "commission_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "currency_id" => ["bail", "required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
-            "capacity_control_enabled" => ["nullable", "boolean"],
-            "capacity_limit" => ["nullable", "integer", "min:1", "max:1000000"],
+            "capacity_control_enabled" => ["prohibited"],
+            "capacity_limit" => ["prohibited"],
             "expires_at" => ["nullable", "date"],
             "categories" => ["nullable", "array", "max:50"],
             "categories.*.category_id" => ["bail", "required", "integer", "distinct", new ExistsInTenant("categories", ["status" => "active"], "Una o más categorías no pertenecen a la empresa o no están activas.")],
@@ -73,10 +73,8 @@ abstract class ProductRequest extends CompanyFormRequest {
             "max_price" => "precio máximo",
             "currency_id" => "moneda",
             "expires_at" => "fecha de vencimiento",
-            "commission_type" => "tipo de comision",
-            "commission_value" => "valor de comision",
-            "capacity_control_enabled" => "control de cupos",
-            "capacity_limit" => "cupos disponibles",
+            "commission_type" => "comisión",
+            "commission_value" => "valor de comisión",
             "categories" => "categorías",
             "inventory" => "inventario por almacén",
             "status" => "estado",
@@ -101,7 +99,6 @@ abstract class ProductRequest extends CompanyFormRequest {
 
                 $this->validatePriceRange($validator);
                 $this->validateCommission($validator);
-                $this->validateCapacity($validator);
                 $this->validateBrandStatus($validator);
 
             },
@@ -137,40 +134,9 @@ abstract class ProductRequest extends CompanyFormRequest {
             "commission_value" => $this->input("commission_type") === "none"
                 ? 0
                 : ($this->normalizeOptionalNumber($this->input("commission_value")) ?? 0),
-            "capacity_control_enabled" => $this->boolean("capacity_control_enabled"),
-            "capacity_limit" => $this->boolean("capacity_control_enabled") ? $this->input("capacity_limit") : null,
             "expires_at" => $this->filled("expires_at") ? $this->input("expires_at") : null,
             "inventory" => $this->normalizeInventory(),
         ]);
-
-    }
-
-    private function validateCapacity(Validator $validator): void {
-
-        if($validator->errors()->has("capacity_limit") || !$this->boolean("capacity_control_enabled")) {
-
-            return;
-
-        }
-
-        if(!$this->filled("capacity_limit")) {
-
-            $validator->errors()->add("capacity_limit", "Indica cuántos cupos estarán disponibles.");
-
-            return;
-
-        }
-
-        $currentUsed = Item::query()
-            ->whereKey((int) $this->route("id"))
-            ->where("type", "product")
-            ->value("capacity_used");
-
-        if($currentUsed !== null && (int) $this->input("capacity_limit") < (int) $currentUsed) {
-
-            $validator->errors()->add("capacity_limit", "No puede ser menor que los cupos ya consumidos.");
-
-        }
 
     }
 
