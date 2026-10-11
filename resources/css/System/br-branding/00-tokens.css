@@ -67,6 +67,9 @@
   --br-surface-soft: #f9fbfd;
   --br-surface-subtle: #fbfdff;
   --br-surface-cool: #f1f8fd;
+  --br-modal-surface: #f9fbfd;
+  --br-modal-chrome-surface: #f5f8fb;
+  --br-modal-close-muted: color-mix(in srgb, var(--br-danger) 65%, var(--br-text-muted));
   --br-border: #dfe7ef;
   --br-border-strong: #bdcad8;
   --br-text: #263243;

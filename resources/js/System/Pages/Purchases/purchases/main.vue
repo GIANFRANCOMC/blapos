@@ -442,7 +442,7 @@
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <div v-if="loadingReceipt" class="py-4"><Loader/></div>
                     <template v-else>
                         <div class="br-purchases__receipt-summary">

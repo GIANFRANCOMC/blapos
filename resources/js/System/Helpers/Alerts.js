@@ -30,14 +30,6 @@ function prepareModal(modalElement) {
     modalElement.setAttribute("data-bs-keyboard", "false");
     modalElement.classList.add("br-modal-standard");
 
-    const modalBody = modalElement.querySelector(".modal-body");
-
-    if(modalBody && !modalBody.querySelector(".br-entity-tabs-shell")) {
-
-        modalBody.classList.add("br-modal-standard__body");
-
-    }
-
     const instance = window.bootstrap?.Modal?.getInstance(modalElement);
 
     if(instance?._config) {

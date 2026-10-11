@@ -502,6 +502,20 @@
         -webkit-line-clamp: 2;
     }
 
+    .br-product-editor .br-entity-tabs {
+        height: 2.3rem;
+    }
+
+    .br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+        justify-content: center;
+        height: 2.3rem;
+        min-height: 2.3rem;
+    }
+
+    .br-product-editor .br-entity-tabs .br-entity-tab__content {
+        min-height: 0;
+    }
+
     .br-entity-form-section {
         min-height: 0;
     }
@@ -514,10 +528,6 @@
     .br-entity-readonly-metric .br-entity-inventory__mobile-label {
         display: block;
         flex-basis: 100%;
-    }
-
-    .br-entity-publication-settings {
-        grid-template-columns: 1fr;
     }
 
     .br-entity-inventory__head {

@@ -1,20 +1,22 @@
 export const FORM_TABS = [
     {
         id: "general",
-        label: "Información general",
-        description: "Identidad, precios y estado",
+        label: "PRODUCTO",
         fields: ["internal_code", "barcode", "name", "price", "min_price", "max_price", "currency", "currency_id", "status"]
     },
     {
-        id: "commercial",
-        label: "Atributos e impuestos",
-        description: "Atributos, impuestos y publicación",
-        fields: ["description", "brand", "brand_id", "categories", "expires_at", "commission_type", "commission_value", "igv_exempt", "price_includes_tax", "see_my_web", "see_my_web_price"]
+        id: "attributes",
+        label: "ATRIBUTOS",
+        fields: ["description", "brand", "brand_id", "categories", "expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"]
+    },
+    {
+        id: "taxes",
+        label: "IMPUESTOS",
+        fields: ["igv_exempt", "price_includes_tax"]
     },
     {
         id: "inventory",
-        label: "Inventario",
-        description: "Stock por almacén",
+        label: "INVENTARIO",
         fields: ["inventory"]
     }
 ];
@@ -149,7 +151,7 @@ export const PRODUCT_TEXTS = {
         search: "Buscar",
         add: "Agregar producto",
         edit: "Editar producto",
-        import: "Carga masiva",
+        import: "Cargar masivamente",
         download: "Descargar Excel"
     },
     table: {
@@ -175,7 +177,7 @@ export const PRODUCT_TEXTS = {
     modal: {
         store: "Agregar producto",
         update: "Editar producto",
-        storing: "Agregando",
-        updating: "Editando"
+        save: "Guardar",
+        saving: "Guardando..."
     }
 };

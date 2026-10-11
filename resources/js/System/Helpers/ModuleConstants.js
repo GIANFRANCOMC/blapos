@@ -85,9 +85,9 @@ export const FILTER_BY_OPTIONS = {
 export const CSS_CLASSES = {
     TITLE: "form-label colon-at-end",
     SELECT2: "bg-white",
-    /** @deprecated Preferir STATUS_LABEL_BASE; mismo contenido para compatibilidad */
+    /** @deprecated Preferir STATUS_LABEL_BASE; se conserva para compatibilidad */
     BADGE_BASE: ["br-status-label", "text-capitalize"],
-    STATUS_LABEL_BASE: ["br-status-label", "text-capitalize"],
+    STATUS_LABEL_BASE: ["br-status-label"],
     BUTTON_PRIMARY: "btn btn-primary waves-effect",
     BUTTON_SUCCESS: "btn btn-success waves-effect",
     BUTTON_WARNING: "btn btn-warning waves-effect",

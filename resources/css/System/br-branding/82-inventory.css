@@ -445,24 +445,6 @@
     justify-content: flex-end;
 }
 
-.br-btn-action-import {
-    border-color: var(--br-orange);
-    background: var(--br-orange);
-    color: var(--br-white);
-    box-shadow: 0 0.16rem 0.38rem color-mix(in srgb, var(--br-orange) 18%, transparent);
-}
-
-.br-btn-action-import:hover,
-.br-btn-action-import:focus-visible {
-    border-color: var(--br-orange-hover);
-    background: var(--br-orange-hover);
-    color: var(--br-white);
-}
-
-.br-btn-action-import__label {
-    display: none;
-}
-
 .br-import-products__intro {
     margin: 0;
     color: var(--br-text-muted);

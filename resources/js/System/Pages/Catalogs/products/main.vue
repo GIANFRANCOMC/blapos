@@ -17,14 +17,11 @@
             :show-add-button="true"
             :show-download-button="MODULE.config.hasDownloadRecords"
             :show-import-button="MODULE.config.hasImportRecords"
-            :show-labels-button="true"
             :group-secondary-actions="true"
             :import-button-text="MODULE.texts.actions.import"
             :import-button-tooltip="MODULE.texts.actions.import"
             :download-button-text="MODULE.texts.actions.download"
             :download-button-tooltip="MODULE.texts.actions.download"
-            labels-button-text="Etiquetas"
-            labels-button-tooltip="Imprimir etiquetas"
             :download-icon-only-on-desktop="true"
             :downloading="isExporting"
             :title-class="[config.forms.classes.title]"
@@ -32,11 +29,11 @@
             @search="handleSearch"
             @add="openModal()"
             @import="openImportModal"
-            @download="downloadRecords"
-            @labels="printVisibleLabels"/>
+            @download="downloadRecords"/>
 
         <ProductImportModal
             ref="productImportModal"
+            :title="MODULE.texts.actions.import"
             :import-route="routeActions.import"
             :template-route="routeActions.importTemplate"
             :warehouses="warehouses"
@@ -89,14 +86,10 @@
                                     </span>
                                     <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
                                 </td>
-                                <td>
+                                <td class="br-entity-table__identification-cell">
                                     <div class="br-entity-identifiers">
                                         <div class="br-entity-identifier">
-                                            <span
-                                                class="br-entity-identifier__label"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Código interno">Cód. interno</span>
+                                            <span class="br-entity-identifier__label">Cód. interno</span>
                                             <span class="br-entity-identifier__value">
                                                 <span
                                                     class="br-entity-code"
@@ -109,11 +102,7 @@
                                             </span>
                                         </div>
                                         <div class="br-entity-identifier">
-                                            <span
-                                                class="br-entity-identifier__label"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Código de barras">Cód. barras</span>
+                                            <span class="br-entity-identifier__label">Cód. barras</span>
                                             <span class="br-entity-identifier__value">
                                                 <span
                                                     class="br-entity-barcode"
@@ -122,9 +111,6 @@
                                                     <CopyButton
                                                         :value="record.barcode"
                                                         label="Código de barras"/>
-                                                    <BarcodeDownloadButton
-                                                        :value="record.barcode"
-                                                        :file-name="record.internal_code"/>
                                                 </span>
                                             </span>
                                         </div>
@@ -151,24 +137,20 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="br-entity-stock">
-                                        {{ separatorNumber(stockSummary(record).total) }} unidades
-                                    </span>
-                                    <span
-                                        v-if="stockSummary(record).alerts > 0"
-                                        class="br-entity-stock-alert">
-                                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                                        <span>
-                                            {{ stockSummary(record).alerts }}
-                                            {{ stockSummary(record).alerts === 1 ? "almacén con stock bajo" : "almacenes con stock bajo" }}
+                                    <span class="br-entity-stock-row">
+                                        <span class="br-entity-stock">
+                                            {{ separatorNumber(stockSummary(record).total) }} unidades
                                         </span>
-                                    </span>
-                                    <span v-else class="br-entity-stock-healthy">
-                                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                                        <span>
-                                            Stock saludable en
-                                            {{ stockSummary(record).warehouses }}
-                                            {{ stockSummary(record).warehouses === 1 ? "almacén" : "almacenes" }}
+                                        <span
+                                            v-if="stockSummary(record).alerts > 0"
+                                            class="br-entity-stock-warning"
+                                            role="img"
+                                            tabindex="0"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            :title="stockAlertText(record)"
+                                            :aria-label="stockAlertText(record)">
+                                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                                         </span>
                                     </span>
                                 </td>
@@ -179,16 +161,21 @@
                                         :formatted-status="record.formatted_status"/>
                                 </td>
                                 <td class="text-center">
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-edit"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        :title="MODULE.texts.actions.edit"
-                                        :aria-label="`${MODULE.texts.actions.edit} ${record.name}`"
-                                        @click="openModal(record)">
-                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                    </button>
+                                    <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                        <li>
+                                            <button type="button" class="dropdown-item" @click="openModal(record)">
+                                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                <span v-text="MODULE.texts.actions.edit"></span>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <BarcodeDownloadButton
+                                                menu-item
+                                                tooltip="Descargar cód. barras"
+                                                :value="record.barcode"
+                                                :file-name="record.internal_code"/>
+                                        </li>
+                                    </TableActionsDropdown>
                                 </td>
                             </tr>
                         </template>
@@ -224,8 +211,8 @@ import * as Utils from "@System/Helpers/Utils.js";
 import BarcodeDownloadButton from "@System/Components/BarcodeDownloadButton.vue";
 import ProductImportModal from "@System/Components/Catalogs/Products/ProductImportModal.vue";
 import AddProduct from "@System/Components/Catalogs/Products/AddProduct.vue";
-import {PRODUCT_TEXTS, isValidEan13} from "@System/Components/Catalogs/Products/productFormConfig.js";
-import JsBarcode from "jsbarcode";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
 
 const MODULE_CONFIG = {
     entity: "products",
@@ -259,7 +246,8 @@ export default {
     components: {
         BarcodeDownloadButton,
         ProductImportModal,
-        AddProduct
+        AddProduct,
+        TableActionsDropdown
     },
     data() {
 
@@ -428,101 +416,6 @@ export default {
             }
 
         },
-        printVisibleLabels() {
-
-            const records = (this.entityList.records?.data || [])
-                .filter(record => this.isDefined(record.barcode) && isValidEan13(record.barcode));
-
-            if(records.length === 0) {
-
-                Alerts.toastrs({
-                    type: "warning",
-                    subtitle: "No hay productos con código de barras válido en el listado actual."
-                });
-                return;
-
-            }
-
-            const labelMarkup = records.map(record => this.buildBarcodeLabelMarkup(record)).join("");
-            const printWindow = window.open("", "_blank", "width=920,height=720");
-
-            if(!printWindow) {
-
-                Alerts.toastrs({
-                    type: "warning",
-                    subtitle: "Permite ventanas emergentes para imprimir etiquetas."
-                });
-                return;
-
-            }
-
-            printWindow.document.write(this.buildLabelsPrintDocument(labelMarkup));
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-
-        },
-        buildBarcodeLabelMarkup(record) {
-
-            const canvas = document.createElement("canvas");
-
-            JsBarcode(canvas, String(record.barcode), {
-                format: "EAN13",
-                width: 2,
-                height: 70,
-                displayValue: true,
-                font: "Arial",
-                fontSize: 14,
-                fontOptions: "bold",
-                textMargin: 5,
-                margin: 4,
-                background: "rgba(255, 255, 255, 0)",
-                lineColor: "#000000"
-            });
-
-            return `
-                <article class="label">
-                    <strong>${this.escapeHtml(record.name)}</strong>
-                    <span>${this.escapeHtml(record.internal_code || "")}</span>
-                    <img src="${canvas.toDataURL("image/png")}" alt="Código de barras ${this.escapeHtml(record.barcode)}">
-                </article>
-            `;
-
-        },
-        buildLabelsPrintDocument(labelMarkup) {
-
-            return `
-                <!doctype html>
-                <html lang="es">
-                <head>
-                    <meta charset="utf-8">
-                    <title>Etiquetas de productos</title>
-                    <style>
-                        @page { size: A4; margin: 10mm; }
-                        * { box-sizing: border-box; }
-                        body { margin: 0; font-family: Arial, sans-serif; color: #1a1a35; }
-                        .sheet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; }
-                        .label { min-height: 34mm; padding: 4mm; border: 1px dashed #9a9ab0; border-radius: 4px; break-inside: avoid; text-align: center; }
-                        .label strong { display: block; font-size: 11px; line-height: 1.2; }
-                        .label span { display: block; margin-top: 1mm; font-size: 9px; color: #5d6682; }
-                        .label img { width: 100%; max-height: 22mm; object-fit: contain; margin-top: 2mm; }
-                    </style>
-                </head>
-                <body><main class="sheet">${labelMarkup}</main></body>
-                </html>
-            `;
-
-        },
-        escapeHtml(value) {
-
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-
-        },
         openImportModal() {
 
             Alerts.tooltips({show: false});
@@ -545,9 +438,15 @@ export default {
 
             return {
                 total: warehouseItems.reduce((total, item) => total + Number(item.quantity ?? 0), 0),
-                alerts: warehouseItems.filter(item => Number(item.quantity ?? 0) <= Number(item.minimum_stock ?? 0)).length,
-                warehouses: warehouseItems.length
+                alerts: warehouseItems.filter(item => Number(item.quantity ?? 0) <= Number(item.minimum_stock ?? 0)).length
             };
+
+        },
+        stockAlertText(record) {
+
+            const count = this.stockSummary(record).alerts;
+
+            return `${count} ${count === 1 ? "almacén con stock bajo" : "almacenes con stock bajo"}`;
 
         },
         isDefined(value) {

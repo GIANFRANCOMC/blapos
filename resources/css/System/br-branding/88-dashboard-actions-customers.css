@@ -289,53 +289,6 @@
   }
 }
 
-/* --- [br-system] Acciones compactas reutilizables --- */
-.br-table-actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-}
-
-.br-icon-action-info {
-  border-color: color-mix(in srgb, var(--br-primary) 22%, var(--br-border));
-  background: color-mix(in srgb, var(--br-primary-soft) 72%, var(--br-white));
-  color: var(--br-primary-active);
-}
-
-.br-icon-action-info:hover,
-.br-icon-action-info:focus-visible {
-  border-color: color-mix(in srgb, var(--br-primary) 40%, var(--br-border));
-  background: color-mix(in srgb, var(--br-primary-soft) 52%, var(--br-white));
-  color: var(--br-primary-active);
-}
-
-.br-icon-action-danger {
-  border-color: color-mix(in srgb, var(--br-danger) 24%, var(--br-border));
-  background: color-mix(in srgb, var(--br-danger-soft) 74%, var(--br-white));
-  color: var(--br-danger-hover);
-}
-
-.br-icon-action-danger:hover,
-.br-icon-action-danger:focus-visible {
-  border-color: color-mix(in srgb, var(--br-danger) 42%, var(--br-border));
-  background: var(--br-danger-soft);
-  color: var(--br-danger-hover);
-}
-
-.br-icon-action-retry {
-  border-color: color-mix(in srgb, var(--br-secondary) 20%, var(--br-border));
-  background: color-mix(in srgb, var(--br-secondary-soft) 64%, var(--br-white));
-  color: var(--br-secondary);
-}
-
-.br-icon-action-retry:hover,
-.br-icon-action-retry:focus-visible {
-  border-color: color-mix(in srgb, var(--br-secondary) 34%, var(--br-border));
-  background: color-mix(in srgb, var(--br-secondary-soft) 48%, var(--br-white));
-  color: var(--br-secondary-active);
-}
-
 .br-entity-primary {
   display: block;
   color: var(--br-secondary);

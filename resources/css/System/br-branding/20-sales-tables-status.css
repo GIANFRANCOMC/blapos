@@ -201,12 +201,13 @@
 .br-layout .br-status-label {
   display: inline-block;
   min-width: 3.75rem;
-  padding: 0.28em 0.52em;
-  font-size: 0.6875rem;
+  padding: 0.2em 0.60em;
+  font-size: 0.65rem !important;
   line-height: 1.2;
   border-radius: 0.25rem;
   border: 1px solid transparent;
   text-align: center;
+  text-transform: none;
   vertical-align: baseline;
   letter-spacing: 0;
 }

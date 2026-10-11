@@ -1,107 +1,98 @@
 <template>
-    <div
-        :id="modalId"
-        class="modal fade br-entity-modal br-product-import-modal"
-        tabindex="-1"
-        aria-labelledby="productImportModalTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Catálogo comercial</p>
-                        <h2 id="productImportModalTitle" class="modal-title br-entity-modal__title">
-                            Carga masiva de productos
-                        </h2>
-                    </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
+    <FormModal
+        :modal-id="modalId"
+        :title="title"
+        modal-class="br-product-import-modal"
+        modal-size="modal-lg">
+        <template #body>
+            <p class="br-import-products__intro">
+                Completa la plantilla con el nombre y precio. Los códigos que dejes vacíos se generarán automáticamente.
+            </p>
+
+            <button
+                type="button"
+                class="br-import-products__template"
+                :disabled="downloadingTemplate || importing"
+                @click="downloadTemplate">
+                <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+                <span>Descargar plantilla</span>
+            </button>
+
+            <div class="row g-3 mt-1">
+                <div class="col-12 col-lg-6 col-xl-6">
+                    <label for="productImportWarehouse" class="form-label">Almacén para el stock inicial</label>
+                    <v-select
+                        id="productImportWarehouse"
+                        v-model="form.warehouse"
+                        :options="warehouseOptions"
+                        :clearable="false"
+                        :searchable="false"
+                        append-to-body>
+                        <template #no-options>
+                            <SelectNoOptions/>
+                        </template>
+                    </v-select>
+                    <small v-if="errors.warehouse_id" class="text-danger">
+                        {{ firstError(errors.warehouse_id) }}
+                    </small>
                 </div>
 
-                <div class="modal-body br-entity-modal__body">
-                    <p class="br-import-products__intro">
-                        Completa la plantilla con el nombre y precio. Los códigos que dejes vacíos se generarán automáticamente.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="br-import-products__template"
-                        :disabled="downloadingTemplate || importing"
-                        @click="downloadTemplate">
-                        <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
-                        <span>Descargar plantilla</span>
-                    </button>
-
-                    <div class="row g-3 mt-1">
-                        <div class="col-12">
-                            <label for="productImportWarehouse" class="form-label">Almacén para el stock inicial</label>
-                            <v-select
-                                id="productImportWarehouse"
-                                v-model="form.warehouse"
-                                :options="warehouseOptions"
-                                :clearable="false"
-                                :searchable="false"
-                                append-to-body>
-                                <template #no-options>
-                                    <SelectNoOptions/>
-                                </template>
-                            </v-select>
-                            <small v-if="errors.warehouse_id" class="text-danger">
-                                {{ firstError(errors.warehouse_id) }}
-                            </small>
-                        </div>
-
-                        <div class="col-12">
-                            <label for="productImportFile" class="form-label">Archivo de productos</label>
-                            <input
-                                id="productImportFile"
-                                ref="fileInput"
-                                class="form-control"
-                                type="file"
-                                accept=".xlsx,.xls,.csv"
-                                @change="selectFile">
-                            <small class="br-import-products__help">
-                                Se aceptan archivos Excel o CSV de hasta 5 MB.
-                            </small>
-                            <small v-if="errors.file" class="text-danger d-block">
-                                {{ firstError(errors.file) }}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer br-entity-modal__footer">
-                    <button
-                        ref="closeButton"
-                        type="button"
-                        class="br-btn br-btn-cancel"
-                        data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        class="br-btn br-btn-primary"
-                        :disabled="importing"
-                        @click="importProducts">
-                        Importar productos
-                    </button>
+                <div class="col-12 col-lg-6 col-xl-6">
+                    <label for="productImportFile" class="form-label">Archivo de productos</label>
+                    <input
+                        id="productImportFile"
+                        ref="fileInput"
+                        class="form-control"
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        @change="selectFile">
+                    <small class="br-import-products__help">
+                        Se aceptan archivos Excel o CSV de hasta 5 MB.
+                    </small>
+                    <small v-if="errors.file" class="text-danger d-block">
+                        {{ firstError(errors.file) }}
+                    </small>
                 </div>
             </div>
-        </div>
-    </div>
+        </template>
+
+        <template #footerClose>
+            <button
+                ref="closeButton"
+                type="button"
+                class="br-btn br-btn-cancel"
+                data-bs-dismiss="modal">
+                Cancelar
+            </button>
+        </template>
+
+        <template #footer>
+            <button
+                type="button"
+                class="br-btn br-btn-action-create"
+                :disabled="importing"
+                @click="importProducts">
+                Cargar
+            </button>
+        </template>
+    </FormModal>
 </template>
 
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
+import FormModal from "@System/Components/Generics/FormModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 
 export default {
     name: "ProductImportModal",
-    components: {SelectNoOptions},
+    components: {FormModal, SelectNoOptions},
     emits: ["imported"],
     props: {
+        title: {
+            type: String,
+            required: true
+        },
         modalId: {
             type: String,
             default: "productImportModal"

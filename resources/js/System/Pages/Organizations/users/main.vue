@@ -531,7 +531,7 @@
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <div class="row g-3">
                         <div class="form-group col-12">
                             <label class="form-label fw-semibold">Nueva contraseña</label>

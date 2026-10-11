@@ -832,11 +832,6 @@ body > .vs__dropdown-menu,
   transform: translateY(0);
 }
 
-.br-btn-cancel,
-.br-btn.br-btn-cancel {
-  color: color-mix(in srgb, var(--br-secondary) 70%, var(--br-text-muted));
-}
-
 .br-icon-action,
 .br-copy-button,
 .br-barcode-download,
@@ -942,6 +937,13 @@ body > .vs__dropdown-menu,
   box-shadow: 0 0.2rem 0.75rem color-mix(in srgb, var(--br-secondary) 5%, transparent);
 }
 
+body.br-layout .br-product-editor .br-entity-tabs .br-entity-tab__content strong {
+  color: color-mix(in srgb, var(--br-text) 80%, var(--br-text-muted)) !important;
+  font-size: 0.62rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em;
+}
+
 .br-entity-tab__step {
   background: color-mix(in srgb, var(--br-secondary-soft) 76%, var(--br-white));
   color: var(--br-secondary);
@@ -959,8 +961,6 @@ body > .vs__dropdown-menu,
 .br-layout .badge,
 .br-layout .br-status-label,
 .br-layout .br-status-surface,
-.br-entity-stock-healthy,
-.br-entity-stock-alert,
 .br-entity-inventory-status {
   letter-spacing: 0;
 }

@@ -9,10 +9,9 @@ body.br-layout .modal-header.br-modal-header {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  min-height: 3.35rem;
-  padding: 0.85rem 3.35rem 0.85rem 1rem;
-  background-color: var(--br-control-disabled-bg);
-  background-color: color-mix(in srgb, var(--br-border) 44%, white);
+  min-height: 0;
+  padding: 0.5rem 1rem;
+  background-color: var(--br-modal-chrome-surface);
   background-image: none;
   border-bottom: 1px solid var(--br-border);
 }
@@ -26,45 +25,6 @@ body.br-layout .modal-header.br-modal-header .modal-title {
   letter-spacing: 0.045em;
 }
 
-/*
- * Cerrar modal: rojo de marca (fondo como antes); borde más suave.
- */
-body.br-layout .modal-header.br-modal-header .btn-header-modal {
-  position: static;
-  width: 1.85rem;
-  height: 1.85rem;
-  min-width: 1.85rem;
-  margin: 0;
-  color: var(--br-text-muted);
-  background: var(--br-white);
-  background-image: none;
-  border: 1px solid color-mix(in srgb, var(--br-border) 78%, transparent);
-  border-radius: var(--br-radius-sm);
-  box-shadow: none;
-  transform: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-body.br-layout .modal-header.br-modal-header .btn-header-modal:hover {
-  color: var(--br-danger);
-  background: color-mix(in srgb, var(--br-danger) 8%, var(--br-white));
-  background-image: none;
-  border-color: color-mix(in srgb, var(--br-danger) 24%, var(--br-border));
-  box-shadow: none;
-  transform: none;
-}
-
-body.br-layout .modal-header.br-modal-header .btn-header-modal:active {
-  background: color-mix(in srgb, var(--br-danger) 10%, var(--br-white));
-  background-image: none;
-  transform: none;
-}
-
-body.br-layout .modal-header.br-modal-header .btn-header-modal:focus-visible {
-  outline: none;
-  box-shadow: var(--br-focus-ring);
-}
-
 /* -------------------------------------------------------------------------
  * [br] Modal reutilizable - estructura estándar para nuevos módulos.
  * Header con título a la izquierda y cierre centrado verticalmente.
@@ -75,8 +35,21 @@ body.br-layout .br-modal-shell .modal-content {
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--br-border) 82%, transparent);
   border-radius: var(--br-radius-lg);
-  background: var(--br-white);
+  background: var(--br-modal-surface);
   box-shadow: 0 1rem 2.2rem color-mix(in srgb, var(--br-secondary) 16%, transparent);
+}
+
+body.br-layout .modal-content > .modal-header {
+  padding-block: 0.5rem;
+  background-color: var(--br-modal-chrome-surface);
+}
+
+body.br-layout .modal-content > .modal-body {
+  background-color: var(--br-modal-surface);
+}
+
+body.br-layout .modal-content > .modal-footer {
+  background-color: var(--br-modal-chrome-surface);
 }
 
 body.br-layout .br-modal-shell .br-modal-shell__header {
@@ -84,10 +57,10 @@ body.br-layout .br-modal-shell .br-modal-shell__header {
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  min-height: 3.15rem;
-  padding: 0.76rem 0.9rem 0.72rem 1rem;
+  min-height: 2.9rem;
+  padding: 0.55rem 0.9rem 0.55rem 1rem;
   border-bottom: 1px solid color-mix(in srgb, var(--br-border) 84%, transparent);
-  background: color-mix(in srgb, var(--br-primary-soft) 18%, var(--br-white));
+  background: var(--br-modal-chrome-surface);
 }
 
 body.br-layout .br-modal-shell .br-modal-shell__header > .modal-title {
@@ -119,7 +92,7 @@ body.br-layout .br-modal-shell .br-modal-shell__close {
   height: 1.55rem;
   min-width: 1.55rem;
   margin: 0 0 0 auto;
-  color: var(--br-text-muted);
+  color: var(--br-modal-close-muted);
   border: 0;
   border-radius: 50%;
   background: transparent;
@@ -137,7 +110,7 @@ body.br-layout .br-modal-shell .br-modal-shell__close:focus-visible {
 
 body.br-layout .br-modal-shell .br-modal-shell__body {
   padding: 1rem;
-  background: #f7f8fa;
+  background: var(--br-modal-surface);
 }
 
 body.br-layout .br-modal-shell .br-modal-shell__footer {
@@ -147,7 +120,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer {
   gap: 0.8rem;
   padding: 0.78rem 1rem;
   border-top: 1px solid color-mix(in srgb, var(--br-border) 84%, transparent);
-  background: #f7f8fa;
+  background: var(--br-modal-chrome-surface);
 }
 
 body.br-layout .br-modal-shell .br-modal-shell__footer > * {
@@ -247,15 +220,17 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border: 0;
   border-radius: var(--br-radius-sm);
   background: transparent;
-  color: var(--br-text-muted);
+  color: var(--br-modal-close-muted);
   place-items: center;
-  transition: var(--br-transition);
+  transition: color 0.16s ease;
 }
 
 .br-modal-close:hover,
 .br-modal-close:focus-visible {
-  background: var(--br-neutral-soft);
-  color: var(--br-secondary);
+  background: transparent;
+  color: var(--br-danger);
+  box-shadow: none;
+  transform: none;
 }
 
 .br-modal-close:focus-visible {
@@ -264,7 +239,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 }
 
 .br-modal-close:active {
-  background: var(--br-secondary-soft);
+  background: transparent;
 }
 
 .br-field-help {

@@ -28,7 +28,7 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 
 ## Exportación Excel
 
-La barra conserva `Agregar producto` como acción principal. `Carga masiva`, `Descargar Excel` y `Etiquetas` están agrupadas en el menú `Acciones`, con una flecha que indica si está abierto o cerrado. La variante reutilizable `br-btn-actions` usa naranja con texto blanco de alto contraste; su menú conserva la misma paleta en los estados de interacción. `FiltersSection` solo activa esta agrupación cuando recibe `groupSecondaryActions`; los demás módulos mantienen su presentación actual. El campo de búsqueda compartido ocupa una columna menos en escritorio para dejar más aire a las acciones.
+La barra conserva `Agregar producto` como acción principal. `Cargar masivamente` y `Descargar Excel` están agrupadas en el menú `Acciones`, con una flecha que indica si está abierto o cerrado. La variante reutilizable `br-btn-actions` usa naranja con texto blanco de alto contraste; su menú conserva la misma paleta en los estados de interacción. `FiltersSection` solo activa esta agrupación cuando recibe `groupSecondaryActions`; los demás módulos mantienen su presentación actual. El campo de búsqueda compartido ocupa una columna menos en escritorio para dejar más aire a las acciones.
 
 El endpoint `GET /products/export` recibe `filter_by` y `word`, exactamente los mismos parámetros del listado. No recibe `page` ni `per_page`: descarga todos los registros que coinciden con el filtro actual y conserva el orden alfabético por producto.
 
@@ -274,21 +274,20 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Identificación diferencia visualmente “Código interno” y “Código de barras” en filas etiquetadas.
 - Identificación usa siempre las etiquetas compactas `Cód. interno` y `Cód. barras`, evitando abreviaciones variables o elipsis confusas.
 - Ambos valores utilizan cápsulas equivalentes; el código de barras incorpora un borde y fondo primary muy suaves para diferenciarlo del código interno sin competir visualmente.
-- Solo las etiquetas abreviadas de identificación muestran su nombre completo mediante el tooltip global; los valores no generan tooltips.
+- Las etiquetas abreviadas de identificación no muestran tooltip; los botones Copiar conservan el suyo.
 - El loading de persistencia informa la acción actual: `Agregando producto` o `Editando producto`.
 - Código interno y código de barras usan el componente reutilizable `CopyButton`; por defecto muestra `Copiar` y `Copiado`, y puede activar `useLabelInTooltip` para mostrar textos contextuales como `Copiar código interno` y `Código interno copiado`.
-- El código de barras incorpora además `BarcodeDownloadButton`, una acción con fondo celeste primary suave e icono secondary navy que genera y descarga su etiqueta. No usa verde para evitar confundirse con estados como `Activo`; sigue diferenciándose de `CopyButton`, que conserva una superficie neutral. El tooltip comunica `Descargar` y confirma `Descargado`.
-- La barra de filtros incorpora `Etiquetas`, acción reutilizable de impresión por lote. Toma los registros visibles del listado filtrado, genera etiquetas EAN-13 en una hoja imprimible y omite registros sin código de barras válido para evitar impresiones incorrectas.
-- Las filas de identificación reservan una columna uniforme para acciones alineada desde la izquierda. Copiar ocupa siempre la primera posición; Código de barras añade Descargar como segunda acción sin alterar la alineación de los valores.
+- El menú reutilizable de cada fila agrupa `Editar` y `Descargar cód. barras`. La segunda opción utiliza `BarcodeDownloadButton` para generar un PNG individual; la impresión de etiquetas por lote fue retirada.
+- Las filas de identificación conservan `CopyButton` junto a cada código, sin duplicar la descarga de barras fuera del menú de acciones.
 - En pantallas pequeñas, los identificadores conservan su contenido completo y nunca usan puntos suspensivos. La tabla prioriza exactitud mediante desplazamiento horizontal antes que recortar un código interno o código de barras.
-- El valor y sus acciones ocupan columnas independientes con ancho reservado; los botones Copiar y Descargar no pueden superponerse sobre los identificadores.
+- El valor y la acción Copiar ocupan columnas independientes con ancho reservado y no pueden superponerse sobre los identificadores.
 - `StatusBadge` añade automáticamente una clase normalizada desde la BD, como `br-status-active` o `br-status-inactive`, además de la variante semántica existente.
 - Las etiquetas de estado son compactas y se perciben como información, no como botones.
 - La tabla de Productos se adapta al ancho disponible en escritorio; el ancho mínimo y scroll horizontal se reservan para resoluciones de hasta `991.98px`.
 - La barra de filtros no usa divisor inferior para mantener una composición minimalista.
 - Venta, Mínimo y Máximo se alinean en un bloque de tres filas; únicamente los rótulos Mínimo y Máximo usan acentos discretos danger/success.
-- La alerta de stock usa el texto explícito “N almacén/almacenes con stock bajo” en una etiqueta warning compacta.
-- El inventario sin alertas muestra un check verde con fondo suave y el texto singular o plural “Stock saludable en N almacén/almacenes”.
+- La alerta de stock muestra un icono warning junto al total de unidades; su tooltip accesible indica “N almacén/almacenes con stock bajo”.
+- El inventario sin alertas muestra únicamente el total de unidades; el icono warning aparece solo cuando algún almacén tiene stock bajo.
 - En la pestaña Inventario, cada almacén muestra una etiqueta sutil: “Stock bajo o en el mínimo” o “Inventario saludable”, usando la misma semántica warning/success del listado.
 - Cuando el stock actual alcanza o queda por debajo del mínimo, únicamente los controles de stock adoptan fondo y contorno warning suaves. La fila mantiene fondo blanco para evitar una alerta visual excesiva; el badge conserva el contexto del problema.
 - La nota general de inventario fue retirada para reducir ruido visual. Los encabezados `Stock inicial` o `Stock actual` y `Stock mínimo` incluyen ayudas contextuales reutilizables mediante `br-field-help`.
@@ -307,7 +306,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 
 ## Carga masiva básica
 
-Productos ofrece **Carga masiva** dentro del menú **Acciones**.
+Productos ofrece **Cargar masivamente** dentro del menú **Acciones**.
 
 - La modal permite descargar la plantilla oficial.
 - Descargar la plantilla muestra un loading global mientras se genera el archivo y lo cierra al finalizar.

@@ -4,6 +4,7 @@
         :text="triggerText"
         :title="resolvedTriggerTitle"
         :aria-label="resolvedTriggerTitle"
+        :show-tooltip="triggerTooltip"
         :icon="triggerIcon"
         :custom-class="triggerClass"
         :disabled="disabled"
@@ -157,6 +158,10 @@ export default {
         triggerTitle: {
             type: String,
             default: ""
+        },
+        triggerTooltip: {
+            type: Boolean,
+            default: true
         },
         triggerIcon: {
             type: String,

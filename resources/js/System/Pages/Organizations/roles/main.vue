@@ -131,7 +131,7 @@
                     </button>
                 </div>
 
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <div class="row g-3">
                         <InputText
                             v-model="form.name"

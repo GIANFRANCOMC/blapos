@@ -3,7 +3,7 @@
         v-if="mode === 'link'"
         href="#"
         :class="triggerClasses"
-        :title="resolvedTitle"
+        :title="showTooltip ? resolvedTitle : null"
         :aria-label="resolvedAriaLabel"
         :aria-disabled="disabled"
         @click.prevent="handleClick">
@@ -15,7 +15,7 @@
         v-else
         type="button"
         :class="triggerClasses"
-        :title="resolvedTitle"
+        :title="showTooltip ? resolvedTitle : null"
         :aria-label="resolvedAriaLabel"
         :disabled="disabled"
         @click="handleClick">
@@ -41,6 +41,10 @@ export default {
         title: {
             type: String,
             default: ""
+        },
+        showTooltip: {
+            type: Boolean,
+            default: true
         },
         ariaLabel: {
             type: String,

@@ -297,7 +297,7 @@
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <p class="br-field-help mb-3">Guarda estas credenciales ahora. Por seguridad, el secreto no podrá consultarse nuevamente.</p>
                     <div class="br-credential-box">
                         <small>Access key</small>
@@ -328,7 +328,7 @@
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <div class="table-responsive br-entity-table-wrap">
                         <table class="table br-entity-table mb-0">
                             <thead>

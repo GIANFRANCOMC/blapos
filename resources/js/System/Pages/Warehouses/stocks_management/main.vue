@@ -636,7 +636,7 @@
                     </button>
                 </div>
 
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <div class="br-inventory-operation__config">
                         <div>
                             <label class="form-label" for="inventoryOperation">Tipo de operación</label>

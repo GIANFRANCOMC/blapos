@@ -2,20 +2,21 @@
     <button
         ref="button"
         type="button"
-        class="br-barcode-download-button"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        :title="tooltipText"
+        :class="menuItem ? 'dropdown-item' : 'br-barcode-download-button'"
+        :data-bs-toggle="menuItem ? null : 'tooltip'"
+        :data-bs-placement="menuItem ? null : 'top'"
+        :title="menuItem ? null : tooltipText"
         :aria-label="ariaLabel"
         :disabled="disabled || !cleanValue"
         @click="download">
         <i class="fa-solid fa-barcode" aria-hidden="true"></i>
+        <span v-if="menuItem" v-text="tooltip"></span>
     </button>
 </template>
 
 <script>
 import JsBarcode from "jsbarcode";
-import {createTooltip} from "@System/Helpers/Alerts.js";
+import {createTooltip, toastrs} from "@System/Helpers/Alerts.js";
 
 export default {
     name: "BarcodeDownloadButton",
@@ -37,6 +38,10 @@ export default {
             default: "Descargar"
         },
         disabled: {
+            type: Boolean,
+            default: false
+        },
+        menuItem: {
             type: Boolean,
             default: false
         }
@@ -103,11 +108,19 @@ export default {
                 link.click();
                 link.remove();
                 window.URL.revokeObjectURL(objectUrl);
-                this.showTooltip("Descargado");
+                if(!this.menuItem) this.showTooltip("Descargado");
 
             }catch(error) {
 
-                this.showTooltip("No se pudo generar el PNG");
+                if(this.menuItem) {
+
+                    toastrs({type: "error", subtitle: "No se pudo generar el código de barras."});
+
+                }else {
+
+                    this.showTooltip("No se pudo generar el PNG");
+
+                }
 
             }
 

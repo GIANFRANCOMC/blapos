@@ -239,18 +239,6 @@ body > .vs__dropdown-menu .vs__dropdown-option {
   box-shadow: 0 4px 10px color-mix(in srgb, var(--br-primary) 22%, transparent);
 }
 
-.br-btn-action-export {
-  background: var(--br-success);
-  border-color: var(--br-success);
-}
-
-.br-btn-action-import {
-  background: var(--br-warning);
-  border-color: var(--br-warning);
-  color: var(--br-on-warning);
-}
-
-.br-icon-action,
 .br-copy-button,
 .br-barcode-download {
   width: 1.86rem;
@@ -259,18 +247,6 @@ body > .vs__dropdown-menu .vs__dropdown-option {
   min-height: 1.86rem;
   border-radius: var(--br-radius-sm);
   font-size: var(--br-ui-font-size);
-}
-
-.br-icon-action-edit {
-  background: var(--br-secondary);
-  border-color: var(--br-secondary);
-  color: var(--br-on-secondary);
-}
-
-.br-icon-action-edit:hover,
-.br-icon-action-edit:focus-visible {
-  background: var(--br-secondary-hover);
-  border-color: var(--br-secondary-hover);
 }
 
 /* Tablas: más información visible sin perder lectura */
@@ -316,8 +292,6 @@ body.br-layout .table > tbody > tr > td,
 /* Estados y badges compactos */
 .br-layout .br-status-label {
   min-width: 3.1rem;
-  padding: 0.2em 0.44em;
-  font-size: var(--br-ui-font-size);
   font-weight: 700;
   border-radius: 0.22rem;
 }
@@ -337,29 +311,9 @@ body.br-layout .table > tbody > tr > td,
   box-shadow: 0 14px 38px color-mix(in srgb, var(--br-secondary) 18%, transparent);
 }
 
-.br-entity-modal .br-entity-modal__header,
-body.br-layout .modal-header.br-modal-header {
-  min-height: 3rem;
-  padding-top: 0.68rem;
-  padding-bottom: 0.68rem;
-}
-
 .br-entity-modal__eyebrow {
   font-size: var(--br-ui-font-size);
   letter-spacing: 0.045em;
-}
-
-.br-entity-modal__title {
-  font-size: var(--br-ui-font-size);
-  line-height: 1.18;
-}
-
-.br-entity-modal .modal-body.br-entity-modal__body {
-  padding: 1rem 1.05rem;
-}
-
-.br-entity-modal .modal-footer.br-entity-modal__footer {
-  padding: 0.75rem 1.05rem;
 }
 
 .br-entity-tab {
@@ -371,16 +325,6 @@ body.br-layout .modal-header.br-modal-header {
   width: 1.28rem;
   height: 1.28rem;
   font-size: var(--br-ui-font-size);
-}
-
-.br-entity-tab__content strong {
-  font-size: var(--br-ui-font-size);
-  line-height: 1.08;
-}
-
-.br-entity-tab__content small {
-  font-size: var(--br-ui-font-size);
-  line-height: 1.08;
 }
 
 /* Barras, cards y paneles */
@@ -399,7 +343,7 @@ body.br-layout .modal-header.br-modal-header {
   object-fit: cover;
 }
 
-.br-product-editor .br-entity-form-section {
+.br-entity-modal .br-entity-form-section {
   animation: none;
 }
 

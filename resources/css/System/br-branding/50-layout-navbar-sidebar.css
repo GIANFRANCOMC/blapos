@@ -797,24 +797,24 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 .br-layout .br-pagination .page-item:not(.active):not(.disabled) .page-link.br-pagination__link:hover {
-  border-color: var(--br-primary) !important;
-  color: var(--br-primary-active) !important;
-  background-color: var(--br-primary-soft) !important;
+  border-color: var(--br-table-thead-bg) !important;
+  color: var(--br-table-thead-bg) !important;
+  background-color: color-mix(in srgb, var(--br-table-thead-bg) 10%, var(--br-white)) !important;
   box-shadow: var(--br-shadow-sm);
 }
 
 .br-layout .br-pagination .page-item:not(.active):not(.disabled) .page-link.br-pagination__link:active {
-  border-color: var(--br-primary-active) !important;
-  background-color: color-mix(in srgb, var(--br-primary-soft) 72%, var(--br-primary-muted)) !important;
+  border-color: var(--br-table-thead-bg) !important;
+  background-color: color-mix(in srgb, var(--br-table-thead-bg) 18%, var(--br-white)) !important;
   box-shadow: none;
 }
 
 .br-layout .br-pagination .page-item:not(.active):not(.disabled) .page-link.br-pagination__link:focus-visible {
-  border-color: var(--br-primary) !important;
-  color: var(--br-primary-active) !important;
-  background-color: var(--br-primary-soft) !important;
+  border-color: var(--br-table-thead-bg) !important;
+  color: var(--br-table-thead-bg) !important;
+  background-color: color-mix(in srgb, var(--br-table-thead-bg) 10%, var(--br-white)) !important;
   outline: 0;
-  box-shadow: var(--br-focus-ring);
+  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-table-thead-bg) 24%, transparent);
 }
 
 .br-layout .br-pagination .page-item.disabled .page-link.br-pagination__link {
@@ -828,12 +828,12 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 .br-layout .br-pagination .page-item.active .page-link.br-pagination__link {
-  border-color: var(--br-primary) !important;
-  background: var(--br-primary) !important;
-  background-color: var(--br-primary) !important;
-  color: var(--br-on-primary) !important;
+  border-color: var(--br-table-thead-bg) !important;
+  background: var(--br-table-thead-bg) !important;
+  background-color: var(--br-table-thead-bg) !important;
+  color: var(--br-table-thead-text) !important;
   font-weight: 800;
-  box-shadow: var(--br-shadow-primary);
+  box-shadow: inset 0 -1px 0 var(--br-table-thead-edge), var(--br-shadow-sm);
 }
 
 body.br-layout .form-check-input {

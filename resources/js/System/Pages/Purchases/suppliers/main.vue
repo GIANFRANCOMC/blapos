@@ -117,7 +117,7 @@
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-standard__body">
+                <div class="modal-body br-entity-modal__body">
                     <div class="row g-3">
                         <InputText v-model="form.name" hasDiv title="Razón social o nombre" :titleClass="[config.forms.classes.title]" isRequired xl="6" lg="6"/>
                         <InputText v-model="form.contact_name" hasDiv title="Persona de contacto" :titleClass="[config.forms.classes.title]" xl="6" lg="6"/>

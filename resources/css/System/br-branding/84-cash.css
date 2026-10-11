@@ -93,19 +93,6 @@
   border-radius: var(--br-radius-sm);
 }
 
-.br-cash__panel .br-icon-action-edit {
-  color: var(--br-secondary);
-  border-color: color-mix(in srgb, var(--br-secondary) 24%, var(--br-border));
-  background: color-mix(in srgb, var(--br-secondary-soft) 76%, var(--br-white));
-}
-
-.br-cash__panel .br-icon-action-edit:hover,
-.br-cash__panel .br-icon-action-edit:focus-visible {
-  color: var(--br-on-secondary);
-  border-color: var(--br-secondary);
-  background: var(--br-secondary);
-}
-
 .br-cash__muted {
   color: var(--br-text-muted);
   font-size: 0.76rem;
@@ -204,32 +191,6 @@
 
 .br-cash-inventory-count .input-group {
   min-width: 7rem;
-}
-
-.br-icon-action-primary {
-  color: var(--br-primary);
-  border-color: color-mix(in srgb, var(--br-primary) 28%, var(--br-border));
-  background: color-mix(in srgb, var(--br-primary-soft) 72%, var(--br-white));
-}
-
-.br-icon-action-primary:hover,
-.br-icon-action-primary:focus-visible {
-  color: var(--br-primary-active);
-  border-color: color-mix(in srgb, var(--br-primary) 42%, var(--br-border));
-  background: var(--br-primary-soft);
-}
-
-.br-btn-action-print {
-  color: var(--br-secondary);
-  border-color: color-mix(in srgb, var(--br-secondary) 20%, var(--br-border));
-  background: color-mix(in srgb, var(--br-secondary-soft) 68%, var(--br-white));
-}
-
-.br-btn-action-print:hover,
-.br-btn-action-print:focus-visible {
-  color: var(--br-on-secondary);
-  border-color: var(--br-secondary);
-  background: var(--br-secondary);
 }
 
 @media (max-width: 992px) {

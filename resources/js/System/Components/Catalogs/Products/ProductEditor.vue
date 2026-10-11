@@ -1,31 +1,10 @@
 <template>
-    <Teleport to="body">
-    <div
-        class="modal fade br-entity-modal br-product-editor"
-        :id="productForm.extras.modals.default.id"
-        data-bs-backdrop="static"
-        tabindex="-1"
-        role="dialog"
-        aria-modal="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Catálogo comercial</p>
-                        <h2 class="modal-title br-entity-modal__title">
-                            {{ modalTitles.createUpdate[isUpdate ? "update" : "store"] }}
-                        </h2>
-                    </div>
-                    <button
-                        type="button"
-                        class="br-modal-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Cerrar">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body br-entity-modal__body">
+    <FormModal
+        :modal-id="productForm.extras.modals.default.id"
+        :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
+        modal-class="br-product-editor"
+        modal-size="modal-lg">
+                <template #body>
                     <div class="br-entity-tabs-shell">
                         <button
                             type="button"
@@ -39,7 +18,7 @@
 
                         <nav class="nav nav-pills nav-fill br-entity-tabs" aria-label="Secciones del formulario">
                             <button
-                                v-for="(tab, index) in formTabs"
+                                v-for="tab in formTabs"
                                 :key="tab.id"
                                 type="button"
                                 :class="['nav-link', 'br-entity-tab', {'active is-active': activeFormTab === tab.id}]"
@@ -47,10 +26,8 @@
                                 :aria-controls="`${modalId}-tab-${tab.id}`"
                                 role="tab"
                                 @click="activeFormTab = tab.id">
-                                <span class="br-entity-tab__step" v-text="index + 1"></span>
                                 <span class="br-entity-tab__content">
                                     <strong v-text="tab.label"></strong>
-                                    <small v-text="tab.description"></small>
                                 </span>
                                 <span v-if="tabHasErrors(tab.id)" class="br-entity-tab__error" aria-label="Contiene errores">
                                     <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
@@ -86,8 +63,8 @@
                                     :showCharCounter="false"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.internal_code"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
                                         <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
                                     </template>
@@ -126,8 +103,8 @@
                                     :showCharCounter="false"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.barcode"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template v-slot:defaultAppend>
                                         <button
                                             type="button"
@@ -163,8 +140,8 @@
                                     showCharCounter
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.name"
-                                    xl="4"
-                                    lg="4"/>
+                                    xl="6"
+                                    lg="6"/>
 
                                 <InputNumber
                                     v-model="productForm.data.price"
@@ -174,8 +151,8 @@
                                     isRequired
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.price"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template v-slot:inputGroupPrepend>
                                         <span class="input-group-text br-currency-prefix">
                                             <span class="br-currency-prefix__symbol" v-text="currencySign"></span>
@@ -190,8 +167,8 @@
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.min_price"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template v-slot:inputGroupPrepend>
                                         <span class="input-group-text br-currency-prefix">
                                             <span class="br-currency-prefix__symbol" v-text="currencySign"></span>
@@ -206,8 +183,8 @@
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.max_price"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template v-slot:inputGroupPrepend>
                                         <span class="input-group-text br-currency-prefix">
                                             <span class="br-currency-prefix__symbol" v-text="currencySign"></span>
@@ -222,8 +199,8 @@
                                     isRequired
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.status"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template v-slot:input>
                                         <v-select
                                             v-model="productForm.data.status"
@@ -246,23 +223,11 @@
                         </section>
 
                         <section
-                            v-show="activeFormTab === 'commercial'"
-                            :id="`${modalId}-tab-commercial`"
+                            v-show="activeFormTab === 'attributes'"
+                            :id="`${modalId}-tab-attributes`"
                             class="br-entity-form-section"
                             role="tabpanel">
                             <div class="row g-3">
-
-                                <InputText
-                                    v-model="productForm.data.description"
-                                    hasDiv
-                                    :title="MODULE.texts.form.commercialDescription"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="100"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.description"
-                                    xl="12"
-                                    lg="12"/>
 
                                 <InputSlot
                                     hasDiv
@@ -270,13 +235,14 @@
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.brand_id"
-                                    xl="4"
-                                    lg="4">
+                                    xl="3"
+                                    lg="3">
                                     <template #defaultAppend>
                                         <AddBrand
                                             trigger-mode="link"
                                             trigger-text="Agregar"
-                                            trigger-title="Agregar una nueva marca"
+                                            trigger-icon=""
+                                            :trigger-tooltip="false"
                                             :internal-code-prefix="internalCodePrefixes.brand"
                                             :disabled="isSaving"
                                             @created="handleBrandCreated"/>
@@ -310,19 +276,83 @@
                                     </template>
                                 </InputSlot>
 
+                                <InputDate
+                                    v-model="productForm.data.expires_at"
+                                    hasDiv
+                                    :title="MODULE.texts.form.expiresAt"
+                                    :titleClass="[config.forms.classes.title]"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.expires_at"
+                                    xl="3"
+                                    lg="3"/>
+
+                                <InputSlot
+                                    hasDiv
+                                    title="Comisión"
+                                    :titleClass="[config.forms.classes.title]"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.commission_type"
+                                    xl="3"
+                                    lg="3">
+                                    <template v-slot:input>
+                                        <v-select
+                                            v-model="productForm.data.commission_type"
+                                            :options="commissionTypeOptions"
+                                            :reduce="option => option.code"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"
+                                            append-to-body
+                                            @update:modelValue="resetCommissionValue"/>
+                                    </template>
+                                </InputSlot>
+
+                                <InputNumber
+                                    v-model="productForm.data.commission_value"
+                                    hasDiv
+                                    title="Valor de comisión"
+                                    :titleClass="[config.forms.classes.title]"
+                                    :isRequired="productForm.data.commission_type !== 'none'"
+                                    :disabled="productForm.data.commission_type === 'none'"
+                                    :minValue="0"
+                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.commission_value"
+                                    xl="3"
+                                    lg="3">
+                                    <template v-slot:inputGroupPrepend>
+                                        <span class="input-group-text br-currency-prefix">
+                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
+                                        </span>
+                                    </template>
+                                </InputNumber>
+
+                                <InputText
+                                    v-model="productForm.data.description"
+                                    hasDiv
+                                    :title="MODULE.texts.form.commercialDescription"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.description"
+                                    xl="6"
+                                    lg="6"/>
+
                                 <InputSlot
                                     hasDiv
                                     :title="MODULE.texts.form.categories"
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.categories"
-                                    xl="8"
-                                    lg="8">
+                                    xl="6"
+                                    lg="6">
                                     <template #defaultAppend>
                                         <AddCategory
                                             trigger-mode="link"
                                             trigger-text="Agregar"
-                                            trigger-title="Agregar una nueva categoría"
+                                            trigger-icon=""
+                                            :trigger-tooltip="false"
                                             :internal-code-prefix="internalCodePrefixes.category"
                                             :disabled="isSaving"
                                             @created="handleCategoryCreated"/>
@@ -357,98 +387,9 @@
                                     </template>
                                 </InputSlot>
 
-                                <InputDate
-                                    v-model="productForm.data.expires_at"
-                                    hasDiv
-                                    :title="MODULE.texts.form.expiresAt"
-                                    :titleClass="[config.forms.classes.title]"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.expires_at"
-                                    xl="4"
-                                    lg="4"/>
-
-                                <InputSlot
-                                    hasDiv
-                                    title="Comisión"
-                                    :titleClass="[config.forms.classes.title]"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.commission_type"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-slot:input>
-                                        <v-select
-                                            v-model="productForm.data.commission_type"
-                                            :options="commissionTypeOptions"
-                                            :reduce="option => option.code"
-                                            :class="config.forms.classes.select2"
-                                            :clearable="false"
-                                            :searchable="false"
-                                            append-to-body
-                                            @update:modelValue="resetCommissionValue"/>
-                                    </template>
-                                </InputSlot>
-
-                                <InputNumber
-                                    v-model="productForm.data.commission_value"
-                                    hasDiv
-                                    title="Valor de comisión"
-                                    :titleClass="[config.forms.classes.title]"
-                                    :isRequired="productForm.data.commission_type !== 'none'"
-                                    :disabled="productForm.data.commission_type === 'none'"
-                                    :minValue="0"
-                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.commission_value"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-currency-prefix">
-                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
-                                        </span>
-                                    </template>
-                                </InputNumber>
-
                                 <div class="col-12">
-                                    <div class="br-entity-publication-intro">
-                                        <strong>Impuestos</strong>
-                                    </div>
-                                    <div class="br-entity-publication-settings">
-                                        <label class="br-entity-switch" :for="`${modalId}-igv-exempt`">
-                                            <input
-                                                :id="`${modalId}-igv-exempt`"
-                                                v-model="productForm.data.igv_exempt"
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                role="switch"
-                                                @change="syncTaxExemption(productForm.data)">
-                                            <span>
-                                                <strong>IGV exonerado</strong>
-                                                <small>Si está activo, el IGV no se calcula para este producto al vender.</small>
-                                            </span>
-                                        </label>
-
-                                        <label class="br-entity-switch" :for="`${modalId}-price-includes-tax`">
-                                            <input
-                                                :id="`${modalId}-price-includes-tax`"
-                                                v-model="productForm.data.price_includes_tax"
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                :disabled="productForm.data.igv_exempt"
-                                                role="switch">
-                                            <span>
-                                                <strong>Precio incluye IGV</strong>
-                                                <small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="br-entity-publication-intro">
-                                        <strong>Visibilidad para clientes</strong>
-                                        <small>
-                                            Define qué información se mostrará fuera de la plataforma. Esta configuración es independiente del estado Activo o Inactivo del producto.
-                                        </small>
+                                    <div class="mb-2">
+                                        <span class="form-label colon-at-end">Visibilidad para clientes</span>
                                     </div>
                                     <div class="br-entity-publication-settings">
                                         <label class="br-entity-switch" :for="`${modalId}-publish`">
@@ -463,7 +404,7 @@
                                             <span>
                                                 <strong>Publicar producto</strong>
                                                 <small :id="`${modalId}-publish-help`">
-                                                    Permite que los clientes vean este producto en el catálogo. No cambia su estado Activo o Inactivo dentro de la plataforma.
+                                                    Permite que los clientes vean este producto en el catálogo.
                                                 </small>
                                             </span>
                                         </label>
@@ -483,12 +424,48 @@
                                             <span>
                                                 <strong>Mostrar precio</strong>
                                                 <small :id="`${modalId}-show-price-help`">
-                                                    Permite que los clientes vean el precio en el catálogo. Solo funciona cuando Publicar producto está activado.
+                                                    Permite que los clientes vean el precio en el catálogo.
                                                 </small>
                                             </span>
                                         </label>
                                     </div>
                                 </div>
+                            </div>
+                        </section>
+
+                        <section
+                            v-show="activeFormTab === 'taxes'"
+                            :id="`${modalId}-tab-taxes`"
+                            class="br-entity-form-section"
+                            role="tabpanel">
+                            <div class="br-entity-publication-settings">
+                                <label class="br-entity-switch" :for="`${modalId}-igv-exempt`">
+                                    <input
+                                        :id="`${modalId}-igv-exempt`"
+                                        v-model="productForm.data.igv_exempt"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        @change="syncTaxExemption(productForm.data)">
+                                    <span>
+                                        <strong>IGV exonerado</strong>
+                                        <small>Si está activo, el IGV no se calcula para este producto al vender.</small>
+                                    </span>
+                                </label>
+
+                                <label class="br-entity-switch" :for="`${modalId}-price-includes-tax`">
+                                    <input
+                                        :id="`${modalId}-price-includes-tax`"
+                                        v-model="productForm.data.price_includes_tax"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        :disabled="productForm.data.igv_exempt"
+                                        role="switch">
+                                    <span>
+                                        <strong>Precio incluye IGV</strong>
+                                        <small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small>
+                                    </span>
+                                </label>
                             </div>
                         </section>
 
@@ -585,27 +562,27 @@
                             </div>
                         </section>
                     </form>
-                </div>
+                </template>
 
-                <div class="modal-footer br-entity-modal__footer">
+                <template #footerClose>
                     <button
                         type="button"
                         class="br-btn br-btn-cancel"
                         data-bs-dismiss="modal">
                         Cancelar
                     </button>
+                </template>
+
+                <template #footer>
                     <button
                         type="button"
-                        :class="['br-btn', isUpdate ? 'br-btn-action-update' : 'br-btn-action-create']"
+                        :class="['br-btn', isUpdate ? 'br-btn-action-edit' : 'br-btn-action-create']"
                         :disabled="isSaving || productForm.data.inventory.length === 0"
                         @click="saveEntity">
                         <span v-text="submitButtonText"></span>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    </Teleport>
+                </template>
+    </FormModal>
 </template>
 
 <script>
@@ -616,6 +593,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import AddBrand from "@System/Components/Catalogs/AddBrand.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import InputText from "@System/Components/InputText.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
@@ -643,6 +621,7 @@ export default {
     components: {
         AddBrand,
         AddCategory,
+        FormModal,
         SelectNoOptions,
         InputText,
         InputNumber,
@@ -1171,8 +1150,8 @@ export default {
             if(!hasCurrentStock && !hasMinimumStock) {
 
                 return {
-                    className: "is-pending",
-                    icon: "fa-regular fa-circle",
+                    className: "is-alert",
+                    icon: "fa-solid fa-triangle-exclamation",
                     text: "Pendiente de registrar"
                 };
 
@@ -1316,13 +1295,7 @@ export default {
         },
         submitButtonText() {
 
-            if(this.isSaving) {
-
-                return this.MODULE.texts.modal[this.isUpdate ? "updating" : "storing"];
-
-            }
-
-            return this.MODULE.texts.modal[this.isUpdate ? "update" : "store"];
+            return this.MODULE.texts.modal[this.isSaving ? "saving" : "save"];
 
         },
         warehouses() {
