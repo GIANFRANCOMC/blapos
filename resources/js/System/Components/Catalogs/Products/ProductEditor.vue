@@ -16,7 +16,7 @@
                             <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
                         </button>
 
-                        <nav class="nav nav-pills nav-fill br-entity-tabs" aria-label="Secciones del formulario">
+                        <nav class="nav nav-pills nav-fill br-entity-tabs br-entity-tabs--five" aria-label="Secciones del formulario">
                             <button
                                 v-for="tab in formTabs"
                                 :key="tab.id"
@@ -229,31 +229,44 @@
                             role="tabpanel">
                             <div class="row g-3">
 
+                                <InputText
+                                    v-model="productForm.data.description"
+                                    hasDiv
+                                    :title="MODULE.texts.form.commercialDescription"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.description"
+                                    xl="4"
+                                    lg="4"/>
+
                                 <InputSlot
                                     hasDiv
-                                    :title="MODULE.texts.form.brand"
+                                    :title="MODULE.texts.form.categories"
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
-                                    :textBottomInfo="productForm.errors?.brand_id"
-                                    xl="3"
-                                    lg="3">
+                                    :textBottomInfo="productForm.errors?.categories"
+                                    xl="4"
+                                    lg="4">
                                     <template #defaultAppend>
-                                        <AddBrand
+                                        <AddCategory
                                             trigger-mode="link"
                                             trigger-text="Agregar"
                                             trigger-icon=""
                                             :trigger-tooltip="false"
-                                            :internal-code-prefix="internalCodePrefixes.brand"
+                                            :internal-code-prefix="internalCodePrefixes.category"
                                             :disabled="isSaving"
-                                            @created="handleBrandCreated"/>
+                                            @created="handleCategoryCreated"/>
                                     </template>
                                     <template v-slot:input>
                                         <v-select
-                                            v-model="productForm.data.brand"
-                                            :options="brands"
+                                            v-model="productForm.data.categories"
+                                            :options="categories"
                                             :class="config.forms.classes.select2"
                                             :clearable="true"
                                             :searchable="true"
+                                            :multiple="true"
                                             append-to-body>
                                             <template #selected-option="option">
                                                 <span
@@ -276,95 +289,31 @@
                                     </template>
                                 </InputSlot>
 
-                                <InputDate
-                                    v-model="productForm.data.expires_at"
-                                    hasDiv
-                                    :title="MODULE.texts.form.expiresAt"
-                                    :titleClass="[config.forms.classes.title]"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.expires_at"
-                                    xl="3"
-                                    lg="3"/>
-
                                 <InputSlot
                                     hasDiv
-                                    title="Comisión"
+                                    :title="MODULE.texts.form.brand"
                                     :titleClass="[config.forms.classes.title]"
                                     hasTextBottom
-                                    :textBottomInfo="productForm.errors?.commission_type"
-                                    xl="3"
-                                    lg="3">
-                                    <template v-slot:input>
-                                        <v-select
-                                            v-model="productForm.data.commission_type"
-                                            :options="commissionTypeOptions"
-                                            :reduce="option => option.code"
-                                            :class="config.forms.classes.select2"
-                                            :clearable="false"
-                                            :searchable="false"
-                                            append-to-body
-                                            @update:modelValue="resetCommissionValue"/>
-                                    </template>
-                                </InputSlot>
-
-                                <InputNumber
-                                    v-model="productForm.data.commission_value"
-                                    hasDiv
-                                    title="Valor de comisión"
-                                    :titleClass="[config.forms.classes.title]"
-                                    :isRequired="productForm.data.commission_type !== 'none'"
-                                    :disabled="productForm.data.commission_type === 'none'"
-                                    :minValue="0"
-                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.commission_value"
-                                    xl="3"
-                                    lg="3">
-                                    <template v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-currency-prefix">
-                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
-                                        </span>
-                                    </template>
-                                </InputNumber>
-
-                                <InputText
-                                    v-model="productForm.data.description"
-                                    hasDiv
-                                    :title="MODULE.texts.form.commercialDescription"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="100"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.description"
-                                    xl="6"
-                                    lg="6"/>
-
-                                <InputSlot
-                                    hasDiv
-                                    :title="MODULE.texts.form.categories"
-                                    :titleClass="[config.forms.classes.title]"
-                                    hasTextBottom
-                                    :textBottomInfo="productForm.errors?.categories"
-                                    xl="6"
-                                    lg="6">
+                                    :textBottomInfo="productForm.errors?.brand_id"
+                                    xl="4"
+                                    lg="4">
                                     <template #defaultAppend>
-                                        <AddCategory
+                                        <AddBrand
                                             trigger-mode="link"
                                             trigger-text="Agregar"
                                             trigger-icon=""
                                             :trigger-tooltip="false"
-                                            :internal-code-prefix="internalCodePrefixes.category"
+                                            :internal-code-prefix="internalCodePrefixes.brand"
                                             :disabled="isSaving"
-                                            @created="handleCategoryCreated"/>
+                                            @created="handleBrandCreated"/>
                                     </template>
                                     <template v-slot:input>
                                         <v-select
-                                            v-model="productForm.data.categories"
-                                            :options="categories"
+                                            v-model="productForm.data.brand"
+                                            :options="brands"
                                             :class="config.forms.classes.select2"
                                             :clearable="true"
                                             :searchable="true"
-                                            :multiple="true"
                                             append-to-body>
                                             <template #selected-option="option">
                                                 <span
@@ -466,6 +415,65 @@
                                         <small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small>
                                     </span>
                                 </label>
+                            </div>
+                        </section>
+
+                        <section
+                            v-show="activeFormTab === 'configuration'"
+                            :id="`${modalId}-tab-configuration`"
+                            class="br-entity-form-section"
+                            role="tabpanel">
+                            <div class="row g-3">
+                                <InputDate
+                                    v-model="productForm.data.expires_at"
+                                    hasDiv
+                                    :title="MODULE.texts.form.expiresAt"
+                                    :titleClass="[config.forms.classes.title]"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.expires_at"
+                                    xl="4"
+                                    lg="4"/>
+
+                                <InputSlot
+                                    hasDiv
+                                    title="Comisión"
+                                    :titleClass="[config.forms.classes.title]"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.commission_type"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:input>
+                                        <v-select
+                                            v-model="productForm.data.commission_type"
+                                            :options="commissionTypeOptions"
+                                            :reduce="option => option.code"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"
+                                            append-to-body
+                                            @update:modelValue="resetCommissionValue"/>
+                                    </template>
+                                </InputSlot>
+
+                                <InputNumber
+                                    v-model="productForm.data.commission_value"
+                                    hasDiv
+                                    title="Valor de comisión"
+                                    :titleClass="[config.forms.classes.title]"
+                                    :isRequired="productForm.data.commission_type !== 'none'"
+                                    :disabled="productForm.data.commission_type === 'none'"
+                                    :minValue="0"
+                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
+                                    hasTextBottom
+                                    :textBottomInfo="productForm.errors?.commission_value"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:inputGroupPrepend>
+                                        <span class="input-group-text br-currency-prefix">
+                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
+                                        </span>
+                                    </template>
+                                </InputNumber>
                             </div>
                         </section>
 

@@ -6,8 +6,13 @@ export const FORM_TABS = [
     },
     {
         id: "attributes",
-        label: "ATRIBUTOS",
-        fields: ["description", "brand", "brand_id", "categories", "expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"]
+        label: "DETALLE",
+        fields: ["description", "brand", "brand_id", "categories", "see_my_web", "see_my_web_price"]
+    },
+    {
+        id: "inventory",
+        label: "INVENTARIO",
+        fields: ["inventory"]
     },
     {
         id: "taxes",
@@ -15,9 +20,9 @@ export const FORM_TABS = [
         fields: ["igv_exempt", "price_includes_tax"]
     },
     {
-        id: "inventory",
-        label: "INVENTARIO",
-        fields: ["inventory"]
+        id: "configuration",
+        label: "CONFIGURACIÓN",
+        fields: ["expires_at", "commission_type", "commission_value"]
     }
 ];
 
@@ -93,7 +98,7 @@ export const ERROR_LABELS = {
     price: "Precio de venta",
     price_includes_tax: "Precio incluye IGV",
     igv_exempt: "IGV exonerado",
-    expires_at: "Fecha de vencimiento",
+    expires_at: "Disponible hasta",
     min_price: "Precio mínimo",
     max_price: "Precio máximo",
     currency: "Moneda",
@@ -165,7 +170,7 @@ export const PRODUCT_TEXTS = {
         price: "Precio de venta",
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
-        expiresAt: "Fecha de vencimiento",
+        expiresAt: "Disponible hasta",
         categories: "Categorías",
         brand: "Marca",
         status: "Estado",

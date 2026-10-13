@@ -114,7 +114,7 @@
         :show-submit="false">
         <template #body>
             <div class="br-entity-tabs-shell">
-                <nav class="nav nav-pills nav-fill br-entity-tabs br-entity-offering-tabs" role="tablist" aria-label="Secciones del servicio">
+                <nav class="nav nav-pills nav-fill br-entity-tabs" role="tablist" aria-label="Secciones del servicio">
                     <button v-for="tab in formTabs" :key="tab.id" type="button"
                         :id="`service-tab-${tab.id}`"
                         :class="['nav-link', 'br-entity-tab', {'active is-active': activeFormTab === tab.id}]"
@@ -162,6 +162,22 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.name"
                                 xl="6"
                                 lg="6"/>
+                            <InputNumber
+                                v-show="activeFormTab === 'general'"
+                                v-model="forms[entity].createUpdate.data.estimated_duration_minutes"
+                                hasDiv
+                                :title="MODULE.texts.form.estimatedDuration"
+                                :titleClass="[config.forms.classes.title]"
+                                :decimals="0"
+                                :minValue="1"
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.estimated_duration_minutes"
+                                xl="3"
+                                lg="3">
+                                <template #inputGroupAppend>
+                                    <span class="input-group-text br-input-unit-suffix">min</span>
+                                </template>
+                            </InputNumber>
                             <InputText
                                 v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.description"
@@ -172,39 +188,22 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="6"
-                                lg="6"/>
-                            <InputNumber
-                                v-show="activeFormTab === 'attributes'"
-                                v-model="forms[entity].createUpdate.data.estimated_duration_minutes"
-                                hasDiv
-                                :title="MODULE.texts.form.estimatedDuration"
-                                :titleClass="[config.forms.classes.title]"
-                                :decimals="0"
-                                :minValue="1"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.estimated_duration_minutes"
-                                xl="3"
-                                lg="3"/>
-                            <div v-show="activeFormTab === 'attributes'" class="form-group col-xl-3 col-lg-3 col-md-12 col-sm-12">
-                                <label class="form-label fw-bold colon-at-end fs-6" v-text="MODULE.texts.form.capacityControl"></label>
-                                <div class="br-entity-publication-settings br-tax-inclusion-control">
-                                    <label class="br-entity-switch" for="service_capacity_control_enabled">
-                                        <input
-                                            id="service_capacity_control_enabled"
-                                            v-model="forms[entity].createUpdate.data.capacity_control_enabled"
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            role="switch">
-                                        <span>
-                                            <strong>Controlar cupos</strong>
-                                            <small>Actívalo solo si este servicio tiene una cantidad máxima disponible.</small>
-                                        </span>
-                                    </label>
-                                </div>
+                                xl="8"
+                                lg="8"/>
+                            <div v-show="activeFormTab === 'configuration'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                                <label class="form-label fw-bold fs-6" v-text="MODULE.texts.form.capacityControl"></label>
+                                <label class="br-entity-switch br-entity-switch--field" for="service_capacity_control_enabled">
+                                    <input
+                                        id="service_capacity_control_enabled"
+                                        v-model="forms[entity].createUpdate.data.capacity_control_enabled"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch">
+                                    <span>Activar <small>· Límite de cupos</small></span>
+                                </label>
                             </div>
                             <InputNumber
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.capacity_limit"
                                 hasDiv
                                 :title="MODULE.texts.form.capacityLimit"
@@ -214,17 +213,27 @@
                                 :minValue="1"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
-                                xl="3"
-                                lg="3"/>
+                                xl="4"
+                                lg="4"/>
+                            <InputDate
+                                v-show="activeFormTab === 'configuration'"
+                                v-model="forms[entity].createUpdate.data.expires_at"
+                                hasDiv
+                                :title="MODULE.texts.form.expiresAt"
+                                :titleClass="[config.forms.classes.title]"
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
+                                xl="4"
+                                lg="4"/>
                             <InputSlot
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 hasDiv
                                 :title="MODULE.texts.form.commissionType"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_type"
-                                xl="3"
-                                lg="3">
+                                xl="4"
+                                lg="4">
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.commission_type"
@@ -236,7 +245,7 @@
                                 </template>
                             </InputSlot>
                             <InputNumber
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.commission_value"
                                 hasDiv
                                 :title="MODULE.texts.form.commissionValue"
@@ -246,8 +255,8 @@
                                 :maxValue="forms[entity].createUpdate.data.commission_type?.code === 'percentage' ? 100 : undefined"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
-                                xl="3"
-                                lg="3"/>
+                                xl="4"
+                                lg="4"/>
                             <InputNumber
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.price"
@@ -301,16 +310,6 @@
                                     </span>
                                 </template>
                             </InputNumber>
-                            <InputDate
-                                v-show="activeFormTab === 'attributes'"
-                                v-model="forms[entity].createUpdate.data.expires_at"
-                                hasDiv
-                                :title="MODULE.texts.form.expiresAt"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
-                                xl="3"
-                                lg="3"/>
                             <div v-show="activeFormTab === 'taxes'" class="col-12">
                                 <div class="br-entity-publication-settings">
                                     <label class="br-entity-switch" for="service_igv_exempt">
@@ -342,8 +341,8 @@
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.categories"
-                                xl="6"
-                                lg="6">
+                                xl="4"
+                                lg="4">
                                 <template #defaultAppend>
                                     <AddCategory
                                         trigger-mode="link"
@@ -434,9 +433,10 @@ import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
 const FORM_TABS = [
-    {id: "general", label: "SERVICIO", fields: ["internal_code", "name", "price", "min_price", "max_price", "status"]},
-    {id: "attributes", label: "ATRIBUTOS", fields: ["description", "estimated_duration_minutes", "capacity_control_enabled", "capacity_limit", "commission_type", "commission_value", "expires_at", "categories", "see_my_web", "see_my_web_price"]},
-    {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]}
+    {id: "general", label: "SERVICIO", fields: ["internal_code", "name", "estimated_duration_minutes", "price", "min_price", "max_price", "status"]},
+    {id: "attributes", label: "DETALLE", fields: ["description", "categories", "see_my_web", "see_my_web_price"]},
+    {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]},
+    {id: "configuration", label: "CONFIGURACIÓN", fields: ["capacity_control_enabled", "capacity_limit", "expires_at", "commission_type", "commission_value"]}
 ];
 
 const MODULE_CONFIG = {
@@ -529,7 +529,7 @@ const ERROR_LABELS = {
     capacity_limit: "Cupos disponibles",
     commission_type: "Tipo de comisión",
     commission_value: "Valor de comisión",
-    expires_at: "Fecha de vencimiento",
+    expires_at: "Disponible hasta",
     currency: "Moneda",
     categories: "Categorías",
     see_my_web: "Visualizar en mi página",
@@ -562,12 +562,12 @@ const TEXTS = {
         price: "Precio de venta",
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
-        estimatedDuration: "Duración estimada (minutos)",
-        capacityControl: "Cupos",
+        estimatedDuration: "Duración estimada",
+        capacityControl: "¿Controlar cupos?",
         capacityLimit: "Cantidad de cupos",
         commissionType: "Tipo de comisión",
         commissionValue: "Valor de comisión",
-        expiresAt: "Fecha de vencimiento",
+        expiresAt: "Disponible hasta",
         currency: "Moneda",
         categories: "Categorías",
         status: "Estado",

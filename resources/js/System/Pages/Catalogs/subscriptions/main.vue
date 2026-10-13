@@ -113,7 +113,7 @@
         :show-submit="false">
         <template #body>
             <div class="br-entity-tabs-shell">
-                <nav class="nav nav-pills nav-fill br-entity-tabs br-entity-offering-tabs" role="tablist" aria-label="Secciones de la membresía">
+                <nav class="nav nav-pills nav-fill br-entity-tabs" role="tablist" aria-label="Secciones de la membresía">
                     <button v-for="tab in formTabs" :key="tab.id" type="button"
                         :id="`subscription-tab-${tab.id}`"
                         :class="['nav-link', 'br-entity-tab', {'active is-active': activeFormTab === tab.id}]"
@@ -159,22 +159,10 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="6"
-                                lg="6"/>
-                            <InputText
-                                v-show="activeFormTab === 'attributes'"
-                                v-model="forms[entity].createUpdate.data.description"
-                                hasDiv
-                                :title="MODULE.texts.form.description"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="100"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="6"
-                                lg="6"/>
+                                xl="3"
+                                lg="3"/>
                             <InputNumber
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.duration_value"
                                 hasDiv
                                 :title="MODULE.texts.form.durationValue"
@@ -186,7 +174,7 @@
                                 xl="3"
                                 lg="3"/>
                             <InputSlot
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'general'"
                                 hasDiv
                                 :title="MODULE.texts.form.durationType"
                                 :titleClass="[config.forms.classes.title]"
@@ -202,6 +190,52 @@
                                         :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"/>
+                                </template>
+                            </InputSlot>
+                            <InputText
+                                v-show="activeFormTab === 'attributes'"
+                                v-model="forms[entity].createUpdate.data.description"
+                                hasDiv
+                                :title="MODULE.texts.form.description"
+                                :titleClass="[config.forms.classes.title]"
+                                maxlength="100"
+                                showCharCounter
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.description"
+                                xl="6"
+                                lg="6"/>
+                            <InputSlot
+                                v-show="activeFormTab === 'attributes'"
+                                hasDiv
+                                :title="MODULE.texts.form.categories"
+                                :titleClass="[config.forms.classes.title]"
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.categories"
+                                xl="6"
+                                lg="6">
+                                <template #defaultAppend>
+                                    <AddCategory
+                                        trigger-mode="link"
+                                        trigger-text="Agregar"
+                                        trigger-icon=""
+                                        :trigger-tooltip="false"
+                                        :internal-code-prefix="internalCodePrefixes.category"
+                                        :disabled="isSaving"
+                                        @created="handleCategoryCreated"/>
+                                </template>
+                                <template v-slot:input>
+                                    <v-select
+                                        v-model="forms[entity].createUpdate.data.categories"
+                                        :options="categories"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="true"
+                                        :searchable="true"
+                                        :multiple="true"
+                                        append-to-body>
+                                        <template #selected-option="option"><span class="br-select-selected-text" v-text="option.label"></span></template>
+                                        <template #option="option"><span class="br-select-option-text" v-text="option.label"></span></template>
+                                        <template #no-options><SelectNoOptions/></template>
+                                    </v-select>
                                 </template>
                             </InputSlot>
                             <InputNumber
@@ -282,7 +316,7 @@
                                 </div>
                             </div>
                             <InputNumber
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.attendance_limit_per_day"
                                 hasDiv
                                 :title="MODULE.texts.form.attendanceLimit"
@@ -293,25 +327,20 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.attendance_limit_per_day"
                                 xl="4"
                                 lg="4"/>
-                            <div v-show="activeFormTab === 'attributes'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label class="form-label fw-bold colon-at-end fs-6" v-text="MODULE.texts.form.capacityControl"></label>
-                                <div class="br-entity-publication-settings br-tax-inclusion-control">
-                                    <label class="br-entity-switch" for="subscription_capacity_control_enabled">
-                                        <input
-                                            id="subscription_capacity_control_enabled"
-                                            v-model="forms[entity].createUpdate.data.capacity_control_enabled"
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            role="switch">
-                                        <span>
-                                            <strong>Controlar cupos</strong>
-                                            <small>Actívalo solo si esta membresía tiene una cantidad máxima para vender.</small>
-                                        </span>
-                                    </label>
-                                </div>
+                            <div v-show="activeFormTab === 'configuration'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                                <label class="form-label fw-bold fs-6" v-text="MODULE.texts.form.capacityControl"></label>
+                                <label class="br-entity-switch br-entity-switch--field" for="subscription_capacity_control_enabled">
+                                    <input
+                                        id="subscription_capacity_control_enabled"
+                                        v-model="forms[entity].createUpdate.data.capacity_control_enabled"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch">
+                                    <span>Activar <small>· Límite de cupos</small></span>
+                                </label>
                             </div>
                             <InputNumber
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.capacity_limit"
                                 hasDiv
                                 :title="MODULE.texts.form.capacityLimit"
@@ -323,8 +352,18 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
                                 xl="4"
                                 lg="4"/>
+                            <InputDate
+                                v-show="activeFormTab === 'configuration'"
+                                v-model="forms[entity].createUpdate.data.expires_at"
+                                hasDiv
+                                :title="MODULE.texts.form.expiresAt"
+                                :titleClass="[config.forms.classes.title]"
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
+                                xl="4"
+                                lg="4"/>
                             <InputSlot
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 hasDiv
                                 :title="MODULE.texts.form.commissionType"
                                 :titleClass="[config.forms.classes.title]"
@@ -343,7 +382,7 @@
                                 </template>
                             </InputSlot>
                             <InputNumber
-                                v-show="activeFormTab === 'attributes'"
+                                v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.commission_value"
                                 hasDiv
                                 :title="MODULE.texts.form.commissionValue"
@@ -361,7 +400,8 @@
                                 hasDiv
                                 :title="MODULE.texts.form.benefits"
                                 :titleClass="[config.forms.classes.title]"
-                                maxlength="500"
+                                maxlength="100"
+                                showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.benefits"
                                 xl="6"
@@ -372,55 +412,12 @@
                                 hasDiv
                                 :title="MODULE.texts.form.restrictions"
                                 :titleClass="[config.forms.classes.title]"
-                                maxlength="500"
+                                maxlength="100"
+                                showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.restrictions"
                                 xl="6"
                                 lg="6"/>
-                            <InputDate
-                                v-show="activeFormTab === 'attributes'"
-                                v-model="forms[entity].createUpdate.data.expires_at"
-                                hasDiv
-                                :title="MODULE.texts.form.expiresAt"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
-                                xl="4"
-                                lg="4"/>
-                            <InputSlot
-                                v-show="activeFormTab === 'attributes'"
-                                hasDiv
-                                :title="MODULE.texts.form.categories"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.categories"
-                                xl="12"
-                                lg="12">
-                                <template #defaultAppend>
-                                    <AddCategory
-                                        trigger-mode="link"
-                                        trigger-text="Agregar"
-                                        trigger-icon=""
-                                        :trigger-tooltip="false"
-                                        :internal-code-prefix="internalCodePrefixes.category"
-                                        :disabled="isSaving"
-                                        @created="handleCategoryCreated"/>
-                                </template>
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.categories"
-                                        :options="categories"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="true"
-                                        :searchable="true"
-                                        :multiple="true"
-                                        append-to-body>
-                                        <template #selected-option="option"><span class="br-select-selected-text" v-text="option.label"></span></template>
-                                        <template #option="option"><span class="br-select-option-text" v-text="option.label"></span></template>
-                                        <template #no-options><SelectNoOptions/></template>
-                                    </v-select>
-                                </template>
-                            </InputSlot>
                             <InputSlot
                                 v-show="activeFormTab === 'general'"
                                 hasDiv
@@ -486,9 +483,10 @@ import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
 const FORM_TABS = [
-    {id: "general", label: "MEMBRESÍA", fields: ["internal_code", "name", "price", "min_price", "max_price", "status"]},
-    {id: "attributes", label: "ATRIBUTOS", fields: ["description", "duration_value", "duration_type", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "commission_type", "commission_value", "benefits", "restrictions", "expires_at", "categories", "see_my_web", "see_my_web_price"]},
-    {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]}
+    {id: "general", label: "MEMBRESÍA", fields: ["internal_code", "name", "duration_value", "duration_type", "price", "min_price", "max_price", "status"]},
+    {id: "attributes", label: "DETALLE", fields: ["description", "benefits", "restrictions", "categories", "see_my_web", "see_my_web_price"]},
+    {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]},
+    {id: "configuration", label: "CONFIGURACIÓN", fields: ["attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "expires_at", "commission_type", "commission_value"]}
 ];
 
 const MODULE_CONFIG = {
@@ -593,7 +591,7 @@ const ERROR_LABELS = {
     commission_value: "Valor de comisión",
     benefits: "Beneficios",
     restrictions: "Restricciones",
-    expires_at: "Fecha de vencimiento",
+    expires_at: "Disponible hasta",
     currency: "Moneda",
     categories: "Categorías",
     see_my_web: "Visualizar en mi página",
@@ -629,13 +627,13 @@ const TEXTS = {
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
         attendanceLimit: "Límite diario de asistencias",
-        capacityControl: "Cupos",
+        capacityControl: "¿Controlar cupos?",
         capacityLimit: "Cantidad de cupos",
         commissionType: "Tipo de comisión",
         commissionValue: "Valor de comisión",
         benefits: "Beneficios (separados por coma)",
         restrictions: "Restricciones (separadas por coma)",
-        expiresAt: "Fecha de vencimiento",
+        expiresAt: "Disponible hasta",
         currency: "Moneda",
         categories: "Categorías",
         status: "Estado",

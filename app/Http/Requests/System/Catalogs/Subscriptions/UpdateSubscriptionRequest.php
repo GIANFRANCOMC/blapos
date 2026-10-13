@@ -6,6 +6,7 @@ namespace App\Http\Requests\System\Catalogs\Subscriptions;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
+use App\Rules\System\Catalogs\{DelimitedArrayTextLength};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
@@ -52,10 +53,10 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
             "capacity_limit" => "nullable|integer|min:1|max:1000000",
             "expires_at" => "nullable|date",
             "attendance_limit_per_day" => "nullable|integer|min:1|max:1000",
-            "benefits" => "nullable|array|max:50",
-            "benefits.*" => "string|max:255",
-            "restrictions" => "nullable|array|max:50",
-            "restrictions.*" => "string|max:255",
+            "benefits" => ["nullable", "array", "max:50", new DelimitedArrayTextLength(100, "beneficios")],
+            "benefits.*" => "string|max:100",
+            "restrictions" => ["nullable", "array", "max:50", new DelimitedArrayTextLength(100, "restricciones")],
+            "restrictions.*" => "string|max:100",
             "status" => "required|in:active,inactive",
         ];
 

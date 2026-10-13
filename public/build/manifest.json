@@ -301,7 +301,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-CIhTdg3L.css",
+    "file": "assets/platform-4PNb10wd.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -352,7 +352,7 @@
     ]
   },
   "resources/js/System/Components/Catalogs/Products/ProductEditor.vue": {
-    "file": "assets/ProductEditor-CI7G80vh.js",
+    "file": "assets/ProductEditor-CSt07pmt.js",
     "name": "ProductEditor",
     "src": "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
     "isDynamicEntry": true,
@@ -536,7 +536,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/products/main.js": {
-    "file": "assets/main-kVCx-E2E.js",
+    "file": "assets/main-B_Gvdcvk.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/products/main.js",
     "isEntry": true,
@@ -569,7 +569,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/services/main.js": {
-    "file": "assets/main-c88VIvu8.js",
+    "file": "assets/main-Eq_qkAVg.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/services/main.js",
     "isEntry": true,
@@ -601,7 +601,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/subscriptions/main.js": {
-    "file": "assets/main-BRSKCFXG.js",
+    "file": "assets/main-CTWXPQFT.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/subscriptions/main.js",
     "isEntry": true,

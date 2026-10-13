@@ -1823,6 +1823,20 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   padding-left: 0.24rem;
 }
 
+.br-layout .input-group:has(.br-input-unit-suffix) .form-control {
+  border-right: 0 !important;
+  padding-right: 0.24rem;
+}
+
+.br-input-unit-suffix {
+  min-width: 2.2rem;
+  justify-content: center;
+  border-color: var(--bs-border-color, var(--br-border)) !important;
+  background: var(--br-surface-elevated) !important;
+  color: var(--br-text-muted) !important;
+  line-height: 1;
+}
+
 .br-layout .input-group:has(.character-counter-right) .form-control {
   border-right: 0 !important;
   padding-right: 0.3rem;
@@ -1908,6 +1922,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 
 .br-layout .input-group:has(.br-input-action):focus-within,
 .br-layout .input-group:has(.br-currency-prefix):focus-within,
+.br-layout .input-group:has(.br-input-unit-suffix):focus-within,
 .br-layout .input-group:has(.character-counter):focus-within {
   border-radius: var(--br-radius-sm);
   box-shadow: var(--br-focus-ring);
@@ -1917,6 +1932,8 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 .br-layout .input-group:has(.br-input-action):focus-within .br-input-action,
 .br-layout .input-group:has(.br-currency-prefix):focus-within .form-control,
 .br-layout .input-group:has(.br-currency-prefix):focus-within .br-currency-prefix,
+.br-layout .input-group:has(.br-input-unit-suffix):focus-within .form-control,
+.br-layout .input-group:has(.br-input-unit-suffix):focus-within .br-input-unit-suffix,
 .br-layout .input-group:has(.character-counter):focus-within .form-control,
 .br-layout .input-group:has(.character-counter):focus-within .character-counter {
   box-shadow: none !important;
@@ -11397,9 +11414,16 @@ body.br-layout .br-entity-table > thead > tr > th {
     margin-inline: auto;
 }
 
-.br-entity-modal--tabbed .br-entity-tabs.br-entity-offering-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-width: 30rem;
+.br-entity-modal--tabbed .br-entity-tabs.br-entity-tabs--five {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    max-width: 42rem;
+}
+
+@media (max-width: 575.98px) {
+    .br-entity-modal--tabbed .br-entity-tabs.br-entity-tabs--five {
+        grid-template-columns: repeat(5, minmax(7.5rem, 1fr));
+        overflow-x: auto;
+    }
 }
 
 .br-entity-tabs-nav {
@@ -11614,6 +11638,45 @@ body.br-layout .br-entity-table > thead > tr > th {
     color: var(--br-text-muted);
     font-size: 0.75rem;
     line-height: 1.35;
+}
+
+.br-entity-switch--field {
+    width: 100%;
+    height: var(--br-control-height);
+    min-height: var(--br-control-height);
+    box-sizing: border-box;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0 var(--br-control-padding-x);
+    border-color: var(--br-border);
+    border-radius: var(--br-radius-sm);
+    background: var(--br-white);
+    color: var(--br-secondary);
+    font-size: var(--br-font-size-ui);
+}
+
+.br-layout .br-entity-switch--field .form-check-input {
+    margin: 0;
+}
+
+.br-entity-switch--field small {
+    display: inline;
+    margin: 0 0 0 0.15rem;
+    color: var(--br-text-muted);
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+.br-entity-switch--field:has(.form-check-input:checked) {
+    border-color: color-mix(in srgb, var(--br-primary) 46%, var(--br-border));
+    background: var(--br-white);
+    box-shadow: none;
+}
+
+.br-entity-switch--field:focus-within {
+    border-color: var(--br-primary);
+    box-shadow: 0 0 0 0.18rem color-mix(in srgb, var(--br-primary) 14%, transparent);
 }
 
 .br-entity-inventory {

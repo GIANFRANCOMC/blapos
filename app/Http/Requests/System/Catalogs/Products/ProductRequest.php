@@ -72,7 +72,7 @@ abstract class ProductRequest extends CompanyFormRequest {
             "min_price" => "precio mínimo",
             "max_price" => "precio máximo",
             "currency_id" => "moneda",
-            "expires_at" => "fecha de vencimiento",
+            "expires_at" => "disponible hasta",
             "commission_type" => "comisión",
             "commission_value" => "valor de comisión",
             "categories" => "categorías",
