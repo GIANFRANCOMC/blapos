@@ -182,7 +182,7 @@
                         <tr v-else>
                             <td colspan="6" class="py-4">
                                 <WithoutData
-                                    class="br-products-empty-state"
+                                    class="br-entity-empty-state"
                                     type="image"
                                     image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
                             </td>

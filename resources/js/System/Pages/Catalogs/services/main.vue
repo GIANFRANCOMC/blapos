@@ -1,115 +1,134 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <!-- Filters -->
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()"/>
+    <main class="br-entity">
+        <FiltersSection
+            :filter-by-value="filterByValue"
+            @update:filterByValue="filterByValue = $event"
+            :filter-word-value="filterWordValue"
+            @update:filterWordValue="filterWordValue = $event"
+            :filter-by-options="filterByOptions"
+            :search-placeholder="searchPlaceholder"
+            :loading="entityList.extras.loading"
+            :filter-by-title="MODULE.texts.filters.filterBy"
+            :search-title="MODULE.texts.filters.search"
+            :search-button-text="MODULE.texts.actions.search"
+            :add-button-text="MODULE.texts.actions.add"
+            :show-add-button="true"
+            :title-class="[config.forms.classes.title]"
+            :select-class="config.forms.classes.select2"
+            @search="handleSearch"
+            @add="openModal()"/>
 
-    <!-- Records -->
-    <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover">
-            <thead class="align-middle bg-secondary text-center">
+        <section class="br-entity-list" aria-label="Listado de servicios">
+            <div class="table-responsive">
+        <table class="table br-entity-table br-entity-table--offering mb-0">
+            <colgroup>
+                <col class="br-entity-table__col-offering">
+                <col class="br-entity-table__col-code">
+                <col class="br-entity-table__col-detail">
+                <col class="br-entity-table__col-offering-price">
+                <col class="br-entity-table__col-status">
+                <col class="br-entity-table__col-actions">
+            </colgroup>
+            <thead class="br-table-header-surface">
                 <tr>
-                    <th class="text-white" style="width: 20%;">CÓDIGO INTERNO</th>
-                    <th class="text-white" style="width: 25%;" v-text="MODULE.config.pageTitleSingular"></th>
-                    <th class="text-white" style="width: 12%;">DURACIÓN</th>
-                    <th class="text-white" style="width: 18%;">PRECIO DE VENTA</th>
-                    <th class="text-white" style="width: 10%;">COMISIÓN</th>
-                    <th class="text-white" style="width: 5%;"></th>
-                    <th class="text-white" style="width: 10%;">ESTADO</th>
-                    <th class="text-white" style="width: 10%;">ACCIONES</th>
+                    <th>Servicio</th>
+                    <th>Código interno</th>
+                    <th>Detalles</th>
+                    <th class="text-end">Precio</th>
+                    <th class="text-center">Estado</th>
+                    <th><span class="visually-hidden">Acciones</span></th>
                 </tr>
             </thead>
-            <tbody class="table-border-bottom-0 bg-white">
+            <tbody>
                 <tr v-if="entityList.extras.loading">
-                    <td colspan="99">
+                    <td colspan="6" class="py-4">
                         <Loader/>
                     </td>
                 </tr>
                 <template v-else-if="entityList.records.total > 0">
                     <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="text-center">
-                            <span v-text="record.internal_code" class="fw-semibold d-block"></span>
-                        </td>
                         <td>
-                            <span v-text="record.name" class="fw-semibold d-block"></span>
-                            <small v-if="record.description" v-text="record.description" class="text-muted"></small>
+                            <span v-text="record.name" class="br-entity-table__name"></span>
+                            <span v-if="record.description" v-text="record.description" class="br-entity-table__description"></span>
                         </td>
-                        <td class="text-center">
-                            <span class="fw-semibold" v-text="serviceDurationLabel(record)"></span>
-                            <small class="text-muted d-block" v-text="capacityLabel(record)"></small>
-                        </td>
-                        <td class="text-center">
-                            <span class="fw-semibold d-block">
-                                <span v-text="`${record.currency?.sign} ${separatorNumber(record.price)}`"></span>
-                            </span>
-                            <div v-if="isDefined(record.min_price) || isDefined(record.max_price)" class="d-flex flex-column mt-1">
-                                <small v-if="isDefined(record.min_price)" class="text-muted" v-text="`Min: ${record.currency?.sign} ${separatorNumber(record.min_price)}`"></small>
-                                <small v-if="isDefined(record.max_price)" class="text-muted" v-text="`Max: ${record.currency?.sign} ${separatorNumber(record.max_price)}`"></small>
+                        <td class="br-entity-table__identification-cell">
+                            <div class="br-entity-identifiers">
+                                <div class="br-entity-identifier">
+                                    <span class="br-entity-identifier__label">Cód. interno</span>
+                                    <span class="br-entity-identifier__value">
+                                        <span class="br-entity-code" v-text="record.internal_code"></span>
+                                        <span class="br-entity-identifier__actions">
+                                            <CopyButton :value="record.internal_code" label="Código interno"/>
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         </td>
-                        <td class="text-center">
-                            <span class="br-entity-table__meta" v-text="commissionLabel(record)"></span>
+                        <td>
+                            <div class="br-entity-offering-details">
+                                <span><strong>Duración</strong> {{ serviceDurationLabel(record) }}</span>
+                                <span><strong>Cupos</strong> {{ capacityLabel(record) }}</span>
+                                <span><strong>Comisión</strong> {{ commissionLabel(record) }}</span>
+                            </div>
                         </td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                <i :class="['fa fa-globe cursor-pointer', record.see_my_web ? 'text-success' : 'text-light']" data-bs-toggle="tooltip" data-bs-placement="top" :title="record.see_my_web ? 'Visible en mi página' : 'No visible en mi página'"></i>
-                                <i :class="['fa-solid fa-dollar-sign cursor-pointer', record.see_my_web_price ? 'text-success' : 'text-light']" data-bs-toggle="tooltip" data-bs-placement="top" :title="record.see_my_web_price ? 'Precio visible' : 'Precio no visible'"></i>
+                        <td class="text-end">
+                            <div class="br-entity-prices">
+                                <span class="br-entity-price-row is-sale"><span>Venta</span><strong>{{ record.currency?.sign }} {{ separatorNumber(record.price) }}</strong></span>
+                                <span v-if="isDefined(record.min_price)" class="br-entity-price-row is-minimum"><span>Mín.</span><strong>{{ record.currency?.sign }} {{ separatorNumber(record.min_price) }}</strong></span>
+                                <span v-if="isDefined(record.max_price)" class="br-entity-price-row is-maximum"><span>Máx.</span><strong>{{ record.currency?.sign }} {{ separatorNumber(record.max_price) }}</strong></span>
                             </div>
                         </td>
                         <td class="text-center">
                             <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
-                                <span v-text="MODULE.texts.actions.edit"></span>
-                            </button>
+                            <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                <li><button type="button" class="dropdown-item" @click="openModal(record)"><i class="fa-solid fa-pen" aria-hidden="true"></i><span v-text="MODULE.texts.actions.edit"></span></button></li>
+                            </TableActionsDropdown>
                         </td>
                     </tr>
                 </template>
                 <tr v-else>
-                    <td colspan="99">
-                        <WithoutData type="image"/>
+                    <td colspan="6" class="py-4">
+                        <WithoutData class="br-entity-empty-state" type="image" image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
+            </div>
+        </section>
 
     <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
+        <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center mt-3" aria-label="Paginación de servicios">
+            <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
+        </nav>
+    </main>
 
-    <!-- Modal: Create/Update -->
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
+    <FormModal
+        :modal-id="forms[entity].createUpdate.extras.modals.default.id"
+        :title="MODULE.texts.modal[isUpdate ? 'update' : 'store']"
+        modal-class="br-entity-modal--tabbed"
+        modal-size="modal-lg"
+        :show-submit="false">
+        <template #body>
+            <div class="br-entity-tabs-shell">
+                <nav class="nav nav-pills nav-fill br-entity-tabs br-entity-offering-tabs" role="tablist" aria-label="Secciones del servicio">
+                    <button v-for="tab in formTabs" :key="tab.id" type="button"
+                        :id="`service-tab-${tab.id}`"
+                        :class="['nav-link', 'br-entity-tab', {'active is-active': activeFormTab === tab.id}]"
+                        :aria-selected="activeFormTab === tab.id" role="tab"
+                        @click="activeFormTab = tab.id">
+                        <span class="br-entity-tab__content"><strong>{{ tab.label }}</strong></span>
+                        <span v-if="tabHasErrors(tab.id)" class="br-entity-tab__error" aria-label="Contiene errores"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></span>
                     </button>
-                </div>
-                <div class="modal-body">
-                    <form @submit.prevent="saveEntity">
-                        <div class="row g-3">
+                </nav>
+            </div>
+            <form class="br-entity-form-section" @submit.prevent="saveEntity">
+                        <div class="row g-3" role="tabpanel" :aria-labelledby="`service-tab-${activeFormTab}`">
                             <InputText
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
@@ -119,18 +138,19 @@
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
-                                xl="4"
-                                lg="4">
+                                xl="3"
+                                lg="3">
                                 <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
                                     <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
                                 </template>
-                                <template v-slot:inputGroupAppend v-if="!isUpdate">
-                                    <button type="button" :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
+                                <template v-slot:inputGroupAppend>
+                                    <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
                             </InputText>
                             <InputText
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.name"
                                 hasDiv
                                 :title="MODULE.texts.form.name"
@@ -140,9 +160,10 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="8"
-                                lg="8"/>
+                                xl="6"
+                                lg="6"/>
                             <InputText
+                                v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.description"
                                 hasDiv
                                 :title="MODULE.texts.form.description"
@@ -151,9 +172,10 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="12"
-                                lg="12"/>
+                                xl="6"
+                                lg="6"/>
                             <InputNumber
+                                v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.estimated_duration_minutes"
                                 hasDiv
                                 :title="MODULE.texts.form.estimatedDuration"
@@ -162,9 +184,9 @@
                                 :minValue="1"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.estimated_duration_minutes"
-                                xl="4"
-                                lg="4"/>
-                            <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                                xl="3"
+                                lg="3"/>
+                            <div v-show="activeFormTab === 'attributes'" class="form-group col-xl-3 col-lg-3 col-md-12 col-sm-12">
                                 <label class="form-label fw-bold colon-at-end fs-6" v-text="MODULE.texts.form.capacityControl"></label>
                                 <div class="br-entity-publication-settings br-tax-inclusion-control">
                                     <label class="br-entity-switch" for="service_capacity_control_enabled">
@@ -182,6 +204,7 @@
                                 </div>
                             </div>
                             <InputNumber
+                                v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.capacity_limit"
                                 hasDiv
                                 :title="MODULE.texts.form.capacityLimit"
@@ -191,26 +214,29 @@
                                 :minValue="1"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
-                                xl="4"
-                                lg="4"/>
+                                xl="3"
+                                lg="3"/>
                             <InputSlot
+                                v-show="activeFormTab === 'attributes'"
                                 hasDiv
                                 :title="MODULE.texts.form.commissionType"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_type"
-                                xl="4"
-                                lg="4">
+                                xl="3"
+                                lg="3">
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.commission_type"
                                         :options="commissionTypeOptions"
                                         :class="config.forms.classes.select2"
                                         :clearable="false"
-                                        :searchable="false"/>
+                                        :searchable="false"
+                                        @update:modelValue="forms[entity].createUpdate.data.commission_value = ''"/>
                                 </template>
                             </InputSlot>
                             <InputNumber
+                                v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.commission_value"
                                 hasDiv
                                 :title="MODULE.texts.form.commissionValue"
@@ -220,9 +246,10 @@
                                 :maxValue="forms[entity].createUpdate.data.commission_type?.code === 'percentage' ? 100 : undefined"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
-                                xl="4"
-                                lg="4"/>
+                                xl="3"
+                                lg="3"/>
                             <InputNumber
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.price"
                                 hasDiv
                                 :title="MODULE.texts.form.price"
@@ -230,78 +257,62 @@
                                 isRequired
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.price"
-                                xl="4"
-                                lg="4">
+                                xl="3"
+                                lg="3">
                                 <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text text-muted">
-                                        <span v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
+                                    <span class="input-group-text br-currency-prefix">
+                                        <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
                                     </span>
                                 </template>
                             </InputNumber>
                             <InputNumber
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.min_price"
                                 hasDiv
                                 :title="MODULE.texts.form.minPrice"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.min_price"
-                                xl="4"
-                                lg="4"
+                                xl="3"
+                                lg="3"
                                 md="6"
                                 sm="6">
                                 <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text text-muted">
-                                        <span v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
+                                    <span class="input-group-text br-currency-prefix">
+                                        <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
                                     </span>
                                 </template>
                             </InputNumber>
                             <InputNumber
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.max_price"
                                 hasDiv
                                 :title="MODULE.texts.form.maxPrice"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.max_price"
-                                xl="4"
-                                lg="4"
+                                xl="3"
+                                lg="3"
                                 md="6"
                                 sm="6">
                                 <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text text-muted">
-                                        <span v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
+                                    <span class="input-group-text br-currency-prefix">
+                                        <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
                                     </span>
                                 </template>
                             </InputNumber>
                             <InputDate
+                                v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.expires_at"
                                 hasDiv
                                 :title="MODULE.texts.form.expiresAt"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
-                                xl="4"
-                                lg="4"/>
-                            <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label class="form-label fw-bold colon-at-end fs-6">Precio incluye IGV</label>
-                                <div class="br-entity-publication-settings br-tax-inclusion-control">
-                                    <label class="br-entity-switch" for="service_price_includes_tax">
-                                        <input
-                                            id="service_price_includes_tax"
-                                            v-model="forms[entity].createUpdate.data.price_includes_tax"
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            :disabled="forms[entity].createUpdate.data.igv_exempt"
-                                            role="switch">
-                                        <span>
-                                            <strong>Incluye IGV</strong>
-                                            <small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small>
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label class="form-label fw-bold colon-at-end fs-6">IGV exonerado</label>
-                                <div class="br-entity-publication-settings br-tax-inclusion-control">
+                                xl="3"
+                                lg="3"/>
+                            <div v-show="activeFormTab === 'taxes'" class="col-12">
+                                <div class="br-entity-publication-settings">
                                     <label class="br-entity-switch" for="service_igv_exempt">
                                         <input
                                             id="service_igv_exempt"
@@ -311,39 +322,38 @@
                                             role="switch"
                                             @change="syncTaxExemption(forms[entity].createUpdate.data)">
                                         <span>
-                                            <strong>Exonerado de IGV</strong>
+                                            <strong>IGV exonerado</strong>
                                             <small>Si está activo, el IGV no se calcula para este servicio al vender.</small>
                                         </span>
+                                    </label>
+                                    <label class="br-entity-switch" :class="{'is-disabled': forms[entity].createUpdate.data.igv_exempt}" for="service_price_includes_tax">
+                                        <input id="service_price_includes_tax"
+                                            v-model="forms[entity].createUpdate.data.price_includes_tax"
+                                            class="form-check-input" type="checkbox" role="switch"
+                                            :disabled="forms[entity].createUpdate.data.igv_exempt">
+                                        <span><strong>Precio incluye IGV</strong><small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small></span>
                                     </label>
                                 </div>
                             </div>
                             <InputSlot
-                                v-if="false"
-                                hasDiv
-                                :title="MODULE.texts.form.currency"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.currency_id"
-                                xl="3"
-                                lg="3">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.currency"
-                                        :options="currencies"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <InputSlot
+                                v-show="activeFormTab === 'attributes'"
                                 hasDiv
                                 :title="MODULE.texts.form.categories"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.categories"
-                                xl="12"
-                                lg="12">
+                                xl="6"
+                                lg="6">
+                                <template #defaultAppend>
+                                    <AddCategory
+                                        trigger-mode="link"
+                                        trigger-text="Agregar"
+                                        trigger-icon=""
+                                        :trigger-tooltip="false"
+                                        :internal-code-prefix="internalCodePrefixes.category"
+                                        :disabled="isSaving"
+                                        @created="handleCategoryCreated"/>
+                                </template>
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.categories"
@@ -351,18 +361,24 @@
                                         :class="config.forms.classes.select2"
                                         :clearable="true"
                                         :searchable="true"
-                                        :multiple="true"/>
+                                        :multiple="true"
+                                        append-to-body>
+                                        <template #selected-option="option"><span class="br-select-selected-text" v-text="option.label"></span></template>
+                                        <template #option="option"><span class="br-select-option-text" v-text="option.label"></span></template>
+                                        <template #no-options><SelectNoOptions/></template>
+                                    </v-select>
                                 </template>
                             </InputSlot>
                             <InputSlot
+                                v-show="activeFormTab === 'general'"
                                 hasDiv
                                 :title="MODULE.texts.form.status"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="4"
-                                lg="4">
+                                xl="3"
+                                lg="3">
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.status"
@@ -372,54 +388,36 @@
                                         :searchable="false"/>
                                 </template>
                             </InputSlot>
-                            <InputSlot
-                                v-if="false"
-                                hasDiv
-                                :title="MODULE.texts.form.visibility"
-                                :titleClass="[config.forms.classes.title]"
-                                :isInputGroup="false"
-                                :divInputClass="['d-flex flex-wrap justify-content-center align-items-end gap-4 pt-2']"
-                                xl="8"
-                                lg="8">
-                                <template v-slot:input>
-                                    <div class="form-check form-switch d-flex align-items-start">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="see_my_web" v-model="forms[entity].createUpdate.data.see_my_web"/>
-                                        <label class="form-check-label d-flex align-items-center gap-1 ms-2 cursor-pointer mb-0" for="see_my_web">
-                                            <i :class="['fa', forms[entity].createUpdate.data.see_my_web ? 'fa-globe text-success' : 'fa-globe text-muted']"></i>
-                                            <span v-text="MODULE.texts.form.seeMyWeb"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check form-switch d-flex align-items-start" :class="{'opacity-50': !forms[entity].createUpdate.data.see_my_web}">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="see_my_web_price" v-model="forms[entity].createUpdate.data.see_my_web_price" :disabled="!forms[entity].createUpdate.data.see_my_web"/>
-                                        <label class="form-check-label d-flex align-items-center gap-1 ms-2 mb-0" :class="[forms[entity].createUpdate.data.see_my_web ? 'cursor-pointer' : 'cursor-not-allowed']" for="see_my_web_price">
-                                            <i :class="['fa-solid', forms[entity].createUpdate.data.see_my_web_price && forms[entity].createUpdate.data.see_my_web ? 'fa-dollar-sign text-success' : 'fa-dollar-sign text-muted']"></i>
-                                            <span v-text="MODULE.texts.form.seeMyWebPrice"></span>
-                                        </label>
-                                    </div>
-                                </template>
-                            </InputSlot>
+                            <div v-show="activeFormTab === 'attributes'" class="col-12">
+                                <div class="mb-2"><span class="form-label colon-at-end">Visibilidad para clientes</span></div>
+                                <div class="br-entity-publication-settings">
+                                    <label class="br-entity-switch" for="service-publish">
+                                        <input id="service-publish" v-model="forms[entity].createUpdate.data.see_my_web"
+                                            class="form-check-input" type="checkbox" role="switch"
+                                            @change="syncPublicationSettings(forms[entity].createUpdate.data)">
+                                        <span><strong>Publicar servicio</strong><small>Permite que los clientes vean este servicio en el catálogo.</small></span>
+                                    </label>
+                                    <label class="br-entity-switch" :class="{'is-disabled': !forms[entity].createUpdate.data.see_my_web}" for="service-show-price">
+                                        <input id="service-show-price" v-model="forms[entity].createUpdate.data.see_my_web_price"
+                                            class="form-check-input" type="checkbox" role="switch"
+                                            :disabled="!forms[entity].createUpdate.data.see_my_web">
+                                        <span><strong>Mostrar precio</strong><small>Permite que los clientes vean el precio en el catálogo.</small></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
+            </form>
+        </template>
+        <template #footer>
                     <button
                         type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
-                    <button
-                        type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
+                        :class="['br-btn', isUpdate ? 'br-btn-action-edit' : 'br-btn-action-create']"
                         @click="saveEntity"
                         :disabled="isSaving">
-                        <i class="fa fa-save"></i>
-                        <span class="ms-2" v-text="MODULE.texts.modal.save"></span>
+                        <span v-text="MODULE.texts.modal[isSaving ? 'saving' : 'save']"></span>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
+        </template>
+    </FormModal>
 </template>
 
 <script>
@@ -429,6 +427,17 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
+import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
+import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
+
+const FORM_TABS = [
+    {id: "general", label: "SERVICIO", fields: ["internal_code", "name", "price", "min_price", "max_price", "status"]},
+    {id: "attributes", label: "ATRIBUTOS", fields: ["description", "estimated_duration_minutes", "capacity_control_enabled", "capacity_limit", "commission_type", "commission_value", "expires_at", "categories", "see_my_web", "see_my_web_price"]},
+    {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]}
+];
 
 const MODULE_CONFIG = {
     entity: "services",
@@ -543,13 +552,13 @@ const TEXTS = {
     },
     actions: {
         search: "Buscar",
-        add: "Agregar",
-        edit: "Editar"
+        add: "Agregar servicio",
+        edit: "Editar servicio"
     },
     form: {
         internalCode: "Código interno",
         name: "Nombre",
-        description: "Descripción",
+        description: "Descripción comercial adicional",
         price: "Precio de venta",
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
@@ -568,8 +577,10 @@ const TEXTS = {
         generateCodeTooltip: "Generar aleatoriamente"
     },
     modal: {
-        close: "Cerrar",
-        save: "Guardar"
+        store: "Agregar servicio",
+        update: "Editar servicio",
+        save: "Guardar",
+        saving: "Guardando..."
     }
 };
 
@@ -586,6 +597,7 @@ const MODULE = {
 export default {
     name: "ServicesMain",
     mixins: [InternalCodePrefixMixin],
+    components: {FormModal, TableActionsDropdown, AddCategory, SelectNoOptions},
     data() {
 
         const crudModule = initCrudModule({
@@ -602,7 +614,8 @@ export default {
             ...crudModule,
             MODULE: MODULE,
             isInitialized: false,
-            isSaving: false
+            isSaving: false,
+            activeFormTab: FORM_TABS[0].id
         };
 
     },
@@ -708,6 +721,7 @@ export default {
 
             entityForms.errors = {};
             Forms.clearFormData(entityForms.data, this.MODULE.formFields);
+            this.activeFormTab = FORM_TABS[0].id;
 
             if(this.isDefined(record)) {
 
@@ -770,6 +784,16 @@ export default {
             if(form.igv_exempt) form.price_includes_tax = false;
 
         },
+        syncPublicationSettings(form = {}) {
+
+            if(!form.see_my_web) form.see_my_web_price = false;
+
+        },
+        handleCategoryCreated({record}) {
+
+            upsertCatalogOption(this.options, "categories", record);
+
+        },
         async saveEntity() {
 
             if(this.isSaving) return;
@@ -788,6 +812,8 @@ export default {
 
                 if(!validation.bool) {
 
+                    this.focusFirstErrorTab(validation.errors);
+
                     Alerts.generateAlert({
                         type: "error",
                         messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels),
@@ -801,6 +827,7 @@ export default {
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
                 if(preparedData.igv_exempt) preparedData.price_includes_tax = false;
                 if(!preparedData.capacity_control_enabled) preparedData.capacity_limit = null;
+                if(!preparedData.see_my_web) preparedData.see_my_web_price = false;
                 const id            = preparedData.id;
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";
@@ -827,6 +854,8 @@ export default {
                         config: this.config,
                         errorLabels: this.MODULE.errorLabels
                     });
+
+                    this.focusFirstErrorTab(entityForms.errors);
 
                 }
 
@@ -948,8 +977,34 @@ export default {
             return `${available} disponibles de ${limit}`;
 
         },
+        focusFirstErrorTab(errors = {}) {
+
+            const fields = Object.keys(errors);
+
+            const tab = FORM_TABS.find(item => item.fields.some(field =>
+                fields.some(errorField => errorField === field || errorField.startsWith(`${field}.`))
+            ));
+
+            if(tab) this.activeFormTab = tab.id;
+
+        },
+        tabHasErrors(tabId) {
+
+            const tab = FORM_TABS.find(item => item.id === tabId);
+            const errors = this.forms[this.entity].createUpdate.errors ?? {};
+
+            return tab?.fields.some(field =>
+                Object.keys(errors).some(errorField => errorField === field || errorField.startsWith(`${field}.`))
+            ) ?? false;
+
+        },
     },
     computed: {
+        formTabs() {
+
+            return FORM_TABS;
+
+        },
         entity() {
 
             return this.MODULE.config.entity;
@@ -1000,13 +1055,6 @@ export default {
         isUpdate() {
 
             return this.isDefined(this.forms[this.entity].createUpdate.data.id);
-
-        },
-        modalTitles() {
-
-            return {
-                createUpdate: this.forms[this.entity].createUpdate.extras.modals.default.titles
-            };
 
         },
         filterByOptions() {

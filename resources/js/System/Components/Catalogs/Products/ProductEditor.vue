@@ -2,7 +2,7 @@
     <FormModal
         :modal-id="productForm.extras.modals.default.id"
         :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
-        modal-class="br-product-editor"
+        modal-class="br-entity-modal--tabbed"
         modal-size="modal-lg">
                 <template #body>
                     <div class="br-entity-tabs-shell">
@@ -600,6 +600,7 @@ import InputNumber from "@System/Components/InputNumber.vue";
 import InputDate from "@System/Components/InputDate.vue";
 import InputSlot from "@System/Components/InputSlot.vue";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import {FORM_TABS, FORM_FIELDS, FORM_FIELD_CONFIG, VALIDATION_RULES, ERROR_LABELS, PRODUCT_TEXTS, generateEan13, isValidEan13} from "./productFormConfig.js";
@@ -712,38 +713,7 @@ export default {
         },
         upsertReferenceOption(reference, record) {
 
-            if(!record?.id) {
-
-                return null;
-
-            }
-
-            if(!this.options[reference]) {
-                this.options[reference] = {records: []};
-            }
-
-            if(!Array.isArray(this.options[reference].records)) {
-                this.options[reference].records = [];
-            }
-
-            const records = this.options[reference].records;
-            const recordIndex = records.findIndex(item => Number(item.id) === Number(record.id));
-
-            if(recordIndex >= 0) {
-                records.splice(recordIndex, 1, record);
-            }else {
-                records.push(record);
-            }
-
-            records.sort((first, second) =>
-                String(first.name ?? "").localeCompare(String(second.name ?? ""), "es", {sensitivity: "base"})
-            );
-
-            return {
-                code: record.id,
-                label: record.name,
-                data: record
-            };
+            return upsertCatalogOption(this.options, reference, record);
 
         },
         handleBrandCreated({record}) {

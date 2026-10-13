@@ -937,7 +937,7 @@ body > .vs__dropdown-menu,
   box-shadow: 0 0.2rem 0.75rem color-mix(in srgb, var(--br-secondary) 5%, transparent);
 }
 
-body.br-layout .br-product-editor .br-entity-tabs .br-entity-tab__content strong {
+body.br-layout .br-entity-modal--tabbed .br-entity-tabs .br-entity-tab__content strong {
   color: color-mix(in srgb, var(--br-text) 80%, var(--br-text-muted)) !important;
   font-size: 0.62rem !important;
   font-weight: 600 !important;

@@ -6989,7 +6989,7 @@ body.br-layout .table > tbody > tr > td,
   gap: 0.42rem;
 }
 
-.br-products-empty-state .br-empty-state__custom-image {
+.br-entity-empty-state .br-empty-state__custom-image {
   width: min(16rem, 70vw);
   height: 9.5rem;
   object-fit: cover;
@@ -6999,7 +6999,7 @@ body.br-layout .table > tbody > tr > td,
   animation: none;
 }
 
-.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
   transition: none;
 }
 
@@ -10990,6 +10990,40 @@ body.br-layout .br-entity-table > thead > tr > th {
     width: 6%;
 }
 
+.br-entity-table__col-offering {
+    width: 27%;
+}
+
+.br-entity-table--offering {
+    min-width: 46rem;
+}
+
+.br-entity-table__col-code {
+    width: 18%;
+}
+
+.br-entity-table__col-detail {
+    width: 24%;
+}
+
+.br-entity-table__col-offering-price {
+    width: 17%;
+}
+
+.br-entity-offering-details {
+    display: grid;
+    gap: 0.2rem;
+    color: var(--br-secondary);
+    font-size: 0.72rem;
+    line-height: 1.3;
+}
+
+.br-entity-offering-details strong {
+    margin-right: 0.25rem;
+    color: var(--br-text-muted);
+    font-weight: 600;
+}
+
 .br-entity-table tbody td {
     padding: 0.85rem;
     border-color: var(--br-border-subtle);
@@ -11357,10 +11391,15 @@ body.br-layout .br-entity-table > thead > tr > th {
     background: transparent !important;
 }
 
-.br-product-editor .br-entity-tabs {
+.br-entity-modal--tabbed .br-entity-tabs {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     max-width: 36rem;
     margin-inline: auto;
+}
+
+.br-entity-modal--tabbed .br-entity-tabs.br-entity-offering-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 30rem;
 }
 
 .br-entity-tabs-nav {
@@ -11385,7 +11424,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
     justify-content: center;
     height: 2.1rem;
     min-height: 2.1rem;
@@ -11395,7 +11434,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     text-align: center;
 }
 
-.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
+.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
     border-color: var(--br-border-strong);
     background: var(--br-white);
 }
@@ -11415,8 +11454,8 @@ body.br-layout .br-entity-table > thead > tr > th {
     box-shadow: none;
 }
 
-.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link.active,
-.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link.active,
+.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
     border: 2.5px solid var(--br-primary);
 }
 
@@ -12764,17 +12803,17 @@ body.br-layout .br-entity-table > thead > tr > th {
         -webkit-line-clamp: 2;
     }
 
-    .br-product-editor .br-entity-tabs {
+    .br-entity-modal--tabbed .br-entity-tabs {
         height: 2.3rem;
     }
 
-    .br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+    .br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
         justify-content: center;
         height: 2.3rem;
         min-height: 2.3rem;
     }
 
-    .br-product-editor .br-entity-tabs .br-entity-tab__content {
+    .br-entity-modal--tabbed .br-entity-tabs .br-entity-tab__content {
         min-height: 0;
     }
 
@@ -18102,7 +18141,7 @@ body > .vs__dropdown-menu,
   box-shadow: 0 0.2rem 0.75rem color-mix(in srgb, var(--br-secondary) 5%, transparent);
 }
 
-body.br-layout .br-product-editor .br-entity-tabs .br-entity-tab__content strong {
+body.br-layout .br-entity-modal--tabbed .br-entity-tabs .br-entity-tab__content strong {
   color: color-mix(in srgb, var(--br-text) 80%, var(--br-text-muted)) !important;
   font-size: 0.62rem !important;
   font-weight: 600 !important;

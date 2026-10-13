@@ -337,7 +337,7 @@ body.br-layout .table > tbody > tr > td,
   gap: 0.42rem;
 }
 
-.br-products-empty-state .br-empty-state__custom-image {
+.br-entity-empty-state .br-empty-state__custom-image {
   width: min(16rem, 70vw);
   height: 9.5rem;
   object-fit: cover;
@@ -347,7 +347,7 @@ body.br-layout .table > tbody > tr > td,
   animation: none;
 }
 
-.br-product-editor .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
   transition: none;
 }
 
