@@ -1,7 +1,7 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <!-- Filters -->
+    <main class="br-entity">
     <FiltersSection
         :filter-by-value="filterByValue"
         @update:filterByValue="filterByValue = $event"
@@ -15,72 +15,147 @@
         :search-button-text="MODULE.texts.actions.search"
         :add-button-text="MODULE.texts.actions.add"
         :show-add-button="true"
+        :show-download-button="true"
+        :show-import-button="true"
+        :group-secondary-actions="true"
+        import-button-text="Cargar masivamente"
+        download-button-text="Descargar Excel"
+        :downloading="isExporting"
         :title-class="[config.forms.classes.title]"
         :select-class="config.forms.classes.select2"
         @search="handleSearch"
-        @add="openModal()"/>
+        @add="openModal()"
+        @import="openImportModal"
+        @download="downloadRecords"/>
 
-    <!-- Records -->
-    <div class="list-section mb-1 mb-md-1">
-        <Loader v-if="entityList.extras.loading"/>
-        <WithoutData v-else-if="entityList.records.total === 0" type="image"/>
-        <div v-else-if="entityList.records.total > 0" class="row g-3 g-lg-4">
-            <div v-for="record in entityList.records.data" :key="record.id" class="col-12 col-md-6 col-xl-4">
-                <div class="card card-list-custom border-0 shadow-sm h-100">
-                    <div class="card-header">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
-                            <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
-                                <span class="text-muted small fw-semibold mb-1" v-text="record.document_number"></span>
-                                <span class="text-muted small fst-italic mb-1" v-text="record.identity_document_type?.name"></span>
-                                <span class="fs-5 fw-bold text-dark text-truncate" v-text="record.name"></span>
-                            </div>
-                            <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-column gap-2">
-                            <div v-for="field in getCardFields(record)" :key="field.key" class="d-flex align-items-center gap-2">
-                                <i :class="[field.icon, 'icon-fixed-width']"></i>
-                                <span v-if="field.value" class="text-truncate flex-grow-1 small flex-min-w-0" v-text="field.value"></span>
-                                <span v-else class="text-muted small" v-text="field.placeholder"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 pt-2 border-top">
-                            <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
-                                <span v-text="MODULE.texts.actions.edit"></span>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-success waves-effect" @click="openCarnetModal(record)">
-                                <span v-text="MODULE.texts.actions.carnet"></span>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-info waves-effect" @click="openRegisterBiometricModal(record)">
-                                <span v-text="MODULE.texts.actions.registerBiometric"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <CatalogReferenceImportModal
+        ref="customerImportModal"
+        modal-id="customerImportModal"
+        resource="clientes"
+        template-file-name="plantilla_clientes.xlsx"
+        intro="Usa dni o ruc y conserva el documento como texto. Si hay errores, no se guarda ninguna fila."
+        help="Excel o CSV · máximo 500 filas · género: male/female/other · fecha: AAAA-MM-DD."
+        :import-route="routeActions.import"
+        @imported="listEntity({})"/>
+
+    <section class="br-entity-list" aria-label="Listado de clientes">
+        <div class="table-responsive">
+            <table class="table br-entity-table mb-0">
+                <colgroup>
+                    <col style="width: 32%;">
+                    <col style="width: 27%;">
+                    <col style="width: 24%;">
+                    <col style="width: 10%;">
+                    <col style="width: 7%;">
+                </colgroup>
+                <thead class="br-table-header-surface">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Contacto</th>
+                        <th>Datos adicionales</th>
+                        <th class="text-center">Estado</th>
+                        <th><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="entityList.extras.loading">
+                        <td colspan="5" class="py-4"><Loader/></td>
+                    </tr>
+                    <template v-else-if="entityList.records.total > 0">
+                        <tr v-for="record in entityList.records.data" :key="record.id">
+                            <td>
+                                <div class="br-entity-person__identity">
+                                    <span class="br-entity-person__avatar" aria-hidden="true" v-text="record.name?.trim()?.charAt(0)?.toUpperCase() || 'C'"></span>
+                                    <div class="br-entity-person__details">
+                                        <span class="br-entity-table__name" v-text="record.name"></span>
+                                        <span class="br-entity-person__document">
+                                            <span class="br-entity-table__meta" v-text="record.identity_document_type?.name || 'Documento'"></span>
+                                            <span class="br-entity-code" v-text="record.document_number"></span>
+                                            <CopyButton :value="record.document_number" label="Número de documento"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="br-entity-table__meta" v-text="record.email || 'Sin correo electrónico'"></span>
+                                <span class="br-entity-table__meta" v-text="record.phone_number || 'Sin celular'"></span>
+                            </td>
+                            <td>
+                                <span class="br-entity-table__meta" v-text="record.formatted_gender || 'Sin género'"></span>
+                                <span class="br-entity-table__meta" v-text="record.birthdate ? legibleFormatDate({dateString: record.birthdate, type: 'date'}) : 'Sin fecha de nacimiento'"></span>
+                                <span v-if="getEmergencyContactLabel(record)" class="br-entity-table__meta" v-text="`Emergencia: ${getEmergencyContactLabel(record)}`"></span>
+                            </td>
+                            <td class="text-center">
+                                <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                            </td>
+                            <td class="text-center">
+                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openModal(record)">
+                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                            <span v-text="MODULE.texts.actions.edit"></span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openCarnetModal(record)">
+                                            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                                            <span v-text="MODULE.texts.actions.carnet"></span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openRegisterBiometricModal(record)">
+                                            <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+                                            <span v-text="MODULE.texts.actions.registerBiometric"></span>
+                                        </button>
+                                    </li>
+                                </TableActionsDropdown>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr v-else>
+                        <td colspan="5" class="py-4">
+                            <WithoutData
+                                class="br-entity-empty-state"
+                                type="image"
+                                text="Aún no hay clientes"
+                                description="Agrega un cliente o carga un archivo para empezar."
+                                image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </div>
+    </section>
 
     <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
+    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center mt-3" aria-label="Paginación de clientes">
         <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
     </nav>
+    </main>
 
-    <!-- Modal: Create/Update -->
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form @submit.prevent="saveEntity">
+    <FormModal
+        :modal-id="forms[entity].createUpdate.extras.modals.default.id"
+        :title="isUpdate ? 'EDITAR CLIENTE' : 'AGREGAR CLIENTE'"
+        modal-size="modal-lg"
+        modal-class="br-entity-modal--tabbed"
+        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :submit-disabled="isSaving"
+        @submit="saveEntity">
+        <template #body>
+            <CatalogFormTabs
+                v-model="activeFormTab"
+                :tabs="customerFormTabs"
+                :has-errors="tabHasErrors"
+                :id-prefix="customerFormModalId"
+                :controls-prefix="customerFormModalId"
+                label="Secciones del cliente"/>
+            <form @submit.prevent="saveEntity">
+                <section
+                    v-show="activeFormTab === 'client'"
+                    :id="`${customerFormModalId}-tab-client`"
+                    :aria-labelledby="`${customerFormModalId}-tab-trigger-client`"
+                    class="br-entity-form-section"
+                    role="tabpanel">
                         <div class="row g-3">
                             <InputSlot
                                 hasDiv
@@ -88,7 +163,7 @@
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.identity_document_type_id"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.identity_document_type_id || forms[entity].createUpdate.errors?.identity_document_type"
                                 xl="6"
                                 lg="6">
                                 <template v-slot:input>
@@ -133,6 +208,33 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.name"
                                 xl="6"
                                 lg="6"/>
+                            <InputSlot
+                                hasDiv
+                                :title="MODULE.texts.form.status"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
+                                xl="6"
+                                lg="6">
+                                <template v-slot:input>
+                                    <v-select
+                                        v-model="forms[entity].createUpdate.data.status"
+                                        :options="statuses"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="false"
+                                        :searchable="false"/>
+                                </template>
+                            </InputSlot>
+                        </div>
+                </section>
+                <section
+                    v-show="activeFormTab === 'contact'"
+                    :id="`${customerFormModalId}-tab-contact`"
+                    :aria-labelledby="`${customerFormModalId}-tab-trigger-contact`"
+                    class="br-entity-form-section"
+                    role="tabpanel">
+                        <div class="row g-3">
                             <InputText
                                 v-model="forms[entity].createUpdate.data.email"
                                 hasDiv
@@ -153,16 +255,16 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.phone_number"
-                                xl="4"
-                                lg="4"/>
+                                xl="6"
+                                lg="6"/>
                             <InputSlot
                                 hasDiv
                                 :title="MODULE.texts.form.gender"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.gender"
-                                xl="4"
-                                lg="4">
+                                xl="6"
+                                lg="6">
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.gender"
@@ -179,149 +281,75 @@
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.birthdate"
-                                xl="4"
-                                lg="4"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.status"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.status"
-                                        :options="statuses"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <div class="col-12">
-                                <div class="br-customer-optional-block">
-                                    <div class="br-customer-optional-block__header">
-                                        <span class="br-customer-optional-block__icon">
-                                            <i class="fa-solid fa-kit-medical" aria-hidden="true"></i>
-                                        </span>
-                                        <div>
-                                            <strong v-text="MODULE.texts.form.emergencyBlockTitle"></strong>
-                                            <small v-text="MODULE.texts.form.emergencyBlockSubtitle"></small>
-                                        </div>
-                                    </div>
-                                    <div class="row g-3">
-                                        <InputText
-                                            v-model="forms[entity].createUpdate.data.emergency_contact_name"
-                                            hasDiv
-                                            :title="MODULE.texts.form.emergencyContactName"
-                                            :titleClass="[config.forms.classes.title]"
-                                            maxlength="255"
-                                            showCharCounter
-                                            hasTextBottom
-                                            :textBottomInfo="forms[entity].createUpdate.errors?.emergency_contact_name"
-                                            xl="6"
-                                            lg="6"/>
-                                        <InputText
-                                            v-model="forms[entity].createUpdate.data.emergency_contact_phone"
-                                            hasDiv
-                                            :title="MODULE.texts.form.emergencyContactPhone"
-                                            :titleClass="[config.forms.classes.title]"
-                                            maxlength="50"
-                                            showCharCounter
-                                            hasTextBottom
-                                            :textBottomInfo="forms[entity].createUpdate.errors?.emergency_contact_phone"
-                                            xl="6"
-                                            lg="6"/>
-                                        <InputTextArea
-                                            v-model="forms[entity].createUpdate.data.medical_notes"
-                                            hasDiv
-                                            :title="MODULE.texts.form.medicalNotes"
-                                            :titleClass="[config.forms.classes.title]"
-                                            maxlength="5000"
-                                            rows="3"
-                                            hasTextBottom
-                                            :textBottomInfo="forms[entity].createUpdate.errors?.medical_notes"
-                                            xl="12"
-                                            lg="12"/>
-                                    </div>
-                                </div>
-                            </div>
+                                xl="6"
+                                lg="6"/>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
-                    <button
-                        type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
-                        @click="saveEntity"
-                        :disabled="isSaving">
-                        <i class="fa fa-save"></i>
-                        <span class="ms-2" v-text="MODULE.texts.modal.save"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Carnet -->
-    <div class="modal fade" :id="forms[entity].carnet.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.carnet.default"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
+                </section>
+                <section
+                    v-show="activeFormTab === 'emergency'"
+                    :id="`${customerFormModalId}-tab-emergency`"
+                    :aria-labelledby="`${customerFormModalId}-tab-trigger-emergency`"
+                    class="br-entity-form-section"
+                    role="tabpanel">
                     <div class="row g-3">
-                        <div class="col-12">
-                            <CarnetCustomer :customer="forms[entity].carnet.data"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Register Biometric Fingerprint -->
-    <div class="modal fade" :id="forms[entity].registerBiometric.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.registerBiometric.default"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <InputSlot
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.emergency_contact_name"
                             hasDiv
-                            :title="MODULE.texts.form.customer"
+                            :title="MODULE.texts.form.emergencyContactName"
                             :titleClass="[config.forms.classes.title]"
-                            :isInputGroup="false"
+                            maxlength="255"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.emergency_contact_name"
+                            xl="6"
+                            lg="6"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.emergency_contact_phone"
+                            hasDiv
+                            :title="MODULE.texts.form.emergencyContactPhone"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="50"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.emergency_contact_phone"
+                            xl="6"
+                            lg="6"/>
+                        <InputTextArea
+                            v-model="forms[entity].createUpdate.data.medical_notes"
+                            hasDiv
+                            :title="MODULE.texts.form.medicalNotes"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="5000"
+                            rows="3"
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.medical_notes"
                             xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <span v-text="forms[entity].registerBiometric.data.customer_name"></span>
-                            </template>
-                        </InputSlot>
+                            lg="12"/>
+                    </div>
+                </section>
+            </form>
+        </template>
+    </FormModal>
+
+    <FormModal :modal-id="forms[entity].carnet.extras.modals.default.id" title="CARNET DEL CLIENTE" :show-submit="false">
+        <template #body>
+            <div class="br-entity-form-section">
+                <CarnetCustomer :customer="forms[entity].carnet.data"/>
+            </div>
+        </template>
+    </FormModal>
+
+    <FormModal
+        :modal-id="forms[entity].registerBiometric.extras.modals.default.id"
+        title="REGISTRAR HUELLA BIOMÉTRICA"
+        :submit-button-text="MODULE.texts.modal.registerFingerprint"
+        submit-button-class="br-btn-action-create"
+        :submit-disabled="isSavingBiometric"
+        @submit="registerBiometricFingerprint">
+        <template #body>
+            <div class="br-entity-form-section">
+                    <p class="br-entity-table__meta mb-3">Cliente: <span v-text="forms[entity].registerBiometric.data.customer_name"></span></p>
+                    <div class="row g-3">
                         <InputSlot
                             hasDiv
                             :title="MODULE.texts.form.biometricDevice"
@@ -345,7 +373,6 @@
                             hasDiv
                             :title="MODULE.texts.form.deviceUserId"
                             :titleClass="[config.forms.classes.title]"
-                            isRequired
                             hasTextBottom
                             :textBottomInfo="forms[entity].registerBiometric.errors?.device_user_id"
                             xl="6"
@@ -377,26 +404,9 @@
                             </template>
                         </InputSlot>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-primary waves-effect"
-                        @click="registerBiometricFingerprint"
-                        :disabled="isSavingBiometric">
-                        <i class="fa fa-fingerprint"></i>
-                        <span class="ms-2" v-text="MODULE.texts.modal.registerFingerprint"></span>
-                    </button>
-                </div>
             </div>
-        </div>
-    </div>
+        </template>
+    </FormModal>
 </template>
 
 <script>
@@ -406,6 +416,11 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
+import CopyButton from "@System/Components/CopyButton.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 const MODULE_CONFIG = {
     entity: "customers",
@@ -413,7 +428,7 @@ const MODULE_CONFIG = {
     pageTitle: "Clientes",
     pageTitleSingular: "Cliente",
     breadcrumbParent: "Gestión de clientes",
-    perPage: 6
+    perPage: 10
 };
 
 const FORM_FIELDS = {
@@ -429,6 +444,12 @@ const FORM_FIELDS = {
     medical_notes: "",
     status: null
 };
+
+const CUSTOMER_FORM_TABS = [
+    {id: "client", label: "CLIENTE", fields: ["identity_document_type", "identity_document_type_id", "document_number", "name", "status"]},
+    {id: "contact", label: "CONTACTO", fields: ["email", "phone_number", "gender", "birthdate"]},
+    {id: "emergency", label: "EMERGENCIA", fields: ["emergency_contact_name", "emergency_contact_phone", "medical_notes"]}
+];
 
 const FORM_FIELD_CONFIG = {
     identity_document_type: {getCode: true},
@@ -486,7 +507,7 @@ const FORM_FIELD_CONFIG_REGISTER_BIOMETRIC = {
 
 const VALIDATION_RULES_REGISTER_BIOMETRIC = {
     biometric_device: {required: true},
-    device_user_id: {required: true},
+    device_user_id: {required: false},
     finger_index: {required: true}
 };
 
@@ -511,18 +532,10 @@ const TEXTS = {
     },
     actions: {
         search: "Buscar",
-        add: "Agregar",
-        edit: "Editar",
+        add: "Agregar cliente",
+        edit: "Editar cliente",
         carnet: "Carnet",
         registerBiometric: "Registrar huella"
-    },
-    card: {
-        noEmail: "Sin correo electrónico",
-        noPhoneNumber: "Sin celular",
-        noBirthdate: "Sin fecha de nacimiento",
-        noEmergencyContact: "Sin contacto de emergencia",
-        noMedicalNotes: "Sin observaciones médicas",
-        noGender: "Sin género"
     },
     form: {
         identityDocumentType: "Tipo de documento",
@@ -545,8 +558,6 @@ const TEXTS = {
         fingerIndex: "Índice del dedo"
     },
     modal: {
-        close: "Cerrar",
-        save: "Guardar",
         registerFingerprint: "Registrar huella"
     }
 };
@@ -563,6 +574,7 @@ const MODULE = {
 
 export default {
     name: "CustomersMain",
+    components: {CatalogFormTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({
@@ -618,7 +630,9 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
-            isSavingBiometric: false
+            isSavingBiometric: false,
+            isExporting: false,
+            activeFormTab: CUSTOMER_FORM_TABS[0].id
         };
 
     },
@@ -708,6 +722,7 @@ export default {
             }finally {
 
                 entityList.extras.loading = false;
+                this.$nextTick(() => Alerts.tooltips({}));
 
             }
 
@@ -717,12 +732,58 @@ export default {
             this.listEntity({});
 
         },
+        async downloadRecords() {
+
+            if(this.isExporting) {
+
+                return;
+
+            }
+
+            const confirmed = await Alerts.confirmDownload({resource: "el listado de clientes"});
+
+            if(!confirmed) {
+
+                return;
+
+            }
+
+            this.isExporting = true;
+            Alerts.swals({type: "default", title: "Preparando reporte de clientes"});
+
+            try {
+
+                await Requests.download({
+                    route: this.routeActions.export,
+                    data: {
+                        filter_by: this.entityList.filters.filter_by?.code,
+                        word: this.entityList.filters.word
+                    },
+                    fileName: "clientes.xlsx",
+                    showAlert: true
+                });
+
+            }finally {
+
+                Alerts.swals({show: false});
+                this.isExporting = false;
+
+            }
+
+        },
+        openImportModal() {
+
+            Alerts.tooltips({show: false});
+            this.$refs.customerImportModal?.open();
+
+        },
         // Forms
         openModal(record = null) {
 
             const entityForms = this.forms[this.entity].createUpdate;
 
             entityForms.errors = {};
+            this.activeFormTab = CUSTOMER_FORM_TABS[0].id;
             Forms.clearFormData(entityForms.data, this.MODULE.formFields);
 
             if(this.isDefined(record)) {
@@ -776,6 +837,8 @@ export default {
 
                 if(!validation.bool) {
 
+                    entityForms.errors = validation.errors;
+                    this.focusFirstTabWithErrors(validation.errors);
                     Alerts.generateAlert({messages: Utils.getErrors({errors: validation.errors}), msgContent: this.config.messages.errorValidate});
                     this.isSaving = false;
                     return;
@@ -809,6 +872,7 @@ export default {
                 }else {
 
                     Forms.handleFormResponseErrors({result, formErrorsObject: entityForms.errors, config: this.config});
+                    this.focusFirstTabWithErrors(entityForms.errors);
 
                 }
 
@@ -939,16 +1003,23 @@ export default {
 
         },
         // Helpers
-        getCardFields(record) {
+        tabHasErrors(tabId) {
 
-            return [
-                {key: "email", icon: "fa fa-envelope text-primary", value: this.isDefined(record.email) ? record.email : null, placeholder: this.MODULE.texts.card.noEmail},
-                {key: "phone_number", icon: "fa fa-phone text-primary", value: this.isDefined(record.phone_number) ? record.phone_number : null, placeholder: this.MODULE.texts.card.noPhoneNumber},
-                {key: "emergency_contact", icon: "fa fa-kit-medical text-danger", value: this.getEmergencyContactLabel(record), placeholder: this.MODULE.texts.card.noEmergencyContact},
-                {key: "medical_notes", icon: "fa fa-notes-medical text-success", value: this.isDefined(record.medical_notes) ? record.medical_notes : null, placeholder: this.MODULE.texts.card.noMedicalNotes},
-                {key: "birthdate", icon: "fa fa-birthday-cake text-warning", value: this.isDefined(record.birthdate) ? this.legibleFormatDate({dateString: record.birthdate, type: "date"}) : null, placeholder: this.MODULE.texts.card.noBirthdate},
-                {key: "gender", icon: "fa fa-venus-mars text-info", value: this.isDefined(record.formatted_gender) ? record.formatted_gender : null, placeholder: this.MODULE.texts.card.noGender}
-            ];
+            const tab = CUSTOMER_FORM_TABS.find(item => item.id === tabId);
+            const errors = this.forms[this.entity].createUpdate.errors ?? {};
+
+            return Boolean(tab?.fields.some(field => Boolean(errors[field]?.length)));
+
+        },
+        focusFirstTabWithErrors(errors) {
+
+            const tab = CUSTOMER_FORM_TABS.find(item => item.fields.some(field => Boolean(errors?.[field]?.length)));
+
+            if(tab) {
+
+                this.activeFormTab = tab.id;
+
+            }
 
         },
         getEmergencyContactLabel(record) {
@@ -1034,6 +1105,16 @@ export default {
         }
     },
     computed: {
+        customerFormTabs() {
+
+            return CUSTOMER_FORM_TABS;
+
+        },
+        customerFormModalId() {
+
+            return this.forms[this.entity].createUpdate.extras.modals.default.id;
+
+        },
         entity() {
 
             return this.MODULE.config.entity;
@@ -1075,15 +1156,6 @@ export default {
         isUpdate() {
 
             return this.isDefined(this.forms[this.entity].createUpdate.data.id);
-
-        },
-        modalTitles() {
-
-            return {
-                createUpdate: this.forms[this.entity].createUpdate.extras.modals.default.titles,
-                carnet: this.forms[this.entity].carnet.extras.modals.default.titles,
-                registerBiometric: this.forms[this.entity].registerBiometric.extras.modals.default.titles
-            };
 
         },
         biometricDevicesOptions() {

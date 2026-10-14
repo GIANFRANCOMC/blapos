@@ -205,6 +205,12 @@ class CustomerService {
      */
     public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
+        return self::getFilteredListQuery($filters)->paginate($perPage);
+
+    }
+
+    public static function getFilteredListQuery(array $filters = []): Builder {
+
         $query = Customer::query()
             ->with(["identityDocumentType"]);
 
@@ -249,8 +255,7 @@ class CustomerService {
 
         }
 
-        return $query->orderBy("name", "ASC")
-            ->paginate($perPage);
+        return $query->orderBy("name", "ASC");
 
     }
 }

@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Organizations;
 
+use App\Exports\System\Organizations\{UserImportTemplateExport, UserListExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Http\Requests\System\Organizations\Users\{ChangeUserPasswordRequest, RegisterUserFingerprintRequest, StoreUserRequest, UpdateUserRequest};
+use App\Http\Requests\System\Organizations\Users\{ChangeUserPasswordRequest, ImportUsersRequest, RegisterUserFingerprintRequest, StoreUserRequest, UpdateUserRequest};
+use App\Imports\System\Organizations\{UserImport};
 use App\Models\System\Organizations\{AuthenticationEvent};
 use App\Services\System\Auth\{AuthenticationAuditService};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
 use App\Services\System\Organizations\Users\{UserConfigService, UserService};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Validation\{ValidationException};
+use Maatwebsite\Excel\Facades\{Excel};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class UserController extends BaseController {
     /**
@@ -44,6 +49,48 @@ class UserController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
         return UserService::getPaginatedList($filters, $perPage);
+
+    }
+
+    public function export(Request $request): BinaryFileResponse {
+
+        return Excel::download(
+            new UserListExport($this->getFilters($request)),
+            "colaboradores_".now()->format("Y-m-d_His").".xlsx"
+        );
+
+    }
+
+    public function importTemplate(): BinaryFileResponse {
+
+        return Excel::download(new UserImportTemplateExport(), "plantilla_colaboradores.xlsx");
+
+    }
+
+    public function import(ImportUsersRequest $request): JsonResponse {
+
+        try {
+
+            $import = new UserImport($this->getUserId());
+
+            Excel::import($import, $request->file("file"));
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::USERS);
+
+            return response()->json([
+                "bool" => true,
+                "msg" => "{$import->importedCount()} colaboradores importados inactivos. Asigna sus contraseñas y actívalos antes de que ingresen.",
+                "data" => ["imported" => $import->importedCount()],
+            ]);
+
+        }catch(ValidationException $exception) {
+
+            throw $exception;
+
+        }catch(\Exception $exception) {
+
+            return $this->handleException($exception, "create");
+
+        }
 
     }
 

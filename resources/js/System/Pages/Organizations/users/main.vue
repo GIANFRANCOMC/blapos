@@ -15,99 +15,117 @@
         :search-button-text="MODULE.texts.actions.search"
         :add-button-text="MODULE.texts.actions.add"
         :show-add-button="true"
+        :show-download-button="true"
+        :show-import-button="true"
+        :group-secondary-actions="true"
+        import-button-text="Cargar masivamente"
+        download-button-text="Descargar Excel"
+        :downloading="isExporting"
         :title-class="[config.forms.classes.title]"
         :select-class="config.forms.classes.select2"
         @search="handleSearch"
-        @add="openModal()"/>
+        @add="openModal()"
+        @import="openImportModal"
+        @download="downloadRecords"/>
+
+    <CatalogReferenceImportModal
+        ref="userImportModal"
+        modal-id="userImportModal"
+        resource="colaboradores"
+        template-file-name="plantilla_colaboradores.xlsx"
+        intro="Usa el nombre del perfil y dni/ruc como tipo de documento. Las cuentas quedarán inactivas."
+        help="Excel o CSV · máximo 500 filas · fecha: AAAA-MM-DD."
+        :import-route="routeActions.import"
+        @imported="listEntity({})"/>
 
     <!-- Records -->
-    <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover">
-            <thead class="align-middle bg-secondary text-center">
+    <section class="br-entity-list br-users-list" aria-label="Listado de colaboradores">
+      <div class="table-responsive">
+        <table class="table br-entity-table mb-0">
+            <colgroup>
+                <col style="width: 33%;">
+                <col style="width: 25%;">
+                <col style="width: 27%;">
+                <col style="width: 9%;">
+                <col style="width: 6%;">
+            </colgroup>
+            <thead class="br-table-header-surface">
                 <tr>
-                    <th class="text-white" style="width: 18%;">PERFIL DE ACCESO</th>
-                    <th class="text-white" style="width: 35%;" v-text="MODULE.config.pageTitleSingular"></th>
-                    <th class="text-white" style="width: 30%;">CONTACTO</th>
-                    <th class="text-white" style="width: 10%;">ESTADO</th>
-                    <th class="text-white" style="width: 10%;">ACCIONES</th>
+                    <th>Colaborador</th>
+                    <th>Acceso</th>
+                    <th>Contacto</th>
+                    <th class="text-center">Estado</th>
+                    <th><span class="visually-hidden">Acciones</span></th>
                 </tr>
             </thead>
-            <tbody class="table-border-bottom-0 bg-white">
+            <tbody>
                 <tr v-if="entityList.extras.loading">
-                    <td colspan="99">
+                    <td colspan="5" class="py-4">
                         <Loader/>
                     </td>
                 </tr>
                 <template v-else-if="entityList.records.total > 0">
                     <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="text-center">
-                            <span class="br-users-profile-label" v-text="record?.role?.name || 'Sin perfil'"></span>
-                            <small class="br-users-branches-label" v-text="branchAccessLabel(record)"></small>
-                        </td>
                         <td>
-                            <div class="mb-1">
-                                <span v-text="record.identity_document_type?.name" class="text-muted"></span>
-                                <span v-text="record.document_number" class="fw-semibold ms-1"></span>
+                            <div class="br-users-list__stack">
+                                <span class="br-entity-table__name" v-text="record.name"></span>
+                                <span class="br-entity-table__meta" v-text="`${record.identity_document_type?.name || 'Documento'} ${record.document_number || ''}`.trim()"></span>
                             </div>
-                            <span v-text="record.name" class="fw-semibold d-block"></span>
                         </td>
                         <td>
-                            <div class="d-flex flex-column gap-1">
-                                <a :href="'mailto:'+record.email" class="text-decoration-none" v-if="isDefined(record.email)">
+                            <div class="br-users-list__stack">
+                                <span class="br-users-list__role" v-text="record?.role?.name || 'Sin perfil'"></span>
+                                <span class="br-entity-table__meta" v-text="branchAccessLabel(record)"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="br-users-list__stack">
+                                <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-if="isDefined(record.email)">
                                     <span v-text="record.email"></span>
                                 </a>
-                                <a :href="'tel:'+record.phone_number" class="text-decoration-none" v-if="isDefined(record.phone_number)">
+                                <span v-else class="br-entity-table__meta">Sin correo electrónico</span>
+                                <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-if="isDefined(record.phone_number)">
                                     <span v-text="record.phone_number"></span>
                                 </a>
+                                <span v-else class="br-entity-table__meta">Sin celular</span>
                             </div>
                         </td>
                         <td class="text-center">
                             <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
                         </td>
                         <td class="text-center">
-                            <div class="br-table-actions">
-                                <button
-                                    type="button"
-                                    class="br-icon-action br-icon-action-info"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Historial de acceso"
-                                    :aria-label="`Ver historial de acceso de ${record.name}`"
-                                    @click="openAuthenticationEvents(record)">
-                                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="br-icon-action br-icon-action-primary"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Cambiar contraseña"
-                                    :aria-label="`Cambiar contraseña de ${record.name}`"
-                                    @click="openPasswordModal(record)">
-                                    <i class="fa-solid fa-key" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="br-icon-action br-icon-action-edit"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    :title="MODULE.texts.actions.edit"
-                                    :aria-label="`${MODULE.texts.actions.edit} ${record.name}`"
-                                    @click="openModal(record)">
-                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                </button>
-                            </div>
+                            <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                <li>
+                                    <button type="button" class="dropdown-item" @click="openModal(record)">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                        <span v-text="MODULE.texts.actions.edit"></span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item" @click="openPasswordModal(record)">
+                                        <i class="fa-solid fa-key" aria-hidden="true"></i>
+                                        <span v-text="MODULE.texts.actions.changePassword"></span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item" @click="openAuthenticationEvents(record)">
+                                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                                        <span v-text="MODULE.texts.actions.accessHistory"></span>
+                                    </button>
+                                </li>
+                            </TableActionsDropdown>
                         </td>
                     </tr>
                 </template>
                 <tr v-else>
-                    <td colspan="99">
-                        <WithoutData type="image"/>
+                    <td colspan="5" class="py-4">
+                        <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar." image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
+      </div>
+    </section>
 
     <!-- Pagination -->
     <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
@@ -115,22 +133,9 @@
     </nav>
 
     <!-- Modal: Authentication events -->
-    <div class="modal fade" :id="authenticationEvents.modalId" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content br-entity-modal">
-                <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                </button>
-                <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Seguridad</p>
-                        <h5 class="modal-title">Historial de acceso</h5>
-                        <small v-if="authenticationEvents.user" class="br-entity-table__meta">
-                            {{ authenticationEvents.user.name }} · {{ authenticationEvents.user.email }}
-                        </small>
-                    </div>
-                </div>
-                <div class="modal-body br-entity-modal__body">
+    <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false" close-button-text="Cerrar">
+        <template #body>
+                    <p v-if="authenticationEvents.user" class="br-entity-table__meta mb-3" v-text="authenticationEvents.user.name"></p>
                     <section class="br-filter-bar br-auth-events__filters">
                         <div class="row align-items-end g-2">
                             <InputSlot hasDiv title="Evento" :titleClass="[config.forms.classes.title]" xl="3" lg="3">
@@ -234,26 +239,33 @@
                     <nav v-if="!authenticationEvents.loading && authenticationEvents.records.total > 0" class="d-flex justify-content-center mt-3">
                         <Paginator :links="authenticationEvents.records.links" @clickPage="listAuthenticationEvents"/>
                     </nav>
-                </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+        </template>
+    </FormModal>
 
     <!-- Modal: Create/Update -->
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form @submit.prevent="saveEntity">
+    <FormModal
+        :modal-id="collaboratorFormModalId"
+        :title="isUpdate ? 'EDITAR COLABORADOR' : 'AGREGAR COLABORADOR'"
+        modal-size="modal-lg"
+        modal-class="br-entity-modal--tabbed"
+        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :submit-disabled="isSaving"
+        @submit="saveEntity">
+        <template #body>
+            <CatalogFormTabs
+                v-model="activeFormTab"
+                :tabs="collaboratorFormTabs"
+                :has-errors="tabHasErrors"
+                :id-prefix="collaboratorFormModalId"
+                :controls-prefix="collaboratorFormModalId"
+                label="Secciones del colaborador"/>
+            <form @submit.prevent="saveEntity">
+                <section
+                    v-show="activeFormTab === 'access'"
+                    :id="`${collaboratorFormModalId}-tab-access`"
+                    :aria-labelledby="`${collaboratorFormModalId}-tab-trigger-access`"
+                    class="br-entity-form-section"
+                    role="tabpanel">
                         <div class="row g-3">
                             <InputSlot
                                 hasDiv
@@ -261,7 +273,7 @@
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.role_id"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.role_id || forms[entity].createUpdate.errors?.role"
                                 xl="12"
                                 lg="12">
                                 <template v-slot:input>
@@ -290,7 +302,7 @@
                                 :title="MODULE.texts.form.branches"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.branch_ids || MODULE.texts.form.branchesHint"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.branch_ids"
                                 xl="12"
                                 lg="12">
                                 <template v-slot:input>
@@ -318,7 +330,7 @@
                                 :title="MODULE.texts.form.cashRegisters"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.cash_register_ids || MODULE.texts.form.cashRegistersHint"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.cash_register_ids"
                                 xl="6"
                                 lg="6">
                                 <template v-slot:input>
@@ -343,7 +355,7 @@
                                 :title="MODULE.texts.form.warehouses"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.warehouse_ids || MODULE.texts.form.warehousesHint"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.warehouse_ids"
                                 xl="6"
                                 lg="6">
                                 <template v-slot:input>
@@ -363,13 +375,29 @@
                                     </v-select>
                                 </template>
                             </InputSlot>
+                            <div v-if="!isUpdate" class="form-group col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                                <label :class="['form-label', config.forms.classes.title]">{{ MODULE.texts.form.password }}<span class="text-danger ms-1">*</span></label>
+                                <div class="input-group">
+                                    <input v-model.trim="forms[entity].createUpdate.data.password" type="password" class="form-control" maxlength="20" autocomplete="new-password">
+                                </div>
+                                <small class="text-danger">{{ errorMessage(forms[entity].createUpdate.errors?.password) }}</small>
+                            </div>
+                        </div>
+                </section>
+                <section
+                    v-show="activeFormTab === 'collaborator'"
+                    :id="`${collaboratorFormModalId}-tab-collaborator`"
+                    :aria-labelledby="`${collaboratorFormModalId}-tab-trigger-collaborator`"
+                    class="br-entity-form-section"
+                    role="tabpanel">
+                        <div class="row g-3">
                             <InputSlot
                                 hasDiv
                                 :title="MODULE.texts.form.identityDocumentType"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.identity_document_type_id"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.identity_document_type_id || forms[entity].createUpdate.errors?.identity_document_type"
                                 xl="6"
                                 lg="6">
                                 <template v-slot:input>
@@ -414,6 +442,33 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.name"
                                 xl="6"
                                 lg="6"/>
+                            <InputSlot
+                                hasDiv
+                                :title="MODULE.texts.form.status"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
+                                xl="6"
+                                lg="6">
+                                <template v-slot:input>
+                                    <v-select
+                                        v-model="forms[entity].createUpdate.data.status"
+                                        :options="statuses"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="false"
+                                        :searchable="false"/>
+                                </template>
+                            </InputSlot>
+                        </div>
+                </section>
+                <section
+                    v-show="activeFormTab === 'contact'"
+                    :id="`${collaboratorFormModalId}-tab-contact`"
+                    :aria-labelledby="`${collaboratorFormModalId}-tab-trigger-contact`"
+                    class="br-entity-form-section"
+                    role="tabpanel">
+                        <div class="row g-3">
                             <InputText
                                 v-model="forms[entity].createUpdate.data.email"
                                 @input="onEmailInput"
@@ -436,16 +491,16 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.phone_number"
-                                xl="4"
-                                lg="4"/>
+                                xl="6"
+                                lg="6"/>
                             <InputSlot
                                 hasDiv
                                 :title="MODULE.texts.form.gender"
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.gender"
-                                xl="4"
-                                lg="4">
+                                xl="6"
+                                lg="6">
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.gender"
@@ -462,76 +517,25 @@
                                 :titleClass="[config.forms.classes.title]"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.birthdate"
-                                xl="4"
-                                lg="4"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.status"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.status"
-                                        :options="statuses"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <div v-if="!isUpdate" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label :class="['form-label', config.forms.classes.title]">{{ MODULE.texts.form.password }}</label>
-                                <label class="text-danger ms-1 fw-bold">*</label>
-                                <div class="input-group">
-                                    <input
-                                        v-model.trim="forms[entity].createUpdate.data.password"
-                                        type="password"
-                                        class="form-control"
-                                        maxlength="20"
-                                        autocomplete="new-password">
-                                </div>
-                                <small class="text-danger">{{ errorMessage(forms[entity].createUpdate.errors?.password) }}</small>
-                            </div>
+                                xl="6"
+                                lg="6"/>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
-                    <button
-                        type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
-                        @click="saveEntity"
-                        :disabled="isSaving">
-                        <i class="fa fa-save"></i>
-                        <span class="ms-2" v-text="MODULE.texts.modal.save"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                </section>
+            </form>
+        </template>
+    </FormModal>
 
-    <div class="modal fade br-entity-modal br-modal-standard" :id="passwordModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Seguridad</p>
-                        <h2 class="modal-title br-entity-modal__title">Cambiar contraseña</h2>
-                        <p v-if="passwordModal.user" class="br-entity-table__meta mb-0">{{ passwordModal.user.name }} - {{ passwordModal.user.email }}</p>
-                    </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="modal-body br-entity-modal__body">
+    <FormModal
+        :modal-id="passwordModal.id"
+        title="CAMBIAR CONTRASEÑA"
+        modal-size="modal-md"
+        :keyboard="false"
+        submit-button-text="Guardar"
+        submit-button-class="br-btn-action-update"
+        :submit-disabled="passwordModal.saving"
+        @submit="savePassword">
+        <template #body>
+                    <p v-if="passwordModal.user" class="br-entity-table__meta mb-3" v-text="passwordModal.user.name"></p>
                     <div class="row g-3">
                         <div class="form-group col-12">
                             <label class="form-label fw-semibold">Nueva contraseña</label>
@@ -560,19 +564,9 @@
                             <small class="text-danger">{{ errorMessage(passwordModal.errors?.password_confirmation) }}</small>
                         </div>
                     </div>
-                    <p class="br-field-help mt-2 mb-0">
-                        El cambio revoca sesiones activas y queda auditado sin guardar la contraseña en claro.
-                    </p>
-                </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="br-btn br-btn-action-update" :disabled="passwordModal.saving" @click="savePassword">
-                        Actualizar contraseña
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <p class="br-entity-table__meta mb-0">Este cambio cerrará las sesiones activas.</p>
+        </template>
+    </FormModal>
 </template>
 
 <script>
@@ -582,6 +576,10 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 const MODULE_CONFIG = {
     entity: "users",
@@ -607,6 +605,12 @@ const FORM_FIELDS = {
     status: null,
     password: ""
 };
+
+const COLLABORATOR_FORM_TABS = [
+    {id: "collaborator", label: "COLABORADOR", fields: ["identity_document_type", "identity_document_type_id", "document_number", "name", "status"]},
+    {id: "contact", label: "CONTACTO", fields: ["email", "phone_number", "gender", "birthdate"]},
+    {id: "access", label: "ACCESO", fields: ["role", "role_id", "branches", "branch_ids", "cashRegisters", "cash_register_ids", "warehouses", "warehouse_ids", "password"]}
+];
 
 const FORM_FIELD_CONFIG = {
     role: {mapToField: "role_id"},
@@ -691,17 +695,16 @@ const TEXTS = {
     },
     actions: {
         search: "Buscar",
-        add: "Agregar",
-        edit: "Editar"
+        add: "Agregar colaborador",
+        edit: "Editar colaborador",
+        changePassword: "Cambiar contraseña",
+        accessHistory: "Historial de acceso"
     },
     form: {
         role: "Perfil de acceso",
         branches: "Sucursales permitidas",
-        branchesHint: "Deja vacío para heredar las sucursales permitidas por el perfil.",
         cashRegisters: "Cajas permitidas",
-        cashRegistersHint: "Deja vacío para heredar las cajas permitidas por el perfil.",
         warehouses: "Almacenes permitidos",
-        warehousesHint: "Deja vacío para heredar los almacenes permitidos por el perfil.",
         identityDocumentType: "Tipo de documento",
         documentNumber: "Número de documento",
         name: "Nombre",
@@ -713,10 +716,6 @@ const TEXTS = {
         password: "Contraseña",
         changePassword: "Cambiar contraseña",
         searchDocumentTooltip: "Buscar N° documento"
-    },
-    modal: {
-        close: "Cerrar",
-        save: "Guardar"
     }
 };
 
@@ -732,6 +731,7 @@ const MODULE = {
 
 export default {
     name: "UsersMain",
+    components: {CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({
@@ -749,6 +749,8 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
+            isExporting: false,
+            activeFormTab: COLLABORATOR_FORM_TABS[0].id,
             authenticationEvents: {
                 modalId: Utils.uuid(),
                 loading: false,
@@ -878,6 +880,51 @@ export default {
             this.listEntity({});
 
         },
+        openImportModal() {
+
+            Alerts.tooltips({show: false});
+            this.$refs.userImportModal?.open();
+
+        },
+        async downloadRecords() {
+
+            if(this.isExporting) {
+
+                return;
+
+            }
+
+            const confirmed = await Alerts.confirmDownload({resource: "el listado de colaboradores"});
+
+            if(!confirmed) {
+
+                return;
+
+            }
+
+            this.isExporting = true;
+            Alerts.swals({type: "default", title: "Preparando reporte de colaboradores"});
+
+            try {
+
+                await Requests.download({
+                    route: this.routeActions.export,
+                    data: {
+                        filter_by: this.entityList.filters.filter_by?.code,
+                        word: this.entityList.filters.word
+                    },
+                    fileName: "colaboradores.xlsx",
+                    showAlert: true
+                });
+
+            }finally {
+
+                Alerts.swals({show: false});
+                this.isExporting = false;
+
+            }
+
+        },
         async openAuthenticationEvents(record) {
 
             this.authenticationEvents.user = record;
@@ -951,6 +998,7 @@ export default {
             const entityForms = this.forms[this.entity].createUpdate;
 
             entityForms.errors = {};
+            this.activeFormTab = COLLABORATOR_FORM_TABS[0].id;
             Forms.clearFormData(entityForms.data, this.MODULE.formFields);
 
             if(this.isDefined(record)) {
@@ -1056,6 +1104,25 @@ export default {
             return Array.isArray(error) ? (error[0] || "") : (error || "");
 
         },
+        tabHasErrors(tabId) {
+
+            const tab = COLLABORATOR_FORM_TABS.find(item => item.id === tabId);
+            const errors = this.forms[this.entity].createUpdate.errors ?? {};
+
+            return Boolean(tab?.fields.some(field => Boolean(errors[field]?.length)));
+
+        },
+        focusFirstTabWithErrors(errors) {
+
+            const tab = COLLABORATOR_FORM_TABS.find(item => item.fields.some(field => Boolean(errors?.[field]?.length)));
+
+            if(tab) {
+
+                this.activeFormTab = tab.id;
+
+            }
+
+        },
         async saveEntity() {
 
             if(this.isSaving) return;
@@ -1074,6 +1141,8 @@ export default {
 
                 if(!validation.bool) {
 
+                    entityForms.errors = validation.errors;
+                    this.focusFirstTabWithErrors(validation.errors);
                     Alerts.generateAlert({messages: Utils.getErrors({errors: validation.errors}), msgContent: this.config.messages.errorValidate});
                     this.isSaving = false;
                     return;
@@ -1108,6 +1177,7 @@ export default {
                 }else {
 
                     Forms.handleFormResponseErrors({result, formErrorsObject: entityForms.errors, config: this.config});
+                    this.focusFirstTabWithErrors(entityForms.errors);
 
                 }
 
@@ -1230,17 +1300,27 @@ export default {
             const warehouses = record?.warehouses || [];
             const scopes = [];
 
-            if(branches.length) scopes.push(`${branches.length} suc.`);
+            if(branches.length) scopes.push(`${branches.length} sucursal${branches.length === 1 ? "" : "es"}`);
             if(cashRegisters.length) scopes.push(`${cashRegisters.length} caja${cashRegisters.length === 1 ? "" : "s"}`);
             if(warehouses.length) scopes.push(`${warehouses.length} almacén${warehouses.length === 1 ? "" : "es"}`);
 
-            if(!scopes.length) return "Hereda alcance del perfil";
+            if(!scopes.length) return "Alcance heredado";
 
             return scopes.join(" · ");
 
         }
     },
     computed: {
+        collaboratorFormTabs() {
+
+            return COLLABORATOR_FORM_TABS;
+
+        },
+        collaboratorFormModalId() {
+
+            return this.forms[this.entity].createUpdate.extras.modals.default.id;
+
+        },
         entity() {
 
             return this.MODULE.config.entity;
@@ -1312,13 +1392,6 @@ export default {
         isUpdate() {
 
             return this.isDefined(this.forms[this.entity].createUpdate.data.id);
-
-        },
-        modalTitles() {
-
-            return {
-                createUpdate: this.forms[this.entity].createUpdate.extras.modals.default.titles
-            };
 
         },
         filterByOptions() {

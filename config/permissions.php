@@ -28,6 +28,8 @@ return [
 
     "route_actions" => [
         "products.import.template" => "import",
+        "customers.import.template" => "import",
+        "users.import.template" => "import",
         "brands.import.template" => "import",
         "categories.import.template" => "import",
         "stocks_management.guides.store" => "operate",

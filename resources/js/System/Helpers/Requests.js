@@ -335,6 +335,7 @@ const ENTITY_SPECIAL_ROUTES = {
         getTracking: "getTracking"
     },
     customers: {
+        import: "import",
         getSubscriptions: "getSubscriptions",
         registerBiometricFingerprint: "registerBiometricFingerprint"
     },
@@ -381,6 +382,7 @@ const ENTITY_SPECIAL_ROUTES = {
         correctionReview: "corrections"
     },
     users: {
+        import: "import",
         password: "password",
         authenticationEvents: "authentication-events",
         registerBiometricFingerprint: "biometric-fingerprints"

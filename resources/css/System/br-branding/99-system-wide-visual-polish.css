@@ -937,13 +937,6 @@ body > .vs__dropdown-menu,
   box-shadow: 0 0.2rem 0.75rem color-mix(in srgb, var(--br-secondary) 5%, transparent);
 }
 
-body.br-layout .br-entity-modal--tabbed .br-entity-tabs .br-entity-tab__content strong {
-  color: color-mix(in srgb, var(--br-text) 80%, var(--br-text-muted)) !important;
-  font-size: 0.62rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.06em;
-}
-
 .br-entity-tab__step {
   background: color-mix(in srgb, var(--br-secondary-soft) 76%, var(--br-white));
   color: var(--br-secondary);
@@ -1112,5 +1105,122 @@ body.br-layout .br-entity-modal--tabbed .br-entity-tabs .br-entity-tab__content 
 
   .br-layout .br-menu-brand .menu-link {
     min-height: 2.08rem;
+  }
+}
+
+/* Pestañas compartidas del editor comercial: producto, servicio y membresía. */
+.br-entity-modal--tabbed .br-catalog-form-tabs {
+  display: block;
+  padding-block: 0.9rem 0.72rem;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: min(100%, 36rem);
+  max-width: none;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs--five {
+  width: min(100%, 42rem);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+  display: inline-flex;
+  flex: 1 1 0;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  height: 2.18rem;
+  min-height: 2.18rem;
+  padding: 0.3rem 0.55rem;
+  border: 1.5px solid var(--br-border-strong);
+  border-radius: 999px;
+  background: transparent !important;
+  color: var(--br-text-muted) !important;
+  box-shadow: none;
+  text-align: center;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
+  border-color: var(--br-primary-muted);
+  background: var(--br-white) !important;
+  color: var(--br-primary-active) !important;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+  border: 2px solid var(--br-primary);
+  background: var(--br-white) !important;
+  color: var(--br-primary-active) !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--br-primary) 12%, transparent);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link:focus-visible {
+  outline: 2px solid var(--br-primary);
+  outline-offset: 2px;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tab__content strong {
+  color: inherit !important;
+  font-size: 0.67rem;
+  font-weight: 650;
+  letter-spacing: 0.045em;
+  line-height: 1.2;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tab__error {
+  margin-left: 0;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 767.98px) {
+  .br-entity-modal--tabbed .br-catalog-form-tabs {
+    padding-block: 0.72rem 0.62rem;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs,
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs--five {
+    justify-content: flex-start;
+    width: 100%;
+    height: auto;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--br-primary-muted) transparent;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link,
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-width: 7.2rem;
+    height: 2.18rem;
+    min-height: 2.18rem;
+    scroll-snap-align: start;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tab__content {
+    display: block;
+    min-height: 0;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tab__content strong {
+    display: block;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+    transition: none;
   }
 }

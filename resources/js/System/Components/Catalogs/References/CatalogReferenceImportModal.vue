@@ -1,23 +1,22 @@
 <template>
     <FormModal :modal-id="modalId" title="CARGAR MASIVAMENTE" modal-size="modal-lg">
         <template #body>
-            <p class="br-import-products__intro">
-                Descarga la plantilla y completa el nombre de cada registro. El código interno vacío se generará automáticamente.
-            </p>
-
-            <button
-                type="button"
-                class="br-import-products__template"
-                :disabled="downloadingTemplate || importing"
-                @click="downloadTemplate">
-                <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
-                <span>Descargar plantilla</span>
-            </button>
-
-            <div class="row g-3 mt-1">
-                <div class="col-12">
+            <div class="row g-3 br-reference-import__fields">
+                <div class="col-lg-6 col-12">
+                    <span class="form-label d-block">Plantilla</span>
+                    <button
+                        type="button"
+                        class="br-import-products__template"
+                        :disabled="downloadingTemplate || importing"
+                        @click="downloadTemplate">
+                        <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+                        <span>Descargar plantilla</span>
+                    </button>
+                    <small class="br-import-products__intro" v-text="intro"></small>
+                </div>
+                <div class="col-lg-6 col-12">
                     <label :for="`${modalId}-file`" class="form-label colon-at-end">
-                        Archivo de {{ resource }}<span class="text-danger" aria-hidden="true">*</span>
+                        Archivo de {{ resource }} <span class="text-danger" aria-hidden="true">*</span>
                     </label>
                     <input
                         :id="`${modalId}-file`"
@@ -28,7 +27,7 @@
                         accept=".xlsx,.xls,.csv"
                         :disabled="importing"
                         @change="selectFile">
-                    <small class="br-import-products__help">Se aceptan archivos Excel o CSV de hasta 500 registros.</small>
+                    <small class="br-import-products__help" v-text="help"></small>
                     <small v-if="errors.file" class="text-danger d-block" v-text="firstError(errors.file)"></small>
                 </div>
             </div>
@@ -61,7 +60,15 @@ export default {
         modalId: {type: String, required: true},
         resource: {type: String, required: true},
         templateFileName: {type: String, required: true},
-        importRoute: {type: String, required: true}
+        importRoute: {type: String, required: true},
+        intro: {
+            type: String,
+            default: "Descarga la plantilla y completa el nombre de cada registro. El código interno vacío se generará automáticamente."
+        },
+        help: {
+            type: String,
+            default: "Se aceptan archivos Excel o CSV de hasta 500 registros."
+        }
     },
     data() {
 

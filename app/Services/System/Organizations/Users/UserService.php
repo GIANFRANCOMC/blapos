@@ -440,6 +440,12 @@ class UserService {
      */
     public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
+        return self::getFilteredListQuery($filters)->paginate($perPage);
+
+    }
+
+    public static function getFilteredListQuery(array $filters = []): Builder {
+
         $query = User::query()
             ->with(["identityDocumentType", "role", "branches", "cashRegisters", "warehouses"]);
 
@@ -484,8 +490,7 @@ class UserService {
 
         }
 
-        return $query->orderBy("name", "ASC")
-            ->paginate($perPage);
+        return $query->orderBy("name", "ASC");
 
     }
 }

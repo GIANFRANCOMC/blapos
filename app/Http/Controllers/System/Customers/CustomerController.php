@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Customers;
 
+use App\Exports\System\Customers\{CustomerImportTemplateExport, CustomerListExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Http\Requests\System\Customers\Customers\{RegisterCustomerFingerprintRequest, StoreCustomerRequest, UpdateCustomerRequest};
+use App\Http\Requests\System\Customers\Customers\{ImportCustomersRequest, RegisterCustomerFingerprintRequest, StoreCustomerRequest, UpdateCustomerRequest};
+use App\Imports\System\Customers\{CustomerImport};
 use App\Models\System\Customers\{Subscription};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Customers\Customers\{CustomerConfigService, CustomerService};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Validation\{ValidationException};
+use Maatwebsite\Excel\Facades\{Excel};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class CustomerController extends BaseController {
     /**
@@ -44,6 +49,48 @@ class CustomerController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
         return CustomerService::getPaginatedList($filters, $perPage);
+
+    }
+
+    public function export(Request $request): BinaryFileResponse {
+
+        return Excel::download(
+            new CustomerListExport($this->getFilters($request)),
+            "clientes_".now()->format("Y-m-d_His").".xlsx"
+        );
+
+    }
+
+    public function importTemplate(): BinaryFileResponse {
+
+        return Excel::download(new CustomerImportTemplateExport(), "plantilla_clientes.xlsx");
+
+    }
+
+    public function import(ImportCustomersRequest $request): JsonResponse {
+
+        try {
+
+            $import = new CustomerImport($this->getUserId());
+
+            Excel::import($import, $request->file("file"));
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::CUSTOMERS);
+
+            return response()->json([
+                "bool" => true,
+                "msg" => "{$import->importedCount()} clientes importados correctamente.",
+                "data" => ["imported" => $import->importedCount()],
+            ]);
+
+        }catch(ValidationException $exception) {
+
+            throw $exception;
+
+        }catch(\Exception $exception) {
+
+            return $this->handleException($exception, "create");
+
+        }
 
     }
 
@@ -204,6 +251,7 @@ class CustomerController extends BaseController {
 
         try {
 
+            $data = $request->validated();
             $customer = CustomerService::findByIdInTenant($id, null);
 
             if(!Utilities::isDefined($customer)) {

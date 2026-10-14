@@ -5,52 +5,20 @@
         modal-class="br-entity-modal--tabbed"
         modal-size="modal-lg">
                 <template #body>
-                    <div class="br-entity-tabs-shell">
-                        <button
-                            type="button"
-                            class="br-entity-tabs-nav br-entity-tabs-nav--previous"
-                            :disabled="!hasPreviousFormTab"
-                            :aria-label="previousFormTabLabel"
-                            :title="previousFormTabLabel"
-                            @click="moveFormTab(-1)">
-                            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                        </button>
-
-                        <nav class="nav nav-pills nav-fill br-entity-tabs br-entity-tabs--five" aria-label="Secciones del formulario">
-                            <button
-                                v-for="tab in formTabs"
-                                :key="tab.id"
-                                type="button"
-                                :class="['nav-link', 'br-entity-tab', {'active is-active': activeFormTab === tab.id}]"
-                                :aria-selected="activeFormTab === tab.id"
-                                :aria-controls="`${modalId}-tab-${tab.id}`"
-                                role="tab"
-                                @click="activeFormTab = tab.id">
-                                <span class="br-entity-tab__content">
-                                    <strong v-text="tab.label"></strong>
-                                </span>
-                                <span v-if="tabHasErrors(tab.id)" class="br-entity-tab__error" aria-label="Contiene errores">
-                                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-                                </span>
-                            </button>
-                        </nav>
-
-                        <button
-                            type="button"
-                            class="br-entity-tabs-nav br-entity-tabs-nav--next"
-                            :disabled="!hasNextFormTab"
-                            :aria-label="nextFormTabLabel"
-                            :title="nextFormTabLabel"
-                            @click="moveFormTab(1)">
-                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                        </button>
-                    </div>
+                    <CatalogFormTabs
+                        v-model="activeFormTab"
+                        :tabs="formTabs"
+                        :has-errors="tabHasErrors"
+                        :id-prefix="modalId"
+                        :controls-prefix="modalId"
+                        label="Secciones del producto"/>
 
                     <form @submit.prevent="saveEntity">
                         <section
                             v-show="activeFormTab === 'general'"
                             :id="`${modalId}-tab-general`"
                             class="br-entity-form-section"
+                            :aria-labelledby="`${modalId}-tab-trigger-general`"
                             role="tabpanel">
                             <div class="row g-3">
                                 <InputText
@@ -226,6 +194,7 @@
                             v-show="activeFormTab === 'attributes'"
                             :id="`${modalId}-tab-attributes`"
                             class="br-entity-form-section"
+                            :aria-labelledby="`${modalId}-tab-trigger-attributes`"
                             role="tabpanel">
                             <div class="row g-3">
 
@@ -386,6 +355,7 @@
                             v-show="activeFormTab === 'taxes'"
                             :id="`${modalId}-tab-taxes`"
                             class="br-entity-form-section"
+                            :aria-labelledby="`${modalId}-tab-trigger-taxes`"
                             role="tabpanel">
                             <div class="br-entity-publication-settings">
                                 <label class="br-entity-switch" :for="`${modalId}-igv-exempt`">
@@ -422,6 +392,7 @@
                             v-show="activeFormTab === 'configuration'"
                             :id="`${modalId}-tab-configuration`"
                             class="br-entity-form-section"
+                            :aria-labelledby="`${modalId}-tab-trigger-configuration`"
                             role="tabpanel">
                             <div class="row g-3">
                                 <InputDate
@@ -481,6 +452,7 @@
                             v-show="activeFormTab === 'inventory'"
                             :id="`${modalId}-tab-inventory`"
                             class="br-entity-form-section mb-0"
+                            :aria-labelledby="`${modalId}-tab-trigger-inventory`"
                             role="tabpanel">
                             <div v-if="productForm.errors?.inventory" class="alert alert-danger py-2" v-text="firstError(productForm.errors.inventory)"></div>
 
@@ -601,6 +573,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import AddBrand from "@System/Components/Catalogs/AddBrand.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import InputText from "@System/Components/InputText.vue";
@@ -630,6 +603,7 @@ export default {
     components: {
         AddBrand,
         AddCategory,
+        CatalogFormTabs,
         FormModal,
         SelectNoOptions,
         InputText,
@@ -1094,15 +1068,6 @@ export default {
             return tab?.fields.some(field => errorFields.some(errorField => errorField === field || errorField.startsWith(`${field}.`))) ?? false;
 
         },
-        moveFormTab(direction) {
-
-            const targetTab = this.formTabs[this.activeFormTabIndex + direction];
-
-            if (targetTab) {
-                this.activeFormTab = targetTab.id;
-            }
-
-        },
         focusFirstTabWithErrors(errors) {
 
             const errorFields = Object.keys(errors ?? {});
@@ -1191,35 +1156,6 @@ export default {
         formTabs() {
 
             return FORM_TABS;
-
-        },
-        activeFormTabIndex() {
-
-            return this.formTabs.findIndex(tab => tab.id === this.activeFormTab);
-
-        },
-        hasPreviousFormTab() {
-
-            return this.activeFormTabIndex > 0;
-
-        },
-        hasNextFormTab() {
-
-            return this.activeFormTabIndex < this.formTabs.length - 1;
-
-        },
-        previousFormTabLabel() {
-
-            const previousTab = this.formTabs[this.activeFormTabIndex - 1];
-
-            return previousTab ? `Ir a ${previousTab.label}` : "No hay una pestaña anterior";
-
-        },
-        nextFormTabLabel() {
-
-            const nextTab = this.formTabs[this.activeFormTabIndex + 1];
-
-            return nextTab ? `Ir a ${nextTab.label}` : "No hay una pestaña siguiente";
 
         },
         routeActions() {

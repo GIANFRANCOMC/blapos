@@ -112,20 +112,14 @@
         modal-size="modal-lg"
         :show-submit="false">
         <template #body>
-            <div class="br-entity-tabs-shell">
-                <nav class="nav nav-pills nav-fill br-entity-tabs" role="tablist" aria-label="Secciones de la membresía">
-                    <button v-for="tab in formTabs" :key="tab.id" type="button"
-                        :id="`subscription-tab-${tab.id}`"
-                        :class="['nav-link', 'br-entity-tab', {'active is-active': activeFormTab === tab.id}]"
-                        :aria-selected="activeFormTab === tab.id" role="tab"
-                        @click="activeFormTab = tab.id">
-                            <span class="br-entity-tab__content"><strong>{{ tab.label }}</strong></span>
-                            <span v-if="tabHasErrors(tab.id)" class="br-entity-tab__error" aria-label="Contiene errores"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></span>
-                        </button>
-                </nav>
-            </div>
+            <CatalogFormTabs
+                v-model="activeFormTab"
+                :tabs="formTabs"
+                :has-errors="tabHasErrors"
+                id-prefix="subscription"
+                label="Secciones de la membresía"/>
             <form class="br-entity-form-section" @submit.prevent="saveEntity">
-                        <div class="row g-3" role="tabpanel" :aria-labelledby="`subscription-tab-${activeFormTab}`">
+                        <div class="row g-3" role="tabpanel" :aria-labelledby="`subscription-tab-trigger-${activeFormTab}`">
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
@@ -477,6 +471,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
@@ -663,7 +658,7 @@ const MODULE = {
 export default {
     name: "SubscriptionsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {FormModal, TableActionsDropdown, AddCategory, SelectNoOptions},
+    components: {FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, SelectNoOptions},
     data() {
 
         const crudModule = initCrudModule({

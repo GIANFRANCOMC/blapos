@@ -8,6 +8,32 @@ const modules = [
     {name: "membresía", path: "resources/js/System/Pages/Catalogs/subscriptions/main.vue", ownFields: ["duration_value", "attendance_limit_per_day", "benefits_text", "restrictions_text"]}
 ];
 
+test("los tres editores comparten pestañas accesibles y navegables en móvil", () => {
+
+    const editorPaths = [
+        "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
+        ...modules.map(module => module.path)
+    ];
+    const tabs = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/System/br-branding/99-system-wide-visual-polish.css", import.meta.url), "utf8");
+
+    for(const path of editorPaths) {
+
+        const source = readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
+
+        assert.match(source, /<CatalogFormTabs\s+v-model="activeFormTab"/);
+
+    }
+
+    assert.equal(parse(tabs, {filename: "CatalogFormTabs.vue"}).errors.length, 0);
+    assert.match(tabs, /role="tablist"/);
+    assert.match(tabs, /@keydown="handleKeydown"/);
+    assert.match(tabs, /tab-trigger-\$\{tab\.id\}/);
+    assert.match(tabs, /:aria-controls="controlsPrefix/);
+    assert.match(branding, /\.br-catalog-form-tabs[\s\S]*?overflow-x: auto/);
+
+});
+
 function assertFieldOrder(source, modelPrefix, fields) {
 
     const positions = fields.map(field => source.indexOf(`v-model="${modelPrefix}.${field}"`));
@@ -147,7 +173,8 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
     const parsed = parse(component, {filename: "ProductEditor.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(component, /br-entity-tabs--five/);
+    assert.match(component, /<CatalogFormTabs[\s\S]*?:tabs="formTabs"/);
+    assert.match(readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8"), /'br-entity-tabs--five': tabs\.length === 5/);
     assert.match(config, /id: "attributes",\s+label: "DETALLE"/);
     assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",\s+fields: \["expires_at", "commission_type", "commission_value"\]/);
     assert.match(config, /expiresAt: "Disponible hasta"/);

@@ -475,3 +475,19 @@
     color: var(--br-text-muted);
     font-size: 0.68rem;
 }
+
+.br-reference-import__fields .br-import-products__template {
+    min-height: var(--br-control-height);
+    margin-top: 0;
+}
+
+.br-reference-import__fields .br-import-products__intro {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+    line-height: 1.4;
+}
+
+.br-reference-import__fields .br-import-products__help {
+    line-height: 1.35;
+}
