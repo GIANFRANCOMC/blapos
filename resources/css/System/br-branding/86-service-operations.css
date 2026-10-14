@@ -4,6 +4,23 @@
   min-height: 32rem;
 }
 
+.br-service-intro {
+  margin-bottom: 0.85rem;
+}
+
+.br-service-intro h1 {
+  margin: 0;
+  color: var(--br-secondary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.br-service-intro p {
+  margin: 0.2rem 0 0;
+  color: var(--br-text-muted);
+  font-size: 0.75rem;
+}
+
 .br-service-toolbar {
   display: flex;
   align-items: end;
@@ -21,6 +38,18 @@
   margin-left: auto;
 }
 
+.br-service-toolbar--sessions {
+  align-items: end;
+  padding: 0.85rem;
+  border: 1px solid var(--br-border-soft);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+}
+
+.br-service-toolbar--sessions .br-service-toolbar__field {
+  width: min(15rem, 100%);
+}
+
 .br-service-report-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -29,31 +58,101 @@
 }
 
 .br-service-report-grid > article {
-  padding: 0.75rem 0.85rem;
-  border: 1px solid var(--br-border);
-  border-top: 2px solid var(--br-secondary);
+  min-height: 5.65rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--br-border-soft);
   border-radius: var(--br-radius-sm);
   background: var(--br-white);
+}
+
+.br-service-report-grid > article:first-child {
+  border-top: 2px solid var(--br-primary);
 }
 
 .br-service-report-grid span {
   display: block;
   color: var(--br-text-muted);
-  font-size: 0.68rem;
-  font-weight: 750;
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
 .br-service-report-grid strong {
   display: block;
-  margin-top: 0.1rem;
+  margin-top: 0.2rem;
   color: var(--br-secondary);
-  font-size: 1rem;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .br-service-report-grid small {
-  color: var(--br-primary-active);
+  color: var(--br-text-muted);
   font-size: 0.68rem;
-  font-weight: 650;
+  font-weight: 400;
+}
+
+.br-service-list__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+}
+
+.br-service-list__heading h2 {
+  margin: 0;
+  color: var(--br-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.br-service-list__heading span,
+.br-service-list__heading small {
+  color: var(--br-text-muted);
+  font-size: 0.7rem;
+}
+
+.br-service-list .br-entity-table {
+  min-width: 55rem;
+}
+
+.br-service-list__identity {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.br-service-list__muted {
+  color: var(--br-text-muted);
+}
+
+.br-service-list__date,
+.br-service-list__time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.br-service-list__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.45rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--br-primary-active);
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+
+.br-service-list__open:hover,
+.br-service-list__open:focus-visible {
+  background: var(--br-primary-soft);
+  color: var(--br-primary-active);
+}
+
+.br-service-list__pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.85rem;
 }
 
 .br-service-legend {
@@ -106,12 +205,59 @@
   top: var(--br-navbar-height, 3.75rem);
   display: flex;
   flex-direction: column;
-  width: min(34rem, 100vw);
+  width: min(38rem, 100vw);
   height: calc(100vh - var(--br-navbar-height, 3.75rem));
   padding: 1.1rem;
   border-left: 1px solid var(--br-border);
   background: var(--br-white);
   box-shadow: -0.8rem 0 2rem color-mix(in srgb, var(--br-secondary) 14%, transparent);
+}
+
+.br-service-detail-backdrop {
+  position: fixed;
+  z-index: 1089;
+  inset: 0;
+  background: color-mix(in srgb, var(--br-secondary) 18%, transparent);
+}
+
+.br-service-detail__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-right: 0.25rem;
+  overflow-y: auto;
+}
+
+.br-service-detail__section {
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--br-border-subtle);
+}
+
+.br-service-detail__section h3 {
+  margin: 0 0 0.65rem;
+  color: var(--br-secondary);
+  font-size: 0.79rem;
+  font-weight: 700;
+}
+
+.br-service-detail__field {
+  min-width: 0;
+}
+
+.br-service-detail__field .form-label {
+  margin-bottom: 0.25rem;
+}
+
+.br-service-detail__quick-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.br-service-detail__empty {
+  margin: 0.5rem 0 0;
+  color: var(--br-text-muted);
+  font-size: 0.73rem;
 }
 
 .br-service-detail__header {
@@ -169,22 +315,22 @@
 
 .br-service-add-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) auto;
+  align-items: end;
   gap: 0.45rem;
   padding-bottom: 0.8rem;
 }
 
 .br-service-detail__operations {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) repeat(4, auto);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 0.45rem;
-  padding-bottom: 0.8rem;
+  padding-bottom: 0.6rem;
 }
 
 .br-service-detail__items {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
+  min-width: 0;
 }
 
 .br-service-detail__items article {
@@ -200,6 +346,10 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+.br-service-detail--sessions .br-service-detail__items article {
+  grid-template-columns: minmax(0, 1fr) auto auto;
 }
 
 .br-service-detail__items strong {
@@ -222,6 +372,20 @@
   gap: 0.5rem;
   padding-top: 0.8rem;
   border-top: 1px solid var(--br-border);
+}
+
+.br-service-form__section-title {
+  padding-top: 0.25rem;
+  color: var(--br-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.br-service-form__section-title span {
+  margin-left: 0.2rem;
+  color: var(--br-text-muted);
+  font-size: 0.68rem;
+  font-weight: 400;
 }
 
 .br-service-timeline {
@@ -312,6 +476,10 @@
     width: 100%;
   }
 
+  .br-service-toolbar--sessions .br-service-toolbar__field {
+    width: 100%;
+  }
+
   .br-service-add-item {
     grid-template-columns: 1fr;
   }
@@ -322,6 +490,10 @@
 
   .br-service-detail__operations,
   .br-service-detail__items article {
+    grid-template-columns: 1fr;
+  }
+
+  .br-service-detail--sessions .br-service-detail__items article {
     grid-template-columns: 1fr;
   }
 
