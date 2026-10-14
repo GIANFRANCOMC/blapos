@@ -315,43 +315,6 @@
                                     </label>
                                 </div>
                             </div>
-                            <InputNumber
-                                v-show="activeFormTab === 'configuration'"
-                                v-model="forms[entity].createUpdate.data.attendance_limit_per_day"
-                                hasDiv
-                                :title="MODULE.texts.form.attendanceLimit"
-                                :titleClass="[config.forms.classes.title]"
-                                :decimals="0"
-                                :minValue="1"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.attendance_limit_per_day"
-                                xl="4"
-                                lg="4"/>
-                            <div v-show="activeFormTab === 'configuration'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label class="form-label fw-bold fs-6" v-text="MODULE.texts.form.capacityControl"></label>
-                                <label class="br-entity-switch br-entity-switch--field" for="subscription_capacity_control_enabled">
-                                    <input
-                                        id="subscription_capacity_control_enabled"
-                                        v-model="forms[entity].createUpdate.data.capacity_control_enabled"
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        role="switch">
-                                    <span>Activar <small>· Límite de cupos</small></span>
-                                </label>
-                            </div>
-                            <InputNumber
-                                v-show="activeFormTab === 'configuration'"
-                                v-model="forms[entity].createUpdate.data.capacity_limit"
-                                hasDiv
-                                :title="MODULE.texts.form.capacityLimit"
-                                :titleClass="[config.forms.classes.title]"
-                                :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
-                                :decimals="0"
-                                :minValue="1"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
-                                xl="4"
-                                lg="4"/>
                             <InputDate
                                 v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.expires_at"
@@ -392,6 +355,43 @@
                                 :maxValue="forms[entity].createUpdate.data.commission_type?.code === 'percentage' ? 100 : undefined"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
+                                xl="4"
+                                lg="4"/>
+                            <InputNumber
+                                v-show="activeFormTab === 'configuration'"
+                                v-model="forms[entity].createUpdate.data.attendance_limit_per_day"
+                                hasDiv
+                                :title="MODULE.texts.form.attendanceLimit"
+                                :titleClass="[config.forms.classes.title]"
+                                :decimals="0"
+                                :minValue="1"
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.attendance_limit_per_day"
+                                xl="4"
+                                lg="4"/>
+                            <div v-show="activeFormTab === 'configuration'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                                <label class="form-label fw-bold fs-6" v-text="MODULE.texts.form.capacityControl"></label>
+                                <label class="br-entity-switch br-entity-switch--field" for="subscription_capacity_control_enabled">
+                                    <input
+                                        id="subscription_capacity_control_enabled"
+                                        v-model="forms[entity].createUpdate.data.capacity_control_enabled"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch">
+                                    <span>Activar <small>· Límite de cupos</small></span>
+                                </label>
+                            </div>
+                            <InputNumber
+                                v-show="activeFormTab === 'configuration'"
+                                v-model="forms[entity].createUpdate.data.capacity_limit"
+                                hasDiv
+                                :title="MODULE.texts.form.capacityLimit"
+                                :titleClass="[config.forms.classes.title]"
+                                :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
+                                :decimals="0"
+                                :minValue="1"
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
                                 xl="4"
                                 lg="4"/>
                             <InputText
@@ -486,7 +486,7 @@ const FORM_TABS = [
     {id: "general", label: "MEMBRESÍA", fields: ["internal_code", "name", "duration_value", "duration_type", "price", "min_price", "max_price", "status"]},
     {id: "attributes", label: "DETALLE", fields: ["description", "benefits", "restrictions", "categories", "see_my_web", "see_my_web_price"]},
     {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]},
-    {id: "configuration", label: "CONFIGURACIÓN", fields: ["attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "expires_at", "commission_type", "commission_value"]}
+    {id: "configuration", label: "CONFIGURACIÓN", fields: ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"]}
 ];
 
 const MODULE_CONFIG = {

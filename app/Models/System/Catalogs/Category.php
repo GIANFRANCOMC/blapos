@@ -19,18 +19,11 @@ class Category extends Model {
         "internal_code",
         "name",
         "description",
-        "sort_order",
-        "is_public",
         "status",
         "created_at",
         "created_by",
         "updated_at",
         "updated_by",
-    ];
-
-    protected $casts = [
-        "sort_order" => "integer",
-        "is_public" => "boolean",
     ];
 
     // Appends

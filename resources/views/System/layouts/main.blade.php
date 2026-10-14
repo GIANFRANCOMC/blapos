@@ -106,6 +106,8 @@
     dir="ltr"
     data-theme="theme-default"
     data-assets-path="{{ $systemAssetsPath }}"
+    data-navigation-world="{{ $activeNavigationSection?->dom_label }}"
+    data-navigation-group="{{ $activeNavigationSubSection?->menuGroup?->name }}"
     data-template="vertical-menu-template-starter">
     <head>
         @include("System.layouts.partials.up")

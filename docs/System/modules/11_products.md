@@ -308,6 +308,8 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 
 Productos ofrece **Cargar masivamente** dentro del menú **Acciones**.
 
+La operación usa `GET /products/import` para descargar la plantilla y `POST /products/import` para cargar el archivo. `GET /products/export` descarga el listado filtrado. La plantilla requiere permiso `import`, no `export`.
+
 - La modal permite descargar la plantilla oficial.
 - Descargar la plantilla muestra un loading global mientras se genera el archivo y lo cierra al finalizar.
 - Columnas: `Nombre`, `Precio`, `Código interno`, `Código de barras`, `Descripción`, `Stock inicial` y `Stock mínimo`.

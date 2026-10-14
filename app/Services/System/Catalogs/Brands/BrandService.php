@@ -15,8 +15,6 @@ final class BrandService {
         "internal_code",
         "name",
         "description",
-        "logo_path",
-        "origin_country_code",
         "website_url",
         "status",
     ];
@@ -25,7 +23,6 @@ final class BrandService {
         "internal_code",
         "name",
         "description",
-        "origin_country_code",
         "website_url",
     ];
 
@@ -88,10 +85,13 @@ final class BrandService {
         int $perPage = 15
     ): LengthAwarePaginator {
 
-        $query = Brand::query()
-            ->withCount([
-                "products as products_count" => fn(Builder $builder) => $builder->where("status", "active"),
-            ]);
+        return self::getFilteredListQuery($filters)->paginate($perPage);
+
+    }
+
+    public static function getFilteredListQuery(array $filters = []): Builder {
+
+        $query = Brand::query();
 
         $filterBy = $filters["filter_by"] ?? null;
         $word = $filters["word"] ?? null;
@@ -121,8 +121,7 @@ final class BrandService {
 
         }
 
-        return $query->orderBy("name")
-            ->paginate($perPage);
+        return $query->orderBy("name");
 
     }
 

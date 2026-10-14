@@ -16,7 +16,7 @@ Redes sociales visibles en el home publico: web, Facebook, Instagram, TikTok, Wh
 
 Productos, servicios y membresias visibles en web si `see_my_web` esta activo. Si `see_my_web_price` no esta activo, Guest debe ocultar precio, minimo, maximo y moneda.
 
-Relaciones publicas: moneda y categorias si se exponen.
+Relaciones publicas: moneda y categorias activas asociadas a items publicados.
 
 ## currencies
 

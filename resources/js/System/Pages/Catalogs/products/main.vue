@@ -35,7 +35,6 @@
             ref="productImportModal"
             :title="MODULE.texts.actions.import"
             :import-route="routeActions.import"
-            :template-route="routeActions.importTemplate"
             :warehouses="warehouses"
             @imported="handleProductsImported"/>
 

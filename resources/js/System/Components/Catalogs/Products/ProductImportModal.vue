@@ -101,10 +101,6 @@ export default {
             type: String,
             required: true
         },
-        templateRoute: {
-            type: String,
-            required: true
-        },
         warehouses: {
             type: Array,
             default: () => []
@@ -150,7 +146,7 @@ export default {
 
             try {
                 await Requests.download({
-                    route: this.templateRoute,
+                    route: this.importRoute,
                     fileName: "plantilla_productos.xlsx",
                     showAlert: true
                 });

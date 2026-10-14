@@ -27,8 +27,6 @@ abstract class CategoryRequest extends CompanyFormRequest {
                 new UniqueInTenant("categories", "name", $categoryId, [], "nombre"),
             ],
             "description" => ["nullable", "string", "max:100"],
-            "sort_order" => ["nullable", "integer", "min:1", "max:9999"],
-            "is_public" => ["nullable", "boolean"],
             "status" => ["required", "in:active,inactive"],
         ];
 

@@ -2,7 +2,7 @@
 
 ## Qué Hace
 
-Muestra información pública de la empresa, categorías visibles y catálogo comercial disponible para clientes.
+Muestra información pública de la empresa, categorías activas y catálogo comercial disponible para clientes.
 
 ## Archivos
 
@@ -19,7 +19,7 @@ Muestra información pública de la empresa, categorías visibles y catálogo co
 - Solo se consultan items activos con `see_my_web = true`.
 - El precio se expone únicamente cuando `see_my_web_price = true`.
 - Si el precio está oculto, el backend no entrega `price`, `min_price`, `max_price` ni `currency`.
-- Categorías públicas deben estar activas, visibles y ordenadas.
+- Las categorías públicas deben estar activas y se ordenan por nombre; no existe un interruptor de publicación propio de Categoría.
 - El contrato excluye tokens externos, auditoría y columnas internas que el visitante no necesita.
 
 ## UI/UX Implementado

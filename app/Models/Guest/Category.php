@@ -12,9 +12,4 @@ final class Category extends Model {
     protected $hidden = [
         "created_by", "updated_by", "created_at", "updated_at", "pivot",
     ];
-
-    protected $casts = [
-        "sort_order" => "integer",
-        "is_public" => "boolean",
-    ];
 }

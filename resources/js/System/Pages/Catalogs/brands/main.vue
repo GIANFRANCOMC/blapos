@@ -15,45 +15,53 @@
             search-button-text="Buscar"
             add-button-text="Agregar marca"
             :show-add-button="true"
+            :show-download-button="true"
+            :show-import-button="true"
+            :group-secondary-actions="true"
+            import-button-text="Cargar masivamente"
+            download-button-text="Descargar Excel"
+            :downloading="isExporting"
             :title-class="[config.forms.classes.title]"
             :select-class="config.forms.classes.select2"
             @search="listEntity({})"
-            @add="openModal()"/>
+            @add="openModal()"
+            @import="openImportModal"
+            @download="downloadRecords"/>
+
+        <CatalogReferenceImportModal
+            ref="brandImportModal"
+            modal-id="brandImportModal"
+            resource="marcas"
+            template-file-name="plantilla_marcas.xlsx"
+            :import-route="routeActions.import"
+            @imported="listEntity({})"/>
 
         <section class="br-entity-list" aria-label="Listado de marcas">
             <div class="table-responsive">
                 <table class="table br-entity-table mb-0">
                     <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 24%;">
-                        <col style="width: 18%;">
-                        <col style="width: 8%;">
-                        <col style="width: 12%;">
+                        <col style="width: 34%;">
+                        <col style="width: 28%;">
+                        <col style="width: 20%;">
+                        <col style="width: 10%;">
                         <col style="width: 8%;">
                     </colgroup>
-                    <thead>
+                    <thead class="br-table-header-surface">
                         <tr>
                             <th>Marca</th>
                             <th>Identificación</th>
-                            <th>Origen y sitio</th>
-                            <th>Uso actual</th>
+                            <th>Sitio oficial</th>
                             <th class="text-center">Estado</th>
                             <th><span class="visually-hidden">Acciones</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-if="entityList.extras.loading">
-                            <td colspan="6" class="py-4"><Loader/></td>
+                            <td colspan="5" class="py-4"><Loader/></td>
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
                                 <td>
-                                    <span v-if="record.logo_path" class="br-entity-table__attribute mb-1">
-                                        <span class="br-entity-table__attribute-icon" aria-hidden="true">
-                                            <i class="fa-solid fa-image"></i>
-                                        </span>
-                                        <strong>Logo configurado</strong>
-                                    </span>
                                     <span class="br-entity-table__name" v-text="record.name"></span>
                                     <span
                                         v-if="record.description"
@@ -71,25 +79,16 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span v-if="record.origin_country_code" class="br-entity-table__meta d-block">
-                                        País: {{ record.origin_country_code }}
-                                    </span>
                                     <a
                                         v-if="record.website_url"
-                                        class="br-entity-table__meta d-block"
+                                        class="br-entity-table__meta"
                                         :href="record.website_url"
                                         target="_blank"
                                         rel="noopener noreferrer">
                                         Sitio oficial
                                     </a>
-                                    <span v-if="!record.origin_country_code && !record.website_url" class="br-entity-table__meta">
-                                        Sin datos públicos
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="br-entity-table__name">
-                                        {{ record.products_count }}
-                                        {{ record.products_count === 1 ? "producto activo" : "productos activos" }}
+                                    <span v-else class="br-entity-table__meta">
+                                        Sin sitio oficial
                                     </span>
                                 </td>
                                 <td class="text-center">
@@ -98,21 +97,21 @@
                                         :formatted-status="record.formatted_status"/>
                                 </td>
                                 <td class="text-center">
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-edit"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Editar marca"
-                                        :aria-label="`Editar marca ${record.name}`"
-                                        @click="openModal(record)">
-                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                    </button>
+                                    <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                        <li>
+                                            <button type="button" class="dropdown-item" @click="openModal(record)">
+                                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                <span>Editar</span>
+                                            </button>
+                                        </li>
+                                    </TableActionsDropdown>
                                 </td>
                             </tr>
                         </template>
                         <tr v-else>
-                            <td colspan="6" class="py-4"><WithoutData type="image"/></td>
+                            <td colspan="5" class="py-4">
+                                <WithoutData class="br-entity-empty-state" type="image" image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -127,44 +126,17 @@
         </nav>
     </main>
 
-    <div
-        class="modal fade br-entity-modal"
-        :id="brandForm.extras.modals.default.id"
-        data-bs-backdrop="static"
-        tabindex="-1"
-        role="dialog"
-        aria-modal="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Catálogo comercial</p>
-                        <h2 class="modal-title br-entity-modal__title">
-                            {{ modalTitles.createUpdate[isUpdate ? "update" : "store"] }}
-                        </h2>
-                    </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body br-entity-modal__body">
+    <FormModal
+        :modal-id="brandForm.extras.modals.default.id"
+        :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
+        modal-size="modal-lg"
+        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :submit-disabled="isSaving"
+        @submit="saveEntity">
+        <template #body>
                     <form @submit.prevent="saveEntity">
                         <section class="br-entity-form-section">
                             <div class="row g-3">
-                                <InputText
-                                    v-model="brandForm.data.name"
-                                    hasDiv
-                                    title="Nombre"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    maxlength="100"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.name"
-                                    xl="7"
-                                    lg="7"/>
-
                                 <InputText
                                     v-model="brandForm.data.internal_code"
                                     hasDiv
@@ -174,8 +146,8 @@
                                     :maxlength="internalCodeEditableMaxlength"
                                     hasTextBottom
                                     :textBottomInfo="brandForm.errors?.internal_code"
-                                    xl="5"
-                                    lg="5">
+                                    xl="4"
+                                    lg="4">
                                     <template v-if="internalCodePrefixLabel" #inputGroupPrepend>
                                         <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
                                     </template>
@@ -194,6 +166,19 @@
                                 </InputText>
 
                                 <InputText
+                                    v-model="brandForm.data.name"
+                                    hasDiv
+                                    title="Nombre"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="brandForm.errors?.name"
+                                    xl="8"
+                                    lg="8"/>
+
+                                <InputText
                                     v-model="brandForm.data.description"
                                     hasDiv
                                     title="Descripción"
@@ -202,39 +187,6 @@
                                     showCharCounter
                                     hasTextBottom
                                     :textBottomInfo="brandForm.errors?.description"
-                                    xl="12"
-                                    lg="12"/>
-
-                                <InputText
-                                    v-model="brandForm.data.logo_path"
-                                    hasDiv
-                                    title="Logotipo"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="500"
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.logo_path"
-                                    xl="12"
-                                    lg="12"/>
-
-                                <InputText
-                                    v-model="brandForm.data.origin_country_code"
-                                    hasDiv
-                                    title="País de origen"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="3"
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.origin_country_code"
-                                    xl="4"
-                                    lg="4"/>
-
-                                <InputText
-                                    v-model="brandForm.data.website_url"
-                                    hasDiv
-                                    title="Sitio oficial"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="500"
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.website_url"
                                     xl="8"
                                     lg="8"/>
 
@@ -245,8 +197,8 @@
                                     isRequired
                                     hasTextBottom
                                     :textBottomInfo="brandForm.errors?.status"
-                                    xl="5"
-                                    lg="6">
+                                    xl="4"
+                                    lg="4">
                                     <template #input>
                                         <v-select
                                             v-model="brandForm.data.status"
@@ -272,26 +224,22 @@
                                         </v-select>
                                     </template>
                                 </InputSlot>
+
+                                <InputText
+                                    v-model="brandForm.data.website_url"
+                                    hasDiv
+                                    title="Sitio oficial"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="500"
+                                    hasTextBottom
+                                    :textBottomInfo="brandForm.errors?.website_url"
+                                    xl="12"
+                                    lg="12"/>
                             </div>
                         </section>
                     </form>
-                </div>
-
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        :class="['br-btn', isUpdate ? 'br-btn-action-update' : 'br-btn-action-create']"
-                        :disabled="isSaving"
-                        @click="saveEntity">
-                        <span v-text="submitButtonText"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+        </template>
+    </FormModal>
 </template>
 
 <script>
@@ -301,6 +249,10 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
+import CopyButton from "@System/Components/CopyButton.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 const MODULE = {
     entity: "brands",
@@ -314,8 +266,6 @@ const MODULE = {
         internal_code: "",
         name: "",
         description: "",
-        logo_path: "",
-        origin_country_code: "",
         website_url: "",
         status: null
     },
@@ -323,8 +273,6 @@ const MODULE = {
         internal_code: {trim: true},
         name: {trim: true},
         description: {normalize: true},
-        logo_path: {normalize: true},
-        origin_country_code: {trim: true},
         website_url: {normalize: true},
         status: {getCode: true}
     },
@@ -332,8 +280,6 @@ const MODULE = {
         internal_code: {required: true},
         name: {required: true},
         description: {required: false},
-        logo_path: {required: false},
-        origin_country_code: {required: false},
         website_url: {required: false},
         status: {required: true}
     },
@@ -341,8 +287,6 @@ const MODULE = {
         internal_code: "Código interno",
         name: "Nombre",
         description: "Descripción",
-        logo_path: "Logotipo",
-        origin_country_code: "País de origen",
         website_url: "Sitio oficial",
         status: "Estado"
     },
@@ -357,6 +301,7 @@ const MODULE = {
 export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
+    components: {CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({
@@ -372,7 +317,8 @@ export default {
         return {
             ...crudModule,
             MODULE,
-            isSaving: false
+            isSaving: false,
+            isExporting: false
         };
 
     },
@@ -474,6 +420,47 @@ export default {
             }
 
         },
+        async downloadRecords() {
+
+            if(this.isExporting) {
+
+                return;
+
+            }
+
+            const confirmed = await Alerts.confirmDownload({resource: "el listado de marcas"});
+
+            if(!confirmed) return;
+
+            this.isExporting = true;
+            Alerts.swals({type: "default", title: "Preparando reporte de marcas"});
+
+            try {
+
+                await Requests.download({
+                    route: this.routeActions.export,
+                    data: {
+                        filter_by: this.entityList.filters.filter_by?.code,
+                        word: this.entityList.filters.word
+                    },
+                    fileName: "marcas.xlsx",
+                    showAlert: true
+                });
+
+            }finally {
+
+                Alerts.swals({show: false});
+                this.isExporting = false;
+
+            }
+
+        },
+        openImportModal() {
+
+            Alerts.tooltips({show: false});
+            this.$refs.brandImportModal?.open();
+
+        },
         openModal(record = null) {
 
             Alerts.tooltips({show: false});
@@ -486,8 +473,6 @@ export default {
                     internal_code: this.stripInternalCodePrefix(record.internal_code),
                     name: record.name,
                     description: record.description,
-                    logo_path: record.logo_path,
-                    origin_country_code: record.origin_country_code,
                     website_url: record.website_url,
                     status: this.statuses.find(status => status.code === record.status) ?? null
                 });
@@ -631,13 +616,6 @@ export default {
             return {
                 createUpdate: this.brandForm.extras.modals.default.titles
             };
-
-        },
-        submitButtonText() {
-
-            if(this.isSaving) return this.isUpdate ? "Editando" : "Agregando";
-
-            return this.isUpdate ? "Editar marca" : "Agregar marca";
 
         },
         breadcrumbTitles() {

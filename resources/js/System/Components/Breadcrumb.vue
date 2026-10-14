@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import {withNavigationGroup} from "./breadcrumbItems.js";
+
 export default {
     name: "Breadcrumb",
     emits: [],
@@ -30,7 +32,14 @@ export default {
     computed: {
         visibleItems() {
 
-            return this.list.filter(item => item?.title);
+            const navigation = typeof document === "undefined"
+                ? {}
+                : {
+                    world: document.documentElement.dataset.navigationWorld,
+                    group: document.documentElement.dataset.navigationGroup
+                };
+
+            return withNavigationGroup(this.list, navigation);
 
         }
     },

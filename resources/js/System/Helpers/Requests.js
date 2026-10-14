@@ -402,8 +402,13 @@ const ENTITY_SPECIAL_ROUTES = {
         cancel: "cancel"
     },
     products: {
-        import: "import",
-        importTemplate: "import-template"
+        import: "import"
+    },
+    brands: {
+        import: "import"
+    },
+    categories: {
+        import: "import"
     },
     helpers: {
         searchDocumentNumber: "searchDocumentNumber",

@@ -40,9 +40,7 @@ final class GuestCatalogService {
     public static function publicCategories(): Collection {
 
         return Category::query()
-            ->where("is_public", true)
             ->where("status", "active")
-            ->orderBy("sort_order")
             ->orderBy("name")
             ->get();
 

@@ -36,8 +36,6 @@ Campos:
 - `internal_code`: código interno; su unicidad dentro de la empresa se valida en backend.
 - `name`: nombre comercial; su unicidad dentro de la empresa se valida en backend.
 - `description`: descripción opcional de hasta 250 caracteres en la API.
-- `logo_path`: ruta o URL del logotipo de la marca.
-- `origin_country_code`: país de origen en código de tres caracteres.
 - `website_url`: sitio oficial de la marca.
 - `status`: `active` o `inactive`.
 - Auditoría: `created_at`, `created_by`, `updated_at`, `updated_by`.
@@ -55,7 +53,7 @@ La tabla `brands`, la relación `items.brand_id`, la subsección de menú y su h
 - Al eliminar una marca directamente en base de datos, `brand_id` pasa a `null` mediante `ON DELETE SET NULL`.
 - El listado de Productos precarga `brand` para evitar consultas por fila.
 - La búsqueda general de Productos también considera el nombre de la marca.
-- El formulario de Producto muestra el selector de Marca en Datos y precio, inmediatamente antes de Estado.
+- El formulario de Producto muestra el selector de Marca en la pestaña Detalle.
 - Solo se ofrecen marcas activas para nuevas asociaciones.
 - Una marca inactiva ya asociada se conserva al editar el producto y se identifica como inactiva; no puede asignarse a otro producto.
 
@@ -76,8 +74,7 @@ Una mutación de Marca ejecuta:
 
 ```php
 InitParamsCacheInvalidationService::invalidate(
-    InitParamsCacheInvalidationService::BRANDS,
-    $companyId
+    InitParamsCacheInvalidationService::BRANDS
 );
 ```
 
@@ -88,12 +85,22 @@ Esto limpia:
 
 ## Interfaz
 
-- Barra de filtros reutilizable con búsqueda por código, nombre, descripción, país de origen o sitio oficial.
-- Tabla con nombre, descripción, logotipo configurado, código interno copiable, país de origen, sitio oficial, cantidad de productos activos, estado y edición.
-- Modal alineado con `br-entity-modal`, cierre reutilizable, botón Cancelar discreto y acciones diferenciadas para agregar o editar.
+- Barra de filtros reutilizable con búsqueda por código, nombre, descripción o sitio oficial.
+- Tabla con nombre, descripción, código interno copiable, sitio oficial, estado y edición.
+- Modal compartida `FormModal`, con cierre y botón Cancelar reutilizables y acciones diferenciadas para agregar o editar.
 - Generación opcional de código interno con tooltip.
-- El formulario completo permite registrar logotipo, país de origen y sitio oficial sin mezclar estos datos con proveedor o fabricante.
+- El formulario conserva código interno, nombre, descripción, estado y sitio oficial.
 - Select de estado con el mismo comportamiento y menú flotante que el resto de System.
+
+## Carga y descarga
+
+- `GET /brands/import` descarga la plantilla y `POST /brands/import` procesa el archivo. `GET /brands/export` descarga el listado filtrado; ambos métodos de `/import` requieren permiso `import`.
+- El listado utiliza `FiltersSection`, `TableActionsDropdown` y el mismo encabezado de tabla del catálogo comercial.
+- **Acciones → Descargar Excel** exporta todos los registros que coinciden con los filtros actuales; requiere permiso `export`.
+- **Acciones → Cargar masivamente** utiliza `CatalogReferenceImportModal`, compartida con Categorías. Su plantilla y el envío del archivo requieren permiso `import`.
+- Plantilla: `Nombre` obligatorio; `Código interno`, `Descripción`, `Sitio oficial` y `Estado` opcionales. El código vacío se genera con el prefijo configurado; el estado predeterminado es `Activo`.
+- Se aceptan Excel y CSV con hasta 500 filas y el límite de tamaño configurado. Cada fila se valida antes de registrarse; un error revierte todo el lote. No se modifican marcas existentes.
+- La importación reutiliza `BrandService` e invalida las cachés de Marcas y Productos al concluir.
 
 ## Alta rápida reutilizable
 
@@ -113,11 +120,10 @@ Esto limpia:
 ## Criterios para crecer
 
 - No agregar columnas específicas de proveedor a `brands`; proveedor y marca son conceptos distintos.
-- Si se requiere país con catálogo formal, crear un maestro de países y migrar `origin_country_code` a una relación explícita sin retirar el valor actual hasta terminar la transición.
 - Si se necesita una marca global compartida entre tenants, crear un catálogo landlord separado y una relación explícita.
 - Antes de implementar eliminación desde UI, definir si debe bloquearse cuando existen productos o si debe conservarse el comportamiento `SET NULL`.
 
 ## Estado backend implementado
 
-- `logo_path`, `origin_country_code` y `website_url` forman parte de migración, modelo, validación y servicio.
+- `website_url` forma parte de migración, modelo, validación y servicio.
 - Las mutaciones sensibles quedan cubiertas por `business_audit_logs`.

@@ -8,6 +8,15 @@ const modules = [
     {name: "membresía", path: "resources/js/System/Pages/Catalogs/subscriptions/main.vue", ownFields: ["duration_value", "attendance_limit_per_day", "benefits_text", "restrictions_text"]}
 ];
 
+function assertFieldOrder(source, modelPrefix, fields) {
+
+    const positions = fields.map(field => source.indexOf(`v-model="${modelPrefix}.${field}"`));
+
+    assert.ok(positions.every(position => position >= 0));
+    assert.ok(positions.every((position, index) => index === 0 || position > positions[index - 1]));
+
+}
+
 for(const module of modules) {
 
     test(`el formulario de ${module.name} conserva el patrón visual y sus campos propios`, () => {
@@ -73,7 +82,8 @@ test("servicio conserva duración en Servicio y agrupa sus límites y comisión 
     const parsed = parse(source, {filename: "services/main.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN", fields: \["capacity_control_enabled", "capacity_limit", "expires_at", "commission_type", "commission_value"\]\}/);
+    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN", fields: \["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"\]\}/);
+    assertFieldOrder(source, "forms[entity].createUpdate.data", ["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"]);
     assert.match(source, /v-show="activeFormTab === 'general'"\s+v-model="forms\[entity\]\.createUpdate\.data\.estimated_duration_minutes"/);
     assert.match(source, /v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.capacity_limit"/);
     assert.match(source, /v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.expires_at"/);
@@ -99,7 +109,8 @@ test("membresía agrupa cupos, asistencia, disponibilidad y comisión en Configu
     const parsed = parse(source, {filename: "subscriptions/main.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN", fields: \["attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "expires_at", "commission_type", "commission_value"\]\}/);
+    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN", fields: \["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"\]\}/);
+    assertFieldOrder(source, "forms[entity].createUpdate.data", ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"]);
 
     for(const field of ["attendance_limit_per_day", "capacity_limit", "expires_at", "commission_value"]) {
 
@@ -148,6 +159,7 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
     assert.match(configurationPanel, /v-model="productForm\.data\.expires_at"/);
     assert.match(configurationPanel, /v-model="productForm\.data\.commission_type"/);
     assert.match(configurationPanel, /v-model="productForm\.data\.commission_value"/);
+    assertFieldOrder(configurationPanel, "productForm.data", ["expires_at", "commission_type", "commission_value"]);
 
     for(const [field] of configurationPanel.matchAll(/<(?:InputNumber|InputDate|InputSlot)\b[\s\S]*?>/g)) {
 

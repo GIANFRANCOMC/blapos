@@ -127,8 +127,6 @@ class Item extends Model {
         return $this->belongsToMany(Category::class, "category_items", "item_id", "category_id")
             ->wherePivot("status", "active")
             ->where("categories.status", "active")
-            ->where("categories.is_public", true)
-            ->orderBy("categories.sort_order")
             ->orderBy("categories.name");
 
     }

@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Catalogs;
 
+use App\Exports\System\Catalogs\References\{CatalogReferenceListExport, CatalogReferenceTemplateExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
+use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Http\Requests\System\Catalogs\Brands\{StoreBrandRequest, UpdateBrandRequest};
+use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Brands\{BrandConfigService, BrandService};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Validation\{ValidationException};
+use Maatwebsite\Excel\Facades\{Excel};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 final class BrandController extends BaseController {
     private const TRANSLATION_NAMESPACE = "System.Catalogs.brand";
@@ -29,6 +35,48 @@ final class BrandController extends BaseController {
             $this->getFilters($request),
             $this->getPerPage($request, Utilities::$per_page_default)
         );
+
+    }
+
+    public function export(Request $request): BinaryFileResponse {
+
+        return Excel::download(
+            new CatalogReferenceListExport("brands", $this->getFilters($request)),
+            "marcas_".now()->format("Y-m-d_His").".xlsx"
+        );
+
+    }
+
+    public function importTemplate(): BinaryFileResponse {
+
+        return Excel::download(new CatalogReferenceTemplateExport("brands"), "plantilla_marcas.xlsx");
+
+    }
+
+    public function import(ImportCatalogReferencesRequest $request): JsonResponse {
+
+        try {
+
+            $import = new CatalogReferenceImport("brands", $this->getUserId());
+
+            Excel::import($import, $request->file("file"));
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::BRANDS);
+
+            return response()->json([
+                "bool" => true,
+                "msg" => "{$import->importedCount()} marcas importadas correctamente.",
+                "data" => ["imported" => $import->importedCount()],
+            ]);
+
+        }catch(ValidationException $exception) {
+
+            throw $exception;
+
+        }catch(\Exception $exception) {
+
+            return $this->handleException($exception, "create");
+
+        }
 
     }
 

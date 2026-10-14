@@ -11,6 +11,7 @@ use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
 use App\Services\System\Organizations\{BusinessProfileService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Warehouses\Warehouses\{WarehouseItemService};
+use Database\Seeders\{SystemNavigationSeeder};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Route};
 use RuntimeException;
@@ -689,6 +690,43 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $this->assertSame("Clientes", $attendance->section_name);
         $this->assertSame("Membresías", $attendance->group_name);
         $this->assertSame(2, (int) $attendance->order);
+
+    }
+
+    public function test_catalog_group_titles_refresh_without_overwriting_custom_names(): void {
+
+        $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
+        $this->assertSame("Clasificación", DB::table("menu_groups")->where("id", 14)->value("name"));
+
+        DB::table("menu_groups")->where("id", 13)->update(["name" => "Oferta comercial"]);
+        DB::table("menu_groups")->where("id", 14)->update(["name" => "Grupo personalizado"]);
+
+        app(SystemNavigationSeeder::class)->run();
+
+        $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
+        $this->assertSame("Grupo personalizado", DB::table("menu_groups")->where("id", 14)->value("name"));
+
+    }
+
+    public function test_catalog_page_exposes_its_world_and_group_for_the_breadcrumb(): void {
+
+        $user = \App\Models\System\Organizations\User::query()
+            ->where("email", "admin@example.test")
+            ->firstOrFail();
+
+        Auth::login($user);
+
+        $this->withoutMiddleware([
+            \App\Http\Middleware\ResolveTenant::class,
+            \App\Http\Middleware\TrustHosts::class,
+            \App\Http\Middleware\EnsureTenantSession::class,
+            \App\Http\Middleware\EnsureAuthenticatedSession::class,
+            \App\Http\Middleware\EnsureModulePermission::class,
+            \App\Http\Middleware\EnsureOperationalScope::class,
+        ])->get(route("products.index"))
+            ->assertOk()
+            ->assertSee("data-navigation-world=\"Catálogo comercial\"", false)
+            ->assertSee("data-navigation-group=\"Maestras\"", false);
 
     }
 

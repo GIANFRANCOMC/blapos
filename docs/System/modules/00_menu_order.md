@@ -81,8 +81,10 @@ La cabecera contextual muestra únicamente el nombre del mundo. No repite el gru
 
 ### Catálogo comercial
 
-- **Oferta comercial**: Productos, Servicios, Membresías, Recetas y platillos.
-- **Organización**: Categorías, Marcas.
+- **Maestras**: Productos, Servicios, Membresías, Recetas y platillos.
+- **Clasificación**: Categorías, Marcas.
+
+El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y códigos de ambos grupos; al volver a ejecutarse en un tenant existente, actualiza únicamente los títulos anteriores sin sobrescribir nombres personalizados.
 
 ### Inventario
 

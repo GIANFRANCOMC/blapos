@@ -27,6 +27,9 @@ return [
     ],
 
     "route_actions" => [
+        "products.import.template" => "import",
+        "brands.import.template" => "import",
+        "categories.import.template" => "import",
         "stocks_management.guides.store" => "operate",
         "user_attendances.checkin" => "operate",
         "user_attendances.biometric-checkin" => "operate",

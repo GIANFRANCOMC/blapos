@@ -14,8 +14,6 @@ class Brand extends Model {
         "internal_code",
         "name",
         "description",
-        "logo_path",
-        "origin_country_code",
         "website_url",
         "status",
         "created_at",

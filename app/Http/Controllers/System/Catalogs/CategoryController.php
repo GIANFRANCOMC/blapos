@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Catalogs;
 
+use App\Exports\System\Catalogs\References\{CatalogReferenceListExport, CatalogReferenceTemplateExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
+use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Http\Requests\System\Catalogs\Categories\{StoreCategoryRequest, UpdateCategoryRequest};
+use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Categories\{CategoryConfigService, CategoryService};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Validation\{ValidationException};
+use Maatwebsite\Excel\Facades\{Excel};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class CategoryController extends BaseController {
     /**
@@ -41,6 +47,48 @@ class CategoryController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
         return CategoryService::getPaginatedList($filters, $perPage);
+
+    }
+
+    public function export(Request $request): BinaryFileResponse {
+
+        return Excel::download(
+            new CatalogReferenceListExport("categories", $this->getFilters($request)),
+            "categorias_".now()->format("Y-m-d_His").".xlsx"
+        );
+
+    }
+
+    public function importTemplate(): BinaryFileResponse {
+
+        return Excel::download(new CatalogReferenceTemplateExport("categories"), "plantilla_categorias.xlsx");
+
+    }
+
+    public function import(ImportCatalogReferencesRequest $request): JsonResponse {
+
+        try {
+
+            $import = new CatalogReferenceImport("categories", $this->getUserId());
+
+            Excel::import($import, $request->file("file"));
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::CATEGORIES);
+
+            return response()->json([
+                "bool" => true,
+                "msg" => "{$import->importedCount()} categorías importadas correctamente.",
+                "data" => ["imported" => $import->importedCount()],
+            ]);
+
+        }catch(ValidationException $exception) {
+
+            throw $exception;
+
+        }catch(\Exception $exception) {
+
+            return $this->handleException($exception, "create");
+
+        }
 
     }
 
@@ -132,7 +180,7 @@ class CategoryController extends BaseController {
 
     /**
      * Remove the specified record
-     * Deletes the category only when no active product dependency exists.
+     * Deletes the category only when no active item dependency exists.
      *
      * @param  int  $id Category ID
      */
@@ -166,8 +214,6 @@ class CategoryController extends BaseController {
             "internal_code" => $request->input("internal_code"),
             "name" => $request->input("name"),
             "description" => $request->input("description"),
-            "sort_order" => $request->input("sort_order", 1),
-            "is_public" => $request->boolean("is_public", true),
             "status" => $request->input("status"),
         ];
 

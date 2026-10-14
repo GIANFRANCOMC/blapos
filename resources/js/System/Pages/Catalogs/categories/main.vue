@@ -1,7 +1,7 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <!-- Filters -->
+    <main class="br-entity">
     <FiltersSection
         :filter-by-value="filterByValue"
         @update:filterByValue="filterByValue = $event"
@@ -15,89 +15,111 @@
         :search-button-text="MODULE.texts.actions.search"
         :add-button-text="MODULE.texts.actions.add"
         :show-add-button="true"
+        :show-download-button="true"
+        :show-import-button="true"
+        :group-secondary-actions="true"
+        import-button-text="Cargar masivamente"
+        download-button-text="Descargar Excel"
+        :downloading="isExporting"
         :title-class="[config.forms.classes.title]"
         :select-class="config.forms.classes.select2"
         @search="handleSearch"
-        @add="openModal()"/>
+        @add="openModal()"
+        @import="openImportModal"
+        @download="downloadRecords"/>
 
-    <!-- Records -->
-    <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover">
-            <thead class="align-middle bg-secondary text-center">
+    <CatalogReferenceImportModal
+        ref="categoryImportModal"
+        modal-id="categoryImportModal"
+        resource="categorías"
+        template-file-name="plantilla_categorias.xlsx"
+        :import-route="routeActions.import"
+        @imported="listEntity({})"/>
+
+    <section class="br-entity-list" aria-label="Listado de categorías">
+        <div class="table-responsive">
+        <table class="table br-entity-table mb-0">
+            <colgroup>
+                <col style="width: 20%;">
+                <col style="width: 44%;">
+                <col style="width: 16%;">
+                <col style="width: 13%;">
+                <col style="width: 7%;">
+            </colgroup>
+            <thead class="br-table-header-surface">
                 <tr>
-                    <th class="text-white" style="width: 16%;">CÓDIGO INTERNO</th>
-                    <th class="text-white" style="width: 34%;" v-text="MODULE.config.pageTitleSingular"></th>
-                    <th class="text-white" style="width: 10%;">ORDEN</th>
-                    <th class="text-white" style="width: 14%;">PUBLICACIÓN</th>
-                    <th class="text-white" style="width: 16%;">USO</th>
-                    <th class="text-white" style="width: 10%;">ESTADO</th>
-                    <th class="text-white" style="width: 10%;">ACCIONES</th>
+                    <th>Identificación</th>
+                    <th>Categoría</th>
+                    <th class="text-center">Uso actual</th>
+                    <th class="text-center">Estado</th>
+                    <th><span class="visually-hidden">Acciones</span></th>
                 </tr>
             </thead>
-            <tbody class="table-border-bottom-0 bg-white">
+            <tbody>
                 <tr v-if="entityList.extras.loading">
-                    <td colspan="99">
+                    <td colspan="5" class="py-4">
                         <Loader/>
                     </td>
                 </tr>
                 <template v-else-if="entityList.records.total > 0">
                     <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="text-center">
-                            <span v-text="record.internal_code" class="fw-semibold d-block"></span>
+                        <td>
+                            <div class="br-entity-identifier">
+                                <span class="br-entity-identifier__label">Código interno</span>
+                                <span class="br-entity-identifier__value">
+                                    <span class="br-entity-code" v-text="record.internal_code"></span>
+                                    <CopyButton :value="record.internal_code" label="Código interno"/>
+                                </span>
+                            </div>
                         </td>
                         <td>
-                            <span v-text="record.name" class="fw-semibold d-block"></span>
-                            <small v-if="record.description" v-text="record.description" class="text-muted"></small>
-                        </td>
-                        <td class="text-center">
-                            <span class="br-entity-code" v-text="record.sort_order || 1"></span>
-                        </td>
-                        <td class="text-center">
-                            <span :class="['br-status-label', record.is_public ? 'br-status-active' : 'br-status-inactive']">
-                                {{ record.is_public ? "Pública" : "Interna" }}
-                            </span>
+                            <span class="br-entity-table__name" v-text="record.name"></span>
+                            <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
                         </td>
                         <td class="text-center">
                             <span class="br-entity-table__meta">
                                 {{ record.active_items_count || 0 }}
-                                {{ Number(record.active_items_count || 0) === 1 ? "producto activo" : "productos activos" }}
+                                {{ Number(record.active_items_count || 0) === 1 ? "ítem activo" : "ítems activos" }}
                             </span>
                         </td>
                         <td class="text-center">
                             <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
-                                <span v-text="MODULE.texts.actions.edit"></span>
-                            </button>
+                            <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                <li>
+                                    <button type="button" class="dropdown-item" @click="openModal(record)">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                        <span>Editar</span>
+                                    </button>
+                                </li>
+                            </TableActionsDropdown>
                         </td>
                     </tr>
                 </template>
                 <tr v-else>
-                    <td colspan="99">
-                        <WithoutData type="image"/>
+                    <td colspan="5" class="py-4">
+                        <WithoutData class="br-entity-empty-state" type="image" image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
+        </div>
+    </section>
 
-    <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
+    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center mt-3" aria-label="Paginación de categorías">
         <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
     </nav>
+    </main>
 
-    <!-- Modal: Create/Update -->
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
+    <FormModal
+        :modal-id="forms[entity].createUpdate.extras.modals.default.id"
+        :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
+        modal-size="modal-lg"
+        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :submit-disabled="isSaving"
+        @submit="saveEntity">
+        <template #body>
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
                             <InputText
@@ -115,9 +137,9 @@
                                 <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
                                     <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
                                 </template>
-                                <template v-slot:inputGroupAppend v-if="!isUpdate">
-                                    <button type="button" :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
-                                        <i class="fa fa-rotate"></i>
+                                <template v-if="!isUpdate" v-slot:inputGroupAppend>
+                                    <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
+                                        <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                     </button>
                                 </template>
                             </InputText>
@@ -142,39 +164,8 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="12"
-                                lg="12"/>
-                            <InputNumber
-                                v-model="forms[entity].createUpdate.data.sort_order"
-                                hasDiv
-                                :title="MODULE.texts.form.sortOrder"
-                                :titleClass="[config.forms.classes.title]"
-                                :decimals="0"
-                                :minValue="1"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.sort_order"
-                                xl="3"
-                                lg="3"/>
-                            <div class="form-group col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                                <label class="form-label colon-at-end" v-text="MODULE.texts.form.publication"></label>
-                                <div class="br-entity-publication-settings">
-                                    <label class="br-entity-switch" for="category_is_public">
-                                        <input
-                                            id="category_is_public"
-                                            v-model="forms[entity].createUpdate.data.is_public"
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            role="switch">
-                                        <span>
-                                            <strong>Visible públicamente</strong>
-                                            <small>Permite usar esta categoría en catálogo web, PDF o carta pública.</small>
-                                        </span>
-                                    </label>
-                                </div>
-                                <div>
-                                    <small class="text-danger br-form-error" v-text="forms[entity].createUpdate.errors?.is_public?.[0] || ''"></small>
-                                </div>
-                            </div>
+                                xl="8"
+                                lg="8"/>
                             <InputSlot
                                 hasDiv
                                 :title="MODULE.texts.form.status"
@@ -182,48 +173,35 @@
                                 isRequired
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="3"
-                                lg="3">
+                                xl="4"
+                                lg="4">
                                 <template v-slot:input>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.status"
                                         :options="statuses"
                                         :class="config.forms.classes.select2"
                                         :clearable="false"
-                                        :searchable="false"/>
+                                        :searchable="false"
+                                        append-to-body/>
                                 </template>
                             </InputSlot>
                         </div>
                     </form>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
-                    <button
-                        type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
-                        @click="saveEntity"
-                        :disabled="isSaving">
-                        <i class="fa fa-save"></i>
-                        <span class="ms-2" v-text="MODULE.texts.modal.save"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+        </template>
+    </FormModal>
 </template>
 
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
-import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
+import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
+import CopyButton from "@System/Components/CopyButton.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 const MODULE_CONFIG = {
     entity: "categories",
@@ -239,8 +217,6 @@ const FORM_FIELDS = {
     internal_code: "",
     name: "",
     description: "",
-    sort_order: 1,
-    is_public: true,
     status: null
 };
 
@@ -248,8 +224,6 @@ const FORM_FIELD_CONFIG = {
     internal_code: {trim: true},
     name: {trim: true},
     description: {normalize: true},
-    sort_order: {toNumber: true, minValue: 1},
-    is_public: {toBoolean: true},
     status: {getCode: true}
 };
 
@@ -257,7 +231,6 @@ const VALIDATION_RULES = {
     internal_code: {required: true},
     name: {required: true},
     description: {required: false},
-    sort_order: {required: false, number: true, min: 1},
     status: {required: true}
 };
 
@@ -265,8 +238,6 @@ const ERROR_LABELS = {
     internal_code: "Código interno",
     name: "Nombre",
     description: "Descripción",
-    sort_order: "Orden",
-    is_public: "Visibilidad pública",
     status: "Estado"
 };
 
@@ -284,15 +255,13 @@ const TEXTS = {
     },
     actions: {
         search: "Buscar",
-        add: "Agregar",
+        add: "Agregar categoría",
         edit: "Editar"
     },
     form: {
         internalCode: "Código interno",
         name: "Nombre",
         description: "Descripción",
-        sortOrder: "Orden",
-        publication: "Publicación",
         status: "Estado",
         generateCodeTooltip: "Generar aleatoriamente"
     },
@@ -315,6 +284,7 @@ const MODULE = {
 export default {
     name: "CategoriesMain",
     mixins: [InternalCodePrefixMixin],
+    components: {CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({
@@ -331,7 +301,8 @@ export default {
             ...crudModule,
             MODULE: MODULE,
             isInitialized: false,
-            isSaving: false
+            isSaving: false,
+            isExporting: false
         };
 
     },
@@ -428,6 +399,47 @@ export default {
             this.listEntity({});
 
         },
+        async downloadRecords() {
+
+            if(this.isExporting) {
+
+                return;
+
+            }
+
+            const confirmed = await Alerts.confirmDownload({resource: "el listado de categorías"});
+
+            if(!confirmed) return;
+
+            this.isExporting = true;
+            Alerts.swals({type: "default", title: "Preparando reporte de categorías"});
+
+            try {
+
+                await Requests.download({
+                    route: this.routeActions.export,
+                    data: {
+                        filter_by: this.entityList.filters.filter_by?.code,
+                        word: this.entityList.filters.word
+                    },
+                    fileName: "categorias.xlsx",
+                    showAlert: true
+                });
+
+            }finally {
+
+                Alerts.swals({show: false});
+                this.isExporting = false;
+
+            }
+
+        },
+        openImportModal() {
+
+            Alerts.tooltips({show: false});
+            this.$refs.categoryImportModal?.open();
+
+        },
         // Forms
         openModal(record = null) {
 
@@ -445,16 +457,12 @@ export default {
                 entityForms.data.internal_code = this.stripInternalCodePrefix(record.internal_code);
                 entityForms.data.name          = record.name;
                 entityForms.data.description   = record.description;
-                entityForms.data.sort_order    = record.sort_order || 1;
-                entityForms.data.is_public     = Boolean(record.is_public);
                 entityForms.data.status        = statusOption;
 
             }else {
 
                 // Set defaults for new record
                 entityForms.data.internal_code = this.generateCode({length: 7});
-                entityForms.data.sort_order    = 1;
-                entityForms.data.is_public     = true;
                 entityForms.data.status         = this.statuses.length > 0 ? this.statuses[0] : null;
 
             }
@@ -463,12 +471,11 @@ export default {
             Alerts.tooltips({show: true, time: 500});
 
         },
-        generateCodeAction() {
+        generateCodeAction(event) {
 
             this.forms[this.entity].createUpdate.data.internal_code = this.generateCode({length: 7});
 
-            Alerts.toastrs({type: "success", subtitle: "Código interno generado correctamente."});
-            Alerts.tooltips({show: false});
+            Alerts.dismissTooltip(event?.currentTarget);
 
         },
         async saveEntity() {
@@ -489,12 +496,12 @@ export default {
 
                 if(!validation.bool) {
 
+                    entityForms.errors = validation.errors;
                     Alerts.generateAlert({
                         type: "error",
                         messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels),
                         msgContent: this.config.messages.errorValidate
                     });
-                    this.isSaving = false;
                     return;
 
                 }
@@ -648,6 +655,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-</style>

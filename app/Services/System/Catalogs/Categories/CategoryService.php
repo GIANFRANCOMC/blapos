@@ -6,7 +6,6 @@ namespace App\Services\System\Catalogs\Categories;
 
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Category};
-use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
@@ -28,8 +27,6 @@ class CategoryService {
         "internal_code",
         "name",
         "description",
-        "sort_order",
-        "is_public",
         "status",
     ];
 
@@ -154,7 +151,7 @@ class CategoryService {
 
                 self::assertCategoryHasNoActiveItems(
                     (int) $category->id,
-                    "No puedes inactivar una categoría asociada a productos activos."
+                    "No puedes inactivar una categoría asociada a ítems activos."
                 );
 
             }
@@ -179,7 +176,7 @@ class CategoryService {
     }
 
     /**
-     * Find record by ID and company ID
+     * Find record by ID in the current tenant
      *
      * @param  int  $id Record
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
@@ -212,6 +209,12 @@ class CategoryService {
      * @param  int  $perPage Items per page
      */
     public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
+
+        return self::getFilteredListQuery($filters)->paginate($perPage);
+
+    }
+
+    public static function getFilteredListQuery(array $filters = []): Builder {
 
         $query = Category::query()
             ->withCount([
@@ -267,9 +270,7 @@ class CategoryService {
 
         }
 
-        return $query->orderBy("sort_order")
-            ->orderBy("name", "ASC")
-            ->paginate($perPage);
+        return $query->orderBy("name", "ASC");
 
     }
 
@@ -280,7 +281,7 @@ class CategoryService {
             $category = Category::query()
                 ->lockForUpdate()
                 ->findOrFail($categoryId);
-            self::assertCategoryHasNoActiveItems($categoryId, "No puedes eliminar una categoría asociada a productos activos.");
+            self::assertCategoryHasNoActiveItems($categoryId, "No puedes eliminar una categoría asociada a ítems activos.");
 
             $category->delete();
 

@@ -217,8 +217,6 @@ return new class extends Migration {
             $table->string("internal_code", 255);
             $table->string("name", 255);
             $table->text("description")->nullable();
-            $table->string("logo_path", 500)->nullable();
-            $table->string("origin_country_code", 3)->nullable();
             $table->string("website_url", 500)->nullable();
             $table->enum("status", ["active", "inactive"])->default("active");
 
@@ -316,8 +314,6 @@ return new class extends Migration {
             $table->string("internal_code", 255);
             $table->string("name", 255);
             $table->text("description")->nullable();
-            $table->unsignedSmallInteger("sort_order")->default(1);
-            $table->boolean("is_public")->default(true);
             $table->enum("status", ["active", "inactive"])->default("active");
 
             $table->timestamp("created_at")->useCurrent()->nullable();
@@ -326,7 +322,7 @@ return new class extends Migration {
             $table->integer("updated_by")->nullable();
 
             $table->unique(["internal_code"], "categories_code_uq");
-            $table->index(["status", "sort_order", "name"], "categories_status_order_idx");
+            $table->index(["status", "name"], "categories_status_name_idx");
 
         });
         Schema::create("category_items", function(Blueprint $table) {

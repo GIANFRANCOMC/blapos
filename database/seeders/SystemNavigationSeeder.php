@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Services\System\Organizations\Companies\{CompanySectionService};
 use Illuminate\Database\{Seeder};
-use Illuminate\Support\Facades\{DB};
+use Illuminate\Support\Facades\{DB, Schema};
 
 final class SystemNavigationSeeder extends Seeder {
     private const DISABLED_BY_DEFAULT_ROUTES = [
@@ -27,6 +28,8 @@ final class SystemNavigationSeeder extends Seeder {
     public function run(): void {
 
         if(DB::table("sections")->exists() || DB::table("sub_sections")->exists()) {
+
+            $this->refreshCatalogGroupLabels();
 
             return;
 
@@ -64,8 +67,8 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 10, "section_id" => 4, "code" => "communications", "label" => "Atención al cliente", "order" => 4],
                 ["id" => 11, "section_id" => 4, "code" => "customer_management", "label" => "Gestión", "order" => 1],
                 ["id" => 12, "section_id" => 4, "code" => "memberships", "label" => "Membresías", "order" => 2],
-                ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Oferta comercial", "order" => 1],
-                ["id" => 14, "section_id" => 5, "code" => "catalog_organization", "label" => "Organización", "order" => 2],
+                ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Maestras", "order" => 1],
+                ["id" => 14, "section_id" => 5, "code" => "catalog_organization", "label" => "Clasificación", "order" => 2],
                 ["id" => 15, "section_id" => 11, "code" => "inventory_control", "label" => "Control", "order" => 1],
                 ["id" => 16, "section_id" => 11, "code" => "inventory_movements", "label" => "Movimientos", "order" => 2],
                 ["id" => 17, "section_id" => 6, "code" => "team", "label" => "Colaboradores", "order" => 4],
@@ -186,6 +189,37 @@ final class SystemNavigationSeeder extends Seeder {
             }
 
         });
+
+    }
+
+    private function refreshCatalogGroupLabels(): void {
+
+        if(!Schema::hasTable("menu_groups")) {
+
+            return;
+
+        }
+
+        $updated = 0;
+
+        foreach([
+            13 => ["Oferta comercial", "Maestras"],
+            14 => ["Organización", "Clasificación"],
+        ] as $id => [$previousName, $newName]) {
+
+            $updated += DB::table("menu_groups")
+                ->where("id", $id)
+                ->where("section_id", 5)
+                ->where("name", $previousName)
+                ->update(["name" => $newName, "updated_at" => now()]);
+
+        }
+
+        if($updated > 0) {
+
+            CompanySectionService::clearTenantCache();
+
+        }
 
     }
 }
