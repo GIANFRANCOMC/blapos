@@ -20,6 +20,7 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 - Modelo: `app/Models/System/Catalogs/Item.php`
 - Vue: `resources/js/System/Pages/Catalogs/products/main.vue`
 - Editor reutilizable: `resources/js/System/Components/Catalogs/Products/ProductEditor.vue`
+- Consulta de inventario: `resources/js/System/Components/Catalogs/Products/ProductInventoryModal.vue` y `productInventory.js`
 - Disparador reutilizable: `resources/js/System/Components/Catalogs/Products/AddProduct.vue`
 - Configuración del formulario: `resources/js/System/Components/Catalogs/Products/productFormConfig.js`
 - Generador PNG reutilizable: `resources/js/System/Components/BarcodeDownloadButton.vue`
@@ -96,6 +97,8 @@ Cada producto tiene un registro en `warehouse_items` por cada almacén activo de
 El mínimo se guarda por almacén y no de forma general. Una sucursal puede tener distinta demanda, capacidad o frecuencia de reposición, y la estructura también admite múltiples almacenes por sucursal.
 
 Existe una restricción única para `warehouse_id + item_id`, evitando duplicar el inventario de un producto dentro del mismo almacén.
+
+En el listado, la columna Inventario muestra el total y un botón contextual junto al valor: advertencia amarilla cuando al menos un almacén está en el mínimo o por debajo; caja abierta azul cuando no hay alertas. El botón no adquiere fondo al pasar el cursor; solo destaca el icono, igual que Copiar en Identificación. Ambos estados abren la misma modal de solo lectura. La modal resume el producto y el stock total, y muestra por sucursal y almacén el stock actual, el mínimo y su estado. Incluye «Cerrar» en el pie y no permite modificar cantidades: los movimientos siguen correspondiendo al módulo Inventario. Se alimenta de `warehouseItems.warehouse.branch`, relación ya incluida en la consulta paginada; no solicita datos adicionales ni crea otra ruta. Si aún no hay registros por almacén, presenta un estado vacío.
 
 ## Relación con recetas y platillos
 

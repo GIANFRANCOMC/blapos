@@ -30,6 +30,12 @@ final class MasterDataService {
 
     public static function list(string $resource) {
 
+        if($resource === "automatic") {
+
+            return AutomaticMasterDataService::list();
+
+        }
+
         $definition = self::definition($resource);
 
         return $definition["model"]::query()

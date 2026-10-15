@@ -38,6 +38,8 @@
             :warehouses="warehouses"
             @imported="handleProductsImported"/>
 
+        <ProductInventoryModal ref="productInventoryModal"/>
+
         <section class="br-entity-list" :aria-label="MODULE.texts.table.ariaLabel">
             <div class="table-responsive">
                 <table class="table br-entity-table mb-0">
@@ -86,9 +88,9 @@
                                     <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
                                 </td>
                                 <td class="br-entity-table__identification-cell">
-                                    <div class="br-entity-identifiers">
+                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
                                         <div class="br-entity-identifier">
-                                            <span class="br-entity-identifier__label">Cód. interno</span>
+                                            <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
                                             <span class="br-entity-identifier__value">
                                                 <span
                                                     class="br-entity-code"
@@ -101,7 +103,7 @@
                                             </span>
                                         </div>
                                         <div class="br-entity-identifier">
-                                            <span class="br-entity-identifier__label">Cód. barras</span>
+                                            <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
                                             <span class="br-entity-identifier__value">
                                                 <span
                                                     class="br-entity-barcode"
@@ -140,17 +142,16 @@
                                         <span class="br-entity-stock">
                                             {{ separatorNumber(stockSummary(record).total) }} unidades
                                         </span>
-                                        <span
-                                            v-if="stockSummary(record).alerts > 0"
-                                            class="br-entity-stock-warning"
-                                            role="img"
-                                            tabindex="0"
+                                        <button
+                                            type="button"
+                                            :class="['br-entity-stock-trigger', {'is-alert': stockSummary(record).alerts > 0}]"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
-                                            :title="stockAlertText(record)"
-                                            :aria-label="stockAlertText(record)">
-                                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                                        </span>
+                                            :title="stockInventoryActionText(record)"
+                                            :aria-label="stockInventoryActionText(record)"
+                                            @click="openInventoryModal(record)">
+                                            <i :class="stockSummary(record).alerts > 0 ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'" aria-hidden="true"></i>
+                                        </button>
                                     </span>
                                 </td>
                                 <td class="text-center">
@@ -209,9 +210,11 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import BarcodeDownloadButton from "@System/Components/BarcodeDownloadButton.vue";
 import ProductImportModal from "@System/Components/Catalogs/Products/ProductImportModal.vue";
+import ProductInventoryModal from "@System/Components/Catalogs/Products/ProductInventoryModal.vue";
 import AddProduct from "@System/Components/Catalogs/Products/AddProduct.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
+import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
 
 const MODULE_CONFIG = {
     entity: "products",
@@ -245,6 +248,7 @@ export default {
     components: {
         BarcodeDownloadButton,
         ProductImportModal,
+        ProductInventoryModal,
         AddProduct,
         TableActionsDropdown
     },
@@ -431,21 +435,23 @@ export default {
             this.$refs.productEditor?.open(record);
 
         },
-        stockSummary(record) {
+        openInventoryModal(record) {
 
-            const warehouseItems = record?.warehouse_items ?? [];
-
-            return {
-                total: warehouseItems.reduce((total, item) => total + Number(item.quantity ?? 0), 0),
-                alerts: warehouseItems.filter(item => Number(item.quantity ?? 0) <= Number(item.minimum_stock ?? 0)).length
-            };
+            this.$refs.productInventoryModal?.open(record);
 
         },
-        stockAlertText(record) {
+        stockSummary(record) {
+
+            return summarizeProductStock(record);
+
+        },
+        stockInventoryActionText(record) {
 
             const count = this.stockSummary(record).alerts;
 
-            return `${count} ${count === 1 ? "almacén con stock bajo" : "almacenes con stock bajo"}`;
+            return count > 0
+                ? `Ver inventario · ${count} ${count === 1 ? "almacén con stock bajo" : "almacenes con stock bajo"}`
+                : "Ver inventario por almacén";
 
         },
         isDefined(value) {

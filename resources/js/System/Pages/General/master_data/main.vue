@@ -24,7 +24,7 @@
                     <h1>{{ selectedResource.label }}</h1>
                     <p>{{ selectedResource.help }}</p>
                 </div>
-                <button type="button" class="br-btn br-btn-action-create" @click="startCreate">
+                <button v-if="selectedResourceCode !== 'automatic'" type="button" class="br-btn br-btn-action-create" @click="startCreate">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                     <span>Nuevo registro</span>
                 </button>
@@ -45,7 +45,32 @@
                 </article>
             </section>
 
-            <div class="br-master-data__grid">
+            <section v-if="selectedResourceCode === 'automatic'" class="br-master-data-automatic" aria-label="Datos automáticos">
+                <div class="br-master-data__records-head">
+                    <div class="br-master-data-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input v-model.trim="searchTerm" type="search" class="form-control" placeholder="Buscar dato automático" aria-label="Buscar dato automático">
+                    </div>
+                    <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
+                </div>
+                <Loader v-if="loading"/>
+                <WithoutData v-else-if="filteredRecords.length === 0" type="image"/>
+                <div v-else class="br-master-data-automatic__list">
+                    <article v-for="record in filteredRecords" :key="record.code" class="br-master-data-automatic__item">
+                        <div class="br-master-data-automatic__detail">
+                            <strong>{{ record.name }}</strong>
+                            <span>{{ record.description }}</span>
+                            <small>Condición: {{ record.condition_label }} · Origen: {{ record.source }}</small>
+                        </div>
+                        <div class="br-master-data-automatic__value">
+                            <StatusBadge :status="record.value ? 'active' : 'inactive'" :formatted-status="record.value ? 'Activo' : 'Inactivo'"/>
+                            <small>Valor: {{ record.value ? "Sí" : "No" }}</small>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <div v-else class="br-master-data__grid">
                 <section class="br-entity-list br-master-data__records">
                     <div class="br-master-data__records-head">
                         <div class="br-master-data-search">
@@ -183,6 +208,17 @@ const OPTION = {
 };
 
 const RESOURCES = [
+    {
+        code: "automatic",
+        label: "Automáticos",
+        icon: "fa-solid fa-bolt",
+        shortHelp: "Valores condicionados",
+        help: "Valores de solo lectura calculados a partir de condiciones reales de la empresa.",
+        typeLabel: "Valor calculado",
+        scopeLabel: "Empresa actual",
+        impact: "Controla funciones dependientes de módulos activos.",
+        fields: []
+    },
     {
         code: "company-settings",
         label: "Configuraciones",

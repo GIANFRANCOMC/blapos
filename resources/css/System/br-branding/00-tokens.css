@@ -98,6 +98,9 @@
   --br-ui-font-size: 0.705rem;
   --br-ui-line-height: 1.25;
   --br-control-affix-font-size: calc(var(--br-ui-font-size) - 0.035rem);
+  --br-table-value-font-size: 0.82rem;
+  --br-table-secondary-font-size: 0.7rem;
+  --br-table-caption-font-size: 0.68rem;
 
   /* Compatibilidad con plantilla / Bootstrap heredado */
   --br-vuexy-primary: var(--br-primary);

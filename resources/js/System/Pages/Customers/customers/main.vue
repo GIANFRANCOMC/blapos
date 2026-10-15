@@ -102,7 +102,7 @@
                                             <span v-text="MODULE.texts.actions.carnet"></span>
                                         </button>
                                     </li>
-                                    <li>
+                                    <li v-if="canRegisterCustomerFingerprint">
                                         <button type="button" class="dropdown-item" @click="openRegisterBiometricModal(record)">
                                             <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
                                             <span v-text="MODULE.texts.actions.registerBiometric"></span>
@@ -632,6 +632,7 @@ export default {
             isSaving: false,
             isSavingBiometric: false,
             isExporting: false,
+            automaticSettings: {},
             activeFormTab: CUSTOMER_FORM_TABS[0].id
         };
 
@@ -670,6 +671,7 @@ export default {
                 this.options.identityDocumentTypes = response.data.config.identityDocumentTypes;
                 this.options.genders               = response.data.config.genders;
                 this.options.statuses              = response.data.config.statuses;
+                this.automaticSettings              = response.data.config.automatic || {};
 
             }
 
@@ -918,6 +920,8 @@ export default {
         // Register Biometric
         openRegisterBiometricModal(record = null) {
 
+            if(!this.canRegisterCustomerFingerprint) return;
+
             const registerBiometricForm = this.forms[this.entity].registerBiometric;
 
             registerBiometricForm.errors = {};
@@ -942,6 +946,8 @@ export default {
 
         },
         async registerBiometricFingerprint() {
+
+            if(!this.canRegisterCustomerFingerprint) return;
 
             if(this.isSavingBiometric) return;
 
@@ -1105,6 +1111,11 @@ export default {
         }
     },
     computed: {
+        canRegisterCustomerFingerprint() {
+
+            return this.automaticSettings.customer_fingerprint_registration === true;
+
+        },
         customerFormTabs() {
 
             return CUSTOMER_FORM_TABS;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Organizations\Companies;
 
-use App\Models\System\General\{Section};
+use App\Models\System\General\{Section, SubSection};
 use App\Models\System\Organizations\{Role};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
@@ -56,6 +56,23 @@ final class CompanySectionService {
                 self::clearCache((int) $roleId);
 
             });
+
+    }
+
+    public static function isModuleEnabled(string $route): bool {
+
+        $companyId = app(TenantCompanyContext::class)->id();
+
+        return SubSection::query()
+            ->where("dom_route", $route)
+            ->where("status", "active")
+            ->whereHas("section", fn($query) => $query->where("status", "active"))
+            ->whereHas("companiesSubSections", function($query) use ($companyId): void {
+
+                $query->where("company_id", $companyId);
+
+            })
+            ->exists();
 
     }
 

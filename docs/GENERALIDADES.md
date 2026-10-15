@@ -83,6 +83,19 @@ Los CSS de plantilla en `public/System/assets/vendor/css/core.css`, `public/Syst
 
 La plataforma usa una densidad visual compacta definida en `br-branding/70-visual-density-brand-refresh.css`: botones, inputs, labels, tablas, modales, badges y tooltips deben respetar esa escala. Si una pantalla se ve grande o pesada, ajustar primero variables como `--br-control-height`, `--br-btn-height`, `--br-font-size-ui` o `--br-table-cell-pad-y`, no crear tamaños locales por módulo.
 
+### Convención tipográfica de tablas
+
+La escala compartida se declara en `resources/css/System/br-branding/00-tokens.css` y se aplica desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
+
+| Rol | Token | Tamaño base |
+| --- | --- | --- |
+| Texto operativo y celdas comunes | `--br-ui-font-size` / `--br-font-size-table` | `0.705rem` |
+| Dato principal (precio de venta, inventario u otro valor destacado) | `--br-table-value-font-size` | `0.82rem` |
+| Dato secundario (precio mínimo/máximo u otro desglose) | `--br-table-secondary-font-size` | `0.7rem` |
+| Etiqueta breve de un dato compuesto | `--br-table-caption-font-size` | `0.68rem` |
+
+Los valores principales comparables de una misma fila, como precio e inventario, deben usar el mismo token, peso y altura de línea compatibles. La jerarquía se crea con color y peso, no con tamaños distintos para datos del mismo nivel. Los encabezados, estados e iconos conservan sus tokens o reglas propios. Antes de crear otro tamaño, identificar el rol del texto y reutilizar el token correspondiente.
+
 `br-branding/99-system-wide-visual-polish.css` es la capa final de armonización para pantallas heredadas. Ahí se compactan y alinean menú, navbar, formularios, placeholders, selects, tablas, modales, cards, POS, estados, loaders y scrollbars usando únicamente tokens `--br-*`. Los estilos específicos deben permanecer en el parcial de su módulo y no duplicarse en esta capa final.
 
 Las clases nuevas reutilizables deben iniciar con `br-`.
@@ -102,6 +115,7 @@ Criterios prácticos:
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
 - Los estados vacíos y loaders deben usar componentes compartidos (`WithoutData`, `Loader`) para evitar estilos distintos por módulo.
+- Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
 
 ## Formularios
 

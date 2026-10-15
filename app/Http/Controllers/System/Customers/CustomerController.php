@@ -13,6 +13,7 @@ use App\Models\System\Customers\{Subscription};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Customers\Customers\{CustomerConfigService, CustomerService};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
+use App\Services\System\General\{AutomaticMasterDataService};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Facades\{Excel};
@@ -34,8 +35,22 @@ class CustomerController extends BaseController {
     public function initParams(Request $request) {
 
         $page = $this->getPage($request);
+        $params = clone CustomerConfigService::getInitParams($page, $this->getUserId());
+        $params->config = clone $params->config;
+        $fingerprintEnabled = AutomaticMasterDataService::enabled(
+            AutomaticMasterDataService::CUSTOMER_FINGERPRINT_REGISTRATION
+        );
+        $params->config->automatic = [
+            AutomaticMasterDataService::CUSTOMER_FINGERPRINT_REGISTRATION => $fingerprintEnabled,
+        ];
 
-        return CustomerConfigService::getInitParams($page, $this->getUserId());
+        if(!$fingerprintEnabled) {
+
+            $params->config->biometricDevices = (object) ["records" => []];
+
+        }
+
+        return $params;
 
     }
 

@@ -582,6 +582,7 @@ import InputDate from "@System/Components/InputDate.vue";
 import InputSlot from "@System/Components/InputSlot.vue";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
+import {inventoryStockStatus} from "./productInventory.js";
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import {FORM_TABS, FORM_FIELDS, FORM_FIELD_CONFIG, VALIDATION_RULES, ERROR_LABELS, PRODUCT_TEXTS, generateEan13, isValidEan13} from "./productFormConfig.js";
@@ -1087,38 +1088,7 @@ export default {
         },
         inventoryStockStatus(inventory) {
 
-            const hasCurrentStock = inventory?.initial_stock !== "" && inventory?.initial_stock !== null;
-            const hasMinimumStock = inventory?.minimum_stock !== "" && inventory?.minimum_stock !== null;
-
-            if(!hasCurrentStock && !hasMinimumStock) {
-
-                return {
-                    className: "is-alert",
-                    icon: "fa-solid fa-triangle-exclamation",
-                    text: "Pendiente de registrar"
-                };
-
-            }
-
-            const currentStock = Number(inventory?.initial_stock ?? 0);
-            const minimumStock = Number(inventory?.minimum_stock ?? 0);
-            const isLowStock = currentStock <= minimumStock;
-
-            if(isLowStock) {
-
-                return {
-                    className: "is-alert",
-                    icon: "fa-solid fa-triangle-exclamation",
-                    text: "Stock bajo o en el mínimo"
-                };
-
-            }
-
-            return {
-                className: "is-healthy",
-                icon: "fa-solid fa-circle-check",
-                text: "Inventario saludable"
-            };
+            return inventoryStockStatus(inventory);
 
         },
         isDefined(value) {

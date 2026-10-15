@@ -8,6 +8,12 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class SaveMasterDataRequest extends CompanyFormRequest {
 
+    public function authorize(): bool {
+
+        return parent::authorize() && $this->route("resource") !== "automatic";
+
+    }
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();

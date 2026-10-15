@@ -106,6 +106,9 @@
   --br-ui-font-size: 0.705rem;
   --br-ui-line-height: 1.25;
   --br-control-affix-font-size: calc(var(--br-ui-font-size) - 0.035rem);
+  --br-table-value-font-size: 0.82rem;
+  --br-table-secondary-font-size: 0.7rem;
+  --br-table-caption-font-size: 0.68rem;
 
   /* Compatibilidad con plantilla / Bootstrap heredado */
   --br-vuexy-primary: var(--br-primary);
@@ -11146,6 +11149,11 @@ body.br-layout .br-entity-table > thead > tr > th {
     font-weight: 700;
 }
 
+.br-entity-stock {
+    font-size: var(--br-table-value-font-size);
+    line-height: 1.3;
+}
+
 .br-entity-table__description,
 .br-entity-table__meta {
     display: block;
@@ -11204,7 +11212,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-prices {
     display: grid;
-    gap: 0.08rem;
+    gap: 0.24rem;
     justify-content: end;
     min-width: 7.9rem;
 }
@@ -11215,7 +11223,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     align-items: baseline;
     gap: 0.25rem;
     color: var(--br-text-muted);
-    font-size: 0.68rem;
+    font-size: var(--br-table-caption-font-size);
     line-height: 1.3;
     text-align: right;
 }
@@ -11226,7 +11234,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-price-row strong {
     color: var(--br-secondary);
-    font-size: 0.7rem;
+    font-size: var(--br-table-secondary-font-size);
     font-weight: 600;
     text-align: right;
 }
@@ -11236,7 +11244,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-entity-price-row.is-sale strong {
-    font-size: 0.82rem;
+    font-size: var(--br-table-value-font-size);
     font-weight: 700;
 }
 
@@ -11353,6 +11361,88 @@ body.br-layout .br-entity-table > thead > tr > th {
     min-height: 1.5rem;
 }
 
+.br-entity-identifiers--plain {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 0.3rem;
+}
+
+.br-entity-identifiers--plain .br-entity-identifier {
+    display: contents;
+}
+
+.br-entity-identifiers--plain .br-entity-identifier__label {
+    display: inline-block;
+    max-width: none;
+    overflow: visible;
+    font-size: 0.67rem;
+    line-height: 1.35;
+    text-overflow: clip;
+}
+
+.br-entity-identifiers--plain .br-entity-identifier__value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.12rem;
+}
+
+.br-entity-identifiers--plain :is(.br-entity-code, .br-entity-barcode) {
+    display: inline-block;
+    flex: 0 1 auto;
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 0.76rem;
+    line-height: 1.35;
+}
+
+.br-entity-identifiers--plain .br-entity-identifier__actions {
+    flex: 0 0 auto;
+    align-self: baseline;
+    align-items: baseline;
+    min-width: 0;
+}
+
+.br-entity-identifiers--plain .br-copy-button {
+    align-self: baseline;
+    width: 1.25rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    min-height: 1.25rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--br-primary-active);
+    font-size: 0.76rem;
+    line-height: 1;
+}
+
+.br-entity-identifiers--plain .br-copy-button i {
+    transform: translateY(0.12em);
+    transition: filter 0.14s ease;
+}
+
+.br-entity-identifiers--plain .br-copy-button:hover,
+.br-entity-identifiers--plain .br-copy-button:focus-visible {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--br-primary-active);
+    transform: none;
+}
+
+.br-entity-identifiers--plain .br-copy-button:focus-visible {
+    outline: 2px solid var(--br-primary);
+    outline-offset: 1px;
+}
+
+.br-entity-identifiers--plain .br-copy-button:is(:hover, :focus-visible) i {
+    filter: brightness(0.78);
+}
+
 @media (max-width: 1199.98px) {
     .br-entity-identifier {
         grid-template-columns: max-content minmax(0, 1fr);
@@ -11380,19 +11470,43 @@ body.br-layout .br-entity-table > thead > tr > th {
 .br-entity-stock-row {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.12rem;
 }
 
-.br-entity-stock-warning {
+.br-entity-stock-trigger {
     display: inline-flex;
     align-items: center;
-    color: var(--br-warning-hover);
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--br-primary-active);
     font-size: 0.78rem;
-    cursor: default;
+    line-height: 1;
+    cursor: pointer;
 }
 
-.br-entity-stock-warning:focus-visible {
-    outline: 2px solid var(--br-warning);
+.br-entity-stock-trigger i {
+    transition: filter 0.14s ease;
+}
+
+.br-entity-stock-trigger.is-alert {
+    color: var(--br-warning-hover);
+}
+
+.br-entity-stock-trigger:is(:hover, :focus-visible) {
+    background: transparent;
+    box-shadow: none;
+}
+
+.br-entity-stock-trigger:is(:hover, :focus-visible) i {
+    filter: brightness(0.78);
+}
+
+.br-entity-stock-trigger:focus-visible {
+    outline: 2px solid currentColor;
     outline-offset: 2px;
 }
 
@@ -11923,6 +12037,79 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-inventory-empty i {
     color: var(--br-primary);
+}
+
+.br-product-inventory-view {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.br-product-inventory-view__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--br-border-cool);
+    border-radius: 6px;
+    background: var(--br-surface-soft);
+}
+
+.br-product-inventory-view__identity,
+.br-product-inventory-view__total {
+    display: grid;
+    gap: 0.16rem;
+}
+
+.br-product-inventory-view__identity strong {
+    color: var(--br-secondary);
+    font-size: var(--br-table-value-font-size);
+}
+
+.br-product-inventory-view__identity span,
+.br-product-inventory-view__total > span {
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
+}
+
+.br-product-inventory-view__total {
+    text-align: right;
+}
+
+.br-product-inventory-view__total strong {
+    color: var(--br-secondary);
+    font-size: var(--br-table-value-font-size);
+}
+
+.br-product-inventory-view__total small {
+    color: var(--br-text-muted);
+    font-size: var(--br-table-secondary-font-size);
+    font-weight: 500;
+}
+
+@media (max-width: 991.98px) {
+    .br-product-inventory-view__total {
+        text-align: left;
+    }
+
+    .br-product-inventory-view .br-entity-inventory__head {
+        display: none;
+    }
+
+    .br-product-inventory-view .br-entity-inventory__row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.55rem;
+    }
+
+    .br-product-inventory-view .br-entity-readonly-metric {
+        justify-content: flex-end;
+    }
+
+    .br-product-inventory-view .br-entity-inventory__mobile-label {
+        display: inline;
+        margin-right: auto;
+    }
 }
 
 .br-entity-modal .modal-footer.br-entity-modal__footer {
@@ -17012,6 +17199,51 @@ body.br-layout .br-entity-table > thead > tr > th {
   align-items: start;
 }
 
+.br-master-data-automatic {
+  overflow: hidden;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+}
+
+.br-master-data-automatic__list {
+  display: grid;
+}
+
+.br-master-data-automatic__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem;
+  border-top: 1px solid var(--br-border);
+}
+
+.br-master-data-automatic__detail {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.br-master-data-automatic__detail strong {
+  color: var(--br-secondary);
+  font-size: 0.82rem;
+}
+
+.br-master-data-automatic__detail span,
+.br-master-data-automatic__detail small,
+.br-master-data-automatic__value small {
+  color: var(--br-text-muted);
+  font-size: 0.72rem;
+}
+
+.br-master-data-automatic__value {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: end;
+  flex-shrink: 0;
+}
+
 .br-master-data__records,
 .br-master-data-form {
   overflow: hidden;
@@ -17288,6 +17520,15 @@ body.br-layout .br-entity-table > thead > tr > th {
   .br-master-data-form > footer {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .br-master-data-automatic__item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .br-master-data-automatic__value {
+    justify-items: start;
   }
 }
 

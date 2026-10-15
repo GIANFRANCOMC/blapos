@@ -54,6 +54,14 @@ if(typeof document !== "undefined") {
 
     document.addEventListener("show.bs.modal", event => prepareModal(event.target), true);
 
+    document.addEventListener("hidden.bs.modal", () => {
+
+        // Algunos formularios retiran los tooltips al abrirse; al cerrar se restauran
+        // los disparadores de la página y de las demás modales desde un solo lugar.
+        tooltips({time: 10});
+
+    }, true);
+
 }
 
 /** Layout y tiempos del loader circular (solo `buildSwalLoadingHtml`). */

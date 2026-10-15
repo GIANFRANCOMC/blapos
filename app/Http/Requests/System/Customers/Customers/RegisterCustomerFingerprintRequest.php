@@ -6,8 +6,16 @@ namespace App\Http\Requests\System\Customers\Customers;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
+use App\Services\System\General\{AutomaticMasterDataService};
 
 final class RegisterCustomerFingerprintRequest extends CompanyFormRequest {
+
+    public function authorize(): bool {
+
+        return parent::authorize()
+            && AutomaticMasterDataService::enabled(AutomaticMasterDataService::CUSTOMER_FINGERPRINT_REGISTRATION);
+
+    }
 
     public function rules(): array {
 

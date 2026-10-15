@@ -8,6 +8,42 @@ const modules = [
     {name: "membresía", path: "resources/js/System/Pages/Catalogs/subscriptions/main.vue", ownFields: ["duration_value", "attendance_limit_per_day", "benefits_text", "restrictions_text"]}
 ];
 
+test("precio principal e inventario comparten la escala tipográfica de tablas", () => {
+
+    const tokens = readFileSync(new URL("../../resources/css/System/br-branding/00-tokens.css", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
+
+    assert.match(tokens, /--br-table-value-font-size: 0\.82rem/);
+    assert.match(branding, /\.br-entity-price-row\.is-sale strong \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
+    assert.match(branding, /\.br-entity-stock \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
+
+});
+
+test("productos muestra códigos sin recuadro y copia con icono discreto", () => {
+
+    const product = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
+
+    assert.equal(parse(product, {filename: "products/main.vue"}).errors.length, 0);
+    assert.match(product, /br-entity-identifiers br-entity-identifiers--plain/);
+    assert.match(product, /<CopyButton[\s\S]*?:value="record\.internal_code"/);
+    assert.match(product, /<CopyButton[\s\S]*?:value="record\.barcode"/);
+    assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\)/);
+    assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. interno/);
+    assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. barras/);
+    assert.match(branding, /\.br-entity-identifiers--plain \{\s*grid-template-columns: max-content minmax\(0, 1fr\)/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier \{\s*display: contents/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?font-size: 0\.67rem/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__value \{\s*display: flex;\s*align-items: baseline/);
+    assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[\s\S]*?font-size: 0\.76rem/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button \{[\s\S]*?color: var\(--br-primary-active\)/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button:is\(:hover, :focus-visible\) i \{[\s\S]*?filter: brightness\(0\.78\)/);
+
+});
+
 test("los tres editores comparten pestañas accesibles y navegables en móvil", () => {
 
     const editorPaths = [
