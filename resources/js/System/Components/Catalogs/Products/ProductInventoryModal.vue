@@ -10,50 +10,23 @@
             <div v-if="record" class="br-product-inventory-view">
                 <div class="br-product-inventory-view__summary">
                     <div class="br-product-inventory-view__identity">
-                        <strong v-text="record.name"></strong>
-                        <span v-text="record.internal_code"></span>
+                        <strong class="br-product-inventory-view__name" v-text="record.name"></strong>
+                        <div class="br-product-inventory-view__meta">
+                            <span v-if="record.internal_code">Cód. interno: <strong v-text="record.internal_code"></strong></span>
+                            <span v-if="record.barcode">Cód. barras: <strong v-text="record.barcode"></strong></span>
+                            <span v-if="record.brand?.name">Marca: <strong v-text="record.brand.name"></strong></span>
+                        </div>
                     </div>
                     <div class="br-product-inventory-view__total">
                         <span>Stock total</span>
                         <strong>{{ separatorNumber(summary.total) }} <small>unidades</small></strong>
+                        <small v-if="summary.alerts" class="br-product-inventory-view__alert">
+                            {{ summary.alerts }} {{ summary.alerts === 1 ? "almacén requiere atención" : "almacenes requieren atención" }}
+                        </small>
                     </div>
                 </div>
 
-                <div v-if="inventoryRows.length" class="br-entity-inventory">
-                    <div class="br-entity-inventory__head br-table-header-surface">
-                        <span>Almacén</span>
-                        <span>Stock actual</span>
-                        <span>Stock mínimo</span>
-                    </div>
-
-                    <div
-                        v-for="inventory in inventoryRows"
-                        :key="inventory.warehouse_id"
-                        :class="['br-entity-inventory__row', inventoryStockStatus(inventory).className]">
-                        <div class="br-entity-inventory__warehouse">
-                            <strong v-text="inventory.branch_name"></strong>
-                            <span v-text="inventory.warehouse_name"></span>
-                            <small :class="['br-entity-inventory-status', inventoryStockStatus(inventory).className]">
-                                <i :class="inventoryStockStatus(inventory).icon" aria-hidden="true"></i>
-                                <span v-text="inventoryStockStatus(inventory).text"></span>
-                            </small>
-                        </div>
-                        <div class="br-entity-inventory__field">
-                            <span class="br-entity-readonly-metric">
-                                <span class="br-entity-inventory__mobile-label">Stock actual</span>
-                                <strong v-text="separatorNumber(inventory.initial_stock)"></strong>
-                                <small>unidades</small>
-                            </span>
-                        </div>
-                        <div class="br-entity-inventory__field">
-                            <span class="br-entity-readonly-metric">
-                                <span class="br-entity-inventory__mobile-label">Stock mínimo</span>
-                                <strong v-text="separatorNumber(inventory.minimum_stock)"></strong>
-                                <small>unidades</small>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <ProductWarehouseInventory v-if="inventoryRows.length" :rows="inventoryRows"/>
 
                 <div v-else class="br-entity-inventory-empty">
                     <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
@@ -68,13 +41,14 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
-import {inventoryStockStatus, summarizeProductStock} from "./productInventory.js";
+import ProductWarehouseInventory from "./ProductWarehouseInventory.vue";
+import {summarizeProductStock} from "./productInventory.js";
 
 let inventoryModalInstance = 0;
 
 export default {
     name: "ProductInventoryModal",
-    components: {FormModal},
+    components: {FormModal, ProductWarehouseInventory},
     data() {
 
         return {
@@ -114,7 +88,6 @@ export default {
             Alerts.modals({type: "show", id: this.modalId});
 
         },
-        inventoryStockStatus,
         separatorNumber(value) {
 
             return Utils.separatorNumber(value);

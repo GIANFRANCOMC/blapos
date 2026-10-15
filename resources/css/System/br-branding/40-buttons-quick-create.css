@@ -933,18 +933,30 @@
   backdrop-filter: blur(1px);
 }
 
+.br-layout {
+  --br-modal-transition-duration: 0.16s;
+}
+
 .br-layout .modal.fade,
 .br-layout .modal-backdrop.fade {
-  transition-duration: 0.08s !important;
+  transition: opacity var(--br-modal-transition-duration) ease-in-out !important;
 }
 
 .br-layout .modal.fade .modal-dialog {
   transform: translateY(-0.5rem) scale(0.985);
-  transition: transform 0.08s ease-out !important;
+  transition: transform var(--br-modal-transition-duration) ease-in-out !important;
 }
 
 .br-layout .modal.show .modal-dialog {
   transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-layout .modal.fade,
+  .br-layout .modal-backdrop.fade,
+  .br-layout .modal.fade .modal-dialog {
+    transition: none !important;
+  }
 }
 
 .swal2-container,

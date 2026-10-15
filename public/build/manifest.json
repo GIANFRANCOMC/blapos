@@ -332,7 +332,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-Hd4BPb0W.css",
+    "file": "assets/platform-Nrwo8f71.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -383,7 +383,7 @@
     ]
   },
   "resources/js/System/Components/Catalogs/Products/ProductEditor.vue": {
-    "file": "assets/ProductEditor-Bv7VeSLJ.js",
+    "file": "assets/ProductEditor-DI9I2Vru.js",
     "name": "ProductEditor",
     "src": "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
     "isDynamicEntry": true,
@@ -393,10 +393,10 @@
       "_Forms-BVQ_o2Ck.js",
       "_Constants-Bv-EX_2C.js",
       "_StringUtils-CVLsoc6G.js",
-      "_NumberUtils-D9lizcBO.js",
       "_CatalogReferenceOptions-BbdQSSKB.js",
       "__plugin-vue_export-helper-BUspUbiv.js",
       "_CatalogFormTabs-Cg6y7ajd.js",
+      "resources/js/System/Pages/Catalogs/products/main.js",
       "_FormModal-wze80rjI.js",
       "_FiltersSection-Dangz4xu.js",
       "_InputText-DZxqqI_Q.js",
@@ -404,8 +404,8 @@
       "_InputDate-jTlfy9vA.js",
       "_InputSlot-EAdloCct.js",
       "_InternalCodePrefixMixin-B7kflBMB.js",
-      "resources/js/System/Pages/Catalogs/products/main.js",
       "_vue-select-CDa8PBOQ.js",
+      "_NumberUtils-D9lizcBO.js",
       "_axios-CCb-kr4I.js",
       "_QuickCreateTrigger-cWud78D6.js",
       "__commonjsHelpers-Cpj98o6Y.js",
@@ -577,7 +577,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/products/main.js": {
-    "file": "assets/main-CvWuRPPP.js",
+    "file": "assets/main-CcKfQr_M.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/products/main.js",
     "isEntry": true,
@@ -590,12 +590,12 @@
       "__commonjsHelpers-Cpj98o6Y.js",
       "_FormModal-wze80rjI.js",
       "_FiltersSection-Dangz4xu.js",
+      "_InputNumber-CdO5bI1y.js",
       "_QuickCreateTrigger-cWud78D6.js",
       "_TableActionsDropdown-Dq9Gtprg.js",
       "_vue-select-CDa8PBOQ.js",
       "_Breadcrumb-BYWeNe1d.js",
       "_InputDate-jTlfy9vA.js",
-      "_InputNumber-CdO5bI1y.js",
       "_InputSelect2-BUKPaHWJ.js",
       "_InputSlot-EAdloCct.js",
       "_InputText-DZxqqI_Q.js",

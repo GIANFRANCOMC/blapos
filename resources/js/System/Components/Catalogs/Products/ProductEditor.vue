@@ -457,85 +457,12 @@
                             role="tabpanel">
                             <div v-if="productForm.errors?.inventory" class="alert alert-danger py-2" v-text="firstError(productForm.errors.inventory)"></div>
 
-                            <div v-if="productForm.data.inventory.length" class="br-entity-inventory">
-                                <div class="br-entity-inventory__head br-table-header-surface">
-                                    <span>Almacén</span>
-                                    <span class="br-label-with-help">
-                                        <span>{{ isUpdate ? "Stock actual" : "Stock inicial" }}</span>
-                                        <button
-                                            type="button"
-                                            class="br-field-help"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            :title="isUpdate
-                                                ? 'Cantidad disponible actualmente en el almacén. Se modifica desde Inventario.'
-                                                : 'Cantidad disponible al registrar el producto en este almacén.'"
-                                            :aria-label="isUpdate
-                                                ? 'Ayuda sobre stock actual'
-                                                : 'Ayuda sobre stock inicial'">
-                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-                                    <span class="br-label-with-help">
-                                        <span>Stock mínimo</span>
-                                        <button
-                                            type="button"
-                                            class="br-field-help"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Cantidad mínima requerida en el almacén. Al alcanzarla, el sistema muestra una alerta de stock."
-                                            aria-label="Ayuda sobre stock mínimo">
-                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-                                </div>
-
-                                <div
-                                    v-for="(inventory, index) in productForm.data.inventory"
-                                    :key="inventory.warehouse_id"
-                                    :class="['br-entity-inventory__row', inventoryStockStatus(inventory).className]">
-                                    <div class="br-entity-inventory__warehouse">
-                                        <strong v-text="inventory.branch_name"></strong>
-                                        <span v-text="inventory.warehouse_name"></span>
-                                        <small
-                                            :class="['br-entity-inventory-status', inventoryStockStatus(inventory).className]">
-                                            <i :class="inventoryStockStatus(inventory).icon" aria-hidden="true"></i>
-                                            <span v-text="inventoryStockStatus(inventory).text"></span>
-                                        </small>
-                                    </div>
-
-                                    <div class="br-entity-inventory__field">
-                                        <span
-                                            v-if="isUpdate"
-                                            class="br-entity-readonly-metric"
-                                            aria-label="Stock actual">
-                                            <span class="br-entity-inventory__mobile-label">Stock actual</span>
-                                            <strong v-text="separatorNumber(inventory.initial_stock)"></strong>
-                                            <small>unidades</small>
-                                        </span>
-                                        <InputNumber
-                                            v-else
-                                            v-model="inventory.initial_stock"
-                                            title="Stock inicial"
-                                            :titleClass="['br-entity-inventory__mobile-label']"
-                                            :minValue="0"
-                                            :decimals="4"
-                                            hasTextBottom
-                                            :textBottomInfo="inventoryFieldErrors(index, 'initial_stock')"/>
-                                    </div>
-
-                                    <div class="br-entity-inventory__field">
-                                        <InputNumber
-                                            v-model="inventory.minimum_stock"
-                                            title="Stock mínimo"
-                                            :titleClass="['br-entity-inventory__mobile-label']"
-                                            :minValue="0"
-                                            :decimals="4"
-                                            hasTextBottom
-                                            :textBottomInfo="inventoryFieldErrors(index, 'minimum_stock')"/>
-                                    </div>
-                                </div>
-                            </div>
+                            <ProductWarehouseInventory
+                                v-if="productForm.data.inventory.length"
+                                v-model:rows="productForm.data.inventory"
+                                mode="edit"
+                                :is-update="isUpdate"
+                                :errors="productForm.errors"/>
 
                             <div v-else class="br-entity-inventory-empty">
                                 <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
@@ -575,6 +502,7 @@ import * as Utils from "@System/Helpers/Utils.js";
 import AddBrand from "@System/Components/Catalogs/AddBrand.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import ProductWarehouseInventory from "./ProductWarehouseInventory.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import InputText from "@System/Components/InputText.vue";
@@ -583,7 +511,6 @@ import InputDate from "@System/Components/InputDate.vue";
 import InputSlot from "@System/Components/InputSlot.vue";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
-import {inventoryStockStatus} from "./productInventory.js";
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import {FORM_TABS, FORM_FIELDS, FORM_FIELD_CONFIG, VALIDATION_RULES, ERROR_LABELS, PRODUCT_TEXTS, generateEan13, isValidEan13} from "./productFormConfig.js";
@@ -606,6 +533,7 @@ export default {
         AddBrand,
         AddCategory,
         CatalogFormTabs,
+        ProductWarehouseInventory,
         FormModal,
         SelectNoOptions,
         InputText,
@@ -1055,13 +983,6 @@ export default {
             return result;
 
         },
-        inventoryFieldErrors(index, field) {
-
-            const error = this.productForm.errors?.[`inventory.${index}.${field}`];
-
-            return Array.isArray(error) ? error : (error ? [error] : []);
-
-        },
         tabHasErrors(tabId) {
 
             const tab = FORM_TABS.find(item => item.id === tabId);
@@ -1087,11 +1008,6 @@ export default {
             return Array.isArray(error) ? error[0] : error ?? "";
 
         },
-        inventoryStockStatus(inventory) {
-
-            return inventoryStockStatus(inventory);
-
-        },
         isDefined(value) {
 
             return Utils.isDefined({value});
@@ -1100,11 +1016,6 @@ export default {
         generateRandomCode(length) {
 
             return Utils.generateCode({length});
-
-        },
-        separatorNumber(value) {
-
-            return Utils.separatorNumber(value);
 
         }
     },

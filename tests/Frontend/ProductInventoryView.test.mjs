@@ -24,18 +24,29 @@ test("el acceso al inventario abre una modal de consulta para alertas y estados 
 
     const page = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
     const modal = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductInventoryModal.vue", import.meta.url), "utf8");
+    const editor = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
+    const inventory = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductWarehouseInventory.vue", import.meta.url), "utf8");
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
 
     assert.equal(parse(page, {filename: "products/main.vue"}).errors.length, 0);
     assert.equal(parse(modal, {filename: "ProductInventoryModal.vue"}).errors.length, 0);
+    assert.equal(parse(inventory, {filename: "ProductWarehouseInventory.vue"}).errors.length, 0);
     assert.match(page, /<ProductInventoryModal ref="productInventoryModal"\/>/);
     assert.match(page, /@click="openInventoryModal\(record\)"/);
     assert.match(page, /fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'/);
     assert.match(modal, /:show-submit="false"/);
     assert.match(modal, /close-button-text="Cerrar"/);
     assert.match(modal, /record\?\.warehouse_items/);
-    assert.match(modal, /Stock actual/);
-    assert.match(modal, /Stock mínimo/);
+    assert.match(modal, /<ProductWarehouseInventory v-if="inventoryRows\.length" :rows="inventoryRows"\/>/);
+    assert.match(editor, /<ProductWarehouseInventory[\s\S]*?v-model:rows="productForm\.data\.inventory"[\s\S]*?mode="edit"/);
+    assert.match(modal, /record\.internal_code/);
+    assert.match(modal, /record\.barcode/);
+    assert.match(modal, /record\.brand\?\.name/);
+    assert.match(inventory, /Stock actual/);
+    assert.match(inventory, /Stock mínimo/);
+    assert.match(inventory, /v-if="mode === 'edit' && !isUpdate"/);
+    assert.match(inventory, /v-if="mode === 'edit'"/);
+    assert.match(inventory, /v-if="item\.status\.className === 'is-alert'"/);
     assert.match(branding, /\.br-entity-stock-trigger\.is-alert/);
     assert.match(branding, /\.br-entity-stock-row \{[\s\S]*?gap: 0\.12rem/);
     assert.match(branding, /\.br-entity-stock-trigger:is\(:hover, :focus-visible\) \{[\s\S]*?background: transparent/);

@@ -238,7 +238,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Pestañas con fondo blanco y contenido del formulario en gris suave; las secciones no usan altura mínima fija para evitar scroll innecesario en pestañas cortas.
 - Pestañas sin sombra superior y con fondo blanco; las inactivas mantienen borde superior gris y la activa solo cambia el borde superior y el círculo secuencial a secondary navy.
 - Switches comerciales con fondo y borde verde suave cuando están activados; el color del checkbox marcado se hereda desde la regla global reutilizable de `br-branding.css`.
-- Encabezados numéricos de inventario centrados para mejorar la lectura de stock inicial y stock mínimo.
+- Encabezados y cantidades de inventario alineados a la derecha para comparar stock actual y mínimo sin añadir recuadros decorativos.
 - Tooltips explican que el código interno es privado para la empresa y que el código de barras identifica la etiqueta visible o escaneable del producto.
 - Botones de generación compactos mediante `br-input-action`, integrados al input como una sola unidad: sin divisor interno, mismo borde del campo, foco compartido en el grupo y hover solo en el icono.
 - `br-input-action` se adapta automáticamente a la altura real del input para mantener bordes superiores e inferiores nivelados.
@@ -255,12 +255,12 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El campo Estado se mantiene como select2 no buscable para conservar consistencia con los formularios existentes.
 - Los prefijos de moneda reutilizan `br-currency-prefix`, con fondo blanco integrado al input, símbolo compacto tipo icono, color secondary suavizado y borde compartido.
 - El código interno usa `company_settings.internal_code_prefixes.product` (`PRO` por defecto). El prefijo se presenta integrado al inicio del input y el backend lo normaliza mediante `InternalCodeService`.
-- Al crear, stock inicial y stock mínimo comienzan vacíos para permitir escritura directa; el payload normaliza los campos no informados a cero. Mientras ambos estén vacíos, el almacén muestra el estado neutral `Pendiente de registrar`.
+- Al crear, stock inicial y stock mínimo comienzan vacíos para permitir escritura directa; el payload normaliza los campos no informados a cero. Mientras ambos estén vacíos, el almacén muestra discretamente la advertencia `Pendiente de registrar`.
 - Las altas rápidas de Marca y Categoría usan modales Bootstrap reales. El loader SweetAlert se muestra por encima de toda la interfaz y bloquea la interacción durante el guardado.
 - Los errores inline son breves; los resúmenes frontend/backend muestran el nombre del campo mediante `Forms.getDescriptiveErrors`.
 - La validación frontend se ejecuta antes de abrir el loader global. Los errores locales aparecen inmediatamente; el bloqueo visual se reserva para la petición asíncrona al backend.
 - Ante errores en otra pestaña, el resumen se muestra primero y el formulario cambia a la primera sección afectada solo después de cerrar el aviso. Así se evita movimiento visual detrás de SweetAlert.
-- El editor de productos desactiva la animación de entrada y la transición de las pestañas para que el cambio de sección sea inmediato; otros formularios conservan sus transiciones.
+- El editor de productos desactiva la animación de entrada del contenido y acorta la transición de las pestañas para agilizar el cambio de sección; otros formularios conservan sus transiciones.
 - El listado muestra nombre, marca y descripción. Se retiró la cantidad de categorías para reducir ruido visual.
 - El prefijo monetario usa `br-currency-prefix__symbol` para controlar su escala de forma independiente, con color secondary, peso medio y separación compacta respecto del importe.
 - El CTA utiliza “Agregar producto” o “Editar producto”; durante el proceso muestra “Agregando” o “Editando” sin puntos suspensivos.
@@ -291,14 +291,14 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Venta, Mínimo y Máximo se alinean en un bloque de tres filas; únicamente los rótulos Mínimo y Máximo usan acentos discretos danger/success.
 - La alerta de stock muestra un icono warning junto al total de unidades; su tooltip accesible indica “N almacén/almacenes con stock bajo”.
 - El inventario sin alertas muestra únicamente el total de unidades; el icono warning aparece solo cuando algún almacén tiene stock bajo.
-- En la pestaña Inventario, cada almacén muestra una etiqueta sutil: “Stock bajo o en el mínimo” o “Inventario saludable”, usando la misma semántica warning/success del listado.
-- Cuando el stock actual alcanza o queda por debajo del mínimo, únicamente los controles de stock adoptan fondo y contorno warning suaves. La fila mantiene fondo blanco para evitar una alerta visual excesiva; el badge conserva el contexto del problema.
-- La nota general de inventario fue retirada para reducir ruido visual. Los encabezados `Stock inicial` o `Stock actual` y `Stock mínimo` incluyen ayudas contextuales reutilizables mediante `br-field-help`.
-- El encabezado de inventario reutiliza `br-table-header-surface`, la misma regla mate aplicada al encabezado del listado, sin degradados alternativos ni bordes inferiores adicionales. `br-label-with-help` centra ópticamente texto e icono.
-- Los tooltips de Marca e inventario usan la variante global compacta `br-tooltip`, con fondo secondary y aparición inmediata, sin animación.
+- Edición y consulta reutilizan `ProductWarehouseInventory`: mismo orden, cifras y semántica por almacén. La creación permite escribir stock inicial y mínimo; la edición solo modifica el mínimo; la consulta no ofrece controles.
+- El almacén es el dato principal de cada fila y la sucursal queda como contexto. Solo se muestra el estado cuando el stock requiere atención o falta registrarlo; los estados saludables no añaden una etiqueta repetida.
+- Las filas usan separadores neutros y una marca warning mínima en lugar de pintar los controles o toda la superficie. El encabezado deja de reutilizar la banda azul del listado para no competir con los datos.
+- La modal de consulta identifica el producto con nombre, código interno, código de barras y marca cuando están disponibles; el total y la cantidad de almacenes con alerta quedan separados del detalle.
+- Los tooltips de Marca usan la variante global compacta `br-tooltip`, con fondo secondary y aparición inmediata, sin animación.
 - `CopyButton` conserva esa variante compacta al alternar entre `Copiar` y `Copiado`, porque recrea su instancia mediante la configuración centralizada de `Alerts.createTooltip`.
 - Los switches `Publicar producto` y `Mostrar precio` usan verde success al seleccionarse, foco verde suave y estado neutral al desmarcarse o deshabilitarse, sin heredar el morado del tema base.
-- En edición, el stock actual conserva su comportamiento de solo lectura y se presenta mediante un `span` neutral formateado con `separatorNumber`; no se renderiza como un control deshabilitado porque la cantidad se modifica desde Inventario, no desde Productos. En creación se conserva `InputNumber` para registrar el stock inicial.
+- En edición, el stock actual conserva su comportamiento de solo lectura y se presenta como cifra sin recuadro, formateada con `separatorNumber`; no se renderiza como un control deshabilitado porque la cantidad se modifica desde Inventario, no desde Productos. En creación se conserva `InputNumber` para registrar el stock inicial.
 
 ## Publicación y venta asistida
 
