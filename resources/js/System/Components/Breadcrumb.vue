@@ -36,7 +36,8 @@ export default {
                 ? {}
                 : {
                     world: document.documentElement.dataset.navigationWorld,
-                    group: document.documentElement.dataset.navigationGroup
+                    group: document.documentElement.dataset.navigationGroup,
+                    page: document.documentElement.dataset.navigationPage
                 };
 
             return withNavigationGroup(this.list, navigation);

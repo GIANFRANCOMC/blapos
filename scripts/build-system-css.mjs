@@ -116,10 +116,21 @@ function writeViteEntrypoint() {
     writeUtf8(absolute("resources/css/System/platform.css"), content);
 }
 
-for (const bundle of bundles) {
-    buildBundle(bundle);
+export function buildSystemCss() {
+
+    for(const bundle of bundles) {
+
+        buildBundle(bundle);
+
+    }
+
+    writeViteEntrypoint();
+
 }
 
-writeViteEntrypoint();
+if(process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
 
-console.log("CSS System generado correctamente.");
+    buildSystemCss();
+    console.log("CSS System generado correctamente.");
+
+}

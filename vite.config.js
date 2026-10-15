@@ -2,6 +2,44 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
+import path from 'node:path';
+import {buildSystemCss} from './scripts/build-system-css.mjs';
+
+function systemBrandingCss() {
+
+    const sourceDirectories = ['br-branding', 'br-login', 'demo']
+        .map(directory => path.resolve('resources/css/System', directory) + path.sep);
+
+    return {
+        name: 'system-branding-css',
+        buildStart() {
+
+            buildSystemCss();
+
+        },
+        configureServer(server) {
+
+            buildSystemCss();
+            server.watcher.add(sourceDirectories.map(directory => path.join(directory, '*.css')));
+            server.watcher.on('change', changedPath => {
+
+                const file = path.resolve(changedPath);
+
+                if(!file.endsWith('.css') || !sourceDirectories.some(directory => file.startsWith(directory))) {
+
+                    return;
+
+                }
+
+                buildSystemCss();
+                server.ws.send({type: 'full-reload'});
+
+            });
+
+        },
+    };
+
+}
 
 export default defineConfig({
     resolve: {
@@ -11,6 +49,7 @@ export default defineConfig({
         },
     },
     plugins: [
+        systemBrandingCss(),
         vue(),
         laravel({
             input: [

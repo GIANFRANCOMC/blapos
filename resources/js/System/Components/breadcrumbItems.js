@@ -1,7 +1,18 @@
 export function withNavigationGroup(items, navigation = {}) {
 
     const visibleItems = items.filter(item => item?.title);
-    const {world, group} = navigation;
+    const {world, group, page} = navigation;
+
+    if(world && page) {
+
+        const titles = [world, group, page]
+            .map(title => String(title || "").trim())
+            .filter(Boolean)
+            .filter((title, index, all) => index === 0 || all[index - 1].toLocaleLowerCase("es") !== title.toLocaleLowerCase("es"));
+
+        return titles.map((title, index) => ({title, active: index === titles.length - 1}));
+
+    }
 
     if(
         visibleItems.length < 2

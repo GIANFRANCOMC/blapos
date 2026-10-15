@@ -108,6 +108,7 @@
     data-assets-path="{{ $systemAssetsPath }}"
     data-navigation-world="{{ $activeNavigationSection?->dom_label }}"
     data-navigation-group="{{ $activeNavigationSubSection?->menuGroup?->name }}"
+    data-navigation-page="{{ $activeNavigationSubSection?->dom_label }}"
     data-template="vertical-menu-template-starter">
     <head>
         @include("System.layouts.partials.up")

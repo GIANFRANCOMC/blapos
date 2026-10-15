@@ -7,6 +7,7 @@ test("servicios en curso conserva sus acciones y distingue su interfaz de restau
 
     const source = readFileSync(new URL("../../resources/js/System/Pages/Operations/service_operations/main.vue", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/86-service-operations.css", import.meta.url), "utf8");
+    const bundledStyles = readFileSync(new URL("../../public/System/assets/css/br-branding.css", import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: "service_operations/main.vue"}).errors.length, 0);
     assert.match(source, /br-service-page--sessions/);
@@ -19,5 +20,7 @@ test("servicios en curso conserva sus acciones y distingue su interfaz de restau
     assert.match(source, /v-if="\['pending', 'in_progress'\]\.includes\(selectedSession.status\)" class="br-service-add-item"/);
     assert.match(styles, /\.br-service-toolbar--sessions/);
     assert.match(styles, /\.br-service-detail__content/);
+    assert.match(bundledStyles, /\.br-service-toolbar--sessions/);
+    assert.match(bundledStyles, /\.br-service-list__heading/);
 
 });

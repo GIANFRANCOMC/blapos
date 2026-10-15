@@ -25,3 +25,42 @@ test("el breadcrumb no duplica subgrupos ni altera otros mundos", () => {
     );
 
 });
+
+test("el breadcrumb usa la navegación activa como fuente para todos los módulos", () => {
+
+    assert.deepEqual(
+        withNavigationGroup(
+            [{title: "Restaurante y servicios"}, {title: "Servicios en curso", active: true}],
+            {world: "Clientes", group: "Servicios", page: "Servicios en curso"}
+        ),
+        [
+            {title: "Clientes", active: false},
+            {title: "Servicios", active: false},
+            {title: "Servicios en curso", active: true}
+        ]
+    );
+
+    assert.deepEqual(
+        withNavigationGroup(
+            [{title: "Clientes", active: true}],
+            {world: "Clientes", group: "Gestión", page: "Clientes"}
+        ),
+        [
+            {title: "Clientes", active: false},
+            {title: "Gestión", active: false},
+            {title: "Clientes", active: true}
+        ]
+    );
+
+    assert.deepEqual(
+        withNavigationGroup(
+            [{title: "Mi organización"}],
+            {world: "Mi organización", group: "Mi organización", page: "Mi empresa"}
+        ),
+        [
+            {title: "Mi organización", active: false},
+            {title: "Mi empresa", active: true}
+        ]
+    );
+
+});

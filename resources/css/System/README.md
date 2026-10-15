@@ -22,18 +22,14 @@ Los archivos en `public/System/assets/css` son salida generada para mantener com
 - Si un bloque de `custom/` empieza a servir para varios módulos, moverlo a `br-branding/`.
 - La capa final de `custom/` debe consumir solo tokens `--br-*`; no declarar hexadecimales, `rgba()` ni paletas locales.
 
-## Comandos
+## Compilación
 
-Crear los parciales desde los CSS públicos existentes:
+`npm run build` regenera primero los CSS públicos desde los parciales de esta carpeta. `npm run dev` también los genera al arrancar y vuelve a generarlos cuando cambian los parciales.
 
-```bash
-npm run build:css:system:seed
-```
-
-Regenerar los CSS públicos después de editar parciales:
+Para regenerarlos manualmente sin compilar JavaScript:
 
 ```bash
 npm run build:css:system
 ```
 
-El entry `resources/css/System/platform.css` queda listo para una migración posterior a `@vite`.
+El entry `resources/css/System/platform.css` se actualiza junto con los CSS públicos y queda listo para una migración posterior a `@vite`.

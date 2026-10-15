@@ -54,7 +54,7 @@
                     :disabled="!selectedBranch"
                     @click="openSessionModal()">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                    <span>Nueva atención</span>
+                    <span>Iniciar atención</span>
                 </button>
             </div>
         </div>
@@ -553,7 +553,7 @@
 
     <FormModal
         modal-id="brServiceSessionModal"
-        :title="isRestaurant ? 'ABRIR MESA' : 'NUEVA ATENCIÓN'"
+        :title="isRestaurant ? 'ABRIR MESA' : 'INICIAR ATENCIÓN'"
         modal-size="modal-lg"
         :submit-disabled="saving || !selectedBranch"
         :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar'"
@@ -670,10 +670,9 @@ export default {
     },
     computed: {
         breadcrumbTitles() {
-            return [
-                {title: "Restaurante y servicios"},
-                {title: this.isRestaurant ? "Restaurante POS" : "Servicios en curso", active: true}
-            ];
+            return this.isRestaurant
+                ? [{title: "Ventas"}, {title: "Punto de venta"}, {title: "POS restaurante", active: true}]
+                : [{title: "Clientes"}, {title: "Servicios"}, {title: "Servicios en curso", active: true}];
         },
         branchOptions() {
             return this.options.branches.map(record => ({...record, label: record.name}));
