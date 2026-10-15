@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Cache};
 use Tests\{TestCase};
 
 class CompanySectionServiceTest extends TestCase {
+
     protected function tearDown(): void {
 
         Cache::forget(CompanySectionService::cacheKey());
@@ -53,4 +54,5 @@ class CompanySectionServiceTest extends TestCase {
         $this->assertStringEndsWith(":role:10", CompanySectionService::cacheKey(10));
 
     }
+
 }

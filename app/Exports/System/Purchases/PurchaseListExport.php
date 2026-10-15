@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class PurchaseListExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithStyles {
+
     public function __construct(
         private readonly array $filters = [],
         private readonly ?int $userId = null
@@ -74,4 +75,5 @@ final class PurchaseListExport implements FromQuery, ShouldAutoSize, WithHeading
         return [];
 
     }
+
 }

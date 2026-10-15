@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Company, User};
 use Illuminate\Database\Eloquent\{Model};
 
 final class UserBiometricFingerprint extends Model {
+
     protected $table = "user_biometric_fingerprints";
 
     protected $fillable = [
@@ -39,4 +40,5 @@ final class UserBiometricFingerprint extends Model {
         return $this->belongsTo(BiometricDevice::class, "biometric_device_id", "id");
 
     }
+
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Arr};
 
 final class SupplierService {
+
     public static function query(string $word = "") {
 
         $query = Supplier::query()
@@ -119,4 +120,5 @@ final class SupplierService {
         }
 
     }
+
 }

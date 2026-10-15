@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 final class InventoryGuide extends Model {
+
     protected $fillable = [
         "warehouse_id",
         "number",
@@ -51,4 +52,5 @@ final class InventoryGuide extends Model {
         return $this->belongsTo(User::class, "confirmed_by");
 
     }
+
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StoreRecipeWasteRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -39,4 +40,5 @@ final class StoreRecipeWasteRequest extends CompanyFormRequest {
         return ["reason", "occurred_at"];
 
     }
+
 }

@@ -9,6 +9,7 @@ use App\Models\System\Tenancy\{TenantDatabase};
 use Illuminate\View\{View};
 
 final class PlatformShellController extends Controller {
+
     public function __invoke(?TenantDatabase $tenant = null): View {
 
         return view("Platform.shell", [
@@ -16,4 +17,5 @@ final class PlatformShellController extends Controller {
         ]);
 
     }
+
 }

@@ -13,6 +13,7 @@ use App\Services\System\Organizations\{AccessScopeService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class TrackingSubscriptionController extends BaseController {
+
     /**
      * Translation namespace for tracking subscription module
      */
@@ -159,4 +160,5 @@ class TrackingSubscriptionController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

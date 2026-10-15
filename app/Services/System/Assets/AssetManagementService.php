@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for asset assignments to branches and users
  */
 class AssetManagementService {
+
     /**
      * Get paginated list of branch assets
      *
@@ -531,4 +532,5 @@ class AssetManagementService {
         ]);
 
     }
+
 }

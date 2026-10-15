@@ -8,6 +8,7 @@ use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 
 class RoleObserver {
+
     public function saved(Role $role): void {
 
         $this->clear((int) $role->id);
@@ -29,4 +30,5 @@ class RoleObserver {
         );
 
     }
+
 }

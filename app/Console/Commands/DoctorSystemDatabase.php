@@ -8,6 +8,7 @@ use Illuminate\Console\{Command};
 use Illuminate\Support\Facades\{DB, Route, Schema};
 
 final class DoctorSystemDatabase extends Command {
+
     protected $signature = "system:doctor";
 
     protected $description = "Diagnostica esquema, catálogo, rutas y referencias esenciales de organizaciones.";
@@ -111,4 +112,5 @@ final class DoctorSystemDatabase extends Command {
         return self::SUCCESS;
 
     }
+
 }

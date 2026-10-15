@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{DB, Route, Schema};
 use Illuminate\Support\{Collection};
 
 final class UserNavigationService {
+
     private static array $metricsAvailability = [];
 
     private const RECENT_LIMIT = 10;
@@ -213,4 +214,5 @@ final class UserNavigationService {
             ->hasTable("user_navigation_metrics");
 
     }
+
 }

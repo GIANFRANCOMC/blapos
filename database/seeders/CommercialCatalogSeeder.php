@@ -9,6 +9,7 @@ use Illuminate\Database\{Seeder};
 use Illuminate\Support\Facades\{DB};
 
 class CommercialCatalogSeeder extends Seeder {
+
     private const COMPANY_ID = 1;
 
     private const USER_ID = 1;
@@ -342,4 +343,5 @@ class CommercialCatalogSeeder extends Seeder {
         }
 
     }
+
 }

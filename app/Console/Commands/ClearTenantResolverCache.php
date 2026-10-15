@@ -9,6 +9,7 @@ use App\Services\System\Tenancy\{TenantAdministrationService};
 use Illuminate\Console\{Command};
 
 final class ClearTenantResolverCache extends Command {
+
     protected $signature = "tenant:cache-clear {slug? : Tenant específico; omitir para todos}";
 
     protected $description = "Elimina exclusivamente la caché de resolución de dominios tenant.";
@@ -33,4 +34,5 @@ final class ClearTenantResolverCache extends Command {
         return self::SUCCESS;
 
     }
+
 }

@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class UserAttendanceCorrection extends Model {
+
     protected $table = "user_attendance_corrections";
 
     protected $fillable = [
@@ -20,4 +21,5 @@ final class UserAttendanceCorrection extends Model {
         "requested_check_out_at" => "datetime",
         "reviewed_at" => "datetime",
     ];
+
 }

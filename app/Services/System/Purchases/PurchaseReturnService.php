@@ -11,6 +11,7 @@ use DomainException;
 use Illuminate\Support\Facades\{DB};
 
 final class PurchaseReturnService {
+
     public static function create(int $purchaseId, int $userId, array $data): PurchaseReturn {
 
         return DB::transaction(function() use ($purchaseId, $userId, $data) {
@@ -103,4 +104,5 @@ final class PurchaseReturnService {
         });
 
     }
+
 }

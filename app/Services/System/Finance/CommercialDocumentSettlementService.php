@@ -10,6 +10,7 @@ use DomainException;
 use Illuminate\Support\{Collection};
 
 final class CommercialDocumentSettlementService {
+
     public static function taxes(
         string $scope,
         float $baseAmount,
@@ -413,4 +414,5 @@ final class CommercialDocumentSettlementService {
         return 1 / (10 ** max(1, Utilities::decimalPrecision()));
 
     }
+
 }

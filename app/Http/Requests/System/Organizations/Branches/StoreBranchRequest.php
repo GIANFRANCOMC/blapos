@@ -9,6 +9,7 @@ use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
 use App\Rules\System\Defaults\{UniqueInTenant};
 
 class StoreBranchRequest extends CompanyFormRequest {
+
     use AppliesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
@@ -53,4 +54,5 @@ class StoreBranchRequest extends CompanyFormRequest {
         return $validations;
 
     }
+
 }

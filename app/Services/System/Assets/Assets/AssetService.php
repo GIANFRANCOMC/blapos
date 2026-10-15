@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for creating and updating records
  */
 class AssetService {
+
     /**
      * Translation namespace for module
      */
@@ -253,4 +254,5 @@ class AssetService {
             ->paginate($perPage);
 
     }
+
 }

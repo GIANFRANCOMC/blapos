@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\{File};
 use Tests\{TestCase};
 
 final class InitParamsPerformanceConventionTest extends TestCase {
+
     public function test_new_unbounded_catalogs_are_not_added_to_initial_configuration(): void {
 
         $unboundedMethods = [
@@ -61,4 +62,5 @@ final class InitParamsPerformanceConventionTest extends TestCase {
         $this->assertSame($knownLegacyUsages, $currentUsages);
 
     }
+
 }

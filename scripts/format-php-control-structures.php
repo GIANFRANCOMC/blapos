@@ -6,6 +6,7 @@ $roots = ["app", "bootstrap", "config", "database", "resources", "routes", "scri
 $checkOnly = in_array("--check", $argv, true);
 $changedFiles = [];
 $controlTokens = [T_IF, T_ELSEIF, T_FOR, T_FOREACH, T_WHILE, T_SWITCH, T_CATCH];
+$classStarterTokens = [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM];
 $blockStarterTokens = [
     ...$controlTokens,
     T_FUNCTION,
@@ -13,6 +14,7 @@ $blockStarterTokens = [
     T_ELSE,
     T_FINALLY,
     T_DO,
+    ...$classStarterTokens,
 ];
 
 $compactContinuationTokens = [T_ELSEIF, T_ELSE, T_CATCH, T_FINALLY];
@@ -66,6 +68,12 @@ $structuredStarterIndex = static function(array $tokens, int $openingIndex) use 
     $previousIndex = $previousSignificantIndex($tokens, $openingIndex);
 
     if($previousIndex === null) {
+
+        return null;
+
+    }
+
+    if(in_array($textOf($tokens[$previousIndex]), ["->", "?->", "::"], true)) {
 
         return null;
 
@@ -280,7 +288,24 @@ foreach($roots as $root) {
 
             $token = $tokens[$index];
 
-            if(is_array($token) && in_array($token[0], $blockStarterTokens, true)) {
+            if(is_array($token) && in_array($token[0], $classStarterTokens, true)) {
+
+                $whitespaceIndex = $index - 1;
+
+                if(
+                    $whitespaceIndex > 0
+                    && $isWhitespace($tokens[$whitespaceIndex])
+                    && $typeOf($tokens[$whitespaceIndex - 1]) === T_DOC_COMMENT
+                ) {
+
+                    preg_match("/[\t ]*$/", $textOf($tokens[$whitespaceIndex]), $matches);
+                    $tokens[$whitespaceIndex][1] = $lineEnding.($matches[0] ?? "");
+
+                }
+
+            }
+
+            if(is_array($token) && in_array($token[0], $blockStarterTokens, true) && !in_array($token[0], $classStarterTokens, true)) {
 
                 $whitespaceIndex = $index - 1;
                 $previousIndex = $previousSignificantIndex($tokens, $index);

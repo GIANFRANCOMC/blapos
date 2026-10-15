@@ -14,6 +14,7 @@ use Illuminate\Validation\{Rule, ValidationException};
 use Maatwebsite\Excel\Concerns\{SkipsEmptyRows, ToCollection, WithHeadingRow};
 
 final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHeadingRow {
+
     private int $importedCount = 0;
 
     public function __construct(
@@ -208,4 +209,5 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
         ][$field] ?? $field;
 
     }
+
 }

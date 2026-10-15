@@ -8,6 +8,7 @@ use App\Services\System\Base\{BaseConfigService};
 use stdClass;
 
 final class ReportConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "report";
@@ -19,4 +20,5 @@ final class ReportConfigService extends BaseConfigService {
         return self::data();
 
     }
+
 }

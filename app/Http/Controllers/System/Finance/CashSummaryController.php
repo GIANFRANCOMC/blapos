@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\{View};
 use Illuminate\Http\{JsonResponse, Request};
 
 final class CashSummaryController extends BaseController {
+
     public function __construct(private readonly CashRegisterService $service) {
 
     }
@@ -43,4 +44,5 @@ final class CashSummaryController extends BaseController {
         return array_filter($request->input("filter", []), fn($value) => $value !== null && $value !== "");
 
     }
+
 }

@@ -9,6 +9,7 @@ use App\Models\System\Warehouses\{InventoryMovement, Warehouse};
 use Illuminate\Database\Eloquent\{Model};
 
 final class RecipeWasteRecord extends Model {
+
     protected $table = "recipe_waste_records";
 
     public $timestamps = false;
@@ -64,4 +65,5 @@ final class RecipeWasteRecord extends Model {
         return $this->belongsTo(User::class, "created_by");
 
     }
+
 }

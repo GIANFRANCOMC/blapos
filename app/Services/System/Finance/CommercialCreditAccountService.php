@@ -11,6 +11,7 @@ use Carbon\{Carbon};
 use Illuminate\Support\{Collection};
 
 final class CommercialCreditAccountService {
+
     public const PAID_NOW = "paid_now";
 
     public const CASH_ON_DELIVERY = "cash_on_delivery";
@@ -239,4 +240,5 @@ final class CommercialCreditAccountService {
             ->all());
 
     }
+
 }

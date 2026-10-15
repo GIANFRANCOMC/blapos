@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class RecipeService {
+
     private const RELATIONS = [
         "item.brand",
         "item.currency",
@@ -445,4 +446,5 @@ final class RecipeService {
         ];
 
     }
+
 }

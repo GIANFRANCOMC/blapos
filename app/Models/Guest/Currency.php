@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class Currency extends Model {
+
     protected $table = "currencies";
 
     protected $primaryKey = "id";
@@ -58,4 +59,5 @@ class Currency extends Model {
             ->whereIn("status", ["active"]);
 
     }
+
 }

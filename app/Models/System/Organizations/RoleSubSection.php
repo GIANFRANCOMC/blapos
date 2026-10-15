@@ -6,6 +6,7 @@ use App\Models\System\General\{SubSection};
 use Illuminate\Database\Eloquent\{Model};
 
 class RoleSubSection extends Model {
+
     protected $table = "role_sub_sections";
 
     protected $fillable = [
@@ -34,4 +35,5 @@ class RoleSubSection extends Model {
         return $this->belongsTo(SubSection::class, "sub_section_id", "id");
 
     }
+
 }

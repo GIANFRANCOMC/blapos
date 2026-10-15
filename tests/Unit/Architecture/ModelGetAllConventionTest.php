@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\{File};
 use Tests\{TestCase};
 
 class ModelGetAllConventionTest extends TestCase {
+
     public function test_models_do_not_define_ambiguous_get_all_methods(): void {
 
         $violations = collect(File::allFiles(app_path("Models")))
@@ -100,4 +101,5 @@ class ModelGetAllConventionTest extends TestCase {
         }
 
     }
+
 }

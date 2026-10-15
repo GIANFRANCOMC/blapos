@@ -12,6 +12,7 @@ use Illuminate\Http\{JsonResponse, Request, Response};
 use RuntimeException;
 
 final class CashMovementController extends BaseController {
+
     public function __construct(private readonly CashRegisterService $service) {
 
     }
@@ -116,4 +117,5 @@ final class CashMovementController extends BaseController {
         return array_filter($request->input("filter", []), fn($value) => $value !== null && $value !== "");
 
     }
+
 }

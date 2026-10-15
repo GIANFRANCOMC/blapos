@@ -8,6 +8,7 @@ use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class InventoryGuideItem extends Model {
+
     protected $fillable = [
         "inventory_guide_id",
         "item_id",
@@ -38,4 +39,5 @@ final class InventoryGuideItem extends Model {
         return $this->belongsTo(InventoryMovement::class, "inventory_movement_id");
 
     }
+
 }

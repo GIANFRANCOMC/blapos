@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class Customer extends Model {
+
     protected $table = "customers";
 
     protected $primaryKey = "id";
@@ -59,4 +60,5 @@ class Customer extends Model {
         return $this->belongsTo(IdentityDocumentType::class, "identity_document_type_id", "id");
 
     }
+
 }

@@ -10,6 +10,7 @@ use App\Services\System\Customers\Tracking\{TrackingNotificationConfigService, T
 use Illuminate\Http\{JsonResponse, Request};
 
 class TrackingNotificationController extends BaseController {
+
     /**
      * Translation namespace for tracking notification module
      */
@@ -84,4 +85,5 @@ class TrackingNotificationController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

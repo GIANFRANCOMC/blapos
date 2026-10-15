@@ -9,6 +9,7 @@ use Illuminate\Http\{Request};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class EnsurePublicAttendanceAccess {
+
     public function handle(Request $request, Closure $next): Response {
 
         $access = $request->session()->get("_public_attendance_access");
@@ -25,4 +26,5 @@ final class EnsurePublicAttendanceAccess {
         return $next($request);
 
     }
+
 }

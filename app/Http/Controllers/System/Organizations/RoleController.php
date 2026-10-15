@@ -11,6 +11,7 @@ use App\Services\System\Organizations\Roles\{RoleConfigService, RoleService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class RoleController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Organizations.role";
 
     public function index() {
@@ -95,4 +96,5 @@ class RoleController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

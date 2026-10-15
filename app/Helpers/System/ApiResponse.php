@@ -11,6 +11,7 @@ use Illuminate\Http\{JsonResponse, Response};
  * Provides consistent API response formatting
  */
 class ApiResponse {
+
     /**
      * Success response
      *
@@ -129,4 +130,5 @@ class ApiResponse {
         return response()->json($response, Response::HTTP_OK);
 
     }
+
 }

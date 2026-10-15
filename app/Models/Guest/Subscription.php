@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class Subscription extends Model {
+
     protected $table = "subscriptions";
 
     protected $primaryKey = "id";
@@ -125,4 +126,5 @@ class Subscription extends Model {
         return $this->belongsTo(Customer::class, "customer_id", "id");
 
     }
+
 }

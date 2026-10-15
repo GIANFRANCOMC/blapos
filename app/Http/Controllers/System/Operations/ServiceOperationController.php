@@ -12,6 +12,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use Throwable;
 
 final class ServiceOperationController extends BaseController {
+
     public function index() {
 
         return view("System/general/Operations/service_operations/main");
@@ -355,4 +356,5 @@ final class ServiceOperationController extends BaseController {
         return "System.Operations.service_operation";
 
     }
+
 }

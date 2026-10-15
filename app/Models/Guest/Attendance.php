@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class Attendance extends Model {
+
     protected $table = "attendances";
 
     protected $primaryKey = "id";
@@ -92,4 +93,5 @@ class Attendance extends Model {
         return $this->belongsTo(Customer::class, "customer_id", "id");
 
     }
+
 }

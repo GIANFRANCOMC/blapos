@@ -10,6 +10,7 @@ use App\Services\System\Tenancy\{TenantContext, TenantStoragePath};
 use Tests\{TestCase};
 
 final class TenantRuntimeContextTest extends TestCase {
+
     public function test_storage_namespace_uses_public_tenant_id_instead_of_slug_or_company(): void {
 
         $tenant = new TenantDatabase([
@@ -44,4 +45,5 @@ final class TenantRuntimeContextTest extends TestCase {
         }
 
     }
+
 }

@@ -12,6 +12,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class UserWorkspaceTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -194,4 +195,5 @@ final class UserWorkspaceTest extends TestCase {
         ]);
 
     }
+
 }

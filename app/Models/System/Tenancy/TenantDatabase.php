@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\{Model};
 use Illuminate\Support\{Str};
 
 final class TenantDatabase extends Model {
+
     protected $connection = "landlord";
 
     protected $table = "tenant_databases";
@@ -51,4 +52,5 @@ final class TenantDatabase extends Model {
         return $this->hasMany(TenantDomain::class, "tenant_database_id");
 
     }
+
 }

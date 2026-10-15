@@ -10,6 +10,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class ConcurrentOperationalWritesTest extends TestCase {
+
     use DatabaseMigrations;
     use ProvisionsSystemDatabase;
 
@@ -165,4 +166,5 @@ final class ConcurrentOperationalWritesTest extends TestCase {
         ];
 
     }
+
 }

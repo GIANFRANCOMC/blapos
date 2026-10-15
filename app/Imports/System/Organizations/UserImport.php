@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Concerns\{SkipsEmptyRows, ToCollection, WithHeadingRow};
 use PhpOffice\PhpSpreadsheet\Shared\{Date};
 
 final class UserImport implements SkipsEmptyRows, ToCollection, WithHeadingRow {
+
     private int $importedCount = 0;
 
     public function __construct(private readonly int $actorId) {
@@ -36,6 +37,7 @@ final class UserImport implements SkipsEmptyRows, ToCollection, WithHeadingRow {
         }
 
         $roles = Role::query()->where("status", "active")->get(["id", "slug", "name"]);
+
         $documentTypes = IdentityDocumentType::query()->where("status", "active")->get(["id", "code", "name"]);
 
         DB::transaction(function() use ($rows, $roles, $documentTypes) {
@@ -154,4 +156,5 @@ final class UserImport implements SkipsEmptyRows, ToCollection, WithHeadingRow {
         return $this->optionalText($value);
 
     }
+
 }

@@ -13,6 +13,7 @@ use Illuminate\Http\{JsonResponse, Request, Response};
 use Illuminate\Validation\{ValidationException};
 
 final class UserAttendanceController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Organizations.user_attendance";
 
     public function index() {
@@ -313,4 +314,5 @@ final class UserAttendanceController extends BaseController {
             ->allowedBranchIds();
 
     }
+
 }

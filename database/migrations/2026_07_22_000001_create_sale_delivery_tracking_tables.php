@@ -5,6 +5,7 @@ use Illuminate\Database\Schema\{Blueprint};
 use Illuminate\Support\Facades\{Schema};
 
 return new class extends Migration {
+
     public function up(): void {
 
         Schema::create("sale_deliveries", function(Blueprint $table) {
@@ -109,4 +110,5 @@ return new class extends Migration {
         Schema::dropIfExists("sale_deliveries");
 
     }
+
 };

@@ -12,6 +12,7 @@ use Illuminate\Validation\Rules\{Password};
 use Illuminate\Validation\{Rule, ValidationException};
 
 final class PlatformProfileController extends Controller {
+
     public function update(Request $request, TenantAdministrationService $administration): JsonResponse {
 
         $user = $request->attributes->get("platformUser");
@@ -69,4 +70,5 @@ final class PlatformProfileController extends Controller {
         ]);
 
     }
+
 }

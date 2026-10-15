@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class IdentityDocumentType extends Model {
+
     protected $table = "identity_document_types";
 
     protected $primaryKey = "id";
@@ -51,4 +52,5 @@ class IdentityDocumentType extends Model {
         return Utilities::getValues($statuses, $type, $code);
 
     }
+
 }

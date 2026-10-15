@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Sales;
 
 final class SaleDeliveryPolicy {
+
     public const PENDING = "pending";
 
     public const DELIVERED = "delivered";
@@ -46,4 +47,5 @@ final class SaleDeliveryPolicy {
         return $requiresWarehouse && $deliveryStatus === self::PENDING;
 
     }
+
 }

@@ -18,6 +18,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class CustomerTransferTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -44,6 +45,7 @@ final class CustomerTransferTest extends TestCase {
             "correo_electronico" => "cliente@example.test",
             "estado" => "active",
         ];
+
         $userId = (int) DB::table("users")->where("email", "admin@example.test")->value("id");
 
         try {
@@ -80,10 +82,12 @@ final class CustomerTransferTest extends TestCase {
         $documentType = DB::table("identity_document_types")
             ->where("status", "active")
             ->first(["code", "min_length"]);
+
         $this->assertNotNull($documentType);
 
         $documentNumber = str_repeat("8", max(1, (int) $documentType->min_length));
         $sheet = new class($documentType->code, $documentNumber) implements FromArray, WithHeadings {
+
             public function __construct(private readonly string $typeCode, private readonly string $documentNumber) {
             }
 
@@ -98,6 +102,7 @@ final class CustomerTransferTest extends TestCase {
                 return [[$this->typeCode, $this->documentNumber, "Cliente desde XLSX", null, null, null, null, null, null, null, "active"]];
 
             }
+
         };
 
         Storage::fake("local");
@@ -112,4 +117,5 @@ final class CustomerTransferTest extends TestCase {
         $this->assertSame("Cliente desde XLSX", Customer::query()->where("document_number", $documentNumber)->value("name"));
 
     }
+
 }

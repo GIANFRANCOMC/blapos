@@ -10,6 +10,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class SuspendTenant extends Command {
+
     protected $signature = "tenant:suspend {slug} {--activate : Reactiva el tenant en lugar de suspenderlo} {--force : Omite confirmación interactiva}";
 
     protected $description = "Suspende o reactiva un tenant e invalida su caché de resolución.";
@@ -44,4 +45,5 @@ final class SuspendTenant extends Command {
         }
 
     }
+
 }

@@ -16,6 +16,7 @@ use Jenssegers\Agent\{Agent};
 use stdClass;
 
 final class BookComplaintController extends Controller {
+
     public function initParams(Request $request) {
 
         $initParams = new stdClass();
@@ -203,4 +204,5 @@ final class BookComplaintController extends Controller {
         return $code;
 
     }
+
 }

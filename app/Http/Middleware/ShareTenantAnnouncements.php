@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\{Schema};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class ShareTenantAnnouncements {
+
     public function __construct(
         private readonly TenantContext $context,
         private readonly TenantAnnouncementService $announcements
@@ -33,4 +34,5 @@ final class ShareTenantAnnouncements {
         return $next($request);
 
     }
+
 }

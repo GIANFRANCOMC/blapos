@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
 class StoreRecipeRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -74,4 +75,5 @@ class StoreRecipeRequest extends CompanyFormRequest {
         return ["preparation_notes"];
 
     }
+
 }

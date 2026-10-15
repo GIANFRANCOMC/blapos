@@ -14,6 +14,7 @@ use Illuminate\Validation\{Rule, ValidationException};
 use RuntimeException;
 
 final class TenantController extends Controller {
+
     public function index(Request $request, TenantAdministrationService $administration): JsonResponse {
 
         $data = $request->validate([
@@ -205,4 +206,5 @@ final class TenantController extends Controller {
         ]);
 
     }
+
 }

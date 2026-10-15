@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{DB, Mail, Schema, Validator};
 use stdClass;
 
 class HelperController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Essentials.helper";
 
     private const DOCUMENT_LOOKUP_SERVICE = "apiperu";
@@ -277,4 +278,5 @@ class HelperController extends BaseController {
         ];
 
     }
+
 }

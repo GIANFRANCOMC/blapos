@@ -13,6 +13,7 @@ use App\Services\System\Sales\{CommercialSelectionService, SaleConfigService, Sa
 use Illuminate\Http\{JsonResponse, Request};
 
 class SaleController extends BaseController {
+
     /**
      * Translation namespace for sale module
      */
@@ -321,4 +322,5 @@ class SaleController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

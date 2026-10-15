@@ -10,6 +10,7 @@ use Illuminate\Http\{Request};
 use stdClass;
 
 class HomeController extends Controller {
+
     public function initParams(Request $request) {
 
         $company = $request->get("company");
@@ -87,4 +88,5 @@ class HomeController extends Controller {
         return response()->json(["bool" => true, "msg" => "Data obtenida", "data" => $data], 200);
 
     }
+
 }

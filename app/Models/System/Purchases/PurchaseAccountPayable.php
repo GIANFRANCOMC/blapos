@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchaseAccountPayable extends Model {
+
     protected $table = "purchase_accounts_payable";
 
     protected $fillable = [
@@ -76,4 +77,5 @@ final class PurchaseAccountPayable extends Model {
             ->where("status", "active");
 
     }
+
 }

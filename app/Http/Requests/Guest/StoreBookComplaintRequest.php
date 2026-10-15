@@ -10,6 +10,7 @@ use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Validation\{Rule, Validator};
 
 final class StoreBookComplaintRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return true;
@@ -84,4 +85,5 @@ final class StoreBookComplaintRequest extends FormRequest {
         }];
 
     }
+
 }

@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Branch, Company};
 use Illuminate\Database\Eloquent\{Model};
 
 final class ServiceStation extends Model {
+
     protected $table = "service_stations";
 
     protected $fillable = [
@@ -60,4 +61,5 @@ final class ServiceStation extends Model {
             ->latestOfMany();
 
     }
+
 }

@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use Throwable;
 
 final class LandlordDatabaseProvisioner {
+
     public function ensureExists(): bool {
 
         $connection = (string) config("tenancy.landlord_connection", "landlord");
@@ -63,4 +64,5 @@ final class LandlordDatabaseProvisioner {
         return true;
 
     }
+
 }

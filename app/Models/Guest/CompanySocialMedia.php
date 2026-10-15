@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class CompanySocialMedia extends Model {
+
     protected $table = "company_socials_media";
 
     protected $primaryKey = "id";
@@ -56,4 +57,5 @@ class CompanySocialMedia extends Model {
         return $this->belongsTo(Company::class, "company_id", "id");
 
     }
+
 }

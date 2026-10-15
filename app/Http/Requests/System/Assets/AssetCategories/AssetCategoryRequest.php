@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{UniqueInTenant};
 
 abstract class AssetCategoryRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $categoryId = $this->route("id") ? (int) $this->route("id") : null;
@@ -25,4 +26,5 @@ abstract class AssetCategoryRequest extends CompanyFormRequest {
         return ["name", "description", "status"];
 
     }
+
 }

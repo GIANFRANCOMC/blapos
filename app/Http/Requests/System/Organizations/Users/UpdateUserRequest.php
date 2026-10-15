@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\Users;
 use Illuminate\Foundation\Http\{FormRequest};
 
 class UpdateUserRequest extends FormRequest {
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -28,4 +29,5 @@ class UpdateUserRequest extends FormRequest {
         return UserValidationRules::forDocumentType((int) $this->identity_document_type_id, $userId, false);
 
     }
+
 }

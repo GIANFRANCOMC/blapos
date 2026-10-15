@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for creating and updating records
  */
 class CategoryService {
+
     /**
      * Translation namespace for module
      */
@@ -305,4 +306,5 @@ class CategoryService {
         }
 
     }
+
 }

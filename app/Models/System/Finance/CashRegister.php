@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Branch};
 use Illuminate\Database\Eloquent\{Model};
 
 final class CashRegister extends Model {
+
     protected $table = "cash_registers";
 
     protected $fillable = [
@@ -45,4 +46,5 @@ final class CashRegister extends Model {
             ->latest("opened_at");
 
     }
+
 }

@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class BusinessAuditLog extends Model {
+
     protected $table = "business_audit_logs";
 
     public $timestamps = false;
@@ -33,4 +34,5 @@ final class BusinessAuditLog extends Model {
         "context" => "array",
         "occurred_at" => "datetime",
     ];
+
 }

@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Sales;
 use Illuminate\Foundation\Http\{FormRequest};
 
 class CancelSaleRequest extends FormRequest {
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -28,4 +29,5 @@ class CancelSaleRequest extends FormRequest {
         ];
 
     }
+
 }

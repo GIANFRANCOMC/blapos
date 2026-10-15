@@ -9,6 +9,7 @@ use App\Services\System\Base\{BaseConfigService, CompanyReferenceDataService, Ma
 use stdClass;
 
 final class SubscriptionConfigService extends BaseConfigService {
+
     protected const USER_SCOPED_CACHE = true;
 
     protected static function getCachePrefix(): string {
@@ -34,4 +35,5 @@ final class SubscriptionConfigService extends BaseConfigService {
         ]);
 
     }
+
 }

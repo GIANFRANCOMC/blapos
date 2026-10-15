@@ -16,6 +16,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class CatalogReferenceTransferTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -91,6 +92,7 @@ final class CatalogReferenceTransferTest extends TestCase {
         }
 
         $this->assertFalse(Category::query()->where("name", "Categoría transitoria")->exists());
+
         $this->assertSame("import", RolePermissionService::actionForRoute("products.import.template", "GET"));
         $this->assertSame("import", RolePermissionService::actionForRoute("categories.import.template", "GET"));
         $this->assertSame("import", RolePermissionService::actionForRoute("brands.import.template", "GET"));
@@ -104,4 +106,5 @@ final class CatalogReferenceTransferTest extends TestCase {
         return (int) DB::table("users")->where("email", "admin@example.test")->value("id");
 
     }
+
 }

@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{CompanySubSection};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 
 final class CompanySubSectionObserver {
+
     public function saved(CompanySubSection $companySubSection): void {
 
         CompanySectionService::clearTenantCache();
@@ -19,4 +20,5 @@ final class CompanySubSectionObserver {
         CompanySectionService::clearTenantCache();
 
     }
+
 }

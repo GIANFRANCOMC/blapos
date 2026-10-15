@@ -11,6 +11,7 @@ use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Http\Exceptions\{HttpResponseException};
 
 class StoreSaleRequest extends CompanyFormRequest {
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -257,4 +258,5 @@ class StoreSaleRequest extends CompanyFormRequest {
             ->all();
 
     }
+
 }

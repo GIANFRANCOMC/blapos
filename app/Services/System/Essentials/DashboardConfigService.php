@@ -8,6 +8,7 @@ use App\Services\System\Base\{BaseConfigService};
 use stdClass;
 
 final class DashboardConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "dashboard";
@@ -19,4 +20,5 @@ final class DashboardConfigService extends BaseConfigService {
         return self::data();
 
     }
+
 }

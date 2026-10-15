@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Company};
 use RuntimeException;
 
 final class TenantCompanyContext {
+
     private ?Company $company = null;
 
     public function get(): Company {
@@ -66,4 +67,5 @@ final class TenantCompanyContext {
         $this->company = null;
 
     }
+
 }

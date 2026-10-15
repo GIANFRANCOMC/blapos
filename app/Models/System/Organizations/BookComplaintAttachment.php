@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class BookComplaintAttachment extends Model {
+
     protected $table = "book_complaint_attachments";
 
     public $timestamps = false;
@@ -27,4 +28,5 @@ final class BookComplaintAttachment extends Model {
         return $this->belongsTo(BookComplaint::class, "book_complaint_id");
 
     }
+
 }

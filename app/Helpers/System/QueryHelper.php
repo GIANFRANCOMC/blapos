@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\{Builder};
  * Provides common query operations
  */
 class QueryHelper {
+
     /**
      * Apply pagination to query
      *
@@ -138,4 +139,5 @@ class QueryHelper {
         return $query->orderBy($orderBy, $orderDirection);
 
     }
+
 }

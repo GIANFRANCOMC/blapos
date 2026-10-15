@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use Throwable;
 
 final class CreateTenantCompany extends Command {
+
     protected $signature = "tenant:create
         {slug : Subdominio/código único del cliente}
         {--domain= : Subdominio completo. Debe coincidir con slug + TENANCY_BASE_DOMAIN}
@@ -334,4 +335,5 @@ final class CreateTenantCompany extends Command {
         $this->line(Artisan::output());
 
     }
+
 }

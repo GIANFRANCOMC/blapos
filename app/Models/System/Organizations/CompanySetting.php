@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class CompanySetting extends Model {
+
     protected $table = "company_settings";
 
     public $timestamps = true;
@@ -28,4 +29,5 @@ final class CompanySetting extends Model {
         return $this->belongsTo(Company::class, "company_id", "id");
 
     }
+
 }

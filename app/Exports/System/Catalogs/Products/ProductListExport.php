@@ -15,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class ProductListExport extends DefaultValueBinder implements FromQuery, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles {
+
     private const LAST_COLUMN = "R";
 
     private array $alertRows = [];
@@ -244,4 +245,5 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
         return Utilities::formatDecimal($value);
 
     }
+
 }

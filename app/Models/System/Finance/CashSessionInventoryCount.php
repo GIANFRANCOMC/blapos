@@ -10,6 +10,7 @@ use App\Models\System\Warehouses\{InventoryMovement, Warehouse};
 use Illuminate\Database\Eloquent\{Model};
 
 class CashSessionInventoryCount extends Model {
+
     protected $table = "cash_session_inventory_counts";
 
     protected $fillable = [
@@ -64,4 +65,5 @@ class CashSessionInventoryCount extends Model {
         return $this->belongsTo(InventoryMovement::class, "inventory_movement_id", "id");
 
     }
+
 }

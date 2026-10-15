@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class AuthenticationEvent extends Model {
+
     protected $table = "authentication_events";
 
     public $timestamps = false;
@@ -31,4 +32,5 @@ final class AuthenticationEvent extends Model {
         return $this->belongsTo(User::class, "user_id");
 
     }
+
 }

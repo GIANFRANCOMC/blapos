@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use Tests\{TestCase};
 
 class InitParamsCacheInvalidationServiceTest extends TestCase {
+
     public function test_category_changes_clear_all_dependent_config_caches(): void {
 
         $scopeSeed = 91;
@@ -165,4 +166,5 @@ class InitParamsCacheInvalidationServiceTest extends TestCase {
         }
 
     }
+
 }

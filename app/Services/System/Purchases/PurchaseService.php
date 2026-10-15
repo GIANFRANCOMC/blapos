@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\{DB, Schema};
 use Illuminate\Support\{Str};
 
 final class PurchaseService {
+
     private static function allocateExpenses(array $details, array $expenses): array {
 
         $allocations = collect($details)
@@ -670,4 +671,5 @@ final class PurchaseService {
             ->findOrFail($purchaseId);
 
     }
+
 }

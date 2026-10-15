@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{Artisan};
 use Illuminate\Support\{Str};
 
 final class InstallSystemDatabase extends Command {
+
     protected $signature = "system:install
         {--slug=demo : Identificador único}
         {--commercial-name=Empresa demo : Nombre comercial}
@@ -93,4 +94,5 @@ final class InstallSystemDatabase extends Command {
         return self::SUCCESS;
 
     }
+
 }

@@ -7,6 +7,7 @@ use App\Models\System\Organizations\{CompanySubSection, RoleSubSection};
 use Illuminate\Database\Eloquent\{Model};
 
 class SubSection extends Model {
+
     protected $table = "sub_sections";
 
     protected $primaryKey = "id";
@@ -84,4 +85,5 @@ class SubSection extends Model {
             ->whereIn("status", ["active"]);
 
     }
+
 }

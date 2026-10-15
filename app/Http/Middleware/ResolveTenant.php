@@ -12,6 +12,7 @@ use Illuminate\Support\{Str};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class ResolveTenant {
+
     public function __construct(
         private readonly TenantResolver $resolver,
         private readonly TenantConnectionManager $connectionManager,
@@ -86,4 +87,5 @@ final class ResolveTenant {
         return Str::slug("{$prefix}_{$slug}_{$hash}", "_")."_session";
 
     }
+
 }

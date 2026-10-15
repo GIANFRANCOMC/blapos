@@ -12,6 +12,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class SendPendingSubscriptionEmails extends Command {
+
     protected $signature = "notifications:send-subscriptions
                             {--tenant= : Procesar únicamente el slug tenant indicado}
                             {--limit=100 : Máximo de notificaciones por ejecución}";
@@ -76,4 +77,5 @@ final class SendPendingSubscriptionEmails extends Command {
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 
     }
+
 }

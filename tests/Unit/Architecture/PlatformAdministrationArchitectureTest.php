@@ -7,6 +7,7 @@ namespace Tests\Unit\Architecture;
 use Tests\{TestCase};
 
 final class PlatformAdministrationArchitectureTest extends TestCase {
+
     public function test_authenticated_platform_uses_one_asynchronous_shell(): void {
 
         $routes = file_get_contents(base_path("routes/platform.php"));
@@ -87,4 +88,5 @@ final class PlatformAdministrationArchitectureTest extends TestCase {
         $this->assertStringContainsString("platform-check__box", $tenantDetail);
 
     }
+
 }

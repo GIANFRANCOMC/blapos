@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchasePayablePayment extends Model {
+
     protected $table = "purchase_payable_payments";
 
     protected $fillable = [
@@ -48,4 +49,5 @@ final class PurchasePayablePayment extends Model {
         return $this->belongsTo(PaymentMethodVariant::class, "payment_method_variant_id");
 
     }
+
 }

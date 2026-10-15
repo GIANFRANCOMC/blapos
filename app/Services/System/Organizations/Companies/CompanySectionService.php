@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{Cache, DB, Route};
  * Resolves and caches the modules enabled for a company.
  */
 final class CompanySectionService {
+
     private const CACHE_TTL = 1800;
 
     private const CACHE_PREFIX = "company_sections";
@@ -194,4 +195,5 @@ final class CompanySectionService {
             });
 
     }
+
 }

@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{Branch, User};
 use Illuminate\Database\Eloquent\{Model};
 
 final class MiscExpense extends Model {
+
     protected $table = "misc_expenses";
 
     protected $fillable = [
@@ -74,4 +75,5 @@ final class MiscExpense extends Model {
         return $this->belongsTo(User::class, "responsible_user_id");
 
     }
+
 }

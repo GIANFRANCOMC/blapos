@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\{Model};
 use Illuminate\Support\Facades\{DB};
 
 class Customer extends Model {
+
     protected $table = "customers";
 
     protected $primaryKey = "id";
@@ -147,4 +148,5 @@ class Customer extends Model {
         return $this->hasMany(CustomerBiometricFingerprint::class, "customer_id", "id");
 
     }
+
 }

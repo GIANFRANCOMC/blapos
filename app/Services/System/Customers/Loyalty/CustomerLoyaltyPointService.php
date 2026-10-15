@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\{DB, Schema};
 use Illuminate\Support\{Collection};
 
 final class CustomerLoyaltyPointService {
+
     public static function awardForSale(
         SaleHeader $saleHeader,
         Collection $saleBodies,
@@ -290,4 +291,5 @@ final class CustomerLoyaltyPointService {
             && Schema::hasTable("loyalty_point_rules");
 
     }
+
 }

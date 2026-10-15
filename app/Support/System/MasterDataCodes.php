@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\System;
 
 final class MasterDataCodes {
+
     public const IDENTITY_DNI = "dni";
 
     public const IDENTITY_RUC = "ruc";
@@ -20,4 +21,5 @@ final class MasterDataCodes {
     private function __construct() {
 
     }
+
 }

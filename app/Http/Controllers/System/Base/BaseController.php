@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\{Auth};
  * Provides common functionality for all system controllers
  */
 abstract class BaseController extends Controller {
+
     use HandlesApiResponses, HandlesExceptions;
 
     /**
@@ -67,4 +68,5 @@ abstract class BaseController extends Controller {
         return $request->input("page", "");
 
     }
+
 }

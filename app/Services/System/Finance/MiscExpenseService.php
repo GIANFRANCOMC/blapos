@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class MiscExpenseService {
+
     public static function query(array $filters = [], ?int $userId = null): Builder {
 
         $query = MiscExpense::query()
@@ -184,4 +185,5 @@ final class MiscExpenseService {
         });
 
     }
+
 }

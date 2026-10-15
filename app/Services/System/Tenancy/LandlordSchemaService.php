@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\{Schema};
 use RuntimeException;
 
 final class LandlordSchemaService {
+
     private static bool $resolved = false;
 
     public static function ensure(): void {
@@ -43,4 +44,5 @@ final class LandlordSchemaService {
         self::$resolved = true;
 
     }
+
 }

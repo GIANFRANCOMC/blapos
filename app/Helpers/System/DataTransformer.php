@@ -13,6 +13,7 @@ use stdClass;
  * Provides common data transformation operations
  */
 class DataTransformer {
+
     /**
      * Transform model to array with only specified fields
      *
@@ -150,4 +151,5 @@ class DataTransformer {
         return json_decode(json_encode($object), true);
 
     }
+
 }

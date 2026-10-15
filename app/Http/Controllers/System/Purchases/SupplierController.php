@@ -12,6 +12,7 @@ use App\Services\System\Purchases\{SupplierService};
 use Illuminate\Http\{JsonResponse, Request};
 
 final class SupplierController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Purchases.supplier";
 
     public function index() {
@@ -72,4 +73,5 @@ final class SupplierController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

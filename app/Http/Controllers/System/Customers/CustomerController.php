@@ -19,6 +19,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class CustomerController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -300,4 +301,5 @@ class CustomerController extends BaseController {
         }
 
     }
+
 }

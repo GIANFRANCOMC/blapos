@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\{Storage};
 use Symfony\Component\HttpFoundation\{StreamedResponse};
 
 class BookComplaintController extends BaseController {
+
     /**
      * Translation namespace for book complaint module
      */
@@ -137,4 +138,5 @@ class BookComplaintController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

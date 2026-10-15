@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\{Log};
  * Provides centralized exception handling
  */
 trait HandlesExceptions {
+
     /**
      * Handle exception and return error response
      *
@@ -33,4 +34,5 @@ trait HandlesExceptions {
         return $this->errorResponse("exception_{$operation}", ["message" => $e->getMessage()]);
 
     }
+
 }

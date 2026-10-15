@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Assets\AssetManagements;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class UpdateAssetInBranchRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -29,4 +30,5 @@ final class UpdateAssetInBranchRequest extends CompanyFormRequest {
         return ["note"];
 
     }
+
 }

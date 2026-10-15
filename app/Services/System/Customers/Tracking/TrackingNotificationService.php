@@ -14,6 +14,7 @@ use DomainException;
  * Handles business logic for listing and managing tracking notifications
  */
 class TrackingNotificationService {
+
     /**
      * Get paginated list of subscription emails with filters
      *
@@ -76,4 +77,5 @@ class TrackingNotificationService {
         return $notification->fresh();
 
     }
+
 }

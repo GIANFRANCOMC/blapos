@@ -13,6 +13,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class ProductCapacityBoundaryTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -101,4 +102,5 @@ final class ProductCapacityBoundaryTest extends TestCase {
             ->assertJsonValidationErrors(["capacity_control_enabled", "capacity_limit"]);
 
     }
+
 }

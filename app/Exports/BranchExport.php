@@ -5,6 +5,7 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\{FromCollection, WithColumnWidths, WithHeadings};
 
 class BranchExport implements FromCollection, WithColumnWidths, WithHeadings {
+
     protected $data;
 
     public function __construct($data) {
@@ -36,4 +37,5 @@ class BranchExport implements FromCollection, WithColumnWidths, WithHeadings {
         ];
 
     }
+
 }

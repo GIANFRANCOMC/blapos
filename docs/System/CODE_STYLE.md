@@ -10,6 +10,7 @@ El código debe ser consistente, legible y fácil de revisar. La convención se 
 - Las condiciones, iteraciones y capturas no llevan espacio antes del paréntesis: `if(condicion) {`, `foreach($items as $item) {`, `catch(Throwable $exception) {`.
 - Las directivas Blade siguen la misma regla: `@if($condicion)` y `@foreach($items as $item)`.
 - La llave de apertura permanece en la misma línea: `metodo() {`, `if(condicion) {`, `final class Servicio {`.
+- Después de abrir una clase, interfaz, trait o enum, dejar una línea vacía antes de la primera constante, propiedad o método. Mantener también una línea vacía antes de la llave de cierre cuando el bloque tiene contenido.
 - No separar el operador de negación de su expresión: `if(!Utilities::isDefined($value)) {`.
 - Todas las continuaciones se escriben sin separación después de la llave: `}elseif(condicion) {`, `}else {`, `}catch(Throwable $exception) {` y `}finally {`.
 - Antes de iniciar una nueva condición, iteración, función local o bloque independiente debe existir una línea vacía. Las asignaciones consecutivas pueden permanecer juntas si forman una sola operación.
@@ -68,4 +69,4 @@ composer format:php-check
 composer check:php-syntax
 ```
 
-`scripts/format-php-double-quotes.php` normaliza literales de forma semánticamente segura. Pint agrupa imports compatibles y aplica el formato base según `pint.json`. Finalmente, `scripts/format-php-control-structures.php` normaliza imports individuales, condiciones, negaciones, continuaciones y líneas internas de los bloques.
+`scripts/format-php-double-quotes.php` normaliza literales de forma semánticamente segura. `scripts/format-php-control-structures.php` normaliza imports individuales, condiciones, negaciones, continuaciones y el espacio interno de funciones, clases, interfaces, traits y enums. Pint agrupa imports compatibles y aplica el formato base según `pint.json`.

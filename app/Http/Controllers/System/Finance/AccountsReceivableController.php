@@ -10,6 +10,7 @@ use App\Services\System\Finance\{AccountsReceivableService};
 use Illuminate\Http\{JsonResponse, Request};
 
 final class AccountsReceivableController extends BaseController {
+
     public function __construct(private readonly AccountsReceivableService $service) {
 
     }
@@ -61,4 +62,5 @@ final class AccountsReceivableController extends BaseController {
         ], fn($value) => $value !== null && $value !== "");
 
     }
+
 }

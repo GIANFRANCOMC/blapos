@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Hash};
 use InvalidArgumentException;
 
 final class CreatePlatformAdministrator extends Command {
+
     protected $signature = "platform:admin
         {email : Correo del administrador de app}
         {--name=Administrador SaaS : Nombre visible}
@@ -49,4 +50,5 @@ final class CreatePlatformAdministrator extends Command {
         return self::SUCCESS;
 
     }
+
 }

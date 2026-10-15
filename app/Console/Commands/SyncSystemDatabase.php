@@ -8,6 +8,7 @@ use App\Services\System\Database\{SystemCatalogSyncService};
 use Illuminate\Console\{Command};
 
 final class SyncSystemDatabase extends Command {
+
     protected $signature = "system:sync";
 
     protected $description = "Proyecta el menú almacenado en la base de datos hacia organizaciones y permisos administrativos.";
@@ -23,4 +24,5 @@ final class SyncSystemDatabase extends Command {
         return self::SUCCESS;
 
     }
+
 }

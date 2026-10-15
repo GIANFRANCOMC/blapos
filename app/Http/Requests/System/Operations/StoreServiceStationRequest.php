@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Operations;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class StoreServiceStationRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -33,4 +34,5 @@ final class StoreServiceStationRequest extends CompanyFormRequest {
         return ["code", "name", "station_type", "color", "shape", "description", "status"];
 
     }
+
 }

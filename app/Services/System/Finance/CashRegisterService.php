@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\{DB};
 use RuntimeException;
 
 final class CashRegisterService {
+
     public function listRegisters(?int $userId = null) {
 
         $query = CashRegister::query()
@@ -706,4 +707,5 @@ final class CashRegisterService {
         SaleConfigService::clearAllCache();
 
     }
+
 }

@@ -8,6 +8,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 final class UserAttendance extends Model {
+
     protected $table = "user_attendances";
 
     protected $fillable = [
@@ -82,4 +83,5 @@ final class UserAttendance extends Model {
         return $this->hasMany(UserAttendanceCorrection::class, "user_attendance_id", "id");
 
     }
+
 }

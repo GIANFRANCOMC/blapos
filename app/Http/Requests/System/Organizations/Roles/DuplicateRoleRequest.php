@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use Illuminate\Validation\{Rule};
 
 final class DuplicateRoleRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -26,4 +27,5 @@ final class DuplicateRoleRequest extends CompanyFormRequest {
         return ["name"];
 
     }
+
 }

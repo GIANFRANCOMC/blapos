@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
 final class ServiceOperationService {
+
     public const STATUS_PENDING = "pending";
 
     public const STATUS_IN_PROGRESS = "in_progress";
@@ -1386,4 +1387,5 @@ final class ServiceOperationService {
         ]);
 
     }
+
 }

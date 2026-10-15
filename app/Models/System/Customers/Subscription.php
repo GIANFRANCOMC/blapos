@@ -9,6 +9,7 @@ use Carbon\{Carbon};
 use Illuminate\Database\Eloquent\{Model};
 
 class Subscription extends Model {
+
     protected $table = "subscriptions";
 
     protected $primaryKey = "id";
@@ -193,4 +194,5 @@ class Subscription extends Model {
         return $this->hasMany(self::class, "renewed_from_id", "id");
 
     }
+
 }

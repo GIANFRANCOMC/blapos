@@ -8,6 +8,7 @@ use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Validation\Rules\{Password};
 
 final class ChangeUserPasswordRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return true;
@@ -21,4 +22,5 @@ final class ChangeUserPasswordRequest extends FormRequest {
         ];
 
     }
+
 }

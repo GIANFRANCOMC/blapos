@@ -8,6 +8,7 @@ use App\Models\System\General\{SubSection};
 use Illuminate\Database\Eloquent\{Model};
 
 final class BusinessIndustryModuleSet extends Model {
+
     protected $table = "business_industry_module_sets";
 
     protected $fillable = [
@@ -31,4 +32,5 @@ final class BusinessIndustryModuleSet extends Model {
         return $this->belongsTo(SubSection::class, "sub_section_id");
 
     }
+
 }

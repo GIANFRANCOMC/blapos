@@ -10,6 +10,7 @@ use App\Models\System\Sales\{SaleHeader};
 use Illuminate\Database\Eloquent\{Model};
 
 final class ServiceSession extends Model {
+
     protected $table = "service_sessions";
 
     protected $fillable = [
@@ -100,4 +101,5 @@ final class ServiceSession extends Model {
             ->orderByDesc("occurred_at");
 
     }
+
 }

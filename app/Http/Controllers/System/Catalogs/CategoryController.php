@@ -7,8 +7,8 @@ namespace App\Http\Controllers\System\Catalogs;
 use App\Exports\System\Catalogs\References\{CatalogReferenceListExport, CatalogReferenceTemplateExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Http\Requests\System\Catalogs\Categories\{StoreCategoryRequest, UpdateCategoryRequest};
+use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Categories\{CategoryConfigService, CategoryService};
@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class CategoryController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -227,4 +228,5 @@ class CategoryController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

@@ -7,6 +7,7 @@ use App\Models\System\Organizations\{Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class SubscriptionEmail extends Model {
+
     protected $table = "subscription_emails";
 
     protected $primaryKey = "id";
@@ -96,4 +97,5 @@ class SubscriptionEmail extends Model {
     }
 
     // Relationships
+
 }

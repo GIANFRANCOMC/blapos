@@ -7,6 +7,7 @@ use App\Models\System\General\{SubSection};
 use Illuminate\Database\Eloquent\{Model};
 
 class CompanySubSection extends Model {
+
     protected $table = "companies_sub_sections";
 
     protected $primaryKey = "id";
@@ -64,4 +65,5 @@ class CompanySubSection extends Model {
         return $this->belongsTo(SubSection::class, "sub_section_id", "id");
 
     }
+
 }

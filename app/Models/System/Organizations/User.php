@@ -12,6 +12,7 @@ use Illuminate\Notifications\{Notifiable};
 use Laravel\Sanctum\{HasApiTokens};
 
 class User extends Authenticatable {
+
     use HasApiTokens, Notifiable;
 
     protected $table = "users";
@@ -221,4 +222,5 @@ class User extends Authenticatable {
         )->where("status", "active");
 
     }
+
 }

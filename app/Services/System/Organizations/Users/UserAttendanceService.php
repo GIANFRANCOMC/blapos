@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class UserAttendanceService {
+
     public const SOURCE_MANUAL = "manual_form";
 
     public const SOURCE_QR_CAMERA = "qr_camera";
@@ -590,4 +591,5 @@ final class UserAttendanceService {
         ];
 
     }
+
 }

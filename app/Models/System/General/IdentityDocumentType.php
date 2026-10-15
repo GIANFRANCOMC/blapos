@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Model};
 
 class IdentityDocumentType extends Model {
+
     protected $table = "identity_document_types";
 
     protected $primaryKey = "id";
@@ -76,4 +77,5 @@ class IdentityDocumentType extends Model {
             ->whereIn("status", ["active"]);
 
     }
+
 }

@@ -11,6 +11,7 @@ use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class UpdateSubscriptionRequest extends CompanyFormRequest {
+
     use AppliesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
@@ -140,4 +141,5 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
         }
 
     }
+
 }

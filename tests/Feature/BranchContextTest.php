@@ -13,6 +13,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class BranchContextTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -69,4 +70,5 @@ final class BranchContextTest extends TestCase {
         $context->select($deniedBranchId);
 
     }
+
 }

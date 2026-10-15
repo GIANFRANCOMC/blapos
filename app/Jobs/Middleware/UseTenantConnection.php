@@ -10,6 +10,7 @@ use Closure;
 use RuntimeException;
 
 final class UseTenantConnection {
+
     public function __construct(private readonly int $tenantDatabaseId) {
     }
 
@@ -43,4 +44,5 @@ final class UseTenantConnection {
         }
 
     }
+
 }

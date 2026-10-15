@@ -9,6 +9,7 @@ use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 
 final class UpdateAssetRequest extends CompanyFormRequest {
+
     use AppliesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
@@ -38,4 +39,5 @@ final class UpdateAssetRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

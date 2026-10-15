@@ -8,6 +8,7 @@ use Illuminate\Foundation\Events\{Dispatchable};
 use Illuminate\Queue\{SerializesModels};
 
 class SubscriptionExpired {
+
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $subscription;

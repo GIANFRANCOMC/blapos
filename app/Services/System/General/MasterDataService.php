@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\{DB, Storage};
 use Illuminate\Support\{Str};
 
 final class MasterDataService {
+
     private const DEFINITIONS = [
         "identity-documents" => ["model" => IdentityDocumentType::class],
         "document-types" => ["model" => DocumentType::class],
@@ -329,4 +330,5 @@ final class MasterDataService {
         }
 
     }
+
 }

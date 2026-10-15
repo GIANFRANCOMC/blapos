@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\{Model};
 use RuntimeException;
 
 class Company extends Model {
+
     protected $table = "companies";
 
     protected $primaryKey = "id";
@@ -119,4 +120,5 @@ class Company extends Model {
             ->whereIn("status", ["active"]);
 
     }
+
 }

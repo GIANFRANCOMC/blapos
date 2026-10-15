@@ -7,6 +7,7 @@ use App\Models\System\General\{DocumentType};
 use Illuminate\Database\Eloquent\{Model};
 
 class Serie extends Model {
+
     protected $table = "series";
 
     protected $primaryKey = "id";
@@ -72,4 +73,5 @@ class Serie extends Model {
         return $this->belongsTo(DocumentType::class, "document_type_id", "id");
 
     }
+
 }

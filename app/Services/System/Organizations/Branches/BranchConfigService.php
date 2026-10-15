@@ -9,6 +9,7 @@ use App\Services\System\Base\{BaseConfigService};
 use stdClass;
 
 final class BranchConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "branch";
@@ -23,4 +24,5 @@ final class BranchConfigService extends BaseConfigService {
         ]);
 
     }
+
 }

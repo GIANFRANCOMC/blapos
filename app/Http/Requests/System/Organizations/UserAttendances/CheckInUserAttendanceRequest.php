@@ -10,6 +10,7 @@ use App\Services\System\Organizations\Users\{UserAttendanceService};
 use Illuminate\Validation\{Rule};
 
 final class CheckInUserAttendanceRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -43,4 +44,5 @@ final class CheckInUserAttendanceRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

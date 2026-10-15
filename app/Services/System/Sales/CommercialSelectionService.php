@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use InvalidArgumentException;
 
 final class CommercialSelectionService {
+
     private const PAGE_SIZE = 25;
 
     public static function search(string $resource, string $search = "", int $page = 1): array {
@@ -92,4 +93,5 @@ final class CommercialSelectionService {
         ];
 
     }
+
 }

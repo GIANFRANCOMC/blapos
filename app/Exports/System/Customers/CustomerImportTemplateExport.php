@@ -9,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class CustomerImportTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
+
     public function array(): array {
 
         return [];
@@ -41,6 +42,7 @@ final class CustomerImportTemplateExport implements FromArray, ShouldAutoSize, W
             "fill" => ["fillType" => Fill::FILL_SOLID, "startColor" => ["rgb" => "1A1A35"]],
             "alignment" => ["horizontal" => Alignment::HORIZONTAL_CENTER],
         ]);
+
         $sheet->getStyle("A2:B501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("E2:E501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("I2:I501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
@@ -49,4 +51,5 @@ final class CustomerImportTemplateExport implements FromArray, ShouldAutoSize, W
         return [];
 
     }
+
 }

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Str};
 
 final class QuotationService {
+
     public static function query(array $filters = []): Builder {
 
         $query = QuotationHeader::query()
@@ -245,4 +246,5 @@ final class QuotationService {
         return $reference;
 
     }
+
 }

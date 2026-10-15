@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Branch, User};
 use Illuminate\Database\Eloquent\{Model};
 
 final class CashMovement extends Model {
+
     protected $table = "cash_movements";
 
     protected $fillable = [
@@ -52,4 +53,5 @@ final class CashMovement extends Model {
         return $this->belongsTo(User::class, "user_id", "id");
 
     }
+
 }

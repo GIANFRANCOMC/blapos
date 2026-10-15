@@ -7,6 +7,7 @@ namespace App\Services\System\Tenancy;
 use RuntimeException;
 
 final class TenantStoragePath {
+
     public static function for(string $relativePath): string {
 
         $tenant = app(TenantContext::class)->get();
@@ -46,4 +47,5 @@ final class TenantStoragePath {
         return self::for("backups/{$relativePath}");
 
     }
+
 }

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Validation\{Rule};
 
 final class BiometricDeviceEventRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return true;
@@ -26,4 +27,5 @@ final class BiometricDeviceEventRequest extends FormRequest {
         ];
 
     }
+
 }

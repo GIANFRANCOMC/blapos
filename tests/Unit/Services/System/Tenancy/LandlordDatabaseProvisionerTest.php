@@ -14,6 +14,7 @@ use RuntimeException;
 use Tests\{TestCase};
 
 final class LandlordDatabaseProvisionerTest extends TestCase {
+
     public function test_it_does_not_create_an_existing_landlord_database(): void {
 
         config(["tenancy.landlord_connection" => "landlord"]);
@@ -115,4 +116,5 @@ final class LandlordDatabaseProvisionerTest extends TestCase {
         ];
 
     }
+
 }

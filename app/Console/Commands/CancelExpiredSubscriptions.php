@@ -13,6 +13,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class CancelExpiredSubscriptions extends Command {
+
     protected $signature = "subscriptions:cancel-expired
                             {--tenant= : Procesar únicamente el slug tenant indicado}
                             {--limit=1000 : Máximo de membresías por tenant}";
@@ -105,4 +106,5 @@ final class CancelExpiredSubscriptions extends Command {
         ];
 
     }
+
 }

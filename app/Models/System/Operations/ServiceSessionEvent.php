@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Model};
 
 final class ServiceSessionEvent extends Model {
+
     protected $table = "service_session_events";
 
     public $timestamps = false;
@@ -40,4 +41,5 @@ final class ServiceSessionEvent extends Model {
         return $this->belongsTo(User::class, "user_id", "id");
 
     }
+
 }

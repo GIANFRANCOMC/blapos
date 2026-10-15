@@ -9,6 +9,7 @@ use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo, Relations\HasMany};
 
 class SaleDeliveryEvent extends Model {
+
     protected $table = "sale_delivery_events";
 
     public $timestamps = false;
@@ -54,4 +55,5 @@ class SaleDeliveryEvent extends Model {
         return $this->hasMany(SaleDeliveryEventItem::class, "sale_delivery_event_id", "id");
 
     }
+
 }

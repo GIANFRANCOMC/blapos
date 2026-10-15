@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\Users;
 use Illuminate\Foundation\Http\{FormRequest};
 
 class StoreUserRequest extends FormRequest {
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,4 +27,5 @@ class StoreUserRequest extends FormRequest {
         return UserValidationRules::forDocumentType((int) $this->identity_document_type_id);
 
     }
+
 }

@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\BookComplaints;
 use Illuminate\Foundation\Http\{FormRequest};
 
 class UpdateBookComplaintRequest extends FormRequest {
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -31,4 +32,5 @@ class UpdateBookComplaintRequest extends FormRequest {
         ];
 
     }
+
 }

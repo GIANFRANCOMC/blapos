@@ -10,6 +10,7 @@ use Mockery;
 use Tests\{TestCase};
 
 class UniqueInTenantTest extends TestCase {
+
     public function test_it_rejects_a_value_already_used_in_the_tenant(): void {
 
         $query = $this->mockQuery(true);
@@ -60,4 +61,5 @@ class UniqueInTenantTest extends TestCase {
         return $errors;
 
     }
+
 }

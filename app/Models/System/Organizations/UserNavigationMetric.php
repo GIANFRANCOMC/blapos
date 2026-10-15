@@ -8,6 +8,7 @@ use App\Models\System\General\{SubSection};
 use Illuminate\Database\Eloquent\{Model};
 
 final class UserNavigationMetric extends Model {
+
     protected $table = "user_navigation_metrics";
 
     public $timestamps = false;
@@ -37,4 +38,5 @@ final class UserNavigationMetric extends Model {
         return $this->belongsTo(SubSection::class, "sub_section_id", "id");
 
     }
+
 }

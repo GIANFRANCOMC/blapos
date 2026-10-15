@@ -14,6 +14,7 @@ use Illuminate\Http\Exceptions\{HttpResponseException};
  * Shared request contract for modules isolated by the current tenant database.
  */
 abstract class CompanyFormRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return $this->user() !== null;
@@ -235,4 +236,5 @@ abstract class CompanyFormRequest extends FormRequest {
         );
 
     }
+
 }

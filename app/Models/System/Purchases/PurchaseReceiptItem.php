@@ -9,6 +9,7 @@ use App\Models\System\Warehouses\{InventoryMovement};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class PurchaseReceiptItem extends Model {
+
     protected $table = "purchase_receipt_items";
 
     public $timestamps = false;
@@ -55,4 +56,5 @@ final class PurchaseReceiptItem extends Model {
         return $this->belongsTo(InventoryMovement::class, "inventory_movement_id");
 
     }
+
 }

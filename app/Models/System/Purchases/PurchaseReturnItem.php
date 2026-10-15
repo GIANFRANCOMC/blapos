@@ -9,6 +9,7 @@ use App\Models\System\Warehouses\{InventoryMovement};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchaseReturnItem extends Model {
+
     protected $table = "purchase_return_items";
 
     public $timestamps = false;
@@ -31,4 +32,5 @@ final class PurchaseReturnItem extends Model {
         return $this->belongsTo(InventoryMovement::class, "inventory_movement_id");
 
     }
+
 }

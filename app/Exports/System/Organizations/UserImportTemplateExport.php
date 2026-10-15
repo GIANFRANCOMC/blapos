@@ -9,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class UserImportTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
+
     public function array(): array {
 
         return [];
@@ -38,6 +39,7 @@ final class UserImportTemplateExport implements FromArray, ShouldAutoSize, WithH
             "fill" => ["fillType" => Fill::FILL_SOLID, "startColor" => ["rgb" => "1A1A35"]],
             "alignment" => ["horizontal" => Alignment::HORIZONTAL_CENTER],
         ]);
+
         $sheet->getStyle("C2:C501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("F2:F501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("H2:H501")->getNumberFormat()->setFormatCode("yyyy-mm-dd");
@@ -45,4 +47,5 @@ final class UserImportTemplateExport implements FromArray, ShouldAutoSize, WithH
         return [];
 
     }
+
 }

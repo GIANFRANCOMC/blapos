@@ -8,6 +8,7 @@ use App\Models\System\Customers\{Subscription, SubscriptionEmail};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 
 class LogSubscriptionEmail {
+
     /**
      * Create the event listener.
      */
@@ -64,4 +65,5 @@ class LogSubscriptionEmail {
         ]);
 
     }
+
 }

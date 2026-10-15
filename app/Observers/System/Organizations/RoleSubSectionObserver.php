@@ -7,6 +7,7 @@ use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 
 class RoleSubSectionObserver {
+
     public function saved(RoleSubSection $permission): void {
 
         $this->clear($permission);
@@ -33,4 +34,5 @@ class RoleSubSectionObserver {
         CompanySectionService::clearCache((int) $role->id);
 
     }
+
 }

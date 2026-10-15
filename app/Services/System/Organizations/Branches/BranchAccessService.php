@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Database\Eloquent\{ModelNotFoundException};
 
 final class BranchAccessService {
+
     public function __construct(private readonly BranchContext $context) {
     }
 
@@ -60,4 +61,5 @@ final class BranchAccessService {
         $this->context->forget();
 
     }
+
 }

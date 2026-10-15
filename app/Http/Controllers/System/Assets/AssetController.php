@@ -12,6 +12,7 @@ use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class AssetController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -153,4 +154,5 @@ class AssetController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

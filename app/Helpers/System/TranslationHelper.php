@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\{App};
  * Provides centralized translation management with entity-based organization
  */
 class TranslationHelper {
+
     /**
      * Get translation for a specific entity and key
      *
@@ -195,4 +196,5 @@ class TranslationHelper {
         return $translation !== $translationKey;
 
     }
+
 }

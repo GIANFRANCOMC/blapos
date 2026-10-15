@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Sales;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 class StoreSaleDeliveryRequest extends CompanyFormRequest {
+
     protected function prepareForValidation(): void {
 
         $this->merge([
@@ -59,4 +60,5 @@ class StoreSaleDeliveryRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

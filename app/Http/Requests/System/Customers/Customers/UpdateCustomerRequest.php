@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Customers\Customers;
 use Illuminate\Foundation\Http\{FormRequest};
 
 final class UpdateCustomerRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return true;
@@ -21,4 +22,5 @@ final class UpdateCustomerRequest extends FormRequest {
         return CustomerValidationRules::forDocumentType($identityTypeId, $customerId);
 
     }
+
 }

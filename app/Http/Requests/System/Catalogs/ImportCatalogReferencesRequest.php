@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Catalogs;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class ImportCatalogReferencesRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $maxFileSizeKb = $this->numericMaxFileSizeKb();
@@ -28,4 +29,5 @@ final class ImportCatalogReferencesRequest extends CompanyFormRequest {
         ]);
 
     }
+
 }

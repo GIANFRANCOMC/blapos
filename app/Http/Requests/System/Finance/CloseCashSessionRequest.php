@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Finance;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class CloseCashSessionRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -33,4 +34,5 @@ final class CloseCashSessionRequest extends CompanyFormRequest {
         return ["observation"];
 
     }
+
 }

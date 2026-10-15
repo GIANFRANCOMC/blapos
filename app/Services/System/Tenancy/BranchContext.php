@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{Auth};
 
 final class BranchContext {
+
     private bool $resolved = false;
 
     private ?int $userId = null;
@@ -114,4 +115,5 @@ final class BranchContext {
         $this->setUser($user instanceof User ? $user : null);
 
     }
+
 }

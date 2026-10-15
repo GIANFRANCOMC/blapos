@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Branch, Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class BiometricDevice extends Model {
+
     protected $table = "biometric_devices";
 
     protected $fillable = [
@@ -76,4 +77,5 @@ class BiometricDevice extends Model {
         return $this->hasMany(BiometricDeviceEvent::class, "biometric_device_id", "id");
 
     }
+
 }

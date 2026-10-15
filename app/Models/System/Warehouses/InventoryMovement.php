@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 class InventoryMovement extends Model {
+
     protected $table = "inventory_movements";
 
     public $timestamps = false;
@@ -88,4 +89,5 @@ class InventoryMovement extends Model {
         return $this->belongsTo(User::class, "user_id", "id");
 
     }
+
 }

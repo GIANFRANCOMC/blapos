@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{Cache, DB};
 use InvalidArgumentException;
 
 final class AccessScopeService {
+
     public const BRANCH = "branch";
 
     public const CASH_REGISTER = "cash_register";
@@ -265,4 +266,5 @@ final class AccessScopeService {
         return [self::BRANCH => [], self::CASH_REGISTER => [], self::WAREHOUSE => []];
 
     }
+
 }

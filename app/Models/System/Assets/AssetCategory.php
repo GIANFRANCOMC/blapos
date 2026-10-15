@@ -7,6 +7,7 @@ namespace App\Models\System\Assets;
 use Illuminate\Database\Eloquent\{Model};
 
 final class AssetCategory extends Model {
+
     protected $table = "asset_categories";
 
     protected $fillable = ["name", "description", "status", "created_by", "updated_by"];
@@ -16,4 +17,5 @@ final class AssetCategory extends Model {
         return $this->hasMany(Asset::class, "asset_category_id");
 
     }
+
 }

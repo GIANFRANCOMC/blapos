@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Company, User};
 use Illuminate\Database\Eloquent\{Model};
 
 final class AttendanceCorrection extends Model {
+
     protected $table = "attendance_corrections";
 
     protected $fillable = [
@@ -49,4 +50,5 @@ final class AttendanceCorrection extends Model {
         return $this->belongsTo(User::class, "reviewed_by");
 
     }
+
 }

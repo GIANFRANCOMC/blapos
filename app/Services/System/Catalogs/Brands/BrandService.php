@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class BrandService {
+
     private const ALLOWED_FIELDS = [
         "internal_code",
         "name",
@@ -164,4 +165,5 @@ final class BrandService {
         }
 
     }
+
 }

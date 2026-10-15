@@ -7,6 +7,7 @@ use App\Models\System\General\{IdentityDocumentType};
 use Illuminate\Database\Eloquent\{Model};
 
 class BookComplaint extends Model {
+
     protected $table = "book_complaints";
 
     protected $primaryKey = "id";
@@ -121,4 +122,5 @@ class BookComplaint extends Model {
         return $this->belongsTo(User::class, "responded_by");
 
     }
+
 }

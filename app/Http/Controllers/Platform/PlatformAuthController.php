@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{Hash};
 use Illuminate\View\{View};
 
 final class PlatformAuthController extends Controller {
+
     public function create(Request $request): View|RedirectResponse {
 
         if($request->session()->has("platform_user_id")) {
@@ -63,4 +64,5 @@ final class PlatformAuthController extends Controller {
         return redirect()->route("platform.login");
 
     }
+
 }

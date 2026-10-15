@@ -9,6 +9,7 @@ use App\Models\System\Catalogs\{Category};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class CategoryItem extends Model {
+
     protected $table = "category_items";
 
     protected $appends = [
@@ -56,4 +57,5 @@ class CategoryItem extends Model {
         return $this->belongsTo(Item::class, "item_id", "id");
 
     }
+
 }

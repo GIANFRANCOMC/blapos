@@ -17,6 +17,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class UserTransferTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -42,6 +43,7 @@ final class UserTransferTest extends TestCase {
             "nombre" => "Colaborador importado",
             "correo_electronico" => "importado@example.test",
         ];
+
         $actorId = (int) DB::table("users")->where("email", "admin@example.test")->value("id");
 
         try {
@@ -80,6 +82,7 @@ final class UserTransferTest extends TestCase {
         $this->assertNotNull($role);
 
         $sheet = new class($role->name) implements FromArray, WithHeadings {
+
             public function __construct(private readonly string $roleName) {
             }
 
@@ -94,6 +97,7 @@ final class UserTransferTest extends TestCase {
                 return [[$this->roleName, "dni", "87654321", "Colaborador Excel", "excel@example.test", null, null, null]];
 
             }
+
         };
 
         Storage::fake("local");
@@ -108,4 +112,5 @@ final class UserTransferTest extends TestCase {
         $this->assertSame("inactive", User::query()->where("email", "excel@example.test")->value("status"));
 
     }
+
 }

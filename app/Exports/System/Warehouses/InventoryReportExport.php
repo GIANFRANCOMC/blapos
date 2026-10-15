@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class InventoryReportExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles {
+
     private int $currentRow = 1;
 
     private array $attentionRows = [];
@@ -335,4 +336,5 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             ->implode("; ");
 
     }
+
 }

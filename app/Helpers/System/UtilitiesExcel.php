@@ -5,7 +5,9 @@ namespace App\Helpers\System;
 /* use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, NumberFormat, Fill};
  */
+
 class UtilitiesExcel {
+
     public static function columnasExcel() {
 
         $columnasExcel = [
@@ -190,4 +192,5 @@ class UtilitiesExcel {
         }
 
     }
+
 }

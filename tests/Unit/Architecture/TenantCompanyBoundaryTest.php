@@ -10,6 +10,7 @@ use SplFileInfo;
 use Tests\{TestCase};
 
 final class TenantCompanyBoundaryTest extends TestCase {
+
     private const BACKEND_COMPANY_ID_USAGE = [
         "app/Models/Guest/Branch.php" => 2,
         "app/Models/Guest/Company.php" => 1,
@@ -323,4 +324,5 @@ final class TenantCompanyBoundaryTest extends TestCase {
         return str_replace(DIRECTORY_SEPARATOR, "/", $relativePath);
 
     }
+
 }

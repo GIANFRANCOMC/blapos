@@ -9,6 +9,7 @@ use App\Services\System\Essentials\{UserNavigationService};
 use Illuminate\Contracts\View\{View};
 
 final class WorkspaceController extends BaseController {
+
     public function __construct(private readonly UserNavigationService $navigationService) {
 
     }
@@ -26,4 +27,5 @@ final class WorkspaceController extends BaseController {
         return "System.Essentials.workspace";
 
     }
+
 }

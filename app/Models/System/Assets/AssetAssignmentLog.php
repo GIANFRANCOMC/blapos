@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Model};
 
 class AssetAssignmentLog extends Model {
+
     protected $table = "asset_assignment_logs";
 
     protected $primaryKey = "id";
@@ -110,4 +111,5 @@ class AssetAssignmentLog extends Model {
         return $this->belongsTo(Branch::class, "to_branch_id", "id");
 
     }
+
 }

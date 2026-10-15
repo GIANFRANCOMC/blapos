@@ -32,6 +32,7 @@ use InvalidArgumentException;
  * Invalidates initParams caches according to shared domain dependencies.
  */
 final class InitParamsCacheInvalidationService {
+
     public const ASSETS = "assets";
 
     public const BIOMETRIC_DEVICES = "biometric_devices";
@@ -210,4 +211,5 @@ final class InitParamsCacheInvalidationService {
         }
 
     }
+
 }

@@ -9,6 +9,7 @@ use App\Rules\System\Defaults\{UniqueInTenant};
 use App\Services\System\Base\{InternalCodeService};
 
 abstract class BrandRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $brandId = $this->route("id") ? (int) $this->route("id") : null;
@@ -76,4 +77,5 @@ abstract class BrandRequest extends CompanyFormRequest {
         ]);
 
     }
+
 }

@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany, Relations\HasOne};
 
 class SaleHeader extends Model {
+
     public const STATUS_ACTIVE = "active";
 
     public const DELIVERY_PENDING = "pending";
@@ -397,4 +398,5 @@ class SaleHeader extends Model {
         return $this->hasOne(SaleAccountReceivable::class, "sale_header_id", "id");
 
     }
+
 }

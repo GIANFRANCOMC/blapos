@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{CompanySubSection};
 use Illuminate\Foundation\Http\{FormRequest};
 
 class UpdateHomePreferenceRequest extends FormRequest {
+
     private const HIDDEN_HOME_DIRECTORY_SLUGS = ["sc_home", "sc_dashboard"];
 
     public function authorize(): bool {
@@ -50,4 +51,5 @@ class UpdateHomePreferenceRequest extends FormRequest {
         ];
 
     }
+
 }

@@ -13,6 +13,7 @@ use App\Services\System\Tenancy\{TenantCompanyContext};
  * Handles business logic for creating and updating warehouses related to branches
  */
 class WarehouseService {
+
     /**
      * Create default warehouse for a new branch
      *
@@ -92,4 +93,5 @@ class WarehouseService {
         return "Almacén {$sequence}";
 
     }
+
 }

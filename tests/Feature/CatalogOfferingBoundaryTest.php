@@ -12,6 +12,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class CatalogOfferingBoundaryTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -92,4 +93,5 @@ final class CatalogOfferingBoundaryTest extends TestCase {
         return (int) DB::table("users")->where("email", "admin@example.test")->value("id");
 
     }
+
 }

@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Purchases;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class ReceivePurchaseRequest extends CompanyFormRequest {
+
     public function authorize(): bool {
 
         return parent::authorize();
@@ -40,4 +41,5 @@ final class ReceivePurchaseRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

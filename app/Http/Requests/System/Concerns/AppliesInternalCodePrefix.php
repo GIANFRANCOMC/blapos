@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Concerns;
 use App\Services\System\Base\{InternalCodeService};
 
 trait AppliesInternalCodePrefix {
+
     protected function prepareForValidation(): void {
 
         parent::prepareForValidation();
@@ -27,4 +28,5 @@ trait AppliesInternalCodePrefix {
     }
 
     abstract protected function internalCodeEntity(): string;
+
 }

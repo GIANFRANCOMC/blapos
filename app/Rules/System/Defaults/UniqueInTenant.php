@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{DB};
  * Verifies that a value is unique in the database of the current tenant.
  */
 class UniqueInTenant implements ValidationRule {
+
     /**
      * @param  array<string, mixed>  $extraWhere
      */
@@ -49,4 +50,5 @@ class UniqueInTenant implements ValidationRule {
         }
 
     }
+
 }

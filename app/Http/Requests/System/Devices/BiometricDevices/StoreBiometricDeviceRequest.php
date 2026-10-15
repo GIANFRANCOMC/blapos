@@ -8,6 +8,7 @@ use App\Rules\System\Defaults\{ExistsInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 class StoreBiometricDeviceRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return true;
@@ -31,4 +32,5 @@ class StoreBiometricDeviceRequest extends FormRequest {
         ];
 
     }
+
 }

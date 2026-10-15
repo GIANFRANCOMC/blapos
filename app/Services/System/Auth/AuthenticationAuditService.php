@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\{Schema};
 use Throwable;
 
 final class AuthenticationAuditService {
+
     public static function record(
         Request $request,
         string $eventType,
@@ -50,4 +51,5 @@ final class AuthenticationAuditService {
         }
 
     }
+
 }

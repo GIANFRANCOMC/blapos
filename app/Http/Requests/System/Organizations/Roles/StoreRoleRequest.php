@@ -9,6 +9,7 @@ use App\Rules\System\Defaults\{ExistsInTenant};
 use Illuminate\Validation\{Rule};
 
 class StoreRoleRequest extends CompanyFormRequest {
+
     protected function prepareForValidation(): void {
 
         $this->merge([
@@ -68,4 +69,5 @@ class StoreRoleRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

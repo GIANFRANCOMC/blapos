@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{DocumentNumberLength, ExistsInTenant};
 
 class UpdateCompanyRequest extends CompanyFormRequest {
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -37,4 +38,5 @@ class UpdateCompanyRequest extends CompanyFormRequest {
         return $validations;
 
     }
+
 }

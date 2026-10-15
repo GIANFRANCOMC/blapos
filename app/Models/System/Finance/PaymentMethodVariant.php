@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PaymentMethodVariant extends Model {
+
     protected $table = "payment_method_variants";
 
     protected $fillable = [
@@ -36,4 +37,5 @@ final class PaymentMethodVariant extends Model {
         return $this->belongsTo(PaymentMethod::class, "payment_method_id");
 
     }
+
 }

@@ -15,6 +15,7 @@ use RuntimeException;
  * full-access roles. It never defines or overwrites the navigation catalog.
  */
 final class SystemCatalogSyncService {
+
     public function sync(): array {
 
         return DB::transaction(function(): array {
@@ -114,4 +115,5 @@ final class SystemCatalogSyncService {
         );
 
     }
+
 }

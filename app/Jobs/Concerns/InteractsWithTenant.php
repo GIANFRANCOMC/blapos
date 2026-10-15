@@ -10,6 +10,7 @@ use App\Services\System\Tenancy\{TenantContext};
 use RuntimeException;
 
 trait InteractsWithTenant {
+
     public int $tenantDatabaseId;
 
     public function initializeTenant(?TenantDatabase $tenant = null): void {
@@ -37,4 +38,5 @@ trait InteractsWithTenant {
         return [new UseTenantConnection($this->tenantDatabaseId())];
 
     }
+
 }

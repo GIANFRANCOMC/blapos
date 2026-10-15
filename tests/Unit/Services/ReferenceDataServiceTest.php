@@ -9,6 +9,7 @@ use App\Services\System\Base\{CompanyReferenceDataService};
 use Tests\{TestCase};
 
 class ReferenceDataServiceTest extends TestCase {
+
     public function test_company_reference_data_uses_user_scope_without_a_company_selector(): void {
 
         $this->assertFalse(method_exists(CompanyReferenceDataService::class, "for"));
@@ -26,4 +27,5 @@ class ReferenceDataServiceTest extends TestCase {
         $this->assertSame(0, $method->getNumberOfParameters());
 
     }
+
 }

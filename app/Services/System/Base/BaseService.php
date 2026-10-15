@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\{DB};
  * Provides common functionality for all service classes
  */
 abstract class BaseService {
+
     /**
      * Translation namespace for the service
      * Must be defined in child classes
@@ -136,4 +137,5 @@ abstract class BaseService {
         return true;
 
     }
+
 }

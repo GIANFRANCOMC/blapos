@@ -8,6 +8,7 @@ use App\Models\System\Tenancy\{TenantDatabase};
 use Illuminate\Support\Facades\{DB};
 
 final class TenantContext {
+
     private ?TenantDatabase $tenant = null;
 
     public function set(?TenantDatabase $tenant): void {
@@ -43,4 +44,5 @@ final class TenantContext {
         return "tenant:".hash("sha256", $connection.":".$database);
 
     }
+
 }

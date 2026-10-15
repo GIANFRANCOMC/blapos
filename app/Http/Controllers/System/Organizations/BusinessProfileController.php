@@ -10,6 +10,7 @@ use App\Services\System\Organizations\{BusinessProfileService};
 use Illuminate\Http\{JsonResponse, Request};
 
 final class BusinessProfileController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Organizations.business_profile";
 
     public function index() {
@@ -76,4 +77,5 @@ final class BusinessProfileController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

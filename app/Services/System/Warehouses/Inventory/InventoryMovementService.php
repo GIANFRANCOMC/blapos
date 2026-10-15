@@ -18,6 +18,7 @@ use Illuminate\Support\{Str};
 use Throwable;
 
 final class InventoryMovementService {
+
     public const TYPE_ENTRY = "entry";
 
     public const TYPE_EXIT = "exit";
@@ -604,4 +605,5 @@ final class InventoryMovementService {
         }
 
     }
+
 }

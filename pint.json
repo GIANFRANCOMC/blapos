@@ -2,6 +2,8 @@
     "preset": "laravel",
     "rules": {
         "class_definition": false,
+        "class_attributes_separation": false,
+        "no_blank_lines_after_class_opening": false,
         "control_structure_braces": false,
         "control_structure_continuation_position": false,
         "function_declaration": false,

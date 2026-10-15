@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\{Auth};
  * Validation rule to verify that document_number length matches the min_length and max_length of the selected identity_document_type
  */
 class DocumentNumberLength implements ValidationRule {
+
     /**
      * Identity document type ID
      */
@@ -103,4 +104,5 @@ class DocumentNumberLength implements ValidationRule {
         }
 
     }
+
 }

@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Operations;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class UpdateServiceStationLayoutRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -26,4 +27,5 @@ final class UpdateServiceStationLayoutRequest extends CompanyFormRequest {
         return ["color", "shape"];
 
     }
+
 }

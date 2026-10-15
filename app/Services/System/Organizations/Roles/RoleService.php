@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class RoleService {
+
     public static function query(string $word = ""): Builder {
 
         $query = Role::query()
@@ -485,4 +486,5 @@ final class RoleService {
         CompanySectionService::clearCache($roleId);
 
     }
+
 }

@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\General;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class SaveMasterDataRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -88,4 +89,5 @@ final class SaveMasterDataRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

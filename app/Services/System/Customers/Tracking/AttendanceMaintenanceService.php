@@ -11,6 +11,7 @@ use Carbon\{Carbon};
 use Illuminate\Support\Facades\{DB};
 
 final class AttendanceMaintenanceService {
+
     public static function closeStaleCustomerAttendances(
         int $limit = 500,
         bool $force = false
@@ -197,4 +198,5 @@ final class AttendanceMaintenanceService {
         return $closeAt->greaterThan($start) ? $closeAt : $start->copy()->addHours(20);
 
     }
+
 }

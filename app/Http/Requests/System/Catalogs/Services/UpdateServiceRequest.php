@@ -10,6 +10,7 @@ use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class UpdateServiceRequest extends CompanyFormRequest {
+
     use AppliesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
@@ -135,4 +136,5 @@ class UpdateServiceRequest extends CompanyFormRequest {
         }
 
     }
+
 }

@@ -10,6 +10,7 @@ use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class StoreServiceRequest extends CompanyFormRequest {
+
     use AppliesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
@@ -134,4 +135,5 @@ class StoreServiceRequest extends CompanyFormRequest {
         }
 
     }
+
 }

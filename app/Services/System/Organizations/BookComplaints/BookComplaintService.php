@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for listing and updating book complaints
  */
 class BookComplaintService {
+
     /**
      * Allowed fields for book complaint update
      */
@@ -158,4 +159,5 @@ class BookComplaintService {
         ]);
 
     }
+
 }

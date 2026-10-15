@@ -10,6 +10,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class RestoreTenant extends Command {
+
     protected $signature = "tenant:restore
         {slug : Slug del tenant}
         {backup : Nombre del archivo .sql dentro del tenant}
@@ -58,4 +59,5 @@ final class RestoreTenant extends Command {
         }
 
     }
+
 }

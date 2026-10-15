@@ -8,6 +8,7 @@ use App\Http\Controllers\{Controller};
 use App\Services\System\Notifications\{NotificationService};
 
 class NotificationController extends Controller {
+
     /**
      * Send pending subscription emails
      */
@@ -16,4 +17,5 @@ class NotificationController extends Controller {
         NotificationService::sendSubscriptionEmails();
 
     }
+
 }

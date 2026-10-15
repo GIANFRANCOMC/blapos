@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for creating document series for branches
  */
 class SerieService {
+
     /**
      * Get new sequential number for branch (based on company branch count)
      */
@@ -199,4 +200,5 @@ class SerieService {
             ->all();
 
     }
+
 }

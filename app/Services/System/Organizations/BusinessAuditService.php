@@ -9,6 +9,7 @@ use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Database\Eloquent\{Model};
 
 final class BusinessAuditService {
+
     private const HIDDEN_FIELDS = [
         "password",
         "password_confirmation",
@@ -120,4 +121,5 @@ final class BusinessAuditService {
         return $data;
 
     }
+
 }

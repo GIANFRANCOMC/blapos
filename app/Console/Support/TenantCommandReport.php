@@ -7,6 +7,7 @@ namespace App\Console\Support;
 use Illuminate\Console\{Command};
 
 final class TenantCommandReport {
+
     private const CHUNK_SIZE = 50;
 
     private array $rows = [];
@@ -42,4 +43,5 @@ final class TenantCommandReport {
         $this->rows = [];
 
     }
+
 }

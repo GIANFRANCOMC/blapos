@@ -10,6 +10,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{DB};
 
 final class EnsureOperationalScope {
+
     private const INPUTS = [
         AccessScopeService::BRANCH => ["branch_id", "branch_ids", "filter.branch_id"],
         AccessScopeService::CASH_REGISTER => ["cash_register_id", "cash_register_ids", "filter.cash_register_id"],
@@ -200,4 +201,5 @@ final class EnsureOperationalScope {
         abort(403, $message);
 
     }
+
 }

@@ -7,6 +7,7 @@ use App\Models\System\Organizations\{Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class Asset extends Model {
+
     protected $table = "assets";
 
     protected $primaryKey = "id";
@@ -98,4 +99,5 @@ class Asset extends Model {
         return $this->hasMany(BranchAsset::class, "asset_id", "id");
 
     }
+
 }

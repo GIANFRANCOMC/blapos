@@ -8,6 +8,7 @@ use App\Models\System\Finance\{Tax};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 final class SaleTax extends Model {
+
     protected $table = "sale_taxes";
 
     protected $fillable = [
@@ -48,4 +49,5 @@ final class SaleTax extends Model {
         return $this->belongsTo(Tax::class, "tax_id");
 
     }
+
 }

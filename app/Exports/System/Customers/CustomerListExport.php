@@ -12,6 +12,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class CustomerListExport extends DefaultValueBinder implements FromQuery, WithColumnWidths, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles {
+
     public function __construct(private readonly array $filters = []) {
     }
 
@@ -75,4 +76,5 @@ final class CustomerListExport extends DefaultValueBinder implements FromQuery, 
         return [];
 
     }
+
 }

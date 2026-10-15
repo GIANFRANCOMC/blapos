@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Branch};
 use Illuminate\Database\Eloquent\{Model};
 
 class BranchAsset extends Model {
+
     protected $table = "branch_assets";
 
     protected $primaryKey = "id";
@@ -75,4 +76,5 @@ class BranchAsset extends Model {
         return $this->belongsTo(Currency::class, "currency_id", "id");
 
     }
+
 }

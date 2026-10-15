@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{DB};
  * Verifies that a record exists in the database of the current tenant.
  */
 class ExistsInTenant implements ValidationRule {
+
     /**
      * @param  array<string, mixed>  $extraWhere
      * @param  array<int, array{0:string, 1:string, 2:string, 3:string}>  $joins
@@ -56,4 +57,5 @@ class ExistsInTenant implements ValidationRule {
         }
 
     }
+
 }

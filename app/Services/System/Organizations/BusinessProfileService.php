@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
 final class BusinessProfileService {
+
     private const PROTECTED_ROUTES = [
         "workspace.index",
         "home.index",
@@ -158,4 +159,5 @@ final class BusinessProfileService {
         CompanySectionService::clearTenantCache();
 
     }
+
 }

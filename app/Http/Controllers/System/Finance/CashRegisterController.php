@@ -10,6 +10,7 @@ use App\Services\System\Finance\{CashRegisterConfigService, CashRegisterService}
 use Illuminate\Http\{JsonResponse, Request};
 
 final class CashRegisterController extends BaseController {
+
     public function __construct(private readonly CashRegisterService $service) {
 
     }
@@ -71,4 +72,5 @@ final class CashRegisterController extends BaseController {
         }
 
     }
+
 }

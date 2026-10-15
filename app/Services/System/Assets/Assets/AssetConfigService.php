@@ -9,6 +9,7 @@ use App\Services\System\Base\{BaseConfigService};
 use stdClass;
 
 final class AssetConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "asset";
@@ -27,4 +28,5 @@ final class AssetConfigService extends BaseConfigService {
         ]);
 
     }
+
 }

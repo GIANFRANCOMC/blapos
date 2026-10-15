@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Customers\Customers;
 use App\Rules\System\Defaults\{DocumentNumberLength, ExistsInTenant, UniqueInTenant};
 
 final class CustomerValidationRules {
+
     public static function forDocumentType(int $identityTypeId, ?int $customerId = null): array {
 
         return [
@@ -24,4 +25,5 @@ final class CustomerValidationRules {
         ];
 
     }
+
 }

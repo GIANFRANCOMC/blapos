@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Cache};
 use Tests\{TestCase};
 
 final class TenantAnnouncementServiceTest extends TestCase {
+
     public function test_visibility_checks_dates_after_reading_a_tenant_scoped_cache(): void {
 
         $tenant = new TenantDatabase([
@@ -42,4 +43,5 @@ final class TenantAnnouncementServiceTest extends TestCase {
         $this->assertFalse(Cache::has(TenantAnnouncementService::cacheKey($tenant)));
 
     }
+
 }

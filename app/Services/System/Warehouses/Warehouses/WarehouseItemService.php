@@ -10,6 +10,7 @@ use App\Models\System\Warehouses\{Warehouse, WarehouseItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
 
 class WarehouseItemService {
+
     public static function syncProductInventory(
         int $itemId,
         array $inventory,
@@ -142,4 +143,5 @@ class WarehouseItemService {
             });
 
     }
+
 }

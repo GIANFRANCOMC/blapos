@@ -9,6 +9,7 @@ use App\Services\System\Tenancy\{TenantAdministrationService};
 use Illuminate\Console\{Command};
 
 final class CheckTenantHealth extends Command {
+
     protected $signature = "tenant:health {slug? : Tenant específico; omitir para revisar todos}";
 
     protected $description = "Comprueba conexión y esquema base de uno o todos los tenants.";
@@ -44,4 +45,5 @@ final class CheckTenantHealth extends Command {
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 
     }
+
 }

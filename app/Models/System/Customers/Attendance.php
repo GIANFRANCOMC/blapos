@@ -9,6 +9,7 @@ use Carbon\{Carbon};
 use Illuminate\Database\Eloquent\{Model};
 
 class Attendance extends Model {
+
     protected $table = "attendances";
 
     protected $primaryKey = "id";
@@ -131,4 +132,5 @@ class Attendance extends Model {
             ->orderByDesc("id");
 
     }
+
 }

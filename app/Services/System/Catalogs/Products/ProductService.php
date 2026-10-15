@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for creating and updating records
  */
 class ProductService {
+
     /**
      * Translation namespace for module
      */
@@ -437,4 +438,5 @@ class ProductService {
         }
 
     }
+
 }

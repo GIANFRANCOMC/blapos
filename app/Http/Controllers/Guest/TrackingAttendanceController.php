@@ -10,6 +10,7 @@ use Illuminate\Http\{Request};
 use stdClass;
 
 class TrackingAttendanceController extends Controller {
+
     public function initParams(Request $request) {
 
         $initParams = new stdClass();
@@ -92,4 +93,5 @@ class TrackingAttendanceController extends Controller {
         return response()->json(["bool" => $bool, "msg" => $msg, "attendances" => $attendances], 200);
 
     }
+
 }

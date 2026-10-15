@@ -13,6 +13,7 @@ use App\Services\System\Organizations\Companies\{CompanySettingService};
 use stdClass;
 
 final class SaleConfigService extends BaseConfigService {
+
     protected const USER_SCOPED_CACHE = true;
 
     protected static function getCachePrefix(): string {
@@ -138,4 +139,5 @@ final class SaleConfigService extends BaseConfigService {
         ]);
 
     }
+
 }

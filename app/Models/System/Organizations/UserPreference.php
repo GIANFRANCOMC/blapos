@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\{DB};
 use stdClass;
 
 class UserPreference extends Model {
+
     protected $table = "user_preferences";
 
     protected $primaryKey = "id";
@@ -162,4 +163,5 @@ class UserPreference extends Model {
         return $this->belongsTo(User::class, "user_id", "id");
 
     }
+
 }

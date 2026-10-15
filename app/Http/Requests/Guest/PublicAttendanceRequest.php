@@ -8,6 +8,7 @@ use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Validation\{Rule};
 
 final class PublicAttendanceRequest extends FormRequest {
+
     public function authorize(): bool {
 
         return true;
@@ -33,4 +34,5 @@ final class PublicAttendanceRequest extends FormRequest {
         ];
 
     }
+
 }

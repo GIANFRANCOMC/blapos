@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\{Builder, Collection};
  * Provides reusable tenant records used by module initParams.
  */
 final class CompanyReferenceDataService {
+
     private bool $userResolved = false;
 
     private ?User $user = null;
@@ -311,4 +312,5 @@ final class CompanyReferenceDataService {
             ->orderBy("name");
 
     }
+
 }

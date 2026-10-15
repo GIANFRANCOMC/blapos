@@ -9,6 +9,7 @@ use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
 use Database\Seeders\{SystemNavigationSeeder};
 
 trait ProvisionsSystemDatabase {
+
     protected function provisionSystemDatabase(): void {
 
         app(SystemNavigationSeeder::class)->run();
@@ -25,4 +26,5 @@ trait ProvisionsSystemDatabase {
         $provisioning->ensureAdminUser("Administrador de pruebas", "admin@example.test", "password");
 
     }
+
 }

@@ -11,6 +11,7 @@ use App\Services\System\Organizations\Companies\{CompanyConfigService, CompanySe
 use Illuminate\Http\{JsonResponse, Request};
 
 class CompanyController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -133,4 +134,5 @@ class CompanyController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

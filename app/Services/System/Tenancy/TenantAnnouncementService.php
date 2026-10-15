@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{Cache};
 use Illuminate\Support\{Collection};
 
 final class TenantAnnouncementService {
+
     public function visibleFor(TenantDatabase $tenant): Collection {
 
         $announcements = Cache::remember(
@@ -45,4 +46,5 @@ final class TenantAnnouncementService {
         return "tenant:".$tenant->public_id.":announcements";
 
     }
+
 }

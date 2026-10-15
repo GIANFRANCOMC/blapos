@@ -15,6 +15,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class ServiceOperationPerformanceTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -407,4 +408,5 @@ final class ServiceOperationPerformanceTest extends TestCase {
         DB::table("items")->insert($items);
 
     }
+
 }

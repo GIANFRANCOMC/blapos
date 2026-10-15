@@ -10,6 +10,7 @@ use App\Models\System\Organizations\{Branch, User};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo, Relations\HasMany, Relations\HasOne};
 
 final class QuotationHeader extends Model {
+
     protected $table = "quotation_headers";
 
     protected $fillable = [
@@ -88,4 +89,5 @@ final class QuotationHeader extends Model {
             ->where("status", "active");
 
     }
+
 }

@@ -10,6 +10,7 @@ use App\Models\System\Organizations\{Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class RecipeTopping extends Model {
+
     protected $table = "recipe_toppings";
 
     protected $appends = ["formatted_status"];
@@ -65,4 +66,5 @@ class RecipeTopping extends Model {
             ->where("status", "active");
 
     }
+
 }

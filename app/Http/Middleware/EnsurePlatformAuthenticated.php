@@ -10,6 +10,7 @@ use Illuminate\Http\{Request};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class EnsurePlatformAuthenticated {
+
     public function handle(Request $request, Closure $next): Response {
 
         $userId = (int) $request->session()->get("platform_user_id", 0);
@@ -32,4 +33,5 @@ final class EnsurePlatformAuthenticated {
         return $next($request);
 
     }
+
 }

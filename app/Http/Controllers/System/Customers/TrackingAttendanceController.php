@@ -15,6 +15,7 @@ use DomainException;
 use Illuminate\Http\{JsonResponse, Request, Response};
 
 class TrackingAttendanceController extends BaseController {
+
     /**
      * Translation namespace for tracking attendance module
      */
@@ -431,4 +432,5 @@ class TrackingAttendanceController extends BaseController {
         return $request->only(["branch_id", "customer_id", "status", "start_date", "end_date"]);
 
     }
+
 }

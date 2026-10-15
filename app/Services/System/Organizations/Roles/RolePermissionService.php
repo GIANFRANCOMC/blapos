@@ -11,6 +11,7 @@ use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
 use Illuminate\Support\Facades\{Cache};
 
 final class RolePermissionService {
+
     private const CACHE_TTL = 1800;
 
     private const CACHE_PREFIX = "role_permissions";
@@ -372,4 +373,5 @@ final class RolePermissionService {
         return explode(".", $routeName)[0] ?? $routeName;
 
     }
+
 }

@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Contracts\Validation\{ValidationRule};
 
 final class DelimitedArrayTextLength implements ValidationRule {
+
     public function __construct(
         private readonly int $maxLength,
         private readonly string $label,
@@ -42,4 +43,5 @@ final class DelimitedArrayTextLength implements ValidationRule {
         }
 
     }
+
 }

@@ -28,6 +28,7 @@ use stdClass;
  * Handles business logic for creating, updating, and canceling sales
  */
 class SaleService {
+
     /**
      * Translation namespace for sale module
      */
@@ -1313,4 +1314,5 @@ class SaleService {
         }
 
     }
+
 }

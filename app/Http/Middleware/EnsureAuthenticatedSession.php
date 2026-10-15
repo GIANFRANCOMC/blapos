@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\{Auth};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class EnsureAuthenticatedSession {
+
     private const SESSION_VERSION_KEY = "_user_session_version";
 
     public function handle(Request $request, Closure $next): Response {
@@ -67,4 +68,5 @@ final class EnsureAuthenticatedSession {
         ]);
 
     }
+
 }

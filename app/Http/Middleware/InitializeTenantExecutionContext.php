@@ -13,6 +13,7 @@ use Illuminate\Support\{Str};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class InitializeTenantExecutionContext {
+
     public function __construct(
         private readonly TenantContext $tenantContext,
         private readonly BranchContext $branchContext
@@ -65,4 +66,5 @@ final class InitializeTenantExecutionContext {
         }
 
     }
+
 }

@@ -10,6 +10,7 @@ use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
 
 class SaleDelivery extends Model {
+
     protected $table = "sale_deliveries";
 
     protected $appends = [
@@ -95,4 +96,5 @@ class SaleDelivery extends Model {
         return $this->hasMany(SaleDeliveryEvent::class, "sale_delivery_id", "id");
 
     }
+
 }

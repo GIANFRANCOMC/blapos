@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{Branch, Company};
 use Illuminate\Database\Eloquent\{Model};
 
 final class ServiceFloor extends Model {
+
     protected $table = "service_floors";
 
     protected $fillable = [
@@ -41,4 +42,5 @@ final class ServiceFloor extends Model {
         return $this->hasMany(ServiceStation::class, "service_floor_id", "id");
 
     }
+
 }

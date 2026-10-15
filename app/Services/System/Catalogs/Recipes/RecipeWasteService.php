@@ -14,6 +14,7 @@ use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Support\Facades\{DB};
 
 final class RecipeWasteService {
+
     public static function list(
         array $filters,
         int $perPage,
@@ -100,4 +101,5 @@ final class RecipeWasteService {
         });
 
     }
+
 }

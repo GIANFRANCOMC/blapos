@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StorePurchaseReturnRequest extends CompanyFormRequest {
+
     public function authorize(): bool {
 
         return parent::authorize();
@@ -30,4 +31,5 @@ final class StorePurchaseReturnRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

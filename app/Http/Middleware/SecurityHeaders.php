@@ -9,6 +9,7 @@ use Illuminate\Http\{Request};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class SecurityHeaders {
+
     public function handle(Request $request, Closure $next): Response {
 
         $response = $next($request);
@@ -49,4 +50,5 @@ final class SecurityHeaders {
         return $response;
 
     }
+
 }

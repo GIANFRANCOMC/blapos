@@ -9,6 +9,7 @@ use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
 use Illuminate\Support\Facades\{Schema};
 
 final class CompanySettingService {
+
     public const INTERNAL_CODE_PREFIXES = "internal_code_prefixes";
 
     public const INVENTORY_POLICIES = "inventory";
@@ -189,4 +190,5 @@ final class CompanySettingService {
         };
 
     }
+
 }

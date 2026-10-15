@@ -9,6 +9,7 @@ use stdClass;
 use Tests\{TestCase};
 
 final class TestConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "test";
@@ -28,9 +29,11 @@ final class TestConfigService extends BaseConfigService {
         ]);
 
     }
+
 }
 
 class BaseConfigServiceTest extends TestCase {
+
     public function test_cache_is_isolated_by_tenant_and_page(): void {
 
         $main = TestConfigService::getInitParams("main", 1);
@@ -66,4 +69,5 @@ class BaseConfigServiceTest extends TestCase {
         $this->assertFalse(cache()->has(TestConfigService::cacheKey("list")));
 
     }
+
 }

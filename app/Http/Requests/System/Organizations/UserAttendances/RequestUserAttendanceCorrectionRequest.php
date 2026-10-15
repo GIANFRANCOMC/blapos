@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\UserAttendances;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class RequestUserAttendanceCorrectionRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -22,4 +23,5 @@ final class RequestUserAttendanceCorrectionRequest extends CompanyFormRequest {
         return ["checked_in_at", "checked_out_at", "reason"];
 
     }
+
 }

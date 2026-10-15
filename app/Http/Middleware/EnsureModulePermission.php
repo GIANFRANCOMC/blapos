@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Http\{Request};
 
 class EnsureModulePermission {
+
     public function handle(Request $request, Closure $next) {
 
         $user = $request->user();
@@ -40,4 +41,5 @@ class EnsureModulePermission {
         return $next($request);
 
     }
+
 }

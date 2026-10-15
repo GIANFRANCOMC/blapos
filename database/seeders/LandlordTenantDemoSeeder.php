@@ -6,6 +6,7 @@ use Illuminate\Database\{Seeder};
 use Illuminate\Support\Facades\{Artisan};
 
 final class LandlordTenantDemoSeeder extends Seeder {
+
     public function run(): void {
 
         $tenants = [
@@ -42,4 +43,5 @@ final class LandlordTenantDemoSeeder extends Seeder {
         }
 
     }
+
 }

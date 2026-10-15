@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\{Broadcast};
 use Illuminate\Support\{ServiceProvider};
 
 class BroadcastServiceProvider extends ServiceProvider {
+
     /**
      * Bootstrap any application services.
      */
@@ -16,4 +17,5 @@ class BroadcastServiceProvider extends ServiceProvider {
         require base_path("routes/channels.php");
 
     }
+
 }

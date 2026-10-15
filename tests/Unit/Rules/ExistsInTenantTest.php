@@ -10,6 +10,7 @@ use Mockery;
 use Tests\{TestCase};
 
 class ExistsInTenantTest extends TestCase {
+
     public function test_it_accepts_an_available_tenant_record(): void {
 
         $query = $this->mockQuery(true);
@@ -68,4 +69,5 @@ class ExistsInTenantTest extends TestCase {
         return $errors;
 
     }
+
 }

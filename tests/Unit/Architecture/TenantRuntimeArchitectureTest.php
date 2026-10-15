@@ -12,6 +12,7 @@ use SplFileInfo;
 use Tests\{TestCase};
 
 final class TenantRuntimeArchitectureTest extends TestCase {
+
     public function test_only_landlord_models_pin_the_landlord_connection(): void {
 
         foreach($this->phpFiles(app_path("Models")) as $file) {
@@ -153,4 +154,5 @@ final class TenantRuntimeArchitectureTest extends TestCase {
         return trim($namespace[1])."\\".$class[1];
 
     }
+
 }

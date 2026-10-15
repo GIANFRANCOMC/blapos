@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class SaleDeliveryService {
+
     public static function createPendingForSale(SaleHeader $saleHeader, $saleBodies, ?int $warehouseId, int $userId): ?SaleDelivery {
 
         if($saleHeader->delivery_status !== "pending") {
@@ -397,4 +398,5 @@ final class SaleDeliveryService {
             ]);
 
     }
+
 }

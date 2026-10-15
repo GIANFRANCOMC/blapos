@@ -7,6 +7,7 @@ namespace App\Models\System\Catalogs;
 use Illuminate\Database\Eloquent\{Model};
 
 class RecipeDishOptionComponent extends Model {
+
     protected $table = "recipe_dish_option_components";
 
     protected $fillable = [
@@ -38,4 +39,5 @@ class RecipeDishOptionComponent extends Model {
         return $this->belongsTo(Item::class, "item_id", "id");
 
     }
+
 }

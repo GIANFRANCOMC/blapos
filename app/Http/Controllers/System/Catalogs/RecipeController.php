@@ -13,6 +13,7 @@ use App\Services\System\Catalogs\Recipes\{RecipeConfigService, RecipeService, Re
 use Illuminate\Http\{JsonResponse, Request};
 
 class RecipeController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Catalogs.recipe";
 
     protected function getTranslationNamespace(): string {
@@ -204,4 +205,5 @@ class RecipeController extends BaseController {
         }
 
     }
+
 }

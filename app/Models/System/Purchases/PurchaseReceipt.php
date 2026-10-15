@@ -8,6 +8,7 @@ use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo, Relations\HasMany};
 
 final class PurchaseReceipt extends Model {
+
     protected $table = "purchase_receipts";
 
     public $timestamps = false;
@@ -48,4 +49,5 @@ final class PurchaseReceipt extends Model {
         return $this->hasMany(PurchaseReceiptItem::class, "purchase_receipt_id");
 
     }
+
 }

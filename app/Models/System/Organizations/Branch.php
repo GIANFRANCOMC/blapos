@@ -7,6 +7,7 @@ use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Model};
 
 class Branch extends Model {
+
     protected $table = "branches";
 
     protected $primaryKey = "id";
@@ -91,4 +92,5 @@ class Branch extends Model {
         return $this->hasMany(UserAttendance::class, "branch_id", "id");
 
     }
+
 }

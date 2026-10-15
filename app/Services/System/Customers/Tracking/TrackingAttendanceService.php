@@ -17,6 +17,7 @@ use Illuminate\Support\{Collection};
  * Handles business logic for listing and managing attendances
  */
 class TrackingAttendanceService {
+
     private const MAX_EXPORT_ROWS = 10000;
 
     /**
@@ -243,4 +244,5 @@ class TrackingAttendanceService {
         });
 
     }
+
 }

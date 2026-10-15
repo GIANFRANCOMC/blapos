@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Cache};
 use Illuminate\Support\{Str};
 
 final class TenantResolver {
+
     public static function cacheKey(string $host): string {
 
         return "tenancy:resolver:".hash("sha256", strtolower(trim($host)));
@@ -118,4 +119,5 @@ final class TenantResolver {
         );
 
     }
+
 }

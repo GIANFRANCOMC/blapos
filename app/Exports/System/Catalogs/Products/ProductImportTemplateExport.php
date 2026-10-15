@@ -9,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class ProductImportTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
+
     public function array(): array {
 
         return [];
@@ -49,4 +50,5 @@ final class ProductImportTemplateExport implements FromArray, ShouldAutoSize, Wi
         return [];
 
     }
+
 }

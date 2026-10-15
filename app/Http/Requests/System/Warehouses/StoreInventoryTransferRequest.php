@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Warehouses;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class StoreInventoryTransferRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -28,4 +29,5 @@ final class StoreInventoryTransferRequest extends CompanyFormRequest {
         return ["reason"];
 
     }
+
 }

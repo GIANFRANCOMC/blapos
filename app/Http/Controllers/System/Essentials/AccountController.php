@@ -11,6 +11,7 @@ use Illuminate\Contracts\View\{View};
 use Illuminate\Http\{RedirectResponse};
 
 final class AccountController extends BaseController {
+
     public function index(): View {
 
         return view("System/general/Essentials/account/main", [
@@ -34,4 +35,5 @@ final class AccountController extends BaseController {
         return "System.Essentials.account";
 
     }
+
 }

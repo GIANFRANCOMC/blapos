@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\{Mail};
  * Handles business logic for sending subscription emails
  */
 class NotificationService {
+
     /**
      * Send pending subscription emails
      *
@@ -90,4 +91,5 @@ class NotificationService {
         return $summary;
 
     }
+
 }

@@ -13,6 +13,7 @@ use RuntimeException;
 use Throwable;
 
 final class TenantAdministrationService {
+
     public function __construct(private readonly TenantConnectionManager $connectionManager) {
     }
 
@@ -259,4 +260,5 @@ final class TenantAdministrationService {
         return $tenant->fresh("domains");
 
     }
+
 }

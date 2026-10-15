@@ -12,6 +12,7 @@ use App\Services\System\Catalogs\Subscriptions\{SubscriptionConfigService, Subsc
 use Illuminate\Http\{JsonResponse, Request};
 
 class SubscriptionController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -169,4 +170,5 @@ class SubscriptionController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

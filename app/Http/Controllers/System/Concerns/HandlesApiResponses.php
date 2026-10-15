@@ -12,6 +12,7 @@ use Illuminate\Http\{JsonResponse};
  * Provides reusable methods for controllers
  */
 trait HandlesApiResponses {
+
     /**
      * Get translation namespace for the module
      * Must be defined in the controller using this trait
@@ -95,4 +96,5 @@ trait HandlesApiResponses {
         return ApiResponse::updated($resource, $this->trans($key, $replace), $resourceKey);
 
     }
+
 }

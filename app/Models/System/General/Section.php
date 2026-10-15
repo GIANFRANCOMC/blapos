@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class Section extends Model {
+
     protected $table = "sections";
 
     protected $primaryKey = "id";
@@ -76,4 +77,5 @@ class Section extends Model {
             ->whereIn("status", ["active"]);
 
     }
+
 }

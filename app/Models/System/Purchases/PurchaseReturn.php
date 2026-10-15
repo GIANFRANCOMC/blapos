@@ -8,6 +8,7 @@ use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PurchaseReturn extends Model {
+
     protected $table = "purchase_returns";
 
     public $timestamps = false;
@@ -43,4 +44,5 @@ final class PurchaseReturn extends Model {
         return $this->hasMany(PurchaseReturnItem::class, "purchase_return_id");
 
     }
+
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use Illuminate\Validation\{Validator};
 
 final class StoreInventoryOperationRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -56,4 +57,5 @@ final class StoreInventoryOperationRequest extends CompanyFormRequest {
         return ["movement_type", "origin_type", "reason"];
 
     }
+
 }

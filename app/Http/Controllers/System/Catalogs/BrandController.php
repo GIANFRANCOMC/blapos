@@ -7,8 +7,8 @@ namespace App\Http\Controllers\System\Catalogs;
 use App\Exports\System\Catalogs\References\{CatalogReferenceListExport, CatalogReferenceTemplateExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Http\Requests\System\Catalogs\Brands\{StoreBrandRequest, UpdateBrandRequest};
+use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Brands\{BrandConfigService, BrandService};
@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 final class BrandController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Catalogs.brand";
 
     public function initParams(Request $request) {
@@ -146,4 +147,5 @@ final class BrandController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

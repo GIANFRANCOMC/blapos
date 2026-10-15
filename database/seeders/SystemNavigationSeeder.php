@@ -9,6 +9,7 @@ use Illuminate\Database\{Seeder};
 use Illuminate\Support\Facades\{DB, Schema};
 
 final class SystemNavigationSeeder extends Seeder {
+
     private const DISABLED_BY_DEFAULT_ROUTES = [
         "dashboard.index",
         "reports.index",
@@ -222,4 +223,5 @@ final class SystemNavigationSeeder extends Seeder {
         }
 
     }
+
 }

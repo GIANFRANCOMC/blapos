@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class CatalogReferenceListExport extends DefaultValueBinder implements FromQuery, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles {
+
     public function __construct(
         private readonly string $type,
         private readonly array $filters = []
@@ -96,4 +97,5 @@ final class CatalogReferenceListExport extends DefaultValueBinder implements Fro
         return [];
 
     }
+
 }

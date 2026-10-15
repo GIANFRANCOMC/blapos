@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Http\{Request};
 
 class EnsureCompanyExists {
+
     /**
      * Handle an incoming request.
      *
@@ -39,4 +40,5 @@ class EnsureCompanyExists {
         return $next($request);
 
     }
+
 }

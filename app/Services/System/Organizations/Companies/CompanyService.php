@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\{DB, Storage};
  * Handles business logic for updating records
  */
 class CompanyService {
+
     /**
      * Translation namespace for module
      */
@@ -276,4 +277,5 @@ class CompanyService {
         return $company->fresh(["identityDocumentType"]);
 
     }
+
 }

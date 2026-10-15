@@ -7,6 +7,7 @@ namespace App\Models\System\Tenancy;
 use Illuminate\Database\Eloquent\{Model};
 
 final class TenantAnnouncement extends Model {
+
     protected $connection = "landlord";
 
     protected $table = "tenant_announcements";
@@ -27,4 +28,5 @@ final class TenantAnnouncement extends Model {
         return $this->belongsTo(TenantDatabase::class, "tenant_database_id");
 
     }
+
 }

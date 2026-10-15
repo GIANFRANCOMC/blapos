@@ -7,6 +7,7 @@ namespace App\Models\System\Tenancy;
 use Illuminate\Database\Eloquent\{Model};
 
 final class PlatformUser extends Model {
+
     protected $connection = "landlord";
 
     protected $table = "platform_users";
@@ -18,4 +19,5 @@ final class PlatformUser extends Model {
     protected $hidden = ["password"];
 
     protected $casts = ["session_version" => "integer", "last_login_at" => "datetime"];
+
 }

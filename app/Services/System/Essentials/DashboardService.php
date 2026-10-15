@@ -8,6 +8,7 @@ use Carbon\{CarbonImmutable};
 use Illuminate\Support\Facades\{DB};
 
 final class DashboardService {
+
     public static function getDashboardData(string $date, ?int $branchId = null): array {
 
         $timezone = (string) (DB::table("company_settings")
@@ -83,4 +84,5 @@ final class DashboardService {
         ];
 
     }
+
 }

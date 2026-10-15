@@ -7,6 +7,7 @@ use App\Models\System\Organizations\{Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class Role extends Model {
+
     protected $table = "roles";
 
     protected $primaryKey = "id";
@@ -111,4 +112,5 @@ class Role extends Model {
         )->wherePivot("status", "active");
 
     }
+
 }

@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 final class PurchaseController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Purchases.purchase";
 
     public function index() {
@@ -212,4 +213,5 @@ final class PurchaseController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

@@ -10,6 +10,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 class AuthenticationTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -72,4 +73,5 @@ class AuthenticationTest extends TestCase {
         $response->assertRedirect("/");
 
     }
+
 }

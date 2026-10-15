@@ -12,6 +12,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class CloseStaleCustomerAttendances extends Command {
+
     protected $signature = "attendances:close-stale-customers
                             {--tenant= : Procesar únicamente el slug tenant indicado}
                             {--limit=500 : Máximo de asistencias por tenant}
@@ -78,4 +79,5 @@ final class CloseStaleCustomerAttendances extends Command {
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 
     }
+
 }

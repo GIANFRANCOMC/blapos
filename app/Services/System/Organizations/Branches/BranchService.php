@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for creating and updating records
  */
 class BranchService {
+
     /**
      * Translation namespace for module
      */
@@ -293,4 +294,5 @@ class BranchService {
             ->paginate($perPage);
 
     }
+
 }

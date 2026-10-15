@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Operations;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class UpdatePreparationStatusRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -14,4 +15,5 @@ final class UpdatePreparationStatusRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

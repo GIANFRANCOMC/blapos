@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Operations;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class AddServiceSessionItemRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $round = $this->decimalPrecision();
@@ -27,4 +28,5 @@ final class AddServiceSessionItemRequest extends CompanyFormRequest {
         return ["observation"];
 
     }
+
 }

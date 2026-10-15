@@ -11,6 +11,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Validator};
 
 final class QuotationController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Sales.quotations";
 
     public function index() {
@@ -160,4 +161,5 @@ final class QuotationController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

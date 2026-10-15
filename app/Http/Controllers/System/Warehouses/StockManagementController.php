@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class StockManagementController extends BaseController {
+
     /**
      * Translation namespace for stock management module
      */
@@ -365,4 +366,5 @@ class StockManagementController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

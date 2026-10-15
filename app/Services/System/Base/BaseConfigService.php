@@ -14,6 +14,7 @@ use stdClass;
  * Shared cache contract for System module initialization parameters.
  */
 abstract class BaseConfigService {
+
     protected const CACHE_TTL = 3600;
 
     protected const USER_SCOPED_CACHE = false;
@@ -238,4 +239,5 @@ abstract class BaseConfigService {
             : ($pages[0] ?? "main");
 
     }
+
 }

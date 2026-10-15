@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Config, DB, Log};
 use RuntimeException;
 
 final class TenantConnectionManager {
+
     public function connect(TenantDatabase $tenant): void {
 
         app(BranchContext::class)->forget();
@@ -66,4 +67,5 @@ final class TenantConnectionManager {
         DB::setDefaultConnection($landlordConnection);
 
     }
+
 }

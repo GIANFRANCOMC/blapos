@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\{Model};
  * Provides common functionality for all system models
  */
 abstract class BaseModel extends Model {
+
     public $incrementing = true;
 
     public $timestamps = true;
@@ -69,4 +70,5 @@ abstract class BaseModel extends Model {
         return $query->where("status", "inactive");
 
     }
+
 }

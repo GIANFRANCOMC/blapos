@@ -28,6 +28,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use stdClass;
 
 class ReportController extends BaseController {
+
     /**
      * Translation namespace for report module
      */
@@ -535,4 +536,5 @@ class ReportController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

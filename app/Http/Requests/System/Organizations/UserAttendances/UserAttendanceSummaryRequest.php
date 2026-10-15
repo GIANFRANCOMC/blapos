@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class UserAttendanceSummaryRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -17,4 +18,5 @@ final class UserAttendanceSummaryRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

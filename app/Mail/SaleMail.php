@@ -8,6 +8,7 @@ use Illuminate\Mail\{Mailable};
 use Illuminate\Queue\{SerializesModels};
 
 class SaleMail extends Mailable {
+
     use Queueable, SerializesModels;
 
     public $mail = null;
@@ -54,4 +55,5 @@ class SaleMail extends Mailable {
         return [];
 
     }
+
 }

@@ -13,6 +13,7 @@ use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Concerns\{SkipsEmptyRows, ToCollection, WithHeadingRow};
 
 final class CustomerImport implements SkipsEmptyRows, ToCollection, WithHeadingRow {
+
     private int $importedCount = 0;
 
     public function __construct(private readonly int $userId) {
@@ -76,6 +77,7 @@ final class CustomerImport implements SkipsEmptyRows, ToCollection, WithHeadingR
                 }
 
                 CustomerService::create($data, $this->userId);
+
                 $this->importedCount++;
 
             }
@@ -97,4 +99,5 @@ final class CustomerImport implements SkipsEmptyRows, ToCollection, WithHeadingR
         return $text === "" ? null : $text;
 
     }
+
 }

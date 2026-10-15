@@ -7,6 +7,7 @@ namespace App\Services\Security;
 use Illuminate\Support\Facades\{Http};
 
 final class TurnstileVerificationService {
+
     private const VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
     public static function enabled(): bool {
@@ -50,4 +51,5 @@ final class TurnstileVerificationService {
         }
 
     }
+
 }

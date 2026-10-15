@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\Users;
 use App\Rules\System\Defaults\{DocumentNumberLength, ExistsInTenant, UniqueInTenant};
 
 final class UserValidationRules {
+
     public static function forDocumentType(int $documentTypeId, ?int $userId = null, bool $requirePassword = true): array {
 
         $rules = [
@@ -36,4 +37,5 @@ final class UserValidationRules {
         return $rules;
 
     }
+
 }

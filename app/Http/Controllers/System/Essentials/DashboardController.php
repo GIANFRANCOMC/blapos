@@ -10,6 +10,7 @@ use App\Services\System\Essentials\{DashboardConfigService, DashboardService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class DashboardController extends BaseController {
+
     /**
      * Translation namespace for dashboard module
      */
@@ -63,4 +64,5 @@ class DashboardController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

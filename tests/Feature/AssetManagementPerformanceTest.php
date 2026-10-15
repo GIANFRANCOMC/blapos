@@ -11,6 +11,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class AssetManagementPerformanceTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -81,4 +82,5 @@ final class AssetManagementPerformanceTest extends TestCase {
         }
 
     }
+
 }

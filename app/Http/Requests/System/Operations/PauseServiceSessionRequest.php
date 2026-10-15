@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Operations;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class PauseServiceSessionRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -21,4 +22,5 @@ final class PauseServiceSessionRequest extends CompanyFormRequest {
         return ["reason"];
 
     }
+
 }

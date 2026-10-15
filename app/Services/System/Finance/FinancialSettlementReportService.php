@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
 final class FinancialSettlementReportService {
+
     public static function summarize(
         string $type,
         string $scope,
@@ -60,4 +61,5 @@ final class FinancialSettlementReportService {
             ->get();
 
     }
+
 }

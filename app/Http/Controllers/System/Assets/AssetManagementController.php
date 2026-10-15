@@ -12,6 +12,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Pagination\{LengthAwarePaginator};
 
 class AssetManagementController extends BaseController {
+
     /**
      * Translation namespace for asset management module
      */
@@ -370,4 +371,5 @@ class AssetManagementController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

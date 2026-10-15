@@ -11,6 +11,7 @@ use Illuminate\Mail\{Mailable};
 use Illuminate\Queue\{SerializesModels};
 
 final class InventoryStockAlertMail extends Mailable {
+
     use Queueable, SerializesModels;
 
     public function __construct(
@@ -44,4 +45,5 @@ final class InventoryStockAlertMail extends Mailable {
         return [];
 
     }
+
 }

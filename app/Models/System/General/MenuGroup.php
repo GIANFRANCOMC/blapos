@@ -5,6 +5,7 @@ namespace App\Models\System\General;
 use Illuminate\Database\Eloquent\{Model};
 
 final class MenuGroup extends Model {
+
     protected $fillable = ["section_id", "slug", "name", "order", "status"];
 
     public function section() {
@@ -18,4 +19,5 @@ final class MenuGroup extends Model {
         return $this->hasMany(SubSection::class)->where("status", "active");
 
     }
+
 }

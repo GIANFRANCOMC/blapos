@@ -12,6 +12,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class PruneCustomerAttendances extends Command {
+
     protected $signature = "attendances:prune-customers
                             {--tenant= : Procesar únicamente el slug tenant indicado}
                             {--months= : Meses de retención; mínimo 4}
@@ -81,4 +82,5 @@ final class PruneCustomerAttendances extends Command {
         return $hasFailure ? self::FAILURE : self::SUCCESS;
 
     }
+
 }

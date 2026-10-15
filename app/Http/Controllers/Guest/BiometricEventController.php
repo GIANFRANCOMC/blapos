@@ -10,6 +10,7 @@ use App\Services\System\Devices\BiometricDevices\{BiometricEventService};
 use DomainException;
 
 final class BiometricEventController extends Controller {
+
     public function store(BiometricDeviceEventRequest $request) {
 
         try {
@@ -34,4 +35,5 @@ final class BiometricEventController extends Controller {
         }
 
     }
+
 }

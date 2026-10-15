@@ -10,6 +10,7 @@ use Illuminate\Http\{Request};
 use Symfony\Component\HttpFoundation\{Response};
 
 final class EnsureTenantSession {
+
     private const SESSION_TENANT_KEY = "_tenant_database_id";
 
     public function __construct(
@@ -56,4 +57,5 @@ final class EnsureTenantSession {
         return $next($request);
 
     }
+
 }

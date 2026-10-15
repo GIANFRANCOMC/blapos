@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Hash};
 use RuntimeException;
 
 final class LandlordPlatformSeeder extends Seeder {
+
     public function run(): void {
 
         $name = trim((string) config("tenancy.platform_admin.name"));
@@ -39,4 +40,5 @@ final class LandlordPlatformSeeder extends Seeder {
         );
 
     }
+
 }

@@ -10,6 +10,7 @@ use App\Services\System\Finance\{AccountsPayableService};
 use Illuminate\Http\{JsonResponse, Request};
 
 final class AccountsPayableController extends BaseController {
+
     public function __construct(private readonly AccountsPayableService $service) {
 
     }
@@ -57,4 +58,5 @@ final class AccountsPayableController extends BaseController {
         ], fn($value) => $value !== null && $value !== "");
 
     }
+
 }

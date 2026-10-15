@@ -8,6 +8,7 @@ use App\Rules\System\Defaults\{UniqueInTenant};
 use Illuminate\Foundation\Http\{FormRequest};
 
 final class UpdateAccountRequest extends FormRequest {
+
     protected function prepareForValidation(): void {
 
         $this->merge([
@@ -54,4 +55,5 @@ final class UpdateAccountRequest extends FormRequest {
         ];
 
     }
+
 }

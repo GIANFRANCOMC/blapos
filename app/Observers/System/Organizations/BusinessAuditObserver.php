@@ -8,6 +8,7 @@ use App\Services\System\Organizations\{BusinessAuditService};
 use Illuminate\Database\Eloquent\{Model};
 
 final class BusinessAuditObserver {
+
     public function created(Model $model): void {
 
         BusinessAuditService::recordModelChange($model, "created");
@@ -29,4 +30,5 @@ final class BusinessAuditObserver {
         BusinessAuditService::recordModelChange($model, "deleted");
 
     }
+
 }

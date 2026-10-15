@@ -12,6 +12,7 @@ use App\Services\System\Base\{InternalCodeService};
 use Illuminate\Validation\{Validator};
 
 abstract class ProductRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $itemId = $this->route("id") ? (int) $this->route("id") : null;
@@ -271,4 +272,5 @@ abstract class ProductRequest extends CompanyFormRequest {
         return is_numeric($value) && (float) $value > 0 ? (float) $value : null;
 
     }
+
 }

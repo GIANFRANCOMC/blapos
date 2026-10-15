@@ -17,6 +17,7 @@ use Illuminate\Support\{Collection};
  * Handles business logic for managing warehouse stock
  */
 class StockManagementService {
+
     /**
      * Get paginated list of items with stock information
      *
@@ -311,4 +312,5 @@ class StockManagementService {
             ->paginate($perPage);
 
     }
+
 }

@@ -12,6 +12,7 @@ use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
 use DomainException;
 
 final class RecipeConsumptionService {
+
     public static function consume(
         Warehouse $warehouse,
         SaleBody $saleBody,
@@ -129,4 +130,5 @@ final class RecipeConsumptionService {
         }
 
     }
+
 }

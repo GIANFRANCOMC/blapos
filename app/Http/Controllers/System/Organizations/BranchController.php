@@ -14,6 +14,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{URL};
 
 class BranchController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -240,4 +241,5 @@ class BranchController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

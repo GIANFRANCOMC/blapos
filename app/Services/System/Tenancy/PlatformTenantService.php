@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
 final class PlatformTenantService {
+
     public function __construct(private readonly TenantConnectionManager $connections) {
     }
 
@@ -116,4 +117,5 @@ final class PlatformTenantService {
         }
 
     }
+
 }

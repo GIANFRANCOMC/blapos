@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class RecipeDish extends Model {
+
     protected $table = "recipe_dishes";
 
     protected $appends = [
@@ -102,4 +103,5 @@ class RecipeDish extends Model {
             ->where("status", "active");
 
     }
+
 }

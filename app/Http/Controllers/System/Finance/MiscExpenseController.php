@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\{Validator};
 use Illuminate\Validation\{Rule};
 
 final class MiscExpenseController extends BaseController {
+
     private const TRANSLATION_NAMESPACE = "System.Finance.misc_expenses";
 
     public function index() {
@@ -141,4 +142,5 @@ final class MiscExpenseController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

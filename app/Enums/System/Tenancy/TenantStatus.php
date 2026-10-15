@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Enums\System\Tenancy;
 
 enum TenantStatus: string {
+
     case PROVISIONING = "provisioning";
 
     case ACTIVE = "active";
@@ -39,4 +40,5 @@ enum TenantStatus: string {
         return $this === self::ACTIVE;
 
     }
+
 }

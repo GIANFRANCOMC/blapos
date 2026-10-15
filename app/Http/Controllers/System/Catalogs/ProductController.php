@@ -19,6 +19,7 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class ProductController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -247,4 +248,5 @@ class ProductController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

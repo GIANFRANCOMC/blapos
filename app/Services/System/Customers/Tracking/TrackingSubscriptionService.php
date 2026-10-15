@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for listing and managing subscriptions
  */
 class TrackingSubscriptionService {
+
     /**
      * Translation namespace for tracking subscription module
      */
@@ -315,4 +316,5 @@ class TrackingSubscriptionService {
         ]);
 
     }
+
 }

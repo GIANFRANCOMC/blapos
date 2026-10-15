@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Database\Eloquent\{Builder, Model};
 
 final class SaleAccountReceivable extends Model {
+
     protected $table = "sale_accounts_receivable";
 
     protected $fillable = [
@@ -89,4 +90,5 @@ final class SaleAccountReceivable extends Model {
             ->where("status", "active");
 
     }
+
 }

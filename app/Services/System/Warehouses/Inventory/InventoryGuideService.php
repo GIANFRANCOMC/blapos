@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Str};
 
 final class InventoryGuideService {
+
     public static function create(int $userId, array $data): InventoryGuide {
 
         return DB::transaction(function() use ($userId, $data) {
@@ -88,4 +89,5 @@ final class InventoryGuideService {
         return $number;
 
     }
+
 }

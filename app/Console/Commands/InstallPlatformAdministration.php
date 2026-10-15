@@ -10,6 +10,7 @@ use Illuminate\Console\{Command};
 use Illuminate\Support\Facades\{Artisan};
 
 final class InstallPlatformAdministration extends Command {
+
     protected $signature = "platform:install";
 
     protected $description = "Crea y prepara landlord, luego configura el administrador inicial del panel app.";
@@ -64,4 +65,5 @@ final class InstallPlatformAdministration extends Command {
         return self::SUCCESS;
 
     }
+
 }

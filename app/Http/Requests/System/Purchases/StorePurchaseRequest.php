@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StorePurchaseRequest extends CompanyFormRequest {
+
     public function authorize(): bool {
 
         return parent::authorize();
@@ -226,4 +227,5 @@ final class StorePurchaseRequest extends CompanyFormRequest {
         return is_string($value) && trim($value) !== "" ? trim($value) : null;
 
     }
+
 }

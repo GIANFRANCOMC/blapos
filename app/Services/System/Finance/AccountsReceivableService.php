@@ -12,6 +12,7 @@ use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 
 final class AccountsReceivableService {
+
     public function paginate(int $userId, array $filters, int $perPage): LengthAwarePaginator {
 
         $paginator = $this->query($userId, $filters)
@@ -259,4 +260,5 @@ final class AccountsReceivableService {
         return $result;
 
     }
+
 }

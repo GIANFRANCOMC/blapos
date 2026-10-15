@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\{Cache};
  * Provides active tenant master data used by module initParams.
  */
 final class MasterReferenceDataService {
+
     private const CACHE_TTL = 21600;
 
     private const DEFAULT_IDENTITY_DOCUMENT_CODES = [
@@ -95,4 +96,5 @@ final class MasterReferenceDataService {
         return app(TenantContext::class)->cacheNamespace().":master_reference:{$name}:active";
 
     }
+
 }

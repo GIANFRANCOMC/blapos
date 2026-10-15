@@ -9,6 +9,7 @@ use App\Rules\System\Defaults\{UniqueInTenant};
 use App\Services\System\Base\{InternalCodeService};
 
 abstract class CategoryRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         $categoryId = $this->route("id") ? (int) $this->route("id") : null;
@@ -65,4 +66,5 @@ abstract class CategoryRequest extends CompanyFormRequest {
         ]);
 
     }
+
 }

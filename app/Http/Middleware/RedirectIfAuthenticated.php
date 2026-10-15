@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{Auth};
 use Symfony\Component\HttpFoundation\{Response};
 
 class RedirectIfAuthenticated {
+
     /**
      * Handle an incoming request.
      *
@@ -31,4 +32,5 @@ class RedirectIfAuthenticated {
         return $next($request);
 
     }
+
 }

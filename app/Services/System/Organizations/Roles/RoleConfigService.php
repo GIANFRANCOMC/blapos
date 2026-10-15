@@ -10,6 +10,7 @@ use App\Services\System\Organizations\Companies\{CompanySectionService};
 use stdClass;
 
 final class RoleConfigService extends BaseConfigService {
+
     protected const USER_SCOPED_CACHE = true;
 
     protected static function getCachePrefix(): string {
@@ -54,4 +55,5 @@ final class RoleConfigService extends BaseConfigService {
         ]);
 
     }
+
 }

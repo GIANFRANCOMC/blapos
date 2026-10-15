@@ -14,6 +14,7 @@ use App\Services\System\Devices\BiometricDevices\{BiometricDeviceConfigService, 
 use Illuminate\Http\{JsonResponse, Request};
 
 class BiometricDeviceController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -232,4 +233,5 @@ class BiometricDeviceController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

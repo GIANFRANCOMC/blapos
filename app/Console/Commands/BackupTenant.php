@@ -10,6 +10,7 @@ use Illuminate\Console\{Command};
 use Throwable;
 
 final class BackupTenant extends Command {
+
     protected $signature = "tenant:backup {slug : Slug del tenant}";
 
     protected $description = "Crea un respaldo aislado de la base de datos de un tenant.";
@@ -42,4 +43,5 @@ final class BackupTenant extends Command {
         }
 
     }
+
 }

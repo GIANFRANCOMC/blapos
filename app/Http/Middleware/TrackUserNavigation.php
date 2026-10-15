@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\{Response};
 use Throwable;
 
 final class TrackUserNavigation {
+
     public function __construct(private readonly UserNavigationService $navigationService) {
 
     }
@@ -48,4 +49,5 @@ final class TrackUserNavigation {
         return $response;
 
     }
+
 }

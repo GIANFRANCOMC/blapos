@@ -10,6 +10,7 @@ use App\Services\System\Tenancy\{TenantCompanyContext};
 use stdClass;
 
 final class CompanyConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "company";
@@ -46,4 +47,5 @@ final class CompanyConfigService extends BaseConfigService {
         return $config;
 
     }
+
 }

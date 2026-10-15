@@ -11,6 +11,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use stdClass;
 
 class HomeController extends BaseController {
+
     /**
      * Translation namespace for home module
      */
@@ -115,4 +116,5 @@ class HomeController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

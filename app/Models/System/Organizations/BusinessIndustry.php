@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class BusinessIndustry extends Model {
+
     protected $table = "business_industries";
 
     protected $fillable = [
@@ -25,4 +26,5 @@ final class BusinessIndustry extends Model {
         return $this->hasMany(BusinessIndustryModuleSet::class, "business_industry_id");
 
     }
+
 }

@@ -12,6 +12,7 @@ use App\Services\System\Catalogs\Services\{ServiceConfigService, ServiceService}
 use Illuminate\Http\{JsonResponse, Request};
 
 class ServiceController extends BaseController {
+
     /**
      * Translation namespace for module
      */
@@ -166,4 +167,5 @@ class ServiceController extends BaseController {
         return self::TRANSLATION_NAMESPACE;
 
     }
+
 }

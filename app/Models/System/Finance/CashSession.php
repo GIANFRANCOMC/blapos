@@ -9,6 +9,7 @@ use App\Models\System\Sales\{SaleHeader};
 use Illuminate\Database\Eloquent\{Model};
 
 final class CashSession extends Model {
+
     protected $table = "cash_sessions";
 
     protected $fillable = [
@@ -77,4 +78,5 @@ final class CashSession extends Model {
         return $this->hasMany(SaleHeader::class, "cash_session_id", "id");
 
     }
+
 }

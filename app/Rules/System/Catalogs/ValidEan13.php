@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Contracts\Validation\{ValidationRule};
 
 class ValidEan13 implements ValidationRule {
+
     public function validate(string $attribute, mixed $value, Closure $fail): void {
 
         $barcode = (string) $value;
@@ -38,4 +39,5 @@ class ValidEan13 implements ValidationRule {
         }
 
     }
+
 }

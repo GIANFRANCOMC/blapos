@@ -7,6 +7,7 @@ use App\Models\System\Organizations\{Serie};
 use Illuminate\Database\Eloquent\{Model};
 
 class DocumentType extends Model {
+
     protected $table = "document_types";
 
     protected $primaryKey = "id";
@@ -90,4 +91,5 @@ class DocumentType extends Model {
             ->whereIn("status", ["active"]);
 
     }
+
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{DB};
 use Tests\{TestCase};
 
 final class TenantCompanyDatabaseBoundaryTest extends TestCase {
+
     use RefreshDatabase;
 
     private const STRUCTURAL_COMPANY_TABLES = [
@@ -146,4 +147,5 @@ final class TenantCompanyDatabaseBoundaryTest extends TestCase {
         $this->assertSame("serie_id,action,sequential", $columns[0]->columns_list);
 
     }
+
 }

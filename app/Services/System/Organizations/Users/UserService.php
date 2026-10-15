@@ -19,6 +19,7 @@ use Illuminate\Support\{Str};
  * Handles business logic for creating and updating records
  */
 class UserService {
+
     /**
      * Translation namespace for module
      */
@@ -493,4 +494,5 @@ class UserService {
         return $query->orderBy("name", "ASC");
 
     }
+
 }

@@ -19,6 +19,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class SystemNavigationProvisioningTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -916,4 +917,5 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->assertJsonPath("summary.accounts", 0);
 
     }
+
 }

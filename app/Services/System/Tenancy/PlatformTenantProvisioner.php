@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{Artisan, Cache};
 use RuntimeException;
 
 final class PlatformTenantProvisioner {
+
     public function __construct(private readonly TenantConnectionManager $connections) {
     }
 
@@ -68,4 +69,5 @@ final class PlatformTenantProvisioner {
             ->firstOrFail();
 
     }
+
 }

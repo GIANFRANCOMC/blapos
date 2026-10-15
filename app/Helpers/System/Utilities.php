@@ -9,6 +9,7 @@ use Exception;
 use stdClass;
 
 class Utilities {
+
     public static $per_page_default = 10;
 
     public static $per_page_max = 1000;
@@ -226,4 +227,5 @@ class Utilities {
         return $d && $d->format($format) === $date;
 
     }
+
 }

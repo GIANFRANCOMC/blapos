@@ -14,6 +14,7 @@ use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
 final class AttendanceFlowsTest extends TestCase {
+
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
@@ -251,4 +252,5 @@ final class AttendanceFlowsTest extends TestCase {
         ]);
 
     }
+
 }

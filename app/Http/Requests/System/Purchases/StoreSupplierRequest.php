@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use Illuminate\Validation\{Rule};
 
 final class StoreSupplierRequest extends CompanyFormRequest {
+
     public function authorize(): bool {
 
         return parent::authorize();
@@ -63,4 +64,5 @@ final class StoreSupplierRequest extends CompanyFormRequest {
         ];
 
     }
+
 }

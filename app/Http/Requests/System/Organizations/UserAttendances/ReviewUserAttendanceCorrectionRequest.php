@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\UserAttendances;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class ReviewUserAttendanceCorrectionRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -21,4 +22,5 @@ final class ReviewUserAttendanceCorrectionRequest extends CompanyFormRequest {
         return ["note"];
 
     }
+
 }

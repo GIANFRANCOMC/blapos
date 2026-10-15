@@ -7,6 +7,7 @@ namespace App\Models\System\Catalogs;
 use Illuminate\Database\Eloquent\{Model};
 
 class RecipeDishOption extends Model {
+
     protected $table = "recipe_dish_options";
 
     protected $fillable = [
@@ -33,4 +34,5 @@ class RecipeDishOption extends Model {
             ->where("status", "active");
 
     }
+
 }

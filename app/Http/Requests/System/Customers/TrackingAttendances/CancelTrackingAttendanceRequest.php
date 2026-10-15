@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Customers\TrackingAttendances;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 class CancelTrackingAttendanceRequest extends CompanyFormRequest {
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,4 +26,5 @@ class CancelTrackingAttendanceRequest extends CompanyFormRequest {
         return ["motive"];
 
     }
+
 }

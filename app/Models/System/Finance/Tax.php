@@ -7,6 +7,7 @@ namespace App\Models\System\Finance;
 use Illuminate\Database\Eloquent\{Model};
 
 final class Tax extends Model {
+
     protected $table = "taxes";
 
     protected $fillable = [
@@ -35,4 +36,5 @@ final class Tax extends Model {
         "is_required" => "boolean",
         "is_default" => "boolean",
     ];
+
 }

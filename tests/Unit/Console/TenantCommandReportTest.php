@@ -10,6 +10,7 @@ use Mockery;
 use Tests\{TestCase};
 
 final class TenantCommandReportTest extends TestCase {
+
     public function test_per_tenant_batch_limit_cannot_be_unbounded(): void {
 
         $this->assertSame(1, TenantCommandBatchLimit::normalize(0));
@@ -46,4 +47,5 @@ final class TenantCommandReportTest extends TestCase {
         $report->flush();
 
     }
+
 }

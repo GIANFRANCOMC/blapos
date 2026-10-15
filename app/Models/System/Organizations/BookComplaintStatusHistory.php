@@ -7,6 +7,7 @@ namespace App\Models\System\Organizations;
 use Illuminate\Database\Eloquent\{Model};
 
 final class BookComplaintStatusHistory extends Model {
+
     protected $table = "book_complaint_status_histories";
 
     public $timestamps = false;
@@ -33,4 +34,5 @@ final class BookComplaintStatusHistory extends Model {
         return $this->belongsTo(User::class, "changed_by");
 
     }
+
 }

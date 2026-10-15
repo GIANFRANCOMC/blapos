@@ -7,6 +7,7 @@ namespace App\Services\System\Catalogs\Categories;
 use App\Models\System\Catalogs\{CategoryItem};
 
 class CategoryItemService {
+
     public static function sync(int $itemId, array $categories, int $userId): void {
 
         $timestamp = now();
@@ -47,4 +48,5 @@ class CategoryItemService {
         );
 
     }
+
 }

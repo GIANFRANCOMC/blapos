@@ -11,6 +11,7 @@ use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use Illuminate\Http\{JsonResponse};
 
 final class AssetCategoryController extends BaseController {
+
     public function list() {
 
         return AssetCategory::query()
@@ -50,4 +51,5 @@ final class AssetCategoryController extends BaseController {
         return "System.Assets.asset";
 
     }
+
 }

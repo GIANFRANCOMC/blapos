@@ -7,6 +7,7 @@ namespace App\Http\Requests\System\Organizations\Users;
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class ImportUsersRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -24,4 +25,5 @@ final class ImportUsersRequest extends CompanyFormRequest {
         ]);
 
     }
+
 }

@@ -11,6 +11,7 @@ use App\Models\System\Warehouses\{Warehouse};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany, Relations\HasOne};
 
 final class PurchaseHeader extends Model {
+
     protected $table = "purchase_headers";
 
     protected $fillable = [
@@ -248,4 +249,5 @@ final class PurchaseHeader extends Model {
         return $this->hasMany(PurchaseReturn::class, "purchase_header_id");
 
     }
+
 }

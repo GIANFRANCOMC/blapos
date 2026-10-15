@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\{Crypt, DB};
 use Throwable;
 
 final class BiometricEventService {
+
     public static function receive(
         string $accessKey,
         string $signature,
@@ -157,4 +158,5 @@ final class BiometricEventService {
         }
 
     }
+
 }

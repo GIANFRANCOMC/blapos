@@ -9,6 +9,7 @@ use App\Services\System\Base\{BaseConfigService};
 use stdClass;
 
 final class CategoryConfigService extends BaseConfigService {
+
     protected static function getCachePrefix(): string {
 
         return "category";
@@ -23,4 +24,5 @@ final class CategoryConfigService extends BaseConfigService {
         ]);
 
     }
+
 }

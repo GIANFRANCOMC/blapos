@@ -8,6 +8,7 @@ use App\Rules\System\Catalogs\{DelimitedArrayTextLength};
 use Tests\{TestCase};
 
 class DelimitedArrayTextLengthTest extends TestCase {
+
     public function test_it_accepts_one_hundred_characters_including_separators(): void {
 
         $messages = $this->validateText([str_repeat("A", 49), str_repeat("B", 49)]);
@@ -45,4 +46,5 @@ class DelimitedArrayTextLengthTest extends TestCase {
         return $messages;
 
     }
+
 }

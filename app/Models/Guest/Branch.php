@@ -6,6 +6,7 @@ use App\Helpers\System\{Utilities};
 use Illuminate\Database\Eloquent\{Model};
 
 class Branch extends Model {
+
     protected $table = "branches";
 
     protected $primaryKey = "id";
@@ -56,4 +57,5 @@ class Branch extends Model {
         return $this->belongsTo(Company::class, "company_id", "id");
 
     }
+
 }

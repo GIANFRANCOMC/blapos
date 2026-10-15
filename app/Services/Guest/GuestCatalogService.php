@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\{Collection};
  * Provides the public catalog exposed to a company's visitors.
  */
 final class GuestCatalogService {
+
     public static function publicItems(): Collection {
 
         return Item::query()
@@ -45,4 +46,5 @@ final class GuestCatalogService {
             ->get();
 
     }
+
 }

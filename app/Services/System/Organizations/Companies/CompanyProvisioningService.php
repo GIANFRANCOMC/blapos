@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\{DB, Hash, Schema};
 use RuntimeException;
 
 final class CompanyProvisioningService {
+
     private const ROOT_COMPANY_ID = 1;
 
     public function createOrUpdate(array $attributes): void {
@@ -601,4 +602,5 @@ final class CompanyProvisioningService {
         return app(TenantCompanyContext::class)->id();
 
     }
+
 }

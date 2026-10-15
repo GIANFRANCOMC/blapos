@@ -7,6 +7,7 @@ namespace App\Models\System\Purchases;
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\HasMany};
 
 final class Supplier extends Model {
+
     protected $table = "suppliers";
 
     protected $fillable = [
@@ -54,4 +55,5 @@ final class Supplier extends Model {
         return $this->hasMany(SupplierBankAccount::class, "supplier_id");
 
     }
+
 }

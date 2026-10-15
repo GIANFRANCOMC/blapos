@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{User};
 use Illuminate\Database\Eloquent\{Model};
 
 class AssetAssignment extends Model {
+
     protected $table = "asset_assignments";
 
     protected $primaryKey = "id";
@@ -83,4 +84,5 @@ class AssetAssignment extends Model {
         return $this->belongsTo(Currency::class, "currency_id", "id");
 
     }
+
 }

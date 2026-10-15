@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\{HasMany};
 use Illuminate\Database\Eloquent\{Model};
 
 final class PaymentMethod extends Model {
+
     protected $table = "payment_methods";
 
     protected $fillable = [
@@ -42,4 +43,5 @@ final class PaymentMethod extends Model {
             ->where("status", "active");
 
     }
+
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
 final class StoreTrackingAttendanceRequest extends CompanyFormRequest {
+
     public function rules(): array {
 
         return [
@@ -35,4 +36,5 @@ final class StoreTrackingAttendanceRequest extends CompanyFormRequest {
         return ["start_date", "end_date", "observation"];
 
     }
+
 }

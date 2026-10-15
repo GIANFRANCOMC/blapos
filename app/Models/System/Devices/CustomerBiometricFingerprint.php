@@ -9,6 +9,7 @@ use App\Models\System\Organizations\{Company};
 use Illuminate\Database\Eloquent\{Model};
 
 class CustomerBiometricFingerprint extends Model {
+
     protected $table = "customer_biometric_fingerprints";
 
     protected $primaryKey = "id";
@@ -73,4 +74,5 @@ class CustomerBiometricFingerprint extends Model {
         return $this->belongsTo(BiometricDevice::class, "biometric_device_id", "id");
 
     }
+
 }

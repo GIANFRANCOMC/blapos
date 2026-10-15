@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\{DB};
  * Handles business logic for creating and updating records
  */
 class ServiceService {
+
     /**
      * Translation namespace for module
      */
@@ -405,4 +406,5 @@ class ServiceService {
             ->paginate($perPage);
 
     }
+
 }

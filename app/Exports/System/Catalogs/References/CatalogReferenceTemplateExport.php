@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class CatalogReferenceTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
+
     public function __construct(private readonly string $type) {
 
         if(!in_array($type, ["brands", "categories"], true)) {
@@ -48,4 +49,5 @@ final class CatalogReferenceTemplateExport implements FromArray, ShouldAutoSize,
         return [];
 
     }
+
 }
