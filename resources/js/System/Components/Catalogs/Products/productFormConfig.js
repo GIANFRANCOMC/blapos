@@ -2,26 +2,36 @@ export const FORM_TABS = [
     {
         id: "general",
         label: "PRODUCTO",
+        description: "Datos y precios",
+        icon: "fa-solid fa-box",
         fields: ["internal_code", "barcode", "name", "price", "min_price", "max_price", "currency", "currency_id", "status"]
     },
     {
         id: "attributes",
         label: "DETALLE",
+        description: "Marca y catálogo",
+        icon: "fa-solid fa-clipboard-list",
         fields: ["description", "brand", "brand_id", "categories", "see_my_web", "see_my_web_price"]
     },
     {
         id: "inventory",
         label: "INVENTARIO",
+        description: "Stock por almacén",
+        icon: "fa-solid fa-warehouse",
         fields: ["inventory"]
     },
     {
         id: "taxes",
         label: "IMPUESTOS",
+        description: "Aplicación del IGV",
+        icon: "fa-solid fa-receipt",
         fields: ["igv_exempt", "price_includes_tax"]
     },
     {
         id: "configuration",
         label: "CONFIGURACIÓN",
+        description: "Vigencia y comisión",
+        icon: "fa-solid fa-sliders",
         fields: ["expires_at", "commission_type", "commission_value"]
     }
 ];

@@ -174,14 +174,14 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
 - La marca aparece inmediatamente debajo del nombre en una cápsula compacta de azul suave, con icono y nombre. Se diferencia del código interno sin añadir otra columna; el icono muestra el tooltip `Marca`.
 - Cuando existe descripción, se conserva una separación adicional después de la marca para que ambos datos puedan leerse como niveles distintos.
-- El formulario se organiza en tres pestañas: Información general, Atributos e impuestos e Inventario.
+- El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; Producto activa la variante descriptiva de `CatalogFormTabs`, mientras Servicios y Membresías conservan por ahora la variante compacta.
 - Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
 - Los placeholders del sistema toman `--br-placeholder-font-size` para mantener una lectura consistente en inputs, `vue-select` y Select2.
 - El estado sin registros del listado usa la ilustración `public/System/assets/img/utils/without_data/empty_products.png`.
-- Información general sigue el orden: código interno, código de barras, nombre, precio de venta, precio mínimo, precio máximo y estado.
+- Producto sigue el orden: código interno, código de barras, nombre, precio de venta, precio mínimo, precio máximo y estado.
 - El estado se selecciona mediante el selector reutilizable `vue-select`, con las mismas reglas visuales y de interacción que el resto de selectores del sistema.
 - El selector de estado ocupa cuatro columnas en escritorio para evitar opciones innecesariamente anchas.
-- Atributos e impuestos sigue el orden: precio incluye IGV, IGV exonerado, vencimiento, comisión, valor de comisión, marca, categorías, descripción comercial adicional y visibilidad para clientes.
+- Detalle reúne descripción comercial adicional, marca, categorías y visibilidad para clientes; Impuestos contiene los dos controles de IGV; Configuración agrupa disponible hasta y la comisión.
 - Inventario conserva el stock inicial o actual y el mínimo por almacén.
 - La sección `Visibilidad para clientes` explica expresamente que publicar el producto o mostrar su precio controla la información visible fuera de la plataforma y no modifica el estado interno Activo o Inactivo.
 - Marca y Categorías incluyen una acción contextual `Agregar` presentada como enlace azul primary, acompañada por un icono circular de suma alineado verticalmente con el texto. Cada acción abre un modal rápido sin cerrar ni limpiar el formulario de Producto.
@@ -189,7 +189,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Las altas rápidas no vuelven a solicitar todo `initParams`: actualizan de forma reactiva `options.brands.records` u `options.categories.records`; el backend ya invalida `ProductConfigService` para futuras cargas.
 - El selector de Marca permite limpiar la relación y muestra únicamente marcas activas.
 - Los selectores reutilizan una `X` tipográfica compacta y centrada ópticamente con la flecha para limpiar valores, evitando deformaciones del SVG y manteniendo un área clicable cómoda.
-- Las tres pestañas ocupan todo el ancho del modal, tienen separación visual y resaltan claramente la sección activa.
+- Las cinco pestañas comparten el ancho del modal. El icono acompaña al título y la descripción ocupa la línea completa, permitiendo mayor separación entre pestañas. Cada una tiene un contorno tenue; la activa usa borde e icono primary sin fondo circular y una sombra breve. En anchos reducidos, el grupo se desplaza horizontalmente sin comprimir ni truncar títulos.
 - El modal utiliza el desplazamiento natural de Bootstrap, sin `modal-dialog-scrollable`; la navegación `nav-pills` permanece en el flujo del formulario para impedir que los campos pasen visualmente por detrás.
 - Al existir errores, se marca la pestaña afectada y se abre automáticamente la primera que requiere corrección.
 - Cada apertura reemplaza completamente los datos del formulario y genera nuevos códigos al crear, evitando mezclar información entre creación y edición.
@@ -332,8 +332,7 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Las pestañas reutilizables mantienen una separación visual moderada entre opciones para facilitar el escaneo sin incrementar su altura.
 - Las pestañas reutilizan `nav-pills`, tienen una separación superior más amplia respecto al encabezado y márgenes laterales alineados con los campos del formulario.
 - La navegación ya no usa posición sticky ni desenfoque: forma parte del flujo normal del modal, evitando superposiciones y filtraciones de texto durante el desplazamiento.
-- En escritorio, las pestañas reducen su separación y mantienen las tres etapas visibles; en móvil se presenta únicamente la etapa activa con su título y descripción completos, acompañada por controles anterior/siguiente accesibles y alineados al branding.
-- Todas las etapas móviles conservan una altura fija independientemente de la longitud del título o la descripción; admiten hasta dos líneas por texto sin alterar la estructura. Las flechas son controles compactos y sutiles, centrados verticalmente, con énfasis azul únicamente en hover o foco.
+- En escritorio se muestran las cinco pestañas; en pantallas más estrechas se desplazan horizontalmente y ofrecen controles discretos de anterior/siguiente. La navegación también admite flechas del teclado, Inicio y Fin, y desplaza automáticamente la pestaña seleccionada a la vista.
 - Los márgenes horizontales de la navegación y del contenido comparten la variable `--br-entity-modal-content-space-x`, ampliada para mejorar la respiración del formulario y ajustada de forma responsive.
 - La separación superior entre el encabezado del modal y la navegación se controla mediante `--br-entity-modal-body-space-y`, incrementada para mejorar la jerarquía y respiración visual.
 - La distancia entre navegación y campos se controla de manera independiente con `--br-entity-modal-tabs-content-space-y`; es más compacta que la separación superior y se reduce adicionalmente en móvil.

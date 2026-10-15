@@ -116,6 +116,7 @@ Criterios prácticos:
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
 - Los estados vacíos y loaders deben usar componentes compartidos (`WithoutData`, `Loader`) para evitar estilos distintos por módulo.
 - Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
+- Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono forma parte de la línea del título y la descripción aprovecha el ancho completo. Cada tab conserva un contorno tenue y el activo remarca borde, título e icono sin fondo circular. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
 
 ## Formularios
 

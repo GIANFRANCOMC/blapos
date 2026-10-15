@@ -18989,3 +18989,161 @@ body > .vs__dropdown-menu,
     transition: none;
   }
 }
+
+/* Variante descriptiva optativa: cinco secciones legibles sin alterar los editores compactos. */
+.br-entity-modal--tabbed:has(.br-catalog-form-tabs--descriptive) {
+  --br-entity-modal-tabs-content-space-y: 0.7rem;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive {
+  padding-block: 1.2rem 0.45rem;
+}
+
+.br-catalog-form-tabs__step-control {
+  display: none;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs,
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs--five {
+  width: 100%;
+  max-width: none;
+  gap: 0.45rem;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+  position: relative;
+  flex: 1 1 0;
+  justify-content: flex-start;
+  height: 3.12rem;
+  min-height: 3.12rem;
+  padding: 0.42rem 0.62rem;
+  border: 1px solid color-mix(in srgb, var(--br-border-cool) 72%, var(--br-white));
+  border-radius: 0.65rem;
+  background: transparent !important;
+  color: var(--br-secondary) !important;
+  text-align: left;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
+  border-color: var(--br-primary-muted);
+  background: color-mix(in srgb, var(--br-primary-soft) 30%, var(--br-white)) !important;
+  color: var(--br-secondary) !important;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+  border: 1px solid color-mix(in srgb, var(--br-primary) 65%, var(--br-white));
+  background: var(--br-white) !important;
+  color: var(--br-primary-active) !important;
+  box-shadow: 0 2px 7px color-mix(in srgb, var(--br-secondary) 7%, transparent);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__icon {
+  display: inline-grid;
+  flex: 0 0 0.7rem;
+  width: 0.7rem;
+  height: 1rem;
+  color: var(--br-text-muted);
+  font-size: 0.58rem;
+  place-items: center;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab.nav-link:hover .br-entity-tab__icon {
+  color: var(--br-primary-active);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab.nav-link.is-active .br-entity-tab__icon {
+  color: var(--br-primary-active);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__content {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 0.1rem;
+  min-width: 0;
+  text-align: left;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__content strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  color: var(--br-secondary) !important;
+  font-size: 0.64rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__content small {
+  margin: 0;
+  color: var(--br-text-muted);
+  font-size: 0.56rem;
+  line-height: 1.15;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab.nav-link.is-active .br-entity-tab__content strong {
+  color: var(--br-primary-active) !important;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__error {
+  position: absolute;
+  top: 0.22rem;
+  right: 0.26rem;
+  margin: 0;
+}
+
+@media (max-width: 991.98px) {
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-catalog-form-tabs__navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-catalog-form-tabs__step-control {
+    display: inline-grid;
+    flex: 0 0 1.55rem;
+    width: 1.55rem;
+    height: 1.55rem;
+    padding: 0;
+    border: 1px solid var(--br-border-cool);
+    border-radius: 50%;
+    background: var(--br-white);
+    color: var(--br-primary-active);
+    font-size: 0.62rem;
+    place-items: center;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-catalog-form-tabs__step-control:hover:not(:disabled) {
+    border-color: var(--br-primary);
+    background: var(--br-primary-soft);
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-catalog-form-tabs__step-control:focus-visible {
+    outline: 2px solid var(--br-primary);
+    outline-offset: 2px;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-catalog-form-tabs__step-control:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs,
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs--five {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    min-width: 0;
+    margin: 0;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0.15rem;
+    padding: 0.15rem 0.15rem 0.35rem;
+  }
+
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link,
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+    flex: 0 0 10.25rem;
+    min-width: 10.25rem;
+    height: 3.12rem;
+    min-height: 3.12rem;
+  }
+}

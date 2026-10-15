@@ -11,6 +11,7 @@
                         :has-errors="tabHasErrors"
                         :id-prefix="modalId"
                         :controls-prefix="modalId"
+                        variant="descriptive"
                         label="Secciones del producto"/>
 
                     <form @submit.prevent="saveEntity">

@@ -70,6 +70,36 @@ test("los tres editores comparten pestañas accesibles y navegables en móvil", 
 
 });
 
+test("producto usa pestañas descriptivas con iconos y conserva la variante compacta en otros editores", () => {
+
+    const product = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
+    const config = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/productFormConfig.js", import.meta.url), "utf8");
+    const tabConfig = config.split("export const FORM_FIELDS")[0];
+    const tabs = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/System/br-branding/99-system-wide-visual-polish.css", import.meta.url), "utf8");
+
+    assert.match(product, /<CatalogFormTabs[\s\S]*?variant="descriptive"/);
+    assert.match(tabs, /variant: \{type: String, default: "compact"\}/);
+    assert.match(tabs, /<small v-if="variant === 'descriptive' && tab\.description">/);
+    assert.match(tabs, /class="br-entity-tab__icon" aria-hidden="true"/);
+    assert.match(tabs, /<strong>[\s\S]*?class="br-entity-tab__icon"[\s\S]*?\{\{ tab\.label \}\}[\s\S]*?<\/strong>/);
+    assert.match(tabs, /aria-label="Pestaña anterior"/);
+    assert.match(tabs, /aria-label="Pestaña siguiente"/);
+    assert.match(tabs, /selectAdjacentTab\(direction\)/);
+    assert.equal([...tabConfig.matchAll(/description: "/g)].length, 5);
+    assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 5);
+    assert.match(branding, /\.br-catalog-form-tabs--descriptive[\s\S]*?scroll-snap-type: x proximity/);
+
+    for(const module of modules) {
+
+        const source = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
+
+        assert.doesNotMatch(source, /variant="descriptive"/);
+
+    }
+
+});
+
 function assertFieldOrder(source, modelPrefix, fields) {
 
     const positions = fields.map(field => source.indexOf(`v-model="${modelPrefix}.${field}"`));
@@ -212,7 +242,7 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
     assert.match(component, /<CatalogFormTabs[\s\S]*?:tabs="formTabs"/);
     assert.match(readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8"), /'br-entity-tabs--five': tabs\.length === 5/);
     assert.match(config, /id: "attributes",\s+label: "DETALLE"/);
-    assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",\s+fields: \["expires_at", "commission_type", "commission_value"\]/);
+    assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",[\s\S]*?fields: \["expires_at", "commission_type", "commission_value"\]/);
     assert.match(config, /expiresAt: "Disponible hasta"/);
     assert.deepEqual([...config.matchAll(/id: "(general|attributes|inventory|taxes|configuration)"/g)].map(match => match[1]), ["general", "attributes", "inventory", "taxes", "configuration"]);
 
