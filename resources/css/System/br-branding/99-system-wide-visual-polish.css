@@ -1230,6 +1230,10 @@ body > .vs__dropdown-menu,
   --br-entity-modal-tabs-content-space-y: 0.7rem;
 }
 
+.br-entity-modal--tabbed:has(.br-catalog-form-tabs--descriptive) .br-entity-form-section {
+  animation: none;
+}
+
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive {
   padding-block: 1.2rem 0.45rem;
 }
@@ -1257,6 +1261,7 @@ body > .vs__dropdown-menu,
   background: transparent !important;
   color: var(--br-secondary) !important;
   text-align: left;
+  transition: border-color 90ms ease, background-color 90ms ease, color 90ms ease;
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
@@ -1380,5 +1385,11 @@ body > .vs__dropdown-menu,
     min-width: 10.25rem;
     height: 3.12rem;
     min-height: 3.12rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
+    transition: none;
   }
 }

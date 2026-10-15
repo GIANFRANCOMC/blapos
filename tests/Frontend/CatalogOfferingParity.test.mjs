@@ -86,9 +86,12 @@ test("producto usa pestañas descriptivas con iconos y conserva la variante comp
     assert.match(tabs, /aria-label="Pestaña anterior"/);
     assert.match(tabs, /aria-label="Pestaña siguiente"/);
     assert.match(tabs, /selectAdjacentTab\(direction\)/);
+    assert.match(tabs, /scrollTo\(\{left, behavior: "auto"\}\)/);
     assert.equal([...tabConfig.matchAll(/description: "/g)].length, 5);
     assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 5);
     assert.match(branding, /\.br-catalog-form-tabs--descriptive[\s\S]*?scroll-snap-type: x proximity/);
+    assert.doesNotMatch(branding, /:has\(\.br-catalog-form-tabs--descriptive\) \.modal-dialog-centered/);
+    assert.match(branding, /:has\(\.br-catalog-form-tabs--descriptive\) \.br-entity-form-section\s*\{[^}]*animation: none/);
 
     for(const module of modules) {
 

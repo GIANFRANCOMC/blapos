@@ -190,7 +190,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El selector de Marca permite limpiar la relación y muestra únicamente marcas activas.
 - Los selectores reutilizan una `X` tipográfica compacta y centrada ópticamente con la flecha para limpiar valores, evitando deformaciones del SVG y manteniendo un área clicable cómoda.
 - Las cinco pestañas comparten el ancho del modal. El icono acompaña al título y la descripción ocupa la línea completa, permitiendo mayor separación entre pestañas. Cada una tiene un contorno tenue; la activa usa borde e icono primary sin fondo circular y una sombra breve. En anchos reducidos, el grupo se desplaza horizontalmente sin comprimir ni truncar títulos.
-- El modal utiliza el desplazamiento natural de Bootstrap, sin `modal-dialog-scrollable`; la navegación `nav-pills` permanece en el flujo del formulario para impedir que los campos pasen visualmente por detrás.
+- El modal permanece centrado y utiliza el desplazamiento natural de Bootstrap, sin `modal-dialog-scrollable`; la navegación `nav-pills` permanece en el flujo del formulario para impedir que los campos pasen visualmente por detrás. Con la variante descriptiva, el contenido de cada pestaña aparece sin animación para agilizar el cambio de sección.
 - Al existir errores, se marca la pestaña afectada y se abre automáticamente la primera que requiere corrección.
 - Cada apertura reemplaza completamente los datos del formulario y genera nuevos códigos al crear, evitando mezclar información entre creación y edición.
 - El cierre, Cancelar y el evento `hidden.bs.modal` limpian datos, errores y pestaña activa.

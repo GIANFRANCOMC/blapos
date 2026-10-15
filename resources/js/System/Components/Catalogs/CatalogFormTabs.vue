@@ -86,9 +86,9 @@ export default {
                 const right = left + selected.offsetWidth;
 
                 if(left < tabList.scrollLeft) {
-                    tabList.scrollTo({left, behavior: "smooth"});
+                    tabList.scrollTo({left, behavior: "auto"});
                 } else if(right > tabList.scrollLeft + tabList.clientWidth) {
-                    tabList.scrollTo({left: right - tabList.clientWidth, behavior: "smooth"});
+                    tabList.scrollTo({left: right - tabList.clientWidth, behavior: "auto"});
                 }
 
             });

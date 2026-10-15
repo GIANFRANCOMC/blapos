@@ -29,8 +29,8 @@
       "resources/js/System/Helpers/Constants.js"
     ]
   },
-  "_CatalogFormTabs-BQngOYoh.js": {
-    "file": "assets/CatalogFormTabs-BQngOYoh.js",
+  "_CatalogFormTabs-Cg6y7ajd.js": {
+    "file": "assets/CatalogFormTabs-Cg6y7ajd.js",
     "name": "CatalogFormTabs",
     "imports": [
       "__plugin-vue_export-helper-BUspUbiv.js"
@@ -332,7 +332,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-C0bVUTa7.css",
+    "file": "assets/platform-Hd4BPb0W.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -383,7 +383,7 @@
     ]
   },
   "resources/js/System/Components/Catalogs/Products/ProductEditor.vue": {
-    "file": "assets/ProductEditor-CSubfB6s.js",
+    "file": "assets/ProductEditor-Bv7VeSLJ.js",
     "name": "ProductEditor",
     "src": "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
     "isDynamicEntry": true,
@@ -396,7 +396,7 @@
       "_NumberUtils-D9lizcBO.js",
       "_CatalogReferenceOptions-BbdQSSKB.js",
       "__plugin-vue_export-helper-BUspUbiv.js",
-      "_CatalogFormTabs-BQngOYoh.js",
+      "_CatalogFormTabs-Cg6y7ajd.js",
       "_FormModal-wze80rjI.js",
       "_FiltersSection-Dangz4xu.js",
       "_InputText-DZxqqI_Q.js",
@@ -577,7 +577,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/products/main.js": {
-    "file": "assets/main-CcYJZ_EV.js",
+    "file": "assets/main-CvWuRPPP.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/products/main.js",
     "isEntry": true,
@@ -612,7 +612,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/services/main.js": {
-    "file": "assets/main-CKLknJW_.js",
+    "file": "assets/main-DIAX78IF.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/services/main.js",
     "isEntry": true,
@@ -626,7 +626,7 @@
       "_NumberUtils-D9lizcBO.js",
       "_InternalCodePrefixMixin-B7kflBMB.js",
       "_FormModal-wze80rjI.js",
-      "_CatalogFormTabs-BQngOYoh.js",
+      "_CatalogFormTabs-Cg6y7ajd.js",
       "_TableActionsDropdown-Dq9Gtprg.js",
       "_CatalogReferenceOptions-BbdQSSKB.js",
       "_FiltersSection-Dangz4xu.js",
@@ -647,7 +647,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/subscriptions/main.js": {
-    "file": "assets/main-_hq1cUJj.js",
+    "file": "assets/main-gsT-XhGV.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/subscriptions/main.js",
     "isEntry": true,
@@ -661,7 +661,7 @@
       "_NumberUtils-D9lizcBO.js",
       "_InternalCodePrefixMixin-B7kflBMB.js",
       "_FormModal-wze80rjI.js",
-      "_CatalogFormTabs-BQngOYoh.js",
+      "_CatalogFormTabs-Cg6y7ajd.js",
       "_TableActionsDropdown-Dq9Gtprg.js",
       "_CatalogReferenceOptions-BbdQSSKB.js",
       "_FiltersSection-Dangz4xu.js",
@@ -682,7 +682,7 @@
     ]
   },
   "resources/js/System/Pages/Customers/customers/main.js": {
-    "file": "assets/main-Y0OFox_3.js",
+    "file": "assets/main-vd3bW-Ef.js",
     "name": "main",
     "src": "resources/js/System/Pages/Customers/customers/main.js",
     "isEntry": true,
@@ -692,7 +692,7 @@
       "_ModuleFactory-DUIpYBk0.js",
       "_Forms-BVQ_o2Ck.js",
       "_Constants-Bv-EX_2C.js",
-      "_CatalogFormTabs-BQngOYoh.js",
+      "_CatalogFormTabs-Cg6y7ajd.js",
       "_CatalogReferenceImportModal-Bz22PfNt.js",
       "_CopyButton-Bwe9E5uO.js",
       "_FormModal-wze80rjI.js",
@@ -1251,7 +1251,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/users/main.js": {
-    "file": "assets/main-DlApQsVv.js",
+    "file": "assets/main-C225wJsp.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/users/main.js",
     "isEntry": true,
@@ -1262,7 +1262,7 @@
       "_Forms-BVQ_o2Ck.js",
       "_Constants-Bv-EX_2C.js",
       "_StringUtils-CVLsoc6G.js",
-      "_CatalogFormTabs-BQngOYoh.js",
+      "_CatalogFormTabs-Cg6y7ajd.js",
       "_CatalogReferenceImportModal-Bz22PfNt.js",
       "_FormModal-wze80rjI.js",
       "_TableActionsDropdown-Dq9Gtprg.js",
