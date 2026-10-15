@@ -352,7 +352,7 @@
               show: true,
               value: {
                 fontSize: '1.375rem',
-                fontFamily: 'Public Sans',
+                fontFamily: 'Inter',
                 color: headingColor,
                 fontWeight: 500,
                 offsetY: -15,
@@ -362,7 +362,7 @@
               },
               name: {
                 offsetY: 20,
-                fontFamily: 'Public Sans'
+                fontFamily: 'Inter'
               },
               total: {
                 show: true,
@@ -370,7 +370,7 @@
                 color: config.colors.success,
                 fontSize: '.8125rem',
                 label: 'Total',
-                fontFamily: 'Public Sans',
+                fontFamily: 'Inter',
                 formatter: function (w) {
                   return '184';
                 }
@@ -459,7 +459,7 @@
         show: true,
         horizontalAlign: 'right',
         position: 'top',
-        fontFamily: 'Public Sans',
+        fontFamily: 'Inter',
         markers: {
           height: 12,
           width: 12,
@@ -488,7 +488,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         },
         axisTicks: {
@@ -504,7 +504,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         },
         min: -200,

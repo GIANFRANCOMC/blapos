@@ -174,7 +174,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         }
       },
@@ -230,14 +230,14 @@
               color: labelColor,
               fontSize: '13px',
               fontWeight: '400',
-              fontFamily: 'Public Sans'
+              fontFamily: 'Inter'
             },
             value: {
               offsetY: 10,
               color: headingColor,
               fontSize: '38px',
               fontWeight: '500',
-              fontFamily: 'Public Sans'
+              fontFamily: 'Inter'
             }
           }
         }

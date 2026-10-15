@@ -11,8 +11,9 @@
 }
 
 * { box-sizing: border-box; }
-body.platform-body { margin: 0; background: radial-gradient(circle at 88% 0%, #e7f3fc 0, transparent 30rem), var(--platform-bg); color: var(--platform-ink); font-family: "Public Sans", sans-serif; }
+body.platform-body { margin: 0; background: radial-gradient(circle at 88% 0%, #e7f3fc 0, transparent 30rem), var(--platform-bg); color: var(--platform-ink); font-family: "Inter", sans-serif; font-weight: 400; }
 button, input, select, textarea { font: inherit; }
+button, .btn { font-weight: 600; }
 .platform-shell, .platform-app { min-height: 100vh; }
 .platform-reset-button { border: 0; background: none; }
 

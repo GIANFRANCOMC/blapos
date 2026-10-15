@@ -205,7 +205,8 @@
 
 .br-inventory__product-identifiers strong {
     color: var(--br-secondary);
-    font-family: var(--bs-font-monospace);
+    font-family: var(--br-font-sans);
+    font-variant-numeric: tabular-nums;
     font-size: 0.67rem;
     font-weight: 600;
 }

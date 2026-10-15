@@ -32,6 +32,10 @@
  * [br] Tokens CSS — variables globales (--br-*)
  * ------------------------------------------------------------------------- */
 :root {
+  --br-font-sans: "Inter", sans-serif;
+  --bs-font-sans-serif: var(--br-font-sans);
+  --bs-body-font-family: var(--br-font-sans);
+
   /* Primario — azul marca */
   --br-primary: #2899e5;
   --br-primary-hover: #218bd1;
@@ -75,13 +79,13 @@
   --br-surface-soft: #f9fbfd;
   --br-surface-subtle: #fbfdff;
   --br-surface-cool: #f1f8fd;
-  --br-modal-surface: #f9fbfd;
-  --br-modal-chrome-surface: #f5f8fb;
+  --br-modal-surface: #fbfcfe;
+  --br-modal-chrome-surface: #f1f5f9;
   --br-modal-close-muted: color-mix(in srgb, var(--br-danger) 65%, var(--br-text-muted));
   --br-border: #dfe7ef;
   --br-border-strong: #bdcad8;
-  --br-text: #263243;
-  --br-text-muted: #66758a;
+  --br-text: #1e293b;
+  --br-text-muted: #64748b;
   --br-text-placeholder: #98a6b7;
   --br-white: #ffffff;
   --br-black: #000000;
@@ -270,6 +274,53 @@
   --br-memberships-meta-bg: color-mix(in srgb, var(--br-secondary-soft) 55%, transparent);
   --br-memberships-origin-fg: var(--br-secondary);
   --br-memberships-origin-icon: var(--br-primary);
+}
+
+/* Source: resources/css/System/br-branding/01-typography.css */
+/* Inter es la única tipografía de interfaz. Los iconos conservan sus propias fuentes. */
+body,
+button,
+input,
+select,
+textarea,
+.select2-container,
+.v-select,
+.swal2-popup,
+.tooltip,
+.popover,
+.toast,
+.dropdown-menu {
+  font-family: var(--br-font-sans);
+}
+
+body,
+input,
+select,
+textarea {
+  font-weight: 400;
+}
+
+body {
+  color: var(--br-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.modal-title,
+.card-title {
+  font-weight: 700;
+}
+
+button,
+.btn,
+.br-btn,
+.form-label,
+.form-check-label {
+  font-weight: 600;
 }
 
 /* Source: resources/css/System/br-branding/10-tables-breadcrumb-filters.css */
@@ -664,7 +715,7 @@ body.br-layout .form-label {
   content: "\00d7";
   display: block;
   color: currentColor;
-  font-family: Arial, sans-serif;
+  font-family: var(--br-font-sans);
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1;
@@ -6784,7 +6835,7 @@ body.br-layout .form-label,
   margin-bottom: 0.16rem;
   color: color-mix(in srgb, var(--br-secondary) 64%, var(--br-text-muted));
   font-size: var(--br-font-size-label);
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.15;
 }
 
@@ -11342,7 +11393,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     border-radius: 4px;
     background: var(--br-surface);
     color: var(--br-text);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--br-font-sans);
     font-size: 0.75rem;
     font-weight: 700;
     overflow-wrap: anywhere;
@@ -11359,7 +11410,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     border-radius: 4px;
     background: color-mix(in srgb, var(--br-primary-soft) 32%, var(--br-white));
     color: var(--br-secondary);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--br-font-sans);
     font-size: 0.75rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -11682,8 +11733,8 @@ body.br-layout .br-entity-table > thead > tr > th {
     box-shadow: none;
 }
 
-.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link.active,
-.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+.br-entity-modal--tabbed:not(:has(.br-catalog-form-tabs--descriptive)) .br-entity-tabs.nav-pills .br-entity-tab.nav-link.active,
+.br-entity-modal--tabbed:not(:has(.br-catalog-form-tabs--descriptive)) .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
     border: 2.5px solid var(--br-primary);
 }
 
@@ -12345,7 +12396,8 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory__product-identifiers strong {
     color: var(--br-secondary);
-    font-family: var(--bs-font-monospace);
+    font-family: var(--br-font-sans);
+    font-variant-numeric: tabular-nums;
     font-size: 0.67rem;
     font-weight: 600;
 }
@@ -16910,7 +16962,8 @@ body.br-layout .br-entity-table > thead > tr > th {
 .br-sensitive-credential-box strong,
 .br-credential-box strong {
   color: var(--br-secondary);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family: var(--br-font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
   font-weight: 750;
   line-height: 1.35;
@@ -19014,12 +19067,12 @@ body > .vs__dropdown-menu,
   height: 3.12rem;
   min-height: 3.12rem;
   padding: 0.42rem 0.62rem;
-  border: 1px solid color-mix(in srgb, var(--br-border-cool) 72%, var(--br-white));
+  border: 1px solid color-mix(in srgb, var(--br-border-cool) 78%, var(--br-white));
   border-radius: 0.65rem;
-  background: transparent !important;
+  background: color-mix(in srgb, var(--br-white) 82%, var(--br-modal-chrome-surface)) !important;
   color: var(--br-secondary) !important;
   text-align: left;
-  transition: border-color 90ms ease, background-color 90ms ease, color 90ms ease;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
@@ -19029,19 +19082,25 @@ body > .vs__dropdown-menu,
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
-  border: 1px solid color-mix(in srgb, var(--br-primary) 65%, var(--br-white));
-  background: var(--br-white) !important;
+  border: 1px solid var(--br-primary-muted);
+  background: color-mix(in srgb, var(--br-primary-soft) 27%, var(--br-white)) !important;
   color: var(--br-primary-active) !important;
-  box-shadow: 0 2px 7px color-mix(in srgb, var(--br-secondary) 7%, transparent);
+  box-shadow: inset 0 -2px 0 var(--br-primary), 0 2px 5px color-mix(in srgb, var(--br-secondary) 5%, transparent);
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__icon {
   display: inline-grid;
-  flex: 0 0 0.7rem;
-  width: 0.7rem;
-  height: 1rem;
+  position: absolute;
+  top: 50%;
+  left: 0.62rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  transform: translateY(-50%);
+  border: 1px solid var(--br-border-subtle);
+  border-radius: 0.4rem;
+  background: var(--br-white);
   color: var(--br-text-muted);
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   place-items: center;
 }
 
@@ -19050,7 +19109,9 @@ body > .vs__dropdown-menu,
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab.nav-link.is-active .br-entity-tab__icon {
-  color: var(--br-primary-active);
+  border-color: var(--br-primary);
+  background: var(--br-primary);
+  color: var(--br-on-primary);
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__content {
@@ -19058,6 +19119,7 @@ body > .vs__dropdown-menu,
   flex: 1 1 auto;
   gap: 0.1rem;
   min-width: 0;
+  padding-left: 2rem;
   text-align: left;
 }
 
@@ -19067,7 +19129,7 @@ body > .vs__dropdown-menu,
   gap: 0.38rem;
   color: var(--br-secondary) !important;
   font-size: 0.64rem;
-  font-weight: 650;
+  font-weight: 700;
   letter-spacing: 0.01em;
 }
 
@@ -19075,6 +19137,7 @@ body > .vs__dropdown-menu,
   margin: 0;
   color: var(--br-text-muted);
   font-size: 0.56rem;
+  font-weight: 400;
   line-height: 1.15;
 }
 

@@ -11,9 +11,7 @@
     <link rel="icon" type="image/png" href="{{ asset('System/assets/img/utils/owner_app/logomark.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('System/assets/img/utils/owner_app/logomark.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('System/assets/img/utils/owner_app/logomark.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @include("shared.font-inter")
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/core.css') }}">
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/fontawesome.css') }}">
     @vite('resources/css/Platform/app.css')

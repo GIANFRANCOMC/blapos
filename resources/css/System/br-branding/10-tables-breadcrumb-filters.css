@@ -389,7 +389,7 @@ body.br-layout .form-label {
   content: "\00d7";
   display: block;
   color: currentColor;
-  font-family: Arial, sans-serif;
+  font-family: var(--br-font-sans);
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1;

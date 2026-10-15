@@ -77,7 +77,7 @@
               show: true,
               value: {
                 fontSize: '1.5rem',
-                fontFamily: 'Public Sans',
+                fontFamily: 'Inter',
                 color: headingColor,
                 fontWeight: 500,
                 offsetY: -15,
@@ -87,7 +87,7 @@
               },
               name: {
                 offsetY: 20,
-                fontFamily: 'Public Sans'
+                fontFamily: 'Inter'
               },
               total: {
                 show: true,
@@ -161,7 +161,7 @@
           colors: ['#fff'],
           fontWeight: 200,
           fontSize: '13px',
-          fontFamily: 'Public Sans'
+          fontFamily: 'Inter'
         },
         formatter: function (val, opts) {
           return horizontalBarChartConfig.labels[opts.dataPointIndex];
@@ -201,7 +201,7 @@
         labels: {
           style: {
             colors: [labelColor],
-            fontFamily: 'Public Sans',
+            fontFamily: 'Inter',
             fontSize: '13px'
           }
         }
@@ -248,7 +248,7 @@
               offsetY: -10,
               fontSize: '15px',
               fontWeight: 500,
-              fontFamily: 'Public Sans',
+              fontFamily: 'Inter',
               color: headingColor
             }
           },

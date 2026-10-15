@@ -24,6 +24,10 @@
  * [br] Tokens CSS — variables globales (--br-*)
  * ------------------------------------------------------------------------- */
 :root {
+  --br-font-sans: "Inter", sans-serif;
+  --bs-font-sans-serif: var(--br-font-sans);
+  --bs-body-font-family: var(--br-font-sans);
+
   /* Primario — azul marca */
   --br-primary: #2899e5;
   --br-primary-hover: #218bd1;
@@ -67,13 +71,13 @@
   --br-surface-soft: #f9fbfd;
   --br-surface-subtle: #fbfdff;
   --br-surface-cool: #f1f8fd;
-  --br-modal-surface: #f9fbfd;
-  --br-modal-chrome-surface: #f5f8fb;
+  --br-modal-surface: #fbfcfe;
+  --br-modal-chrome-surface: #f1f5f9;
   --br-modal-close-muted: color-mix(in srgb, var(--br-danger) 65%, var(--br-text-muted));
   --br-border: #dfe7ef;
   --br-border-strong: #bdcad8;
-  --br-text: #263243;
-  --br-text-muted: #66758a;
+  --br-text: #1e293b;
+  --br-text-muted: #64748b;
   --br-text-placeholder: #98a6b7;
   --br-white: #ffffff;
   --br-black: #000000;

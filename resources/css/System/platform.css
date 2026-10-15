@@ -4,6 +4,7 @@
  * Cuando se migre el layout a @vite, este archivo ya concentra el mismo orden de parciales.
  */
 @import "./br-branding/00-tokens.css";
+@import "./br-branding/01-typography.css";
 @import "./br-branding/10-tables-breadcrumb-filters.css";
 @import "./br-branding/20-sales-tables-status.css";
 @import "./br-branding/30-modals-fields-forms.css";

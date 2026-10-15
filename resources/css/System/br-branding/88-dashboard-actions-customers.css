@@ -820,7 +820,8 @@
 .br-sensitive-credential-box strong,
 .br-credential-box strong {
   color: var(--br-secondary);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family: var(--br-font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
   font-weight: 750;
   line-height: 1.35;

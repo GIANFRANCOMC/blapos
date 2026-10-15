@@ -83,6 +83,12 @@ Los CSS de plantilla en `public/System/assets/vendor/css/core.css`, `public/Syst
 
 La plataforma usa una densidad visual compacta definida en `br-branding/70-visual-density-brand-refresh.css`: botones, inputs, labels, tablas, modales, badges y tooltips deben respetar esa escala. Si una pantalla se ve grande o pesada, ajustar primero variables como `--br-control-height`, `--br-btn-height`, `--br-font-size-ui` o `--br-table-cell-pad-y`, no crear tamaños locales por módulo.
 
+### Fuente de interfaz
+
+Inter es la única fuente de interfaz en System, Guest y Platform. Se carga una vez por página mediante `resources/views/shared/font-inter.blade.php`; `--br-font-sans` en `br-branding/00-tokens.css` y `fontFamily.sans` en Tailwind son sus puntos de configuración. Los controles, menús, modales y componentes de terceros heredan esta fuente desde `br-branding/01-typography.css`. La plantilla Bootstrap ya no declara Public Sans. Las fuentes de Font Awesome y Tabler Icons se conservan exclusivamente para iconos.
+
+Jerarquía de peso: títulos `700`, labels/subtítulos y botones `600`, texto e inputs `400`. Mantener los tamaños compactos existentes: cambiar la familia tipográfica no autoriza ampliar controles ni alterar espaciados. En códigos, importes y reloj usar `font-variant-numeric: tabular-nums` cuando sea útil alinear cifras, sin recurrir a otra familia. Los correos y PDF conservan fuentes seguras para sus respectivos clientes/renderizadores, donde Google Fonts no está garantizado.
+
 ### Convención tipográfica de tablas
 
 La escala compartida se declara en `resources/css/System/br-branding/00-tokens.css` y se aplica desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
@@ -117,7 +123,8 @@ Criterios prácticos:
 - Los estados vacíos y loaders deben usar componentes compartidos (`WithoutData`, `Loader`) para evitar estilos distintos por módulo.
 - Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
 - Las modales conservan `modal-dialog-centered`. Apertura y cierre comparten duración y curva para el diálogo, la superficie y el fondo; respetar `prefers-reduced-motion`.
-- Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono forma parte de la línea del título y la descripción aprovecha el ancho completo. Cada tab conserva un contorno tenue y el activo remarca borde, título e icono sin fondo circular. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
+- Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono se alinea a la izquierda del título y la descripción. Cada tab conserva un contorno tenue; el activo usa un borde azul claro, un icono en recuadro primary y una línea inferior fina, sin el borde grueso de la variante compacta. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
+- Las modales comparten `--br-modal-chrome-surface` para encabezado y pie (gris azulado suave) y `--br-modal-surface` para el cuerpo (casi blanco). Ajustar estos tokens en `br-branding/00-tokens.css` para mantener contraste uniforme; no crear paletas de modal por módulo.
 
 ## Formularios
 

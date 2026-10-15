@@ -29,9 +29,7 @@
 <link rel="icon" type="image/x-icon" href="{{ $company->logomark ? asset('storage/'.$company->logomark) : asset(config("app.owner_app")->assets->img->logomark) }}"/>
 
 <!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&ampdisplay=swap" rel="stylesheet"/>
+@include("shared.font-inter")
 
 <!-- Icons -->
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/tabler-icons.css') }}" />
@@ -57,7 +55,7 @@
 
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/select2/select2.css') }}" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/bootstrap-select/bootstrap-select.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/css/br-branding.css') }}" />
+<link rel="stylesheet" href="{{ asset("System/assets/css/br-branding.css") }}?v={{ filemtime(public_path("System/assets/css/br-branding.css")) }}" />
 
 <!-- Helpers -->
 <script src="{{ asset('System/assets/vendor/js/helpers.js') }}"></script>

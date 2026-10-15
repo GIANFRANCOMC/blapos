@@ -120,7 +120,8 @@ export default {
 
 <style scoped>
 .digital-clock {
-    font-family: "Courier New", Courier, monospace;
+    font-family: var(--br-font-sans);
+    font-variant-numeric: tabular-nums;
     background-color: #000;
     color: #0f0;
     font-weight: bold;

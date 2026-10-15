@@ -98,7 +98,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         }
       },
@@ -154,14 +154,14 @@
               color: labelColor,
               fontSize: '13px',
               fontWeight: '400',
-              fontFamily: 'Public Sans'
+              fontFamily: 'Inter'
             },
             value: {
               offsetY: 10,
               color: headingColor,
               fontSize: '38px',
               fontWeight: '500',
-              fontFamily: 'Public Sans'
+              fontFamily: 'Inter'
             }
           }
         }
@@ -298,7 +298,7 @@
           style: {
             colors: [labelColor, labelColor, labelColor, labelColor, labelColor, labelColor],
             fontSize: '13px',
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         }
       },
@@ -379,7 +379,7 @@
         show: true,
         horizontalAlign: 'right',
         position: 'top',
-        fontFamily: 'Public Sans',
+        fontFamily: 'Inter',
         markers: {
           height: 12,
           width: 12,
@@ -408,7 +408,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         },
         axisTicks: {
@@ -424,7 +424,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         },
         min: -200,
@@ -736,7 +736,7 @@
           fontSize: '15px',
           colors: [legendColor],
           fontWeight: '500',
-          fontFamily: 'Public Sans'
+          fontFamily: 'Inter'
         }
       },
       series: [
@@ -763,7 +763,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         }
       },
@@ -776,7 +776,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           },
           min: 0,
           max: 60000,
@@ -1097,7 +1097,7 @@
           colors: ['#fff'],
           fontWeight: 200,
           fontSize: '13px',
-          fontFamily: 'Public Sans'
+          fontFamily: 'Inter'
         },
         formatter: function (val, opts) {
           return horizontalBarChartConfig.labels[opts.dataPointIndex];
@@ -1137,7 +1137,7 @@
         labels: {
           style: {
             colors: [labelColor],
-            fontFamily: 'Public Sans',
+            fontFamily: 'Inter',
             fontSize: '13px'
           }
         }
@@ -1213,7 +1213,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans',
+            fontFamily: 'Inter',
             fontWeight: 400
           }
         },
@@ -1232,7 +1232,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans',
+            fontFamily: 'Inter',
             fontWeight: 400
           },
           formatter: function (val) {
@@ -1256,7 +1256,7 @@
           vertical: 0
         },
         fontSize: '13px',
-        fontFamily: 'Public Sans',
+        fontFamily: 'Inter',
         fontWeight: 400,
         labels: {
           colors: headingColor,
@@ -1349,7 +1349,7 @@
           vertical: 5
         },
         fontSize: '13px',
-        fontFamily: 'Public Sans',
+        fontFamily: 'Inter',
         fontWeight: 400,
         labels: {
           colors: headingColor,
@@ -1372,7 +1372,7 @@
               show: true,
               value: {
                 fontSize: '26px',
-                fontFamily: 'Public Sans',
+                fontFamily: 'Inter',
                 color: headingColor,
                 fontWeight: 500,
                 offsetY: -30,
@@ -1382,7 +1382,7 @@
               },
               name: {
                 offsetY: 20,
-                fontFamily: 'Public Sans'
+                fontFamily: 'Inter'
               },
               total: {
                 show: true,

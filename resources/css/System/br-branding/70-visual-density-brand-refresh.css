@@ -100,7 +100,7 @@ body.br-layout .form-label,
   margin-bottom: 0.16rem;
   color: color-mix(in srgb, var(--br-secondary) 64%, var(--br-text-muted));
   font-size: var(--br-font-size-label);
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.15;
 }
 

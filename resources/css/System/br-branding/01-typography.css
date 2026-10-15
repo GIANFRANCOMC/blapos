@@ -1,0 +1,45 @@
+/* Inter es la única tipografía de interfaz. Los iconos conservan sus propias fuentes. */
+body,
+button,
+input,
+select,
+textarea,
+.select2-container,
+.v-select,
+.swal2-popup,
+.tooltip,
+.popover,
+.toast,
+.dropdown-menu {
+  font-family: var(--br-font-sans);
+}
+
+body,
+input,
+select,
+textarea {
+  font-weight: 400;
+}
+
+body {
+  color: var(--br-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.modal-title,
+.card-title {
+  font-weight: 700;
+}
+
+button,
+.btn,
+.br-btn,
+.form-label,
+.form-check-label {
+  font-weight: 600;
+}

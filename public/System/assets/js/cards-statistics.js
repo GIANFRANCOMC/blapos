@@ -1230,7 +1230,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           },
           show: true
         }
@@ -1399,7 +1399,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Public Sans'
+            fontFamily: 'Inter'
           }
         }
       },
@@ -1550,7 +1550,7 @@
               show: true,
               value: {
                 fontSize: '1.375rem',
-                fontFamily: 'Public Sans',
+                fontFamily: 'Inter',
                 color: headingColor,
                 fontWeight: 500,
                 offsetY: -15,
@@ -1560,7 +1560,7 @@
               },
               name: {
                 offsetY: 20,
-                fontFamily: 'Public Sans'
+                fontFamily: 'Inter'
               },
               total: {
                 show: true,
@@ -1568,7 +1568,7 @@
                 color: config.colors.success,
                 fontSize: '.8125rem',
                 label: 'Total',
-                fontFamily: 'Public Sans',
+                fontFamily: 'Inter',
                 formatter: function (w) {
                   return '184';
                 }

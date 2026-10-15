@@ -322,17 +322,17 @@
     ]
   },
   "resources/css/Platform/app.css": {
-    "file": "assets/app-DoBpdQer.css",
+    "file": "assets/app-4RGNzpib.css",
     "src": "resources/css/Platform/app.css",
     "isEntry": true
   },
   "resources/css/System/app.css": {
-    "file": "assets/app-DP4tXsW9.css",
+    "file": "assets/app-DORsXXQT.css",
     "src": "resources/css/System/app.css",
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-Nrwo8f71.css",
+    "file": "assets/platform-DwLiXa_a.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -721,7 +721,7 @@
     ]
   },
   "resources/js/System/Pages/Customers/tracking_attendances/main.js": {
-    "file": "assets/main-Cd927dUw.js",
+    "file": "assets/main-BbOJsZDm.js",
     "name": "main",
     "src": "resources/js/System/Pages/Customers/tracking_attendances/main.js",
     "isEntry": true,
@@ -746,7 +746,7 @@
       "_NumberUtils-D9lizcBO.js"
     ],
     "css": [
-      "assets/main-Dnaub-EJ.css"
+      "assets/main-DMvn-UXX.css"
     ]
   },
   "resources/js/System/Pages/Customers/tracking_customers/main.js": {
