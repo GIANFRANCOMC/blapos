@@ -741,7 +741,8 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->pluck("name")
             ->all();
 
-        $this->assertSame(["Maestras", "Clasificación", "Existencias", "Movimientos"], $groups);
+        $this->assertSame(["Inventario", "Maestras", "Clasificación"], $groups);
+        $this->assertDatabaseMissing("menu_groups", ["id" => 16]);
 
         $routes = DB::table("sub_sections")
             ->join("sections", "sections.id", "=", "sub_sections.section_id")
@@ -759,7 +760,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $this->assertCount(5, $routes);
         $this->assertSame(["Catálogo comercial"], $routes->pluck("world")->unique()->values()->all());
-        $this->assertSame(["Existencias", "Movimientos"], $routes->pluck("group_name")->unique()->values()->all());
+        $this->assertSame(["Inventario"], $routes->pluck("group_name")->unique()->values()->all());
         $this->assertSame([
             "stocks_management.stock.index",
             "stocks_management.transfers.index",
@@ -767,6 +768,19 @@ final class SystemNavigationProvisioningTest extends TestCase {
             "stocks_management.kardex.index",
             "stocks_management.valued.index",
         ], $routes->pluck("dom_route")->all());
+
+        $orderedGroups = DB::table("companies_sub_sections as company_modules")
+            ->join("sub_sections as modules", "modules.id", "=", "company_modules.sub_section_id")
+            ->join("menu_groups as groups", "groups.id", "=", "modules.menu_group_id")
+            ->where("company_modules.company_id", 1)
+            ->where("modules.section_id", 5)
+            ->orderBy("company_modules.sub_section_order")
+            ->pluck("groups.name")
+            ->unique()
+            ->values()
+            ->all();
+
+        $this->assertSame(["Inventario", "Maestras", "Clasificación"], $orderedGroups);
 
     }
 
@@ -881,7 +895,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_customer_attention_and_company_resources_are_grouped_in_their_parent_modules(): void {
+    public function test_customer_attention_remains_in_the_customer_world(): void {
 
         $customerSections = DB::table("sub_sections")
             ->join("sections", "sections.id", "=", "sub_sections.section_id")
@@ -895,22 +909,49 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->values()
             ->all();
 
-        $organizationSections = DB::table("sub_sections")
-            ->join("sections", "sections.id", "=", "sub_sections.section_id")
-            ->whereIn("sub_sections.dom_route", [
-                "users.index",
-                "user_attendances.index",
-                "companies.index",
-            ])
-            ->pluck("sections.dom_label")
-            ->unique()
-            ->values()
-            ->all();
-
         $this->assertSame(["Clientes"], $customerSections);
-        $this->assertSame(["Mi organización"], $organizationSections);
         $this->assertFalse(DB::table("sections")->where("dom_label", "Atención al cliente")->exists());
         $this->assertFalse(DB::table("sections")->where("dom_label", "Colaboradores")->exists());
+
+    }
+
+    public function test_configuration_contains_all_organization_resources_in_group_order(): void {
+
+        $this->assertDatabaseMissing("sections", ["slug" => "sc_infrastructure"]);
+        $this->assertSame(1, DB::table("sections")->where("menu_category_id", 4)->count());
+        $this->assertDatabaseMissing("menu_groups", ["id" => 17]);
+        $this->assertDatabaseMissing("menu_groups", ["id" => 18]);
+
+        $groups = DB::table("menu_groups")
+            ->where("section_id", 7)
+            ->orderBy("order")
+            ->pluck("name")
+            ->all();
+
+        $this->assertSame(["Organización", "Activos", "Accesos", "Datos maestros"], $groups);
+
+        $expectedRoutes = [
+            "companies.index",
+            "branches.index",
+            "users.index",
+            "user_attendances.index",
+            "assets.index",
+            "assets_management.index",
+            "biometric_devices.index",
+            "roles.index",
+            "master_data.index",
+            "business_profile.index",
+        ];
+
+        $orderedRoutes = DB::table("companies_sub_sections as company_modules")
+            ->join("sub_sections as modules", "modules.id", "=", "company_modules.sub_section_id")
+            ->where("company_modules.company_id", 1)
+            ->where("modules.section_id", 7)
+            ->orderBy("company_modules.sub_section_order")
+            ->pluck("modules.dom_route")
+            ->all();
+
+        $this->assertSame($expectedRoutes, $orderedRoutes);
 
     }
 

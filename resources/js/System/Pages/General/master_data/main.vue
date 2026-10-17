@@ -370,7 +370,7 @@ export default {
                     page: {
                         title: "Maestros internos",
                         active: true,
-                        menu: {id: "menu-configuration-master_data"}
+                        menu: {id: "menu-configuration-master-data"}
                     }
                 }
             }

@@ -337,7 +337,7 @@
     "isEntry": true
   },
   "resources/css/System/app.css": {
-    "file": "assets/app-DORsXXQT.css",
+    "file": "assets/app-D4j92iWw.css",
     "src": "resources/css/System/app.css",
     "isEntry": true
   },
@@ -469,7 +469,7 @@
     ]
   },
   "resources/js/System/Pages/Assets/assets/main.js": {
-    "file": "assets/main-CqzUZk4D.js",
+    "file": "assets/main-D_a_gAnu.js",
     "name": "main",
     "src": "resources/js/System/Pages/Assets/assets/main.js",
     "isEntry": true,
@@ -499,7 +499,7 @@
     ]
   },
   "resources/js/System/Pages/Assets/assets_management/main.js": {
-    "file": "assets/main-CnoPgrt7.js",
+    "file": "assets/main-Vwglv1KJ.js",
     "name": "main",
     "src": "resources/js/System/Pages/Assets/assets_management/main.js",
     "isEntry": true,
@@ -835,7 +835,7 @@
     ]
   },
   "resources/js/System/Pages/Devices/biometric_devices/main.js": {
-    "file": "assets/main-Bwxlqh0G.js",
+    "file": "assets/main-dMYqjOtO.js",
     "name": "main",
     "src": "resources/js/System/Pages/Devices/biometric_devices/main.js",
     "isEntry": true,
@@ -1076,7 +1076,7 @@
     ]
   },
   "resources/js/System/Pages/General/master_data/main.js": {
-    "file": "assets/main-bW6K5liw.js",
+    "file": "assets/main-DZlgHqS2.js",
     "name": "main",
     "src": "resources/js/System/Pages/General/master_data/main.js",
     "isEntry": true,
@@ -1143,7 +1143,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/branches/main.js": {
-    "file": "assets/main-BmufWxcx.js",
+    "file": "assets/main-ye5kq7kK.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/branches/main.js",
     "isEntry": true,
@@ -1186,7 +1186,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/companies/main.js": {
-    "file": "assets/main-Ihmco9l9.js",
+    "file": "assets/main-Ju7NKzq-.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/companies/main.js",
     "isEntry": true,
@@ -1246,7 +1246,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/user_attendances/main.js": {
-    "file": "assets/main-CspuyO8a.js",
+    "file": "assets/main-BXXnR2cr.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/user_attendances/main.js",
     "isEntry": true,
@@ -1263,7 +1263,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/users/main.js": {
-    "file": "assets/main-CT93uTL6.js",
+    "file": "assets/main-CV4HSkKr.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/users/main.js",
     "isEntry": true,
@@ -1478,7 +1478,7 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/stocks_management/main.js": {
-    "file": "assets/main-BG7EAwyB.js",
+    "file": "assets/main-ClTC3SO9.js",
     "name": "main",
     "src": "resources/js/System/Pages/Warehouses/stocks_management/main.js",
     "isEntry": true,

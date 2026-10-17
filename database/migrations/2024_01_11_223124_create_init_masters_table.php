@@ -170,8 +170,8 @@ return new class extends Migration {
             $table->id();
             $table->unsignedBigInteger("company_id");
             $table->unsignedBigInteger("sub_section_id");
-            $table->integer("section_order")->nullable();
-            $table->integer("sub_section_order")->nullable();
+            $table->integer("section_order")->nullable()->comment("Orden compuesto de categoría y sección");
+            $table->integer("sub_section_order")->nullable()->comment("Orden compuesto de grupo y opción");
             $table->enum("status", ["active", "inactive"])->default("active");
 
             $table->timestamp("created_at")->useCurrent()->nullable();

@@ -380,7 +380,7 @@ import * as Utils from "@System/Helpers/Utils.js";
 
 const MODULE_CONFIG = {
     entity: "biometric_devices",
-    menuId: "menu-infrastructure-biometric_devices",
+    menuId: "menu-configuration-biometric-devices",
     pageTitle: "Dispositivos biométricos",
     pageTitleSingular: "Dispositivo biométrico",
     breadcrumbParent: "Infraestructura",
@@ -521,7 +521,7 @@ export default {
     },
     mounted: async function() {
 
-        Utils.navbarItem("menu-parent-infrastructure", {addClass: "open"});
+        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         Alerts.swals({type: "initParams"});

@@ -63,7 +63,7 @@ Los siguientes módulos nacen desactivados:
 - POS restaurante.
 - Historial, Membresías, Asistencias de clientes, Notificaciones y Libro de reclamaciones del mundo Clientes.
 - Membresías y Recetas y platillos del Catálogo comercial.
-- Activos, Gestión de activos, Dispositivos biométricos y Asistencia del personal de Mi organización.
+- Activos, Gestión de activos, Dispositivos biométricos y Asistencia del personal de Configuración.
 
 La autorización siempre intersecta los permisos con los módulos habilitados para la empresa. Al desactivar un módulo se eliminan también sus registros en `role_sub_sections`, se invalidan las cachés de navegación y autorización, y una ruta principal catalogada se resuelve de forma exacta. No puede heredar acceso de otro módulo activo que comparta prefijo, por ejemplo otro `sales.*`. Los roles de acceso completo recuperan el módulo al reactivarlo; los roles restringidos deben recibir nuevamente el permiso de forma explícita.
 

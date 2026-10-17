@@ -35,12 +35,11 @@ El servicio carga categoría y grupo, aplica el orden empresarial y genera la UR
    - Clientes.
    - Catálogo comercial.
 4. **Administración**
-   - Mi organización.
    - Configuración.
 
 ## Grupos y opciones
 
-Cuando una sección contiene más de un grupo, cada grupo se representa como un submenú desplegable real. No se muestra como un rótulo estático seguido de opciones planas. El grupo que contiene la ruta actual se abre automáticamente.
+Cuando una sección contiene más de un grupo, cada uno muestra un encabezado y sus opciones en una lista compacta. La opción actual se distingue visualmente sin expandir paneles adicionales.
 
 Los títulos de categoría tienen peso normal y tamaño reducido. `Principal` no dibuja encabezado. Su único mundo, `Mi espacio de trabajo`, agrupa Mi espacio, Menú y favoritos, Mi cuenta, Dashboard y Reportes dentro del panel contextual. En escritorio colapsado las demás categorías muestran únicamente sus tres primeros caracteres; al expandir o pasar el cursor recuperan el nombre completo.
 
@@ -51,8 +50,7 @@ En el riel principal, los iconos de los mundos se centran verticalmente entre la
 La cabecera contextual muestra únicamente el nombre del mundo. No repite el grupo, la página, la ruta completa ni muestra un icono decorativo.
 
 - **Clientes** agrupa Gestión, Membresías, Servicios y Atención al cliente.
-- **Mi organización** agrupa Empresa, Sedes, Activos y Colaboradores.
-- **Configuración** conserva Accesos y Datos maestros.
+- **Configuración** agrupa Organización, Activos, Accesos y Datos maestros; el mundo Mi organización ya no aparece por separado.
 
 ### Ventas
 
@@ -80,24 +78,18 @@ La cabecera contextual muestra únicamente el nombre del mundo. No repite el gru
 
 ### Catálogo comercial
 
+- **Inventario**: Control de stock, Traslados, Guías, Kardex, Kardex valorizado.
 - **Maestras**: Productos, Servicios, Membresías, Recetas y platillos.
 - **Clasificación**: Categorías, Marcas.
-- **Existencias**: Control de stock.
-- **Movimientos**: Traslados, Guías, Kardex, Kardex valorizado.
 
-El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y códigos técnicos de los grupos y rutas. Al volver a ejecutarse en un tenant existente, solo actualiza los títulos heredados de Maestras y Clasificación sin sobrescribir nombres personalizados.
+El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores de las rutas para no romper permisos ni favoritos. Al volver a ejecutarse en un tenant existente, solo actualiza los títulos heredados de Maestras y Clasificación sin sobrescribir nombres personalizados.
 
-Inventario ya no es un mundo independiente: sus cinco rutas, permisos y favoritos conservan sus identificadores y quedan organizados dentro de Catálogo comercial. Este orden inicial se aplica al recrear la base del tenant; no se ejecuta una migración de datos sobre tenants existentes.
-
-### Mi organización
-
-- **Empresa**: Mi empresa.
-- **Sedes**: Sucursales.
-- **Activos**: Activos, Gestión de activos, Dispositivos biométricos.
-- **Colaboradores**: Colaboradores, Asistencia del personal.
+Inventario ya no es un mundo independiente: es el primer grupo de Catálogo comercial. Sus cinco rutas, permisos y favoritos conservan sus identificadores. `menu_groups` contiene una única fila para los cinco accesos, sin grupos intermedios de Existencias o Movimientos. Este orden inicial se aplica al recrear la base del tenant; no se ejecuta una migración de datos sobre tenants existentes.
 
 ### Configuración
 
+- **Organización**: Mi empresa, Sucursales, Colaboradores, Asistencia del personal.
+- **Activos**: Activos, Gestión de activos, Dispositivos biométricos.
 - **Accesos**: Perfiles de acceso.
 - **Datos maestros**: Maestros internos, Rubro y módulos.
 
@@ -107,8 +99,8 @@ Inventario ya no es un mundo independiente: sus cinco rutas, permisos y favorito
 - `sections.order` ordena secciones dentro de la categoría.
 - `menu_groups.order` ordena grupos dentro de la sección.
 - `sub_sections.order` ordena opciones dentro del grupo.
-- `companies_sub_sections.section_order` y `sub_section_order` almacenan la proyección ordenada por organización.
-- `SystemCatalogSyncService` compone el orden de categoría y sección para impedir que se intercalen categorías con órdenes locales iguales.
+- `companies_sub_sections.section_order` y `sub_section_order` almacenan la proyección ordenada por organización; el segundo combina el orden del grupo con el de la opción para mantener juntos sus accesos.
+- `SystemCatalogSyncService` y la administración central usan el mismo cálculo para componer categoría, sección, grupo y opción; así los grupos no se intercalan al sincronizar o guardar módulos.
 
 ## Permisos y preferencias
 

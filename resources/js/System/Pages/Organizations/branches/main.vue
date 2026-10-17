@@ -321,7 +321,7 @@ import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 
 const MODULE_CONFIG = {
     entity: "branches",
-    menuId: "menu-infrastructure-branches",
+    menuId: "menu-configuration-branches",
     pageTitle: "Sucursales",
     pageTitleSingular: "Sucursal",
     internalCodeEntity: "branch",
@@ -464,7 +464,7 @@ export default {
     },
     mounted: async function() {
 
-        Utils.navbarItem("menu-parent-infrastructure", {addClass: "open"});
+        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         Alerts.swals({type: "initParams"});

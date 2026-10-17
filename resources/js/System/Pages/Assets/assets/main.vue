@@ -252,7 +252,7 @@ import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 
 const MODULE_CONFIG = {
     entity: "assets",
-    menuId: "menu-infrastructure-assets",
+    menuId: "menu-configuration-assets",
     pageTitle: "Activos",
     pageTitleSingular: "Activo",
     internalCodeEntity: "asset",
@@ -364,7 +364,7 @@ export default {
     },
     mounted: async function() {
 
-        Utils.navbarItem("menu-parent-infrastructure", {addClass: "open"});
+        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         Alerts.swals({type: "initParams"});

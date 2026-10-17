@@ -6,6 +6,7 @@ namespace App\Services\System\Tenancy;
 
 use App\Models\System\Tenancy\{TenantDatabase};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Support\System\{NavigationOrder};
 use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
@@ -66,18 +67,22 @@ final class PlatformTenantService {
             $modules = DB::table("sub_sections as ss")
                 ->join("sections as s", "s.id", "=", "ss.section_id")
                 ->join("menu_categories as mc", "mc.id", "=", "s.menu_category_id")
+                ->leftJoin("menu_groups as mg", "mg.id", "=", "ss.menu_group_id")
                 ->where("ss.status", "active")
                 ->get([
                     "ss.id", "ss.order as item_order", "s.order as section_order",
-                    "mc.order as category_order",
+                    "mc.order as category_order", "mg.order as group_order",
                 ]);
 
             $now = now();
             $records = $modules->map(fn($module) => [
                 "company_id" => $companyId,
                 "sub_section_id" => (int) $module->id,
-                "section_order" => ((int) $module->category_order * 100) + (int) $module->section_order,
-                "sub_section_order" => (int) $module->item_order,
+                "section_order" => NavigationOrder::section((int) $module->category_order, (int) $module->section_order),
+                "sub_section_order" => NavigationOrder::item(
+                    $module->group_order === null ? null : (int) $module->group_order,
+                    (int) $module->item_order
+                ),
                 "status" => $enabled->contains((int) $module->id) ? "active" : "inactive",
                 "created_at" => $now,
                 "updated_at" => $now,

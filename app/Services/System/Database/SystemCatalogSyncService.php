@@ -6,6 +6,7 @@ namespace App\Services\System\Database;
 
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
+use App\Support\System\{NavigationOrder};
 use Illuminate\Support\Facades\{DB, Schema};
 use Illuminate\Support\{Collection};
 use RuntimeException;
@@ -31,7 +32,7 @@ final class SystemCatalogSyncService {
 
             }
 
-            $this->syncCompanyAccess($categories, $sections, $items);
+            $this->syncCompanyAccess($categories, $sections, $groups, $items);
             CompanySectionService::clearTenantCache();
 
             return [
@@ -48,6 +49,7 @@ final class SystemCatalogSyncService {
     private function syncCompanyAccess(
         Collection $categories,
         Collection $sections,
+        Collection $groups,
         Collection $items
     ): void {
 
@@ -59,20 +61,33 @@ final class SystemCatalogSyncService {
 
             $categoryOrder = (int) ($categoryOrders[$section->menu_category_id] ?? 999);
 
-            return [$section->id => ($categoryOrder * 100) + (int) $section->order];
+            return [$section->id => NavigationOrder::section($categoryOrder, (int) $section->order)];
 
         });
 
+        $groupOrders = $groups->pluck("order", "id");
+
         $timestamp = now();
         $companyModules = $items
-            ->map(fn(object $item): array => [
-                "company_id" => $companyId,
-                "sub_section_id" => (int) $item->id,
-                "section_order" => $sectionOrders[$item->section_id] ?? 999,
-                "sub_section_order" => (int) $item->order,
-                "status" => (bool) $item->is_enabled_by_default ? "active" : "inactive",
-                "updated_at" => $timestamp,
-            ])
+            ->map(function(object $item) use ($companyId, $sectionOrders, $groupOrders, $timestamp): array {
+
+                $groupOrder = $item->menu_group_id === null
+                    ? null
+                    : $groupOrders->get($item->menu_group_id);
+
+                return [
+                    "company_id" => $companyId,
+                    "sub_section_id" => (int) $item->id,
+                    "section_order" => $sectionOrders[$item->section_id] ?? 999,
+                    "sub_section_order" => NavigationOrder::item(
+                        $groupOrder === null ? null : (int) $groupOrder,
+                        (int) $item->order
+                    ),
+                    "status" => (bool) $item->is_enabled_by_default ? "active" : "inactive",
+                    "updated_at" => $timestamp,
+                ];
+
+            })
             ->all();
 
         DB::table("companies_sub_sections")->upsert(

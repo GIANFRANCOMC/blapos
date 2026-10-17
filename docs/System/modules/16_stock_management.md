@@ -82,7 +82,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
   - **Kardex valorizado**: costo unitario, valor del movimiento y valor resultante por almacén.
 - Las pestañas reutilizan la estructura visual de Productos: título, descripción breve y estado activo discreto, sin tarjeta exterior.
 - No se repite un encabezado dentro de cada pestaña. El título y la descripción viven únicamente en la navegación.
-- `Catálogo comercial` expone estos accesos independientes para perfiles: `Control de stock` en Existencias; `Traslados`, `Guías`, `Kardex` y `Kardex valorizado` en Movimientos. Todos reutilizan el mismo componente, pero cada ruta abre su vista inicial correspondiente.
+- `Catálogo comercial` expone los cinco accesos independientes bajo el primer grupo, `Inventario`: `Control de stock`, `Traslados`, `Guías`, `Kardex` y `Kardex valorizado`. Todos reutilizan el mismo componente, pero cada ruta abre su vista inicial correspondiente.
 - La barra de búsqueda y acciones reutiliza la estructura `br-filter-bar` usada por Productos: mismas alturas, etiquetas, espaciados y botones compactos.
 - El buscador principal y **Registrar operación** solo aparecen en **Control de stock**. Kardex y Kardex valorizado conservan sus filtros propios; Traslados usa su formulario especializado.
 - Las tablas usan una sola superficie delimitada, sin contenedores exteriores adicionales.

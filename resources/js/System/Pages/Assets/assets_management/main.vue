@@ -328,7 +328,7 @@ import {STATUS_BADGE_CUSTOM_ASSET_MAINTENANCE_PRIMARY} from "@System/Helpers/Mod
 export default {
     mounted: async function() {
 
-        Utils.navbarItem("menu-parent-infrastructure", {addClass: "open"});
+        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
         Alerts.swals({type: "initParams"});
 
@@ -404,7 +404,7 @@ export default {
                         title: "Gestión de activos",
                         active: true,
                         menu: {
-                            id: "menu-infrastructure-assets_management"
+                            id: "menu-configuration-assets-management"
                         }
                     }
                 }
