@@ -37,7 +37,7 @@
               offsetY: -10,
               fontSize: '15px',
               fontWeight: 500,
-              fontFamily: 'Inter',
+              fontFamily: config.typography.fontFamily,
               color: headingColor
             }
           },

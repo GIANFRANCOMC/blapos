@@ -53,6 +53,9 @@ const brNormalizeAssetsPath = value => {
 
 // JS global variables
 let config = {
+  typography: {
+    fontFamily: brCssToken("--br-font-sans", "sans-serif")
+  },
   colors: {
     primary: brCssToken('--br-primary'),
     secondary: brCssToken('--br-secondary'),

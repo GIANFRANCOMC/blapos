@@ -98,7 +98,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },
@@ -154,14 +154,14 @@
               color: labelColor,
               fontSize: '13px',
               fontWeight: '400',
-              fontFamily: 'Inter'
+              fontFamily: config.typography.fontFamily
             },
             value: {
               offsetY: 10,
               color: headingColor,
               fontSize: '38px',
               fontWeight: '500',
-              fontFamily: 'Inter'
+              fontFamily: config.typography.fontFamily
             }
           }
         }
@@ -298,7 +298,7 @@
           style: {
             colors: [labelColor, labelColor, labelColor, labelColor, labelColor, labelColor],
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },
@@ -379,7 +379,7 @@
         show: true,
         horizontalAlign: 'right',
         position: 'top',
-        fontFamily: 'Inter',
+        fontFamily: config.typography.fontFamily,
         markers: {
           height: 12,
           width: 12,
@@ -408,7 +408,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         },
         axisTicks: {
@@ -424,7 +424,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         },
         min: -200,
@@ -736,7 +736,7 @@
           fontSize: '15px',
           colors: [legendColor],
           fontWeight: '500',
-          fontFamily: 'Inter'
+          fontFamily: config.typography.fontFamily
         }
       },
       series: [
@@ -763,7 +763,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },
@@ -776,7 +776,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           },
           min: 0,
           max: 60000,
@@ -1097,7 +1097,7 @@
           colors: ['#fff'],
           fontWeight: 200,
           fontSize: '13px',
-          fontFamily: 'Inter'
+          fontFamily: config.typography.fontFamily
         },
         formatter: function (val, opts) {
           return horizontalBarChartConfig.labels[opts.dataPointIndex];
@@ -1137,7 +1137,7 @@
         labels: {
           style: {
             colors: [labelColor],
-            fontFamily: 'Inter',
+            fontFamily: config.typography.fontFamily,
             fontSize: '13px'
           }
         }
@@ -1213,7 +1213,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter',
+            fontFamily: config.typography.fontFamily,
             fontWeight: 400
           }
         },
@@ -1232,7 +1232,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter',
+            fontFamily: config.typography.fontFamily,
             fontWeight: 400
           },
           formatter: function (val) {
@@ -1256,7 +1256,7 @@
           vertical: 0
         },
         fontSize: '13px',
-        fontFamily: 'Inter',
+        fontFamily: config.typography.fontFamily,
         fontWeight: 400,
         labels: {
           colors: headingColor,
@@ -1349,7 +1349,7 @@
           vertical: 5
         },
         fontSize: '13px',
-        fontFamily: 'Inter',
+        fontFamily: config.typography.fontFamily,
         fontWeight: 400,
         labels: {
           colors: headingColor,
@@ -1372,7 +1372,7 @@
               show: true,
               value: {
                 fontSize: '26px',
-                fontFamily: 'Inter',
+                fontFamily: config.typography.fontFamily,
                 color: headingColor,
                 fontWeight: 500,
                 offsetY: -30,
@@ -1382,7 +1382,7 @@
               },
               name: {
                 offsetY: 20,
-                fontFamily: 'Inter'
+                fontFamily: config.typography.fontFamily
               },
               total: {
                 show: true,

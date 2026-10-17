@@ -87,7 +87,7 @@
           vertical: 0
         },
         fontSize: '15px',
-        fontFamily: 'Inter',
+        fontFamily: config.typography.fontFamily,
         fontWeight: 400,
         labels: {
           colors: headingColor,
@@ -120,7 +120,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter',
+            fontFamily: config.typography.fontFamily,
             fontWeight: 400
           }
         },
@@ -139,7 +139,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter',
+            fontFamily: config.typography.fontFamily,
             fontWeight: 400
           },
           formatter: function (val) {
@@ -252,7 +252,7 @@
           vertical: 5
         },
         fontSize: '13px',
-        fontFamily: 'Inter',
+        fontFamily: config.typography.fontFamily,
         fontWeight: 400,
         labels: {
           colors: headingColor,
@@ -282,7 +282,7 @@
               show: true,
               value: {
                 fontSize: '26px',
-                fontFamily: 'Inter',
+                fontFamily: config.typography.fontFamily,
                 color: headingColor,
                 fontWeight: 500,
                 offsetY: -30,
@@ -292,7 +292,7 @@
               },
               name: {
                 offsetY: 20,
-                fontFamily: 'Inter'
+                fontFamily: config.typography.fontFamily
               },
               total: {
                 show: true,

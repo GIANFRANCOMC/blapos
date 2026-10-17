@@ -1785,6 +1785,13 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   background: transparent;
 }
 
+.br-modal-close:disabled,
+.br-modal-close:disabled:hover {
+  color: var(--br-modal-close-muted);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .br-field-help {
   display: inline-grid;
   width: 1.15rem;
@@ -11104,19 +11111,19 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-entity-table__col-offering {
-    width: 27%;
+    width: 25%;
 }
 
 .br-entity-table--offering {
-    min-width: 46rem;
+    min-width: 52rem;
 }
 
 .br-entity-table__col-code {
-    width: 18%;
+    width: 22%;
 }
 
 .br-entity-table__col-detail {
-    width: 24%;
+    width: 22%;
 }
 
 .br-entity-table__col-offering-price {
@@ -19036,7 +19043,7 @@ body > .vs__dropdown-menu,
   }
 }
 
-/* Variante descriptiva optativa: cinco secciones legibles sin alterar los editores compactos. */
+/* Pestañas descriptivas compartidas por productos, servicios y membresías. */
 .br-entity-modal--tabbed:has(.br-catalog-form-tabs--descriptive) {
   --br-entity-modal-tabs-content-space-y: 0.7rem;
 }

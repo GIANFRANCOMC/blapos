@@ -322,13 +322,14 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Los demás almacenes se crean con saldo y mínimo en cero.
 - Los productos importados se crean activos, no publicados para clientes y con la moneda principal de la empresa.
 - No se solicitan IDs, marca ni categorías para mantener el flujo comprensible.
-- El archivo admite hasta 500 productos y 5 MB.
+- El archivo admite hasta 500 productos. El tamaño máximo lo define la configuración de validación de la empresa y el request comunica el límite efectivo.
 - La importación es transaccional: una fila inválida evita una carga parcial y muestra fila, campo y motivo.
 - `ImportProductsRequest` valida archivo y pertenencia del almacén antes de iniciar la lectura; el controlador consume únicamente datos validados.
 - Cada stock inicial mayor que cero genera su movimiento `product_opening`.
 - Al terminar se invalida la referencia compartida de items, incluyendo la configuración de Inventario.
 - El botón de carga masiva usa una acción ámbar sólida para diferenciarse visualmente de agregar, buscar y exportar.
 - La modal usa espaciado lateral propio y consistente en escritorio y móvil.
+- Durante la importación, la modal bloquea cerrar, cancelar y la tecla Escape para evitar interrumpir visualmente el proceso.
 - Las pestañas reutilizables mantienen una separación visual moderada entre opciones para facilitar el escaneo sin incrementar su altura.
 - Las pestañas reutilizan `nav-pills`, tienen una separación superior más amplia respecto al encabezado y márgenes laterales alineados con los campos del formulario.
 - La navegación ya no usa posición sticky ni desenfoque: forma parte del flujo normal del modal, evitando superposiciones y filtraciones de texto durante el desplazamiento.

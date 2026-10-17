@@ -406,6 +406,12 @@ const ENTITY_SPECIAL_ROUTES = {
     products: {
         import: "import"
     },
+    services: {
+        import: "import"
+    },
+    subscriptions: {
+        import: "import"
+    },
     brands: {
         import: "import"
     },

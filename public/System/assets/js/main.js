@@ -4,6 +4,12 @@
 
 'use strict';
 
+if(typeof Chart !== "undefined" && Chart.defaults?.font) {
+
+  Chart.defaults.font.family = config.typography.fontFamily;
+
+}
+
 let isRtl = window.Helpers.isRtl(),
   isDarkStyle = window.Helpers.isDarkStyle(),
   menu,

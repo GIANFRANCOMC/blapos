@@ -731,6 +731,45 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
+    public function test_inventory_routes_follow_the_commercial_catalog_without_a_separate_world(): void {
+
+        $this->assertDatabaseMissing("sections", ["slug" => "sc_inventory"]);
+
+        $groups = DB::table("menu_groups")
+            ->where("section_id", 5)
+            ->orderBy("order")
+            ->pluck("name")
+            ->all();
+
+        $this->assertSame(["Maestras", "Clasificación", "Existencias", "Movimientos"], $groups);
+
+        $routes = DB::table("sub_sections")
+            ->join("sections", "sections.id", "=", "sub_sections.section_id")
+            ->join("menu_groups", "menu_groups.id", "=", "sub_sections.menu_group_id")
+            ->whereIn("sub_sections.dom_route", [
+                "stocks_management.stock.index",
+                "stocks_management.transfers.index",
+                "stocks_management.guides.index",
+                "stocks_management.kardex.index",
+                "stocks_management.valued.index",
+            ])
+            ->orderBy("menu_groups.order")
+            ->orderBy("sub_sections.order")
+            ->get(["sections.dom_label as world", "menu_groups.name as group_name", "sub_sections.dom_route"]);
+
+        $this->assertCount(5, $routes);
+        $this->assertSame(["Catálogo comercial"], $routes->pluck("world")->unique()->values()->all());
+        $this->assertSame(["Existencias", "Movimientos"], $routes->pluck("group_name")->unique()->values()->all());
+        $this->assertSame([
+            "stocks_management.stock.index",
+            "stocks_management.transfers.index",
+            "stocks_management.guides.index",
+            "stocks_management.kardex.index",
+            "stocks_management.valued.index",
+        ], $routes->pluck("dom_route")->all());
+
+    }
+
     public function test_tenant_navigation_renders_only_allowed_modules_and_marks_the_current_route(): void {
 
         $user = \App\Models\System\Organizations\User::query()

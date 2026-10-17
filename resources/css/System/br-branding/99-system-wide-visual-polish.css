@@ -1225,7 +1225,7 @@ body > .vs__dropdown-menu,
   }
 }
 
-/* Variante descriptiva optativa: cinco secciones legibles sin alterar los editores compactos. */
+/* Pestañas descriptivas compartidas por productos, servicios y membresías. */
 .br-entity-modal--tabbed:has(.br-catalog-form-tabs--descriptive) {
   --br-entity-modal-tabs-content-space-y: 0.7rem;
 }

@@ -1326,19 +1326,19 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-entity-table__col-offering {
-    width: 27%;
+    width: 25%;
 }
 
 .br-entity-table--offering {
-    min-width: 46rem;
+    min-width: 52rem;
 }
 
 .br-entity-table__col-code {
-    width: 18%;
+    width: 22%;
 }
 
 .br-entity-table__col-detail {
-    width: 24%;
+    width: 22%;
 }
 
 .br-entity-table__col-offering-price {

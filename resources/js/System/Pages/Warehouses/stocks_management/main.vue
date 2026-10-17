@@ -854,7 +854,7 @@ const INVENTORY_OPERATIONS = [
 export default {
     async mounted() {
         this.activeView = this.initialViewFromPath();
-        Utils.navbarItem("menu-parent-inventory", {addClass: "open"});
+        Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.activeMenuId(), {});
         Alerts.swals({type: "initParams"});
         const initialized = await this.initParams();

@@ -20,7 +20,7 @@
                     class="nav-link br-entity-tab"
                     :class="{'active is-active': modelValue === tab.id}"
                     :aria-selected="modelValue === tab.id"
-                    :aria-controls="controlsPrefix ? `${controlsPrefix}-tab-${tab.id}` : undefined"
+                    :aria-controls="sharedControlsId || (controlsPrefix ? `${controlsPrefix}-tab-${tab.id}` : undefined)"
                     :tabindex="modelValue === tab.id ? 0 : -1"
                     @click="selectTab(tab.id)">
                     <span class="br-entity-tab__content">
@@ -60,6 +60,7 @@ export default {
         label: {type: String, required: true},
         idPrefix: {type: String, required: true},
         controlsPrefix: {type: String, default: ""},
+        sharedControlsId: {type: String, default: ""},
         variant: {type: String, default: "compact"},
         hasErrors: {type: Function, default: () => false}
     },

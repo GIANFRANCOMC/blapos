@@ -65,12 +65,12 @@ test("los tres editores comparten pestañas accesibles y navegables en móvil", 
     assert.match(tabs, /role="tablist"/);
     assert.match(tabs, /@keydown="handleKeydown"/);
     assert.match(tabs, /tab-trigger-\$\{tab\.id\}/);
-    assert.match(tabs, /:aria-controls="controlsPrefix/);
+    assert.match(tabs, /:aria-controls="sharedControlsId \|\| \(controlsPrefix/);
     assert.match(branding, /\.br-catalog-form-tabs[\s\S]*?overflow-x: auto/);
 
 });
 
-test("producto usa pestañas descriptivas con iconos y conserva la variante compacta en otros editores", () => {
+test("productos, servicios y membresías comparten pestañas descriptivas con iconos", () => {
 
     const product = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
     const config = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/productFormConfig.js", import.meta.url), "utf8");
@@ -97,9 +97,49 @@ test("producto usa pestañas descriptivas con iconos y conserva la variante comp
 
         const source = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
 
-        assert.doesNotMatch(source, /variant="descriptive"/);
+        assert.match(source, /<CatalogFormTabs[\s\S]*?variant="descriptive"/);
+        assert.equal([...source.matchAll(/description: "/g)].length >= 4, true);
+        assert.equal([...source.matchAll(/icon: "fa-solid/g)].length, 4);
+        assert.match(source, /entityForms\.errors = validation\.errors/);
+        assert.match(source, /br-entity-identifiers br-entity-identifiers--plain/);
+        assert.match(source, /br-entity-identifier__label colon-at-end">Cód\. interno/);
+        assert.match(source, /shared-controls-id="(?:service|subscription)-form-panel"/);
 
     }
+
+});
+
+test("servicios y membresías comparten acciones masivas y una modal de importación sin inventario", () => {
+
+    const modalPath = "resources/js/System/Components/Catalogs/Offerings/OfferingImportModal.vue";
+    const modal = readFileSync(new URL(`../../${modalPath}`, import.meta.url), "utf8");
+    const requests = readFileSync(new URL("../../resources/js/System/Helpers/Requests.js", import.meta.url), "utf8");
+
+    assert.equal(parse(modal, {filename: modalPath}).errors.length, 0);
+    assert.match(modal, /:close-disabled="importing"/);
+    assert.match(modal, /:keyboard="false"/);
+    assert.doesNotMatch(modal, /warehouse_id|Almacén para el stock inicial/);
+
+    for(const module of modules) {
+
+        const source = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
+        const route = module.name === "servicio" ? "Service" : "Subscription";
+        const routes = readFileSync(new URL(`../../routes/System/Catalogs/${route}.php`, import.meta.url), "utf8");
+
+        assert.match(source, /<OfferingImportModal\b/);
+        assert.match(source, /:show-download-button="true"/);
+        assert.match(source, /:show-import-button="true"/);
+        assert.match(source, /@download="downloadRecords"/);
+        assert.match(source, /@import="openImportModal"/);
+        assert.match(source, /:import-route="routeActions\.import"/);
+        assert.match(routes, /Route::get\("\/export"/);
+        assert.match(routes, /Route::get\("\/import"/);
+        assert.match(routes, /Route::post\("\/import"/);
+
+    }
+
+    assert.match(requests, /services: \{\s*import: "import"/);
+    assert.match(requests, /subscriptions: \{\s*import: "import"/);
 
 });
 
@@ -177,7 +217,7 @@ test("servicio conserva duración en Servicio y agrupa sus límites y comisión 
     const parsed = parse(source, {filename: "services/main.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN", fields: \["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"\]\}/);
+    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN",[^\n]*fields: \["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"\]\}/);
     assertFieldOrder(source, "forms[entity].createUpdate.data", ["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"]);
     assert.match(source, /v-show="activeFormTab === 'general'"\s+v-model="forms\[entity\]\.createUpdate\.data\.estimated_duration_minutes"/);
     assert.match(source, /v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.capacity_limit"/);
@@ -204,7 +244,7 @@ test("membresía agrupa cupos, asistencia, disponibilidad y comisión en Configu
     const parsed = parse(source, {filename: "subscriptions/main.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN", fields: \["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"\]\}/);
+    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN",[^\n]*fields: \["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"\]\}/);
     assertFieldOrder(source, "forms[entity].createUpdate.data", ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"]);
 
     for(const field of ["attendance_limit_per_day", "capacity_limit", "expires_at", "commission_value"]) {

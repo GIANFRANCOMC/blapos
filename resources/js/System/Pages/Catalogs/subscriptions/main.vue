@@ -15,10 +15,23 @@
             :search-button-text="MODULE.texts.actions.search"
             :add-button-text="MODULE.texts.actions.add"
             :show-add-button="true"
+            :show-download-button="true"
+            :show-import-button="true"
+            :group-secondary-actions="true"
+            :import-button-text="MODULE.texts.actions.import"
+            :import-button-tooltip="MODULE.texts.actions.import"
+            :download-button-text="MODULE.texts.actions.download"
+            :download-button-tooltip="MODULE.texts.actions.download"
+            :download-icon-only-on-desktop="true"
+            :downloading="isExporting"
             :title-class="[config.forms.classes.title]"
             :select-class="config.forms.classes.select2"
             @search="handleSearch"
-            @add="openModal()"/>
+            @add="openModal()"
+            @import="openImportModal"
+            @download="downloadRecords"/>
+
+        <OfferingImportModal ref="importModal" type="subscription" :import-route="routeActions.import" @imported="listEntity({})"/>
 
         <section class="br-entity-list" aria-label="Listado de membresías">
             <div class="table-responsive">
@@ -34,7 +47,7 @@
             <thead class="br-table-header-surface">
                 <tr>
                     <th>Membresía</th>
-                    <th>Código interno</th>
+                    <th class="text-center">Identificación</th>
                     <th>Detalles</th>
                     <th class="text-end">Precio</th>
                     <th class="text-center">Estado</th>
@@ -54,9 +67,9 @@
                             <span v-if="record.description" v-text="record.description" class="br-entity-table__description"></span>
                         </td>
                         <td class="br-entity-table__identification-cell">
-                            <div class="br-entity-identifiers">
+                            <div class="br-entity-identifiers br-entity-identifiers--plain">
                                 <div class="br-entity-identifier">
-                                    <span class="br-entity-identifier__label">Cód. interno</span>
+                                    <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
                                     <span class="br-entity-identifier__value">
                                         <span class="br-entity-code" v-text="record.internal_code"></span>
                                         <span class="br-entity-identifier__actions"><CopyButton :value="record.internal_code" label="Código interno"/></span>
@@ -117,9 +130,11 @@
                 :tabs="formTabs"
                 :has-errors="tabHasErrors"
                 id-prefix="subscription"
+                shared-controls-id="subscription-form-panel"
+                variant="descriptive"
                 label="Secciones de la membresía"/>
             <form class="br-entity-form-section" @submit.prevent="saveEntity">
-                        <div class="row g-3" role="tabpanel" :aria-labelledby="`subscription-tab-trigger-${activeFormTab}`">
+                        <div id="subscription-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`subscription-tab-trigger-${activeFormTab}`">
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
@@ -137,7 +152,7 @@
                                     <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
                                 </template>
                                 <template v-slot:inputGroupAppend>
-                                    <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
+                                    <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
@@ -474,14 +489,15 @@ import FormModal from "@System/Components/Generics/FormModal.vue";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
+import OfferingImportModal from "@System/Components/Catalogs/Offerings/OfferingImportModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
 const FORM_TABS = [
-    {id: "general", label: "MEMBRESÍA", fields: ["internal_code", "name", "duration_value", "duration_type", "price", "min_price", "max_price", "status"]},
-    {id: "attributes", label: "DETALLE", fields: ["description", "benefits", "restrictions", "categories", "see_my_web", "see_my_web_price"]},
-    {id: "taxes", label: "IMPUESTOS", fields: ["igv_exempt", "price_includes_tax"]},
-    {id: "configuration", label: "CONFIGURACIÓN", fields: ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"]}
+    {id: "general", label: "MEMBRESÍA", description: "Datos y precios", icon: "fa-solid fa-id-card", fields: ["internal_code", "name", "duration_value", "duration_type", "price", "min_price", "max_price", "status"]},
+    {id: "attributes", label: "DETALLE", description: "Beneficios y catálogo", icon: "fa-solid fa-clipboard-list", fields: ["description", "benefits", "restrictions", "categories", "see_my_web", "see_my_web_price"]},
+    {id: "taxes", label: "IMPUESTOS", description: "Aplicación del IGV", icon: "fa-solid fa-receipt", fields: ["igv_exempt", "price_includes_tax"]},
+    {id: "configuration", label: "CONFIGURACIÓN", description: "Cupos y asistencia", icon: "fa-solid fa-sliders", fields: ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"]}
 ];
 
 const MODULE_CONFIG = {
@@ -610,7 +626,9 @@ const TEXTS = {
     actions: {
         search: "Buscar",
         add: "Agregar membresía",
-        edit: "Editar membresía"
+        edit: "Editar membresía",
+        import: "Cargar masivamente",
+        download: "Descargar Excel"
     },
     form: {
         internalCode: "Código interno",
@@ -658,7 +676,7 @@ const MODULE = {
 export default {
     name: "SubscriptionsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, SelectNoOptions},
+    components: {FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions},
     data() {
 
         const crudModule = initCrudModule({
@@ -676,6 +694,7 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
+            isExporting: false,
             activeFormTab: FORM_TABS[0].id
         };
 
@@ -776,6 +795,47 @@ export default {
             this.listEntity({});
 
         },
+        getListFilters() {
+
+            const filters = this.entityList.filters;
+
+            return {filter_by: filters.filter_by?.code, word: filters.word};
+
+        },
+        async downloadRecords() {
+
+            if(this.isExporting || !await Alerts.confirmDownload({resource: "el listado de membresías"})) {
+
+                return;
+
+            }
+
+            this.isExporting = true;
+            Alerts.swals({type: "default", title: "Preparando reporte de membresías"});
+
+            try {
+
+                await Requests.download({
+                    route: this.routeActions.export,
+                    data: this.getListFilters(),
+                    fileName: "membresias.xlsx",
+                    showAlert: true
+                });
+
+            }finally {
+
+                Alerts.swals({show: false});
+                this.isExporting = false;
+
+            }
+
+        },
+        openImportModal() {
+
+            Alerts.tooltips({show: false});
+            this.$refs.importModal?.open();
+
+        },
         // Forms
         openModal(record = null) {
 
@@ -837,15 +897,15 @@ export default {
             }
 
             Alerts.modals({type: "show", id: entityForms.extras.modals.default.id});
-            Alerts.tooltips({show: true, time: 500});
+            this.$nextTick(() => Alerts.tooltips({}));
 
         },
-        generateCodeAction() {
+        generateCodeAction(event) {
 
             this.forms[this.entity].createUpdate.data.internal_code = this.generateCode({length: 7});
 
             Alerts.toastrs({type: "success", subtitle: "Código interno generado correctamente."});
-            Alerts.tooltips({show: false});
+            Alerts.dismissTooltip(event?.currentTarget);
 
         },
         syncTaxExemption(form = {}) {
@@ -881,6 +941,7 @@ export default {
 
                 if(!validation.bool) {
 
+                    entityForms.errors = validation.errors;
                     this.focusFirstErrorTab(validation.errors);
 
                     Alerts.generateAlert({

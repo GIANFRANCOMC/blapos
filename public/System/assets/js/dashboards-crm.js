@@ -341,7 +341,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },
@@ -491,7 +491,7 @@
           fontSize: '15px',
           colors: [legendColor],
           fontWeight: '500',
-          fontFamily: 'Inter'
+          fontFamily: config.typography.fontFamily
         }
       },
       series: [
@@ -518,7 +518,7 @@
           style: {
             colors: labelColor,
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },
@@ -531,7 +531,7 @@
           style: {
             fontSize: '13px',
             colors: labelColor,
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           },
           min: 0,
           max: 60000,
@@ -708,7 +708,7 @@
           style: {
             colors: [labelColor, labelColor, labelColor, labelColor, labelColor, labelColor],
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },

@@ -31,6 +31,7 @@
                         type="button"
                         class="br-modal-close"
                         data-bs-dismiss="modal"
+                        :disabled="closeDisabled"
                         aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
@@ -80,6 +81,10 @@ export default {
         keyboard: {
             type: Boolean,
             default: true
+        },
+        closeDisabled: {
+            type: Boolean,
+            default: false
         },
         title: {
             type: String,

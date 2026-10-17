@@ -34,7 +34,6 @@ El servicio carga categoría y grupo, aplica el orden empresarial y genera la UR
 3. **Gestión**
    - Clientes.
    - Catálogo comercial.
-   - Inventario.
 4. **Administración**
    - Mi organización.
    - Configuración.
@@ -83,13 +82,12 @@ La cabecera contextual muestra únicamente el nombre del mundo. No repite el gru
 
 - **Maestras**: Productos, Servicios, Membresías, Recetas y platillos.
 - **Clasificación**: Categorías, Marcas.
+- **Existencias**: Control de stock.
+- **Movimientos**: Traslados, Guías, Kardex, Kardex valorizado.
 
-El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y códigos de ambos grupos; al volver a ejecutarse en un tenant existente, actualiza únicamente los títulos anteriores sin sobrescribir nombres personalizados.
+El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y códigos técnicos de los grupos y rutas. Al volver a ejecutarse en un tenant existente, solo actualiza los títulos heredados de Maestras y Clasificación sin sobrescribir nombres personalizados.
 
-### Inventario
-
-- **Control**: Control de stock.
-- **Movimientos**: Kardex, Traslados, Guías, Kardex valorizado.
+Inventario ya no es un mundo independiente: sus cinco rutas, permisos y favoritos conservan sus identificadores y quedan organizados dentro de Catálogo comercial. Este orden inicial se aplica al recrear la base del tenant; no se ejecuta una migración de datos sobre tenants existentes.
 
 ### Mi organización
 

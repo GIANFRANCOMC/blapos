@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Catalogs;
 
+use App\Exports\System\Catalogs\Offerings\{OfferingImportTemplateExport, OfferingListExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
+use App\Http\Requests\System\Catalogs\Offerings\{ImportOfferingsRequest};
 use App\Http\Requests\System\Catalogs\Subscriptions\{StoreSubscriptionRequest, UpdateSubscriptionRequest};
+use App\Imports\System\Catalogs\Offerings\{OfferingBasicImport};
+use App\Models\System\Catalogs\{Item};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Subscriptions\{SubscriptionConfigService, SubscriptionService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Validation\{ValidationException};
+use Maatwebsite\Excel\Facades\{Excel};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class SubscriptionController extends BaseController {
 
@@ -42,6 +50,58 @@ class SubscriptionController extends BaseController {
         $perPage = $this->getPerPage($request, Utilities::$per_page_default);
 
         return SubscriptionService::getPaginatedList($filters, $perPage);
+
+    }
+
+    public function export(Request $request): BinaryFileResponse {
+
+        return Excel::download(
+            new OfferingListExport(Item::TYPE_SUBSCRIPTION, $this->getFilters($request)),
+            "membresias_".now()->format("Y-m-d_His").".xlsx"
+        );
+
+    }
+
+    public function importTemplate(): BinaryFileResponse {
+
+        return Excel::download(
+            new OfferingImportTemplateExport(Item::TYPE_SUBSCRIPTION),
+            "plantilla_membresias.xlsx"
+        );
+
+    }
+
+    public function import(ImportOfferingsRequest $request): JsonResponse {
+
+        try {
+
+            $currencyId = (int) app(TenantCompanyContext::class)->get()->currency_id;
+            $import = new OfferingBasicImport(Item::TYPE_SUBSCRIPTION, $currencyId, $this->getUserId());
+
+            Excel::import($import, $request->file("file"));
+
+            InitParamsCacheInvalidationService::invalidate(InitParamsCacheInvalidationService::ITEMS);
+
+            return response()->json([
+                "bool" => true,
+                "msg" => "{$import->importedCount()} membresías importadas correctamente.",
+                "data" => ["imported" => $import->importedCount()],
+            ]);
+
+        }catch(ValidationException $exception) {
+
+            throw $exception;
+
+        }catch(\Throwable $exception) {
+
+            report($exception);
+
+            return response()->json([
+                "bool" => false,
+                "msg" => "No se pudo completar la carga. Revisa la plantilla e intenta nuevamente.",
+            ], 422);
+
+        }
 
     }
 

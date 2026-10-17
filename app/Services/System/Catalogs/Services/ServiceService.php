@@ -355,11 +355,21 @@ class ServiceService {
      */
     public static function getPaginatedList(array $filters = [], int $perPage = 15): LengthAwarePaginator {
 
+        return self::getFilteredListQuery($filters)->paginate($perPage);
+
+    }
+
+    public static function getFilteredListQuery(array $filters = [], bool $withCategoryNames = false): Builder {
+
         Item::expireActiveItems();
+
+        $relations = $withCategoryNames
+            ? ["currency", "categoryItems.category"]
+            : ["currency", "categoryItems"];
 
         $query = Item::query()
             ->where("type", "service")
-            ->with(["currency", "categoryItems"]);
+            ->with($relations);
 
         // Apply filters
 
@@ -402,8 +412,7 @@ class ServiceService {
 
         }
 
-        return $query->orderBy("name", "ASC")
-            ->paginate($perPage);
+        return $query->orderBy("name", "ASC");
 
     }
 

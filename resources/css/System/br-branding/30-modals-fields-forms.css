@@ -242,6 +242,13 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   background: transparent;
 }
 
+.br-modal-close:disabled,
+.br-modal-close:disabled:hover {
+  color: var(--br-modal-close-muted);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .br-field-help {
   display: inline-grid;
   width: 1.15rem;

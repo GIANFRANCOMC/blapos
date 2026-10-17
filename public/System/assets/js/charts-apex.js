@@ -857,12 +857,12 @@
           dataLabels: {
             name: {
               fontSize: '2rem',
-              fontFamily: 'Inter'
+              fontFamily: config.typography.fontFamily
             },
             value: {
               fontSize: '1.2rem',
               color: legendColor,
-              fontFamily: 'Inter'
+              fontFamily: config.typography.fontFamily
             },
             total: {
               show: true,
@@ -958,7 +958,7 @@
           style: {
             colors: [labelColor, labelColor, labelColor, labelColor, labelColor, labelColor, labelColor, labelColor],
             fontSize: '13px',
-            fontFamily: 'Inter'
+            fontFamily: config.typography.fontFamily
           }
         }
       },
@@ -1031,12 +1031,12 @@
               show: true,
               name: {
                 fontSize: '2rem',
-                fontFamily: 'Inter'
+                fontFamily: config.typography.fontFamily
               },
               value: {
                 fontSize: '1.2rem',
                 color: legendColor,
-                fontFamily: 'Inter',
+                fontFamily: config.typography.fontFamily,
                 formatter: function (val) {
                   return parseInt(val, 10) + '%';
                 }

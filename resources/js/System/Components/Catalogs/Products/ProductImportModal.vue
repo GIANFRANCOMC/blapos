@@ -2,8 +2,10 @@
     <FormModal
         :modal-id="modalId"
         :title="title"
-        modal-class="br-product-import-modal"
-        modal-size="modal-lg">
+        modal-class="br-catalog-import-modal"
+        modal-size="modal-lg"
+        :keyboard="false"
+        :close-disabled="importing">
         <template #body>
             <p class="br-import-products__intro">
                 Completa la plantilla con el nombre y precio. Los códigos que dejes vacíos se generarán automáticamente.
@@ -47,7 +49,7 @@
                         accept=".xlsx,.xls,.csv"
                         @change="selectFile">
                     <small class="br-import-products__help">
-                        Se aceptan archivos Excel o CSV de hasta 5 MB.
+                        Se aceptan archivos Excel o CSV. El tamaño permitido se valida al cargar.
                     </small>
                     <small v-if="errors.file" class="text-danger d-block">
                         {{ firstError(errors.file) }}
@@ -61,6 +63,7 @@
                 ref="closeButton"
                 type="button"
                 class="br-btn br-btn-cancel"
+                :disabled="importing"
                 data-bs-dismiss="modal">
                 Cancelar
             </button>
