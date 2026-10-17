@@ -27,7 +27,6 @@ body.br-layout .table > thead > tr > th.bg-secondary {
 body.br-layout .table,
 body.br-layout .table-responsive,
 body.br-layout .br-entity-table,
-body.br-layout .br-inventory__table-wrap,
 body.br-layout .br-sale-detail-table-shell {
   border-radius: 0 !important;
 }

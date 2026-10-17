@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Controla las existencias de productos por almacén y conserva la trazabilidad de cada variación. El nombre visible cambia de **Gestión de stock** a **Inventario**; el identificador técnico `stocks_management` se mantiene para no romper rutas, permisos ni favoritos existentes.
+Controla las existencias de productos por almacén y conserva la trazabilidad de cada variación. Los cinco submódulos tienen páginas y URL propias bajo `/inventory`; los nombres de ruta `stocks_management.*` se conservan para respetar permisos y favoritos existentes. El prefijo `/stocks_management` queda reservado a las consultas y operaciones API.
 
 El módulo separa dos conceptos:
 
@@ -11,13 +11,17 @@ El módulo separa dos conceptos:
 
 ## Archivos principales
 
-- Ruta: `routes/System/Warehouses/StockManagement.php`
-- Controlador: `StockManagementController`
+- Rutas de página: `routes/System/Warehouses/InventoryPages.php`
+- Rutas API: `routes/System/Warehouses/StockManagement.php`
+- Controlador de páginas: `InventoryPageController`
+- Controlador API: `StockManagementController`
 - Configuración: `StockManagementConfigService`
 - Consulta y compatibilidad: `StockManagementService`
 - Núcleo transaccional: `InventoryMovementService`
 - Modelo de kardex: `InventoryMovement`
-- Vista: `resources/js/System/Pages/Warehouses/stocks_management/main.vue`
+- Vistas Blade: `resources/views/System/general/Warehouses/inventory/`
+- Entradas frontend: `resources/js/System/Pages/Warehouses/inventory/`
+- Presentación compartida: `InventoryPage.vue`, con una página fija por entrada; no hay tabs ni cambio de submódulo dentro de la vista.
 - Estilos reutilizables: bloque `br-inventory` de `resources/css/System/br-branding/82-inventory.css`
 
 ## Tipos de movimiento
@@ -73,19 +77,22 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 
 ## Interfaz
 
-- El selector de **Almacén de trabajo** se presenta en una barra compacta e independiente; define el contexto de todas las pestañas sin ocupar una cabecera descriptiva adicional.
-- Las pestañas muestran título y descripción breve para explicar la tarea antes de ingresar:
-  - **Control de stock**: existencias actuales, mínimos y alertas.
-  - **Kardex**: historial completo y trazabilidad.
-  - **Traslados**: movimientos multiproducto entre almacenes.
-  - **Guías**: entradas y salidas numeradas, con estado y detalle de productos.
-  - **Kardex valorizado**: costo unitario, valor del movimiento y valor resultante por almacén.
-- Las pestañas reutilizan la estructura visual de Productos: título, descripción breve y estado activo discreto, sin tarjeta exterior.
-- No se repite un encabezado dentro de cada pestaña. El título y la descripción viven únicamente en la navegación.
-- `Catálogo comercial` expone los cinco accesos independientes bajo el primer grupo, `Inventario`: `Control de stock`, `Traslados`, `Guías`, `Kardex` y `Kardex valorizado`. Todos reutilizan el mismo componente, pero cada ruta abre su vista inicial correspondiente.
-- La barra de búsqueda y acciones reutiliza la estructura `br-filter-bar` usada por Productos: mismas alturas, etiquetas, espaciados y botones compactos.
-- El buscador principal y **Registrar operación** solo aparecen en **Control de stock**. Kardex y Kardex valorizado conservan sus filtros propios; Traslados usa su formulario especializado.
-- Las tablas usan una sola superficie delimitada, sin contenedores exteriores adicionales.
+- Cada submódulo conserva su página y breadcrumb propios. No hay títulos descriptivos duplicados ni tabs entre submódulos: se cambia de página desde el menú lateral.
+- El selector de **Almacén de trabajo** define el contexto de la página actual. En Control de stock, la barra sigue el orden **Almacén de trabajo**, **Búsqueda**, **Buscar**, **Registrar operación** y **Acciones**; este último contiene **Descargar Excel**.
+- Las cinco páginas tienen **Buscar**. Elegir otro almacén o cambiar un filtro invalida los resultados anteriores, pero no consulta el servidor: la nueva consulta solo empieza al pulsar **Buscar**. Sin resultados se reutilizan el título y subtítulo predeterminados de `WithoutData`, igual que en Productos.
+- En las cinco páginas, cada opción de **Almacén de trabajo** identifica `Sucursal / Almacén`; **Todos los almacenes** se conserva únicamente en Control de stock. La misma etiqueta se reutiliza en origen y destino de Traslados.
+- `Catálogo comercial` expone los cinco accesos bajo `Inventario`:
+  - **Control de stock**: `/inventory/stock`, existencias actuales, mínimos y alertas.
+  - **Traslados**: `/inventory/transfers`, movimientos multiproducto entre almacenes.
+  - **Guías**: `/inventory/guides`, entradas y salidas numeradas.
+  - **Kardex**: `/inventory/kardex`, historial y trazabilidad.
+  - **Kardex valorizado**: `/inventory/valued-kardex`, costos y valores.
+- Cada URL entrega su propio Blade y entrada Vite. El componente compartido recibe la página como propiedad fija, carga las opciones iniciales sin consultar el listado y conserva filtros/formularios específicos.
+- El buscador principal y **Registrar operación** solo aparecen en **Control de stock**. Kardex, Kardex valorizado y Guías conservan sus filtros propios; Traslados usa su formulario especializado.
+- Los cinco listados comparten la superficie `br-entity-list`, cabecera `br-table-header-surface`, indicador de carga y estado vacío ilustrado de Productos. La tabla es la única superficie bajo los filtros; la paginación aparece solo si hay registros.
+- Los filtros permanecen sobre el fondo de la página y separados de la tabla por un espacio visible. El contenedor de contenido no usa el estilo blanco de tarjeta; únicamente `br-entity-list` delimita el listado.
+- En `lg` y `xl`, la búsqueda de Control de stock ocupa 3 de 12 columnas. En Kardex, Kardex valorizado y Guías, almacén, tipo, Desde, Hasta, **Buscar** y **Acciones** comparten una fila; los botones quedan inmediatamente después de los campos, con la misma alineación de Productos. En pantallas menores se distribuyen en más filas sin comprimir los campos.
+- **Registrar operación** y **Registrar traslado** abren modales estándar con título breve, **Cancelar** y **Guardar**.
 - **Control de stock** muestra saldo actual, stock mínimo y situación por producto. También permite seleccionar **Todos los almacenes** para una vista consolidada por empresa, con desglose por almacén y contador de almacenes que requieren atención.
 - **Registrar operación** es una acción general del control de stock; no se repite por fila para evitar duplicidad visual. Abre un formulario para uno o hasta 100 productos e incluye entrada, salida, toma física, reposición, devolución de cliente y devolución a proveedor.
 - **Kardex** muestra fecha, usuario, producto, tipo, variación, saldo anterior/resultante, motivo y origen.
@@ -97,9 +104,9 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 
 ### Búsqueda y lectura de códigos
 
-- Todas las pestañas comparten un buscador por nombre, código interno o código de barras.
+- Las páginas que admiten búsqueda de producto conservan la consulta por nombre, código interno o código de barras.
 - El buscador reutiliza `InputText`; el icono de código de barras forma parte del grupo del campo y comparte borde y foco.
-- El campo admite lectores físicos que escriben el código y envían `Enter`; no exige que el usuario conozca una sintaxis especial.
+- El campo admite el código enviado por lectores físicos; la consulta se ejecuta al pulsar **Buscar**, no al cambiar el almacén ni al introducir el código.
 - En **Control de stock**, una coincidencia exacta filtra y resalta el producto.
 - En **Kardex**, una coincidencia exacta consulta directamente su trazabilidad.
 - En **Traslados**, una coincidencia exacta agrega el producto a la operación. Si ya está incluido, se informa sin duplicarlo.
@@ -118,7 +125,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 
 ## Exportación
 
-- Todas las pestañas permiten descargar un Excel con los filtros visibles.
+- Las cinco páginas permiten descargar un Excel con los filtros visibles. El backend comprueba el permiso de la página solicitada además del permiso general de exportación.
 - **Control de stock** exporta código interno, código de barras, producto, stock actual, stock mínimo, almacenes, cantidad de almacenes con alerta y situación.
 - **Kardex** exporta fecha, almacén, identificación, producto, movimiento, origen, saldos, motivo, referencia y responsable.
 - **Traslados** exporta los movimientos `transfer_in` y `transfer_out` del almacén seleccionado.
@@ -139,7 +146,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - Los traslados conservan el costo del almacén de origen para la entrada del destino.
 - Las entradas manuales y reposiciones aceptan costo unitario opcional; si se omite, conservan el promedio actual.
 - Nunca usa el precio de venta como costo.
-- La pestaña y su Excel están activas y usan los mismos filtros del Kardex.
+- La página y su Excel están activos y usan los mismos filtros del Kardex.
 - La vista muestra una ayuda compacta: `unit_cost` es el costo usado para valorizar el movimiento, y si una entrada manual no lo informa se conserva el promedio ponderado vigente del almacén.
 
 ## Guías de entrada y salida
@@ -152,7 +159,10 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 ## Traslados entre almacenes
 
 - El almacén seleccionado en la cabecera funciona como origen.
-- La vista de traslados muestra un campo **Almacén de origen** precargado con el almacén de trabajo para que el usuario confirme desde dónde saldrán los productos.
+- **Registrar traslado** abre una modal estándar con origen, destino, productos y motivo. La tabla de movimientos permanece visible en la página; el formulario no ocupa espacio permanente.
+- La página de Traslados no repite título ni descripción debajo del breadcrumb. **Buscar**, **Registrar traslado** y el desplegable naranja **Acciones** (con **Descargar Excel**) se alinean en la misma fila del selector **Almacén de trabajo**; en móvil pasan debajo del selector.
+- Debajo de los controles solo aparece el listado: usa la superficie `br-entity-list` y la cabecera `br-table-header-surface` de Productos, sin mensajes auxiliares cuando no hay un segundo almacén.
+- El campo **Almacén de origen** de la modal se precarga con el almacén de trabajo para que el usuario confirme desde dónde saldrán los productos. **Cancelar** cierra sin registrar; **Guardar** conserva la modal abierta si hay errores y la cierra al registrar correctamente.
 - El destino debe ser distinto y pertenecer a la misma empresa.
 - Cada operación admite entre 1 y 100 productos sin duplicados.
 - Cada producto debe estar activo y ser de tipo `product`.
@@ -225,7 +235,7 @@ La navegación funcional evita nombres duplicados:
 ## Alcance operativo
 
 - Inventario carga almacenes desde `CompanyReferenceDataService::stockWarehouses()`, respetando perfil, colaborador y sucursales efectivas.
-- La cabecera muestra el alcance activo con `br-operational-scope`, indicando el almacén o vista consolidada sobre la que se aplican consultas, exportaciones y operaciones.
+- El selector **Almacén de trabajo** muestra el almacén o la vista consolidada sobre la que se aplican consultas, exportaciones y operaciones.
 - Un selector vacío en Colaboradores hereda el perfil; no elimina sus restricciones.
 - `resource.scope` bloquea consultas, exportaciones, movimientos y traslados con almacenes no permitidos.
 - Control de stock, Kardex, Traslados y Kardex valorizado conservan permisos por acción independientes aunque reutilicen controlador y componente Vue.

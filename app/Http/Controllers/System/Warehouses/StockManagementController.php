@@ -9,6 +9,7 @@ use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
 use App\Services\System\Organizations\{AccessScopeService};
+use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService, StockManagementService};
 use Illuminate\Http\{JsonResponse, Request};
@@ -30,6 +31,24 @@ class StockManagementController extends BaseController {
     public function initParams(Request $request) {
 
         $page = $this->getPage($request);
+
+        if($page === "main") {
+
+            $page = "stock";
+
+        }
+
+        if(!in_array($page, ["stock", "transfers", "guides", "kardex", "valued"], true)) {
+
+            abort(422, "La página de inventario no está disponible.");
+
+        }
+
+        if(!RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.{$page}.index")) {
+
+            abort(403, "No tienes permiso para consultar esta página.");
+
+        }
 
         return StockManagementConfigService::getInitParams($page, $this->getUserId());
 
@@ -82,14 +101,10 @@ class StockManagementController extends BaseController {
 
     }
 
-    /**
-     * Display the stock management index page
-     *
-     * @return \Illuminate\Contracts\View\View
-     */
+    /** Redirect the old module entry point to the stock page. */
     public function index() {
 
-        return view("System/general/Warehouses/stocks_management/main");
+        return redirect()->route("stocks_management.stock.index");
 
     }
 
@@ -107,8 +122,12 @@ class StockManagementController extends BaseController {
         ]);
 
         $warehouseId = (int) ($filters["warehouse_id"] ?? 0);
+        $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
+            $this->getAuthUser(),
+            AccessScopeService::WAREHOUSE
+        );
 
-        if($warehouseId > 0 && !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
+        if($warehouseId <= 0 || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
 
             return response()->json(["data" => [], "total" => 0]);
 
@@ -125,7 +144,7 @@ class StockManagementController extends BaseController {
 
         $warehouseId = (int) $request->input("warehouse_id");
 
-        if($warehouseId > 0 && !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
+        if($warehouseId <= 0 || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
 
             return response()->json(["data" => [], "total" => 0]);
 
@@ -140,18 +159,13 @@ class StockManagementController extends BaseController {
 
     public function guides(Request $request) {
 
-        $allowedWarehouseIds = AccessScopeService::allowedIds(
+        $filters = $request->only(["warehouse_id", "guide_type", "date_from", "date_to"]);
+        $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
             $this->getAuthUser(),
             AccessScopeService::WAREHOUSE
         );
 
-        return InventoryGuideService::query(
-            $request->only(["warehouse_id", "guide_type", "date_from", "date_to"])
-        )
-            ->when(
-                $allowedWarehouseIds !== null,
-                fn($query) => $query->whereIn("warehouse_id", $allowedWarehouseIds)
-            )
+        return InventoryGuideService::query($filters)
             ->paginate($this->getPerPage($request, Utilities::$per_page_max));
 
     }
@@ -229,9 +243,19 @@ class StockManagementController extends BaseController {
 
     public function export(Request $request): BinaryFileResponse {
 
-        $view = in_array($request->input("view"), ["stock", "kardex", "transfers", "valued", "guides"], true)
-            ? (string) $request->input("view")
-            : "stock";
+        $view = (string) $request->input("view", "stock");
+
+        if(!in_array($view, ["stock", "kardex", "transfers", "valued", "guides"], true)) {
+
+            abort(422, "El reporte solicitado no está disponible.");
+
+        }
+
+        if(!RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.{$view}.index")) {
+
+            abort(403, "No tienes permiso para descargar este reporte.");
+
+        }
 
         $filters = $request->only([
             "warehouse_id",
@@ -243,6 +267,10 @@ class StockManagementController extends BaseController {
             "date_from",
             "date_to",
         ]);
+        $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
+            $this->getAuthUser(),
+            AccessScopeService::WAREHOUSE
+        );
 
         if(($filters["warehouse_id"] ?? null) !== "all") {
 
@@ -255,14 +283,8 @@ class StockManagementController extends BaseController {
 
             }
 
-        }else {
-
-            $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
-                $this->getAuthUser(),
-                AccessScopeService::WAREHOUSE
-            );
-
         }
+
         $fileName = "inventario_{$view}_".now()->format("Y-m-d_His").".xlsx";
 
         return Excel::download(

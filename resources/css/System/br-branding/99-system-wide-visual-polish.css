@@ -859,8 +859,7 @@ body > .vs__dropdown-menu,
  * Tablas y listados
  * ------------------------------------------------------------------------- */
 .br-layout .table-responsive,
-.br-layout .br-entity-table,
-.br-layout .br-inventory__table-wrap {
+.br-layout .br-entity-table {
   border-radius: 0;
 }
 
@@ -902,7 +901,6 @@ body > .vs__dropdown-menu,
 .br-layout .card,
 .br-layout .modal-content,
 .br-layout .br-entity-modal .modal-content,
-.br-layout .br-inventory__panel,
 .br-layout .br-cash__panel,
 .br-layout .br-pos-ticket,
 .br-layout .br-pos-product,

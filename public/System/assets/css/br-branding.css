@@ -353,7 +353,6 @@ body.br-layout .table > thead > tr > th.bg-secondary {
 body.br-layout .table,
 body.br-layout .table-responsive,
 body.br-layout .br-entity-table,
-body.br-layout .br-inventory__table-wrap,
 body.br-layout .br-sale-detail-table-shell {
   border-radius: 0 !important;
 }
@@ -7094,7 +7093,6 @@ body.br-layout .table > tbody > tr > td,
 }
 
 .br-layout .card,
-.br-layout .br-inventory__panel,
 .br-layout .br-cash__panel,
 .br-layout .br-pos-ticket,
 .br-layout .br-pos-product,
@@ -12204,85 +12202,20 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-inventory__context {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
     padding: 0.15rem 0 0.25rem;
 }
 
-.br-inventory__context p {
-    display: inline-flex;
+.br-inventory__context-actions {
     align-items: center;
-    gap: 0.35rem;
-    max-width: 30rem;
-    margin: 0;
-    color: var(--br-text-muted);
-    font-size: 0.7rem;
+    min-height: var(--br-control-height);
 }
 
 .br-inventory__warehouse {
-    width: min(32rem, 100%);
-    flex: 0 0 auto;
-}
-
-.br-inventory__views {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.45rem;
-    padding: 0;
-    background: transparent;
-}
-
-.br-entity-tabs.br-inventory__views .br-inventory__view {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
     min-width: 0;
-    min-height: 3.75rem;
-    padding: 0.55rem 0.7rem;
-    background: var(--br-white);
-    color: var(--br-text-muted);
-    text-align: left;
-    transition: var(--br-transition);
 }
 
-.br-entity-tabs.br-inventory__views .br-inventory__view:hover {
-    color: var(--br-secondary);
-    background: var(--br-white);
-}
-
-.br-entity-tabs.br-inventory__views .br-inventory__view.is-active {
-    background: var(--br-white);
-    color: var(--br-secondary);
-}
-
-.br-inventory__view .br-entity-tab__step {
-    font-size: 0.65rem;
-}
-
-.br-inventory__view-copy {
-    display: grid;
+.br-inventory__context > div {
     min-width: 0;
-    gap: 0.1rem;
-}
-
-.br-inventory__view-copy strong {
-    overflow: hidden;
-    color: inherit;
-    font-size: 0.8rem;
-    line-height: 1.15;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.br-inventory__view-copy small {
-    overflow: hidden;
-    color: var(--br-text-muted);
-    font-size: 0.67rem;
-    line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .br-inventory__workspace {
@@ -12291,17 +12224,11 @@ body.br-layout .br-entity-table > thead > tr > th {
     background: transparent;
 }
 
-.br-inventory__panel {
+.br-inventory__content {
     min-width: 0;
 }
 
-.br-inventory__toolbar {
-    margin-bottom: 0.75rem;
-    padding: 0;
-    background: transparent;
-}
-
-.br-inventory__toolbar .br-form-control-group {
+.br-inventory__context .br-form-control-group {
     min-width: 0;
 }
 
@@ -12314,46 +12241,8 @@ body.br-layout .br-entity-table > thead > tr > th {
     font-size: 0.66rem;
 }
 
-.br-inventory__toolbar .br-form-control-group:focus-within .br-inventory-search__prefix {
+.br-inventory__context .br-form-control-group:focus-within .br-inventory-search__prefix {
     border-color: var(--br-primary);
-}
-
-.br-inventory__toolbar-actions {
-    flex-wrap: nowrap;
-}
-
-.br-inventory__register-action,
-.br-inventory__row-action {
-    border-color: var(--br-primary);
-    background: var(--br-primary);
-    color: var(--br-white);
-}
-
-.br-inventory__register-action:hover,
-.br-inventory__row-action:hover {
-    border-color: var(--br-primary-hover);
-    background: var(--br-primary-hover);
-    color: var(--br-white);
-}
-
-.br-inventory__table-wrap {
-    width: 100%;
-    padding: 0;
-    border: 1px solid var(--br-border);
-    border-radius: var(--br-radius-sm);
-    background: var(--br-white);
-}
-
-.br-inventory__table-wrap .br-entity-table {
-    margin: 0;
-}
-
-.br-inventory__table-wrap .br-entity-table thead {
-    background: var(--br-secondary);
-}
-
-.br-inventory__table-wrap .br-entity-table th {
-    vertical-align: middle;
 }
 
 .br-inventory__scanned-row {
@@ -12362,6 +12251,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory__table {
     width: 100%;
+    min-width: 42rem;
     table-layout: fixed;
 }
 
@@ -12450,23 +12340,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     color: var(--br-danger);
 }
 
-.br-inventory__kardex-filters {
-    display: grid;
-    grid-template-columns: minmax(12rem, 1fr) minmax(9rem, 0.7fr) minmax(9rem, 0.7fr) auto;
-    align-items: flex-end;
-    gap: 0.65rem;
-    padding: 0 0 0.75rem;
-    background: var(--br-white);
-}
-
-.br-inventory__secondary-filters {
-    margin-bottom: 0;
-}
-
-.br-inventory__kardex-filters > div {
-    min-width: 0;
-}
-
+.br-inventory__kardex-table { min-width: 54rem; }
 .br-inventory__kardex-table th:nth-child(1) { width: 17%; }
 .br-inventory__kardex-table th:nth-child(2) { width: 18%; }
 .br-inventory__kardex-table th:nth-child(3) { width: 12%; }
@@ -12483,14 +12357,18 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory-transfer {
     padding: 0;
-    background: var(--br-white);
+    background: transparent;
 }
 
-.br-inventory-operation__subtitle {
-    margin: 0.2rem 0 0;
-    color: var(--br-text-muted);
-    font-size: 0.72rem;
+.br-inventory-transfer__table {
+    min-width: 42rem;
 }
+
+.br-inventory-transfer__col-date { width: 19%; }
+.br-inventory-transfer__col-product { width: 24%; }
+.br-inventory-transfer__col-movement { width: 15%; }
+.br-inventory-transfer__col-quantity { width: 12%; }
+.br-inventory-transfer__col-reference { width: 30%; }
 
 .br-inventory-operation__config {
     display: grid;
@@ -12541,48 +12419,14 @@ body.br-layout .br-entity-table > thead > tr > th {
     grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.28fr) minmax(9rem, 0.34fr) 2.25rem;
 }
 
-.br-inventory-transfer__intro {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 0.85rem;
-    border: 1px solid var(--br-border);
-    border-radius: var(--br-radius-sm);
-    background: var(--br-neutral-soft);
-}
-
-.br-inventory-transfer__intro > div {
-    display: grid;
-    gap: 0.12rem;
-}
-
-.br-inventory-transfer__intro span {
-    color: var(--br-text-muted);
-    font-size: 0.7rem;
-}
-
-.br-inventory-transfer__intro strong {
-    color: var(--br-secondary);
-    font-size: 0.88rem;
-}
-
-.br-inventory-transfer__intro p {
-    max-width: 34rem;
-    margin: 0;
-    color: var(--br-text-muted);
-    font-size: 0.76rem;
-}
-
 .br-inventory-transfer__form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(8rem, 0.45fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.85rem;
-    margin-top: 1rem;
 }
 
 .br-inventory-transfer__destination {
-    grid-column: 1 / 3;
+    min-width: 0;
 }
 
 .br-inventory-transfer__items {
@@ -12636,12 +12480,6 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory-transfer__reason {
     grid-column: 1 / -1;
-}
-
-.br-inventory-transfer__submit {
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: flex-end;
 }
 
 .br-import-products__intro {
@@ -12960,73 +12798,8 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 @media (max-width: 767.98px) {
-    .br-inventory__context {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 0.4rem;
-        padding-inline: 0;
-    }
-
-    .br-inventory__warehouse {
-        width: 100%;
-    }
-
-    .br-inventory__context p {
-        max-width: none;
-    }
-
-    .br-inventory__views {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.4rem;
-    }
-
-    .br-entity-tabs.br-inventory__views.nav-pills .br-entity-tab.nav-link {
-        display: flex;
-    }
-
-    .br-entity-tabs.br-inventory__views .br-inventory__view {
-        min-height: 3.45rem;
-    }
-
-    .br-inventory__view-copy strong,
-    .br-inventory__view-copy small {
-        white-space: normal;
-    }
-
-    .br-inventory__toolbar {
-        padding-inline: 0;
-    }
-
-    .br-inventory__toolbar-actions {
-        flex-wrap: wrap;
-    }
-
-    .br-inventory__toolbar-actions .br-btn {
-        justify-content: center;
-    }
-
-    .br-inventory__table-wrap {
-        padding: 0;
-    }
-
-    .br-inventory__kardex-filters {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-        padding-inline: 1rem;
-    }
-
-    .br-inventory__kardex-filters > div,
-    .br-inventory__kardex-filters .br-btn {
-        width: 100%;
-    }
-
     .br-inventory-transfer {
-        padding-inline: 0.75rem;
-    }
-
-    .br-inventory-transfer__intro {
-        align-items: flex-start;
-        flex-direction: column;
+        padding-inline: 0;
     }
 
     .br-inventory-transfer__form {
@@ -13035,8 +12808,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 
     .br-inventory-transfer__reason,
     .br-inventory-transfer__destination,
-    .br-inventory-transfer__items,
-    .br-inventory-transfer__submit {
+    .br-inventory-transfer__items {
         grid-column: auto;
     }
 
@@ -13055,10 +12827,6 @@ body.br-layout .br-entity-table > thead > tr > th {
 
     .br-inventory-transfer__remove {
         grid-column: 2;
-    }
-
-    .br-inventory-transfer__submit .br-btn {
-        width: 100%;
     }
 
     .br-inventory-operation__config,
@@ -16995,24 +16763,6 @@ body.br-layout .br-entity-table > thead > tr > th {
   font-weight: 650;
 }
 
-.br-inventory-help {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 0.75rem;
-  padding: 0.45rem 0.65rem;
-  border: 1px solid color-mix(in srgb, var(--br-primary) 18%, var(--br-border));
-  border-radius: var(--br-radius-sm);
-  background: color-mix(in srgb, var(--br-primary-soft) 48%, var(--br-white));
-  color: var(--br-secondary);
-  font-size: 0.76rem;
-  font-weight: 650;
-}
-
-.br-inventory-help i {
-  color: var(--br-primary);
-}
-
 .br-inventory-warehouses {
   display: flex;
   flex-wrap: wrap;
@@ -18677,8 +18427,7 @@ body > .vs__dropdown-menu,
  * Tablas y listados
  * ------------------------------------------------------------------------- */
 .br-layout .table-responsive,
-.br-layout .br-entity-table,
-.br-layout .br-inventory__table-wrap {
+.br-layout .br-entity-table {
   border-radius: 0;
 }
 
@@ -18720,7 +18469,6 @@ body > .vs__dropdown-menu,
 .br-layout .card,
 .br-layout .modal-content,
 .br-layout .br-entity-modal .modal-content,
-.br-layout .br-inventory__panel,
 .br-layout .br-cash__panel,
 .br-layout .br-pos-ticket,
 .br-layout .br-pos-product,

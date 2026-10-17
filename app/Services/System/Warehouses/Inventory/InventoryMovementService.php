@@ -321,6 +321,12 @@ final class InventoryMovementService {
                 "user:id,name",
             ]);
 
+        if(array_key_exists("allowed_warehouse_ids", $filters) && $filters["allowed_warehouse_ids"] !== null) {
+
+            $query->whereIn("warehouse_id", $filters["allowed_warehouse_ids"]);
+
+        }
+
         if(!empty($filters["warehouse_id"])) {
 
             $query->where("warehouse_id", (int) $filters["warehouse_id"]);

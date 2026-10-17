@@ -12,6 +12,12 @@ final class StockManagementConfigService extends BaseConfigService {
 
     protected const USER_SCOPED_CACHE = true;
 
+    protected static function cachePages(): array {
+
+        return ["main", "stock", "transfers", "guides", "kardex", "valued"];
+
+    }
+
     protected static function getCachePrefix(): string {
 
         return "inventory_v2";
@@ -25,12 +31,14 @@ final class StockManagementConfigService extends BaseConfigService {
                 "records" => CompanyReferenceDataService::forUser($userId)->stockWarehouses(),
             ]),
             "products" => self::data([
-                "records" => Item::query()
-                    ->where("type", "product")
-                    ->where("status", "active")
-                    ->select(["id", "internal_code", "barcode", "name"])
-                    ->orderBy("name")
-                    ->get(),
+                "records" => in_array($page, ["main", "stock", "transfers"], true)
+                    ? Item::query()
+                        ->where("type", "product")
+                        ->where("status", "active")
+                        ->select(["id", "internal_code", "barcode", "name"])
+                        ->orderBy("name")
+                        ->get()
+                    : [],
             ]),
         ]);
 

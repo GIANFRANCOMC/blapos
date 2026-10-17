@@ -266,73 +266,8 @@
 }
 
 @media (max-width: 767.98px) {
-    .br-inventory__context {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 0.4rem;
-        padding-inline: 0;
-    }
-
-    .br-inventory__warehouse {
-        width: 100%;
-    }
-
-    .br-inventory__context p {
-        max-width: none;
-    }
-
-    .br-inventory__views {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.4rem;
-    }
-
-    .br-entity-tabs.br-inventory__views.nav-pills .br-entity-tab.nav-link {
-        display: flex;
-    }
-
-    .br-entity-tabs.br-inventory__views .br-inventory__view {
-        min-height: 3.45rem;
-    }
-
-    .br-inventory__view-copy strong,
-    .br-inventory__view-copy small {
-        white-space: normal;
-    }
-
-    .br-inventory__toolbar {
-        padding-inline: 0;
-    }
-
-    .br-inventory__toolbar-actions {
-        flex-wrap: wrap;
-    }
-
-    .br-inventory__toolbar-actions .br-btn {
-        justify-content: center;
-    }
-
-    .br-inventory__table-wrap {
-        padding: 0;
-    }
-
-    .br-inventory__kardex-filters {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-        padding-inline: 1rem;
-    }
-
-    .br-inventory__kardex-filters > div,
-    .br-inventory__kardex-filters .br-btn {
-        width: 100%;
-    }
-
     .br-inventory-transfer {
-        padding-inline: 0.75rem;
-    }
-
-    .br-inventory-transfer__intro {
-        align-items: flex-start;
-        flex-direction: column;
+        padding-inline: 0;
     }
 
     .br-inventory-transfer__form {
@@ -341,8 +276,7 @@
 
     .br-inventory-transfer__reason,
     .br-inventory-transfer__destination,
-    .br-inventory-transfer__items,
-    .br-inventory-transfer__submit {
+    .br-inventory-transfer__items {
         grid-column: auto;
     }
 
@@ -361,10 +295,6 @@
 
     .br-inventory-transfer__remove {
         grid-column: 2;
-    }
-
-    .br-inventory-transfer__submit .br-btn {
-        width: 100%;
     }
 
     .br-inventory-operation__config,

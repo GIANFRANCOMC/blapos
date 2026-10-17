@@ -66,6 +66,10 @@ final class InventoryGuideService {
 
         return InventoryGuide::query()
             ->with(["warehouse.branch", "items.item", "confirmedBy"])
+            ->when(
+                array_key_exists("allowed_warehouse_ids", $filters) && $filters["allowed_warehouse_ids"] !== null,
+                fn($query) => $query->whereIn("warehouse_id", $filters["allowed_warehouse_ids"])
+            )
             ->when($filters["warehouse_id"] ?? null, fn($query, $id) => $query->where("warehouse_id", $id))
             ->when($filters["guide_type"] ?? null, fn($query, $type) => $query->where("guide_type", $type))
             ->when($filters["date_from"] ?? null, fn($query, $date) => $query->where("issue_date", ">=", Utilities::startOfDay($date)))

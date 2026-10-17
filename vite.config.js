@@ -125,7 +125,11 @@ export default defineConfig({
                 'resources/js/System/Pages/Sales/quotations/main.js',
 
                 // System Pages - Warehouses
-                'resources/js/System/Pages/Warehouses/stocks_management/main.js',
+                'resources/js/System/Pages/Warehouses/inventory/stock.js',
+                'resources/js/System/Pages/Warehouses/inventory/transfers.js',
+                'resources/js/System/Pages/Warehouses/inventory/guides.js',
+                'resources/js/System/Pages/Warehouses/inventory/kardex.js',
+                'resources/js/System/Pages/Warehouses/inventory/valued-kardex.js',
 
                 // System Pages - Devices
                 'resources/js/System/Pages/Devices/biometric_devices/main.js',

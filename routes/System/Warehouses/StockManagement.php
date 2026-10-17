@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\{Route};
 $entity = "stocks_management";
 
 Route::get("", [StockManagementController::class, "index"])->name("$entity.index");
-Route::get("/page/stock", [StockManagementController::class, "index"])->name("$entity.stock.index");
-Route::get("/page/kardex", [StockManagementController::class, "index"])->name("$entity.kardex.index");
-Route::get("/page/transfers", [StockManagementController::class, "index"])->name("$entity.transfers.index");
-Route::get("/page/valued", [StockManagementController::class, "index"])->name("$entity.valued.index");
-Route::get("/page/guides", [StockManagementController::class, "index"])->name("$entity.guides.index");
 Route::get("/initParams", [StockManagementController::class, "initParams"])->name("$entity.initParams");
 Route::get("/list", [StockManagementController::class, "list"])->name("$entity.list");
 Route::get("/summary", [StockManagementController::class, "summary"])->name("$entity.summary");

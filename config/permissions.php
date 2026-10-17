@@ -148,6 +148,7 @@ return [
             "stocks_management.kardex.index",
             "stocks_management.transfers.index",
             "stocks_management.valued.index",
+            "stocks_management.guides.index",
         ],
         "stocks_management.list" => ["stocks_management.stock.index"],
         "stocks_management.movements" => [
@@ -156,8 +157,8 @@ return [
             "stocks_management.valued.index",
         ],
         "stocks_management.alerts" => ["stocks_management.stock.index"],
-        "stocks_management.guides" => ["stocks_management.stock.index"],
-        "stocks_management.guides.store" => ["stocks_management.stock.index"],
+        "stocks_management.guides" => ["stocks_management.guides.index"],
+        "stocks_management.guides.store" => ["stocks_management.guides.index"],
         "stocks_management.movements.store" => ["stocks_management.stock.index"],
         "stocks_management.operations.store" => ["stocks_management.stock.index"],
         "stocks_management.transfers.store" => ["stocks_management.transfers.index"],
@@ -166,6 +167,7 @@ return [
             "stocks_management.kardex.index",
             "stocks_management.transfers.index",
             "stocks_management.valued.index",
+            "stocks_management.guides.index",
         ],
 
         "cash_registers.index" => ["cash_registers.index"],

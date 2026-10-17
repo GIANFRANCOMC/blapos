@@ -846,24 +846,6 @@
   font-weight: 650;
 }
 
-.br-inventory-help {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 0.75rem;
-  padding: 0.45rem 0.65rem;
-  border: 1px solid color-mix(in srgb, var(--br-primary) 18%, var(--br-border));
-  border-radius: var(--br-radius-sm);
-  background: color-mix(in srgb, var(--br-primary-soft) 48%, var(--br-white));
-  color: var(--br-secondary);
-  font-size: 0.76rem;
-  font-weight: 650;
-}
-
-.br-inventory-help i {
-  color: var(--br-primary);
-}
-
 .br-inventory-warehouses {
   display: flex;
   flex-wrap: wrap;

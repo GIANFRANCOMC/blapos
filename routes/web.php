@@ -107,6 +107,7 @@ Route::middleware(["auth", "verified", "module.permission", "resource.scope", "n
     Route::prefix("/suppliers")->group($systemRoute."/Purchases/Supplier.php");
 
     // Warehouses
+    Route::prefix("/inventory")->group($systemRoute."/Warehouses/InventoryPages.php");
     Route::prefix("/stocks_management")->group($systemRoute."/Warehouses/StockManagement.php");
 
     // Sessions

@@ -47,11 +47,25 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         if($this->view === "guides") {
 
-            return InventoryGuideService::query($this->filters)->get();
+            $filters = $this->filters;
+
+            if(($filters["warehouse_id"] ?? null) === "all") {
+
+                unset($filters["warehouse_id"]);
+
+            }
+
+            return InventoryGuideService::query($filters)->get();
 
         }
 
         $filters = $this->filters;
+
+        if(($filters["warehouse_id"] ?? null) === "all") {
+
+            unset($filters["warehouse_id"]);
+
+        }
 
         if($this->view === "transfers") {
 

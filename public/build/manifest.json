@@ -114,9 +114,9 @@
       "__plugin-vue_export-helper-DCM8VqI6.js"
     ]
   },
-  "_InputNumber-!~{01h}~.js": {
+  "_InputNumber-!~{01l}~.js": {
     "file": "assets/InputNumber-BQkggnBA.css",
-    "src": "_InputNumber-!~{01h}~.js"
+    "src": "_InputNumber-!~{01l}~.js"
   },
   "_InputNumber-DozhsxN5.js": {
     "file": "assets/InputNumber-DozhsxN5.js",
@@ -147,9 +147,9 @@
       "__plugin-vue_export-helper-DCM8VqI6.js"
     ]
   },
-  "_InputText-!~{013}~.js": {
+  "_InputText-!~{017}~.js": {
     "file": "assets/InputText-B6Ntb1Qk.css",
-    "src": "_InputText-!~{013}~.js"
+    "src": "_InputText-!~{017}~.js"
   },
   "_InputText-BGrRSRl-.js": {
     "file": "assets/InputText-BGrRSRl-.js",
@@ -250,9 +250,9 @@
       "__plugin-vue_export-helper-DCM8VqI6.js"
     ]
   },
-  "_WithoutData-!~{01l}~.js": {
+  "_WithoutData-!~{01s}~.js": {
     "file": "assets/WithoutData-DfxvCmDS.css",
-    "src": "_WithoutData-!~{01l}~.js"
+    "src": "_WithoutData-!~{01s}~.js"
   },
   "_WithoutData-BOkyY1pn.js": {
     "file": "assets/WithoutData-BOkyY1pn.js",
@@ -317,9 +317,29 @@
       "_WithoutData-BegNPZav.js"
     ]
   },
-  "_vue-select-!~{01f}~.js": {
+  "_mount-Dc5wPwVA.js": {
+    "file": "assets/mount-Dc5wPwVA.js",
+    "name": "mount",
+    "imports": [
+      "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
+      "resources/js/System/Helpers/Constants.js",
+      "_Constants-C0yh2flr.js",
+      "_NumberUtils-DKuZGRCX.js",
+      "_Breadcrumb-CNoznXod.js",
+      "_InputDate-BtwfKOC2.js",
+      "_InputNumber-DozhsxN5.js",
+      "_InputSelect2-DrGPlKt5.js",
+      "_InputText-BGrRSRl-.js",
+      "_Paginator-QxBCIIzt.js",
+      "_Loader-DaHy1rZ_.js",
+      "_WithoutData-BegNPZav.js",
+      "_StatusBadge-vej-YP7g.js"
+    ]
+  },
+  "_vue-select-!~{01j}~.js": {
     "file": "assets/vue-select-DARUaxu_.css",
-    "src": "_vue-select-!~{01f}~.js"
+    "src": "_vue-select-!~{01j}~.js"
   },
   "_vue-select-DnYn0sTl.js": {
     "file": "assets/vue-select-DnYn0sTl.js",
@@ -342,7 +362,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-CmVHyxDm.css",
+    "file": "assets/platform-CgOEb3nx.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -1477,28 +1497,124 @@
       "_StringUtils-BhsR8wgp.js"
     ]
   },
-  "resources/js/System/Pages/Warehouses/stocks_management/main.js": {
-    "file": "assets/main-ClTC3SO9.js",
-    "name": "main",
-    "src": "resources/js/System/Pages/Warehouses/stocks_management/main.js",
+  "resources/js/System/Pages/Warehouses/inventory/guides.js": {
+    "file": "assets/guides-Ba6HEeF2.js",
+    "name": "guides",
+    "src": "resources/js/System/Pages/Warehouses/inventory/guides.js",
     "isEntry": true,
     "imports": [
+      "_mount-Dc5wPwVA.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
       "resources/js/System/Helpers/Constants.js",
       "_Constants-C0yh2flr.js",
+      "_axios-CCb-kr4I.js",
       "_NumberUtils-DKuZGRCX.js",
-      "_vue-select-DnYn0sTl.js",
       "_Breadcrumb-CNoznXod.js",
       "_InputDate-BtwfKOC2.js",
+      "_InputText-BGrRSRl-.js",
       "_InputNumber-DozhsxN5.js",
       "_InputSelect2-DrGPlKt5.js",
-      "_InputSlot-DK1xC4hU.js",
-      "_InputText-BGrRSRl-.js",
       "_Paginator-QxBCIIzt.js",
       "_Loader-DaHy1rZ_.js",
       "_WithoutData-BegNPZav.js",
-      "_StatusBadge-vej-YP7g.js",
-      "_axios-CCb-kr4I.js"
+      "_StatusBadge-vej-YP7g.js"
+    ]
+  },
+  "resources/js/System/Pages/Warehouses/inventory/kardex.js": {
+    "file": "assets/kardex-DwB6yLnX.js",
+    "name": "kardex",
+    "src": "resources/js/System/Pages/Warehouses/inventory/kardex.js",
+    "isEntry": true,
+    "imports": [
+      "_mount-Dc5wPwVA.js",
+      "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
+      "resources/js/System/Helpers/Constants.js",
+      "_Constants-C0yh2flr.js",
+      "_axios-CCb-kr4I.js",
+      "_NumberUtils-DKuZGRCX.js",
+      "_Breadcrumb-CNoznXod.js",
+      "_InputDate-BtwfKOC2.js",
+      "_InputText-BGrRSRl-.js",
+      "_InputNumber-DozhsxN5.js",
+      "_InputSelect2-DrGPlKt5.js",
+      "_Paginator-QxBCIIzt.js",
+      "_Loader-DaHy1rZ_.js",
+      "_WithoutData-BegNPZav.js",
+      "_StatusBadge-vej-YP7g.js"
+    ]
+  },
+  "resources/js/System/Pages/Warehouses/inventory/stock.js": {
+    "file": "assets/stock-D0f7lyM-.js",
+    "name": "stock",
+    "src": "resources/js/System/Pages/Warehouses/inventory/stock.js",
+    "isEntry": true,
+    "imports": [
+      "_mount-Dc5wPwVA.js",
+      "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
+      "resources/js/System/Helpers/Constants.js",
+      "_Constants-C0yh2flr.js",
+      "_axios-CCb-kr4I.js",
+      "_NumberUtils-DKuZGRCX.js",
+      "_Breadcrumb-CNoznXod.js",
+      "_InputDate-BtwfKOC2.js",
+      "_InputText-BGrRSRl-.js",
+      "_InputNumber-DozhsxN5.js",
+      "_InputSelect2-DrGPlKt5.js",
+      "_Paginator-QxBCIIzt.js",
+      "_Loader-DaHy1rZ_.js",
+      "_WithoutData-BegNPZav.js",
+      "_StatusBadge-vej-YP7g.js"
+    ]
+  },
+  "resources/js/System/Pages/Warehouses/inventory/transfers.js": {
+    "file": "assets/transfers-Ctjog2pY.js",
+    "name": "transfers",
+    "src": "resources/js/System/Pages/Warehouses/inventory/transfers.js",
+    "isEntry": true,
+    "imports": [
+      "_mount-Dc5wPwVA.js",
+      "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
+      "resources/js/System/Helpers/Constants.js",
+      "_Constants-C0yh2flr.js",
+      "_axios-CCb-kr4I.js",
+      "_NumberUtils-DKuZGRCX.js",
+      "_Breadcrumb-CNoznXod.js",
+      "_InputDate-BtwfKOC2.js",
+      "_InputText-BGrRSRl-.js",
+      "_InputNumber-DozhsxN5.js",
+      "_InputSelect2-DrGPlKt5.js",
+      "_Paginator-QxBCIIzt.js",
+      "_Loader-DaHy1rZ_.js",
+      "_WithoutData-BegNPZav.js",
+      "_StatusBadge-vej-YP7g.js"
+    ]
+  },
+  "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js": {
+    "file": "assets/valued-kardex-DxeWUWj3.js",
+    "name": "valued-kardex",
+    "src": "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js",
+    "isEntry": true,
+    "imports": [
+      "_mount-Dc5wPwVA.js",
+      "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
+      "resources/js/System/Helpers/Constants.js",
+      "_Constants-C0yh2flr.js",
+      "_axios-CCb-kr4I.js",
+      "_NumberUtils-DKuZGRCX.js",
+      "_Breadcrumb-CNoznXod.js",
+      "_InputDate-BtwfKOC2.js",
+      "_InputText-BGrRSRl-.js",
+      "_InputNumber-DozhsxN5.js",
+      "_InputSelect2-DrGPlKt5.js",
+      "_Paginator-QxBCIIzt.js",
+      "_Loader-DaHy1rZ_.js",
+      "_WithoutData-BegNPZav.js",
+      "_StatusBadge-vej-YP7g.js"
     ]
   },
   "resources/js/System/app.js": {
