@@ -2388,6 +2388,15 @@ body.br-layout .br-entity-table > thead > tr > th {
     margin: 0;
 }
 
+.modal-footer.br-entity-modal__footer > .br-entity-modal__footer-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
 .modal-footer.br-entity-modal__footer:has(> .br-btn-cancel:first-child) {
     justify-content: space-between;
 }

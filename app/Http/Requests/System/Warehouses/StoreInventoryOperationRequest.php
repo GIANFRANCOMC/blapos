@@ -23,7 +23,7 @@ final class StoreInventoryOperationRequest extends CompanyFormRequest {
             "items.*.quantity" => ["nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "items.*.resulting_balance" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "items.*.unit_cost" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "reason" => ["required", "string", "max:255"],
+            "reason" => ["required", "string", "max:100"],
         ];
 
     }

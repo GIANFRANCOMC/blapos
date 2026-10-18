@@ -273,6 +273,52 @@
   color: var(--br-on-primary);
 }
 
+.br-btn.br-btn-add-row {
+  border-color: var(--br-success);
+  background: var(--br-success);
+  color: var(--br-on-success);
+}
+
+.br-btn.br-btn-add-row:hover,
+.br-btn.br-btn-add-row:focus-visible {
+  border-color: var(--br-success-hover);
+  background: var(--br-success-hover);
+  color: var(--br-on-success);
+}
+
+.br-icon-danger-plain {
+  display: inline-grid;
+  width: 1.86rem;
+  height: 1.86rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--br-modal-close-muted);
+  font-size: 0.76rem;
+  place-items: center;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.br-icon-danger-plain:hover,
+.br-icon-danger-plain:focus-visible {
+  border: 0;
+  background: transparent;
+  color: var(--br-danger);
+  box-shadow: none;
+  transform: none;
+}
+
+.br-icon-danger-plain:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.br-icon-danger-plain:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .br-btn-action-export {
   border-color: var(--br-success);
   background: var(--br-success);

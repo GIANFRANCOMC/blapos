@@ -270,49 +270,13 @@
         padding-inline: 0;
     }
 
-    .br-inventory-transfer__form {
-        grid-template-columns: 1fr;
-    }
-
-    .br-inventory-transfer__reason,
-    .br-inventory-transfer__destination,
-    .br-inventory-transfer__items {
-        grid-column: auto;
-    }
-
-    .br-inventory-transfer__items-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .br-inventory-transfer__item-row {
-        grid-template-columns: minmax(0, 1fr) 2.25rem;
-    }
-
-    .br-inventory-transfer__item-row > div:first-child {
-        grid-column: 1 / -1;
-    }
-
-    .br-inventory-transfer__remove {
-        grid-column: 2;
-    }
-
-    .br-inventory-operation__config,
-    .br-inventory-operation__item {
-        grid-template-columns: 1fr;
-    }
-
-    .br-inventory-operation__item.has-unit-cost {
+    .br-inventory-operation__config {
         grid-template-columns: 1fr;
     }
 
     .br-inventory-operation__items-header {
         align-items: flex-start;
         flex-direction: column;
-    }
-
-    .br-inventory-operation__item .br-inventory-transfer__remove {
-        justify-self: end;
     }
 
     .br-btn-action-import__label {

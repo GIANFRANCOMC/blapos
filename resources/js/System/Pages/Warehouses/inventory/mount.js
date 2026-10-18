@@ -13,6 +13,7 @@ import Paginator from "@System/Components/Paginator.vue";
 import Loader from "@System/Components/Loader.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 
 export function mountInventoryPage(page) {
 
@@ -28,6 +29,7 @@ export function mountInventoryPage(page) {
         .component("Loader", Loader)
         .component("WithoutData", WithoutData)
         .component("StatusBadge", StatusBadge)
+        .component("SelectNoOptions", SelectNoOptions)
         .mount("#app");
 
 }

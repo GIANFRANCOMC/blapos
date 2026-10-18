@@ -47,9 +47,55 @@ test("transfers open the standard modal and save without leaving the list", () =
 
 });
 
+test("stock operation modal uses the standard primary action and a compact product table", () => {
+
+    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
+    const buttonsCss = read("resources/css/System/br-branding/40-buttons-quick-create.css");
+    const modalCss = read("resources/css/System/br-branding/81-core-roles-entities.css");
+    const selectCss = read("resources/css/System/br-branding/10-tables-breadcrumb-filters.css");
+    const mount = read("resources/js/System/Pages/Warehouses/inventory/mount.js");
+    const request = read("app/Http/Requests/System/Warehouses/StoreInventoryOperationRequest.php");
+    const modal = component.slice(component.indexOf('id="inventoryMovementModal"'));
+
+    assert.match(modal, /inventoryOperation[\s\S]*?:selectable="option => !option\.isGroup"[\s\S]*?#option="option"[\s\S]*?br-inventory-operation__option-group/);
+    assert.match(component, /\{code: "correction", label: "Actualización"[\s\S]*?\{code: "entry", label: "Ingresos"[\s\S]*?\{code: "exit", label: "Salidas"/);
+    assert.match(component, /INVENTORY_OPERATION_GROUPS\.flatMap\(group => \[[\s\S]*?INVENTORY_OPERATIONS\.filter\(operation => operation\.movementType === group\.code\)/);
+    assert.match(modal, /br-inventory-operation__description[\s\S]*?inventoryOperationEffect[\s\S]*?movementForm\.operation\?\.description[\s\S]*?title="Motivo"/);
+    assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?border-left: 2px solid var\(--br-primary\)/);
+    assert.match(modal, /v-model\.trim="movementForm\.reason"[\s\S]*?maxlength="100"[\s\S]*?showCharCounter/);
+    assert.match(request, /"reason" => \["required", "string", "max:100"\]/);
+    assert.match(modal, /<span class="form-label colon-at-end">Productos incluidos<\/span>\s*<span class="text-danger fw-bold"[^>]*>\*<\/span>/);
+    assert.match(modal, /class="br-inventory-operation__items-header"[\s\S]*?Productos incluidos[\s\S]*?class="table-responsive br-inventory-operation__table-wrap"/);
+    assert.doesNotMatch(modal.slice(modal.indexOf('class="br-inventory-operation__items-header"'), modal.indexOf('class="table-responsive br-inventory-operation__table-wrap"')), /Agregar producto/);
+    assert.match(buttonsCss, /\.br-btn\.br-btn-add-row \{[\s\S]*?background: var\(--br-success\);/);
+    assert.doesNotMatch(buttonsCss.match(/\.br-btn\.br-btn-add-row \{[^}]*\}/)?.[0], /min-height|padding|font-size/);
+    assert.match(modal, /class="modal-footer br-entity-modal__footer"[\s\S]*?Cancelar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?Guardar/);
+    assert.match(modalCss, /\.modal-footer\.br-entity-modal__footer > \.br-entity-modal__footer-actions \{[\s\S]*?margin-left: auto;/);
+    assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?display: flex;[\s\S]*?align-items: center;[\s\S]*?min-height: var\(--br-control-height\);[\s\S]*?white-space: nowrap;/);
+    assert.match(inventoryCss, /\.br-inventory-operation__items-header \{[\s\S]*?align-items: flex-end;/);
+    assert.match(inventoryCss, /\.br-inventory-operation__table tbody td \{[\s\S]*?vertical-align: middle;/);
+    assert.match(modal, /<table[\s\S]*?br-inventory-operation__table[\s\S]*?<thead class="br-table-header-surface">[\s\S]*?Producto[\s\S]*?Cantidad[\s\S]*?Costo unitario/);
+    assert.match(modal, /Costo unitario\s*<small>Opcional<\/small>[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?title="Si se omite, se conserva el costo promedio actual\."/);
+    assert.match(modal, /<tr v-for="\(item, index\) in movementForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.amount"/);
+    assert.match(modal, /v-model="item\.product"[\s\S]*?<template #no-options>\s*<SelectNoOptions\/>/);
+    assert.match(mount, /\.component\("SelectNoOptions", SelectNoOptions\)/);
+    assert.match(selectCss, /\.br-layout \.vs__no-options,[\s\S]*?min-height: 2\.65rem;[\s\S]*?text-align: center;/);
+    assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?title="Quitar producto"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
+    assert.match(component, /addMovementItem\(\) \{[\s\S]*?this\.disposeMovementTooltips\(\);[\s\S]*?this\.movementForm\.items\.push\([\s\S]*?this\.refreshMovementTooltips\(\)/);
+    assert.match(component, /removeMovementItem\(index\) \{[\s\S]*?this\.disposeMovementTooltips\(\);[\s\S]*?this\.movementForm\.items\.splice\(index, 1\);[\s\S]*?this\.refreshMovementTooltips\(\)/);
+    assert.match(component, /refreshMovementTooltips\(\) \{[\s\S]*?this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{show: true, time: 0, selector:/);
+    assert.match(component, /"movementForm\.operation"\(\) \{\s*this\.refreshMovementTooltips\(\);/);
+    assert.match(inventoryCss, /\.br-inventory-operation__remove-help > button:disabled \{\s*pointer-events: none;/);
+    assert.match(modal, /class="br-btn br-btn-action-create"[\s\S]*?@click="saveMovement"/);
+    assert.doesNotMatch(modal, /br-inventory-operation__item"|<textarea/);
+
+});
+
 test("stock places warehouse, search and actions in order", () => {
 
     const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const context = component.slice(
         component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
@@ -57,6 +103,8 @@ test("stock places warehouse, search and actions in order", () => {
 
     assert.doesNotMatch(component, /br-inventory__page-heading|br-operational-scope/);
     assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<span>Buscar<\/span>[\s\S]*?Registrar operación[\s\S]*?Registrar traslado[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel/);
+    assert.doesNotMatch(context, /inputGroupPrepend|br-inventory-search__prefix|fa-barcode/);
+    assert.match(inventoryCss, /\.br-layout \.br-inventory__context > \.form-group \{\s*margin-bottom: 0 !important;/);
     assert.doesNotMatch(component, /br-inventory__toolbar/);
     assert.match(component, /Alerts\.confirmDownload/);
 

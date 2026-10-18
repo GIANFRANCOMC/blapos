@@ -95,6 +95,8 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - **Registrar operación** y **Registrar traslado** abren modales estándar con título breve, **Cancelar** y **Guardar**.
 - **Control de stock** muestra saldo actual, stock mínimo y situación por producto. También permite seleccionar **Todos los almacenes** para una vista consolidada por empresa, con desglose por almacén y contador de almacenes que requieren atención.
 - **Registrar operación** es una acción general del control de stock; no se repite por fila para evitar duplicidad visual. Abre un formulario para uno o hasta 100 productos e incluye entrada, salida, toma física, reposición, devolución de cliente y devolución a proveedor.
+- La modal de operación presenta el efecto del tipo seleccionado junto al selector, exige un motivo de hasta 100 caracteres y muestra los productos en una tabla. El costo unitario solo aparece en entradas; el encabezado indica que es opcional y un tooltip explica que, al omitirlo, se conserva el costo promedio actual. Eliminar es un icono rojo sin recuadro con tooltip persistente y **Guardar** reutiliza el botón primario de Productos.
+- El selector de operación agrupa las opciones bajo **Actualización**, **Ingresos** y **Salidas** sin alterar los códigos enviados al backend. El efecto presenta título y explicación breve en una sola línea, con la altura del selector. **Productos incluidos** se marca como obligatorio. **Agregar producto** es un botón verde de tamaño normal, sin icono, en el pie de la modal y a la izquierda de **Guardar**. El selector de productos reutiliza el estado vacío visual de los demás `v-select`.
 - **Kardex** muestra fecha, usuario, producto, tipo, variación, saldo anterior/resultante, motivo y origen.
 - **Traslados** mueve uno o varios productos entre almacenes de la misma empresa mediante salidas y entradas atómicas.
 - **Guías** lista documentos de entrada/salida con número, fecha, almacén, productos, referencia, motivo y estado.
@@ -105,7 +107,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 ### Búsqueda y lectura de códigos
 
 - Las páginas que admiten búsqueda de producto conservan la consulta por nombre, código interno o código de barras.
-- El buscador reutiliza `InputText`; el icono de código de barras forma parte del grupo del campo y comparte borde y foco.
+- El buscador reutiliza `InputText` sin prefijos visuales; admite nombre, código interno y código de barras.
 - El campo admite el código enviado por lectores físicos; la consulta se ejecuta al pulsar **Buscar**, no al cambiar el almacén ni al introducir el código.
 - En **Control de stock**, una coincidencia exacta filtra y resalta el producto.
 - En **Kardex**, una coincidencia exacta consulta directamente su trazabilidad.

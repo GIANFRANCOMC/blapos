@@ -419,13 +419,13 @@ body.br-layout .form-label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.42rem;
+  gap: 0.36rem;
   width: 100%;
-  min-height: 2.2rem;
+  min-height: 1.75rem;
   color: var(--br-text-muted);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.35;
   text-align: center;
 }
 
@@ -436,7 +436,13 @@ body.br-layout .form-label {
 
 .br-layout .vs__no-options,
 body > .vs__dropdown-menu .vs__no-options {
-  padding: 0.45rem 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0.4rem 0.75rem;
+  text-align: center;
 }
 
 .br-layout .vs__no-options:not(:has(.br-select-empty)),
@@ -449,9 +455,9 @@ body > .vs__dropdown-menu .vs__no-options:not(:has(.br-select-empty)) {
 body > .vs__dropdown-menu .vs__no-options:not(:has(.br-select-empty))::after {
   content: "No hay opciones disponibles.";
   color: var(--br-text-muted);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 /* Menú flotante de vue-select: fuera de modales y contenedores con scroll. */
