@@ -35,12 +35,16 @@ body.br-layout ::selection {
 body.br-layout ::placeholder {
   color: color-mix(in srgb, var(--br-text-placeholder) 86%, var(--br-white));
   font-size: var(--br-placeholder-font-size) !important;
+  font-style: normal;
   font-weight: 500;
   opacity: 1;
 }
 
 body.br-layout .select2-selection__placeholder {
+  color: color-mix(in srgb, var(--br-text-placeholder) 86%, var(--br-white));
   font-size: var(--br-placeholder-font-size) !important;
+  font-style: normal;
+  font-weight: 500;
 }
 
 /* -------------------------------------------------------------------------
@@ -697,16 +701,16 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   border-radius: var(--br-app-control-radius);
 }
 
-.br-layout .form-control:hover,
-.br-layout .form-select:hover,
-.br-layout .input-group:hover .form-control,
-.br-layout .input-group:hover .input-group-text,
-.br-layout .input-group:hover .br-input-action,
-.br-layout .v-select .vs__dropdown-toggle:hover,
-.br-layout .select2-container--default .select2-selection--single:hover,
-.br-layout .select2-container--default .select2-selection--multiple:hover {
-  border-color: color-mix(in srgb, var(--br-primary) 26%, var(--br-border-strong));
-  background-color: var(--br-surface-subtle);
+.br-layout .form-control:not(:focus):hover,
+.br-layout .form-select:not(:focus):hover,
+.br-layout .input-group:not(:focus-within):hover .form-control,
+.br-layout .input-group:not(:focus-within):hover .input-group-text,
+.br-layout .input-group:not(:focus-within):hover .br-input-action,
+.br-layout .v-select:not(.vs--open):not(:focus-within) .vs__dropdown-toggle:hover,
+.br-layout .select2-container--default:not(.select2-container--focus):not(.select2-container--open) .select2-selection--single:hover,
+.br-layout .select2-container--default:not(.select2-container--focus):not(.select2-container--open) .select2-selection--multiple:hover {
+  border-color: color-mix(in srgb, var(--br-primary) 26%, var(--br-border-strong)) !important;
+  background-color: var(--br-surface-subtle) !important;
 }
 
 .br-layout .form-control:focus,
@@ -809,8 +813,8 @@ body > .vs__dropdown-menu,
 }
 
 .br-layout .select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background: var(--br-primary);
-  color: var(--br-on-primary);
+  background: var(--br-primary-soft);
+  color: var(--br-primary-active);
 }
 
 /* -------------------------------------------------------------------------

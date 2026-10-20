@@ -393,12 +393,6 @@ input.input-number-no-range[type=number] {
     border-color: var(--br-template-border) !important;
 }
 
-.vs__search::placeholder {
-    color: var(--br-template-muted) !important;
-    font-style: italic !important;
-    font-size: var(--br-placeholder-font-size) !important;
-}
-
 /* BACKGROUND */
 
 /* BUTTONS */

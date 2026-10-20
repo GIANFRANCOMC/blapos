@@ -8,6 +8,7 @@ use App\Helpers\System\{Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{InventoryStockAlert, Warehouse, WarehouseItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
+use DomainException;
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
@@ -212,6 +213,12 @@ class StockManagementService {
         ?int $userId = null,
         ?float $unitCost = null
     ) {
+
+        if(!in_array($originType, InventoryMovementService::manualOperationOrigins($movementType), true)) {
+
+            throw new DomainException("El origen no corresponde al tipo de operación de inventario.");
+
+        }
 
         return InventoryMovementService::apply([
             "warehouse_id" => $warehouseId,

@@ -341,3 +341,24 @@ test("operation form orders warehouse context, type and effect before the full-w
     assert.match(component, /code: "physical_count"[\s\S]*?description: "Usa el saldo contado\."/);
 
 });
+
+test("ingresos manuales solo admiten entrada manual y devolución de cliente", () => {
+
+    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const service = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
+    const stockService = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
+    const operationRequest = read("app/Http/Requests/System/Warehouses/StoreInventoryOperationRequest.php");
+    const movementRequest = read("app/Http/Requests/System/Warehouses/StoreInventoryMovementRequest.php");
+
+    assert.match(component, /\{code: "manual_entry", label: "Entrada manual", movementType: "entry"/);
+    assert.match(component, /\{code: "customer_return", label: "Devolución de cliente", movementType: "entry"/);
+    assert.doesNotMatch(component, /replenishment|Reposición/);
+    assert.match(service, /self::TYPE_ENTRY => \[self::ORIGIN_MANUAL, self::ORIGIN_CUSTOMER_RETURN\]/);
+    assert.match(stockService, /if\(!in_array\(\$originType, InventoryMovementService::manualOperationOrigins\(\$movementType\), true\)\)/);
+
+    for(const request of [operationRequest, movementRequest]) {
+        assert.match(request, /Rule::in\(InventoryMovementService::manualOperationOrigins/);
+        assert.doesNotMatch(request, /replenishment/);
+    }
+
+});

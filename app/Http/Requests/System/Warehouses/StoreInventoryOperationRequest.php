@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Warehouses;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use Illuminate\Validation\{Validator};
+use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
+use Illuminate\Validation\{Rule, Validator};
 
 final class StoreInventoryOperationRequest extends CompanyFormRequest {
 
@@ -17,7 +18,7 @@ final class StoreInventoryOperationRequest extends CompanyFormRequest {
         return [
             "warehouse_id" => ["required", "integer"],
             "movement_type" => ["required", "in:entry,exit,correction"],
-            "origin_type" => ["required", "in:manual,replenishment,customer_return,supplier_return,physical_count"],
+            "origin_type" => ["required", Rule::in(InventoryMovementService::manualOperationOrigins((string) $this->input("movement_type")))],
             "items" => ["required", "array", "min:1", "max:100"],
             "items.*.item_id" => ["required", "integer", "distinct"],
             "items.*.quantity" => ["nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],

@@ -502,14 +502,6 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
   transition: var(--br-transition);
 }
 
-.br-layout .form-control:hover,
-.br-layout .form-select:hover,
-.br-layout .v-select .vs__dropdown-toggle:hover,
-.br-layout .select2-container--default .select2-selection--single:hover,
-.br-layout .select2-container--default .select2-selection--multiple:hover {
-  border-color: color-mix(in srgb, var(--br-primary) 30%, var(--br-border)) !important;
-}
-
 .br-layout .form-control:focus,
 .br-layout .form-control:focus-visible,
 .br-layout .form-select:focus,

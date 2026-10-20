@@ -889,7 +889,6 @@ const INVENTORY_OPERATIONS = [
     {code: "manual_entry", label: "Entrada manual", movementType: "entry", originType: "manual", description: "Suma las unidades indicadas."},
     {code: "manual_exit", label: "Salida manual", movementType: "exit", originType: "manual", description: "Resta las unidades indicadas."},
     {code: "physical_count", label: "Toma física", movementType: "correction", originType: "physical_count", description: "Usa el saldo contado."},
-    {code: "replenishment", label: "Reposición", movementType: "entry", originType: "replenishment", description: "Suma existencias recibidas."},
     {code: "customer_return", label: "Devolución de cliente", movementType: "entry", originType: "customer_return", description: "Devuelve unidades al stock."},
     {code: "supplier_return", label: "Devolución a proveedor", movementType: "exit", originType: "supplier_return", description: "Resta unidades devueltas."}
 ];
@@ -1391,7 +1390,6 @@ export default {
                 purchase_cancellation: "Anulación de compra",
                 transfer_out: "Traslado enviado",
                 transfer_in: "Traslado recibido",
-                replenishment: "Reposición",
                 customer_return: "Devolución de cliente",
                 supplier_return: "Devolución a proveedor",
                 physical_count: "Toma física"

@@ -327,7 +327,6 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "purchase_cancellation" => "Anulación de compra",
             "transfer_out" => "Traslado enviado",
             "transfer_in" => "Traslado recibido",
-            "replenishment" => "Reposición",
             "customer_return" => "Devolución de cliente",
             "supplier_return" => "Devolución a proveedor",
             "physical_count" => "Toma física",

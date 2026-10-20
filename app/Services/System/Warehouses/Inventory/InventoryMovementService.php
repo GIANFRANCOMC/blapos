@@ -43,8 +43,6 @@ final class InventoryMovementService {
 
     public const ORIGIN_TRANSFER_IN = "transfer_in";
 
-    public const ORIGIN_REPLENISHMENT = "replenishment";
-
     public const ORIGIN_CUSTOMER_RETURN = "customer_return";
 
     public const ORIGIN_SUPPLIER_RETURN = "supplier_return";
@@ -60,6 +58,17 @@ final class InventoryMovementService {
         self::TYPE_EXIT,
         self::TYPE_CORRECTION,
     ];
+
+    public static function manualOperationOrigins(string $movementType): array {
+
+        return match($movementType) {
+            self::TYPE_ENTRY => [self::ORIGIN_MANUAL, self::ORIGIN_CUSTOMER_RETURN],
+            self::TYPE_EXIT => [self::ORIGIN_MANUAL, self::ORIGIN_SUPPLIER_RETURN],
+            self::TYPE_CORRECTION => [self::ORIGIN_PHYSICAL_COUNT],
+            default => [],
+        };
+
+    }
 
     public static function apply(array $data): InventoryMovement {
 

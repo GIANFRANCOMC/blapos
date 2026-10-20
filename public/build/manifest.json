@@ -307,26 +307,8 @@
       "__commonjsHelpers-Cpj98o6Y.js"
     ]
   },
-  "_mount-CchAW37m.js": {
-    "file": "assets/mount-CchAW37m.js",
-    "name": "mount",
-    "imports": [
-      "__plugin-vue_export-helper-DCM8VqI6.js",
-      "_vue-select-DnYn0sTl.js",
-      "resources/js/System/Helpers/Constants.js",
-      "_Constants-C0yh2flr.js",
-      "_NumberUtils-DKuZGRCX.js",
-      "_Breadcrumb-CNoznXod.js",
-      "_InputNumber-DozhsxN5.js",
-      "_InputSlot-DK1xC4hU.js",
-      "_InputText-BGrRSRl-.js",
-      "_Loader-DaHy1rZ_.js",
-      "_Paginator-QxBCIIzt.js",
-      "_WithoutData-ClNgwzg2.js"
-    ]
-  },
-  "_mount-HiduZni-.js": {
-    "file": "assets/mount-HiduZni-.js",
+  "_mount-CFViK9cI.js": {
+    "file": "assets/mount-CFViK9cI.js",
     "name": "mount",
     "imports": [
       "__plugin-vue_export-helper-DCM8VqI6.js",
@@ -344,6 +326,24 @@
       "_Loader-DaHy1rZ_.js",
       "_WithoutData-ClNgwzg2.js",
       "_StatusBadge-vej-YP7g.js"
+    ]
+  },
+  "_mount-CchAW37m.js": {
+    "file": "assets/mount-CchAW37m.js",
+    "name": "mount",
+    "imports": [
+      "__plugin-vue_export-helper-DCM8VqI6.js",
+      "_vue-select-DnYn0sTl.js",
+      "resources/js/System/Helpers/Constants.js",
+      "_Constants-C0yh2flr.js",
+      "_NumberUtils-DKuZGRCX.js",
+      "_Breadcrumb-CNoznXod.js",
+      "_InputNumber-DozhsxN5.js",
+      "_InputSlot-DK1xC4hU.js",
+      "_InputText-BGrRSRl-.js",
+      "_Loader-DaHy1rZ_.js",
+      "_Paginator-QxBCIIzt.js",
+      "_WithoutData-ClNgwzg2.js"
     ]
   },
   "_vue-select-!~{01l}~.js": {
@@ -371,7 +371,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-CE4NAsc6.css",
+    "file": "assets/platform-7TL8rogE.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -1521,12 +1521,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/guides.js": {
-    "file": "assets/guides-SDerKIDI.js",
+    "file": "assets/guides-B0qpu-Id.js",
     "name": "guides",
     "src": "resources/js/System/Pages/Warehouses/inventory/guides.js",
     "isEntry": true,
     "imports": [
-      "_mount-HiduZni-.js",
+      "_mount-CFViK9cI.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
       "_vue-select-DnYn0sTl.js",
       "resources/js/System/Helpers/Constants.js",
@@ -1546,12 +1546,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/kardex.js": {
-    "file": "assets/kardex-CenMg4KP.js",
+    "file": "assets/kardex-CBxQ86Gz.js",
     "name": "kardex",
     "src": "resources/js/System/Pages/Warehouses/inventory/kardex.js",
     "isEntry": true,
     "imports": [
-      "_mount-HiduZni-.js",
+      "_mount-CFViK9cI.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
       "_vue-select-DnYn0sTl.js",
       "resources/js/System/Helpers/Constants.js",
@@ -1571,12 +1571,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/stock.js": {
-    "file": "assets/stock-DN_fBXxA.js",
+    "file": "assets/stock-gPRnaiwo.js",
     "name": "stock",
     "src": "resources/js/System/Pages/Warehouses/inventory/stock.js",
     "isEntry": true,
     "imports": [
-      "_mount-HiduZni-.js",
+      "_mount-CFViK9cI.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
       "_vue-select-DnYn0sTl.js",
       "resources/js/System/Helpers/Constants.js",
@@ -1596,12 +1596,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/transfers.js": {
-    "file": "assets/transfers-GhaMbFVs.js",
+    "file": "assets/transfers-LI6LBbIZ.js",
     "name": "transfers",
     "src": "resources/js/System/Pages/Warehouses/inventory/transfers.js",
     "isEntry": true,
     "imports": [
-      "_mount-HiduZni-.js",
+      "_mount-CFViK9cI.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
       "_vue-select-DnYn0sTl.js",
       "resources/js/System/Helpers/Constants.js",
@@ -1621,12 +1621,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js": {
-    "file": "assets/valued-kardex-B6E4jgUB.js",
+    "file": "assets/valued-kardex-BrhQPvGU.js",
     "name": "valued-kardex",
     "src": "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js",
     "isEntry": true,
     "imports": [
-      "_mount-HiduZni-.js",
+      "_mount-CFViK9cI.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
       "_vue-select-DnYn0sTl.js",
       "resources/js/System/Helpers/Constants.js",

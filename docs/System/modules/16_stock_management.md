@@ -34,7 +34,6 @@ Suma una cantidad positiva al saldo. Orígenes implementados:
 - `product_opening`: stock inicial al crear un producto.
 - `manual`: entrada registrada desde Inventario.
 - `sale_cancellation`: reposición automática al anular una venta.
-- `replenishment`: reposición operativa de existencias.
 - `customer_return`: devolución física recibida de un cliente.
 
 - `purchase`: recepción parcial o total de una compra.
@@ -95,7 +94,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - En `lg` y `xl`, la búsqueda de Control de stock ocupa 3 de 12 columnas. En Kardex, Kardex valorizado y Guías, almacén, tipo, Desde, Hasta, **Buscar** y **Acciones** comparten una fila; los botones quedan inmediatamente después de los campos, con la misma alineación de Productos. En pantallas menores se distribuyen en más filas sin comprimir los campos.
 - **Registrar operación** y **Registrar traslado** abren modales estándar con título breve, **Cancelar** y **Guardar**.
 - **Control de stock** muestra siempre la columna **Almacenes**, además de saldo actual, stock mínimo y situación por producto. Con un almacén seleccionado, la columna identifica ese almacén y su cantidad; con **Todos los almacenes**, presenta el desglose por almacén y el contador de almacenes que requieren atención.
-- **Registrar operación** permanece disponible incluso con **Todos los almacenes** seleccionado. Su modal exige elegir un **Almacén de la operación** real; si el listado está filtrado por uno, lo propone, pero no cambia el filtro. El formulario admite uno o hasta 100 productos e incluye entrada, salida, toma física, reposición, devolución de cliente y devolución a proveedor.
+- **Registrar operación** permanece disponible incluso con **Todos los almacenes** seleccionado. Su modal exige elegir un **Almacén de la operación** real; si el listado está filtrado por uno, lo propone, pero no cambia el filtro. El formulario admite uno o hasta 100 productos. En **Ingresos** solo ofrece entrada manual y devolución de cliente; también permite salida manual, toma física y devolución a proveedor según el grupo correspondiente.
 - La modal de operación presenta primero **Almacén de la operación** y una nota en negrita sobre el alcance del cambio, sin un rótulo adicional. Después aparecen **Tipo de operación** y su alerta de efecto, también sin rótulo; **Motivo** ocupa todo el ancho y admite hasta 100 caracteres. Los productos se muestran en una tabla. El costo unitario solo aparece en entradas; el encabezado indica que es opcional y un tooltip explica que, al omitirlo, se conserva el costo promedio actual. Eliminar es un icono rojo sin recuadro con tooltip persistente y **Guardar** reutiliza el botón primario de Productos.
 - El selector de operación agrupa las opciones bajo **Actualización**, **Ingresos** y **Salidas** sin alterar los códigos enviados al backend. El efecto presenta título y explicación breve en una sola línea, con la altura del selector. **Productos incluidos** se marca como obligatorio. **Agregar producto** es un botón verde de tamaño normal, sin icono, en el pie de la modal y a la izquierda de **Guardar**. El selector de productos reutiliza el estado vacío visual de los demás `v-select`.
 - **Kardex** muestra fecha, usuario, producto, tipo, variación, saldo anterior/resultante, motivo y origen.
@@ -147,7 +146,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - Las entradas de compra usan el costo unitario recibido.
 - Las salidas usan el costo promedio vigente del almacén.
 - Los traslados conservan el costo del almacén de origen para la entrada del destino.
-- Las entradas manuales y reposiciones aceptan costo unitario opcional; si se omite, conservan el promedio actual.
+- Las entradas manuales y devoluciones de cliente aceptan costo unitario opcional; si se omite, conservan el promedio actual.
 - Nunca usa el precio de venta como costo.
 - La página y su Excel están activos y usan los mismos filtros del Kardex.
 - La vista muestra una ayuda compacta: `unit_cost` es el costo usado para valorizar el movimiento, y si una entrada manual no lo informa se conserva el promedio ponderado vigente del almacén.
@@ -226,7 +225,7 @@ La navegación funcional evita nombres duplicados:
 - **Kardex / Reporte Kardex / Movimientos** comparten `inventory_movements`, con filtros y distintas estrategias de presentación o exportación.
 - **Traslados / Transferencia de almacenes** son una sola operación multiproducto.
 - **Toma física** es una corrección con origen `physical_count`.
-- **Reposiciones y devoluciones** usan `replenishment`, `customer_return` y `supplier_return`.
+- **Devoluciones** usan `customer_return` y `supplier_return`; el ingreso manual usa `manual`.
 
 ## Actualizacion: ventas por almacen y caja
 
