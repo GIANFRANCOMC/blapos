@@ -177,7 +177,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; Producto activa la variante descriptiva de `CatalogFormTabs`, mientras Servicios y Membresías conservan por ahora la variante compacta.
 - Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
 - Los placeholders del sistema toman `--br-placeholder-font-size` para mantener una lectura consistente en inputs, `vue-select` y Select2.
-- El estado sin registros del listado usa la ilustración `public/System/assets/img/utils/without_data/empty_products.png`.
+- El estado sin registros del listado usa la ilustración compartida `public/System/assets/img/utils/without_data/empty_records.png` mediante `WithoutData`.
 - Producto sigue el orden: código interno, código de barras, nombre, precio de venta, precio mínimo, precio máximo y estado.
 - El estado se selecciona mediante el selector reutilizable `vue-select`, con las mismas reglas visuales y de interacción que el resto de selectores del sistema.
 - El selector de estado ocupa cuatro columnas en escritorio para evitar opciones innecesariamente anchas.

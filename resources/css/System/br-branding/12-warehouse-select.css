@@ -1,0 +1,66 @@
+.br-layout .br-warehouse-select .vs__selected-options,
+.br-layout .br-warehouse-select .vs__selected {
+    min-width: 0;
+}
+
+.br-layout .br-warehouse-select .vs__selected {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.br-warehouse-select__value {
+    display: inline-flex;
+    align-items: baseline;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.br-warehouse-select__branch,
+.br-warehouse-select__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.br-warehouse-select__branch {
+    flex: 0 1 auto;
+    max-width: 55%;
+    color: var(--br-secondary);
+    font-weight: 700;
+}
+
+.br-warehouse-select__separator {
+    flex: 0 0 auto;
+    margin-inline: 0.3rem;
+    color: var(--br-text-muted);
+    font-weight: 400;
+}
+
+.br-warehouse-select__name {
+    flex: 1 1 auto;
+    color: var(--br-text);
+    font-weight: 400;
+}
+
+.br-layout .br-warehouse-select .vs__dropdown-option,
+body > .vs__dropdown-menu .vs__dropdown-option:has(.br-warehouse-select__value) {
+    padding-block: 0.52rem;
+    border-left: 2px solid transparent;
+}
+
+.br-layout .br-warehouse-select .vs__dropdown-option--highlight,
+.br-layout .br-warehouse-select .vs__dropdown-option--selected,
+body > .vs__dropdown-menu .vs__dropdown-option--highlight:has(.br-warehouse-select__value),
+body > .vs__dropdown-menu .vs__dropdown-option--selected:has(.br-warehouse-select__value) {
+    border-left-color: var(--br-primary);
+}
+
+.br-layout .br-warehouse-select .vs__dropdown-option--highlight .br-warehouse-select__branch,
+.br-layout .br-warehouse-select .vs__dropdown-option--selected .br-warehouse-select__branch,
+body > .vs__dropdown-menu .vs__dropdown-option--highlight .br-warehouse-select__branch,
+body > .vs__dropdown-menu .vs__dropdown-option--selected .br-warehouse-select__branch {
+    color: var(--br-primary-active);
+}

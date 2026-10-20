@@ -121,13 +121,25 @@ class StockManagementController extends BaseController {
             "date_to",
         ]);
 
+        $allWarehouses = ($filters["warehouse_id"] ?? null) === "all";
         $warehouseId = (int) ($filters["warehouse_id"] ?? 0);
         $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
             $this->getAuthUser(),
             AccessScopeService::WAREHOUSE
         );
 
-        if($warehouseId <= 0 || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
+        if($allWarehouses) {
+
+            if(!RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.transfers.index")) {
+
+                abort(403, "No tienes permiso para consultar los traslados.");
+
+            }
+
+            $filters["origin_types"] = ["transfer_out", "transfer_in"];
+            unset($filters["warehouse_id"]);
+
+        }elseif($warehouseId <= 0 || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
 
             return response()->json(["data" => [], "total" => 0]);
 

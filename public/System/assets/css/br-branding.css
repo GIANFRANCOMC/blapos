@@ -896,6 +896,74 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
   }
 }
 
+/* Source: resources/css/System/br-branding/12-warehouse-select.css */
+.br-layout .br-warehouse-select .vs__selected-options,
+.br-layout .br-warehouse-select .vs__selected {
+    min-width: 0;
+}
+
+.br-layout .br-warehouse-select .vs__selected {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.br-warehouse-select__value {
+    display: inline-flex;
+    align-items: baseline;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.br-warehouse-select__branch,
+.br-warehouse-select__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.br-warehouse-select__branch {
+    flex: 0 1 auto;
+    max-width: 55%;
+    color: var(--br-secondary);
+    font-weight: 700;
+}
+
+.br-warehouse-select__separator {
+    flex: 0 0 auto;
+    margin-inline: 0.3rem;
+    color: var(--br-text-muted);
+    font-weight: 400;
+}
+
+.br-warehouse-select__name {
+    flex: 1 1 auto;
+    color: var(--br-text);
+    font-weight: 400;
+}
+
+.br-layout .br-warehouse-select .vs__dropdown-option,
+body > .vs__dropdown-menu .vs__dropdown-option:has(.br-warehouse-select__value) {
+    padding-block: 0.52rem;
+    border-left: 2px solid transparent;
+}
+
+.br-layout .br-warehouse-select .vs__dropdown-option--highlight,
+.br-layout .br-warehouse-select .vs__dropdown-option--selected,
+body > .vs__dropdown-menu .vs__dropdown-option--highlight:has(.br-warehouse-select__value),
+body > .vs__dropdown-menu .vs__dropdown-option--selected:has(.br-warehouse-select__value) {
+    border-left-color: var(--br-primary);
+}
+
+.br-layout .br-warehouse-select .vs__dropdown-option--highlight .br-warehouse-select__branch,
+.br-layout .br-warehouse-select .vs__dropdown-option--selected .br-warehouse-select__branch,
+body > .vs__dropdown-menu .vs__dropdown-option--highlight .br-warehouse-select__branch,
+body > .vs__dropdown-menu .vs__dropdown-option--selected .br-warehouse-select__branch {
+    color: var(--br-primary-active);
+}
+
 /* Source: resources/css/System/br-branding/20-sales-tables-status.css */
 /* -------------------------------------------------------------------------
  * [br] Layout — CTAs en columna lateral (venta): rejilla 2+1 + CTA de cierre
@@ -7133,7 +7201,7 @@ body.br-layout .table > tbody > tr > td,
 .br-entity-empty-state .br-empty-state__custom-image {
   width: min(16rem, 70vw);
   height: 9.5rem;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .br-entity-modal .br-entity-form-section {
@@ -12303,14 +12371,15 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory__table {
     width: 100%;
-    min-width: 42rem;
+    min-width: 54rem;
     table-layout: fixed;
 }
 
-.br-inventory__col-product { width: 37%; }
+.br-inventory__col-product { width: 30%; }
 .br-inventory__col-current,
-.br-inventory__col-minimum { width: 15%; }
-.br-inventory__col-status { width: 21%; }
+.br-inventory__col-minimum { width: 12%; }
+.br-inventory__col-warehouses { width: 28%; }
+.br-inventory__col-status { width: 18%; }
 
 .br-inventory__table td:last-child {
     overflow: visible;
@@ -12413,14 +12482,16 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-inventory-transfer__table {
-    min-width: 42rem;
+    min-width: 64rem;
 }
 
-.br-inventory-transfer__col-date { width: 19%; }
-.br-inventory-transfer__col-product { width: 24%; }
-.br-inventory-transfer__col-movement { width: 15%; }
-.br-inventory-transfer__col-quantity { width: 12%; }
-.br-inventory-transfer__col-reference { width: 30%; }
+.br-inventory-transfer__col-date { width: 15%; }
+.br-inventory-transfer__col-product { width: 18%; }
+.br-inventory-transfer__col-source,
+.br-inventory-transfer__col-destination { width: 16%; }
+.br-inventory-transfer__col-movement { width: 12%; }
+.br-inventory-transfer__col-quantity { width: 9%; }
+.br-inventory-transfer__col-reference { width: 14%; }
 
 .br-inventory-operation__config {
     display: grid;
@@ -12431,6 +12502,11 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory-operation__config > div {
     min-width: 0;
+}
+
+.br-inventory-operation__warehouse-info,
+.br-inventory-operation__description {
+    align-self: end;
 }
 
 .br-layout .br-inventory-operation__config .vs__dropdown-option--disabled {
@@ -12475,6 +12551,14 @@ body.br-layout .br-entity-table > thead > tr > th {
     background: color-mix(in srgb, var(--br-warning-soft) 65%, var(--br-white));
 }
 
+.br-inventory-operation__warehouse-info .br-inventory-operation__effect {
+    color: var(--br-text-muted);
+    font-size: 0.72rem;
+    font-weight: 400;
+    line-height: 1.3;
+    white-space: normal;
+}
+
 .br-inventory-operation__effect strong {
     flex: 0 0 auto;
     color: var(--br-secondary);
@@ -12494,6 +12578,12 @@ body.br-layout .br-entity-table > thead > tr > th {
 .br-layout .br-inventory-operation__reason.form-group {
     grid-column: 1 / -1;
     margin-bottom: 0 !important;
+}
+
+@media (max-width: 575.98px) {
+    .br-inventory-operation__config {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .br-inventory-operation__items {
@@ -18501,6 +18591,29 @@ body > .vs__dropdown-menu,
 
 .br-layout .table tbody tr:hover {
   background-color: var(--br-app-row-hover);
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state),
+.br-layout .table > tbody > tr:has(.br-empty-state):hover {
+  background-color: var(--br-surface-soft);
+  box-shadow: none;
+  transition: none;
+  cursor: default;
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state) > td {
+  --bs-table-accent-bg: transparent;
+  --bs-table-hover-bg: transparent;
+  background-color: var(--br-surface-soft);
+  box-shadow: none;
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state):hover > td:first-child {
+  border-left-color: transparent;
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state) .br-empty-state__custom-image {
+  opacity: 0.86;
 }
 
 .br-layout .table > tbody > tr > td:first-child {

@@ -99,7 +99,7 @@
                 </template>
                 <tr v-else>
                     <td colspan="5" class="py-4">
-                        <WithoutData class="br-entity-empty-state" type="image" image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                        <WithoutData class="br-entity-empty-state" type="image"/>
                     </td>
                 </tr>
             </tbody>

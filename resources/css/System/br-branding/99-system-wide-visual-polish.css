@@ -871,6 +871,29 @@ body > .vs__dropdown-menu,
   background-color: var(--br-app-row-hover);
 }
 
+.br-layout .table > tbody > tr:has(.br-empty-state),
+.br-layout .table > tbody > tr:has(.br-empty-state):hover {
+  background-color: var(--br-surface-soft);
+  box-shadow: none;
+  transition: none;
+  cursor: default;
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state) > td {
+  --bs-table-accent-bg: transparent;
+  --bs-table-hover-bg: transparent;
+  background-color: var(--br-surface-soft);
+  box-shadow: none;
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state):hover > td:first-child {
+  border-left-color: transparent;
+}
+
+.br-layout .table > tbody > tr:has(.br-empty-state) .br-empty-state__custom-image {
+  opacity: 0.86;
+}
+
 .br-layout .table > tbody > tr > td:first-child {
   border-left: 1px solid transparent;
 }

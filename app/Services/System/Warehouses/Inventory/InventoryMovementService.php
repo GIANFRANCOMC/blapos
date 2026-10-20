@@ -304,9 +304,71 @@ final class InventoryMovementService {
         int $perPage = 15
     ): LengthAwarePaginator {
 
-        return self::getKardexQuery($filters)
+        $page = self::getKardexQuery($filters)
             ->orderByDesc("id")
             ->paginate($perPage);
+
+        $originTypes = $filters["origin_types"] ?? [];
+        $transferOrigins = [self::ORIGIN_TRANSFER_OUT, self::ORIGIN_TRANSFER_IN];
+
+        if(!is_array($originTypes) || !array_intersect($originTypes, $transferOrigins)) {
+
+            return $page;
+
+        }
+
+        $warehouseIds = $page->getCollection()
+            ->flatMap(fn(InventoryMovement $movement) => [
+                (int) ($movement->metadata["source_warehouse_id"] ?? 0),
+                (int) ($movement->metadata["destination_warehouse_id"] ?? 0),
+            ])
+            ->filter(fn(int $warehouseId) => $warehouseId > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if(!$warehouseIds) {
+
+            return $page;
+
+        }
+
+        $warehouseQuery = Warehouse::query()
+            ->with("branch:id,name")
+            ->whereIn("id", $warehouseIds);
+
+        if(($filters["allowed_warehouse_ids"] ?? null) !== null) {
+
+            $warehouseQuery->whereIn("id", $filters["allowed_warehouse_ids"]);
+
+        }
+
+        $warehouses = $warehouseQuery
+            ->get(["id", "branch_id", "name"])
+            ->keyBy("id");
+
+        $page->getCollection()->each(function(InventoryMovement $movement) use ($warehouses) {
+
+            $sourceId = (int) ($movement->metadata["source_warehouse_id"] ?? 0);
+            $destinationId = (int) ($movement->metadata["destination_warehouse_id"] ?? 0);
+
+            foreach([
+                "transfer_source_warehouse" => $sourceId,
+                "transfer_destination_warehouse" => $destinationId,
+            ] as $attribute => $warehouseId) {
+
+                $warehouse = $warehouses->get($warehouseId);
+
+                $movement->setAttribute($attribute, $warehouse ? [
+                    "name" => $warehouse->name,
+                    "branch_name" => $warehouse->branch?->name,
+                ] : null);
+
+            }
+
+        });
+
+        return $page;
 
     }
 

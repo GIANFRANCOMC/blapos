@@ -119,7 +119,7 @@
                 </template>
                 <tr v-else>
                     <td colspan="5" class="py-4">
-                        <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar." image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                        <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
                     </td>
                 </tr>
             </tbody>

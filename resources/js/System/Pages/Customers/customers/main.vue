@@ -118,8 +118,7 @@
                                 class="br-entity-empty-state"
                                 type="image"
                                 text="Aún no hay clientes"
-                                description="Agrega un cliente o carga un archivo para empezar."
-                                image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                description="Agrega un cliente o carga un archivo para empezar."/>
                         </td>
                     </tr>
                 </tbody>

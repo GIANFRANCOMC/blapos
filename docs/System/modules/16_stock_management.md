@@ -22,6 +22,7 @@ El módulo separa dos conceptos:
 - Vistas Blade: `resources/views/System/general/Warehouses/inventory/`
 - Entradas frontend: `resources/js/System/Pages/Warehouses/inventory/`
 - Presentación compartida: `InventoryPage.vue`, con una página fija por entrada; no hay tabs ni cambio de submódulo dentro de la vista.
+- Selector reutilizable de almacenes: `resources/js/System/Components/Generics/WarehouseSelect.vue` y `resources/css/System/br-branding/12-warehouse-select.css`.
 - Estilos reutilizables: bloque `br-inventory` de `resources/css/System/br-branding/82-inventory.css`
 
 ## Tipos de movimiento
@@ -78,9 +79,9 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 ## Interfaz
 
 - Cada submódulo conserva su página y breadcrumb propios. No hay títulos descriptivos duplicados ni tabs entre submódulos: se cambia de página desde el menú lateral.
-- El selector de **Almacén de trabajo** define el contexto de la página actual. En Control de stock, la barra sigue el orden **Almacén de trabajo**, **Búsqueda**, **Buscar**, **Registrar operación** y **Acciones**; este último contiene **Descargar Excel**.
+- El selector de **Almacén de trabajo** define el contexto del listado, no el almacén donde se registra una operación o un traslado. En Control de stock, la barra sigue el orden **Almacén de trabajo**, **Búsqueda**, **Buscar**, **Registrar operación** y **Acciones**; este último contiene **Descargar Excel**.
 - Las cinco páginas tienen **Buscar**. Elegir otro almacén o cambiar un filtro invalida los resultados anteriores, pero no consulta el servidor: la nueva consulta solo empieza al pulsar **Buscar**. Sin resultados se reutilizan el título y subtítulo predeterminados de `WithoutData`, igual que en Productos.
-- En las cinco páginas, cada opción de **Almacén de trabajo** identifica `Sucursal / Almacén`; **Todos los almacenes** se conserva únicamente en Control de stock. La misma etiqueta se reutiliza en origen y destino de Traslados.
+- En las cinco páginas, cada opción de **Almacén de trabajo** identifica `Sucursal - Almacén`. **Todos los almacenes** está disponible en Control de stock y Traslados. La tabla de Traslados muestra siempre **Almacén origen** y **Almacén destino**, con su sucursal; los nombres se resuelven también para almacenes inactivos, siempre dentro del alcance autorizado. El origen y destino al registrar un traslado deben ser almacenes reales.
 - `Catálogo comercial` expone los cinco accesos bajo `Inventario`:
   - **Control de stock**: `/inventory/stock`, existencias actuales, mínimos y alertas.
   - **Traslados**: `/inventory/transfers`, movimientos multiproducto entre almacenes.
@@ -93,23 +94,23 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - Los filtros permanecen sobre el fondo de la página y separados de la tabla por un espacio visible. El contenedor de contenido no usa el estilo blanco de tarjeta; únicamente `br-entity-list` delimita el listado.
 - En `lg` y `xl`, la búsqueda de Control de stock ocupa 3 de 12 columnas. En Kardex, Kardex valorizado y Guías, almacén, tipo, Desde, Hasta, **Buscar** y **Acciones** comparten una fila; los botones quedan inmediatamente después de los campos, con la misma alineación de Productos. En pantallas menores se distribuyen en más filas sin comprimir los campos.
 - **Registrar operación** y **Registrar traslado** abren modales estándar con título breve, **Cancelar** y **Guardar**.
-- **Control de stock** muestra saldo actual, stock mínimo y situación por producto. También permite seleccionar **Todos los almacenes** para una vista consolidada por empresa, con desglose por almacén y contador de almacenes que requieren atención.
-- **Registrar operación** es una acción general del control de stock; no se repite por fila para evitar duplicidad visual. Abre un formulario para uno o hasta 100 productos e incluye entrada, salida, toma física, reposición, devolución de cliente y devolución a proveedor.
-- La modal de operación presenta el efecto del tipo seleccionado junto al selector, exige un motivo de hasta 100 caracteres y muestra los productos en una tabla. El costo unitario solo aparece en entradas; el encabezado indica que es opcional y un tooltip explica que, al omitirlo, se conserva el costo promedio actual. Eliminar es un icono rojo sin recuadro con tooltip persistente y **Guardar** reutiliza el botón primario de Productos.
+- **Control de stock** muestra siempre la columna **Almacenes**, además de saldo actual, stock mínimo y situación por producto. Con un almacén seleccionado, la columna identifica ese almacén y su cantidad; con **Todos los almacenes**, presenta el desglose por almacén y el contador de almacenes que requieren atención.
+- **Registrar operación** permanece disponible incluso con **Todos los almacenes** seleccionado. Su modal exige elegir un **Almacén de la operación** real; si el listado está filtrado por uno, lo propone, pero no cambia el filtro. El formulario admite uno o hasta 100 productos e incluye entrada, salida, toma física, reposición, devolución de cliente y devolución a proveedor.
+- La modal de operación presenta primero **Almacén de la operación** y una nota en negrita sobre el alcance del cambio, sin un rótulo adicional. Después aparecen **Tipo de operación** y su alerta de efecto, también sin rótulo; **Motivo** ocupa todo el ancho y admite hasta 100 caracteres. Los productos se muestran en una tabla. El costo unitario solo aparece en entradas; el encabezado indica que es opcional y un tooltip explica que, al omitirlo, se conserva el costo promedio actual. Eliminar es un icono rojo sin recuadro con tooltip persistente y **Guardar** reutiliza el botón primario de Productos.
 - El selector de operación agrupa las opciones bajo **Actualización**, **Ingresos** y **Salidas** sin alterar los códigos enviados al backend. El efecto presenta título y explicación breve en una sola línea, con la altura del selector. **Productos incluidos** se marca como obligatorio. **Agregar producto** es un botón verde de tamaño normal, sin icono, en el pie de la modal y a la izquierda de **Guardar**. El selector de productos reutiliza el estado vacío visual de los demás `v-select`.
 - **Kardex** muestra fecha, usuario, producto, tipo, variación, saldo anterior/resultante, motivo y origen.
-- **Traslados** mueve uno o varios productos entre almacenes de la misma empresa mediante salidas y entradas atómicas.
+- **Traslados** mueve uno o varios productos entre almacenes de la misma empresa mediante salidas y entradas atómicas. **Registrar traslado** permanece disponible con cualquier filtro del listado. La modal pide seleccionar almacenes reales de origen y destino; un origen filtrado se propone, mientras el destino debe elegirse expresamente. Elegirlos no altera el filtro. La modal comparte con Control de stock el diseño de campos, tabla compacta de productos, selector con estado vacío, botón verde **Agregar producto** junto a **Guardar** y eliminación con tooltip persistente. Conserva cantidad por producto y motivo obligatorio de hasta 255 caracteres.
 - **Guías** lista documentos de entrada/salida con número, fecha, almacén, productos, referencia, motivo y estado.
 - **Kardex valorizado** reutiliza filtros, búsqueda y paginación del Kardex operativo.
-- El almacén seleccionado limita tanto existencias como kardex.
-- Los selectores muestran sucursal y almacén porque una sucursal puede administrar varios almacenes.
+- El almacén seleccionado limita existencias y kardex. En Traslados, **Todos los almacenes** consulta únicamente los movimientos de traslado pertenecientes a los almacenes autorizados para el usuario; no permite registrar desde el origen virtual. La descarga Excel respeta el mismo alcance.
+- `WarehouseSelect` centraliza la presentación de almacenes en el filtro de trabajo y en las modales de operación y traslado. El desplegable y el valor seleccionado destacan la sucursal en negrita y muestran el almacén en peso normal, separados por un guion. Sus estilos viven en `12-warehouse-select.css` y se reutilizan sin duplicar el marcado.
 
 ### Búsqueda y lectura de códigos
 
 - Las páginas que admiten búsqueda de producto conservan la consulta por nombre, código interno o código de barras.
 - El buscador reutiliza `InputText` sin prefijos visuales; admite nombre, código interno y código de barras.
 - El campo admite el código enviado por lectores físicos; la consulta se ejecuta al pulsar **Buscar**, no al cambiar el almacén ni al introducir el código.
-- En **Control de stock**, una coincidencia exacta filtra y resalta el producto.
+- En **Control de stock**, una coincidencia exacta filtra y resalta el producto. **Traslados** muestra el mismo campo de búsqueda y filtra sus movimientos por nombre, código interno o código de barras al pulsar **Buscar**; no consulta al escribir ni al cambiar el almacén.
 - En **Kardex**, una coincidencia exacta consulta directamente su trazabilidad.
 - En **Traslados**, una coincidencia exacta agrega el producto a la operación. Si ya está incluido, se informa sin duplicarlo.
 - Al abrir **Registrar operación** después de escanear una coincidencia exacta, el producto queda preseleccionado.

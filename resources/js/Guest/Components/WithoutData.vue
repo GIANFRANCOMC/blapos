@@ -31,7 +31,7 @@ export default {
         },
         image() {
 
-            return `${Constants.requestRoute}/System/assets/img/utils/without_data/2.png`;
+            return `${Constants.requestRoute}/System/assets/img/utils/without_data/empty_records.png`;
 
         }
 

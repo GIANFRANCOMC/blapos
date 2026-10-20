@@ -1,6 +1,5 @@
 import {createApp} from "vue";
 import VueSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
 
 import App from "./InventoryPage.vue";
 import Breadcrumb from "@System/Components/Breadcrumb.vue";

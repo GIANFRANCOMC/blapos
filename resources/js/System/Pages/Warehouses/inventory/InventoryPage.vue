@@ -5,17 +5,15 @@
         <div class="row align-items-end g-2 br-inventory__context">
             <div class="col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse">
                 <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
-                <v-select
+                <WarehouseSelect
                     id="inventoryWarehouse"
                     v-model="filters.warehouse"
                     :options="warehouses"
-                    :class="config.forms.classes.select2"
-                    :clearable="false"
-                    :searchable="true"/>
+                    :select-class="config.forms.classes.select2"/>
             </div>
 
             <InputText
-                v-if="activeView === 'stock'"
+                v-if="['stock', 'transfers'].includes(activeView)"
                 ref="productSearch"
                 v-model.trim="filters.productSearch"
                 hasDiv
@@ -85,7 +83,6 @@
                         v-if="activeView === 'stock'"
                         type="button"
                         class="br-btn br-btn-sm br-btn-action-open-create"
-                        :disabled="!filters.warehouse?.code || isConsolidatedStock"
                         data-bs-toggle="modal"
                         data-bs-target="#inventoryMovementModal"
                         @click="prepareMovement()">
@@ -96,7 +93,6 @@
                         v-if="activeView === 'transfers'"
                         type="button"
                         class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
-                        :disabled="!filters.warehouse?.code || !destinationWarehouses.length"
                         data-bs-toggle="modal"
                         data-bs-target="#inventoryTransferModal"
                         @click="prepareTransfer">
@@ -154,6 +150,7 @@
                                 <col class="br-inventory__col-product">
                                 <col class="br-inventory__col-current">
                                 <col class="br-inventory__col-minimum">
+                                <col class="br-inventory__col-warehouses">
                                 <col class="br-inventory__col-status">
                             </colgroup>
                             <thead class="br-table-header-surface">
@@ -161,13 +158,13 @@
                                     <th>Producto</th>
                                     <th class="text-end">Stock actual</th>
                                     <th class="text-end">Stock mínimo</th>
-                                    <th v-if="isConsolidatedStock">Almacenes</th>
+                                    <th>Almacenes</th>
                                     <th>Situación</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-if="loadingStock">
-                                    <td :colspan="isConsolidatedStock ? 5 : 4" class="py-4"><Loader/></td>
+                                    <td colspan="5" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="stockRecords.total > 0">
                                     <tr
@@ -189,17 +186,17 @@
                                         </td>
                                         <td class="text-end"><strong>{{ separatorNumber(record.stock_quantity) }}</strong></td>
                                         <td class="text-end">{{ separatorNumber(record.minimum_stock) }}</td>
-                                        <td v-if="isConsolidatedStock">
+                                        <td>
                                             <div class="br-inventory-warehouses">
                                                 <span
-                                                    v-for="warehouse in (record.warehouse_breakdown || []).slice(0, 3)"
+                                                    v-for="warehouse in stockWarehouseBreakdown(record).slice(0, 3)"
                                                     :key="`${record.id}-${warehouse.warehouse_id}`"
                                                     :class="['br-inventory-warehouse-pill', {'is-alert': warehouse.requires_attention}]">
-                                                    {{ warehouse.branch_name }} / {{ warehouse.warehouse_name }}:
+                                                    {{ warehouse.branch_name }} - {{ warehouse.warehouse_name }}:
                                                     <strong>{{ separatorNumber(warehouse.quantity) }}</strong>
                                                 </span>
-                                                <span v-if="(record.warehouse_breakdown || []).length > 3" class="br-inventory-warehouse-pill is-muted">
-                                                    +{{ record.warehouse_breakdown.length - 3 }} más
+                                                <span v-if="stockWarehouseBreakdown(record).length > 3" class="br-inventory-warehouse-pill is-muted">
+                                                    +{{ stockWarehouseBreakdown(record).length - 3 }} más
                                                 </span>
                                             </div>
                                         </td>
@@ -212,11 +209,10 @@
                                     </tr>
                                 </template>
                                 <tr v-else>
-                                    <td :colspan="isConsolidatedStock ? 5 : 4" class="py-4">
+                                    <td colspan="5" class="py-4">
                                         <WithoutData
                                             class="br-entity-empty-state"
-                                            type="image"
-                                            image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                            type="image"/>
                                     </td>
                                 </tr>
                             </tbody>
@@ -324,8 +320,7 @@
                                         <td colspan="6" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
-                                                type="image"
-                                                image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                                type="image"/>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -365,16 +360,13 @@
                                             <div>
                                                 <label for="transferSource" class="form-label colon-at-end">Almacén de origen</label>
                                                 <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
-                                                <v-select
+                                                <WarehouseSelect
                                                     id="transferSource"
-                                                    v-model="filters.warehouse"
-                                                    :options="warehouses"
-                                                    :class="config.forms.classes.select2"
-                                                    :clearable="false"
-                                                    :searchable="true"
-                                                    append-to-body>
-                                                    <template #no-options><SelectNoOptions/></template>
-                                                </v-select>
+                                                    v-model="transferForm.source"
+                                                    :options="realWarehouses"
+                                                    :select-class="config.forms.classes.select2"
+                                                    placeholder="Selecciona un almacén"
+                                                    append-to-body/>
                                                 <small v-if="transferErrors.source_warehouse_id" class="text-danger">
                                                     {{ firstError(transferErrors.source_warehouse_id) }}
                                                 </small>
@@ -383,16 +375,14 @@
                                             <div>
                                                 <label for="transferDestination" class="form-label colon-at-end">Almacén de destino</label>
                                                 <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
-                                                <v-select
+                                                <WarehouseSelect
                                                     id="transferDestination"
                                                     v-model="transferForm.destination"
                                                     :options="destinationWarehouses"
-                                                    :class="config.forms.classes.select2"
-                                                    :clearable="false"
-                                                    :searchable="true"
-                                                    append-to-body>
-                                                    <template #no-options><SelectNoOptions/></template>
-                                                </v-select>
+                                                    :select-class="config.forms.classes.select2"
+                                                    :disabled="!transferForm.source?.code"
+                                                    :placeholder="transferForm.source ? 'Selecciona un almacén' : 'Selecciona primero el origen'"
+                                                    append-to-body/>
                                                 <small v-if="transferErrors.destination_warehouse_id" class="text-danger">
                                                     {{ firstError(transferErrors.destination_warehouse_id) }}
                                                 </small>
@@ -494,7 +484,7 @@
                                             <button
                                                 type="button"
                                                 class="br-btn br-btn-action-create"
-                                                :disabled="savingTransfer"
+                                                :disabled="savingTransfer || !transferForm.source?.code || !transferForm.destination?.code"
                                                 @click="saveTransfer">
                                                 Guardar
                                             </button>
@@ -511,6 +501,8 @@
                                 <colgroup>
                                     <col class="br-inventory-transfer__col-date">
                                     <col class="br-inventory-transfer__col-product">
+                                    <col class="br-inventory-transfer__col-source">
+                                    <col class="br-inventory-transfer__col-destination">
                                     <col class="br-inventory-transfer__col-movement">
                                     <col class="br-inventory-transfer__col-quantity">
                                     <col class="br-inventory-transfer__col-reference">
@@ -519,6 +511,8 @@
                                     <tr>
                                         <th>Fecha y responsable</th>
                                         <th>Producto</th>
+                                        <th>Almacén origen</th>
+                                        <th>Almacén destino</th>
                                         <th>Movimiento</th>
                                         <th class="text-end">Cantidad</th>
                                         <th>Referencia</th>
@@ -526,7 +520,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-if="loadingKardex">
-                                        <td colspan="5" class="py-4"><Loader/></td>
+                                        <td colspan="7" class="py-4"><Loader/></td>
                                     </tr>
                                     <template v-else-if="kardexRecords.total > 0">
                                         <tr v-for="movement in kardexRecords.data" :key="`transfer-${movement.id}`">
@@ -537,6 +531,18 @@
                                             <td>
                                                 <strong>{{ movement.item?.name }}</strong>
                                                 <span class="br-inventory__meta">{{ movement.item?.internal_code }}</span>
+                                            </td>
+                                            <td>
+                                                <strong>{{ movement.transfer_source_warehouse?.name || "No disponible" }}</strong>
+                                                <span v-if="movement.transfer_source_warehouse?.branch_name" class="br-inventory__meta">
+                                                    {{ movement.transfer_source_warehouse.branch_name }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>{{ movement.transfer_destination_warehouse?.name || "No disponible" }}</strong>
+                                                <span v-if="movement.transfer_destination_warehouse?.branch_name" class="br-inventory__meta">
+                                                    {{ movement.transfer_destination_warehouse.branch_name }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <span :class="['br-inventory-movement', `is-${movement.movement_type}`]">
@@ -551,11 +557,10 @@
                                         </tr>
                                     </template>
                                     <tr v-else>
-                                        <td colspan="5" class="py-4">
+                                        <td colspan="7" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
-                                                type="image"
-                                                image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                                type="image"/>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -618,8 +623,7 @@
                                         <td colspan="6" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
-                                                type="image"
-                                                image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                                type="image"/>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -662,6 +666,25 @@
                 <div class="modal-body br-entity-modal__body">
                     <div class="br-inventory-operation__config">
                         <div>
+                            <label for="operationWarehouse" class="form-label colon-at-end">Almacén de la operación</label>
+                            <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
+                            <WarehouseSelect
+                                id="operationWarehouse"
+                                v-model="movementForm.warehouse"
+                                :options="realWarehouses"
+                                :select-class="config.forms.classes.select2"
+                                placeholder="Selecciona un almacén"
+                                append-to-body/>
+                            <small v-if="movementErrors.warehouse_id" class="text-danger">
+                                {{ firstError(movementErrors.warehouse_id) }}
+                            </small>
+                        </div>
+                        <div class="br-inventory-operation__warehouse-info">
+                            <div class="br-inventory-operation__effect">
+                                <strong>El stock cambia solo en el almacén elegido.</strong>
+                            </div>
+                        </div>
+                        <div>
                             <label class="form-label colon-at-end" for="inventoryOperation">Tipo de operación</label>
                             <v-select
                                 id="inventoryOperation"
@@ -685,7 +708,6 @@
                         <div
                             :class="['br-inventory-operation__description', `is-${movementForm.operation?.movementType || 'entry'}`]"
                             aria-live="polite">
-                            <span class="form-label">Efecto en el inventario</span>
                             <div class="br-inventory-operation__effect" :title="movementForm.operation?.description">
                                 <strong>{{ inventoryOperationEffect }}</strong>
                                 <small>{{ movementForm.operation?.description }}</small>
@@ -816,7 +838,7 @@
                         <button
                             type="button"
                             class="br-btn br-btn-action-create"
-                            :disabled="savingMovement"
+                            :disabled="savingMovement || !movementForm.warehouse?.code"
                             @click="saveMovement">
                             Guardar
                         </button>
@@ -832,6 +854,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
 
 const VIEWS = [
     {code: "stock", title: "Control de stock"},
@@ -863,12 +886,12 @@ const GUIDE_TYPES = [
 ];
 
 const INVENTORY_OPERATIONS = [
-    {code: "manual_entry", label: "Entrada manual", movementType: "entry", originType: "manual", description: "Registro interno justificado."},
-    {code: "manual_exit", label: "Salida manual", movementType: "exit", originType: "manual", description: "Registro interno justificado."},
-    {code: "physical_count", label: "Toma física", movementType: "correction", originType: "physical_count", description: "Según el saldo físico contado."},
-    {code: "replenishment", label: "Reposición", movementType: "entry", originType: "replenishment", description: "Por existencias recibidas."},
-    {code: "customer_return", label: "Devolución de cliente", movementType: "entry", originType: "customer_return", description: "Por devolución del cliente."},
-    {code: "supplier_return", label: "Devolución a proveedor", movementType: "exit", originType: "supplier_return", description: "Por devolución al proveedor."}
+    {code: "manual_entry", label: "Entrada manual", movementType: "entry", originType: "manual", description: "Suma las unidades indicadas."},
+    {code: "manual_exit", label: "Salida manual", movementType: "exit", originType: "manual", description: "Resta las unidades indicadas."},
+    {code: "physical_count", label: "Toma física", movementType: "correction", originType: "physical_count", description: "Usa el saldo contado."},
+    {code: "replenishment", label: "Reposición", movementType: "entry", originType: "replenishment", description: "Suma existencias recibidas."},
+    {code: "customer_return", label: "Devolución de cliente", movementType: "entry", originType: "customer_return", description: "Devuelve unidades al stock."},
+    {code: "supplier_return", label: "Devolución a proveedor", movementType: "exit", originType: "supplier_return", description: "Resta unidades devueltas."}
 ];
 
 const INVENTORY_OPERATION_GROUPS = [
@@ -883,6 +906,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
+    components: {WarehouseSelect},
     props: {
         page: {
             type: String,
@@ -898,7 +922,7 @@ export default {
         Alerts.swals({show: false});
 
         if(initialized && this.warehouses.length) {
-            this.filters.warehouse = this.activeView === "stock"
+            this.filters.warehouse = ["stock", "transfers"].includes(this.activeView)
                 ? this.warehouses[0]
                 : (this.realWarehouses[0] || this.warehouses[0]);
         }
@@ -929,6 +953,7 @@ export default {
             },
             movementForm: {
                 operation: INVENTORY_OPERATIONS[0],
+                warehouse: null,
                 items: [{
                     key: `initial-operation-${Date.now()}`,
                     product: null,
@@ -939,6 +964,7 @@ export default {
             },
             movementErrors: {},
             transferForm: {
+                source: null,
                 destination: null,
                 items: [{
                     key: `initial-transfer-${Date.now()}`,
@@ -1094,7 +1120,7 @@ export default {
         },
         focusProductSearch() {
             this.$nextTick(() => {
-                document.querySelector(".br-inventory__context input")?.focus();
+                this.$refs.productSearch?.$el?.querySelector("input")?.focus();
             });
         },
         invalidateListing() {
@@ -1164,12 +1190,17 @@ export default {
                 unitCost: ""
             };
         },
+        defaultFormWarehouse() {
+            return this.realWarehouses.find(warehouse => Number(warehouse.code) === Number(this.filters.warehouse?.code))
+                || null;
+        },
         prepareMovement(record = null) {
             const product = record
                 ? this.products.find(item => Number(item.code) === Number(record.id))
                 : this.findExactProduct(this.filters.productSearch);
             this.movementForm = {
                 operation: INVENTORY_OPERATIONS[0],
+                warehouse: this.defaultFormWarehouse(),
                 items: [this.newOperationItem(product)],
                 reason: ""
             };
@@ -1207,6 +1238,8 @@ export default {
             return this.firstError(this.movementErrors[`items.${index}.${field}`]);
         },
         async saveMovement() {
+            if(this.savingMovement || !this.movementForm.warehouse?.code) return;
+
             this.savingMovement = true;
             this.movementErrors = {};
             Alerts.swals({type: "loading", message: "Registrando operación"});
@@ -1214,7 +1247,7 @@ export default {
             const result = await Requests.post({
                 route: Requests.config({entity: "stocks_management", type: "operations"}),
                 data: {
-                    warehouse_id: this.filters.warehouse?.code,
+                    warehouse_id: this.movementForm.warehouse.code,
                     movement_type: operation?.movementType,
                     origin_type: operation?.originType,
                     items: this.movementForm.items.map(item => ({
@@ -1252,9 +1285,12 @@ export default {
             };
         },
         prepareTransfer() {
+            const source = this.defaultFormWarehouse();
+
             this.transferErrors = {};
             this.transferForm = {
-                destination: this.destinationWarehouses[0] ?? null,
+                source,
+                destination: null,
                 items: [this.newTransferItem()],
                 reason: ""
             };
@@ -1285,7 +1321,7 @@ export default {
             return this.firstError(this.transferErrors[`items.${index}.${field}`]);
         },
         async saveTransfer() {
-            if(this.savingTransfer) return;
+            if(this.savingTransfer || !this.transferForm.source?.code || !this.transferForm.destination?.code) return;
 
             this.transferErrors = {};
             this.savingTransfer = true;
@@ -1293,7 +1329,7 @@ export default {
             const result = await Requests.post({
                 route: Requests.config({entity: "stocks_management", type: "transfers"}),
                 data: {
-                    source_warehouse_id: this.filters.warehouse?.code,
+                    source_warehouse_id: this.transferForm.source.code,
                     destination_warehouse_id: this.transferForm.destination?.code,
                     items: this.transferForm.items.map(item => ({
                         item_id: item.product?.code,
@@ -1327,6 +1363,20 @@ export default {
             if(stock <= 0) return {label: "Sin existencias", icon: "fa-solid fa-circle-xmark", className: "is-empty"};
             if(stock <= minimum) return {label: "Stock bajo", icon: "fa-solid fa-triangle-exclamation", className: "is-low"};
             return {label: "Stock saludable", icon: "fa-solid fa-circle-check", className: "is-healthy"};
+        },
+        stockWarehouseBreakdown(record) {
+            if(this.isConsolidatedStock) return record.warehouse_breakdown || [];
+
+            const warehouse = this.filters.warehouse;
+            if(!warehouse?.code) return [];
+
+            return [{
+                warehouse_id: warehouse.code,
+                warehouse_name: warehouse.warehouseName,
+                branch_name: warehouse.branchName,
+                quantity: record.stock_quantity || 0,
+                requires_attention: this.stockStatus(record).className !== "is-healthy"
+            }];
         },
         movementTypeLabel(type) {
             return MOVEMENT_TYPES.find(record => record.code === type)?.label || type;
@@ -1388,7 +1438,7 @@ export default {
             return ["kardex", "valued", "guides"].includes(this.activeView);
         },
         contextActionColumns() {
-            if(this.activeView === "stock") return "col-12 col-lg-6 col-xl-6";
+            if(["stock", "transfers"].includes(this.activeView)) return "col-12 col-lg-6 col-xl-6";
             if(this.isReportView) return "col-12 col-md-6 col-lg-3 col-xl-3";
 
             return "col-12 col-md-6 col-lg-9 col-xl-9";
@@ -1396,15 +1446,20 @@ export default {
         warehouses() {
             const warehouses = (this.options.warehouses || []).map(record => ({
                 code: record.id,
+                branchName: record.branch?.name || "",
+                warehouseName: record.name,
+                displayLabel: record.branch?.name ? `${record.branch.name} - ${record.name}` : record.name,
                 label: record.branch?.name ? `${record.branch.name} / ${record.name}` : record.name
             }));
 
-            return this.activeView === "stock"
+            return ["stock", "transfers"].includes(this.activeView)
                 ? [{code: "all", label: "Todos los almacenes"}, ...warehouses]
                 : warehouses;
         },
         destinationWarehouses() {
-            return this.realWarehouses.filter(warehouse => Number(warehouse.code) !== Number(this.filters.warehouse?.code));
+            if(!this.transferForm.source?.code) return [];
+
+            return this.realWarehouses.filter(warehouse => Number(warehouse.code) !== Number(this.transferForm.source?.code));
         },
         realWarehouses() {
             return this.warehouses.filter(warehouse => warehouse.code !== "all");
@@ -1460,7 +1515,11 @@ export default {
         },
         "filters.warehouse"() {
             this.invalidateListing();
-            this.transferForm.destination = this.destinationWarehouses[0] ?? null;
+        },
+        "transferForm.source"() {
+            if(!this.destinationWarehouses.some(warehouse => warehouse.code === this.transferForm.destination?.code)) {
+                this.transferForm.destination = null;
+            }
         },
         "filters.productSearch"() {
             this.invalidateListing();

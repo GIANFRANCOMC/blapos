@@ -50,7 +50,7 @@ export default {
         imageSrc: {
             type: String,
             required: false,
-            default: null
+            default: "/System/assets/img/utils/without_data/empty_records.png"
         },
         description: {
             type: String,

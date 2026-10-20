@@ -340,7 +340,7 @@ body.br-layout .table > tbody > tr > td,
 .br-entity-empty-state .br-empty-state__custom-image {
   width: min(16rem, 70vw);
   height: 9.5rem;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .br-entity-modal .br-entity-form-section {

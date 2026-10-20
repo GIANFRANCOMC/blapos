@@ -244,8 +244,7 @@
                                     class="br-entity-empty-state"
                                     type="image"
                                     :text="selectedBranch ? 'No hay atenciones para mostrar' : 'No hay sucursales disponibles'"
-                                    :description="selectedBranch ? 'Inicia una atención o cambia el filtro de estado.' : 'Solicita acceso a una sucursal para gestionar atenciones.'"
-                                    image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                    :description="selectedBranch ? 'Inicia una atención o cambia el filtro de estado.' : 'Solicita acceso a una sucursal para gestionar atenciones.'"/>
                             </td>
                         </tr>
                     </tbody>

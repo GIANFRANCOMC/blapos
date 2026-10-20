@@ -183,8 +183,7 @@
                             <td colspan="6" class="py-4">
                                 <WithoutData
                                     class="br-entity-empty-state"
-                                    type="image"
-                                    image-src="/System/assets/img/utils/without_data/empty_products.png?v=2"/>
+                                    type="image"/>
                             </td>
                         </tr>
                     </tbody>
