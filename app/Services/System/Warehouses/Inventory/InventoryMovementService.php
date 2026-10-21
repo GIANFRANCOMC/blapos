@@ -388,7 +388,8 @@ final class InventoryMovementService {
         $query = InventoryMovement::query()
             ->with([
                 "warehouse.branch:id,name,status",
-                "item:id,internal_code,barcode,name",
+                "item:id,measurement_unit_id,internal_code,barcode,name",
+                "item.measurementUnit:id,singular_name,plural_name",
                 "user:id,name",
             ]);
 

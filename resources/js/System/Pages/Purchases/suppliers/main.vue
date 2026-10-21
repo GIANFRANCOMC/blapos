@@ -4,7 +4,7 @@
     <main class="br-entity">
         <section class="br-filter-bar">
             <div class="row align-items-end g-2">
-                <InputText
+                <SearchInput
                     v-model="word"
                     hasDiv
                     title="Búsqueda"
@@ -12,7 +12,7 @@
                     placeholder="Nombre, documento o contacto"
                     xl="8"
                     lg="8"
-                    @enterKeyPressed="listSuppliers({})"/>
+                    @search="listSuppliers({})"/>
                 <div class="form-group col-xl-4 col-lg-4">
                     <div class="br-filter-bar__actions">
                         <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listSuppliers({})">
@@ -208,8 +208,10 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    components: {SearchInput},
     mounted() {
         Utils.navbarItem("menu-parent-purchases", {addClass: "open"});
         Utils.navbarItem("menu-purchases-suppliers", {});

@@ -37,7 +37,7 @@ test("el acceso al inventario abre una modal de consulta para alertas y estados 
     assert.match(modal, /:show-submit="false"/);
     assert.match(modal, /close-button-text="Cerrar"/);
     assert.match(modal, /record\?\.warehouse_items/);
-    assert.match(modal, /<ProductWarehouseInventory v-if="inventoryRows\.length" :rows="inventoryRows"\/>/);
+    assert.match(modal, /<ProductWarehouseInventory v-if="inventoryRows\.length" :rows="inventoryRows" :measurement-unit="record\.measurement_unit"\/>/);
     assert.match(editor, /<ProductWarehouseInventory[\s\S]*?v-model:rows="productForm\.data\.inventory"[\s\S]*?mode="edit"/);
     assert.match(modal, /record\.internal_code/);
     assert.match(modal, /record\.barcode/);

@@ -35,7 +35,8 @@ final class StockManagementConfigService extends BaseConfigService {
                     ? Item::query()
                         ->where("type", "product")
                         ->where("status", "active")
-                        ->select(["id", "internal_code", "barcode", "name"])
+                        ->with("measurementUnit:id,singular_name,plural_name")
+                        ->select(["id", "measurement_unit_id", "internal_code", "barcode", "name"])
                         ->orderBy("name")
                         ->get()
                     : [],

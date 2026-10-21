@@ -31,12 +31,10 @@
                 <span class="form-label">Búsqueda</span>
                 <span class="br-receivables__search-control">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    <input
+                    <SearchInput
                         v-model.trim="filters.search"
-                        type="search"
-                        class="form-control"
                         placeholder="Cliente, documento o número de venta"
-                        @keyup.enter="loadAccounts()">
+                        @search="loadAccounts()"/>
                 </span>
             </label>
             <label class="br-filter-bar__field">
@@ -236,8 +234,10 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    components: {SearchInput},
     name: "AccountsReceivableMain",
     data() {
         return {

@@ -306,7 +306,7 @@ class ProductService {
      * @param  array|null  $statuses Filter by statuses (e.g. ["active"], ["active", "inactive"])
      * @param  array  $relations Relations to eager load
      */
-    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["brand", "currency", "categoryItems", "warehouseItems.warehouse.branch"]): ?Item {
+    public static function findByIdInTenant(int $id, ?array $statuses = ["active"], array $relations = ["brand", "currency", "measurementUnit", "categoryItems", "warehouseItems.warehouse.branch"]): ?Item {
 
         $query = Item::where("id", $id)
             ->where("type", "product");
@@ -357,6 +357,7 @@ class ProductService {
             ->with([
                 "brand",
                 "currency",
+                "measurementUnit",
                 "categoryItems.category",
                 "warehouseItems.warehouse.branch",
             ]);

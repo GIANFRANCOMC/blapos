@@ -4,7 +4,7 @@
     <main class="br-entity br-roles">
         <section class="br-filter-bar">
             <div class="row align-items-end g-2">
-                <InputText
+                <SearchInput
                     v-model="filters.word"
                     hasDiv
                     title="Búsqueda"
@@ -12,7 +12,7 @@
                     placeholder="Buscar perfil de acceso"
                     xl="8"
                     lg="8"
-                    @enterKeyPressed="listRoles({})"/>
+                    @search="listRoles({})"/>
                 <div class="form-group col-xl-4 col-lg-4">
                     <div class="br-filter-bar__actions">
                         <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({})">
@@ -188,12 +188,10 @@
                         <div class="br-roles__permission-tools">
                             <div class="br-roles__permission-search">
                                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                                <input
+                                <SearchInput
                                     v-model.trim="moduleSearch"
-                                    type="search"
-                                    class="form-control"
                                     placeholder="Buscar módulo o sección"
-                                    aria-label="Buscar módulo o sección">
+                                    aria-label="Buscar módulo o sección"/>
                             </div>
                             <label class="br-roles__selected-filter">
                                 <input v-model="showSelectedOnly" type="checkbox" :disabled="form.isFullAccess">
@@ -316,8 +314,10 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    components: {SearchInput},
     mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-roles", {});

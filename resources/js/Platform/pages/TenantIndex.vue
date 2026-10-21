@@ -20,7 +20,13 @@
 
         <div class="platform-card">
             <div class="platform-toolbar">
-                <div class="platform-search"><i class="fa-solid fa-magnifying-glass"></i><input v-model="filters.search" type="search" placeholder="Buscar por cliente, dominio o base de datos" @input="scheduleSearch"></div>
+                <div class="platform-search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input v-model="filters.search" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente" @input="scheduleSearch">
+                    <button v-if="filters.search" type="button" class="platform-search__clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @click="filters.search = ''; scheduleSearch()">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                </div>
                 <select v-model="filters.status" class="form-select platform-filter" @change="loadTenants(1)">
                     <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="maintenance">Mantenimiento</option><option value="provisioning">En preparación</option><option value="provisioning_failed">Preparación fallida</option>
                 </select>

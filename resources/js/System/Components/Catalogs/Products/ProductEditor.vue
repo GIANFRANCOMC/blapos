@@ -462,6 +462,7 @@
                                 v-model:rows="productForm.data.inventory"
                                 mode="edit"
                                 :is-update="isUpdate"
+                                :measurement-unit="measurementUnit"
                                 :errors="productForm.errors"/>
 
                             <div v-else class="br-entity-inventory-empty">
@@ -565,6 +566,7 @@ export default {
             MODULE,
             activeFormTab: FORM_TABS[0].id,
             isSaving: false,
+            measurementUnit: null,
             optionsLoaded: false
         };
 
@@ -651,6 +653,8 @@ export default {
 
             if(this.isDefined(record)) {
 
+                this.measurementUnit = record.measurement_unit ?? null;
+
                 const categoryIds = (record.category_items ?? []).map(category => category.category_id);
 
                 Object.assign(this.productForm.data, {
@@ -713,6 +717,7 @@ export default {
 
             form.data = Forms.initFormData(Utils.cloneJson(this.MODULE.formFields));
             form.errors = {};
+            this.measurementUnit = null;
             this.activeFormTab = FORM_TABS[0].id;
 
         },

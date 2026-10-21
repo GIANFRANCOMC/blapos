@@ -140,7 +140,7 @@
                                 <td>
                                     <span class="br-entity-stock-row">
                                         <span class="br-entity-stock">
-                                            {{ separatorNumber(stockSummary(record).total) }} unidades
+                                            {{ quantityWithUnit(stockSummary(record).total, record.measurement_unit) }}
                                         </span>
                                         <button
                                             type="button"
@@ -461,6 +461,11 @@ export default {
         separatorNumber(value) {
 
             return Utils.separatorNumber(value);
+
+        },
+        quantityWithUnit(value, unit) {
+
+            return Utils.quantityWithUnit(value, unit);
 
         }
     },

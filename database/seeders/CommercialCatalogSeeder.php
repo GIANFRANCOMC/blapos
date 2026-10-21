@@ -5,14 +5,23 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Helpers\System\{Utilities};
-use App\Models\System\Catalogs\{Brand, Category, CategoryItem, Item};
+use App\Models\System\Catalogs\{Brand, Category, Item};
 use App\Models\System\General\MeasurementUnit;
-use App\Models\System\Warehouses\{InventoryMovement, Warehouse, WarehouseItem};
+use App\Models\System\Warehouses\Warehouse;
 use Illuminate\Database\{Seeder};
 use Illuminate\Support\Facades\{DB};
+use InvalidArgumentException;
 use RuntimeException;
 
 final class CommercialCatalogSeeder extends Seeder {
+
+    public const PRODUCT_COUNT = 3000;
+
+    public const SERVICE_COUNT = 1000;
+
+    public const SUBSCRIPTION_COUNT = 100;
+
+    private const BATCH_SIZE = 40;
 
     private int $companyId;
 
@@ -21,6 +30,16 @@ final class CommercialCatalogSeeder extends Seeder {
     private int $currencyId;
 
     public function run(?int $productLimit = null, ?int $serviceLimit = null, ?int $subscriptionLimit = null): void {
+
+        $productLimit ??= self::PRODUCT_COUNT;
+        $serviceLimit ??= self::SERVICE_COUNT;
+        $subscriptionLimit ??= self::SUBSCRIPTION_COUNT;
+
+        if(min($productLimit, $serviceLimit, $subscriptionLimit) < 0) {
+
+            throw new InvalidArgumentException("Las cantidades del catálogo no pueden ser negativas.");
+
+        }
 
         DB::transaction(function() use ($productLimit, $serviceLimit, $subscriptionLimit): void {
 
@@ -37,17 +56,16 @@ final class CommercialCatalogSeeder extends Seeder {
             $brands = $this->seedBrands();
             $categories = $this->seedCategories();
             $measurementUnitId = MeasurementUnit::defaultId();
+            $precision = Utilities::decimalPrecision();
+            $warehouses = Warehouse::query()
+                ->where("status", "active")
+                ->whereHas("branch", fn($query) => $query->where("company_id", $this->companyId))
+                ->pluck("id")
+                ->all();
 
-            foreach($this->items($brands, $productLimit, $serviceLimit, $subscriptionLimit) as $payload) {
+            foreach(array_chunk($this->items($brands, $productLimit, $serviceLimit, $subscriptionLimit), self::BATCH_SIZE) as $batch) {
 
-                $item = $this->upsertItem($payload, $measurementUnitId);
-                $this->syncCategories($item, $payload["categories"], $categories);
-
-                if($payload["type"] === "product") {
-
-                    $this->syncInventory($item, $payload["inventory"]);
-
-                }
+                $this->seedBatch($batch, $categories, $warehouses, $measurementUnitId, $precision);
 
             }
 
@@ -187,11 +205,11 @@ final class CommercialCatalogSeeder extends Seeder {
 
         $records = [];
 
-        foreach(array_slice($products, 0, $productLimit) as $index => $product) {
+        foreach($this->expandTemplates($products, $productLimit) as $index => $product) {
 
             $records[] = [
                 "internal_code" => "PRO-".$product["code"],
-                "barcode" => sprintf("2000000001%03d", $index + 1),
+                "barcode" => $this->barcode($index + 1),
                 "name" => $product["name"],
                 "description" => $product["description"],
                 "price" => $product["price"],
@@ -205,7 +223,7 @@ final class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        foreach(array_slice($services, 0, $serviceLimit) as $service) {
+        foreach($this->expandTemplates($services, $serviceLimit) as $service) {
 
             $records[] = [
                 "internal_code" => "SER-".$service["code"],
@@ -223,7 +241,7 @@ final class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        foreach(array_slice($subscriptions, 0, $subscriptionLimit) as $subscription) {
+        foreach($this->expandTemplates($subscriptions, $subscriptionLimit) as $subscription) {
 
             $records[] = [
                 "internal_code" => "MEM-".$subscription["code"],
@@ -247,21 +265,69 @@ final class CommercialCatalogSeeder extends Seeder {
 
     }
 
-    private function upsertItem(array $payload, int $measurementUnitId): Item {
+    private function expandTemplates(array $templates, int $limit): array {
 
-        return Item::updateOrCreate(
-            [
+        $records = [];
+        $templateCount = count($templates);
+
+        for($index = 0; $index < $limit; $index++) {
+
+            $record = $templates[$index % $templateCount];
+
+            if($index >= $templateCount) {
+
+                $sequence = $index + 1;
+                $record["code"] .= "-".$sequence;
+                $record["name"] .= " #".$sequence;
+
+            }
+
+            $records[] = $record;
+
+        }
+
+        return $records;
+
+    }
+
+    private function barcode(int $sequence): string {
+
+        $base = "200".str_pad((string) $sequence, 9, "0", STR_PAD_LEFT);
+        $sum = 0;
+
+        for($index = 0; $index < 12; $index++) {
+
+            $sum += (int) $base[$index] * ($index % 2 === 0 ? 1 : 3);
+
+        }
+
+        return $base.((10 - ($sum % 10)) % 10);
+
+    }
+
+    private function seedBatch(
+        array $batch,
+        array $categories,
+        array $warehouses,
+        int $measurementUnitId,
+        int $precision
+    ): void {
+
+        $now = now()->toDateTimeString();
+        $rows = [];
+
+        foreach($batch as $payload) {
+
+            $rows[] = [
                 "internal_code" => $payload["internal_code"],
-            ],
-            [
-                "brand_id" => $payload["brand_id"] ?? null,
-                "barcode" => $payload["barcode"] ?? null,
+                "barcode" => $payload["barcode"],
                 "name" => $payload["name"],
                 "description" => $payload["description"],
                 "price" => $payload["price"],
                 "price_includes_tax" => true,
                 "min_price" => $payload["min_price"],
                 "max_price" => $payload["max_price"],
+                "brand_id" => $payload["brand_id"],
                 "currency_id" => $this->currencyId,
                 "measurement_unit_id" => $payload["type"] === Item::TYPE_PRODUCT ? $measurementUnitId : null,
                 "type" => $payload["type"],
@@ -270,81 +336,142 @@ final class CommercialCatalogSeeder extends Seeder {
                 "see_my_web" => true,
                 "see_my_web_price" => true,
                 "status" => "active",
+                "created_at" => $now,
                 "created_by" => $this->userId,
+                "updated_at" => $now,
                 "updated_by" => $this->userId,
+            ];
+
+        }
+
+        DB::table("items")->upsert(
+            $rows,
+            ["type", "internal_code"],
+            [
+                "barcode", "name", "description", "price", "price_includes_tax",
+                "min_price", "max_price", "brand_id", "currency_id",
+                "measurement_unit_id", "duration_type", "duration_value",
+                "see_my_web", "see_my_web_price", "status", "updated_at", "updated_by",
             ]
         );
 
+        $itemIds = DB::table("items")
+            ->whereIn("internal_code", array_column($batch, "internal_code"))
+            ->pluck("id", "internal_code")
+            ->all();
+
+        $this->seedCategoryLinks($batch, $itemIds, $categories, $now);
+        $this->seedInitialStock($batch, $itemIds, $warehouses, $precision, $now);
+
     }
 
-    private function syncCategories(Item $item, array $categoryNames, array $categories): void {
+    private function seedCategoryLinks(array $batch, array $itemIds, array $categories, string $now): void {
 
-        foreach($categoryNames as $categoryName) {
+        $rows = [];
 
-            $category = $categories[$categoryName] ?? null;
+        foreach($batch as $payload) {
 
-            if(!$category) {
+            foreach($payload["categories"] as $categoryName) {
 
-                continue;
+                $categoryId = $categories[$categoryName]->id ?? null;
+
+                if(!$categoryId) continue;
+
+                $rows[] = [
+                    "category_id" => $categoryId,
+                    "item_id" => $itemIds[$payload["internal_code"]],
+                    "status" => "active",
+                    "created_at" => $now,
+                    "created_by" => $this->userId,
+                    "updated_at" => $now,
+                    "updated_by" => $this->userId,
+                ];
 
             }
 
-            CategoryItem::updateOrCreate(
-                [
-                    "category_id" => $category->id,
-                    "item_id" => $item->id,
-                ],
-                [
-                    "status" => "active",
-                    "created_by" => $this->userId,
-                    "updated_by" => $this->userId,
-                ]
+        }
+
+        foreach(array_chunk($rows, self::BATCH_SIZE) as $chunk) {
+
+            DB::table("category_items")->upsert(
+                $chunk,
+                ["category_id", "item_id"],
+                ["status", "updated_at", "updated_by"]
             );
 
         }
 
     }
 
-    private function syncInventory(Item $item, array $inventory): void {
+    private function seedInitialStock(
+        array $batch,
+        array $itemIds,
+        array $warehouses,
+        int $precision,
+        string $now
+    ): void {
 
-        $warehouses = Warehouse::query()
-            ->where("status", "active")
-            ->whereHas("branch", fn($query) => $query->where("company_id", $this->companyId))
-            ->get();
+        if(!$warehouses) return;
 
-        foreach($warehouses as $warehouse) {
+        $products = array_values(array_filter($batch, fn(array $payload) => $payload["type"] === Item::TYPE_PRODUCT));
 
-            $quantity = (float) ($inventory["quantity"] ?? 0);
-            $minimumStock = (float) ($inventory["minimum_stock"] ?? 0);
-            $averageCost = (float) ($inventory["average_cost"] ?? 0);
-            $inventoryValue = Utilities::round($quantity * $averageCost, null, $this->companyId);
+        if(!$products) return;
 
-            WarehouseItem::updateOrCreate(
-                [
-                    "warehouse_id" => $warehouse->id,
-                    "item_id" => $item->id,
-                ],
-                [
+        $productIds = array_map(fn(array $payload) => $itemIds[$payload["internal_code"]], $products);
+        $existingStock = DB::table("warehouse_items")
+            ->whereIn("item_id", $productIds)
+            ->whereIn("warehouse_id", $warehouses)
+            ->get(["warehouse_id", "item_id"])
+            ->mapWithKeys(fn($row) => [$row->warehouse_id.":".$row->item_id => true])
+            ->all();
+        $existingMovements = DB::table("inventory_movements")
+            ->where("origin_type", "commercial_catalog_seeder")
+            ->whereIn("origin_id", $productIds)
+            ->whereIn("warehouse_id", $warehouses)
+            ->get(["warehouse_id", "origin_id"])
+            ->mapWithKeys(fn($row) => [$row->warehouse_id.":".$row->origin_id => true])
+            ->all();
+        $stockRows = [];
+        $movementRows = [];
+
+        foreach($products as $payload) {
+
+            $itemId = $itemIds[$payload["internal_code"]];
+            $inventory = $payload["inventory"];
+            $quantity = (float) $inventory["quantity"];
+            $minimumStock = (float) $inventory["minimum_stock"];
+            $averageCost = (float) $inventory["average_cost"];
+            $inventoryValue = round($quantity * $averageCost, $precision);
+
+            foreach($warehouses as $warehouseId) {
+
+                $key = $warehouseId.":".$itemId;
+
+                if(isset($existingStock[$key])) continue;
+
+                $stockRows[] = [
+                    "warehouse_id" => $warehouseId,
+                    "item_id" => $itemId,
                     "quantity" => $quantity,
                     "minimum_stock" => $minimumStock,
                     "average_cost" => $averageCost,
                     "inventory_value" => $inventoryValue,
                     "status" => "active",
+                    "created_at" => $now,
                     "created_by" => $this->userId,
+                    "updated_at" => $now,
                     "updated_by" => $this->userId,
-                ]
-            );
+                ];
 
-            InventoryMovement::updateOrCreate(
-                [
-                    "warehouse_id" => $warehouse->id,
-                    "item_id" => $item->id,
-                    "origin_type" => "commercial_catalog_seeder",
-                    "origin_id" => $item->id,
-                ],
-                [
+                if(isset($existingMovements[$key])) continue;
+
+                $movementRows[] = [
+                    "warehouse_id" => $warehouseId,
+                    "item_id" => $itemId,
                     "user_id" => $this->userId,
                     "movement_type" => "initial_stock",
+                    "origin_type" => "commercial_catalog_seeder",
+                    "origin_id" => $itemId,
                     "quantity_before" => 0,
                     "quantity_change" => $quantity,
                     "quantity_after" => $quantity,
@@ -353,13 +480,26 @@ final class CommercialCatalogSeeder extends Seeder {
                     "value_change" => $inventoryValue,
                     "value_after" => $inventoryValue,
                     "reason" => "Stock inicial generado por seeder comercial.",
-                    "metadata" => [
-                        "reference" => "SEED-CATALOG-{$item->internal_code}",
+                    "metadata" => json_encode([
+                        "reference" => "SEED-CATALOG-{$payload["internal_code"]}",
                         "source" => "CommercialCatalogSeeder",
-                    ],
-                    "created_at" => now(),
-                ]
-            );
+                    ], JSON_THROW_ON_ERROR),
+                    "created_at" => $now,
+                ];
+
+            }
+
+        }
+
+        foreach(array_chunk($stockRows, self::BATCH_SIZE) as $chunk) {
+
+            DB::table("warehouse_items")->insertOrIgnore($chunk);
+
+        }
+
+        foreach(array_chunk($movementRows, self::BATCH_SIZE) as $chunk) {
+
+            DB::table("inventory_movements")->insert($chunk);
 
         }
 

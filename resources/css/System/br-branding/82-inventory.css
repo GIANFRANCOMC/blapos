@@ -46,15 +46,20 @@
 
 .br-inventory__table {
     width: 100%;
-    min-width: 54rem;
+    min-width: 60rem;
     table-layout: fixed;
 }
 
 .br-inventory__col-product { width: 30%; }
 .br-inventory__col-current,
-.br-inventory__col-minimum { width: 12%; }
-.br-inventory__col-warehouses { width: 28%; }
-.br-inventory__col-status { width: 18%; }
+.br-inventory__col-minimum { width: 14%; }
+.br-inventory__col-warehouses { width: 27%; }
+.br-inventory__col-status { width: 15%; }
+
+.br-inventory__table td:nth-child(2),
+.br-inventory__table td:nth-child(3) {
+    white-space: nowrap;
+}
 
 .br-inventory__table td:last-child {
     overflow: visible;
@@ -136,7 +141,7 @@
     color: var(--br-danger);
 }
 
-.br-inventory__kardex-table { min-width: 54rem; }
+.br-inventory__kardex-table { min-width: 62rem; }
 .br-inventory__kardex-table th:nth-child(1) { width: 17%; }
 .br-inventory__kardex-table th:nth-child(2) { width: 18%; }
 .br-inventory__kardex-table th:nth-child(3) { width: 12%; }
@@ -157,7 +162,7 @@
 }
 
 .br-inventory-transfer__table {
-    min-width: 64rem;
+    min-width: 70rem;
 }
 
 .br-inventory-transfer__col-date { width: 15%; }
@@ -165,8 +170,12 @@
 .br-inventory-transfer__col-source,
 .br-inventory-transfer__col-destination { width: 16%; }
 .br-inventory-transfer__col-movement { width: 12%; }
-.br-inventory-transfer__col-quantity { width: 9%; }
-.br-inventory-transfer__col-reference { width: 14%; }
+.br-inventory-transfer__col-quantity { width: 12%; }
+.br-inventory-transfer__col-reference { width: 11%; }
+
+.br-inventory-transfer__table td:nth-child(6) {
+    white-space: nowrap;
+}
 
 .br-inventory-operation__config {
     display: grid;
@@ -255,9 +264,17 @@
     margin-bottom: 0 !important;
 }
 
-.br-inventory-operation__physical-count {
+.br-inventory-operation__template {
     min-width: 0;
     margin-bottom: 0.45rem;
+}
+
+.br-inventory-operation__template .br-inventory-operation__items-title {
+    margin-bottom: 0.25rem;
+}
+
+.br-inventory-operation__template .form-label {
+    margin-bottom: 0;
 }
 
 .br-inventory-operation__file-help,

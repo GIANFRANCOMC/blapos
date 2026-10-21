@@ -65,7 +65,7 @@ final class InventoryGuideService {
     public static function query(array $filters = []) {
 
         return InventoryGuide::query()
-            ->with(["warehouse.branch", "items.item", "confirmedBy"])
+            ->with(["warehouse.branch", "items.item.measurementUnit", "confirmedBy"])
             ->when(
                 array_key_exists("allowed_warehouse_ids", $filters) && $filters["allowed_warehouse_ids"] !== null,
                 fn($query) => $query->whereIn("warehouse_id", $filters["allowed_warehouse_ids"])

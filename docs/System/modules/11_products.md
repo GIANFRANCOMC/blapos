@@ -367,9 +367,11 @@ Incluye:
 
 - Marcas demo: Hola, Blapos y Wellness.
 - Categorias demo: Bebidas, Suplementos, Accesorios, Servicios y Membresias.
-- 30 productos con codigo interno, codigo de barras, precio, rango de precios, marca, categoria, `price_includes_tax` e `igv_exempt`.
-- 10 servicios comerciales sin inventario.
-- 10 membresias con duracion.
+- 3000 productos con código interno, código de barras EAN-13, precio, rango de precios, marca, categoría y unidad de medida.
+- 1000 servicios comerciales sin inventario.
+- 100 membresías con duración.
+
+El seeder amplía plantillas comerciales con variantes de nombre y códigos únicos. Inserta por lotes y conserva el stock existente si se ejecuta nuevamente.
 - Stock inicial por cada almacen activo de la empresa demo.
 - Movimiento de inventario `initial_stock` para dejar trazabilidad del stock cargado por seeder.
 

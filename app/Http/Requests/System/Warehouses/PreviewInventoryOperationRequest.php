@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Warehouses;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
+use App\Support\System\Warehouses\{InventoryOperationTemplate};
+use Illuminate\Validation\{Rule};
 
-final class PreviewPhysicalCountRequest extends CompanyFormRequest {
+final class PreviewInventoryOperationRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
         return [
             "warehouse_id" => ["required", "integer"],
+            "operation_code" => ["required", "string", Rule::in(InventoryOperationTemplate::codes())],
             "file" => ["required", "file", "mimes:xlsx,xls,csv", "max:".$this->numericMaxFileSizeKb()],
         ];
 

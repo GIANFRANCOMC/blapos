@@ -140,7 +140,7 @@
   display: block;
 }
 
-.br-receivables__search-control i {
+.br-receivables__search-control > i {
   position: absolute;
   top: 50%;
   left: 0.68rem;

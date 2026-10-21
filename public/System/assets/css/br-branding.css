@@ -10121,7 +10121,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
     position: relative;
 }
 
-.br-roles__permission-search i {
+.br-roles__permission-search > i {
     position: absolute;
     top: 50%;
     left: 0.72rem;
@@ -12477,15 +12477,20 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-inventory__table {
     width: 100%;
-    min-width: 54rem;
+    min-width: 60rem;
     table-layout: fixed;
 }
 
 .br-inventory__col-product { width: 30%; }
 .br-inventory__col-current,
-.br-inventory__col-minimum { width: 12%; }
-.br-inventory__col-warehouses { width: 28%; }
-.br-inventory__col-status { width: 18%; }
+.br-inventory__col-minimum { width: 14%; }
+.br-inventory__col-warehouses { width: 27%; }
+.br-inventory__col-status { width: 15%; }
+
+.br-inventory__table td:nth-child(2),
+.br-inventory__table td:nth-child(3) {
+    white-space: nowrap;
+}
 
 .br-inventory__table td:last-child {
     overflow: visible;
@@ -12567,7 +12572,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     color: var(--br-danger);
 }
 
-.br-inventory__kardex-table { min-width: 54rem; }
+.br-inventory__kardex-table { min-width: 62rem; }
 .br-inventory__kardex-table th:nth-child(1) { width: 17%; }
 .br-inventory__kardex-table th:nth-child(2) { width: 18%; }
 .br-inventory__kardex-table th:nth-child(3) { width: 12%; }
@@ -12588,7 +12593,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-inventory-transfer__table {
-    min-width: 64rem;
+    min-width: 70rem;
 }
 
 .br-inventory-transfer__col-date { width: 15%; }
@@ -12596,8 +12601,12 @@ body.br-layout .br-entity-table > thead > tr > th {
 .br-inventory-transfer__col-source,
 .br-inventory-transfer__col-destination { width: 16%; }
 .br-inventory-transfer__col-movement { width: 12%; }
-.br-inventory-transfer__col-quantity { width: 9%; }
-.br-inventory-transfer__col-reference { width: 14%; }
+.br-inventory-transfer__col-quantity { width: 12%; }
+.br-inventory-transfer__col-reference { width: 11%; }
+
+.br-inventory-transfer__table td:nth-child(6) {
+    white-space: nowrap;
+}
 
 .br-inventory-operation__config {
     display: grid;
@@ -12686,9 +12695,17 @@ body.br-layout .br-entity-table > thead > tr > th {
     margin-bottom: 0 !important;
 }
 
-.br-inventory-operation__physical-count {
+.br-inventory-operation__template {
     min-width: 0;
     margin-bottom: 0.45rem;
+}
+
+.br-inventory-operation__template .br-inventory-operation__items-title {
+    margin-bottom: 0.25rem;
+}
+
+.br-inventory-operation__template .form-label {
+    margin-bottom: 0;
 }
 
 .br-inventory-operation__file-help,
@@ -13454,7 +13471,7 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   display: block;
 }
 
-.br-receivables__search-control i {
+.br-receivables__search-control > i {
   position: absolute;
   top: 50%;
   left: 0.68rem;
@@ -13954,7 +13971,7 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   position: relative;
 }
 
-.br-pos-search i {
+.br-pos-search > i {
   position: absolute;
   left: 0.85rem;
   top: 50%;
@@ -17362,7 +17379,7 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   flex: 1;
 }
 
-.br-master-data-search i {
+.br-master-data-search > i {
   position: absolute;
   left: 0.75rem;
   top: 50%;

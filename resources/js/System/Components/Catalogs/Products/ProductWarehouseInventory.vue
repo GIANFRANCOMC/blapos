@@ -73,6 +73,7 @@ export default {
         rows: {type: Array, required: true},
         mode: {type: String, default: "view"},
         isUpdate: {type: Boolean, default: false},
+        measurementUnit: {type: Object, default: null},
         errors: {type: Object, default: () => ({})}
     },
     computed: {
@@ -101,7 +102,7 @@ export default {
         },
         formatQuantity(value) {
 
-            return Utils.separatorNumber(value ?? 0);
+            return Utils.quantityWithUnit(value ?? 0, this.measurementUnit);
 
         },
         updateRow(index, field, value) {

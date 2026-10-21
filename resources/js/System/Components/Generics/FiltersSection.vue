@@ -37,11 +37,11 @@
                     </v-select>
                 </template>
             </InputSlot>
-            <InputText
+            <SearchInput
                 v-if="showSearchInput"
                 :model-value="filterWordValue"
                 @update:model-value="$emit('update:filterWordValue', $event)"
-                @enterKeyPressed="$emit('search')"
+                @search="$emit('search')"
                 hasDiv
                 :title="searchTitle"
                 :titleClass="titleClass"
@@ -138,11 +138,13 @@
 
 <script>
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     name: "FiltersSection",
     components: {
-        SelectNoOptions
+        SelectNoOptions,
+        SearchInput
     },
     emits: ["search", "add", "import", "download", "update:filterByValue", "update:filterWordValue"],
     props: {

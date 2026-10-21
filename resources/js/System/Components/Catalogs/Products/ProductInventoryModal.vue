@@ -19,14 +19,14 @@
                     </div>
                     <div class="br-product-inventory-view__total">
                         <span>Stock total</span>
-                        <strong>{{ separatorNumber(summary.total) }} <small>unidades</small></strong>
+                        <strong>{{ quantityWithUnit(summary.total) }}</strong>
                         <small v-if="summary.alerts" class="br-product-inventory-view__alert">
                             {{ summary.alerts }} {{ summary.alerts === 1 ? "almacén requiere atención" : "almacenes requieren atención" }}
                         </small>
                     </div>
                 </div>
 
-                <ProductWarehouseInventory v-if="inventoryRows.length" :rows="inventoryRows"/>
+                <ProductWarehouseInventory v-if="inventoryRows.length" :rows="inventoryRows" :measurement-unit="record.measurement_unit"/>
 
                 <div v-else class="br-entity-inventory-empty">
                     <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
@@ -88,9 +88,9 @@ export default {
             Alerts.modals({type: "show", id: this.modalId});
 
         },
-        separatorNumber(value) {
+        quantityWithUnit(value) {
 
-            return Utils.separatorNumber(value);
+            return Utils.quantityWithUnit(value, this.record?.measurement_unit);
 
         }
     }

@@ -85,6 +85,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 "Código interno",
                 "Código de barras",
                 "Producto",
+                "Unidad de medida",
                 "Stock actual",
                 "Stock mínimo",
                 "Almacenes",
@@ -102,6 +103,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 "Código interno",
                 "Código de barras",
                 "Producto",
+                "Unidad de medida",
                 "Movimiento",
                 "Origen",
                 "Variación",
@@ -139,6 +141,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "Código interno",
             "Código de barras",
             "Producto",
+            "Unidad de medida",
             "Movimiento",
             "Origen",
             "Saldo anterior",
@@ -173,9 +176,10 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->internal_code,
                 $record->barcode,
                 $record->name,
+                $record->measurementUnit?->plural_name ?? "UNIDADES",
                 $stock,
                 $minimum,
-                $this->warehouseBreakdownText($record->warehouse_breakdown ?? []),
+                $this->warehouseBreakdownText($record->warehouse_breakdown ?? [], $record->measurementUnit),
                 (int) ($record->alert_warehouses_count ?? 0),
                 $status,
             ];
@@ -190,6 +194,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->item?->internal_code,
                 $record->item?->barcode,
                 $record->item?->name,
+                $record->item?->measurementUnit?->plural_name ?? "UNIDADES",
                 $this->movementLabel((string) $record->movement_type),
                 $this->originLabel((string) $record->origin_type),
                 (float) $record->quantity_change,
@@ -212,7 +217,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->warehouse?->name,
                 $record->warehouse?->branch?->name,
                 $record->guide_type === "entry" ? "Entrada" : "Salida",
-                $record->items->map(fn($item) => $item->item?->name." x ".(float) $item->quantity)->implode("; "),
+                $record->items->map(fn($item) => $item->item?->name." x ".(float) $item->quantity." ".mb_strtolower((string) ($item->item?->measurementUnit?->plural_name ?? "UNIDADES")))->implode("; "),
                 $record->reference,
                 $record->reason,
                 $record->status === "confirmed" ? "Confirmada" : $record->status,
@@ -227,6 +232,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             $record->item?->internal_code,
             $record->item?->barcode,
             $record->item?->name,
+            $record->item?->measurementUnit?->plural_name ?? "UNIDADES",
             $this->movementLabel((string) $record->movement_type),
             $this->originLabel((string) $record->origin_type),
             (float) $record->quantity_before,
@@ -242,10 +248,10 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
     public function styles(Worksheet $sheet): array {
 
         $lastColumn = match ($this->view) {
-            "stock" => "H",
-            "valued" => "O",
+            "stock" => "I",
+            "valued" => "P",
             "guides" => "J",
-            default => "M"
+            default => "N"
         };
 
         $sheet->freezePane("A2");
@@ -266,10 +272,10 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
     public function bindValue(Cell $cell, $value): bool {
 
         $textColumns = match ($this->view) {
-            "stock" => ["A", "B", "C", "F", "H"],
-            "valued" => ["A", "B", "C", "D", "E", "F", "G", "M", "N", "O"],
+            "stock" => ["A", "B", "C", "D", "G", "I"],
+            "valued" => ["A", "B", "C", "D", "E", "F", "G", "H", "N", "O", "P"],
             "guides" => ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
-            default => ["A", "B", "C", "D", "E", "F", "G", "K", "L", "M"]
+            default => ["A", "B", "C", "D", "E", "F", "G", "H", "L", "M", "N"]
         };
 
         if($cell->getRow() > 1 && in_array($cell->getColumn(), $textColumns, true)) {
@@ -291,7 +297,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
                 foreach($this->attentionRows as $row) {
 
-                    $event->sheet->getStyle("D{$row}:H{$row}")->applyFromArray([
+                    $event->sheet->getStyle("E{$row}:I{$row}")->applyFromArray([
                         "font" => ["color" => ["rgb" => "92400E"]],
                         "fill" => [
                             "fillType" => Fill::FILL_SOLID,
@@ -334,16 +340,21 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
     }
 
-    private function warehouseBreakdownText($breakdown): string {
+    private function warehouseBreakdownText($breakdown, $unit): string {
 
         return collect($breakdown)
-            ->map(function($warehouse) {
+            ->map(function($warehouse) use ($unit) {
 
                 $branchName = $warehouse["branch_name"] ?? "";
                 $warehouseName = $warehouse["warehouse_name"] ?? "Almacén";
                 $location = trim(($branchName !== "" ? $branchName." / " : "").$warehouseName);
 
-                return $location.": ".($warehouse["quantity"] ?? 0);
+                $quantity = (float) ($warehouse["quantity"] ?? 0);
+                $label = abs($quantity) === 1
+                    ? ($unit?->singular_name ?? "UNIDAD")
+                    : ($unit?->plural_name ?? "UNIDADES");
+
+                return $location.": ".$quantity." ".mb_strtolower($label);
 
             })
             ->implode("; ");

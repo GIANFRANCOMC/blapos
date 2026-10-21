@@ -68,9 +68,9 @@
                 </template>
             </InputSlot>
 
-            <InputText
+            <SearchInput
                 v-model="filters.search"
-                @enterKeyPressed="listDeliveries({})"
+                @search="listDeliveries({})"
                 hasDiv
                 title="Búsqueda"
                 :titleClass="[config.forms.classes.title]"
@@ -297,8 +297,10 @@ import * as DateUtils from "@System/Helpers/DateUtils.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import commercialSelection from "../commercialSelection.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    components: {SearchInput},
     mixins: [commercialSelection],
     mounted: async function() {
 

@@ -32,12 +32,10 @@
                 </nav>
                 <div class="br-pos-search">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    <input
+                    <SearchInput
                         v-model.trim="search"
-                        type="search"
-                        class="form-control"
                         placeholder="Buscar producto, código o marca"
-                        aria-label="Buscar producto">
+                        aria-label="Buscar producto"/>
                 </div>
 
                 <section class="br-pos-products" aria-label="Productos">
@@ -519,9 +517,11 @@ import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
 import Loader from "@System/Components/Loader.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     components: {
+        SearchInput,
         AddCustomer,
         Breadcrumb,
         InputNumber,

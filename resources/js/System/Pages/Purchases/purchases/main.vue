@@ -301,7 +301,7 @@
 
         <section v-if="['list', 'receipts'].includes(activeMode)" class="br-filter-bar">
             <div class="row align-items-end g-2">
-                <InputText
+                <SearchInput
                     v-model="filters.word"
                     hasDiv
                     title="Búsqueda"
@@ -309,7 +309,7 @@
                     placeholder="Proveedor, documento o producto"
                     xl="5"
                     lg="5"
-                    @enterKeyPressed="listPurchases({})"/>
+                    @search="listPurchases({})"/>
                 <div class="form-group col-xl-3 col-lg-3 col-md-12">
                     <label class="form-label">{{ activeMode === "receipts" ? "Estado del ingreso" : "Estado" }}</label>
                     <v-select
@@ -484,8 +484,10 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    components: {SearchInput},
     async mounted() {
         this.activeMode = this.initialModeFromPath();
         Utils.navbarItem("menu-parent-purchases", {addClass: "open"});

@@ -7,10 +7,12 @@
             <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
                 <slot name="inputGroupPrepend"></slot>
                 <input
+                    ref="inputElement"
                     :type="inputType"
                     :value="modelValue"
                     @input="updateValue($event.target.value)"
                     :class="[...inputClass]"
+                    :aria-label="ariaLabel || undefined"
                     :placeholder="placeholder"
                     :disabled="disabled"
                     :maxlength="maxlength"
@@ -31,10 +33,12 @@
         <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
             <slot name="inputGroupPrepend"></slot>
             <input
+                ref="inputElement"
                 :type="inputType"
                 :value="modelValue"
                 @input="updateValue($event.target.value)"
                 :class="[...inputClass]"
+                :aria-label="ariaLabel || undefined"
                 :placeholder="placeholder"
                 :disabled="disabled"
                 :maxlength="maxlength"
@@ -97,6 +101,10 @@ export default {
             default: () => ["form-control"]
         },
         placeholder: {
+            type: String,
+            default: ""
+        },
+        ariaLabel: {
             type: String,
             default: ""
         },
@@ -165,6 +173,11 @@ export default {
         }
     },
     methods: {
+        focus() {
+
+            this.$refs.inputElement?.focus();
+
+        },
         updateValue(value) {
             this.$emit("update:modelValue", value);
             this.$emit("input", value);

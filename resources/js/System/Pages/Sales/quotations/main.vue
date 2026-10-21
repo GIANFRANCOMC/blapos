@@ -4,7 +4,7 @@
     <template v-if="isListPage">
         <section class="br-filter-bar br-sales-list__filters">
             <div class="row align-items-end g-2">
-                <InputText
+                <SearchInput
                     v-model="filters.word"
                     hasDiv
                     title="Búsqueda"
@@ -12,7 +12,7 @@
                     placeholder="Buscar por cotización o cliente"
                     xl="5"
                     lg="6"
-                    @enterKeyPressed="listQuotations({})"/>
+                    @search="listQuotations({})"/>
 
                 <InputSlot
                     hasDiv
@@ -396,6 +396,7 @@ import * as Alerts from "../../../Helpers/Alerts.js";
 import * as Requests from "../../../Helpers/Requests.js";
 import * as Utils from "../../../Helpers/Utils.js";
 import commercialSelection from "../commercialSelection.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const MODULE = {
     entity: "quotations",
@@ -403,6 +404,7 @@ const MODULE = {
 };
 
 export default {
+    components: {SearchInput},
     mixins: [commercialSelection],
     name: "SalesQuotationsMain",
     data() {

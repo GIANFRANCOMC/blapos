@@ -14,7 +14,7 @@
   position: relative;
 }
 
-.br-pos-search i {
+.br-pos-search > i {
   position: absolute;
   left: 0.85rem;
   top: 50%;

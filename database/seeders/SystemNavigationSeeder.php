@@ -20,6 +20,7 @@ final class SystemNavigationSeeder extends Seeder {
         "tracking_attendances.index",
         "tracking_notifications.index",
         "book_complaints.index",
+        "subscriptions.index",
         "recipes.index",
         "assets.index",
         "assets_management.index",

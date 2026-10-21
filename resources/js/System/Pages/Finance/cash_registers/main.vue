@@ -29,12 +29,10 @@
         <section class="br-filter-bar br-cash__toolbar">
             <div class="br-filter-bar__field">
                 <label class="form-label">Búsqueda</label>
-                <InputText
+                <SearchInput
                     v-model="filters.search"
-                    hasDiv
-                    title=""
                     placeholder="Buscar caja, responsable o referencia"
-                    @keyup.enter="refreshActiveView"/>
+                    @search="refreshActiveView"/>
             </div>
             <div class="br-filter-bar__actions">
                 <button type="button" class="br-btn br-btn-search" @click="refreshActiveView">
@@ -538,6 +536,7 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const MODULE = {
     entity: "cash_registers",
@@ -553,6 +552,7 @@ const VIEW_MENU_MAP = {
 };
 
 export default {
+    components: {SearchInput},
     props: {
         initialView: {
             type: String,

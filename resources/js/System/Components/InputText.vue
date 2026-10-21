@@ -1,5 +1,6 @@
 <template>
     <InputBase
+        ref="base"
         input-type="text"
         v-bind="$attrs"
         :model-value="modelValue"
@@ -143,6 +144,11 @@ export default {
         }
     },
     methods: {
+        focus() {
+
+            this.$refs.base?.focus();
+
+        },
         handleUpdate(value) {
 
             if(this.hasMaxlength && value.length > this.maxlengthValue) {

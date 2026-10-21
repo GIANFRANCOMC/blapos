@@ -1158,7 +1158,7 @@
   flex: 1;
 }
 
-.br-master-data-search i {
+.br-master-data-search > i {
   position: absolute;
   left: 0.75rem;
   top: 50%;

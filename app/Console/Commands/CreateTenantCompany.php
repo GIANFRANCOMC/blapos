@@ -106,7 +106,7 @@ final class CreateTenantCompany extends Command {
 
                 if(DB::table("items")->doesntExist()) {
 
-                    app(CommercialCatalogSeeder::class)->run(10, 2, 5);
+                    app(CommercialCatalogSeeder::class)->run();
 
                 }
 

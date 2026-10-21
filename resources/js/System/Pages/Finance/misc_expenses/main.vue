@@ -17,7 +17,7 @@
         <section class="br-filter-bar">
             <div class="br-filter-bar__field">
                 <label class="form-label">Búsqueda</label>
-                <input v-model.trim="filters.word" type="search" class="form-control" placeholder="Concepto o referencia" @keyup.enter="loadExpenses()">
+                <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia" @search="loadExpenses()"/>
             </div>
             <div class="br-filter-bar__field">
                 <label class="form-label">Estado</label>
@@ -178,8 +178,10 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    components: {SearchInput},
     data() {
         return {
             routes: Requests.config({entity: "misc_expenses"}).routes,

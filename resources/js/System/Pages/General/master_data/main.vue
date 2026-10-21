@@ -49,7 +49,7 @@
                 <div class="br-master-data__records-head">
                     <div class="br-master-data-search">
                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <input v-model.trim="searchTerm" type="search" class="form-control" placeholder="Buscar dato automático" aria-label="Buscar dato automático">
+                        <SearchInput v-model.trim="searchTerm" placeholder="Buscar dato automático" aria-label="Buscar dato automático"/>
                     </div>
                     <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                 </div>
@@ -75,7 +75,7 @@
                     <div class="br-master-data__records-head">
                         <div class="br-master-data-search">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <input v-model.trim="searchTerm" type="search" class="form-control" placeholder="Buscar registro" aria-label="Buscar registro">
+                            <SearchInput v-model.trim="searchTerm" placeholder="Buscar registro" aria-label="Buscar registro"/>
                         </div>
                         <span>{{ filteredRecords.length }} registro{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                     </div>
@@ -191,6 +191,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const OPTION = {
     statuses: [{code: "active", label: "Activo"}, {code: "inactive", label: "Inactivo"}],
@@ -352,6 +353,7 @@ const RESOURCES = [
 ];
 
 export default {
+    components: {SearchInput},
     data() {
         return {
             resources: RESOURCES,

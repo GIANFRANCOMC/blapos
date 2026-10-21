@@ -41,9 +41,9 @@
                 </template>
             </InputSlot>
 
-            <InputText
+            <SearchInput
                 v-model="lists.entity.filters.sequential"
-                @enterKeyPressed="listEntity({})"
+                @search="listEntity({})"
                 hasDiv
                 title="Secuencia"
                 :titleClass="[config.forms.classes.title]"
@@ -266,6 +266,7 @@ import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
 import commercialSelection from "../commercialSelection.js";
+import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const MODULE = {
     texts: {
@@ -279,6 +280,7 @@ const MODULE = {
 };
 
 export default {
+    components: {SearchInput},
     mixins: [commercialSelection],
     mounted: async function() {
 
