@@ -1,31 +1,46 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Helpers\System\{Utilities};
 use App\Models\System\Catalogs\{Brand, Category, CategoryItem, Item};
+use App\Models\System\General\MeasurementUnit;
 use App\Models\System\Warehouses\{InventoryMovement, Warehouse, WarehouseItem};
 use Illuminate\Database\{Seeder};
 use Illuminate\Support\Facades\{DB};
+use RuntimeException;
 
-class CommercialCatalogSeeder extends Seeder {
+final class CommercialCatalogSeeder extends Seeder {
 
-    private const COMPANY_ID = 1;
+    private int $companyId;
 
-    private const USER_ID = 1;
+    private int $userId;
 
-    private const CURRENCY_ID = 1;
+    private int $currencyId;
 
-    public function run(): void {
+    public function run(?int $productLimit = null, ?int $serviceLimit = null, ?int $subscriptionLimit = null): void {
 
-        DB::transaction(function() {
+        DB::transaction(function() use ($productLimit, $serviceLimit, $subscriptionLimit): void {
+
+            $this->companyId = (int) DB::table("companies")->orderBy("id")->value("id");
+            $this->userId = (int) DB::table("users")->orderBy("id")->value("id");
+            $this->currencyId = (int) DB::table("currencies")->where("code", "PEN")->value("id");
+
+            if(!$this->companyId || !$this->userId || !$this->currencyId) {
+
+                throw new RuntimeException("Aprovisiona la empresa, su moneda y el administrador antes de cargar el catálogo inicial.");
+
+            }
 
             $brands = $this->seedBrands();
             $categories = $this->seedCategories();
+            $measurementUnitId = MeasurementUnit::defaultId();
 
-            foreach($this->items($brands) as $payload) {
+            foreach($this->items($brands, $productLimit, $serviceLimit, $subscriptionLimit) as $payload) {
 
-                $item = $this->upsertItem($payload);
+                $item = $this->upsertItem($payload, $measurementUnitId);
                 $this->syncCategories($item, $payload["categories"], $categories);
 
                 if($payload["type"] === "product") {
@@ -59,8 +74,8 @@ class CommercialCatalogSeeder extends Seeder {
                         "name" => $record["name"],
                         "description" => $record["description"],
                         "status" => "active",
-                        "created_by" => self::USER_ID,
-                        "updated_by" => self::USER_ID,
+                        "created_by" => $this->userId,
+                        "updated_by" => $this->userId,
                     ]
                 );
 
@@ -92,8 +107,8 @@ class CommercialCatalogSeeder extends Seeder {
                         "name" => $record["name"],
                         "description" => $record["description"],
                         "status" => "active",
-                        "created_by" => self::USER_ID,
-                        "updated_by" => self::USER_ID,
+                        "created_by" => $this->userId,
+                        "updated_by" => $this->userId,
                     ]
                 );
 
@@ -104,7 +119,12 @@ class CommercialCatalogSeeder extends Seeder {
 
     }
 
-    private function items(array $brands): array {
+    private function items(
+        array $brands,
+        ?int $productLimit,
+        ?int $serviceLimit,
+        ?int $subscriptionLimit
+    ): array {
 
         $products = [
             ["code" => "AGUA625", "name" => "Agua mineral 625 ml", "description" => "Bebida individual para venta en mostrador.", "price" => 2.50, "min" => 2.00, "max" => 3.50, "brand" => "Hola", "categories" => ["Bebidas"], "quantity" => 36, "minimum" => 8, "cost" => 1.20],
@@ -167,7 +187,7 @@ class CommercialCatalogSeeder extends Seeder {
 
         $records = [];
 
-        foreach($products as $index => $product) {
+        foreach(array_slice($products, 0, $productLimit) as $index => $product) {
 
             $records[] = [
                 "internal_code" => "PRO-".$product["code"],
@@ -185,7 +205,7 @@ class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        foreach($services as $service) {
+        foreach(array_slice($services, 0, $serviceLimit) as $service) {
 
             $records[] = [
                 "internal_code" => "SER-".$service["code"],
@@ -203,7 +223,7 @@ class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        foreach($subscriptions as $subscription) {
+        foreach(array_slice($subscriptions, 0, $subscriptionLimit) as $subscription) {
 
             $records[] = [
                 "internal_code" => "MEM-".$subscription["code"],
@@ -227,7 +247,7 @@ class CommercialCatalogSeeder extends Seeder {
 
     }
 
-    private function upsertItem(array $payload): Item {
+    private function upsertItem(array $payload, int $measurementUnitId): Item {
 
         return Item::updateOrCreate(
             [
@@ -242,15 +262,16 @@ class CommercialCatalogSeeder extends Seeder {
                 "price_includes_tax" => true,
                 "min_price" => $payload["min_price"],
                 "max_price" => $payload["max_price"],
-                "currency_id" => self::CURRENCY_ID,
+                "currency_id" => $this->currencyId,
+                "measurement_unit_id" => $payload["type"] === Item::TYPE_PRODUCT ? $measurementUnitId : null,
                 "type" => $payload["type"],
                 "duration_type" => $payload["duration_type"] ?? null,
                 "duration_value" => $payload["duration_value"] ?? null,
                 "see_my_web" => true,
                 "see_my_web_price" => true,
                 "status" => "active",
-                "created_by" => self::USER_ID,
-                "updated_by" => self::USER_ID,
+                "created_by" => $this->userId,
+                "updated_by" => $this->userId,
             ]
         );
 
@@ -275,8 +296,8 @@ class CommercialCatalogSeeder extends Seeder {
                 ],
                 [
                     "status" => "active",
-                    "created_by" => self::USER_ID,
-                    "updated_by" => self::USER_ID,
+                    "created_by" => $this->userId,
+                    "updated_by" => $this->userId,
                 ]
             );
 
@@ -288,7 +309,7 @@ class CommercialCatalogSeeder extends Seeder {
 
         $warehouses = Warehouse::query()
             ->where("status", "active")
-            ->whereHas("branch", fn($query) => $query->where("company_id", self::COMPANY_ID))
+            ->whereHas("branch", fn($query) => $query->where("company_id", $this->companyId))
             ->get();
 
         foreach($warehouses as $warehouse) {
@@ -296,7 +317,7 @@ class CommercialCatalogSeeder extends Seeder {
             $quantity = (float) ($inventory["quantity"] ?? 0);
             $minimumStock = (float) ($inventory["minimum_stock"] ?? 0);
             $averageCost = (float) ($inventory["average_cost"] ?? 0);
-            $inventoryValue = Utilities::round($quantity * $averageCost, null, self::COMPANY_ID);
+            $inventoryValue = Utilities::round($quantity * $averageCost, null, $this->companyId);
 
             WarehouseItem::updateOrCreate(
                 [
@@ -309,8 +330,8 @@ class CommercialCatalogSeeder extends Seeder {
                     "average_cost" => $averageCost,
                     "inventory_value" => $inventoryValue,
                     "status" => "active",
-                    "created_by" => self::USER_ID,
-                    "updated_by" => self::USER_ID,
+                    "created_by" => $this->userId,
+                    "updated_by" => $this->userId,
                 ]
             );
 
@@ -322,7 +343,7 @@ class CommercialCatalogSeeder extends Seeder {
                     "origin_id" => $item->id,
                 ],
                 [
-                    "user_id" => self::USER_ID,
+                    "user_id" => $this->userId,
                     "movement_type" => "initial_stock",
                     "quantity_before" => 0,
                     "quantity_change" => $quantity,

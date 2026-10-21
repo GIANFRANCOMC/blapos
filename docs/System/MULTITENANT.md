@@ -124,7 +124,7 @@ php artisan tenant:create cliente \
   --admin-password="UnaClaveSegura123"
 ```
 
-`tenant:create` ejecuta las migraciones, crea explícitamente la fila `companies` y reutiliza `SystemCatalogSyncService` y `CompanyProvisioningService`. No depende de datos insertados por una migración. Si no se usa `--skip-migrate`, la contraseña administrativa es obligatoria y debe tener al menos ocho caracteres.
+`tenant:create` ejecuta las migraciones, crea explícitamente la fila `companies` y reutiliza `SystemCatalogSyncService` y `CompanyProvisioningService`. Si no se usa `--skip-migrate`, la contraseña administrativa es obligatoria y debe tener al menos ocho caracteres. Al terminar el aprovisionamiento inicial carga 10 productos, 2 servicios y 5 membresías de ejemplo mediante `CommercialCatalogSeeder`; si ya existen registros en `items`, no vuelve a cargar el catálogo. La unidad de medida inicial es `UNIT` (`UNIDAD`/`UNIDADES`) y solo los productos la referencian.
 
 ## Operación
 

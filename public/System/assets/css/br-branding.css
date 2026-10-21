@@ -2161,6 +2161,90 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: var(--br-focus-ring);
 }
 
+/* Acciones de plantilla y archivo: control compartido para cargas masivas. */
+.br-layout .br-template-file-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--br-control-height);
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--br-border-control);
+  border-radius: var(--br-app-control-radius);
+  background: var(--br-surface-elevated);
+  color: var(--br-text);
+  transition: var(--br-transition);
+}
+
+.br-layout .br-template-file-picker:focus-within {
+  border-color: var(--br-primary);
+  box-shadow: var(--br-focus-ring);
+}
+
+.br-layout .br-template-file-picker__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--br-text-muted);
+  font-size: var(--br-ui-font-size);
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-layout .br-template-file-picker__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.br-layout .br-template-file-picker__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: calc(var(--br-control-height) - 0.6rem);
+  margin: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: calc(var(--br-app-control-radius) - 2px);
+  color: var(--br-primary-active);
+  font-size: var(--br-ui-font-size);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.br-layout .br-template-file-picker__action:hover,
+.br-layout .br-template-file-picker__action:focus-visible,
+.br-layout .br-template-file-picker__input:focus-visible + .br-template-file-picker__action {
+  background: var(--br-primary-soft);
+  color: var(--br-primary-active);
+  text-decoration: none;
+}
+
+.br-layout .br-template-file-picker__action[aria-disabled="true"],
+.br-layout .br-template-file-picker__action.is-disabled {
+  background: transparent;
+  color: var(--br-text-muted);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 575px) {
+  .br-layout .br-template-file-picker {
+    flex-wrap: wrap;
+  }
+
+  .br-layout .br-template-file-picker__name {
+    flex-basis: 100%;
+  }
+
+  .br-layout .br-template-file-picker__actions {
+    flex-wrap: wrap;
+  }
+}
+
 /* Source: resources/css/System/br-branding/40-buttons-quick-create.css */
 /* -------------------------------------------------------------------------
  * [br] Botones — .br-btn* (.br-btn-sm, .br-btn-xs, .br-btn-lg), variantes de color / outline / ghost
@@ -11092,6 +11176,24 @@ input.input-number-no-range[type=number] {
     color: var(--br-on-secondary);
 }
 
+.br-swal-alert__confirm--success {
+    border-color: var(--br-success);
+    background: var(--br-success);
+    color: var(--br-on-success);
+}
+
+.br-swal-alert__confirm--error {
+    border-color: var(--br-danger);
+    background: var(--br-danger);
+    color: var(--br-on-danger);
+}
+
+.br-swal-alert__confirm--info {
+    border-color: var(--br-info);
+    background: var(--br-info);
+    color: var(--br-on-info);
+}
+
 .br-swal-alert__confirm--warning:hover {
     border-color: var(--br-danger-hover);
     background: var(--br-danger-hover);
@@ -11102,6 +11204,24 @@ input.input-number-no-range[type=number] {
     border-color: var(--br-secondary-hover);
     background: var(--br-secondary-hover);
     color: var(--br-on-secondary);
+}
+
+.br-swal-alert__confirm--success:hover {
+    border-color: var(--br-success-hover);
+    background: var(--br-success-hover);
+    color: var(--br-on-success);
+}
+
+.br-swal-alert__confirm--error:hover {
+    border-color: var(--br-danger-hover);
+    background: var(--br-danger-hover);
+    color: var(--br-on-danger);
+}
+
+.br-swal-alert__confirm--info:hover {
+    border-color: var(--br-info-hover);
+    background: var(--br-info-hover);
+    color: var(--br-on-info);
 }
 
 @media (max-width: 991.98px) {
@@ -12566,6 +12686,25 @@ body.br-layout .br-entity-table > thead > tr > th {
     margin-bottom: 0 !important;
 }
 
+.br-inventory-operation__physical-count {
+    min-width: 0;
+    margin-bottom: 0.45rem;
+}
+
+.br-inventory-operation__file-help,
+.br-inventory-operation__file-status {
+    display: block;
+    margin-top: 0.28rem;
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
+    line-height: 1.35;
+}
+
+.br-inventory-operation__file-status {
+    color: var(--br-primary-active);
+    font-weight: 600;
+}
+
 @media (max-width: 575.98px) {
     .br-inventory-operation__config {
         grid-template-columns: minmax(0, 1fr);
@@ -12582,6 +12721,7 @@ body.br-layout .br-entity-table > thead > tr > th {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
 }
 
@@ -12643,6 +12783,13 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 .br-inventory-operation__table tbody td > .text-danger {
     display: block;
     margin-top: 0.22rem;
+}
+
+.br-inventory-operation__current-stock {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
 }
 
 .br-inventory-operation__table .v-select,

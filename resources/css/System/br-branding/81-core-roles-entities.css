@@ -1197,6 +1197,24 @@ input.input-number-no-range[type=number] {
     color: var(--br-on-secondary);
 }
 
+.br-swal-alert__confirm--success {
+    border-color: var(--br-success);
+    background: var(--br-success);
+    color: var(--br-on-success);
+}
+
+.br-swal-alert__confirm--error {
+    border-color: var(--br-danger);
+    background: var(--br-danger);
+    color: var(--br-on-danger);
+}
+
+.br-swal-alert__confirm--info {
+    border-color: var(--br-info);
+    background: var(--br-info);
+    color: var(--br-on-info);
+}
+
 .br-swal-alert__confirm--warning:hover {
     border-color: var(--br-danger-hover);
     background: var(--br-danger-hover);
@@ -1207,6 +1225,24 @@ input.input-number-no-range[type=number] {
     border-color: var(--br-secondary-hover);
     background: var(--br-secondary-hover);
     color: var(--br-on-secondary);
+}
+
+.br-swal-alert__confirm--success:hover {
+    border-color: var(--br-success-hover);
+    background: var(--br-success-hover);
+    color: var(--br-on-success);
+}
+
+.br-swal-alert__confirm--error:hover {
+    border-color: var(--br-danger-hover);
+    background: var(--br-danger-hover);
+    color: var(--br-on-danger);
+}
+
+.br-swal-alert__confirm--info:hover {
+    border-color: var(--br-info-hover);
+    background: var(--br-info-hover);
+    color: var(--br-on-info);
 }
 
 @media (max-width: 991.98px) {

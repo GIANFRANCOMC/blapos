@@ -25,7 +25,7 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 - Configuración del formulario: `resources/js/System/Components/Catalogs/Products/productFormConfig.js`
 - Generador PNG reutilizable: `resources/js/System/Components/BarcodeDownloadButton.vue`
 - Estilos: `public/System/assets/css/br-branding.css`, parciales `br-branding/40-buttons-quick-create.css`, `br-branding/70-visual-density-brand-refresh.css` y `br-branding/81-core-roles-entities.css`
-- Tablas: `items`, `brands`, `category_items`, `categories`, `warehouses`, `warehouse_items`
+- Tablas: `items`, `measurement_units`, `brands`, `category_items`, `categories`, `warehouses`, `warehouse_items`
 
 ## Exportación Excel
 
@@ -62,6 +62,7 @@ La opción `Descargar Excel` está disponible dentro de `Acciones` con icono y t
 - `items.name`: nombre comercial.
 - `items.description`: descripción breve.
 - `items.type`: siempre `product`.
+- `items.measurement_unit_id`: referencia opcional en la tabla compartida `items`, asignada automáticamente a todo producto nuevo. El primer registro de `measurement_units` es `UNIT` (singular `UNIDAD`, plural `UNIDADES`); servicios y membresías dejan este campo en `null`. La carga masiva usa `ProductService::create()` y hereda la misma asignación, sin pedir la unidad en el Excel.
 - `items.status`: `active` o `inactive`.
 
 ### Precio

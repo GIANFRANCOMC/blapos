@@ -255,6 +255,25 @@
     margin-bottom: 0 !important;
 }
 
+.br-inventory-operation__physical-count {
+    min-width: 0;
+    margin-bottom: 0.45rem;
+}
+
+.br-inventory-operation__file-help,
+.br-inventory-operation__file-status {
+    display: block;
+    margin-top: 0.28rem;
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
+    line-height: 1.35;
+}
+
+.br-inventory-operation__file-status {
+    color: var(--br-primary-active);
+    font-weight: 600;
+}
+
 @media (max-width: 575.98px) {
     .br-inventory-operation__config {
         grid-template-columns: minmax(0, 1fr);
@@ -271,6 +290,7 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
 }
 
@@ -332,6 +352,13 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 .br-inventory-operation__table tbody td > .text-danger {
     display: block;
     margin-top: 0.22rem;
+}
+
+.br-inventory-operation__current-stock {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
 }
 
 .br-inventory-operation__table .v-select,

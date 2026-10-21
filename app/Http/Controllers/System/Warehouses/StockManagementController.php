@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Warehouses;
 
-use App\Exports\System\Warehouses\{InventoryReportExport};
+use App\Exports\System\Warehouses\{InventoryReportExport, PhysicalCountTemplateExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Http\Requests\System\Warehouses\{StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
+use App\Http\Requests\System\Warehouses\{PreviewPhysicalCountRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
+use App\Imports\System\Warehouses\{PhysicalCountPreviewImport};
+use App\Models\System\Warehouses\{Warehouse};
 use App\Services\System\Organizations\{AccessScopeService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService, StockManagementService};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
@@ -250,6 +253,67 @@ class StockManagementController extends BaseController {
             ], 422);
 
         }
+
+    }
+
+    public function physicalCountTemplate(Request $request): BinaryFileResponse {
+
+        $data = $request->validate(["warehouse_id" => ["required", "integer"]]);
+        $warehouse = $this->authorizedPhysicalCountWarehouse((int) $data["warehouse_id"]);
+
+        return Excel::download(
+            new PhysicalCountTemplateExport((int) $warehouse->id),
+            "plantilla_toma_fisica_{$warehouse->id}.xlsx"
+        );
+
+    }
+
+    public function previewPhysicalCount(PreviewPhysicalCountRequest $request): JsonResponse {
+
+        $warehouse = $this->authorizedPhysicalCountWarehouse((int) $request->validated("warehouse_id"));
+        $preview = new PhysicalCountPreviewImport((int) $warehouse->id);
+
+        try {
+
+            Excel::import($preview, $request->file("file"));
+
+        }catch(ValidationException $exception) {
+
+            throw $exception;
+
+        }catch(\Throwable $exception) {
+
+            return response()->json([
+                "bool" => false,
+                "msg" => "No se pudo leer la plantilla. Descarga una nueva y comprueba el formato del archivo.",
+            ], 422);
+
+        }
+
+        return response()->json([
+            "bool" => true,
+            "data" => ["items" => $preview->items()],
+        ]);
+
+    }
+
+    private function authorizedPhysicalCountWarehouse(int $warehouseId): Warehouse {
+
+        if(!RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.operations.store", "POST")) {
+
+            abort(403, "No tienes permiso para realizar una toma física.");
+
+        }
+
+        $warehouse = StockManagementService::validateWarehouse($warehouseId);
+
+        if(!$warehouse || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
+
+            abort(404, "El almacén seleccionado no está disponible.");
+
+        }
+
+        return $warehouse;
 
     }
 

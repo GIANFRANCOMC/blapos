@@ -431,31 +431,69 @@ export function close() {
 
 }
 
-/** Confirma una descarga antes de iniciar la petición y mostrar el loader. */
-export async function confirmDownload({resource = "el archivo", format = "Excel"} = {}) {
+/** Confirmación reutilizable para acciones que alteran datos o inician procesos. */
+export async function confirmAction({
+    title = "¿Confirmar acción?",
+    text = "",
+    icon = "question",
+    confirmButtonText = "Confirmar",
+    cancelButtonText = "Cancelar"
+} = {}) {
 
     const result = await Swal.fire({
         ...SWAL_INSTANT_TRANSITION,
         target: document.body,
-        title: `¿Descargar ${format}?`,
-        text: `Se preparará ${resource} en formato ${format}. La descarga comenzará automáticamente cuando esté listo y puede tardar unos segundos.`,
-        icon: "question",
+        title,
+        text,
+        icon,
         showCancelButton: true,
-        confirmButtonText: "Descargar",
-        cancelButtonText: "Cancelar",
+        confirmButtonText,
+        cancelButtonText,
         reverseButtons: true,
         focusCancel: true,
         allowOutsideClick: false,
         buttonsStyling: false,
         customClass: {
             container: "br-swal-backdrop",
-            popup: "br-swal-alert br-swal-alert--question",
-            confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--question",
+            popup: `br-swal-alert br-swal-alert--${icon}`,
+            confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${icon}`,
             cancelButton: "br-btn br-btn-cancel"
         }
     });
 
     return result.isConfirmed;
+
+}
+
+/** Mensaje seguro: usa texto plano para evitar interpretar nombres o errores como HTML. */
+export function showMessage({title = "", text = "", type = "info"} = {}) {
+
+    return Swal.fire({
+        ...SWAL_INSTANT_TRANSITION,
+        target: document.body,
+        title,
+        text,
+        icon: type,
+        allowOutsideClick: false,
+        buttonsStyling: false,
+        confirmButtonText: "Entendido",
+        customClass: {
+            container: "br-swal-backdrop",
+            popup: `br-swal-alert br-swal-alert--${type}`,
+            confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${type}`
+        }
+    });
+
+}
+
+/** Confirma una descarga antes de iniciar la petición y mostrar el loader. */
+export function confirmDownload({resource = "el archivo", format = "Excel"} = {}) {
+
+    return confirmAction({
+        title: `¿Descargar ${format}?`,
+        text: `Se preparará ${resource} en formato ${format}. La descarga comenzará automáticamente cuando esté listo y puede tardar unos segundos.`,
+        confirmButtonText: "Descargar"
+    });
 
 }
 

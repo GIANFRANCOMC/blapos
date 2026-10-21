@@ -95,7 +95,7 @@ $config->currencies->records = MasterReferenceDataService::currencies($companyId
 ## Secciones y menú
 
 - La fuente canónica son las tablas `menu_categories`, `sections`, `menu_groups` y `sub_sections`.
-- `SystemNavigationSeeder` solo inicializa una base vacía; `SystemCatalogSyncService` no redefine el catálogo, sino que lo proyecta a organizaciones y perfiles de acceso total.
+- `SystemNavigationSeeder` inicializa una base vacía y consolida agrupaciones heredadas del catálogo; `SystemCatalogSyncService` proyecta el resultado a organizaciones y perfiles de acceso total.
 - `menu_categories` define categorías y `menu_groups` añade agrupaciones visuales sin alterar permisos.
 - Obtener módulos habilitados mediante `CompanySectionService::getSections($companyId)`.
 - Obtener módulos visibles para un colaborador mediante `CompanySectionService::getSections($companyId, $roleId)`.

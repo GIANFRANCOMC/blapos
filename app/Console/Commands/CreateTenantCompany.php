@@ -9,7 +9,7 @@ use App\Models\System\Tenancy\{TenantDatabase, TenantDomain};
 use App\Services\System\Database\{SystemCatalogSyncService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
 use App\Services\System\Tenancy\{LandlordSchemaService, TenantConnectionManager};
-use Database\Seeders\{SystemNavigationSeeder};
+use Database\Seeders\{CommercialCatalogSeeder, SystemNavigationSeeder};
 use Illuminate\Console\{Command};
 use Illuminate\Support\Facades\{Artisan, Cache, DB};
 use Illuminate\Support\{Str};
@@ -103,6 +103,12 @@ final class CreateTenantCompany extends Command {
                     (string) $this->option("admin-email"),
                     $adminPassword
                 );
+
+                if(DB::table("items")->doesntExist()) {
+
+                    app(CommercialCatalogSeeder::class)->run(10, 2, 5);
+
+                }
 
                 $doctorExitCode = Artisan::call("system:doctor");
 

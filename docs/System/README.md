@@ -50,7 +50,7 @@ Antes de tocar cualquier modulo System, revisar [../GENERALIDADES.md](../GENERAL
 
 ## Criterios De Mantenimiento
 
-- Mantener el catálogo de módulos en las tablas de navegación. `SystemNavigationSeeder` se utiliza únicamente para inicializar una base vacía.
+- Mantener el catálogo de módulos en las tablas de navegación. `SystemNavigationSeeder` inicializa bases vacías y consolida los grupos heredados documentados, sin cambiar los identificadores de las rutas.
 - Cada modulo documenta tablas, rutas, reglas y comportamiento backend vigente.
 - Evitar duplicar criterios visuales aqui; si aplica a varios modulos, moverlo a `GENERALIDADES.md`.
 - Las decisiones visuales transversales se mantienen en `GENERALIDADES.md`; cada pantalla documenta sus mejoras en su módulo.

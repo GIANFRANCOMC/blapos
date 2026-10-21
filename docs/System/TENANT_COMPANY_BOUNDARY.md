@@ -34,9 +34,9 @@ Solo cuatro tablas tenant mantienen la relación porque describen estructura dir
 
 ## Migraciones y compatibilidad
 
-El proyecto todavía no está en producción, por lo que la estructura se corrigió en las migraciones de origen. No existe una migración incremental que copie o elimine columnas históricas. Una instalación limpia crea directamente el modelo vigente.
+El proyecto todavía no está en producción y las correcciones estructurales anteriores se hicieron en las migraciones de origen. La unidad de medida se incorpora mediante una migración estructural incremental para actualizar sin borrar el tenant de desarrollo existente; una instalación limpia ejecuta la cadena completa de migraciones.
 
-Las migraciones tenant son exclusivamente estructurales: crean, modifican o revierten el esquema, pero no siembran configuraciones, catálogos ni permisos operativos. `CompanyProvisioningService` es la única fuente de los datos base del tenant y los sincroniza mediante operaciones idempotentes por lotes. Por esta razón, un rollback de esquema tampoco elimina configuraciones administradas por el aprovisionador.
+Las migraciones tenant son exclusivamente estructurales: crean, modifican o revierten el esquema, pero no siembran configuraciones, catálogos ni permisos operativos. `CompanyProvisioningService` es la única fuente de los datos base del tenant: crea la unidad `UNIT` y asigna su ID a los productos anteriores sin alterar servicios ni membresías. Por esta razón, un rollback de esquema tampoco elimina configuraciones administradas por el aprovisionador.
 
 La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas o escriba datos base con `DB::table()`. También limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método del backend y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo aprovisionamiento, métodos privados y protegidos. Todos resuelven la empresa raíz desde `TenantCompanyContext`; el ID solamente se materializa como variable local al consultar o persistir una relación estructural.
 

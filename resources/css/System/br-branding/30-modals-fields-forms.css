@@ -552,3 +552,87 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 .br-choice-option:focus-within {
   box-shadow: var(--br-focus-ring);
 }
+
+/* Acciones de plantilla y archivo: control compartido para cargas masivas. */
+.br-layout .br-template-file-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--br-control-height);
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--br-border-control);
+  border-radius: var(--br-app-control-radius);
+  background: var(--br-surface-elevated);
+  color: var(--br-text);
+  transition: var(--br-transition);
+}
+
+.br-layout .br-template-file-picker:focus-within {
+  border-color: var(--br-primary);
+  box-shadow: var(--br-focus-ring);
+}
+
+.br-layout .br-template-file-picker__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--br-text-muted);
+  font-size: var(--br-ui-font-size);
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-layout .br-template-file-picker__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.br-layout .br-template-file-picker__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: calc(var(--br-control-height) - 0.6rem);
+  margin: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: calc(var(--br-app-control-radius) - 2px);
+  color: var(--br-primary-active);
+  font-size: var(--br-ui-font-size);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.br-layout .br-template-file-picker__action:hover,
+.br-layout .br-template-file-picker__action:focus-visible,
+.br-layout .br-template-file-picker__input:focus-visible + .br-template-file-picker__action {
+  background: var(--br-primary-soft);
+  color: var(--br-primary-active);
+  text-decoration: none;
+}
+
+.br-layout .br-template-file-picker__action[aria-disabled="true"],
+.br-layout .br-template-file-picker__action.is-disabled {
+  background: transparent;
+  color: var(--br-text-muted);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 575px) {
+  .br-layout .br-template-file-picker {
+    flex-wrap: wrap;
+  }
+
+  .br-layout .br-template-file-picker__name {
+    flex-basis: 100%;
+  }
+
+  .br-layout .br-template-file-picker__actions {
+    flex-wrap: wrap;
+  }
+}

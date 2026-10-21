@@ -6,6 +6,7 @@ namespace App\Services\System\Catalogs\Products;
 
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Brand, Item};
+use App\Models\System\General\MeasurementUnit;
 use App\Services\System\Catalogs\Categories\{CategoryItemService};
 use App\Services\System\Warehouses\Warehouses\{WarehouseItemService};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
@@ -97,6 +98,7 @@ class ProductService {
 
         $itemData = [
             "type" => "product",
+            "measurement_unit_id" => MeasurementUnit::defaultId(),
             "status" => $data["status"] ?? "active",
             "created_at" => now(),
             "created_by" => $userId,

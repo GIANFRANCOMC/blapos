@@ -694,18 +694,60 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_catalog_group_titles_refresh_without_overwriting_custom_names(): void {
+    public function test_catalog_masters_absorb_legacy_classification_without_changing_routes(): void {
 
         $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
-        $this->assertSame("Clasificación", DB::table("menu_groups")->where("id", 14)->value("name"));
+        $this->assertDatabaseMissing("menu_groups", ["id" => 14]);
 
         DB::table("menu_groups")->where("id", 13)->update(["name" => "Oferta comercial"]);
-        DB::table("menu_groups")->where("id", 14)->update(["name" => "Grupo personalizado"]);
+        DB::table("menu_groups")->insert([
+            "id" => 14,
+            "section_id" => 5,
+            "slug" => "catalog_organization",
+            "name" => "Clasificación",
+            "order" => 3,
+            "status" => "active",
+            "created_at" => now(),
+            "updated_at" => now(),
+        ]);
+
+        foreach([53 => 1, 55 => 2] as $id => $order) {
+
+            DB::table("sub_sections")->where("id", $id)->update([
+                "menu_group_id" => 14,
+                "order" => $order,
+            ]);
+
+            DB::table("companies_sub_sections")->where("sub_section_id", $id)->update([
+                "sub_section_order" => \App\Support\System\NavigationOrder::item(3, $order),
+            ]);
+
+        }
 
         app(SystemNavigationSeeder::class)->run();
 
         $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
-        $this->assertSame("Grupo personalizado", DB::table("menu_groups")->where("id", 14)->value("name"));
+        $this->assertDatabaseMissing("menu_groups", ["id" => 14]);
+
+        foreach([53 => 4, 55 => 5, 59 => 6] as $id => $order) {
+
+            $this->assertDatabaseHas("sub_sections", [
+                "id" => $id,
+                "menu_group_id" => 13,
+                "order" => $order,
+            ]);
+
+            $this->assertDatabaseHas("companies_sub_sections", [
+                "sub_section_id" => $id,
+                "sub_section_order" => \App\Support\System\NavigationOrder::item(2, $order),
+            ]);
+
+        }
+
+        DB::table("menu_groups")->where("id", 13)->update(["name" => "Maestras personalizadas"]);
+        app(SystemNavigationSeeder::class)->run();
+
+        $this->assertSame("Maestras personalizadas", DB::table("menu_groups")->where("id", 13)->value("name"));
 
     }
 
@@ -741,8 +783,23 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->pluck("name")
             ->all();
 
-        $this->assertSame(["Inventario", "Maestras", "Clasificación"], $groups);
+        $this->assertSame(["Inventario", "Maestras"], $groups);
         $this->assertDatabaseMissing("menu_groups", ["id" => 16]);
+
+        $masterRoutes = DB::table("sub_sections")
+            ->where("menu_group_id", 13)
+            ->orderBy("order")
+            ->pluck("dom_route")
+            ->all();
+
+        $this->assertSame([
+            "products.index",
+            "services.index",
+            "subscriptions.index",
+            "categories.index",
+            "brands.index",
+            "recipes.index",
+        ], $masterRoutes);
 
         $routes = DB::table("sub_sections")
             ->join("sections", "sections.id", "=", "sub_sections.section_id")
@@ -780,7 +837,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->values()
             ->all();
 
-        $this->assertSame(["Inventario", "Maestras", "Clasificación"], $orderedGroups);
+        $this->assertSame(["Inventario", "Maestras"], $orderedGroups);
 
     }
 

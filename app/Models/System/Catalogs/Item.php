@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models\System\Catalogs;
 
 use App\Helpers\System\{Utilities};
-use App\Models\System\General\{Currency};
+use App\Models\System\General\{Currency, MeasurementUnit};
 use App\Models\System\Sales\{SaleBody};
 use App\Models\System\Warehouses\{InventoryMovement, WarehouseItem};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo, Relations\HasMany};
@@ -42,6 +42,7 @@ class Item extends Model {
         "min_price",
         "max_price",
         "currency_id",
+        "measurement_unit_id",
         "type",
         "duration_type",
         "duration_value",
@@ -66,6 +67,7 @@ class Item extends Model {
     ];
 
     protected $casts = [
+        "measurement_unit_id" => "integer",
         "price_includes_tax" => "boolean",
         "igv_exempt" => "boolean",
         "price" => "App\\Casts\\System\\ConfigurableDecimal",
@@ -278,6 +280,12 @@ class Item extends Model {
     public function currency(): BelongsTo {
 
         return $this->belongsTo(Currency::class, "currency_id", "id");
+
+    }
+
+    public function measurementUnit(): BelongsTo {
+
+        return $this->belongsTo(MeasurementUnit::class, "measurement_unit_id", "id");
 
     }
 

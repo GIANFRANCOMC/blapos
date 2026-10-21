@@ -54,6 +54,7 @@ final class CompanyProvisioningService {
             $this->seedIdentityDocumentTypes();
             $this->seedDocumentTypes();
             $this->seedCurrencies();
+            $this->seedMeasurementUnits();
             $this->ensureCompanyMasterReferences();
             $this->seedSettings();
             $this->seedTaxes();
@@ -164,6 +165,29 @@ final class CompanyProvisioningService {
             "plural_name" => "SOLES",
             "status" => "active",
         ]);
+
+    }
+
+    private function seedMeasurementUnits(): void {
+
+        DB::table("measurement_units")->insertOrIgnore([
+            "id" => 1,
+            "code" => "UNIT",
+            "singular_name" => "UNIDAD",
+            "plural_name" => "UNIDADES",
+            "status" => "active",
+            "created_at" => now(),
+            "updated_at" => now(),
+        ]);
+
+        $measurementUnitId = DB::table("measurement_units")
+            ->orderBy("id")
+            ->value("id");
+
+        DB::table("items")
+            ->where("type", "product")
+            ->whereNull("measurement_unit_id")
+            ->update(["measurement_unit_id" => $measurementUnitId]);
 
     }
 

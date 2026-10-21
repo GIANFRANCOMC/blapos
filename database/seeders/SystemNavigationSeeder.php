@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Support\System\NavigationOrder;
 use Illuminate\Database\{Seeder};
 use Illuminate\Support\Facades\{DB, Schema};
 
@@ -30,7 +31,7 @@ final class SystemNavigationSeeder extends Seeder {
 
         if(DB::table("sections")->exists() || DB::table("sub_sections")->exists()) {
 
-            $this->refreshCatalogGroupLabels();
+            $this->consolidateCatalogMasters();
 
             return;
 
@@ -68,7 +69,6 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 12, "section_id" => 4, "code" => "memberships", "label" => "Membresías", "order" => 2],
                 ["id" => 15, "section_id" => 5, "code" => "inventory", "label" => "Inventario", "order" => 1],
                 ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Maestras", "order" => 2],
-                ["id" => 14, "section_id" => 5, "code" => "catalog_organization", "label" => "Clasificación", "order" => 3],
                 ["id" => 20, "section_id" => 7, "code" => "organization", "label" => "Organización", "order" => 1],
                 ["id" => 19, "section_id" => 7, "code" => "assets", "label" => "Activos", "order" => 2],
                 ["id" => 21, "section_id" => 7, "code" => "access", "label" => "Accesos", "order" => 3],
@@ -114,9 +114,9 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 50, "section_id" => 5, "menu_group_id" => 13, "order" => 1, "slug" => "sc_items-products", "name" => "items-products", "dom_id" => "menu-items-products", "dom_label" => "Productos", "dom_route" => "products.index", "description" => "Administra productos, precios y disponibilidad."],
                 ["id" => 51, "section_id" => 5, "menu_group_id" => 13, "order" => 2, "slug" => "sc_items-services", "name" => "items-services", "dom_id" => "menu-items-services", "dom_label" => "Servicios", "dom_route" => "services.index", "description" => "Configura los servicios ofrecidos."],
                 ["id" => 52, "section_id" => 5, "menu_group_id" => 13, "order" => 3, "slug" => "sc_items-subscriptions", "name" => "items-subscriptions", "dom_id" => "menu-items-subscriptions", "dom_label" => "Membresías", "dom_route" => "subscriptions.index", "description" => "Define planes, duración y precio."],
-                ["id" => 59, "section_id" => 5, "menu_group_id" => 13, "order" => 4, "slug" => "sc_items-recipes", "name" => "items-recipes", "dom_id" => "menu-items-recipes", "dom_label" => "Recetas y platillos", "dom_route" => "recipes.index", "description" => "Configura recetas, platillos, toppings e insumos."],
-                ["id" => 53, "section_id" => 5, "menu_group_id" => 14, "order" => 1, "slug" => "sc_items-categories", "name" => "items-categories", "dom_id" => "menu-items-categories", "dom_label" => "Categorías", "dom_route" => "categories.index", "description" => "Organiza la oferta mediante categorías."],
-                ["id" => 55, "section_id" => 5, "menu_group_id" => 14, "order" => 2, "slug" => "sc_items-brands", "name" => "items-brands", "dom_id" => "menu-items-brands", "dom_label" => "Marcas", "dom_route" => "brands.index", "description" => "Administra las marcas del catálogo."],
+                ["id" => 53, "section_id" => 5, "menu_group_id" => 13, "order" => 4, "slug" => "sc_items-categories", "name" => "items-categories", "dom_id" => "menu-items-categories", "dom_label" => "Categorías", "dom_route" => "categories.index", "description" => "Organiza la oferta mediante categorías."],
+                ["id" => 55, "section_id" => 5, "menu_group_id" => 13, "order" => 5, "slug" => "sc_items-brands", "name" => "items-brands", "dom_id" => "menu-items-brands", "dom_label" => "Marcas", "dom_route" => "brands.index", "description" => "Administra las marcas del catálogo."],
+                ["id" => 59, "section_id" => 5, "menu_group_id" => 13, "order" => 6, "slug" => "sc_items-recipes", "name" => "items-recipes", "dom_id" => "menu-items-recipes", "dom_label" => "Recetas y platillos", "dom_route" => "recipes.index", "description" => "Configura recetas, platillos, toppings e insumos."],
                 ["id" => 70, "section_id" => 7, "menu_group_id" => 20, "order" => 1, "slug" => "sc_configuration-my-company", "name" => "configuration-my-company", "dom_id" => "menu-configuration-my-company", "dom_label" => "Mi empresa", "dom_route" => "companies.index", "description" => "Actualiza la identidad y datos de la empresa."],
                 ["id" => 60, "section_id" => 7, "menu_group_id" => 20, "order" => 2, "slug" => "sc_configuration-branches", "name" => "configuration-branches", "dom_id" => "menu-configuration-branches", "dom_label" => "Sucursales", "dom_route" => "branches.index", "description" => "Administra sedes y datos de contacto."],
                 ["id" => 71, "section_id" => 7, "menu_group_id" => 20, "order" => 3, "slug" => "sc_configuration-users", "name" => "configuration-users", "dom_id" => "menu-configuration-users", "dom_label" => "Colaboradores", "dom_route" => "users.index", "description" => "Administra colaboradores internos."],
@@ -188,30 +188,83 @@ final class SystemNavigationSeeder extends Seeder {
 
     }
 
-    private function refreshCatalogGroupLabels(): void {
+    private function consolidateCatalogMasters(): void {
 
-        if(!Schema::hasTable("menu_groups")) {
+        if(!Schema::hasTable("menu_groups") || !Schema::hasTable("sub_sections")) {
 
             return;
 
         }
 
-        $updated = 0;
+        $updated = DB::transaction(function(): bool {
 
-        foreach([
-            13 => ["Oferta comercial", "Maestras"],
-            14 => ["Organización", "Clasificación"],
-        ] as $id => [$previousName, $newName]) {
-
-            $updated += DB::table("menu_groups")
-                ->where("id", $id)
+            $masters = DB::table("menu_groups")
+                ->where("id", 13)
                 ->where("section_id", 5)
-                ->where("name", $previousName)
-                ->update(["name" => $newName, "updated_at" => now()]);
+                ->first();
 
-        }
+            if(!$masters) return false;
 
-        if($updated > 0) {
+            $changed = DB::table("menu_groups")
+                ->where("id", 13)
+                ->where("name", "Oferta comercial")
+                ->update(["name" => "Maestras", "updated_at" => now()]) > 0;
+
+            $legacyGroup = DB::table("menu_groups")
+                ->where("id", 14)
+                ->where("section_id", 5)
+                ->exists();
+
+            if(!$legacyGroup) return $changed;
+
+            $legacyItems = DB::table("sub_sections")
+                ->where("menu_group_id", 14)
+                ->orderBy("order")
+                ->pluck("id");
+
+            $orders = [53 => 4, 55 => 5, 59 => 6];
+            $nextOrder = max(7, (int) DB::table("sub_sections")
+                ->where("menu_group_id", 13)
+                ->max("order") + 1);
+
+            foreach($legacyItems as $id) {
+
+                $order = $orders[$id] ?? $nextOrder++;
+
+                DB::table("sub_sections")
+                    ->where("id", $id)
+                    ->update(["menu_group_id" => 13, "order" => $order, "updated_at" => now()]);
+
+                if(Schema::hasTable("companies_sub_sections")) {
+
+                    DB::table("companies_sub_sections")
+                        ->where("sub_section_id", $id)
+                        ->update(["sub_section_order" => NavigationOrder::item(2, $order), "updated_at" => now()]);
+
+                }
+
+            }
+
+            DB::table("sub_sections")
+                ->where("id", 59)
+                ->where("menu_group_id", 13)
+                ->update(["order" => 6, "updated_at" => now()]);
+
+            if(Schema::hasTable("companies_sub_sections")) {
+
+                DB::table("companies_sub_sections")
+                    ->where("sub_section_id", 59)
+                    ->update(["sub_section_order" => NavigationOrder::item(2, 6), "updated_at" => now()]);
+
+            }
+
+            DB::table("menu_groups")->where("id", 14)->delete();
+
+            return true;
+
+        });
+
+        if($updated) {
 
             CompanySectionService::clearTenantCache();
 

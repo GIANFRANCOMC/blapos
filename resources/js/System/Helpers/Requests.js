@@ -354,6 +354,8 @@ const ENTITY_SPECIAL_ROUTES = {
     stocks_management: {
         summary: "summary",
         alerts: "alerts",
+        physicalCountTemplate: "physical-count/template",
+        physicalCountPreview: "physical-count/preview",
         guides: "guides",
         movements: "movements",
         operations: "operations",

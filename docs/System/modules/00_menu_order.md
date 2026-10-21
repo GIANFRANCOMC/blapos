@@ -9,7 +9,7 @@ La definición vigente se encuentra en `menu_categories`, `sections`, `menu_grou
 - grupos visuales dentro de una sección;
 - opciones, rutas, etiquetas y descripciones.
 
-`SystemNavigationSeeder` carga este catálogo solamente cuando la base está vacía. `SystemCatalogSyncService` lee esas tablas y actualiza `companies_sub_sections` y los permisos de perfiles con acceso total, sin sobrescribir la estructura del menú.
+`SystemNavigationSeeder` carga este catálogo cuando la base está vacía y consolida los grupos heredados cuando ya existe. `SystemCatalogSyncService` lee esas tablas y actualiza `companies_sub_sections` y los permisos de perfiles con acceso total, sin sobrescribir la estructura del menú.
 
 No definir opciones de menú en archivos de configuración ni componentes Vue. Los cambios sobre instalaciones existentes deben usar una migración de datos concreta; el seeder conserva el estado inicial de instalaciones nuevas.
 
@@ -79,10 +79,11 @@ La cabecera contextual muestra únicamente el nombre del mundo. No repite el gru
 ### Catálogo comercial
 
 - **Inventario**: Control de stock, Traslados, Guías, Kardex, Kardex valorizado.
-- **Maestras**: Productos, Servicios, Membresías, Recetas y platillos.
-- **Clasificación**: Categorías, Marcas.
+- **Maestras**: Productos, Servicios, Membresías, Categorías, Marcas, Recetas y platillos.
 
-El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores de las rutas para no romper permisos ni favoritos. Al volver a ejecutarse en un tenant existente, solo actualiza los títulos heredados de Maestras y Clasificación sin sobrescribir nombres personalizados.
+El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y rutas para no romper permisos ni favoritos. Al volver a ejecutarse en un tenant existente, reúne las opciones de la antigua Clasificación en Maestras, actualiza el orden de los módulos de la empresa y elimina el grupo vacío; la operación es idempotente y respeta un nombre personalizado de Maestras.
+
+Para aplicar esta consolidación en bases ya creadas, ejecutar `php artisan tenant:navigation-sync` para todos los tenants o `php artisan tenant:navigation-sync demo` para uno. El comando conecta cada base de forma aislada, ejecuta el seeder y sincroniza la proyección sin recrear tablas ni modificar el estado de los módulos.
 
 Inventario ya no es un mundo independiente: es el primer grupo de Catálogo comercial. Sus cinco rutas, permisos y favoritos conservan sus identificadores. `menu_groups` contiene una única fila para los cinco accesos, sin grupos intermedios de Existencias o Movimientos. Este orden inicial se aplica al recrear la base del tenant; no se ejecuta una migración de datos sobre tenants existentes.
 

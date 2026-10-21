@@ -422,15 +422,10 @@
                                                     <tbody>
                                                         <tr v-for="(item, index) in transferForm.items" :key="item.key">
                                                             <td>
-                                                                <v-select
+                                                                <ProductSelect
                                                                     v-model="item.product"
                                                                     :options="transferProductOptions(index)"
-                                                                    :class="config.forms.classes.select2"
-                                                                    :clearable="false"
-                                                                    :searchable="true"
-                                                                    append-to-body>
-                                                                    <template #no-options><SelectNoOptions/></template>
-                                                                </v-select>
+                                                                    :select-class="config.forms.classes.select2"/>
                                                                 <small v-if="transferItemError(index, 'item_id')" class="text-danger">
                                                                     {{ transferItemError(index, "item_id") }}
                                                                 </small>
@@ -686,15 +681,18 @@
                         </div>
                         <div>
                             <label class="form-label colon-at-end" for="inventoryOperation">Tipo de operación</label>
+                            <span class="text-danger ms-1 fw-bold" aria-hidden="true">{{ config.forms.inputs.required }}</span>
                             <v-select
-                                id="inventoryOperation"
+                                input-id="inventoryOperation"
                                 v-model="movementForm.operation"
                                 :options="inventoryOperations"
                                 :selectable="option => !option.isGroup"
                                 :getOptionKey="option => option.code"
                                 :class="config.forms.classes.select2"
                                 :clearable="false"
-                                :searchable="false">
+                                :searchable="false"
+                                aria-required="true"
+                                placeholder="Selecciona un tipo de operación">
                                 <template #option="option">
                                     <span v-if="option.isGroup" class="br-inventory-operation__option-group">
                                         {{ option.label }}
@@ -704,9 +702,13 @@
                                     </span>
                                 </template>
                             </v-select>
+                            <small v-if="movementErrors.operation" class="text-danger">
+                                {{ firstError(movementErrors.operation) }}
+                            </small>
                         </div>
                         <div
-                            :class="['br-inventory-operation__description', `is-${movementForm.operation?.movementType || 'entry'}`]"
+                            v-if="movementForm.operation"
+                            :class="['br-inventory-operation__description', `is-${movementForm.operation.movementType}`]"
                             aria-live="polite">
                             <div class="br-inventory-operation__effect" :title="movementForm.operation?.description">
                                 <strong>{{ inventoryOperationEffect }}</strong>
@@ -719,7 +721,6 @@
                             title="Motivo"
                             :titleClass="[config.forms.classes.title]"
                             :divClass="['br-inventory-operation__reason']"
-                            placeholder="Describe por qué se realiza esta operación"
                             maxlength="100"
                             showCharCounter
                             isRequired
@@ -733,6 +734,25 @@
                                 <span class="form-label colon-at-end">Productos incluidos</span>
                                 <span class="text-danger fw-bold" aria-hidden="true">*</span>
                             </div>
+                        </div>
+
+                        <div v-if="isPhysicalCount" class="br-inventory-operation__physical-count">
+                            <TemplateFilePicker
+                                id="physicalCountFile"
+                                :template-href="physicalCountTemplateUrl"
+                                :file-name="physicalCountFileName"
+                                :busy="previewingPhysicalCount"
+                                :download-disabled="!physicalCountTemplateUrl || !movementForm.warehouse?.code || downloadingPhysicalCount || previewingPhysicalCount"
+                                :upload-disabled="!movementForm.warehouse?.code || previewingPhysicalCount || savingMovement"
+                                described-by="physicalCountHelp"
+                                @download="downloadPhysicalCountTemplate"
+                                @select="previewPhysicalCount"/>
+                            <small id="physicalCountHelp" class="br-inventory-operation__file-help">
+                                Solo se cargarán esas filas; máximo 100 productos por operación.
+                            </small>
+                            <small v-if="physicalCountFileName" class="br-inventory-operation__file-status" role="status">
+                                {{ movementForm.items.length }} productos listos para revisar antes de guardar.
+                            </small>
                         </div>
 
                         <div class="table-responsive br-inventory-operation__table-wrap">
@@ -765,17 +785,15 @@
                                 <tbody>
                                     <tr v-for="(item, index) in movementForm.items" :key="item.key">
                                         <td>
-                                            <v-select
+                                            <ProductSelect
                                                 v-model="item.product"
                                                 :options="movementProductOptions(index)"
-                                                :class="config.forms.classes.select2"
-                                                :clearable="false"
-                                                :searchable="true"
-                                                append-to-body>
-                                                <template #no-options>
-                                                    <SelectNoOptions/>
-                                                </template>
-                                            </v-select>
+                                                :select-class="config.forms.classes.select2"/>
+                                            <small
+                                                v-if="isPhysicalCount && item.currentStock !== null"
+                                                class="br-inventory-operation__current-stock">
+                                                Stock actual: {{ separatorNumber(item.currentStock) }}
+                                            </small>
                                             <small v-if="movementItemError(index, 'item_id')" class="text-danger">
                                                 {{ movementItemError(index, "item_id") }}
                                             </small>
@@ -831,14 +849,14 @@
                         <button
                             type="button"
                             class="br-btn br-btn-add-row"
-                            :disabled="savingMovement || movementForm.items.length >= 100"
+                            :disabled="savingMovement || previewingPhysicalCount || movementForm.items.length >= 100"
                             @click="addMovementItem">
                             Agregar producto
                         </button>
                         <button
                             type="button"
                             class="br-btn br-btn-action-create"
-                            :disabled="savingMovement || !movementForm.warehouse?.code"
+                            :disabled="savingMovement || confirmingMovement || previewingPhysicalCount || !movementForm.warehouse?.code"
                             @click="saveMovement">
                             Guardar
                         </button>
@@ -854,6 +872,8 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
+import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
 import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
 
 const VIEWS = [
@@ -905,7 +925,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {WarehouseSelect},
+    components: {ProductSelect, TemplateFilePicker, WarehouseSelect},
     props: {
         page: {
             type: String,
@@ -935,6 +955,11 @@ export default {
             loadingGuides: false,
             requestVersion: 0,
             savingMovement: false,
+            confirmingMovement: false,
+            previewingPhysicalCount: false,
+            downloadingPhysicalCount: false,
+            physicalCountFileName: "",
+            physicalCountPreviewVersion: 0,
             savingTransfer: false,
             exporting: false,
             scannedProductId: null,
@@ -951,7 +976,7 @@ export default {
                 dateTo: ""
             },
             movementForm: {
-                operation: INVENTORY_OPERATIONS[0],
+                operation: null,
                 warehouse: null,
                 items: [{
                     key: `initial-operation-${Date.now()}`,
@@ -1177,7 +1202,7 @@ export default {
             this.exporting = false;
             Alerts.swals({show: false});
 
-            if(!Requests.valid({result})) {
+            if(!result?.bool) {
                 Alerts.toastrs({type: "error", subtitle: result?.data?.msg || "No se pudo descargar el reporte."});
             }
         },
@@ -1186,7 +1211,8 @@ export default {
                 key: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
                 product,
                 amount: "",
-                unitCost: ""
+                unitCost: "",
+                currentStock: null
             };
         },
         defaultFormWarehouse() {
@@ -1194,12 +1220,13 @@ export default {
                 || null;
         },
         prepareMovement(record = null) {
+            this.resetPhysicalCountImport();
             const product = record
                 ? this.products.find(item => Number(item.code) === Number(record.id))
                 : this.findExactProduct(this.filters.productSearch);
             this.movementForm = {
-                operation: INVENTORY_OPERATIONS[0],
-                warehouse: this.defaultFormWarehouse(),
+                operation: null,
+                warehouse: null,
                 items: [this.newOperationItem(product)],
                 reason: ""
             };
@@ -1236,13 +1263,169 @@ export default {
         movementItemError(index, field) {
             return this.firstError(this.movementErrors[`items.${index}.${field}`]);
         },
+        resetPhysicalCountImport({clearItems = false} = {}) {
+            this.physicalCountPreviewVersion++;
+            this.previewingPhysicalCount = false;
+            this.physicalCountFileName = "";
+
+            if(clearItems) {
+                this.movementForm.items = [this.newOperationItem()];
+            }
+        },
+        async downloadPhysicalCountTemplate() {
+            if(!this.isPhysicalCount || !this.movementForm.warehouse?.code || this.downloadingPhysicalCount || this.previewingPhysicalCount) return;
+
+            this.downloadingPhysicalCount = true;
+            const result = await Requests.download({
+                route: Requests.config({entity: "stocks_management", type: "physicalCountTemplate"}),
+                data: {warehouse_id: this.movementForm.warehouse.code},
+                fileName: "plantilla_toma_fisica.xlsx"
+            });
+            this.downloadingPhysicalCount = false;
+
+            if(!result?.bool) {
+                Alerts.toastrs({type: "error", subtitle: result?.data?.msg || "No se pudo descargar la plantilla."});
+            }
+        },
+        async previewPhysicalCount(file) {
+            if(!file || !this.isPhysicalCount || !this.movementForm.warehouse?.code) return;
+
+            const warehouseId = this.movementForm.warehouse.code;
+            const requestVersion = ++this.physicalCountPreviewVersion;
+            const formData = new FormData();
+
+            formData.append("warehouse_id", warehouseId);
+            formData.append("file", file);
+            if(this.physicalCountFileName) {
+                this.physicalCountFileName = "";
+                this.movementForm.items = [this.newOperationItem()];
+            }
+            this.previewingPhysicalCount = true;
+            Alerts.loading({message: "Procesando plantilla"});
+
+            let result;
+
+            try {
+
+                result = await Requests.post({
+                    route: Requests.config({entity: "stocks_management", type: "physicalCountPreview"}),
+                    formData
+                });
+
+            }catch(error) {
+
+                result = {bool: false, data: {msg: "No se pudo procesar la plantilla. Inténtalo nuevamente."}};
+
+            }finally {
+
+                Alerts.close();
+
+                if(requestVersion === this.physicalCountPreviewVersion) {
+
+                    this.previewingPhysicalCount = false;
+
+                }
+
+            }
+
+            if(requestVersion !== this.physicalCountPreviewVersion) return;
+
+            if(!Requests.valid({result})) {
+                const details = Object.values(result?.errors || result?.data?.errors || {})
+                    .flat()
+                    .filter(Boolean)
+                    .join(" ");
+
+                Alerts.showMessage({
+                    type: result?.code === 422 ? "warning" : "error",
+                    title: "No se pudo procesar el archivo",
+                    text: details || result?.data?.msg || "Comprueba el formato de la plantilla e inténtalo nuevamente."
+                });
+                return;
+            }
+
+            const importedItems = result.data.data.items || [];
+
+            if(!importedItems.length) {
+                Alerts.showMessage({
+                    type: "warning",
+                    title: "Archivo sin saldos",
+                    text: "Completa el Saldo contado de al menos un producto y vuelve a subir la plantilla."
+                });
+                return;
+            }
+
+            for(const imported of importedItems) {
+                if(!this.products.some(product => Number(product.code) === Number(imported.item_id))) {
+                    this.options.products.push({
+                        id: imported.item_id,
+                        internal_code: imported.internal_code,
+                        barcode: null,
+                        name: imported.name
+                    });
+                }
+            }
+
+            this.disposeInventoryModalTooltips("inventoryMovementModal");
+            this.movementForm.items = importedItems.map(imported => ({
+                ...this.newOperationItem(this.products.find(product => Number(product.code) === Number(imported.item_id))),
+                amount: imported.resulting_balance,
+                currentStock: imported.current_stock
+            }));
+            this.physicalCountFileName = file.name;
+            this.movementErrors = {};
+            this.refreshInventoryModalTooltips("inventoryMovementModal");
+            Alerts.showMessage({
+                type: "success",
+                title: "Archivo procesado",
+                text: `Se ${importedItems.length === 1 ? "cargó" : "cargaron"} ${importedItems.length} ${importedItems.length === 1 ? "producto" : "productos"} con saldo contado. Las filas sin saldo se omitieron. Revisa la tabla antes de guardar; el inventario aún no cambió.`
+            });
+        },
         async saveMovement() {
-            if(this.savingMovement || !this.movementForm.warehouse?.code) return;
+            if(this.savingMovement || this.confirmingMovement || this.previewingPhysicalCount || !this.movementForm.warehouse?.code) return;
+
+            this.movementErrors = {};
+            const operation = this.movementForm.operation;
+            const amountField = this.movementAmountField;
+
+            if(!operation?.code) {
+                this.movementErrors.operation = ["Selecciona un tipo de operación."];
+            }
+
+            if(!this.movementForm.reason?.trim()) {
+                this.movementErrors.reason = ["Campo obligatorio."];
+            }
+
+            this.movementForm.items.forEach((item, index) => {
+                if(!item.product?.code) this.movementErrors[`items.${index}.item_id`] = ["Campo obligatorio."];
+                if(item.amount === "" || item.amount === null || item.amount === undefined) {
+                    this.movementErrors[`items.${index}.${amountField}`] = ["Campo obligatorio."];
+                }
+            });
+
+            if(Object.keys(this.movementErrors).length) {
+                Alerts.showMessage({
+                    type: "warning",
+                    title: "Revisa la operación",
+                    text: "Selecciona un tipo de operación y completa el motivo, los productos y sus cantidades antes de continuar."
+                });
+                return;
+            }
+
+            this.confirmingMovement = true;
+            const productCount = this.movementForm.items.length;
+            const confirmed = await Alerts.confirmAction({
+                title: "¿Registrar operación?",
+                text: `Registrarás ${operation.label.toLocaleLowerCase("es")} en ${this.movementForm.warehouse.displayLabel || this.movementForm.warehouse.label}. Se actualizará el stock de ${productCount} ${productCount === 1 ? "producto" : "productos"}. ¿Deseas continuar?`,
+                confirmButtonText: "Sí, registrar",
+                icon: "warning"
+            });
+            this.confirmingMovement = false;
+
+            if(!confirmed) return;
 
             this.savingMovement = true;
-            this.movementErrors = {};
             Alerts.swals({type: "loading", message: "Registrando operación"});
-            const operation = this.movementForm.operation;
             const result = await Requests.post({
                 route: Requests.config({entity: "stocks_management", type: "operations"}),
                 data: {
@@ -1483,6 +1666,16 @@ export default {
         inventoryOperationEffect() {
             return INVENTORY_OPERATION_GROUPS.find(group => group.code === this.movementForm.operation?.movementType)?.effect || "";
         },
+        isPhysicalCount() {
+            return this.movementForm.operation?.code === "physical_count";
+        },
+        physicalCountTemplateUrl() {
+            const warehouseId = this.movementForm.warehouse?.code;
+
+            return warehouseId
+                ? `${Requests.config({entity: "stocks_management", type: "physicalCountTemplate"})}?warehouse_id=${encodeURIComponent(warehouseId)}`
+                : null;
+        },
         movementAmountField() {
             return this.movementForm.operation?.movementType === "correction"
                 ? "resulting_balance"
@@ -1508,8 +1701,19 @@ export default {
         }
     },
     watch: {
-        "movementForm.operation"() {
+        "movementForm.operation"(operation, previous) {
+            if(operation?.code) delete this.movementErrors.operation;
+
+            if(operation?.code !== previous?.code && (this.previewingPhysicalCount || this.physicalCountFileName)) {
+                this.resetPhysicalCountImport({clearItems: true});
+            }
+
             this.refreshInventoryModalTooltips("inventoryMovementModal");
+        },
+        "movementForm.warehouse"(warehouse, previous) {
+            if(warehouse?.code !== previous?.code && (this.previewingPhysicalCount || this.physicalCountFileName)) {
+                this.resetPhysicalCountImport({clearItems: true});
+            }
         },
         "filters.warehouse"() {
             this.invalidateListing();

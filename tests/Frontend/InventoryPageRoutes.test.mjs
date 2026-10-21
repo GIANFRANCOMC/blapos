@@ -51,7 +51,7 @@ test("transfers open the standard modal and save without leaving the list", () =
     assert.match(modal, /v-model\.trim="transferForm\.reason"[\s\S]*?maxlength="255"[\s\S]*?showCharCounter/);
     assert.match(request, /"reason" => \["required", "string", "max:255"\]/);
     assert.match(modal, /class="br-inventory-operation__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-operation__table mb-0">/);
-    assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?<SelectNoOptions\/>[\s\S]*?v-model="item\.quantity"/);
+    assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.quantity"/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
     assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cancelar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
     assert.doesNotMatch(modal, /br-inventory-transfer__item-row|br-btn-outline-secondary|<textarea/);
@@ -74,6 +74,9 @@ test("stock operation modal uses the standard primary action and a compact produ
     const modal = component.slice(component.indexOf('id="inventoryMovementModal"'));
 
     assert.match(modal, /inventoryOperation[\s\S]*?:selectable="option => !option\.isGroup"[\s\S]*?#option="option"[\s\S]*?br-inventory-operation__option-group/);
+    assert.match(modal, /config\.forms\.inputs\.required[\s\S]*?input-id="inventoryOperation"[\s\S]*?aria-required="true"[\s\S]*?placeholder="Selecciona un tipo de operación"/);
+    assert.match(component, /movementForm: \{\s*operation: null,[\s\S]*?prepareMovement\(record = null\) \{[\s\S]*?this\.movementForm = \{\s*operation: null,/);
+    assert.match(component, /if\(!operation\?\.code\) \{\s*this\.movementErrors\.operation = \["Selecciona un tipo de operación\."\]/);
     assert.match(component, /\{code: "correction", label: "Actualización"[\s\S]*?\{code: "entry", label: "Ingresos"[\s\S]*?\{code: "exit", label: "Salidas"/);
     assert.match(component, /INVENTORY_OPERATION_GROUPS\.flatMap\(group => \[[\s\S]*?INVENTORY_OPERATIONS\.filter\(operation => operation\.movementType === group\.code\)/);
     assert.match(modal, /br-inventory-operation__description[\s\S]*?inventoryOperationEffect[\s\S]*?movementForm\.operation\?\.description[\s\S]*?title="Motivo"/);
@@ -93,14 +96,16 @@ test("stock operation modal uses the standard primary action and a compact produ
     assert.match(modal, /<table[\s\S]*?br-inventory-operation__table[\s\S]*?<thead class="br-table-header-surface">[\s\S]*?Producto[\s\S]*?Cantidad[\s\S]*?Costo unitario/);
     assert.match(modal, /Costo unitario\s*<small>Opcional<\/small>[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?title="Si se omite, se conserva el costo promedio actual\."/);
     assert.match(modal, /<tr v-for="\(item, index\) in movementForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.amount"/);
-    assert.match(modal, /v-model="item\.product"[\s\S]*?<template #no-options>\s*<SelectNoOptions\/>/);
+    assert.match(modal, /<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?:select-class="config\.forms\.classes\.select2"/);
+    const productSelect = read("resources/js/System/Components/Generics/ProductSelect.vue");
+    assert.match(productSelect, /<template #no-options><SelectNoOptions\/><\/template>/);
     assert.match(mount, /\.component\("SelectNoOptions", SelectNoOptions\)/);
     assert.match(selectCss, /\.br-layout \.vs__no-options,[\s\S]*?min-height: 2\.65rem;[\s\S]*?text-align: center;/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?title="Quitar producto"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
     assert.match(component, /addMovementItem\(\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryMovementModal"\);[\s\S]*?this\.movementForm\.items\.push\([\s\S]*?this\.refreshInventoryModalTooltips\("inventoryMovementModal"\)/);
     assert.match(component, /removeMovementItem\(index\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryMovementModal"\);[\s\S]*?this\.movementForm\.items\.splice\(index, 1\);[\s\S]*?this\.refreshInventoryModalTooltips\("inventoryMovementModal"\)/);
     assert.match(component, /refreshInventoryModalTooltips\(modalId\) \{[\s\S]*?this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{show: true, time: 0, selector:/);
-    assert.match(component, /"movementForm\.operation"\(\) \{\s*this\.refreshInventoryModalTooltips\("inventoryMovementModal"\);/);
+    assert.match(component, /"movementForm\.operation"\(operation, previous\) \{[\s\S]*?this\.refreshInventoryModalTooltips\("inventoryMovementModal"\);/);
     assert.match(inventoryCss, /\.br-inventory-operation__remove-help > button:disabled \{\s*pointer-events: none;/);
     assert.match(modal, /class="br-btn br-btn-action-create"[\s\S]*?@click="saveMovement"/);
     assert.doesNotMatch(modal, /br-inventory-operation__item"|<textarea/);
@@ -195,10 +200,10 @@ test("operation and transfer dialogs choose their own warehouses without changin
 
     assert.doesNotMatch(registerOperationButton, /:disabled=/);
     assert.match(operationModal, /id="operationWarehouse"[\s\S]*?v-model="movementForm\.warehouse"[\s\S]*?:options="realWarehouses"/);
-    assert.match(component, /warehouse: this\.defaultFormWarehouse\(\)/);
+    assert.match(component, /prepareMovement\(record = null\) \{[\s\S]*?warehouse: null,/);
     assert.match(component, /warehouse_id: this\.movementForm\.warehouse\.code/);
     assert.match(component, /defaultFormWarehouse\(\) \{\s*return this\.realWarehouses\.find\([\s\S]*?\|\| null;/);
-    assert.match(component, /:disabled="savingMovement \|\| !movementForm\.warehouse\?\.code"/);
+    assert.match(component, /:disabled="savingMovement \|\| confirmingMovement \|\| previewingPhysicalCount \|\| !movementForm\.warehouse\?\.code"/);
     assert.match(component, /:disabled="savingTransfer \|\| !transferForm\.source\?\.code \|\| !transferForm\.destination\?\.code"/);
     assert.match(inventoryCss, /\.br-layout \.br-inventory-operation__reason\.form-group \{\s*grid-column: 1 \/ -1;/);
     assert.doesNotMatch(inventoryCss, /br-inventory-operation__config--movement/);
