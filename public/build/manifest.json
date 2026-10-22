@@ -29,8 +29,8 @@
       "resources/js/System/Helpers/Constants.js"
     ]
   },
-  "_CatalogFormTabs-BwEo2P07.js": {
-    "file": "assets/CatalogFormTabs-BwEo2P07.js",
+  "_CatalogFormTabs-DIUyziMg.js": {
+    "file": "assets/CatalogFormTabs-DIUyziMg.js",
     "name": "CatalogFormTabs",
     "imports": [
       "__plugin-vue_export-helper-DCM8VqI6.js"
@@ -382,7 +382,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-eEpJspu1.css",
+    "file": "assets/platform-CDQKiQli.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -433,7 +433,7 @@
     ]
   },
   "resources/js/System/Components/Catalogs/Products/ProductEditor.vue": {
-    "file": "assets/ProductEditor-DDeOTZAq.js",
+    "file": "assets/ProductEditor-DDTL4fym.js",
     "name": "ProductEditor",
     "src": "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
     "isDynamicEntry": true,
@@ -445,7 +445,7 @@
       "_StringUtils-DTZAh1PK.js",
       "_CatalogReferenceOptions-BgNctikQ.js",
       "__plugin-vue_export-helper-DCM8VqI6.js",
-      "_CatalogFormTabs-BwEo2P07.js",
+      "_CatalogFormTabs-DIUyziMg.js",
       "resources/js/System/Pages/Catalogs/products/main.js",
       "_FormModal-wMvx17h-.js",
       "_SelectNoOptions-CCKCHrsa.js",
@@ -567,7 +567,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/brands/main.js": {
-    "file": "assets/main-772jkcCb.js",
+    "file": "assets/main-qBobu_MT.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/brands/main.js",
     "isEntry": true,
@@ -635,7 +635,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/products/main.js": {
-    "file": "assets/main-Db2eu2zF.js",
+    "file": "assets/main-B4msj7Bm.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/products/main.js",
     "isEntry": true,
@@ -672,7 +672,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/services/main.js": {
-    "file": "assets/main-BndFl_5U.js",
+    "file": "assets/main-CnpDRLHy.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/services/main.js",
     "isEntry": true,
@@ -686,7 +686,7 @@
       "_NumberUtils-rmSbJBO3.js",
       "_InternalCodePrefixMixin-B7kflBMB.js",
       "_FormModal-wMvx17h-.js",
-      "_CatalogFormTabs-BwEo2P07.js",
+      "_CatalogFormTabs-DIUyziMg.js",
       "_TableActionsDropdown-DYIN6SBf.js",
       "_CatalogReferenceOptions-BgNctikQ.js",
       "_OfferingImportModal-wa8INE_6.js",
@@ -711,7 +711,7 @@
     ]
   },
   "resources/js/System/Pages/Catalogs/subscriptions/main.js": {
-    "file": "assets/main-BnAT2xhE.js",
+    "file": "assets/main-BNuCEGpT.js",
     "name": "main",
     "src": "resources/js/System/Pages/Catalogs/subscriptions/main.js",
     "isEntry": true,
@@ -725,7 +725,7 @@
       "_NumberUtils-rmSbJBO3.js",
       "_InternalCodePrefixMixin-B7kflBMB.js",
       "_FormModal-wMvx17h-.js",
-      "_CatalogFormTabs-BwEo2P07.js",
+      "_CatalogFormTabs-DIUyziMg.js",
       "_TableActionsDropdown-DYIN6SBf.js",
       "_CatalogReferenceOptions-BgNctikQ.js",
       "_OfferingImportModal-wa8INE_6.js",
@@ -750,7 +750,7 @@
     ]
   },
   "resources/js/System/Pages/Customers/customers/main.js": {
-    "file": "assets/main-6s-uaKyM.js",
+    "file": "assets/main-BUGKp9p1.js",
     "name": "main",
     "src": "resources/js/System/Pages/Customers/customers/main.js",
     "isEntry": true,
@@ -760,7 +760,7 @@
       "_ModuleFactory-C800Eqop.js",
       "_Forms-B95UPkww.js",
       "_Constants-B_2Hc46-.js",
-      "_CatalogFormTabs-BwEo2P07.js",
+      "_CatalogFormTabs-DIUyziMg.js",
       "_CatalogReferenceImportModal-XAwvOvt1.js",
       "_CopyButton-CnjxqCqg.js",
       "_FormModal-wMvx17h-.js",
@@ -1264,7 +1264,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/companies/main.js": {
-    "file": "assets/main-DHGA2XPA.js",
+    "file": "assets/main-DMix-9QA.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/companies/main.js",
     "isEntry": true,
@@ -1288,6 +1288,7 @@
       "_WithoutData-DuGP1Q_G.js",
       "_html2canvas.esm-DZR1VtBv.js",
       "_StatusBadge-C18-sM3J.js",
+      "_CatalogFormTabs-DIUyziMg.js",
       "_NumberUtils-rmSbJBO3.js",
       "_axios-CCb-kr4I.js",
       "__commonjsHelpers-Cpj98o6Y.js"
@@ -1343,7 +1344,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/users/main.js": {
-    "file": "assets/main-BJxRil8S.js",
+    "file": "assets/main-iRst_aYg.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/users/main.js",
     "isEntry": true,
@@ -1354,7 +1355,7 @@
       "_Forms-B95UPkww.js",
       "_Constants-B_2Hc46-.js",
       "_StringUtils-DTZAh1PK.js",
-      "_CatalogFormTabs-BwEo2P07.js",
+      "_CatalogFormTabs-DIUyziMg.js",
       "_CatalogReferenceImportModal-XAwvOvt1.js",
       "_FormModal-wMvx17h-.js",
       "_TableActionsDropdown-DYIN6SBf.js",

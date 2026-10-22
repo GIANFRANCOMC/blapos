@@ -20,6 +20,7 @@ import MyDashboardCompany from "@System/Components/Companies/MyDashboardCompany.
 import MyWebCompany  from "@System/Components/Companies/MyWebCompany.vue";
 
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 
 // App creation and mounted
 createApp(App)
@@ -38,4 +39,5 @@ createApp(App)
 .component("MyDashboardCompany", MyDashboardCompany)
 .component("MyWebCompany", MyWebCompany)
 .component("StatusBadge", StatusBadge)
+.component("CatalogFormTabs", CatalogFormTabs)
 .mount("#app");

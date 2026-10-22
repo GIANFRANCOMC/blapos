@@ -1,38 +1,18 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-config-scope-grid">
-        <article class="br-config-scope-card">
-            <span>Fiscal</span>
-            <strong>Identificación legal</strong>
-            <p>Documento, razón social, moneda y datos usados para comprobantes y reportes.</p>
-        </article>
-        <article class="br-config-scope-card">
-            <span>Pública</span>
-            <strong>Presencia comercial</strong>
-            <p>Marca, contacto, redes, logotipo y datos visibles para clientes.</p>
-        </article>
-        <article class="br-config-scope-card">
-            <span>Operativa</span>
-            <strong>Reglas internas</strong>
-            <p>Parámetros, módulos, integraciones y configuración que impacta la operación.</p>
-        </article>
-    </section>
+    <main class="br-company-settings br-entity-modal--tabbed">
+        <section class="br-company-settings__panel" aria-label="Datos de la empresa">
+            <CatalogFormTabs
+                v-model="activeTabId"
+                :tabs="tabItems"
+                label="Secciones de Mi empresa"
+                id-prefix="company"
+                controls-prefix="company"
+                variant="descriptive"/>
 
-    <!-- Content -->
-    <div class="nav-align-top" ref="navTabs">
-        <ul class="nav nav-tabs nav-fill" role="tablist">
-            <li v-for="(tab, index) in tabItems" :key="tab.id" class="nav-item" role="presentation">
-                <button type="button" class="nav-link waves-effect justify-content-center" role="tab" data-bs-toggle="tab" :data-bs-target="`#navs-pills-${tab.id}`" :aria-controls="`navs-pills-${tab.id}`" aria-selected="false" tabindex="-1">
-                    <span class="d-flex align-items-center fw-semibold" :class="{ 'text-muted': activeTabId !== tab.id }">
-                        <i :class="['fa', tab.icon, 'me-2']"></i>
-                        <span v-text="`${index + 1}. ${tab.label}`"></span>
-                    </span>
-                </button>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane fade" id="navs-pills-general" role="tabpanel">
+            <div class="br-company-settings__content">
+            <div v-show="activeTabId === 'general'" id="company-tab-general" role="tabpanel" aria-labelledby="company-tab-trigger-general">
                 <div class="row g-3">
                     <InputSlot
                         hasDiv
@@ -133,7 +113,7 @@
                         lg="12"/>
                 </div>
             </div>
-            <div class="tab-pane fade" id="navs-pills-contacts" role="tabpanel">
+            <div v-show="activeTabId === 'contacts'" id="company-tab-contacts" role="tabpanel" aria-labelledby="company-tab-trigger-contacts">
                 <div class="row g-3">
                     <InputText
                         v-model="forms[entity].createUpdate.data.telephone"
@@ -168,9 +148,8 @@
                         xl="6"
                         lg="6">
                         <template v-slot:inputGroupAppend>
-                            <a :href="forms[entity].createUpdate.data.facebook" target="_blank" class="btn btn-info-1 waves-effect" v-if="isValidUrl({url: forms[entity].createUpdate.data.facebook})">
-                                <i class="fa fa-globe"></i>
-                                <span class="ms-2">Visitar</span>
+                            <a :href="forms[entity].createUpdate.data.facebook" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.facebook})" aria-label="Abrir Facebook">
+                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                             </a>
                         </template>
                     </InputText>
@@ -184,9 +163,8 @@
                         xl="6"
                         lg="6">
                         <template v-slot:inputGroupAppend>
-                            <a :href="forms[entity].createUpdate.data.instagram" target="_blank" class="btn btn-info-1 waves-effect" v-if="isValidUrl({url: forms[entity].createUpdate.data.instagram})">
-                                <i class="fa fa-globe"></i>
-                                <span class="ms-2">Visitar</span>
+                            <a :href="forms[entity].createUpdate.data.instagram" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.instagram})" aria-label="Abrir Instagram">
+                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                             </a>
                         </template>
                     </InputText>
@@ -200,56 +178,51 @@
                         xl="6"
                         lg="6">
                         <template v-slot:inputGroupAppend>
-                            <a :href="forms[entity].createUpdate.data.whatsapp" target="_blank" class="btn btn-info-1 waves-effect" v-if="isValidUrl({url: forms[entity].createUpdate.data.whatsapp})">
-                                <i class="fa fa-globe"></i>
-                                <span class="ms-2">Visitar</span>
+                            <a :href="forms[entity].createUpdate.data.whatsapp" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.whatsapp})" aria-label="Abrir WhatsApp">
+                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                             </a>
                         </template>
                     </InputText>
                 </div>
             </div>
-            <div class="tab-pane fade" id="navs-pills-branding" role="tabpanel">
-                <div class="table-responsive mt-1">
-                    <p class="small fw-semibold mb-2">
-                        <i class="fa fa-info-circle me-1"></i>
-                        <span v-text="fileFormatHintText"></span>
-                    </p>
-                    <table class="table table-hover">
-                        <thead class="align-middle bg-secondary text-center">
-                            <tr>
-                                <th class="text-white" style="width: 40%;" v-text="MODULE.texts.branding.tablePreview"></th>
-                                <th class="text-white" style="width: 60%;" v-text="MODULE.texts.branding.tableUpload"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0 bg-white">
-                            <tr v-for="item in MODULE.brandingItems" :key="item.formField">
-                                <td class="text-center align-middle">
-                                    <img v-if="isDefined(forms[entity].createUpdate.data[item.formField])" :src="getAsset(forms[entity].createUpdate.data[item.formField], {type: 'storage'})" width="150" height="150" class="img-fluid object-fit-contain" alt=""/>
-                                    <div v-else class="d-flex flex-column align-items-center justify-content-center">
-                                        <img :src="getAsset(config.essential.ownerApp.assets.img[item.formField], {type: 'none', back: 1})" width="130" height="130" class="img-fluid object-fit-contain opacity-75" alt=""/>
-                                        <div class="badge bg-secondary mt-1" v-text="MODULE.texts.branding.placeholderLabel"></div>
-                                    </div>
-                                </td>
-                                <td class="text-start align-middle">
-                                    <InputSlot
-                                        :hasDiv="false"
-                                        :title="MODULE.texts.form[item.formKey]"
-                                        :titleClass="[config.forms.classes.title]">
-                                        <template v-slot:input>
-                                            <input type="file" class="form-control" :id="item.fileInputId" accept="image/png, image/jpg, image/jpeg"/>
-                                        </template>
-                                    </InputSlot>
-                                    <p class="small text-muted mb-0 mt-1">
-                                        <i class="fa fa-lightbulb-o me-1"></i>
-                                        <span v-text="item.hint"></span>
-                                    </p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div v-show="activeTabId === 'branding'" id="company-tab-branding" role="tabpanel" aria-labelledby="company-tab-trigger-branding">
+                <div class="br-company-settings__brand-intro">
+                    <span class="form-label mb-0">Recursos de marca</span>
+                    <span v-text="fileFormatHintText"></span>
+                </div>
+                <div class="br-company-settings__brand-grid">
+                    <article v-for="item in MODULE.brandingItems" :key="item.formField" class="br-company-settings__brand-item">
+                        <div class="br-company-settings__brand-preview">
+                            <img
+                                v-if="isDefined(forms[entity].createUpdate.data[item.formField])"
+                                :src="getAsset(forms[entity].createUpdate.data[item.formField], {type: 'storage'})"
+                                :alt="`Imagen actual: ${MODULE.texts.form[item.formKey]}`"/>
+                            <img
+                                v-else
+                                :src="getAsset(config.essential.ownerApp.assets.img[item.formField], {type: 'none', back: 1})"
+                                :alt="`Imagen predeterminada: ${MODULE.texts.form[item.formKey]}`"/>
+                        </div>
+                        <div class="br-company-settings__brand-details">
+                            <label :for="item.fileInputId" class="form-label" v-text="MODULE.texts.form[item.formKey]"></label>
+                            <p v-text="item.hint"></p>
+                            <div class="br-company-settings__brand-upload">
+                                <input
+                                    type="file"
+                                    class="visually-hidden"
+                                    :id="item.fileInputId"
+                                    accept="image/png, image/jpg, image/jpeg"
+                                    @change="onBrandImageChange(item.formField, $event)"/>
+                                <label :for="item.fileInputId" class="br-btn br-btn-outline-secondary br-btn-sm">
+                                    <i class="fa-solid fa-upload" aria-hidden="true"></i>
+                                    Seleccionar imagen
+                                </label>
+                                <span :title="selectedImageFiles[item.formField] || 'Sin archivo nuevo'" v-text="selectedImageFiles[item.formField] || 'Sin archivo nuevo'"></span>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </div>
-            <div class="tab-pane fade" id="navs-pills-share" role="tabpanel">
+            <div v-show="false" id="company-tab-share" role="tabpanel">
                 <div class="row g-3">
                     <InputSlot
                         hasDiv
@@ -273,7 +246,7 @@
                     </InputSlot>
                 </div>
             </div>
-            <div class="tab-pane fade" id="navs-pills-configuration" role="tabpanel">
+            <div v-show="false" id="company-tab-configuration" role="tabpanel">
                 <div class="row g-3">
                     <InputText
                         v-model="forms[entity].createUpdate.data.slug"
@@ -299,18 +272,15 @@
                         lg="6"/>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="mt-3" v-if="hasRecord">
-        <div class="row g-3">
-            <div class="d-flex flex-row-reverse">
-                <button type="button" class="btn waves-effect btn-primary" @click="saveEntity" :disabled="isSaving">
-                    <i class="fa fa-save"></i>
-                    <span class="ms-2" v-text="MODULE.texts.actions.save"></span>
-                </button>
             </div>
-        </div>
-    </div>
+            <footer v-if="hasRecord" class="br-company-settings__footer">
+                <button type="button" class="br-btn br-btn-primary" @click="saveEntity" :disabled="isSaving">
+                    <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                    <span v-text="isSaving ? 'Guardando...' : MODULE.texts.actions.save"></span>
+                </button>
+            </footer>
+        </section>
+    </main>
 </template>
 
 <script>
@@ -370,11 +340,11 @@ const FORM_FIELD_CONFIG = {
 };
 
 const TAB_ITEMS = [
-    {id: "general", icon: "fa-building", label: "Información general", visible: true},
-    {id: "contacts", icon: "fa-phone", label: "Información de contacto y redes", visible: true},
-    {id: "branding", icon: "fa-palette", label: "Identidad visual", visible: true},
-    {id: "share", icon: "fa-link", label: "Accesos compartidos", visible: false},
-    {id: "configuration", icon: "fa-cog", label: "Parámetros", visible: false}
+    {id: "general", icon: "fa-solid fa-building", label: "DATOS GENERALES", description: "Identificación legal", visible: true},
+    {id: "contacts", icon: "fa-solid fa-address-book", label: "CONTACTO", description: "Canales y redes", visible: true},
+    {id: "branding", icon: "fa-solid fa-palette", label: "IDENTIDAD VISUAL", description: "Imágenes de marca", visible: true},
+    {id: "share", icon: "fa-solid fa-link", label: "ACCESOS", visible: false},
+    {id: "configuration", icon: "fa-solid fa-gear", label: "PARÁMETROS", visible: false}
 ];
 
 const BRANDING_ITEMS = [
@@ -386,10 +356,7 @@ const BRANDING_ITEMS = [
 
 const TEXTS = {
     branding: {
-        tablePreview: "Imagen",
-        tableUpload: "Recurso",
-        placeholderLabel: "Plantilla por defecto",
-        fileFormatHint: "Formatos validos PNG, JPG o JPEG. Máx. {{size}} MB"
+        fileFormatHint: "Formatos válidos: PNG, JPG o JPEG. Máx. {{size}} MB"
     },
     form: {
         identityDocumentType: "Tipo de documento",
@@ -413,7 +380,7 @@ const TEXTS = {
         searchDocumentTooltip: "Buscar N° documento"
     },
     actions: {
-        save: "Guardar información"
+        save: "Guardar"
     }
 };
 
@@ -444,7 +411,8 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
-            activeTabId: "general"
+            activeTabId: "general",
+            selectedImageFiles: {}
         };
 
     },
@@ -459,10 +427,6 @@ export default {
 
         this.isInitialized = true;
 
-        const navEl = this.$refs.navTabs;
-
-        if(navEl) navEl.addEventListener("shown.bs.tab", this.onTabShown);
-
         if(initParams) {
 
             const initOthers = await this.initOthers();
@@ -474,13 +438,6 @@ export default {
             }
 
         }
-
-    },
-    beforeUnmount() {
-
-        const navEl = this.$refs.navTabs;
-
-        if(navEl) navEl.removeEventListener("shown.bs.tab", this.onTabShown);
 
     },
     methods: {
@@ -515,23 +472,11 @@ export default {
 
                 }
 
-                this.showFirstTab();
                 this.tooltips({show: true, time: 500});
 
                 resolve(true);
 
             });
-
-        },
-        onTabShown(event) {
-
-            const target = event.target?.getAttribute("data-bs-target");
-
-            if(target) {
-
-                this.activeTabId = target.replace("#navs-pills-", "");
-
-            }
 
         },
         populateFormFromCompany(company) {
@@ -563,21 +508,14 @@ export default {
             formData.status                 = status;
 
         },
-        showFirstTab() {
-
-            const tabTrigger = document.querySelector(`[data-bs-target="#navs-pills-${this.activeTabId}"]`);
-
-            if(tabTrigger) {
-
-                const tab = new bootstrap.Tab(tabTrigger);
-                tab.show();
-
-            }
-
-        },
         onEmailInput(value) {
 
             this.forms[this.entity].createUpdate.data.email = (value ?? "").toString().toLowerCase();
+
+        },
+        onBrandImageChange(field, event) {
+
+            this.selectedImageFiles[field] = event.target.files?.[0]?.name ?? "";
 
         },
         // Forms
@@ -672,6 +610,8 @@ export default {
         clearForm() {
 
             const fileInputIds = ["logomarkFileId", "logotypeFileId", "combinationmarkFileId", "loginImageFileId"];
+
+            this.selectedImageFiles = {};
 
             fileInputIds.forEach(id => {
 

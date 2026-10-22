@@ -19264,3 +19264,175 @@ body > .vs__dropdown-menu,
     transition: none;
   }
 }
+
+/* Mi empresa reutiliza las pestañas descriptivas del catálogo en una página. */
+.br-company-settings {
+  margin-top: 0.75rem;
+}
+
+.br-company-settings__panel {
+  overflow: hidden;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-md);
+  background: var(--br-modal-surface);
+  box-shadow: var(--br-shadow-sm);
+}
+
+.br-company-settings .br-catalog-form-tabs {
+  padding: 1rem 1.25rem 0.85rem;
+  border-bottom: 1px solid var(--br-border);
+  background: var(--br-modal-chrome-surface);
+}
+
+.br-company-settings__content {
+  min-height: 15rem;
+  padding: 1.25rem;
+}
+
+.br-company-settings__visit {
+  display: inline-grid;
+  width: var(--br-btn-height);
+  height: var(--br-btn-height);
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+  color: var(--br-primary-active);
+  font-size: 0.72rem;
+  text-decoration: none;
+  place-items: center;
+}
+
+.br-company-settings__visit:hover,
+.br-company-settings__visit:focus-visible {
+  border-color: var(--br-primary-muted);
+  background: var(--br-primary-soft);
+  color: var(--br-primary-active);
+}
+
+.br-company-settings__brand-intro {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--br-text-muted);
+  font-size: 0.72rem;
+}
+
+.br-company-settings__brand-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.br-company-settings__brand-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+}
+
+.br-company-settings__brand-preview {
+  display: grid;
+  flex: 0 0 6rem;
+  width: 6rem;
+  height: 6rem;
+  overflow: hidden;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-surface-soft);
+  place-items: center;
+}
+
+.br-company-settings__brand-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.br-company-settings__brand-details {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.br-company-settings__brand-details p {
+  margin: 0 0 0.55rem;
+  color: var(--br-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.br-company-settings__brand-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.br-company-settings__brand-upload .br-btn {
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.br-company-settings__brand-upload > span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--br-text-muted);
+  font-size: 0.69rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-company-settings__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.7rem 1.25rem;
+  border-top: 1px solid var(--br-border);
+  background: var(--br-modal-chrome-surface);
+}
+
+@media (max-width: 767.98px) {
+  .br-company-settings .br-catalog-form-tabs {
+    padding: 0.85rem 1rem 0.7rem;
+  }
+
+  .br-company-settings__content {
+    padding: 1rem;
+  }
+
+  .br-company-settings__brand-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .br-company-settings__brand-intro {
+    display: grid;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .br-company-settings__brand-item {
+    align-items: flex-start;
+  }
+
+  .br-company-settings__brand-preview {
+    flex-basis: 4.5rem;
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .br-company-settings__brand-upload {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .br-company-settings__footer .br-btn {
+    width: 100%;
+  }
+}
