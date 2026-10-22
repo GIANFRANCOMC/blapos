@@ -701,14 +701,14 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   border-radius: var(--br-app-control-radius);
 }
 
-.br-layout .form-control:not(:focus):hover,
-.br-layout .form-select:not(:focus):hover,
-.br-layout .input-group:not(:focus-within):hover .form-control,
-.br-layout .input-group:not(:focus-within):hover .input-group-text,
-.br-layout .input-group:not(:focus-within):hover .br-input-action,
-.br-layout .v-select:not(.vs--open):not(:focus-within) .vs__dropdown-toggle:hover,
-.br-layout .select2-container--default:not(.select2-container--focus):not(.select2-container--open) .select2-selection--single:hover,
-.br-layout .select2-container--default:not(.select2-container--focus):not(.select2-container--open) .select2-selection--multiple:hover {
+.br-layout .form-control:not(:disabled):not([readonly]):not(:focus):hover,
+.br-layout .form-select:not(:disabled):not([readonly]):not(:focus):hover,
+.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .form-control,
+.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .input-group-text,
+.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .br-input-action,
+.br-layout .v-select:not(.vs--disabled):not(.vs--open):not(:focus-within) .vs__dropdown-toggle:hover,
+.br-layout .select2-container--default:not(.select2-container--disabled):not(.select2-container--focus):not(.select2-container--open) .select2-selection--single:hover,
+.br-layout .select2-container--default:not(.select2-container--disabled):not(.select2-container--focus):not(.select2-container--open) .select2-selection--multiple:hover {
   border-color: color-mix(in srgb, var(--br-primary) 26%, var(--br-border-strong)) !important;
   background-color: var(--br-surface-subtle) !important;
 }

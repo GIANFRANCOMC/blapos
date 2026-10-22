@@ -16,7 +16,7 @@ export const STATUS = {
 };
 
 /**
- * Modificador visual para .br-status-label--{valor} (estándar de plataforma).
+ * Modificador visual para .br-badge--{valor} (estándar de plataforma).
  * Valores: success | info | warning | danger | primary | secondary | neutral | dark
  */
 export const STATUS_BADGE_VARIANTS = {
@@ -60,7 +60,7 @@ export const STATUS_BADGE_CUSTOM_ASSET_MAINTENANCE_PRIMARY = {
     maintenance: "primary"
 };
 
-const STATUS_LABEL_MODIFIERS_ALLOWED = new Set([
+const BADGE_MODIFIERS_ALLOWED = new Set([
     "success",
     "info",
     "warning",
@@ -85,9 +85,8 @@ export const FILTER_BY_OPTIONS = {
 export const CSS_CLASSES = {
     TITLE: "form-label colon-at-end",
     SELECT2: "bg-white",
-    /** @deprecated Preferir STATUS_LABEL_BASE; se conserva para compatibilidad */
-    BADGE_BASE: ["br-status-label", "text-capitalize"],
-    STATUS_LABEL_BASE: ["br-status-label"],
+    BADGE_BASE: ["br-badge"],
+    STATUS_LABEL_BASE: ["br-badge"],
     BUTTON_PRIMARY: "btn btn-primary waves-effect",
     BUTTON_SUCCESS: "btn btn-success waves-effect",
     BUTTON_WARNING: "btn btn-warning waves-effect",
@@ -102,11 +101,15 @@ export const CSS_CLASSES = {
  * @param {Record<string, string>} customVariants — mapa estado → modificador permitido
  * @returns {string[]}
  */
-export function getStatusLabelClasses(status, customVariants = {}) {
+export function getStatusBadgeVariant(status, customVariants = {}) {
     const variants = {...STATUS_BADGE_VARIANTS, ...customVariants};
     const raw = variants[status];
-    const mod =
-        typeof raw === "string" && STATUS_LABEL_MODIFIERS_ALLOWED.has(raw) ? raw : "secondary";
+
+    return typeof raw === "string" && BADGE_MODIFIERS_ALLOWED.has(raw) ? raw : "secondary";
+}
+
+export function getStatusLabelClasses(status, customVariants = {}) {
+    const variant = getStatusBadgeVariant(status, customVariants);
     const statusClass = String(status ?? "unknown")
         .trim()
         .toLowerCase()
@@ -116,7 +119,7 @@ export function getStatusLabelClasses(status, customVariants = {}) {
     return [
         ...CSS_CLASSES.STATUS_LABEL_BASE,
         `br-status-${statusClass}`,
-        `br-status-label--${mod}`
+        `br-badge--${variant}`
     ];
 }
 

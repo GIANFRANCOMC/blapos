@@ -92,7 +92,10 @@ final class BrandService {
 
     public static function getFilteredListQuery(array $filters = []): Builder {
 
-        $query = Brand::query();
+        $query = Brand::query()
+            ->withCount([
+                "products as active_items_count" => fn(Builder $products) => $products->where("status", "active"),
+            ]);
 
         $filterBy = $filters["filter_by"] ?? null;
         $word = $filters["word"] ?? null;

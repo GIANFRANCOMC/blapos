@@ -111,36 +111,6 @@
     font-size: 0.72rem;
 }
 
-.br-inventory-status,
-.br-inventory-movement {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.32rem;
-    padding: 0.24rem 0.48rem;
-    border-radius: var(--br-radius-sm);
-    font-size: 0.7rem;
-    font-weight: 650;
-    white-space: nowrap;
-}
-
-.br-inventory-status.is-healthy,
-.br-inventory-movement.is-entry {
-    background: var(--br-success-soft);
-    color: var(--br-success-hover);
-}
-
-.br-inventory-status.is-low,
-.br-inventory-movement.is-correction {
-    background: var(--br-warning-soft);
-    color: var(--br-orange-strong);
-}
-
-.br-inventory-status.is-empty,
-.br-inventory-movement.is-exit {
-    background: var(--br-danger-soft);
-    color: var(--br-danger);
-}
-
 .br-inventory__kardex-table { min-width: 62rem; }
 .br-inventory__kardex-table th:nth-child(1) { width: 17%; }
 .br-inventory__kardex-table th:nth-child(2) { width: 18%; }

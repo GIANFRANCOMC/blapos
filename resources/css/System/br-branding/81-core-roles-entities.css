@@ -1457,14 +1457,15 @@ body.br-layout .br-entity-table > thead > tr > th {
     max-width: 100%;
 }
 
-.br-entity-table__name,
-.br-entity-stock {
+.br-entity-table__name {
     display: block;
     color: var(--br-secondary);
     font-weight: 700;
 }
 
 .br-entity-stock {
+    display: block;
+    color: var(--br-secondary);
     font-size: var(--br-table-value-font-size);
     line-height: 1.3;
 }

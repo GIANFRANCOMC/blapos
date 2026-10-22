@@ -105,7 +105,7 @@
                                     :title="MODULE.texts.form.name"
                                     :titleClass="[config.forms.classes.title]"
                                     isRequired
-                                    maxlength="50"
+                                    maxlength="100"
                                     showCharCounter
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.name"

@@ -39,7 +39,7 @@ class UpdateServiceRequest extends CompanyFormRequest {
 
         $validations = [
             "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "service"], "código interno")],
-            "name" => "required|string|max:50",
+            "name" => "required|string|max:100",
             "description" => "nullable|string|max:100",
             "price" => "required|numeric|min:$minValue|max:$maxValue|decimal:0,$round",
             "price_includes_tax" => "nullable|boolean",

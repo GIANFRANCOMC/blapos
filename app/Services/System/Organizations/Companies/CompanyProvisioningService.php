@@ -218,9 +218,9 @@ final class CompanyProvisioningService {
 
         $companyId = $this->rootCompanyId();
         $settings = [
-            ["group" => "internal_code_prefixes", "key" => "product", "value" => "PRO", "description" => "Prefijo usado para generar códigos internos de productos. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
-            ["group" => "internal_code_prefixes", "key" => "service", "value" => "SER", "description" => "Prefijo usado para generar códigos internos de servicios. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
-            ["group" => "internal_code_prefixes", "key" => "subscription", "value" => "MEM", "description" => "Prefijo usado para generar códigos internos de membresías. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
+            ["group" => "internal_code_prefixes", "key" => "product", "value" => "PROD", "description" => "Prefijo usado para generar códigos internos de productos. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
+            ["group" => "internal_code_prefixes", "key" => "service", "value" => "SERV", "description" => "Prefijo usado para generar códigos internos de servicios. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
+            ["group" => "internal_code_prefixes", "key" => "subscription", "value" => "MEMB", "description" => "Prefijo usado para generar códigos internos de membresías. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "brand", "value" => "MAR", "description" => "Prefijo usado para generar códigos internos de marcas. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "category", "value" => "CAT", "description" => "Prefijo usado para generar códigos internos de categorías. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "branch", "value" => "SUC", "description" => "Prefijo usado para generar códigos internos de sucursales. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],

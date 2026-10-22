@@ -552,6 +552,13 @@ body.br-layout .form-label {
   transition: none !important;
 }
 
+.br-layout .v-select.vs--disabled .vs__selected,
+.br-layout .v-select.vs--disabled .vs__search,
+.br-layout .v-select.vs--disabled .vs__open-indicator,
+.br-layout .v-select.vs--disabled .vs__clear {
+  background-color: transparent !important;
+}
+
 .br-layout .v-select.vs--disabled .vs__actions,
 .br-layout .v-select.vs--disabled .vs__open-indicator,
 .br-layout .v-select.vs--disabled .vs__clear {
@@ -559,6 +566,19 @@ body.br-layout .form-label {
   fill: var(--br-text-placeholder) !important;
   opacity: 0.72 !important;
   transition: none !important;
+}
+
+.br-layout .select2-container--default.select2-container--disabled .select2-selection--single,
+.br-layout .select2-container--default.select2-container--disabled .select2-selection--multiple {
+  border-color: color-mix(in srgb, var(--br-border-strong) 78%, var(--br-border)) !important;
+  background-color: var(--br-neutral-soft) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transition: none !important;
+}
+
+.br-layout .select2-container--disabled .select2-selection__rendered {
+  color: color-mix(in srgb, var(--br-secondary) 58%, var(--br-text-muted)) !important;
 }
 
 .br-filter-bar .form-control,
@@ -597,7 +617,7 @@ body.br-layout .form-label {
   transition: fill 0.18s ease, transform 0.18s ease;
 }
 
-.br-layout .v-select .vs__dropdown-toggle:hover .vs__open-indicator {
+.br-layout .v-select:not(.vs--disabled) .vs__dropdown-toggle:hover .vs__open-indicator {
   background: transparent !important;
   fill: var(--br-primary-active);
 }
@@ -1152,83 +1172,68 @@ body > .vs__dropdown-menu .vs__dropdown-option--selected .br-warehouse-select__b
 }
 
 /* -------------------------------------------------------------------------
- * [br] Indicadores de estado — etiqueta (.br-status-label) y superficie (.br-status-surface)
- * Uso etiqueta: <span class="br-status-label br-status-label--success">Activo</span>
+ * [br] Indicadores de estado — .br-badge y superficie (.br-status-surface)
+ * Uso: <span class="br-badge br-badge--success">Activo</span>
  * Modificadores: --success | --info | --warning | --danger | --primary | --secondary | --neutral | --dark
+ * .br-status-label y .br-inventory-status se conservan como alias de transición.
  * Superficie (celdas/filas): td.br-status-surface--success (mismo sufijo que la etiqueta)
  * ------------------------------------------------------------------------- */
-.br-layout .br-status-label {
-  display: inline-block;
-  min-width: 3.75rem;
-  padding: 0.2em 0.60em;
-  font-size: 0.65rem !important;
+.br-layout :is(.br-badge, .br-status-label, .br-inventory-status, .br-inventory-movement) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  padding: 0.24rem 0.48rem;
+  font-size: 0.7rem !important;
+  font-weight: 650;
   line-height: 1.2;
-  border-radius: 0.25rem;
-  border: 1px solid transparent;
+  border-radius: var(--br-radius-sm);
+  border: 0;
   text-align: center;
   text-transform: none;
-  vertical-align: baseline;
+  vertical-align: middle;
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
-.br-layout .br-status-active {
+.br-layout :is(.br-badge--success, .br-status-label--success, .br-status-active, .br-inventory-status.is-healthy, .br-inventory-movement.is-entry) {
   background-color: var(--br-success-soft);
   color: var(--br-success-hover);
-  border-color: color-mix(in srgb, var(--br-success) 30%, var(--br-border));
 }
 
-.br-layout .br-status-inactive {
+.br-layout :is(.br-badge--danger, .br-status-label--danger, .br-status-inactive, .br-inventory-status.is-empty, .br-inventory-movement.is-exit) {
   background-color: var(--br-danger-soft);
-  color: var(--br-danger-hover);
-  border-color: color-mix(in srgb, var(--br-danger) 28%, var(--br-border));
+  color: var(--br-danger);
 }
 
-.br-layout .br-status-label--success {
-  background-color: var(--br-success-soft);
-  color: var(--br-success-hover);
-  border-color: color-mix(in srgb, var(--br-success) 24%, transparent);
-}
-
-.br-layout .br-status-label--info {
+.br-layout :is(.br-badge--info, .br-status-label--info) {
   background-color: var(--br-info-soft);
   color: var(--br-info-hover);
-  border-color: color-mix(in srgb, var(--br-info) 24%, transparent);
 }
 
-.br-layout .br-status-label--warning {
+.br-layout :is(.br-badge--warning, .br-status-label--warning, .br-inventory-status.is-low, .br-inventory-movement.is-correction) {
   background-color: var(--br-warning-soft);
   color: var(--br-warning-hover);
-  border-color: color-mix(in srgb, var(--br-warning) 28%, transparent);
 }
 
-.br-layout .br-status-label--danger {
-  background-color: var(--br-danger-soft);
-  color: var(--br-danger-hover);
-  border-color: color-mix(in srgb, var(--br-danger) 24%, transparent);
-}
-
-.br-layout .br-status-label--primary {
+.br-layout :is(.br-badge--primary, .br-status-label--primary) {
   background-color: var(--br-primary-soft);
   color: var(--br-primary-active);
-  border-color: color-mix(in srgb, var(--br-primary) 26%, transparent);
 }
 
-.br-layout .br-status-label--secondary {
+.br-layout :is(.br-badge--secondary, .br-status-label--secondary) {
   background-color: var(--br-secondary-soft);
   color: var(--br-secondary-muted);
-  border-color: color-mix(in srgb, var(--br-border) 45%, transparent);
 }
 
-.br-layout .br-status-label--neutral {
+.br-layout :is(.br-badge--neutral, .br-status-label--neutral) {
   background-color: var(--br-neutral-soft);
   color: var(--br-neutral);
-  border-color: color-mix(in srgb, var(--br-neutral) 18%, transparent);
 }
 
-.br-layout .br-status-label--dark {
+.br-layout :is(.br-badge--dark, .br-status-label--dark) {
   background-color: color-mix(in srgb, var(--br-secondary) 8%, var(--br-secondary-soft));
   color: var(--br-secondary);
-  border-color: color-mix(in srgb, var(--br-secondary) 18%, transparent);
 }
 
 .br-layout td.br-status-surface--success {
@@ -1995,16 +2000,12 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   transition: box-shadow 0.16s ease;
 }
 
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) {
+.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within):not(:has(:disabled, [readonly], .vs--disabled, .select2-container--disabled)) {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--br-primary) 24%, transparent);
 }
 
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .form-control,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .form-select,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .input-group-text,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .br-input-action,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .vs__dropdown-toggle,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .select2-selection {
+.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within):not(:has(:disabled, [readonly], .vs--disabled, .select2-container--disabled))
+  :is(.form-control, .form-select, .input-group-text, .br-input-action, .vs__dropdown-toggle, .select2-selection) {
   border-color: color-mix(in srgb, var(--br-primary) 32%, var(--br-border)) !important;
 }
 
@@ -7226,13 +7227,7 @@ body.br-layout .table > tbody > tr > td,
   line-height: 1.32;
 }
 
-/* Estados y badges compactos */
-.br-layout .br-status-label {
-  min-width: 3.1rem;
-  font-weight: 700;
-  border-radius: 0.22rem;
-}
-
+/* Badges Bootstrap heredados; los estados usan .br-badge. */
 .br-layout .badge,
 .br-layout .badge[class*="bg-label-"] {
   padding: 0.25rem 0.46rem;
@@ -9696,8 +9691,8 @@ input.input-number-no-range::-webkit-inner-spin-button {
   transition: var(--br-transition);
 }
 
-.br-guest-field .form-control:hover,
-.br-guest-field .vs__dropdown-toggle:hover {
+.br-guest-field .form-control:not(:disabled):not([readonly]):hover,
+.br-guest-field .v-select:not(.vs--disabled) .vs__dropdown-toggle:hover {
   border-color: color-mix(in srgb, var(--br-primary) 28%, var(--br-border));
 }
 
@@ -11436,14 +11431,15 @@ body.br-layout .br-entity-table > thead > tr > th {
     max-width: 100%;
 }
 
-.br-entity-table__name,
-.br-entity-stock {
+.br-entity-table__name {
     display: block;
     color: var(--br-secondary);
     font-weight: 700;
 }
 
 .br-entity-stock {
+    display: block;
+    color: var(--br-secondary);
     font-size: var(--br-table-value-font-size);
     line-height: 1.3;
 }
@@ -12540,36 +12536,6 @@ body.br-layout .br-entity-table > thead > tr > th {
     margin-top: 0.16rem;
     color: var(--br-text-muted);
     font-size: 0.72rem;
-}
-
-.br-inventory-status,
-.br-inventory-movement {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.32rem;
-    padding: 0.24rem 0.48rem;
-    border-radius: var(--br-radius-sm);
-    font-size: 0.7rem;
-    font-weight: 650;
-    white-space: nowrap;
-}
-
-.br-inventory-status.is-healthy,
-.br-inventory-movement.is-entry {
-    background: var(--br-success-soft);
-    color: var(--br-success-hover);
-}
-
-.br-inventory-status.is-low,
-.br-inventory-movement.is-correction {
-    background: var(--br-warning-soft);
-    color: var(--br-orange-strong);
-}
-
-.br-inventory-status.is-empty,
-.br-inventory-movement.is-exit {
-    background: var(--br-danger-soft);
-    color: var(--br-danger);
 }
 
 .br-inventory__kardex-table { min-width: 62rem; }
@@ -14487,13 +14453,11 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 }
 
 .br-status-pending {
-  border-color: var(--br-warning-border);
   background: var(--br-warning-soft);
-  color: var(--br-on-warning);
+  color: var(--br-warning-hover);
 }
 
 .br-status-completed {
-  border-color: color-mix(in srgb, var(--br-success) 30%, var(--br-border));
   background: var(--br-success-soft);
   color: var(--br-success-hover);
 }
@@ -18573,14 +18537,14 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   border-radius: var(--br-app-control-radius);
 }
 
-.br-layout .form-control:not(:focus):hover,
-.br-layout .form-select:not(:focus):hover,
-.br-layout .input-group:not(:focus-within):hover .form-control,
-.br-layout .input-group:not(:focus-within):hover .input-group-text,
-.br-layout .input-group:not(:focus-within):hover .br-input-action,
-.br-layout .v-select:not(.vs--open):not(:focus-within) .vs__dropdown-toggle:hover,
-.br-layout .select2-container--default:not(.select2-container--focus):not(.select2-container--open) .select2-selection--single:hover,
-.br-layout .select2-container--default:not(.select2-container--focus):not(.select2-container--open) .select2-selection--multiple:hover {
+.br-layout .form-control:not(:disabled):not([readonly]):not(:focus):hover,
+.br-layout .form-select:not(:disabled):not([readonly]):not(:focus):hover,
+.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .form-control,
+.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .input-group-text,
+.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .br-input-action,
+.br-layout .v-select:not(.vs--disabled):not(.vs--open):not(:focus-within) .vs__dropdown-toggle:hover,
+.br-layout .select2-container--default:not(.select2-container--disabled):not(.select2-container--focus):not(.select2-container--open) .select2-selection--single:hover,
+.br-layout .select2-container--default:not(.select2-container--disabled):not(.select2-container--focus):not(.select2-container--open) .select2-selection--multiple:hover {
   border-color: color-mix(in srgb, var(--br-primary) 26%, var(--br-border-strong)) !important;
   background-color: var(--br-surface-subtle) !important;
 }

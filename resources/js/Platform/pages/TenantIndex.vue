@@ -41,7 +41,10 @@
                         <td><button class="platform-tenant-name" type="button" @click="$emit('open', tenant)"><span>{{ tenant.slug.charAt(0).toUpperCase() }}</span><strong>{{ tenant.slug }}</strong></button></td>
                         <td><a v-if="tenant.url" :href="tenant.url" target="_blank" rel="noopener noreferrer">{{ tenant.domain }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a><span v-else class="text-muted">Sin dominio</span></td>
                         <td><code>{{ tenant.database_name }}</code></td>
-                        <td><span :class="['platform-status', `platform-status--${tenant.status}`]">{{ statusLabel(tenant.status) }}</span></td>
+                        <td>
+                            <span :class="['platform-status', `platform-status--${tenant.status}`]">{{ statusLabel(tenant.status) }}</span>
+                            <small v-if="tenant.status === 'provisioning' && tenant.status_reason" class="platform-provisioning-stage">{{ tenant.status_reason }}</small>
+                        </td>
                         <td class="text-end"><button class="btn btn-sm platform-manage-button" type="button" :aria-label="`Configurar ${tenant.slug}`" @click="$emit('open', tenant)"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Configurar</span><i class="fa-solid fa-chevron-right platform-manage-button__arrow" aria-hidden="true"></i></button></td>
                     </tr></tbody>
                 </table>
@@ -82,7 +85,10 @@
                 </footer>
             </form>
             <div v-if="creating" class="platform-provisioning-lock" role="status" aria-live="assertive">
-                <span class="platform-provisioning-lock__spinner"></span><strong>Preparando el nuevo cliente</strong><p>No cierres esta ventana. Estamos creando y verificando su entorno aislado.</p>
+                <span class="platform-provisioning-lock__spinner"></span>
+                <strong>Preparando el nuevo cliente</strong>
+                <p>{{ creatingStage }} Tiempo transcurrido: {{ creatingSeconds }} s.</p>
+                <p>No envíes otra solicitud. Si se interrumpe la conexión, revisa el estado del cliente en el listado.</p>
             </div>
         </div>
     </section>
@@ -98,7 +104,7 @@ export default {
     props: {apiBase: {type: String, required: true}},
     emits: ["open", "notify"],
     data() {
-        return {tenants: [], counts: {total: 0, active: 0, inactive: 0, suspended: 0, provisioning: 0, provisioning_failed: 0, maintenance: 0}, meta: {current_page: 1, last_page: 1, total: 0}, filters: {search: "", status: ""}, loading: true, creating: false, showCreate: false, form: emptyForm(), searchTimer: null};
+        return {tenants: [], counts: {total: 0, active: 0, inactive: 0, suspended: 0, provisioning: 0, provisioning_failed: 0, maintenance: 0}, meta: {current_page: 1, last_page: 1, total: 0}, filters: {search: "", status: ""}, loading: true, creating: false, creatingSeconds: 0, creatingStage: "Iniciando el entorno aislado.", creatingTimer: null, creatingStatusTimer: null, creatingStatusPending: false, showCreate: false, form: emptyForm(), searchTimer: null};
     },
     computed: {
         countCards() {
@@ -111,7 +117,7 @@ export default {
         }
     },
     mounted() { this.loadTenants(); },
-    beforeUnmount() { window.clearTimeout(this.searchTimer); window.removeEventListener("beforeunload", this.preventUnload); document.body.classList.remove("platform-modal-open"); },
+    beforeUnmount() { window.clearTimeout(this.searchTimer); window.clearInterval(this.creatingTimer); window.clearInterval(this.creatingStatusTimer); window.removeEventListener("beforeunload", this.preventUnload); document.body.classList.remove("platform-modal-open"); },
     methods: {
         async loadTenants(page = 1) {
             this.loading = true;
@@ -128,15 +134,120 @@ export default {
         closeCreateModal() { if(this.creating) return; this.showCreate = false; document.body.classList.remove("platform-modal-open"); },
         normalizeSlug(event) { this.form.slug = event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-{2,}/g, "-"); },
         preventUnload(event) { event.preventDefault(); event.returnValue = ""; },
-        async createTenant() {
-            if(this.creating) return;
-            this.creating = true;
-            window.addEventListener("beforeunload", this.preventUnload);
+        async refreshCreatingStatus(slug) {
+
+            if(!this.creating || this.creatingStatusPending) return;
+
+            this.creatingStatusPending = true;
+
             try {
+
+                const {data} = await api.get(this.apiBase, {params: {search: slug, per_page: 10}});
+                const tenant = (data.data || []).find(item => item.slug === slug);
+
+                if(tenant?.status === "provisioning") {
+
+                    this.creatingStage = tenant.status_reason || "Preparando la base de datos.";
+
+                } else if(tenant?.status === "active") {
+
+                    this.creatingStage = "Finalizando la creación del cliente.";
+
+                } else if(tenant?.status === "provisioning_failed") {
+
+                    this.creatingStage = "No se pudo completar la preparación. Revisando el error.";
+
+                }
+
+            } catch(error) {
+
+                // El seguimiento es auxiliar; la solicitud de creación conserva su propio resultado.
+
+            } finally {
+
+                this.creatingStatusPending = false;
+
+            }
+
+        },
+        async createTenant() {
+
+            if(this.creating) return;
+
+            const slug = this.form.slug;
+
+            this.creating = true;
+            this.creatingSeconds = 0;
+            this.creatingStage = "Iniciando el entorno aislado.";
+            this.creatingTimer = window.setInterval(() => this.creatingSeconds++, 1000);
+            this.creatingStatusTimer = window.setInterval(() => this.refreshCreatingStatus(slug), 10000);
+            window.addEventListener("beforeunload", this.preventUnload);
+
+            try {
+
                 const {data} = await api.post(this.apiBase, this.form);
-                this.$emit("notify", data.message); this.form = emptyForm(); this.showCreate = false; await this.loadTenants(1);
-            } catch(error) { this.$emit("notify", {type: "danger", message: errorMessage(error, "No fue posible crear el cliente.")}); }
-            finally { this.creating = false; window.removeEventListener("beforeunload", this.preventUnload); if(!this.showCreate) document.body.classList.remove("platform-modal-open"); }
+                this.$emit("notify", data.message);
+                this.form = emptyForm();
+                this.showCreate = false;
+                await this.loadTenants(1);
+
+            } catch(error) {
+
+                let message = errorMessage(error, "No fue posible crear el cliente.");
+                let noticeType = "danger";
+
+                try {
+
+                    const {data} = await api.get(this.apiBase, {
+                        params: {search: slug, per_page: 10}
+                    });
+                    const tenant = (data.data || []).find(item => item.slug === slug);
+
+                    if(tenant?.status === "active") {
+
+                        message = "El cliente se creó correctamente. La respuesta inicial se interrumpió, pero el aprovisionamiento terminó.";
+                        noticeType = "success";
+                        this.form = emptyForm();
+                        this.showCreate = false;
+
+                    } else if(tenant?.status === "provisioning") {
+
+                        message = "El cliente sigue en preparación. No vuelvas a crearlo; actualiza el listado para consultar su estado.";
+                        noticeType = "warning";
+                        this.form = emptyForm();
+                        this.showCreate = false;
+
+                    } else if(tenant?.status === "provisioning_failed") {
+
+                        message = tenant.status_reason || message;
+
+                    }
+
+                } catch(lookupError) {
+
+                    // Se conserva el error original si el listado tampoco responde.
+
+                }
+
+                this.$emit("notify", {
+                    type: noticeType,
+                    message
+                });
+                await this.loadTenants(1);
+
+            } finally {
+
+                this.creating = false;
+                window.clearInterval(this.creatingTimer);
+                window.clearInterval(this.creatingStatusTimer);
+                this.creatingTimer = null;
+                this.creatingStatusTimer = null;
+                window.removeEventListener("beforeunload", this.preventUnload);
+
+                if(!this.showCreate) document.body.classList.remove("platform-modal-open");
+
+            }
+
         }
     }
 };

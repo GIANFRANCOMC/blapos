@@ -187,13 +187,11 @@
 }
 
 .br-status-pending {
-  border-color: var(--br-warning-border);
   background: var(--br-warning-soft);
-  color: var(--br-on-warning);
+  color: var(--br-warning-hover);
 }
 
 .br-status-completed {
-  border-color: color-mix(in srgb, var(--br-success) 30%, var(--br-border));
   background: var(--br-success-soft);
   color: var(--br-success-hover);
 }

@@ -9,7 +9,7 @@ use App\Models\System\Tenancy\{TenantDatabase, TenantDomain};
 use App\Services\System\Database\{SystemCatalogSyncService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService};
 use App\Services\System\Tenancy\{LandlordSchemaService, TenantConnectionManager};
-use Database\Seeders\{CommercialCatalogSeeder, SystemNavigationSeeder};
+use Database\Seeders\{CommercialCatalogSeeder, DemoPeopleSeeder, SystemNavigationSeeder};
 use Illuminate\Console\{Command};
 use Illuminate\Support\Facades\{Artisan, Cache, DB};
 use Illuminate\Support\{Str};
@@ -67,6 +67,7 @@ final class CreateTenantCompany extends Command {
 
             if(!$this->option("skip-migrate")) {
 
+                $this->markProvisioningStep($tenant, "Preparando la base de datos.");
                 $this->runTenantMigrations();
                 Artisan::call("db:seed", [
                     "--class" => SystemNavigationSeeder::class,
@@ -106,10 +107,20 @@ final class CreateTenantCompany extends Command {
 
                 if(DB::table("items")->doesntExist()) {
 
-                    app(CommercialCatalogSeeder::class)->run();
+                    $this->markProvisioningStep($tenant, "Cargando productos, servicios y membresías.");
+
+                    DB::transaction(function() use ($tenant): void {
+
+                        app(CommercialCatalogSeeder::class)->run();
+
+                        $this->markProvisioningStep($tenant, "Cargando clientes y colaboradores.");
+                        app(DemoPeopleSeeder::class)->run();
+
+                    });
 
                 }
 
+                $this->markProvisioningStep($tenant, "Verificando el entorno.");
                 $doctorExitCode = Artisan::call("system:doctor");
 
                 if($doctorExitCode !== self::SUCCESS) {
@@ -339,6 +350,18 @@ final class CreateTenantCompany extends Command {
         ]);
 
         $this->line(Artisan::output());
+
+    }
+
+    private function markProvisioningStep(TenantDatabase $tenant, string $step): void {
+
+        DB::connection("landlord")
+            ->table("tenant_databases")
+            ->where("id", $tenant->id)
+            ->update([
+                "status_reason" => $step,
+                "updated_at" => now(),
+            ]);
 
     }
 

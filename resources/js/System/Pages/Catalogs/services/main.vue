@@ -81,9 +81,9 @@
                         </td>
                         <td>
                             <div class="br-entity-offering-details">
-                                <span><strong>Duración</strong> {{ serviceDurationLabel(record) }}</span>
-                                <span><strong>Cupos</strong> {{ capacityLabel(record) }}</span>
-                                <span><strong>Comisión</strong> {{ commissionLabel(record) }}</span>
+                                <span><strong class="colon-at-end">Duración</strong> {{ serviceDurationLabel(record) }}</span>
+                                <span><strong class="colon-at-end">Cupos</strong> {{ capacityLabel(record) }}</span>
+                                <span><strong class="colon-at-end">Comisión</strong> {{ commissionLabel(record) }}</span>
                             </div>
                         </td>
                         <td class="text-end">
@@ -165,7 +165,7 @@
                                 :title="MODULE.texts.form.name"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                maxlength="50"
+                                maxlength="100"
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.name"

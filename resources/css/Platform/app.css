@@ -183,10 +183,13 @@ button, .btn { font-weight: 600; }
 
 .platform-notice { position: fixed; z-index: 100; top: 76px; right: 22px; width: min(390px, calc(100vw - 28px)); display: flex; align-items: center; gap: .65rem; padding: .8rem .9rem; color: #1d2939; background: #fff; border: 1px solid var(--platform-border); border-left: 3px solid var(--platform-success); border-radius: 11px; box-shadow: 0 15px 38px rgba(16, 24, 40, .14); font-size: .74rem; animation: platform-enter .2s ease; }
 .platform-notice.is-danger { border-left-color: var(--platform-danger); }
+.platform-notice.is-warning { border-left-color: #d98b12; }
 .platform-notice > i { color: var(--platform-success); }
 .platform-notice.is-danger > i { color: var(--platform-danger); }
+.platform-notice.is-warning > i { color: #d98b12; }
 .platform-notice span { flex: 1; }
 .platform-notice button { border: 0; color: #98a2b3; background: none; }
+.platform-provisioning-stage { display: block; margin-top: .3rem; color: var(--platform-muted); font-size: .68rem; }
 
 .platform-table-skeleton, .platform-detail-skeleton { padding: 18px; display: grid; gap: 11px; }
 .platform-table-skeleton span, .platform-detail-skeleton div { display: block; height: 46px; border-radius: 9px; background: linear-gradient(90deg, #f0f3f7 25%, #f8fafc 50%, #f0f3f7 75%); background-size: 200% 100%; animation: platform-shimmer 1.3s infinite; }

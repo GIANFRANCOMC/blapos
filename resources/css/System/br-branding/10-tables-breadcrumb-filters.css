@@ -226,6 +226,13 @@ body.br-layout .form-label {
   transition: none !important;
 }
 
+.br-layout .v-select.vs--disabled .vs__selected,
+.br-layout .v-select.vs--disabled .vs__search,
+.br-layout .v-select.vs--disabled .vs__open-indicator,
+.br-layout .v-select.vs--disabled .vs__clear {
+  background-color: transparent !important;
+}
+
 .br-layout .v-select.vs--disabled .vs__actions,
 .br-layout .v-select.vs--disabled .vs__open-indicator,
 .br-layout .v-select.vs--disabled .vs__clear {
@@ -233,6 +240,19 @@ body.br-layout .form-label {
   fill: var(--br-text-placeholder) !important;
   opacity: 0.72 !important;
   transition: none !important;
+}
+
+.br-layout .select2-container--default.select2-container--disabled .select2-selection--single,
+.br-layout .select2-container--default.select2-container--disabled .select2-selection--multiple {
+  border-color: color-mix(in srgb, var(--br-border-strong) 78%, var(--br-border)) !important;
+  background-color: var(--br-neutral-soft) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transition: none !important;
+}
+
+.br-layout .select2-container--disabled .select2-selection__rendered {
+  color: color-mix(in srgb, var(--br-secondary) 58%, var(--br-text-muted)) !important;
 }
 
 .br-filter-bar .form-control,
@@ -271,7 +291,7 @@ body.br-layout .form-label {
   transition: fill 0.18s ease, transform 0.18s ease;
 }
 
-.br-layout .v-select .vs__dropdown-toggle:hover .vs__open-indicator {
+.br-layout .v-select:not(.vs--disabled) .vs__dropdown-toggle:hover .vs__open-indicator {
   background: transparent !important;
   fill: var(--br-primary-active);
 }

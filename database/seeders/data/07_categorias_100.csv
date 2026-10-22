@@ -1,0 +1,101 @@
+internal_code,name,description,segment,status
+CAT-0001,Minería - Seguridad personal,Categoría de minería para seguridad personal.,minería,active
+CAT-0002,Minería - Iluminación,Categoría de minería para iluminación.,minería,active
+CAT-0003,Minería - Herramientas,Categoría de minería para herramientas.,minería,active
+CAT-0004,Minería - Mantenimiento,Categoría de minería para mantenimiento.,minería,active
+CAT-0005,Minería - Equipos eléctricos,Categoría de minería para equipos eléctricos.,minería,active
+CAT-0006,Minería - Maquinaria,Categoría de minería para maquinaria.,minería,active
+CAT-0007,Minería - Insumos de campo,Categoría de minería para insumos de campo.,minería,active
+CAT-0008,Minería - Transporte,Categoría de minería para transporte.,minería,active
+CAT-0009,Minería - Ventilación,Categoría de minería para ventilación.,minería,active
+CAT-0010,Minería - Señalización,Categoría de minería para señalización.,minería,active
+CAT-0011,Minería - Protección respiratoria,Categoría de minería para protección respiratoria.,minería,active
+CAT-0012,Minería - Servicios técnicos,Categoría de minería para servicios técnicos.,minería,active
+CAT-0013,Minería - Repuestos,Categoría de minería para repuestos.,minería,active
+CAT-0014,Minería - Capacitación,Categoría de minería para capacitación.,minería,active
+CAT-0015,Minería - Planes y accesos,Categoría de minería para planes y accesos.,minería,active
+CAT-0016,Botica - Cuidado personal,Categoría de botica para cuidado personal.,botica,active
+CAT-0017,Botica - Primeros auxilios,Categoría de botica para primeros auxilios.,botica,active
+CAT-0018,Botica - Antisépticos,Categoría de botica para antisépticos.,botica,active
+CAT-0019,Botica - Bienestar,Categoría de botica para bienestar.,botica,active
+CAT-0020,Botica - Higiene,Categoría de botica para higiene.,botica,active
+CAT-0021,Botica - Dermocosmética,Categoría de botica para dermocosmética.,botica,active
+CAT-0022,Botica - Instrumentos,Categoría de botica para instrumentos.,botica,active
+CAT-0023,Botica - Mediciones,Categoría de botica para mediciones.,botica,active
+CAT-0024,Botica - Asesoría,Categoría de botica para asesoría.,botica,active
+CAT-0025,Botica - Suplementos,Categoría de botica para suplementos.,botica,active
+CAT-0026,Botica - Accesorios,Categoría de botica para accesorios.,botica,active
+CAT-0027,Botica - Servicios clínicos,Categoría de botica para servicios clínicos.,botica,active
+CAT-0028,Botica - Atención preventiva,Categoría de botica para atención preventiva.,botica,active
+CAT-0029,Botica - Uso diario,Categoría de botica para uso diario.,botica,active
+CAT-0030,Botica - Planes y beneficios,Categoría de botica para planes y beneficios.,botica,active
+CAT-0031,Farmacia - Medicamentos,Categoría de farmacia para medicamentos.,farmacia,active
+CAT-0032,Farmacia - Genéricos,Categoría de farmacia para genéricos.,farmacia,active
+CAT-0033,Farmacia - Analgésicos,Categoría de farmacia para analgésicos.,farmacia,active
+CAT-0034,Farmacia - Cuidado personal,Categoría de farmacia para cuidado personal.,farmacia,active
+CAT-0035,Farmacia - Primeros auxilios,Categoría de farmacia para primeros auxilios.,farmacia,active
+CAT-0036,Farmacia - Control de salud,Categoría de farmacia para control de salud.,farmacia,active
+CAT-0037,Farmacia - Material médico,Categoría de farmacia para material médico.,farmacia,active
+CAT-0038,Farmacia - Suplementos,Categoría de farmacia para suplementos.,farmacia,active
+CAT-0039,Farmacia - Recetas,Categoría de farmacia para recetas.,farmacia,active
+CAT-0040,Farmacia - Asesoría,Categoría de farmacia para asesoría.,farmacia,active
+CAT-0041,Farmacia - Servicios de salud,Categoría de farmacia para servicios de salud.,farmacia,active
+CAT-0042,Farmacia - Cuidado infantil,Categoría de farmacia para cuidado infantil.,farmacia,active
+CAT-0043,Farmacia - Dermocosmética,Categoría de farmacia para dermocosmética.,farmacia,active
+CAT-0044,Farmacia - Planes y beneficios,Categoría de farmacia para planes y beneficios.,farmacia,active
+CAT-0045,Ferretería - Herramientas manuales,Categoría de ferretería para herramientas manuales.,ferretería,active
+CAT-0046,Ferretería - Herramientas eléctricas,Categoría de ferretería para herramientas eléctricas.,ferretería,active
+CAT-0047,Ferretería - Fijaciones,Categoría de ferretería para fijaciones.,ferretería,active
+CAT-0048,Ferretería - Pinturas,Categoría de ferretería para pinturas.,ferretería,active
+CAT-0049,Ferretería - Iluminación,Categoría de ferretería para iluminación.,ferretería,active
+CAT-0050,Ferretería - Materiales,Categoría de ferretería para materiales.,ferretería,active
+CAT-0051,Ferretería - Maderas,Categoría de ferretería para maderas.,ferretería,active
+CAT-0052,Ferretería - Seguridad,Categoría de ferretería para seguridad.,ferretería,active
+CAT-0053,Ferretería - Cerrajería,Categoría de ferretería para cerrajería.,ferretería,active
+CAT-0054,Ferretería - Servicios técnicos,Categoría de ferretería para servicios técnicos.,ferretería,active
+CAT-0055,Ferretería - Accesorios,Categoría de ferretería para accesorios.,ferretería,active
+CAT-0056,Ferretería - Repuestos,Categoría de ferretería para repuestos.,ferretería,active
+CAT-0057,Ferretería - Construcción,Categoría de ferretería para construcción.,ferretería,active
+CAT-0058,Ferretería - Planes y beneficios,Categoría de ferretería para planes y beneficios.,ferretería,active
+CAT-0059,Panadería - Harinas,Categoría de panadería para harinas.,panadería,active
+CAT-0060,Panadería - Insumos,Categoría de panadería para insumos.,panadería,active
+CAT-0061,Panadería - Levaduras,Categoría de panadería para levaduras.,panadería,active
+CAT-0062,Panadería - Pastelería,Categoría de panadería para pastelería.,panadería,active
+CAT-0063,Panadería - Panes,Categoría de panadería para panes.,panadería,active
+CAT-0064,Panadería - Empaques,Categoría de panadería para empaques.,panadería,active
+CAT-0065,Panadería - Utensilios,Categoría de panadería para utensilios.,panadería,active
+CAT-0066,Panadería - Decoración,Categoría de panadería para decoración.,panadería,active
+CAT-0067,Panadería - Bebidas,Categoría de panadería para bebidas.,panadería,active
+CAT-0068,Panadería - Alimentos preparados,Categoría de panadería para alimentos preparados.,panadería,active
+CAT-0069,Panadería - Repostería,Categoría de panadería para repostería.,panadería,active
+CAT-0070,Panadería - Servicios,Categoría de panadería para servicios.,panadería,active
+CAT-0071,Panadería - Ingredientes,Categoría de panadería para ingredientes.,panadería,active
+CAT-0072,Panadería - Planes y beneficios,Categoría de panadería para planes y beneficios.,panadería,active
+CAT-0073,Gimnasio - Pesas,Categoría de gimnasio para pesas.,gimnasio,active
+CAT-0074,Gimnasio - Máquinas,Categoría de gimnasio para máquinas.,gimnasio,active
+CAT-0075,Gimnasio - Accesorios,Categoría de gimnasio para accesorios.,gimnasio,active
+CAT-0076,Gimnasio - Ropa deportiva,Categoría de gimnasio para ropa deportiva.,gimnasio,active
+CAT-0077,Gimnasio - Suplementos,Categoría de gimnasio para suplementos.,gimnasio,active
+CAT-0078,Gimnasio - Entrenamiento,Categoría de gimnasio para entrenamiento.,gimnasio,active
+CAT-0079,Gimnasio - Recuperación,Categoría de gimnasio para recuperación.,gimnasio,active
+CAT-0080,Gimnasio - Evaluaciones,Categoría de gimnasio para evaluaciones.,gimnasio,active
+CAT-0081,Gimnasio - Clases,Categoría de gimnasio para clases.,gimnasio,active
+CAT-0082,Gimnasio - Bienestar,Categoría de gimnasio para bienestar.,gimnasio,active
+CAT-0083,Gimnasio - Nutrición,Categoría de gimnasio para nutrición.,gimnasio,active
+CAT-0084,Gimnasio - Equipamiento,Categoría de gimnasio para equipamiento.,gimnasio,active
+CAT-0085,Gimnasio - Servicios,Categoría de gimnasio para servicios.,gimnasio,active
+CAT-0086,Gimnasio - Planes y beneficios,Categoría de gimnasio para planes y beneficios.,gimnasio,active
+CAT-0087,Abarrotes - Granos,Categoría de abarrotes para granos.,abarrotes,active
+CAT-0088,Abarrotes - Arroz,Categoría de abarrotes para arroz.,abarrotes,active
+CAT-0089,Abarrotes - Bebidas,Categoría de abarrotes para bebidas.,abarrotes,active
+CAT-0090,Abarrotes - Conservas,Categoría de abarrotes para conservas.,abarrotes,active
+CAT-0091,Abarrotes - Lácteos,Categoría de abarrotes para lácteos.,abarrotes,active
+CAT-0092,Abarrotes - Higiene,Categoría de abarrotes para higiene.,abarrotes,active
+CAT-0093,Abarrotes - Limpieza,Categoría de abarrotes para limpieza.,abarrotes,active
+CAT-0094,Abarrotes - Snacks,Categoría de abarrotes para snacks.,abarrotes,active
+CAT-0095,Abarrotes - Congelados,Categoría de abarrotes para congelados.,abarrotes,active
+CAT-0096,Abarrotes - Aceites,Categoría de abarrotes para aceites.,abarrotes,active
+CAT-0097,Abarrotes - Despensa,Categoría de abarrotes para despensa.,abarrotes,active
+CAT-0098,Abarrotes - Delivery,Categoría de abarrotes para delivery.,abarrotes,active
+CAT-0099,Abarrotes - Productos frescos,Categoría de abarrotes para productos frescos.,abarrotes,active
+CAT-0100,Abarrotes - Planes y beneficios,Categoría de abarrotes para planes y beneficios.,abarrotes,active

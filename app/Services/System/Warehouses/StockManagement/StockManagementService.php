@@ -50,6 +50,29 @@ class StockManagementService {
         ?array $allowedWarehouseIds = null
     ): Collection {
 
+        return self::consolidatedStockQuery($search, $allowedWarehouseIds)
+            ->get()
+            ->map(fn(Item $item) => self::enrichConsolidatedStock($item));
+
+    }
+
+    public static function getPaginatedConsolidatedStock(
+        string $search,
+        ?array $allowedWarehouseIds,
+        int $perPage
+    ) {
+
+        return self::consolidatedStockQuery($search, $allowedWarehouseIds)
+            ->paginate($perPage)
+            ->through(fn(Item $item) => self::enrichConsolidatedStock($item));
+
+    }
+
+    private static function consolidatedStockQuery(
+        string $search,
+        ?array $allowedWarehouseIds
+    ): Builder {
+
         return Item::query()
             ->where("type", "product")
             ->with("measurementUnit:id,singular_name,plural_name")
@@ -77,34 +100,34 @@ class StockManagementService {
                 });
 
             })
-            ->orderBy("name")
-            ->get()
-            ->map(function(Item $item) {
+            ->orderBy("name");
 
-                $warehouses = $item->warehouseItems->map(function(WarehouseItem $warehouseItem) {
+    }
 
-                    $quantity = (float) ($warehouseItem->quantity ?? 0);
-                    $minimum = (float) ($warehouseItem->minimum_stock ?? 0);
+    private static function enrichConsolidatedStock(Item $item): Item {
 
-                    return [
-                        "warehouse_id" => (int) $warehouseItem->warehouse_id,
-                        "warehouse_name" => $warehouseItem->warehouse?->name,
-                        "branch_name" => $warehouseItem->warehouse?->branch?->name,
-                        "quantity" => $quantity,
-                        "minimum_stock" => $minimum,
-                        "requires_attention" => $quantity <= $minimum,
-                    ];
+        $warehouses = $item->warehouseItems->map(function(WarehouseItem $warehouseItem) {
 
-                })->values();
+            $quantity = (float) ($warehouseItem->quantity ?? 0);
+            $minimum = (float) ($warehouseItem->minimum_stock ?? 0);
 
-                $item->setAttribute("stock_quantity", Utilities::round((float) $warehouses->sum("quantity")));
-                $item->setAttribute("minimum_stock", Utilities::round((float) $warehouses->sum("minimum_stock")));
-                $item->setAttribute("warehouse_breakdown", $warehouses);
-                $item->setAttribute("alert_warehouses_count", $warehouses->where("requires_attention", true)->count());
+            return [
+                "warehouse_id" => (int) $warehouseItem->warehouse_id,
+                "warehouse_name" => $warehouseItem->warehouse?->name,
+                "branch_name" => $warehouseItem->warehouse?->branch?->name,
+                "quantity" => $quantity,
+                "minimum_stock" => $minimum,
+                "requires_attention" => $quantity <= $minimum,
+            ];
 
-                return $item;
+        })->values();
 
-            });
+        $item->setAttribute("stock_quantity", Utilities::round((float) $warehouses->sum("quantity")));
+        $item->setAttribute("minimum_stock", Utilities::round((float) $warehouses->sum("minimum_stock")));
+        $item->setAttribute("warehouse_breakdown", $warehouses);
+        $item->setAttribute("alert_warehouses_count", $warehouses->where("requires_attention", true)->count());
+
+        return $item;
 
     }
 

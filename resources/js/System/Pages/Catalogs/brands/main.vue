@@ -40,10 +40,11 @@
             <div class="table-responsive">
                 <table class="table br-entity-table mb-0">
                     <colgroup>
-                        <col style="width: 34%;">
-                        <col style="width: 28%;">
+                        <col style="width: 26%;">
                         <col style="width: 20%;">
-                        <col style="width: 10%;">
+                        <col style="width: 19%;">
+                        <col style="width: 16%;">
+                        <col style="width: 11%;">
                         <col style="width: 8%;">
                     </colgroup>
                     <thead class="br-table-header-surface">
@@ -51,13 +52,14 @@
                             <th>Marca</th>
                             <th>Identificación</th>
                             <th>Sitio oficial</th>
+                            <th class="text-center">Uso actual</th>
                             <th class="text-center">Estado</th>
                             <th><span class="visually-hidden">Acciones</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-if="entityList.extras.loading">
-                            <td colspan="5" class="py-4"><Loader/></td>
+                            <td colspan="6" class="py-4"><Loader/></td>
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
@@ -92,6 +94,12 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
+                                    <span class="br-entity-table__meta">
+                                        {{ record.active_items_count || 0 }}
+                                        {{ Number(record.active_items_count || 0) === 1 ? "producto activo" : "productos activos" }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
                                     <StatusBadge
                                         :status="record.status"
                                         :formatted-status="record.formatted_status"/>
@@ -109,7 +117,7 @@
                             </tr>
                         </template>
                         <tr v-else>
-                            <td colspan="5" class="py-4">
+                            <td colspan="6" class="py-4">
                                 <WithoutData class="br-entity-empty-state" type="image"/>
                             </td>
                         </tr>

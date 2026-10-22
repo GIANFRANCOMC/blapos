@@ -289,13 +289,7 @@ body.br-layout .table > tbody > tr > td,
   line-height: 1.32;
 }
 
-/* Estados y badges compactos */
-.br-layout .br-status-label {
-  min-width: 3.1rem;
-  font-weight: 700;
-  border-radius: 0.22rem;
-}
-
+/* Badges Bootstrap heredados; los estados usan .br-badge. */
 .br-layout .badge,
 .br-layout .badge[class*="bg-label-"] {
   padding: 0.25rem 0.46rem;

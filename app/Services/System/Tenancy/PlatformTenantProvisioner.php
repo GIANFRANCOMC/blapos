@@ -17,7 +17,7 @@ final class PlatformTenantProvisioner {
     public function create(array $data): TenantDatabase {
 
         $slug = strtolower($data["slug"]);
-        $lock = Cache::lock("platform:tenant-provision:".hash("sha256", $slug), 900);
+        $lock = Cache::lock("platform:tenant-provision:".hash("sha256", $slug), 3600);
 
         if(!$lock->get()) {
 

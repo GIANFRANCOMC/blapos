@@ -193,83 +193,68 @@
 }
 
 /* -------------------------------------------------------------------------
- * [br] Indicadores de estado — etiqueta (.br-status-label) y superficie (.br-status-surface)
- * Uso etiqueta: <span class="br-status-label br-status-label--success">Activo</span>
+ * [br] Indicadores de estado — .br-badge y superficie (.br-status-surface)
+ * Uso: <span class="br-badge br-badge--success">Activo</span>
  * Modificadores: --success | --info | --warning | --danger | --primary | --secondary | --neutral | --dark
+ * .br-status-label y .br-inventory-status se conservan como alias de transición.
  * Superficie (celdas/filas): td.br-status-surface--success (mismo sufijo que la etiqueta)
  * ------------------------------------------------------------------------- */
-.br-layout .br-status-label {
-  display: inline-block;
-  min-width: 3.75rem;
-  padding: 0.2em 0.60em;
-  font-size: 0.65rem !important;
+.br-layout :is(.br-badge, .br-status-label, .br-inventory-status, .br-inventory-movement) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  padding: 0.24rem 0.48rem;
+  font-size: 0.7rem !important;
+  font-weight: 650;
   line-height: 1.2;
-  border-radius: 0.25rem;
-  border: 1px solid transparent;
+  border-radius: var(--br-radius-sm);
+  border: 0;
   text-align: center;
   text-transform: none;
-  vertical-align: baseline;
+  vertical-align: middle;
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
-.br-layout .br-status-active {
+.br-layout :is(.br-badge--success, .br-status-label--success, .br-status-active, .br-inventory-status.is-healthy, .br-inventory-movement.is-entry) {
   background-color: var(--br-success-soft);
   color: var(--br-success-hover);
-  border-color: color-mix(in srgb, var(--br-success) 30%, var(--br-border));
 }
 
-.br-layout .br-status-inactive {
+.br-layout :is(.br-badge--danger, .br-status-label--danger, .br-status-inactive, .br-inventory-status.is-empty, .br-inventory-movement.is-exit) {
   background-color: var(--br-danger-soft);
-  color: var(--br-danger-hover);
-  border-color: color-mix(in srgb, var(--br-danger) 28%, var(--br-border));
+  color: var(--br-danger);
 }
 
-.br-layout .br-status-label--success {
-  background-color: var(--br-success-soft);
-  color: var(--br-success-hover);
-  border-color: color-mix(in srgb, var(--br-success) 24%, transparent);
-}
-
-.br-layout .br-status-label--info {
+.br-layout :is(.br-badge--info, .br-status-label--info) {
   background-color: var(--br-info-soft);
   color: var(--br-info-hover);
-  border-color: color-mix(in srgb, var(--br-info) 24%, transparent);
 }
 
-.br-layout .br-status-label--warning {
+.br-layout :is(.br-badge--warning, .br-status-label--warning, .br-inventory-status.is-low, .br-inventory-movement.is-correction) {
   background-color: var(--br-warning-soft);
   color: var(--br-warning-hover);
-  border-color: color-mix(in srgb, var(--br-warning) 28%, transparent);
 }
 
-.br-layout .br-status-label--danger {
-  background-color: var(--br-danger-soft);
-  color: var(--br-danger-hover);
-  border-color: color-mix(in srgb, var(--br-danger) 24%, transparent);
-}
-
-.br-layout .br-status-label--primary {
+.br-layout :is(.br-badge--primary, .br-status-label--primary) {
   background-color: var(--br-primary-soft);
   color: var(--br-primary-active);
-  border-color: color-mix(in srgb, var(--br-primary) 26%, transparent);
 }
 
-.br-layout .br-status-label--secondary {
+.br-layout :is(.br-badge--secondary, .br-status-label--secondary) {
   background-color: var(--br-secondary-soft);
   color: var(--br-secondary-muted);
-  border-color: color-mix(in srgb, var(--br-border) 45%, transparent);
 }
 
-.br-layout .br-status-label--neutral {
+.br-layout :is(.br-badge--neutral, .br-status-label--neutral) {
   background-color: var(--br-neutral-soft);
   color: var(--br-neutral);
-  border-color: color-mix(in srgb, var(--br-neutral) 18%, transparent);
 }
 
-.br-layout .br-status-label--dark {
+.br-layout :is(.br-badge--dark, .br-status-label--dark) {
   background-color: color-mix(in srgb, var(--br-secondary) 8%, var(--br-secondary-soft));
   color: var(--br-secondary);
-  border-color: color-mix(in srgb, var(--br-secondary) 18%, transparent);
 }
 
 .br-layout td.br-status-surface--success {

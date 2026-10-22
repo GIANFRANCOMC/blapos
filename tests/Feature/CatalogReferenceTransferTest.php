@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Exports\System\Catalogs\References\{CatalogReferenceListExport, CatalogReferenceTemplateExport};
 use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Models\System\Catalogs\{Brand, Category};
+use App\Services\System\Catalogs\Brands\BrandService;
 use App\Services\Guest\{GuestCatalogService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
@@ -46,12 +47,37 @@ final class CatalogReferenceTransferTest extends TestCase {
         $export = new CatalogReferenceListExport("brands", ["filter_by" => "name", "word" => "Marca lote dos"]);
 
         $this->assertSame(1, $export->query()->count());
-        $this->assertCount(5, $export->headings());
+        $this->assertCount(6, $export->headings());
         $this->assertSame(["Nombre", "Código interno", "Descripción", "Sitio oficial", "Estado"], (new CatalogReferenceTemplateExport("brands"))->headings());
 
         $exportedBrand = $export->query()->firstOrFail();
 
-        $this->assertCount(5, $export->map($exportedBrand));
+        $this->assertCount(6, $export->map($exportedBrand));
+        $this->assertSame(0, $exportedBrand->active_items_count);
+
+        $brand = Brand::query()->where("name", "Marca lote uno")->firstOrFail();
+        $currencyId = (int) DB::table("currencies")->where("code", "PEN")->value("id");
+
+        foreach(["active", "inactive"] as $status) {
+
+            DB::table("items")->insert([
+                "brand_id" => $brand->id,
+                "internal_code" => "TEST-BRAND-".strtoupper($status),
+                "name" => "Producto {$status}",
+                "price" => 10,
+                "currency_id" => $currencyId,
+                "type" => "product",
+                "status" => $status,
+            ]);
+
+        }
+
+        $listedBrand = BrandService::getFilteredListQuery()->whereKey($brand->id)->firstOrFail();
+        $exportedBrand = (new CatalogReferenceListExport("brands"))->query()->whereKey($brand->id)->firstOrFail();
+
+        $this->assertSame(1, $listedBrand->active_items_count);
+        $this->assertSame(1, $exportedBrand->active_items_count);
+        $this->assertSame(1, $export->map($exportedBrand)[4]);
 
     }
 

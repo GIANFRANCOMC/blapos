@@ -33,9 +33,9 @@ final class CompanySettingService {
     public const NUMERIC_VALIDATION = "numeric_validation";
 
     private const DEFAULT_INTERNAL_CODE_PREFIXES = [
-        "product" => "PRO",
-        "service" => "SER",
-        "subscription" => "MEM",
+        "product" => "PROD",
+        "service" => "SERV",
+        "subscription" => "MEMB",
         "brand" => "MAR",
         "category" => "CAT",
         "branch" => "SUC",

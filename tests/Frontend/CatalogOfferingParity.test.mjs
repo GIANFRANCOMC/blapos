@@ -16,6 +16,7 @@ test("precio principal e inventario comparten la escala tipográfica de tablas",
     assert.match(tokens, /--br-table-value-font-size: 0\.82rem/);
     assert.match(branding, /\.br-entity-price-row\.is-sale strong \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
     assert.match(branding, /\.br-entity-stock \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
+    assert.doesNotMatch(branding.match(/\.br-entity-stock \{[^}]*\}/)?.[0], /font-weight/);
 
 });
 
@@ -41,6 +42,21 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button \{[\s\S]*?color: var\(--br-primary-active\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button:is\(:hover, :focus-visible\) i \{[\s\S]*?filter: brightness\(0\.78\)/);
+
+});
+
+test("servicios y membresías registran el mismo botón de copia que productos", () => {
+
+    for(const module of modules) {
+
+        const page = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
+        const entry = readFileSync(new URL(`../../${module.path.replace("main.vue", "main.js")}`, import.meta.url), "utf8");
+
+        assert.match(page, /<CopyButton :value="record\.internal_code" label="Código interno"\/>/);
+        assert.match(entry, /import CopyButton\s+from "@System\/Components\/CopyButton\.vue"/);
+        assert.match(entry, /\.component\("CopyButton", CopyButton\)/);
+
+    }
 
 });
 
@@ -104,6 +120,15 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
         assert.match(source, /br-entity-identifiers br-entity-identifiers--plain/);
         assert.match(source, /br-entity-identifier__label colon-at-end">Cód\. interno/);
         assert.match(source, /shared-controls-id="(?:service|subscription)-form-panel"/);
+        assert.match(source, /<strong class="colon-at-end">Duración<\/strong>/);
+        assert.match(source, /<strong class="colon-at-end">Cupos<\/strong>/);
+        assert.match(source, /<strong class="colon-at-end">Comisión<\/strong>/);
+
+        if(module.name === "membresía") {
+
+            assert.match(source, /<strong class="colon-at-end">Asistencias<\/strong>/);
+
+        }
 
     }
 

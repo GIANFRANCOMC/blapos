@@ -18,7 +18,7 @@
                 ref="productSearch"
                 v-model.trim="filters.productSearch"
                 hasDiv
-                title="Búsqueda"
+                title="Producto"
                 :titleClass="[config.forms.classes.title]"
                 placeholder="Buscar o escanear producto"
                 :inputClass="['form-control']"
@@ -198,7 +198,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span :class="['br-inventory-status', stockStatus(record).className]">
+                                            <span :class="['br-badge', stockStatus(record).badgeClass]">
                                                 <i :class="stockStatus(record).icon" aria-hidden="true"></i>
                                                 {{ stockStatus(record).label }}
                                             </span>
@@ -572,7 +572,7 @@
                             <table class="table br-entity-table br-inventory__kardex-table mb-0">
                                 <thead class="br-table-header-surface">
                                     <tr>
-                                        <th>Número y fecha</th>
+                                        <th>Fecha y número</th>
                                         <th>Almacén</th>
                                         <th>Tipo</th>
                                         <th>Detalle</th>
@@ -587,8 +587,8 @@
                                     <template v-else-if="guideRecords.total > 0">
                                         <tr v-for="guide in guideRecords.data" :key="`guide-${guide.id}`">
                                             <td>
-                                                <strong>{{ guide.number }}</strong>
-                                                <span class="br-inventory__meta">{{ formatSimpleDate(guide.issue_date) }}</span>
+                                                <strong>{{ formatSimpleDate(guide.issue_date) }}</strong>
+                                                <span class="br-inventory__meta">{{ guide.number }}</span>
                                             </td>
                                             <td>
                                                 <strong>{{ guide.warehouse?.name }}</strong>
@@ -745,9 +745,10 @@
                                 id="operationFile"
                                 :template-href="operationTemplateUrl"
                                 :file-name="operationFileName"
-                                :busy="previewingOperation"
+                                :busy="previewingOperation || downloadingOperation"
+                                :busy-text="downloadingOperation ? 'Generando plantilla...' : 'Revisando archivo...'"
                                 :download-disabled="!operationTemplateUrl || !canConfigureMovement || downloadingOperation || previewingOperation"
-                                :upload-disabled="!canConfigureMovement || previewingOperation || savingMovement"
+                                :upload-disabled="!canConfigureMovement || previewingOperation || downloadingOperation || savingMovement"
                                 described-by="operationFileHelp"
                                 @download="downloadOperationTemplate"
                                 @select="previewOperation"/>
@@ -952,8 +953,10 @@ export default {
         if(initialized && this.realWarehouses.length) {
             this.filters.warehouse = this.realWarehouses[0];
             await this.$nextTick();
-            await this.searchCurrentView();
+            await this.listCurrentView({});
         }
+
+        this.warehouseSearchEnabled = true;
     },
     data() {
         return {
@@ -962,6 +965,7 @@ export default {
             loadingKardex: false,
             loadingAlerts: false,
             loadingGuides: false,
+            warehouseSearchEnabled: false,
             requestVersion: 0,
             savingMovement: false,
             confirmingMovement: false,
@@ -1059,7 +1063,7 @@ export default {
             if(requestVersion !== this.requestVersion) return;
 
             this.stockRecords = isConsolidated
-                ? {total: result?.data?.data?.length || 0, data: result?.data?.data || [], links: null}
+                ? (result?.data?.data || {total: 0, data: []})
                 : (result?.data || {total: 0, data: []});
             this.loadingStock = false;
 
@@ -1287,15 +1291,31 @@ export default {
             if(!this.movementForm.operation?.code || !this.movementForm.warehouse?.code || this.downloadingOperation || this.previewingOperation) return;
 
             this.downloadingOperation = true;
-            const result = await Requests.download({
-                route: Requests.config({entity: "stocks_management", type: "operationTemplate"}),
-                data: {
-                    warehouse_id: this.movementForm.warehouse.code,
-                    operation_code: this.movementForm.operation.code
-                },
-                fileName: `plantilla_${this.movementForm.operation.code}.xlsx`
-            });
-            this.downloadingOperation = false;
+            Alerts.loading({message: "Generando y descargando plantilla"});
+
+            let result;
+
+            try {
+
+                result = await Requests.download({
+                    route: Requests.config({entity: "stocks_management", type: "operationTemplate"}),
+                    data: {
+                        warehouse_id: this.movementForm.warehouse.code,
+                        operation_code: this.movementForm.operation.code
+                    },
+                    fileName: `plantilla_${this.movementForm.operation.code}.xlsx`
+                });
+
+            }catch(error) {
+
+                result = {bool: false, data: {msg: "No se pudo generar la plantilla."}};
+
+            }finally {
+
+                Alerts.close();
+                this.downloadingOperation = false;
+
+            }
 
             if(!result?.bool) {
                 Alerts.toastrs({type: "error", subtitle: result?.data?.msg || "No se pudo descargar la plantilla."});
@@ -1568,9 +1588,9 @@ export default {
         stockStatus(record) {
             const stock = Number(record.stock_quantity || 0);
             const minimum = Number(record.minimum_stock || 0);
-            if(stock <= 0) return {label: "Sin existencias", icon: "fa-solid fa-circle-xmark", className: "is-empty"};
-            if(stock <= minimum) return {label: "Stock bajo", icon: "fa-solid fa-triangle-exclamation", className: "is-low"};
-            return {label: "Stock saludable", icon: "fa-solid fa-circle-check", className: "is-healthy"};
+            if(stock <= 0) return {label: "Sin existencias", icon: "fa-solid fa-circle-xmark", badgeClass: "br-badge--danger"};
+            if(stock <= minimum) return {label: "Stock bajo", icon: "fa-solid fa-triangle-exclamation", badgeClass: "br-badge--warning"};
+            return {label: "Stock saludable", icon: "fa-solid fa-circle-check", badgeClass: "br-badge--success"};
         },
         stockWarehouseBreakdown(record) {
             if(this.isConsolidatedStock) return record.warehouse_breakdown || [];
@@ -1583,7 +1603,7 @@ export default {
                 warehouse_name: warehouse.warehouseName,
                 branch_name: warehouse.branchName,
                 quantity: record.stock_quantity || 0,
-                requires_attention: this.stockStatus(record).className !== "is-healthy"
+                requires_attention: this.stockStatus(record).badgeClass !== "br-badge--success"
             }];
         },
         movementTypeLabel(type) {
@@ -1592,6 +1612,7 @@ export default {
         originLabel(origin) {
             return {
                 product_opening: "Creación de producto",
+                commercial_catalog_seeder: "Stock inicial de demostración",
                 manual: "Operación manual",
                 sale: "Venta",
                 sale_cancellation: "Devolución automática por anulación",
@@ -1758,8 +1779,14 @@ export default {
                 this.resetOperationImport({clearItems: true});
             }
         },
-        "filters.warehouse"() {
+        "filters.warehouse"(warehouse, previous) {
+            if(warehouse?.code === previous?.code) return;
+
             this.invalidateListing();
+
+            if(this.warehouseSearchEnabled && warehouse?.code) {
+                this.listCurrentView({});
+            }
         },
         "transferForm.source"() {
             if(!this.destinationWarehouses.some(warehouse => warehouse.code === this.transferForm.destination?.code)) {

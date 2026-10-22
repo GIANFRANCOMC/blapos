@@ -387,16 +387,12 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   transition: box-shadow 0.16s ease;
 }
 
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) {
+.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within):not(:has(:disabled, [readonly], .vs--disabled, .select2-container--disabled)) {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--br-primary) 24%, transparent);
 }
 
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .form-control,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .form-select,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .input-group-text,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .br-input-action,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .vs__dropdown-toggle,
-.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within) .select2-selection {
+.br-layout .br-form-control-group:hover:not(.is-invalid):not(:focus-within):not(:has(:disabled, [readonly], .vs--disabled, .select2-container--disabled))
+  :is(.form-control, .form-select, .input-group-text, .br-input-action, .vs__dropdown-toggle, .select2-selection) {
   border-color: color-mix(in srgb, var(--br-primary) 32%, var(--br-border)) !important;
 }
 

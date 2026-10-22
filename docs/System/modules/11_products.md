@@ -361,21 +361,17 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 
 ## Seeder comercial demo
 
-Se agrego `database/seeders/CommercialCatalogSeeder.php` para cargar datos base sin depender de factories aleatorias.
+CommercialCatalogSeeder carga los tres CSV versionados de productos, servicios y membresías en database/seeders/data/.
 
 Incluye:
 
-- Marcas demo: Hola, Blapos y Wellness.
-- Categorias demo: Bebidas, Suplementos, Accesorios, Servicios y Membresias.
-- 3000 productos con código interno, código de barras EAN-13, precio, rango de precios, marca, categoría y unidad de medida.
-- 1000 servicios comerciales sin inventario.
-- 100 membresías con duración.
+- 10 000 productos con código interno, EAN-13, nombre, descripción y precio del CSV.
+- 10 000 servicios sin código de barras ni inventario, con duración estimada.
+- 100 membresías sin código de barras ni inventario, con duración, beneficios, restricciones y cupos cuando corresponde.
 
-El seeder amplía plantillas comerciales con variantes de nombre y códigos únicos. Inserta por lotes y conserva el stock existente si se ejecuta nuevamente.
-- Stock inicial por cada almacen activo de la empresa demo.
-- Movimiento de inventario `initial_stock` para dejar trazabilidad del stock cargado por seeder.
+El CSV no informa marcas ni categorías: el seeder no inventa asociaciones. Los precios mínimo y máximo permanecen vacíos. El stock inicial y el costo promedio son cero por almacén activo, sin movimientos ficticios. Solo los productos usan la unidad de medida UNIT. El seeder valida filas, tipos, EAN-13, códigos duplicados y campos propios de cada tipo antes de confirmar la transacción.
 
-El seeder es idempotente por `type + internal_code`: si se vuelve a ejecutar, actualiza los registros demo y sincroniza el stock demo por almacén.
+El seeder es idempotente por `type + internal_code`: si se vuelve a ejecutar, conserva el stock operativo ya registrado.
 ## Estado y disponibilidad operativa
 
 - El estado `active` permite que el producto, servicio o membresía participe en ventas, Venta POS, compras e inventario.

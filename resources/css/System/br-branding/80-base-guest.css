@@ -424,8 +424,8 @@ input.input-number-no-range::-webkit-inner-spin-button {
   transition: var(--br-transition);
 }
 
-.br-guest-field .form-control:hover,
-.br-guest-field .vs__dropdown-toggle:hover {
+.br-guest-field .form-control:not(:disabled):not([readonly]):hover,
+.br-guest-field .v-select:not(.vs--disabled) .vs__dropdown-toggle:hover {
   border-color: color-mix(in srgb, var(--br-primary) 28%, var(--br-border));
 }
 

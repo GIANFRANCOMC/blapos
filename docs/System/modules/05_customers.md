@@ -27,6 +27,7 @@ Administra los clientes de una empresa. Un cliente puede comprar, recibir membre
 
 ## Reglas
 
+- El aprovisionamiento inicial carga 10 000 clientes desde database/seeders/data/05_clientes_10000.csv, además del registro «Cliente varios». El DNI se valida a ocho dígitos y se completa con ceros a la izquierda si faltan; el seeder no duplica clientes al repetirse.
 - El cliente pertenece a una empresa.
 - Documento y tipo de documento deben ser consistentes con longitudes del maestro.
 - El registro de huella se hace contra un dispositivo biometrico activo de la misma empresa.

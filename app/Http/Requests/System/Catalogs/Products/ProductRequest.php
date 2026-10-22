@@ -22,7 +22,7 @@ abstract class ProductRequest extends CompanyFormRequest {
         return [
             "internal_code" => ["bail", "required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "product"], "código interno")],
             "barcode" => ["bail", "required", "string", new ValidEan13(), new UniqueInTenant("items", "barcode", $itemId, [], "código de barras")],
-            "name" => ["bail", "required", "string", "max:50"],
+            "name" => ["bail", "required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
             "brand_id" => ["nullable", "integer", new ExistsInTenant("brands", [], "La marca seleccionada no pertenece a la empresa.")],
             "price" => ["bail", "required", "numeric", "min:0.01", "max:{$maxValue}", "decimal:0,{$round}"],

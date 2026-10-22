@@ -124,7 +124,11 @@ php artisan tenant:create cliente \
   --admin-password="UnaClaveSegura123"
 ```
 
-`tenant:create` ejecuta las migraciones, crea explícitamente la fila `companies` y reutiliza `SystemCatalogSyncService` y `CompanyProvisioningService`. Si no se usa `--skip-migrate`, la contraseña administrativa es obligatoria y debe tener al menos ocho caracteres. Al terminar el aprovisionamiento inicial carga 3000 productos, 1000 servicios y 100 membresías de ejemplo mediante `CommercialCatalogSeeder`; si ya existen registros en `items`, no vuelve a cargar el catálogo. La unidad de medida inicial es `UNIT` (`UNIDAD`/`UNIDADES`) y solo los productos la referencian.
+tenant:create ejecuta las migraciones, crea explícitamente la fila companies y reutiliza SystemCatalogSyncService y CompanyProvisioningService. Si no se usa --skip-migrate, la contraseña administrativa es obligatoria y debe tener al menos ocho caracteres. El aprovisionamiento inicial carga cinco CSV versionados en database/seeders/data/: 10 000 productos, 10 000 servicios y 100 membresías en items; 10 000 clientes en customers y 10 000 colaboradores en users. «Cliente varios» y el administrador del tenant se conservan como registros adicionales. Si ya existen registros en items, no vuelve a cargar estos datos de ejemplo. La unidad de medida inicial es UNIT (UNIDAD/UNIDADES) y solo los productos la referencian. Los colaboradores de prueba quedan inactivos, con contraseñas aleatorias nuevas y un rol sin permisos; antes de activarlos se debe asignar un perfil operativo y establecer una contraseña nueva.
+
+El stock inicial de cada producto y almacén se genera de forma variada y reproducible: hay productos sin existencias, con stock bajo y con stock saludable; algunos tienen mínimo cero y otros un mínimo positivo. Las existencias positivas incluyen su movimiento inicial de Kardex y los saldos bajo mínimo generan una alerta abierta. Reejecutar el seeder no reemplaza saldos existentes ni duplica movimientos.
+
+Al crear un cliente desde el panel, esta carga se ejecuta dentro de la solicitud y puede tardar varios minutos. La ventana muestra el tiempo y la etapa actual; no se debe enviar otra creación para el mismo subdominio. Si se pierde la respuesta, consultar el estado del cliente en el listado antes de reintentar. `Activo` indica que terminó; `En preparación` indica que sigue trabajando y `Preparación fallida` muestra el motivo para diagnóstico.
 
 ## Operación
 

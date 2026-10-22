@@ -127,7 +127,7 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
                 new ValidEan13(),
                 Rule::unique("items", "barcode"),
             ],
-            "name" => ["required", "string", "max:50"],
+            "name" => ["required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
             "price" => ["required", "numeric", "min:0.01"],
             "initial_stock" => ["required", "numeric", "min:0"],

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\System\Warehouses;
 
 use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryReportExport};
-use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
@@ -21,6 +20,8 @@ use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
 class StockManagementController extends BaseController {
+
+    private const MAX_LIST_PER_PAGE = 30;
 
     /**
      * Translation namespace for stock management module
@@ -66,7 +67,7 @@ class StockManagementController extends BaseController {
     public function list(Request $request) {
 
         $warehouseId = intval($request->input("warehouse_id"));
-        $perPage = $this->getPerPage($request, Utilities::$per_page_max);
+        $perPage = $this->inventoryPerPage($request);
 
         if(
             !StockManagementService::validateWarehouse($warehouseId)
@@ -97,9 +98,10 @@ class StockManagementController extends BaseController {
 
         return response()->json([
             "bool" => true,
-            "data" => StockManagementService::getConsolidatedStock(
+            "data" => StockManagementService::getPaginatedConsolidatedStock(
                 (string) $request->input("product_search", ""),
-                $allowedWarehouseIds
+                $allowedWarehouseIds,
+                $this->inventoryPerPage($request)
             ),
         ]);
 
@@ -114,7 +116,7 @@ class StockManagementController extends BaseController {
 
     public function movements(Request $request) {
 
-        $perPage = $this->getPerPage($request, Utilities::$per_page_max);
+        $perPage = $this->inventoryPerPage($request);
         $filters = $request->only([
             "warehouse_id",
             "item_id",
@@ -168,7 +170,7 @@ class StockManagementController extends BaseController {
 
         return StockManagementService::getStockAlerts(
             $request->only(["warehouse_id", "status"]),
-            $this->getPerPage($request, Utilities::$per_page_max)
+            $this->inventoryPerPage($request)
         );
 
     }
@@ -182,7 +184,7 @@ class StockManagementController extends BaseController {
         );
 
         return InventoryGuideService::query($filters)
-            ->paginate($this->getPerPage($request, Utilities::$per_page_max));
+            ->paginate($this->inventoryPerPage($request));
 
     }
 
@@ -458,6 +460,12 @@ class StockManagementController extends BaseController {
             ], 422);
 
         }
+
+    }
+
+    private function inventoryPerPage(Request $request): int {
+
+        return min(self::MAX_LIST_PER_PAGE, max(1, $this->getPerPage($request, self::MAX_LIST_PER_PAGE)));
 
     }
 

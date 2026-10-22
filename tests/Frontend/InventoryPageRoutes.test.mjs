@@ -6,6 +6,31 @@ import test from "node:test";
 const root = process.cwd();
 const read = path => readFileSync(join(root, path), "utf8");
 
+test("changing the work warehouse reloads the current inventory page", () => {
+
+    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+
+    assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];[\s\S]*?await this\.listCurrentView\(\{\}\);[\s\S]*?this\.warehouseSearchEnabled = true;/);
+    assert.match(component, /"filters\.warehouse"\(warehouse, previous\) \{[\s\S]*?this\.invalidateListing\(\);[\s\S]*?if\(this\.warehouseSearchEnabled && warehouse\?\.code\) \{\s*this\.listCurrentView\(\{\}\);/);
+    assert.match(component, /listCurrentView\(\{url = null\} = \{\}\) \{[\s\S]*?this\.listStock\(\{url\}\)[\s\S]*?this\.listKardex\(\{url\}\)[\s\S]*?this\.listGuides\(\{url\}\)/);
+
+});
+
+test("inventory and entity statuses share the semantic badge", () => {
+
+    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const badge = read("resources/js/System/Components/Generics/StatusBadge.vue");
+    const constants = read("resources/js/System/Helpers/ModuleConstants.js");
+    const css = read("resources/css/System/br-branding/20-sales-tables-status.css");
+
+    assert.match(component, /\['br-badge', stockStatus\(record\)\.badgeClass\]/);
+    assert.match(badge, /<span :class="badgeClasses" v-text="displayStatus"><\/span>/);
+    assert.doesNotMatch(badge, /badgeIcon|<i\b/);
+    assert.match(constants, /STATUS_LABEL_BASE: \["br-badge"\]/);
+    assert.match(css, /\.br-badge--success[\s\S]*?\.br-badge--danger[\s\S]*?\.br-badge--warning/);
+
+});
+
 test("inventory submodules have independent pages without internal tabs", () => {
 
     const routes = read("routes/System/Warehouses/InventoryPages.php");
@@ -31,6 +56,23 @@ test("inventory submodules have independent pages without internal tabs", () => 
     assert.doesNotMatch(legacyRoutes, /\/page\//);
     assert.doesNotMatch(component, /role="tablist"|changeView\(/);
     assert.match(component, /activeView: this\.page/);
+
+});
+
+test("inventory labels and paginated listings stay consistent across views", () => {
+
+    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
+    const service = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
+
+    assert.match(component, /v-if="\['stock', 'transfers'\]\.includes\(activeView\)"[\s\S]*?title="Producto"/);
+    assert.match(component, /<th>Fecha y número<\/th>[\s\S]*?<strong>\{\{ formatSimpleDate\(guide\.issue_date\) \}\}<\/strong>[\s\S]*?<span class="br-inventory__meta">\{\{ guide\.number \}\}<\/span>/);
+    assert.match(component, /this\.stockRecords = isConsolidated\s*\?\s*\(result\?\.data\?\.data \|\| \{total: 0, data: \[\]\}\)/);
+    assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
+    assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, self::MAX_LIST_PER_PAGE\)\)\);/);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 5);
+    assert.match(service, /getPaginatedConsolidatedStock\([\s\S]*?->paginate\(\$perPage\)/);
+    assert.match(service, /getConsolidatedStock\([\s\S]*?->get\(\)/);
 
 });
 
@@ -293,7 +335,7 @@ test("stock and inventory reports keep filters and actions in a single desktop r
 
 });
 
-test("inventory loads the first real warehouse and later filter changes wait for Buscar", () => {
+test("inventory loads the first real warehouse and searches again when it changes", () => {
 
     const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
     const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
@@ -302,10 +344,9 @@ test("inventory loads the first real warehouse and later filter changes wait for
 
     assert.match(component, /@click="activeView === 'stock' \? handleProductSearch\(\) : searchCurrentView\(\)"/);
     assert.equal((component.match(/<span>Buscar<\/span>/g) || []).length, 1);
-    assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*await this\.\$nextTick\(\);\s*await this\.searchCurrentView\(\);/);
-    assert.doesNotMatch(mounted, /listCurrentView\(|listStock\(|listKardex\(|listGuides\(/);
-    assert.match(watcher, /"filters\.warehouse"\(\) \{\s*this\.invalidateListing\(\);/);
-    assert.doesNotMatch(watcher, /listCurrentView\(|listStock\(|listKardex\(|listGuides\(/);
+    assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*await this\.\$nextTick\(\);\s*await this\.listCurrentView\(\{\}\);/);
+    assert.match(mounted, /this\.warehouseSearchEnabled = true;/);
+    assert.match(watcher, /"filters\.warehouse"\(warehouse, previous\) \{[\s\S]*?this\.invalidateListing\(\);[\s\S]*?this\.listCurrentView\(\{\}\);/);
     assert.match(component, /@clear="clearProductSearch"/);
     assert.match(component, /clearProductSearch\(\) \{\s*this\.scannedProductId = null;/);
     assert.match(component, /focusProductSearch\(\) \{[\s\S]*?this\.\$refs\.productSearch\?\.focus\(\);/);
@@ -353,7 +394,7 @@ test("inventory forms unlock dependent fields only after their warehouses are se
     assert.match(component, /canConfigureTransfer\(\) \{\s*return Boolean\(this\.transferForm\.source\?\.code && this\.transferForm\.destination\?\.code\);/);
     assert.match(operationModal, /input-id="inventoryOperation"[\s\S]*?:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /v-model\.trim="movementForm\.reason"[\s\S]*?:disabled="!canConfigureMovement"/);
-    assert.match(operationModal, /:upload-disabled="!canConfigureMovement \|\| previewingOperation \|\| savingMovement"/);
+    assert.match(operationModal, /:upload-disabled="!canConfigureMovement \|\| previewingOperation \|\| downloadingOperation \|\| savingMovement"/);
     assert.match(operationModal, /v-model="item\.product"[\s\S]*?:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /v-model="item\.amount"[^>]*:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /v-model="item\.unitCost"[^>]*:disabled="!canConfigureMovement"/);

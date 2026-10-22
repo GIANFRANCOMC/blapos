@@ -4,68 +4,114 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Helpers\System\{Utilities};
-use App\Models\System\Catalogs\{Brand, Category, Item};
+use App\Models\System\Catalogs\Item;
 use App\Models\System\General\MeasurementUnit;
 use App\Models\System\Warehouses\Warehouse;
-use Illuminate\Database\{Seeder};
-use Illuminate\Support\Facades\{DB};
+use Database\Seeders\Support\CsvSeedDataset;
+use Generator;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use RuntimeException;
 
 final class CommercialCatalogSeeder extends Seeder {
 
-    public const PRODUCT_COUNT = 3000;
+    public const PRODUCT_COUNT = 10000;
 
-    public const SERVICE_COUNT = 1000;
+    public const SERVICE_COUNT = 10000;
 
     public const SUBSCRIPTION_COUNT = 100;
 
-    private const BATCH_SIZE = 40;
+    public const BRAND_COUNT = 100;
 
-    private int $companyId;
+    public const CATEGORY_COUNT = 100;
+
+    private const BATCH_SIZE = 250;
+
+    private const BRAND_COLUMNS = ["internal_code", "name", "description", "website_url", "status"];
+
+    private const CATEGORY_COLUMNS = ["internal_code", "name", "description", "segment", "status"];
+
+    private const CATEGORY_SEGMENTS = [
+        "minería", "botica", "farmacia", "ferretería", "panadería", "gimnasio", "abarrotes",
+    ];
+
+    private const COLUMNS = [
+        "brand_id", "internal_code", "barcode", "name", "description", "price",
+        "price_includes_tax", "igv_exempt", "min_price", "max_price", "currency_id",
+        "measurement_unit_id", "type", "duration_type", "duration_value",
+        "estimated_duration_minutes", "capacity_control_enabled", "capacity_limit",
+        "capacity_used", "expires_at", "commission_rate", "commission_type",
+        "commission_value", "attendance_limit_per_day", "benefits", "restrictions",
+        "see_my_web", "see_my_web_price", "status", "created_at", "created_by",
+        "updated_at", "updated_by",
+    ];
 
     private int $userId;
 
     private int $currencyId;
 
+    private int $measurementUnitId;
+
     public function run(?int $productLimit = null, ?int $serviceLimit = null, ?int $subscriptionLimit = null): void {
 
-        $productLimit ??= self::PRODUCT_COUNT;
-        $serviceLimit ??= self::SERVICE_COUNT;
-        $subscriptionLimit ??= self::SUBSCRIPTION_COUNT;
+        $limits = [
+            Item::TYPE_PRODUCT => $productLimit ?? self::PRODUCT_COUNT,
+            Item::TYPE_SERVICE => $serviceLimit ?? self::SERVICE_COUNT,
+            Item::TYPE_SUBSCRIPTION => $subscriptionLimit ?? self::SUBSCRIPTION_COUNT,
+        ];
 
-        if(min($productLimit, $serviceLimit, $subscriptionLimit) < 0) {
+        if(min($limits) < 0) {
 
             throw new InvalidArgumentException("Las cantidades del catálogo no pueden ser negativas.");
 
         }
 
-        DB::transaction(function() use ($productLimit, $serviceLimit, $subscriptionLimit): void {
+        DB::transaction(function() use ($limits): void {
 
-            $this->companyId = (int) DB::table("companies")->orderBy("id")->value("id");
-            $this->userId = (int) DB::table("users")->orderBy("id")->value("id");
+            $companyId = (int) DB::table("companies")->orderBy("id")->value("id");
+            $this->userId = (int) DB::table("users")->where("status", "active")->orderBy("id")->value("id");
             $this->currencyId = (int) DB::table("currencies")->where("code", "PEN")->value("id");
+            $this->measurementUnitId = MeasurementUnit::defaultId();
 
-            if(!$this->companyId || !$this->userId || !$this->currencyId) {
+            if(!$companyId || !$this->userId || !$this->currencyId || !$this->measurementUnitId) {
 
-                throw new RuntimeException("Aprovisiona la empresa, su moneda y el administrador antes de cargar el catálogo inicial.");
+                throw new RuntimeException("Aprovisiona la empresa, PEN, UNIT y el administrador antes del catálogo inicial.");
 
             }
 
-            $brands = $this->seedBrands();
-            $categories = $this->seedCategories();
-            $measurementUnitId = MeasurementUnit::defaultId();
-            $precision = Utilities::decimalPrecision();
+            $brandIds = $this->seedBrands();
+            $categoryIdsBySegment = $this->seedCategories();
+
             $warehouses = Warehouse::query()
                 ->where("status", "active")
-                ->whereHas("branch", fn($query) => $query->where("company_id", $this->companyId))
+                ->whereHas("branch", fn($query) => $query->where("company_id", $companyId))
                 ->pluck("id")
                 ->all();
+            $batch = [];
 
-            foreach(array_chunk($this->items($brands, $productLimit, $serviceLimit, $subscriptionLimit), self::BATCH_SIZE) as $batch) {
+            foreach($this->sourceItems($limits) as $item) {
 
-                $this->seedBatch($batch, $categories, $warehouses, $measurementUnitId, $precision);
+                if($item["type"] === Item::TYPE_PRODUCT) {
+
+                    $item["brand_id"] = $brandIds[$this->demoIndex("brand:".$item["internal_code"], count($brandIds))];
+
+                }
+
+                $batch[] = $item;
+
+                if(count($batch) === self::BATCH_SIZE) {
+
+                    $this->seedBatch($batch, $warehouses, $categoryIdsBySegment);
+                    $batch = [];
+
+                }
+
+            }
+
+            if($batch) {
+
+                $this->seedBatch($batch, $warehouses, $categoryIdsBySegment);
 
             }
 
@@ -75,266 +121,38 @@ final class CommercialCatalogSeeder extends Seeder {
 
     private function seedBrands(): array {
 
-        $records = [
-            ["internal_code" => "MAR-HOLA", "name" => "Hola", "description" => "Marca demo para bebidas y productos de consumo."],
-            ["internal_code" => "MAR-BLAPOS", "name" => "Blapos", "description" => "Marca propia para productos deportivos."],
-            ["internal_code" => "MAR-WELL", "name" => "Wellness", "description" => "Marca demo para bienestar y cuidado personal."],
-        ];
+        $rows = [];
+        $codes = [];
+        $names = [];
+        $now = now()->toDateTimeString();
 
-        return collect($records)
-            ->mapWithKeys(function(array $record) {
+        foreach(CsvSeedDataset::rows(__DIR__."/data/06_marcas_100.csv", self::BRAND_COLUMNS, self::BRAND_COUNT) as $number => $row) {
 
-                $brand = Brand::updateOrCreate(
-                    [
-                        "internal_code" => $record["internal_code"],
-                    ],
-                    [
-                        "name" => $record["name"],
-                        "description" => $record["description"],
-                        "status" => "active",
-                        "created_by" => $this->userId,
-                        "updated_by" => $this->userId,
-                    ]
-                );
+            $code = trim($row["internal_code"]);
+            $name = trim($row["name"]);
+            $description = trim($row["description"]);
+            $website = trim($row["website_url"]);
 
-                return [$record["name"] => $brand];
+            if(
+                !preg_match('/^[A-Za-z0-9._-]{1,50}$/', $code)
+                || $name === "" || mb_strlen($name) > 100
+                || mb_strlen($description) > 250
+                || ($website !== "" && (mb_strlen($website) > 500 || !filter_var($website, FILTER_VALIDATE_URL)))
+                || $row["status"] !== "active"
+                || isset($codes[$code]) || isset($names[$name])
+            ) {
 
-            })
-            ->all();
-
-    }
-
-    private function seedCategories(): array {
-
-        $records = [
-            ["internal_code" => "CAT-BEB", "name" => "Bebidas", "description" => "Productos líquidos para venta rápida."],
-            ["internal_code" => "CAT-SUP", "name" => "Suplementos", "description" => "Proteínas, barras y complementos deportivos."],
-            ["internal_code" => "CAT-ACC", "name" => "Accesorios", "description" => "Implementos y artículos de entrenamiento."],
-            ["internal_code" => "CAT-SER", "name" => "Servicios", "description" => "Servicios presenciales o personalizados."],
-            ["internal_code" => "CAT-MEM", "name" => "Membresias", "description" => "Planes comerciales con vigencia."],
-        ];
-
-        return collect($records)
-            ->mapWithKeys(function(array $record) {
-
-                $category = Category::updateOrCreate(
-                    [
-                        "internal_code" => $record["internal_code"],
-                    ],
-                    [
-                        "name" => $record["name"],
-                        "description" => $record["description"],
-                        "status" => "active",
-                        "created_by" => $this->userId,
-                        "updated_by" => $this->userId,
-                    ]
-                );
-
-                return [$record["name"] => $category];
-
-            })
-            ->all();
-
-    }
-
-    private function items(
-        array $brands,
-        ?int $productLimit,
-        ?int $serviceLimit,
-        ?int $subscriptionLimit
-    ): array {
-
-        $products = [
-            ["code" => "AGUA625", "name" => "Agua mineral 625 ml", "description" => "Bebida individual para venta en mostrador.", "price" => 2.50, "min" => 2.00, "max" => 3.50, "brand" => "Hola", "categories" => ["Bebidas"], "quantity" => 36, "minimum" => 8, "cost" => 1.20],
-            ["code" => "AGUA1L", "name" => "Agua mineral 1 L", "description" => "Botella familiar para entrenamientos prolongados.", "price" => 4.00, "min" => 3.50, "max" => 5.50, "brand" => "Hola", "categories" => ["Bebidas"], "quantity" => 28, "minimum" => 8, "cost" => 2.10],
-            ["code" => "ISO500", "name" => "Bebida isotonica 500 ml", "description" => "Reposicion rapida para entrenamientos intensos.", "price" => 5.00, "min" => 4.50, "max" => 6.50, "brand" => "Hola", "categories" => ["Bebidas"], "quantity" => 24, "minimum" => 6, "cost" => 2.70],
-            ["code" => "ENERGY", "name" => "Bebida energetica sin azucar", "description" => "Bebida funcional para venta POS.", "price" => 7.50, "min" => 6.50, "max" => 9.00, "brand" => "Hola", "categories" => ["Bebidas"], "quantity" => 18, "minimum" => 5, "cost" => 4.00],
-            ["code" => "JUGONAT", "name" => "Jugo natural botella", "description" => "Bebida lista para consumo despues del entrenamiento.", "price" => 6.00, "min" => 5.00, "max" => 8.00, "brand" => "Wellness", "categories" => ["Bebidas"], "quantity" => 20, "minimum" => 6, "cost" => 3.20],
-            ["code" => "WHEY1KG", "name" => "Proteina whey 1 kg", "description" => "Suplemento demo de alta rotacion.", "price" => 145.00, "min" => 130.00, "max" => 170.00, "brand" => "Blapos", "categories" => ["Suplementos"], "quantity" => 10, "minimum" => 3, "cost" => 95.00],
-            ["code" => "WHEYCH2", "name" => "Proteina whey chocolate 2 lb", "description" => "Proteina sabor chocolate para venta recurrente.", "price" => 118.00, "min" => 105.00, "max" => 145.00, "brand" => "Blapos", "categories" => ["Suplementos"], "quantity" => 12, "minimum" => 4, "cost" => 78.00],
-            ["code" => "CREA300", "name" => "Creatina monohidratada 300 g", "description" => "Suplemento basico para fuerza y rendimiento.", "price" => 95.00, "min" => 84.00, "max" => 120.00, "brand" => "Blapos", "categories" => ["Suplementos"], "quantity" => 14, "minimum" => 4, "cost" => 62.00],
-            ["code" => "BCAA250", "name" => "BCAA 250 g", "description" => "Aminoacidos para recuperacion deportiva.", "price" => 72.00, "min" => 65.00, "max" => 90.00, "brand" => "Wellness", "categories" => ["Suplementos"], "quantity" => 9, "minimum" => 3, "cost" => 48.00],
-            ["code" => "GLUTA300", "name" => "Glutamina 300 g", "description" => "Complemento para recuperacion muscular.", "price" => 68.00, "min" => 60.00, "max" => 86.00, "brand" => "Wellness", "categories" => ["Suplementos"], "quantity" => 8, "minimum" => 3, "cost" => 43.00],
-            ["code" => "BARVAI", "name" => "Barra proteica vainilla", "description" => "Snack practico para mostrador.", "price" => 8.00, "min" => 7.00, "max" => 10.00, "brand" => "Blapos", "categories" => ["Suplementos"], "quantity" => 30, "minimum" => 10, "cost" => 4.80],
-            ["code" => "BARCHO", "name" => "Barra proteica chocolate", "description" => "Snack proteico sabor chocolate.", "price" => 8.50, "min" => 7.50, "max" => 10.50, "brand" => "Blapos", "categories" => ["Suplementos"], "quantity" => 26, "minimum" => 10, "cost" => 5.10],
-            ["code" => "FRUTSEC", "name" => "Snack frutos secos", "description" => "Mezcla ligera para consumo rapido.", "price" => 6.50, "min" => 5.50, "max" => 8.50, "brand" => "Wellness", "categories" => ["Suplementos"], "quantity" => 22, "minimum" => 7, "cost" => 3.60],
-            ["code" => "SHAKER", "name" => "Shaker 700 ml", "description" => "Vaso mezclador para suplementos.", "price" => 22.00, "min" => 18.00, "max" => 30.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 18, "minimum" => 5, "cost" => 12.00],
-            ["code" => "TOALLA", "name" => "Toalla deportiva", "description" => "Accesorio basico para entrenamiento.", "price" => 25.00, "min" => 22.00, "max" => 35.00, "brand" => "Wellness", "categories" => ["Accesorios"], "quantity" => 15, "minimum" => 4, "cost" => 14.00],
-            ["code" => "GUANTE", "name" => "Guantes de entrenamiento", "description" => "Guantes para pesas y barras.", "price" => 39.00, "min" => 34.00, "max" => 55.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 16, "minimum" => 4, "cost" => 23.00],
-            ["code" => "VENMUN", "name" => "Vendas de muneca", "description" => "Soporte para levantamiento y entrenamiento.", "price" => 28.00, "min" => 24.00, "max" => 38.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 13, "minimum" => 4, "cost" => 16.00],
-            ["code" => "CUERDA", "name" => "Cuerda de salto", "description" => "Accesorio para cardio y calentamiento.", "price" => 32.00, "min" => 28.00, "max" => 45.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 11, "minimum" => 3, "cost" => 18.00],
-            ["code" => "BANDA-L", "name" => "Banda elastica ligera", "description" => "Banda de resistencia para movilidad.", "price" => 18.00, "min" => 15.00, "max" => 26.00, "brand" => "Wellness", "categories" => ["Accesorios"], "quantity" => 20, "minimum" => 5, "cost" => 9.50],
-            ["code" => "BANDA-F", "name" => "Banda elastica fuerte", "description" => "Banda de alta resistencia para entrenamiento.", "price" => 24.00, "min" => 20.00, "max" => 34.00, "brand" => "Wellness", "categories" => ["Accesorios"], "quantity" => 16, "minimum" => 5, "cost" => 13.00],
-            ["code" => "BOTDEP", "name" => "Botella deportiva", "description" => "Botella reutilizable para hidratacion.", "price" => 21.00, "min" => 18.00, "max" => 30.00, "brand" => "Hola", "categories" => ["Accesorios", "Bebidas"], "quantity" => 17, "minimum" => 5, "cost" => 11.50],
-            ["code" => "CANDADO", "name" => "Candado para locker", "description" => "Candado pequeno para casilleros.", "price" => 15.00, "min" => 12.00, "max" => 22.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 12, "minimum" => 4, "cost" => 7.20],
-            ["code" => "GRIPBAR", "name" => "Grip para barra", "description" => "Agarre de soporte para entrenamiento con barra.", "price" => 34.00, "min" => 30.00, "max" => 48.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 10, "minimum" => 3, "cost" => 20.00],
-            ["code" => "RODILLO", "name" => "Rodillo de movilidad", "description" => "Rodillo para descarga y movilidad muscular.", "price" => 46.00, "min" => 40.00, "max" => 65.00, "brand" => "Wellness", "categories" => ["Accesorios"], "quantity" => 8, "minimum" => 3, "cost" => 27.00],
-            ["code" => "MATYOGA", "name" => "Colchoneta yoga", "description" => "Colchoneta para estiramiento y clases guiadas.", "price" => 58.00, "min" => 50.00, "max" => 78.00, "brand" => "Wellness", "categories" => ["Accesorios"], "quantity" => 9, "minimum" => 3, "cost" => 34.00],
-            ["code" => "MAGLIQ", "name" => "Magnesio liquido", "description" => "Magnesio para agarre en ejercicios de fuerza.", "price" => 31.00, "min" => 27.00, "max" => 42.00, "brand" => "Blapos", "categories" => ["Accesorios"], "quantity" => 14, "minimum" => 4, "cost" => 18.00],
-            ["code" => "PRE300", "name" => "Pre entreno 300 g", "description" => "Suplemento previo al entrenamiento.", "price" => 110.00, "min" => 98.00, "max" => 140.00, "brand" => "Blapos", "categories" => ["Suplementos"], "quantity" => 7, "minimum" => 3, "cost" => 72.00],
-            ["code" => "OMEGA", "name" => "Omega 3 100 caps", "description" => "Complemento de bienestar general.", "price" => 65.00, "min" => 58.00, "max" => 85.00, "brand" => "Wellness", "categories" => ["Suplementos"], "quantity" => 11, "minimum" => 4, "cost" => 39.00],
-            ["code" => "MULTIV", "name" => "Multivitaminico", "description" => "Complemento diario de vitaminas y minerales.", "price" => 59.00, "min" => 52.00, "max" => 78.00, "brand" => "Wellness", "categories" => ["Suplementos"], "quantity" => 10, "minimum" => 4, "cost" => 35.00],
-            ["code" => "CAFPRO", "name" => "Cafe proteico", "description" => "Bebida proteica lista para consumo.", "price" => 9.50, "min" => 8.00, "max" => 12.50, "brand" => "Hola", "categories" => ["Bebidas", "Suplementos"], "quantity" => 21, "minimum" => 6, "cost" => 5.40],
-        ];
-
-        $services = [
-            ["code" => "EVAL", "name" => "Evaluacion fisica", "description" => "Servicio inicial para medir condicion y objetivos.", "price" => 35.00, "min" => 30.00, "max" => 50.00],
-            ["code" => "PT60", "name" => "Entrenamiento personal 60 min", "description" => "Sesion personalizada por entrenador.", "price" => 70.00, "min" => 60.00, "max" => 90.00],
-            ["code" => "PTDUO", "name" => "Entrenamiento duo", "description" => "Sesion para dos personas con entrenador.", "price" => 110.00, "min" => 95.00, "max" => 140.00],
-            ["code" => "RUTINA", "name" => "Rutina personalizada", "description" => "Plan de entrenamiento adaptado al objetivo del cliente.", "price" => 45.00, "min" => 38.00, "max" => 65.00],
-            ["code" => "NUTRI", "name" => "Asesoria nutricional", "description" => "Orientacion nutricional basica para clientes.", "price" => 80.00, "min" => 70.00, "max" => 120.00],
-            ["code" => "MEDCORP", "name" => "Medicion corporal", "description" => "Control de medidas y seguimiento corporal.", "price" => 25.00, "min" => 20.00, "max" => 40.00],
-            ["code" => "FUNC", "name" => "Clase funcional", "description" => "Clase grupal de entrenamiento funcional.", "price" => 18.00, "min" => 15.00, "max" => 28.00],
-            ["code" => "SPIN", "name" => "Clase spinning", "description" => "Clase grupal de bicicleta indoor.", "price" => 20.00, "min" => 16.00, "max" => 30.00],
-            ["code" => "MOVIL", "name" => "Recuperacion movilidad", "description" => "Sesion guiada de movilidad y descarga.", "price" => 55.00, "min" => 48.00, "max" => 75.00],
-            ["code" => "PRUEBA", "name" => "Sesion prueba guiada", "description" => "Sesion de bienvenida para nuevos clientes.", "price" => 15.00, "min" => 10.00, "max" => 25.00],
-        ];
-
-        $subscriptions = [
-            ["code" => "DIARIA", "name" => "Membresia diaria", "description" => "Acceso por un dia al gimnasio.", "price" => 15.00, "min" => 12.00, "max" => 20.00, "duration_type" => "day", "duration_value" => 1],
-            ["code" => "SEMANAL", "name" => "Membresia semanal", "description" => "Acceso por siete dias.", "price" => 45.00, "min" => 38.00, "max" => 60.00, "duration_type" => "day", "duration_value" => 7],
-            ["code" => "QUINC", "name" => "Membresia quincenal", "description" => "Acceso por quince dias.", "price" => 75.00, "min" => 65.00, "max" => 95.00, "duration_type" => "day", "duration_value" => 15],
-            ["code" => "MENSUAL", "name" => "Membresia mensual", "description" => "Acceso mensual al gimnasio.", "price" => 120.00, "min" => 100.00, "max" => 150.00, "duration_type" => "month", "duration_value" => 1],
-            ["code" => "BIMEST", "name" => "Membresia bimestral", "description" => "Acceso por dos meses.", "price" => 225.00, "min" => 200.00, "max" => 280.00, "duration_type" => "month", "duration_value" => 2],
-            ["code" => "TRIMEST", "name" => "Membresia trimestral", "description" => "Acceso por tres meses con tarifa preferencial.", "price" => 320.00, "min" => 290.00, "max" => 390.00, "duration_type" => "month", "duration_value" => 3],
-            ["code" => "SEMEST", "name" => "Membresia semestral", "description" => "Acceso por seis meses.", "price" => 600.00, "min" => 540.00, "max" => 720.00, "duration_type" => "month", "duration_value" => 6],
-            ["code" => "ANUAL", "name" => "Membresia anual", "description" => "Acceso por doce meses.", "price" => 1050.00, "min" => 950.00, "max" => 1250.00, "duration_type" => "year", "duration_value" => 1],
-            ["code" => "PREMM", "name" => "Membresia premium mensual", "description" => "Plan mensual con beneficios adicionales.", "price" => 180.00, "min" => 160.00, "max" => 230.00, "duration_type" => "month", "duration_value" => 1],
-            ["code" => "FAMIL", "name" => "Membresia familiar mensual", "description" => "Plan mensual para grupo familiar.", "price" => 300.00, "min" => 270.00, "max" => 380.00, "duration_type" => "month", "duration_value" => 1],
-        ];
-
-        $records = [];
-
-        foreach($this->expandTemplates($products, $productLimit) as $index => $product) {
-
-            $records[] = [
-                "internal_code" => "PRO-".$product["code"],
-                "barcode" => $this->barcode($index + 1),
-                "name" => $product["name"],
-                "description" => $product["description"],
-                "price" => $product["price"],
-                "min_price" => $product["min"],
-                "max_price" => $product["max"],
-                "brand_id" => $brands[$product["brand"]]->id ?? null,
-                "type" => "product",
-                "categories" => $product["categories"],
-                "inventory" => ["quantity" => $product["quantity"], "minimum_stock" => $product["minimum"], "average_cost" => $product["cost"]],
-            ];
-
-        }
-
-        foreach($this->expandTemplates($services, $serviceLimit) as $service) {
-
-            $records[] = [
-                "internal_code" => "SER-".$service["code"],
-                "barcode" => null,
-                "name" => $service["name"],
-                "description" => $service["description"],
-                "price" => $service["price"],
-                "min_price" => $service["min"],
-                "max_price" => $service["max"],
-                "brand_id" => null,
-                "type" => "service",
-                "categories" => ["Servicios"],
-                "inventory" => [],
-            ];
-
-        }
-
-        foreach($this->expandTemplates($subscriptions, $subscriptionLimit) as $subscription) {
-
-            $records[] = [
-                "internal_code" => "MEM-".$subscription["code"],
-                "barcode" => null,
-                "name" => $subscription["name"],
-                "description" => $subscription["description"],
-                "price" => $subscription["price"],
-                "min_price" => $subscription["min"],
-                "max_price" => $subscription["max"],
-                "brand_id" => null,
-                "type" => "subscription",
-                "duration_type" => $subscription["duration_type"],
-                "duration_value" => $subscription["duration_value"],
-                "categories" => ["Membresias"],
-                "inventory" => [],
-            ];
-
-        }
-
-        return $records;
-
-    }
-
-    private function expandTemplates(array $templates, int $limit): array {
-
-        $records = [];
-        $templateCount = count($templates);
-
-        for($index = 0; $index < $limit; $index++) {
-
-            $record = $templates[$index % $templateCount];
-
-            if($index >= $templateCount) {
-
-                $sequence = $index + 1;
-                $record["code"] .= "-".$sequence;
-                $record["name"] .= " #".$sequence;
+                throw new RuntimeException("Marca de demostración inválida en la fila ".($number + 1).".");
 
             }
 
-            $records[] = $record;
-
-        }
-
-        return $records;
-
-    }
-
-    private function barcode(int $sequence): string {
-
-        $base = "200".str_pad((string) $sequence, 9, "0", STR_PAD_LEFT);
-        $sum = 0;
-
-        for($index = 0; $index < 12; $index++) {
-
-            $sum += (int) $base[$index] * ($index % 2 === 0 ? 1 : 3);
-
-        }
-
-        return $base.((10 - ($sum % 10)) % 10);
-
-    }
-
-    private function seedBatch(
-        array $batch,
-        array $categories,
-        array $warehouses,
-        int $measurementUnitId,
-        int $precision
-    ): void {
-
-        $now = now()->toDateTimeString();
-        $rows = [];
-
-        foreach($batch as $payload) {
-
+            $codes[$code] = true;
+            $names[$name] = true;
             $rows[] = [
-                "internal_code" => $payload["internal_code"],
-                "barcode" => $payload["barcode"],
-                "name" => $payload["name"],
-                "description" => $payload["description"],
-                "price" => $payload["price"],
-                "price_includes_tax" => true,
-                "min_price" => $payload["min_price"],
-                "max_price" => $payload["max_price"],
-                "brand_id" => $payload["brand_id"],
-                "currency_id" => $this->currencyId,
-                "measurement_unit_id" => $payload["type"] === Item::TYPE_PRODUCT ? $measurementUnitId : null,
-                "type" => $payload["type"],
-                "duration_type" => $payload["duration_type"] ?? null,
-                "duration_value" => $payload["duration_value"] ?? null,
-                "see_my_web" => true,
-                "see_my_web_price" => true,
+                "internal_code" => $code,
+                "name" => $name,
+                "description" => $description === "" ? null : $description,
+                "website_url" => $website === "" ? null : $website,
                 "status" => "active",
                 "created_at" => $now,
                 "created_by" => $this->userId,
@@ -344,118 +162,358 @@ final class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        DB::table("items")->upsert(
+        DB::table("brands")->upsert(
             $rows,
-            ["type", "internal_code"],
-            [
-                "barcode", "name", "description", "price", "price_includes_tax",
-                "min_price", "max_price", "brand_id", "currency_id",
-                "measurement_unit_id", "duration_type", "duration_value",
-                "see_my_web", "see_my_web_price", "status", "updated_at", "updated_by",
-            ]
+            ["internal_code"],
+            ["name", "description", "website_url", "status", "updated_at", "updated_by"]
         );
 
-        $itemIds = DB::table("items")
-            ->whereIn("internal_code", array_column($batch, "internal_code"))
-            ->pluck("id", "internal_code")
-            ->all();
+        $ids = DB::table("brands")->whereIn("internal_code", array_keys($codes))->pluck("id", "internal_code");
 
-        $this->seedCategoryLinks($batch, $itemIds, $categories, $now);
-        $this->seedInitialStock($batch, $itemIds, $warehouses, $precision, $now);
+        if($ids->count() !== self::BRAND_COUNT) {
+
+            throw new RuntimeException("No se pudieron recuperar las 100 marcas de demostración.");
+
+        }
+
+        return array_map(fn(string $code) => (int) $ids[$code], array_keys($codes));
 
     }
 
-    private function seedCategoryLinks(array $batch, array $itemIds, array $categories, string $now): void {
+    private function seedCategories(): array {
 
         $rows = [];
+        $codes = [];
+        $names = [];
+        $codesBySegment = array_fill_keys(self::CATEGORY_SEGMENTS, []);
+        $now = now()->toDateTimeString();
 
-        foreach($batch as $payload) {
+        foreach(CsvSeedDataset::rows(__DIR__."/data/07_categorias_100.csv", self::CATEGORY_COLUMNS, self::CATEGORY_COUNT) as $number => $row) {
 
-            foreach($payload["categories"] as $categoryName) {
+            $code = trim($row["internal_code"]);
+            $name = trim($row["name"]);
+            $description = trim($row["description"]);
+            $segment = trim($row["segment"]);
 
-                $categoryId = $categories[$categoryName]->id ?? null;
+            if(
+                !preg_match('/^[A-Za-z0-9._-]{1,50}$/', $code)
+                || $name === "" || mb_strlen($name) > 50
+                || mb_strlen($description) > 100
+                || !in_array($segment, self::CATEGORY_SEGMENTS, true)
+                || $row["status"] !== "active"
+                || isset($codes[$code]) || isset($names[$name])
+            ) {
 
-                if(!$categoryId) continue;
+                throw new RuntimeException("Categoría de demostración inválida en la fila ".($number + 1).".");
 
-                $rows[] = [
-                    "category_id" => $categoryId,
-                    "item_id" => $itemIds[$payload["internal_code"]],
-                    "status" => "active",
-                    "created_at" => $now,
-                    "created_by" => $this->userId,
-                    "updated_at" => $now,
-                    "updated_by" => $this->userId,
-                ];
+            }
+
+            $codes[$code] = true;
+            $names[$name] = true;
+            $codesBySegment[$segment][] = $code;
+            $rows[] = [
+                "internal_code" => $code,
+                "name" => $name,
+                "description" => $description === "" ? null : $description,
+                "status" => "active",
+                "created_at" => $now,
+                "created_by" => $this->userId,
+                "updated_at" => $now,
+                "updated_by" => $this->userId,
+            ];
+
+        }
+
+        if(in_array([], $codesBySegment, true)) {
+
+            throw new RuntimeException("Cada segmento debe tener categorías de demostración.");
+
+        }
+
+        DB::table("categories")->upsert(
+            $rows,
+            ["internal_code"],
+            ["name", "description", "status", "updated_at", "updated_by"]
+        );
+
+        $ids = DB::table("categories")->whereIn("internal_code", array_keys($codes))->pluck("id", "internal_code");
+
+        if($ids->count() !== self::CATEGORY_COUNT) {
+
+            throw new RuntimeException("No se pudieron recuperar las 100 categorías de demostración.");
+
+        }
+
+        return array_map(
+            fn(array $segmentCodes) => array_map(fn(string $code) => (int) $ids[$code], $segmentCodes),
+            $codesBySegment
+        );
+
+    }
+
+    private function sourceItems(array $limits): Generator {
+
+        $datasets = [
+            Item::TYPE_PRODUCT => ["01_productos_10000.csv", self::PRODUCT_COUNT],
+            Item::TYPE_SERVICE => ["02_servicios_10000.csv", self::SERVICE_COUNT],
+            Item::TYPE_SUBSCRIPTION => ["03_membresias_100.csv", self::SUBSCRIPTION_COUNT],
+        ];
+        $codes = [];
+        $barcodes = [];
+
+        foreach($datasets as $type => [$filename, $expectedCount]) {
+
+            foreach(CsvSeedDataset::rows(__DIR__."/data/".$filename, self::COLUMNS, $expectedCount) as $number => $row) {
+
+                $item = $this->normalizeItem($row, $type, $filename, $number);
+                $key = $type.":".$item["internal_code"];
+
+                if(isset($codes[$key]) || ($item["barcode"] !== null && isset($barcodes[$item["barcode"]]))) {
+
+                    throw new RuntimeException("Código duplicado en {$filename}, fila ".($number + 1).".");
+
+                }
+
+                $codes[$key] = true;
+
+                if($item["barcode"] !== null) {
+
+                    $barcodes[$item["barcode"]] = true;
+
+                }
+
+                if($number <= $limits[$type]) {
+
+                    yield $item;
+
+                }
+
+            }
+
+            if($limits[$type] > $expectedCount) {
+
+                throw new InvalidArgumentException("El límite de {$type} supera el tamaño del dataset.");
 
             }
 
         }
 
-        foreach(array_chunk($rows, self::BATCH_SIZE) as $chunk) {
+    }
 
-            DB::table("category_items")->upsert(
-                $chunk,
-                ["category_id", "item_id"],
-                ["status", "updated_at", "updated_by"]
-            );
+    private function normalizeItem(array $row, string $type, string $filename, int $number): array {
+
+        $label = "{$filename}, fila ".($number + 1);
+        $code = trim($row["internal_code"]);
+        $name = trim($row["name"]);
+        $description = trim($row["description"]);
+        $barcode = trim($row["barcode"]);
+        $price = trim($row["price"]);
+        $minimum = $this->optionalDecimal($row["min_price"], $label);
+        $maximum = $this->optionalDecimal($row["max_price"], $label);
+
+        if(
+            $row["type"] !== $type
+            || $code === ""
+            || mb_strlen($code) > 50
+            || $name === ""
+            || mb_strlen($name) > 100
+            || mb_strlen($description) > 100
+            || !preg_match('/^\d{1,12}(?:\.\d{1,3})?$/', $price)
+            || (float) $price <= 0
+            || ($minimum !== null && $maximum !== null && (float) $minimum > (float) $maximum)
+            || !in_array($row["status"], ["active", "inactive"], true)
+            || trim($row["currency_id"]) !== "1"
+            || trim($row["brand_id"]) !== ""
+            || trim($row["measurement_unit_id"]) !== ""
+        ) {
+
+            throw new RuntimeException("Datos comerciales inválidos en {$label}.");
 
         }
 
+        if($minimum === null && $maximum === null) {
+
+            // Los CSV conservan el precio de venta; el catálogo inicial cubre los cuatro casos opcionales.
+            $minimum = $number % 4 === 2 || $number % 4 === 0
+                ? number_format(max(0.001, round((float) $price * 0.85, 3)), 3, ".", "")
+                : null;
+            $maximum = $number % 4 === 3 || $number % 4 === 0
+                ? number_format(round((float) $price * 1.15, 3), 3, ".", "")
+                : null;
+
+        }
+
+        if($type === Item::TYPE_PRODUCT) {
+
+            if(!preg_match('/^\d{13}$/', $barcode) || !$this->validBarcode($barcode)) {
+
+                throw new RuntimeException("EAN-13 inválido en {$label}.");
+
+            }
+
+        } elseif($barcode !== "") {
+
+            throw new RuntimeException("Solo los productos pueden tener código de barras: {$label}.");
+
+        }
+
+        $durationType = trim($row["duration_type"]);
+        $durationValue = $this->optionalInteger($row["duration_value"], $label);
+        $estimatedMinutes = $this->optionalInteger($row["estimated_duration_minutes"], $label);
+        $capacityEnabled = $this->boolean($row["capacity_control_enabled"], $label);
+        $capacityLimit = $this->optionalInteger($row["capacity_limit"], $label);
+        $capacityUsed = $this->optionalInteger($row["capacity_used"], $label) ?? 0;
+        $attendanceLimit = $this->optionalInteger($row["attendance_limit_per_day"], $label);
+
+        if(
+            ($type === Item::TYPE_SUBSCRIPTION && (!in_array($durationType, ["hour", "day", "today", "month", "year"], true) || $durationValue < 1))
+            || ($type !== Item::TYPE_SUBSCRIPTION && ($durationType !== "" || $durationValue !== null || $attendanceLimit !== null))
+            || ($type === Item::TYPE_SERVICE && ($estimatedMinutes === null || $estimatedMinutes < 1 || $estimatedMinutes > 10080))
+            || ($type !== Item::TYPE_SERVICE && $estimatedMinutes !== null)
+            || ($type === Item::TYPE_PRODUCT && ($capacityEnabled || $capacityLimit !== null || $capacityUsed !== 0))
+            || ($capacityEnabled && ($capacityLimit === null || $capacityLimit < 1 || $capacityUsed > $capacityLimit))
+            || (!$capacityEnabled && $capacityLimit !== null)
+            || ($attendanceLimit !== null && ($attendanceLimit < 1 || $attendanceLimit > 1000))
+        ) {
+
+            throw new RuntimeException("Los campos del tipo {$type} no son coherentes en {$label}.");
+
+        }
+
+        $commissionType = trim($row["commission_type"]);
+        $commissionValue = $this->optionalDecimal($row["commission_value"], $label) ?? "0";
+        $commissionRate = $this->optionalDecimal($row["commission_rate"], $label);
+
+        if(
+            !in_array($commissionType, ["none", "percentage", "fixed"], true)
+            || ($commissionType === "none" && ((float) $commissionValue !== 0.0 || $commissionRate !== null))
+            || ($commissionType !== "none" && (float) $commissionValue <= 0)
+        ) {
+
+            throw new RuntimeException("Comisión inválida en {$label}.");
+
+        }
+
+        $expiresAt = trim($row["expires_at"]);
+
+        if($expiresAt !== "" && strtotime($expiresAt) === false) {
+
+            throw new RuntimeException("Fecha de disponibilidad inválida en {$label}.");
+
+        }
+
+        return [
+            "brand_id" => null,
+            "internal_code" => $code,
+            "barcode" => $type === Item::TYPE_PRODUCT ? $barcode : null,
+            "name" => $name,
+            "description" => $description === "" ? null : $description,
+            "price" => $price,
+            "price_includes_tax" => $this->boolean($row["price_includes_tax"], $label),
+            "igv_exempt" => $this->boolean($row["igv_exempt"], $label),
+            "min_price" => $minimum,
+            "max_price" => $maximum,
+            "currency_id" => $this->currencyId,
+            "measurement_unit_id" => $type === Item::TYPE_PRODUCT ? $this->measurementUnitId : null,
+            "type" => $type,
+            "duration_type" => $durationType === "" ? null : $durationType,
+            "duration_value" => $durationValue,
+            "estimated_duration_minutes" => $estimatedMinutes,
+            "capacity_control_enabled" => $capacityEnabled,
+            "capacity_limit" => $capacityLimit,
+            "capacity_used" => $capacityUsed,
+            "expires_at" => $expiresAt === "" ? null : $expiresAt,
+            "commission_rate" => $commissionRate,
+            "commission_type" => $commissionType,
+            "commission_value" => $commissionValue,
+            "attendance_limit_per_day" => $attendanceLimit,
+            "benefits" => $this->jsonList($row["benefits"], $label),
+            "restrictions" => $this->jsonList($row["restrictions"], $label),
+            "see_my_web" => $this->boolean($row["see_my_web"], $label),
+            "see_my_web_price" => $this->boolean($row["see_my_web_price"], $label),
+            "status" => $row["status"],
+        ];
+
     }
 
-    private function seedInitialStock(
-        array $batch,
-        array $itemIds,
-        array $warehouses,
-        int $precision,
-        string $now
-    ): void {
+    private function seedBatch(array $batch, array $warehouses, array $categoryIdsBySegment): void {
 
-        if(!$warehouses) return;
+        $this->assertNoBarcodeConflicts($batch);
 
-        $products = array_values(array_filter($batch, fn(array $payload) => $payload["type"] === Item::TYPE_PRODUCT));
+        $now = now()->toDateTimeString();
+        $rows = array_map(fn(array $item) => $item + [
+            "created_at" => $now,
+            "created_by" => $this->userId,
+            "updated_at" => $now,
+            "updated_by" => $this->userId,
+        ], $batch);
 
-        if(!$products) return;
+        DB::table("items")->upsert(
+            $rows,
+            ["type", "internal_code"],
+            [
+                "brand_id", "barcode", "name", "description", "price", "price_includes_tax",
+                "igv_exempt", "min_price", "max_price", "currency_id", "measurement_unit_id",
+                "duration_type", "duration_value", "estimated_duration_minutes",
+                "capacity_control_enabled", "capacity_limit", "capacity_used", "expires_at",
+                "commission_rate", "commission_type", "commission_value",
+                "attendance_limit_per_day", "benefits", "restrictions", "see_my_web",
+                "see_my_web_price", "status", "updated_at", "updated_by",
+            ]
+        );
 
-        $productIds = array_map(fn(array $payload) => $itemIds[$payload["internal_code"]], $products);
-        $existingStock = DB::table("warehouse_items")
-            ->whereIn("item_id", $productIds)
+        $this->seedCategoryLinks($batch, $categoryIdsBySegment, $now);
+
+        if(!$warehouses) {
+
+            return;
+
+        }
+
+        $productCodes = array_column(
+            array_values(array_filter($batch, fn(array $item) => $item["type"] === Item::TYPE_PRODUCT)),
+            "internal_code"
+        );
+
+        if(!$productCodes) {
+
+            return;
+
+        }
+
+        $products = DB::table("items")
+            ->where("type", Item::TYPE_PRODUCT)
+            ->whereIn("internal_code", $productCodes)
+            ->get(["id", "internal_code", "price"]);
+        $existing = DB::table("warehouse_items")
+            ->whereIn("item_id", $products->pluck("id"))
             ->whereIn("warehouse_id", $warehouses)
             ->get(["warehouse_id", "item_id"])
-            ->mapWithKeys(fn($row) => [$row->warehouse_id.":".$row->item_id => true])
-            ->all();
-        $existingMovements = DB::table("inventory_movements")
-            ->where("origin_type", "commercial_catalog_seeder")
-            ->whereIn("origin_id", $productIds)
-            ->whereIn("warehouse_id", $warehouses)
-            ->get(["warehouse_id", "origin_id"])
-            ->mapWithKeys(fn($row) => [$row->warehouse_id.":".$row->origin_id => true])
-            ->all();
+            ->mapWithKeys(fn($row) => [$row->warehouse_id.":".$row->item_id => true]);
         $stockRows = [];
         $movementRows = [];
+        $alertKeys = [];
 
-        foreach($products as $payload) {
-
-            $itemId = $itemIds[$payload["internal_code"]];
-            $inventory = $payload["inventory"];
-            $quantity = (float) $inventory["quantity"];
-            $minimumStock = (float) $inventory["minimum_stock"];
-            $averageCost = (float) $inventory["average_cost"];
-            $inventoryValue = round($quantity * $averageCost, $precision);
+        foreach($products as $product) {
 
             foreach($warehouses as $warehouseId) {
 
-                $key = $warehouseId.":".$itemId;
+                $key = $warehouseId.":".$product->id;
 
-                if(isset($existingStock[$key])) continue;
+                if(isset($existing[$key])) {
 
+                    continue;
+
+                }
+
+                $stock = $this->initialStock($product->internal_code, (int) $warehouseId, (float) $product->price);
                 $stockRows[] = [
                     "warehouse_id" => $warehouseId,
-                    "item_id" => $itemId,
-                    "quantity" => $quantity,
-                    "minimum_stock" => $minimumStock,
-                    "average_cost" => $averageCost,
-                    "inventory_value" => $inventoryValue,
+                    "item_id" => $product->id,
+                    "quantity" => $stock["quantity"],
+                    "minimum_stock" => $stock["minimum_stock"],
+                    "average_cost" => $stock["average_cost"],
+                    "inventory_value" => $stock["inventory_value"],
                     "status" => "active",
                     "created_at" => $now,
                     "created_by" => $this->userId,
@@ -463,29 +521,34 @@ final class CommercialCatalogSeeder extends Seeder {
                     "updated_by" => $this->userId,
                 ];
 
-                if(isset($existingMovements[$key])) continue;
+                if($stock["quantity"] > 0) {
 
-                $movementRows[] = [
-                    "warehouse_id" => $warehouseId,
-                    "item_id" => $itemId,
-                    "user_id" => $this->userId,
-                    "movement_type" => "initial_stock",
-                    "origin_type" => "commercial_catalog_seeder",
-                    "origin_id" => $itemId,
-                    "quantity_before" => 0,
-                    "quantity_change" => $quantity,
-                    "quantity_after" => $quantity,
-                    "unit_cost" => $averageCost,
-                    "value_before" => 0,
-                    "value_change" => $inventoryValue,
-                    "value_after" => $inventoryValue,
-                    "reason" => "Stock inicial generado por seeder comercial.",
-                    "metadata" => json_encode([
-                        "reference" => "SEED-CATALOG-{$payload["internal_code"]}",
-                        "source" => "CommercialCatalogSeeder",
-                    ], JSON_THROW_ON_ERROR),
-                    "created_at" => $now,
-                ];
+                    $movementRows[] = [
+                        "warehouse_id" => $warehouseId,
+                        "item_id" => $product->id,
+                        "user_id" => $this->userId,
+                        "movement_type" => "entry",
+                        "origin_type" => "commercial_catalog_seeder",
+                        "origin_id" => $product->id,
+                        "quantity_before" => 0,
+                        "quantity_change" => $stock["quantity"],
+                        "quantity_after" => $stock["quantity"],
+                        "unit_cost" => $stock["average_cost"],
+                        "value_before" => 0,
+                        "value_change" => $stock["inventory_value"],
+                        "value_after" => $stock["inventory_value"],
+                        "reason" => "Stock inicial de demostración.",
+                        "metadata" => json_encode(["source" => "CommercialCatalogSeeder"], JSON_THROW_ON_ERROR),
+                        "created_at" => $now,
+                    ];
+
+                }
+
+                if($stock["minimum_stock"] > 0 && $stock["quantity"] <= $stock["minimum_stock"]) {
+
+                    $alertKeys[$key] = true;
+
+                }
 
             }
 
@@ -493,7 +556,7 @@ final class CommercialCatalogSeeder extends Seeder {
 
         foreach(array_chunk($stockRows, self::BATCH_SIZE) as $chunk) {
 
-            DB::table("warehouse_items")->insertOrIgnore($chunk);
+            DB::table("warehouse_items")->insert($chunk);
 
         }
 
@@ -502,6 +565,243 @@ final class CommercialCatalogSeeder extends Seeder {
             DB::table("inventory_movements")->insert($chunk);
 
         }
+
+        if($alertKeys) {
+
+            $alertRows = DB::table("warehouse_items")
+                ->whereIn("item_id", $products->pluck("id"))
+                ->whereIn("warehouse_id", $warehouses)
+                ->get(["id", "warehouse_id", "item_id", "quantity", "minimum_stock"])
+                ->filter(fn($row) => isset($alertKeys[$row->warehouse_id.":".$row->item_id]))
+                ->map(fn($row) => [
+                    "warehouse_item_id" => $row->id,
+                    "quantity" => $row->quantity,
+                    "minimum_stock" => $row->minimum_stock,
+                    "status" => "open",
+                    "detected_at" => $now,
+                    "created_at" => $now,
+                    "updated_at" => $now,
+                ])
+                ->all();
+
+            foreach(array_chunk($alertRows, self::BATCH_SIZE) as $chunk) {
+
+                DB::table("inventory_stock_alerts")->insert($chunk);
+
+            }
+
+        }
+
+    }
+
+    private function seedCategoryLinks(array $batch, array $categoryIdsBySegment, string $now): void {
+
+        $storedIds = DB::table("items")
+            ->whereIn("internal_code", array_column($batch, "internal_code"))
+            ->get(["id", "type", "internal_code"])
+            ->mapWithKeys(fn($item) => [$item->type.":".$item->internal_code => (int) $item->id]);
+        $rows = [];
+
+        foreach($batch as $item) {
+
+            $itemId = $storedIds[$item["type"].":".$item["internal_code"]] ?? null;
+            $description = mb_strtolower($item["description"] ?? "");
+            $segment = null;
+
+            foreach(self::CATEGORY_SEGMENTS as $candidate) {
+
+                if(str_contains($description, $candidate)) {
+
+                    $segment = $candidate;
+                    break;
+
+                }
+
+            }
+
+            if($itemId === null || $segment === null) {
+
+                throw new RuntimeException("No se pudo clasificar {$item['internal_code']} en el catálogo inicial.");
+
+            }
+
+            $categoryIds = $categoryIdsBySegment[$segment];
+            $rows[] = [
+                "category_id" => $categoryIds[$this->demoIndex("category:".$item["internal_code"], count($categoryIds))],
+                "item_id" => $itemId,
+                "status" => "active",
+                "created_at" => $now,
+                "created_by" => $this->userId,
+                "updated_at" => $now,
+                "updated_by" => $this->userId,
+            ];
+
+        }
+
+        DB::table("category_items")->upsert(
+            $rows,
+            ["category_id", "item_id"],
+            ["status", "updated_at", "updated_by"]
+        );
+
+    }
+
+    private function demoIndex(string $key, int $count): int {
+
+        return hexdec(substr(hash("sha256", $key), 0, 8)) % $count;
+
+    }
+
+    private function initialStock(string $code, int $warehouseId, float $price): array {
+
+        $seed = hexdec(substr(hash("sha256", $code.":".$warehouseId), 0, 8));
+        $scenario = $seed % 5;
+        $quantity = match($scenario) {
+            0, 1 => 0,
+            2 => 1 + ($seed % 4),
+            3 => 18 + ($seed % 45),
+            default => 10 + ($seed % 28),
+        };
+        $minimum = match($scenario) {
+            0, 2 => 5 + ($seed % 8),
+            3 => 3 + ($seed % 10),
+            default => 0,
+        };
+        $cost = $quantity > 0 ? round($price * (0.55 + (($seed >> 5) % 20) / 100), 3) : 0;
+
+        return [
+            "quantity" => $quantity,
+            "minimum_stock" => $minimum,
+            "average_cost" => $cost,
+            "inventory_value" => round($quantity * $cost, 3),
+        ];
+
+    }
+
+    private function assertNoBarcodeConflicts(array $batch): void {
+
+        $barcodes = [];
+
+        foreach($batch as $item) {
+
+            if($item["barcode"] !== null) {
+
+                $barcodes[$item["barcode"]] = $item["internal_code"];
+
+            }
+
+        }
+
+        if(!$barcodes) {
+
+            return;
+
+        }
+
+        $existing = DB::table("items")
+            ->whereIn("barcode", array_keys($barcodes))
+            ->get(["barcode", "internal_code", "type"]);
+
+        foreach($existing as $item) {
+
+            if($item->type !== Item::TYPE_PRODUCT || $item->internal_code !== $barcodes[$item->barcode]) {
+
+                throw new RuntimeException("Un código de barras del CSV ya pertenece a otro producto.");
+
+            }
+
+        }
+
+    }
+
+    private function optionalDecimal(string $value, string $label): ?string {
+
+        $value = trim($value);
+
+        if($value === "") {
+
+            return null;
+
+        }
+
+        if(!preg_match('/^\d{1,12}(?:\.\d{1,3})?$/', $value)) {
+
+            throw new RuntimeException("Número decimal inválido en {$label}.");
+
+        }
+
+        return $value;
+
+    }
+
+    private function optionalInteger(string $value, string $label): ?int {
+
+        $value = trim($value);
+
+        if($value === "") {
+
+            return null;
+
+        }
+
+        if(!preg_match('/^\d{1,10}$/', $value)) {
+
+            throw new RuntimeException("Número entero inválido en {$label}.");
+
+        }
+
+        return (int) $value;
+
+    }
+
+    private function boolean(string $value, string $label): bool {
+
+        if(!in_array(trim($value), ["0", "1"], true)) {
+
+            throw new RuntimeException("Valor booleano inválido en {$label}.");
+
+        }
+
+        return trim($value) === "1";
+
+    }
+
+    private function jsonList(string $value, string $label): ?string {
+
+        if(trim($value) === "") {
+
+            return null;
+
+        }
+
+        $items = json_decode($value, true);
+
+        if(
+            !is_array($items)
+            || !array_is_list($items)
+            || count($items) > 50
+            || count(array_filter($items, fn($item) => !is_string($item) || mb_strlen($item) > 100)) > 0
+        ) {
+
+            throw new RuntimeException("Lista de beneficios o restricciones inválida en {$label}.");
+
+        }
+
+        return json_encode($items, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+    }
+
+    private function validBarcode(string $barcode): bool {
+
+        $sum = 0;
+
+        for($index = 0; $index < 12; $index++) {
+
+            $sum += (int) $barcode[$index] * ($index % 2 === 0 ? 1 : 3);
+
+        }
+
+        return (int) $barcode[12] === (10 - ($sum % 10)) % 10;
 
     }
 

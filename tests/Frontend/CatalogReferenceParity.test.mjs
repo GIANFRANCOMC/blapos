@@ -49,7 +49,10 @@ test("brands conserva solo sus cinco campos comerciales", () => {
     const path = "../../resources/js/System/Pages/Catalogs/brands/main.vue";
     const source = readFileSync(new URL(path, import.meta.url), "utf8");
 
-    assert.doesNotMatch(source, /logo_path|origin_country_code|products_count|País de origen|Logo configurado|Uso actual/);
+    assert.doesNotMatch(source, /logo_path|origin_country_code|products_count|País de origen|Logo configurado/);
+    assert.match(source, /<th class="text-center">Uso actual<\/th>/);
+    assert.match(source, /record\.active_items_count/);
+    assert.match(source, /producto activo/);
 
     for(const field of ["internal_code", "name", "description", "status", "website_url"]) {
 

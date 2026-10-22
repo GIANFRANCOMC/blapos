@@ -40,7 +40,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
 
         $validations = [
             "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "subscription"], "código interno")],
-            "name" => "required|string|max:50",
+            "name" => "required|string|max:100",
             "description" => "nullable|string|max:100",
             "duration_value" => "required|integer|min:1|max:$maxValue|decimal:0",
             "duration_type" => "required|in:hour,day,today,month,year",

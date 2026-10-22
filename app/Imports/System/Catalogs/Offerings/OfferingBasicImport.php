@@ -146,7 +146,7 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
                 "required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/",
                 Rule::unique("items", "internal_code")->where("type", $this->type),
             ],
-            "name" => ["required", "string", "max:50"],
+            "name" => ["required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
             "price" => ["required", "numeric", "min:0.1"],
         ];

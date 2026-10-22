@@ -39,7 +39,7 @@ final class CatalogReferenceListExport extends DefaultValueBinder implements Fro
     public function headings(): array {
 
         return $this->type === "brands"
-            ? ["Código interno", "Marca", "Descripción", "Sitio oficial", "Estado"]
+            ? ["Código interno", "Marca", "Descripción", "Sitio oficial", "Productos activos", "Estado"]
             : ["Código interno", "Categoría", "Descripción", "Ítems activos", "Estado"];
 
     }
@@ -53,6 +53,7 @@ final class CatalogReferenceListExport extends DefaultValueBinder implements Fro
                 $record->name,
                 $record->description,
                 $record->website_url,
+                (int) $record->active_items_count,
                 $record->formatted_status,
             ];
 
@@ -70,7 +71,7 @@ final class CatalogReferenceListExport extends DefaultValueBinder implements Fro
 
     public function bindValue(Cell $cell, $value): bool {
 
-        $numericColumns = $this->type === "brands" ? [] : ["D"];
+        $numericColumns = $this->type === "brands" ? ["E"] : ["D"];
 
         if($cell->getRow() > 1 && !in_array($cell->getColumn(), $numericColumns, true)) {
 
@@ -86,9 +87,11 @@ final class CatalogReferenceListExport extends DefaultValueBinder implements Fro
 
     public function styles(Worksheet $sheet): array {
 
+        $lastColumn = $this->type === "brands" ? "F" : "E";
+
         $sheet->freezePane("A2");
-        $sheet->setAutoFilter("A1:E1");
-        $sheet->getStyle("A1:E1")->applyFromArray([
+        $sheet->setAutoFilter("A1:{$lastColumn}1");
+        $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray([
             "font" => ["bold" => true, "color" => ["rgb" => "FFFFFF"]],
             "fill" => ["fillType" => Fill::FILL_SOLID, "startColor" => ["rgb" => "1A1A35"]],
             "alignment" => ["horizontal" => Alignment::HORIZONTAL_CENTER],

@@ -21,6 +21,8 @@ test("toma física descarga plantilla y revisa el archivo antes de guardar", () 
     assert.doesNotMatch(page, /Completa Saldo contado en la plantilla\./);
     assert.match(inventoryStyles, /\.br-inventory-operation__template \{[\s\S]*?margin-bottom: 0\.45rem;/);
     assert.match(page, /this\.previewingOperation = true;\s*Alerts\.loading\(\{message: "Procesando plantilla"\}\);[\s\S]*?Requests\.post\([\s\S]*?Alerts\.close\(\)/);
+    assert.match(page, /async downloadOperationTemplate\(\) \{[\s\S]*?Alerts\.loading\(\{message: "Generando y descargando plantilla"\}\);[\s\S]*?Requests\.download\([\s\S]*?finally \{[\s\S]*?Alerts\.close\(\);/);
+    assert.match(page, /:busy="previewingOperation \|\| downloadingOperation"/);
     assert.match(picker, /br-template-file-picker__name[\s\S]*?Descargar plantilla[\s\S]*?aria-label="Subir plantilla"[\s\S]*?Subir plantilla/);
     assert.match(picker, /const file = event\.target\.files\?\.\[0\];[\s\S]*?event\.target\.value = "";[\s\S]*?\$emit\("select", file\)/);
     assert.doesNotMatch(page, /Archivo de toma física<\/label>/);

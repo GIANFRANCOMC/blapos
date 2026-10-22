@@ -31,6 +31,7 @@ Administra usuarios internos, perfiles, alcance operativo y seguridad de acceso 
 
 ## Reglas
 
+- El aprovisionamiento inicial carga 10 000 colaboradores desde database/seeders/data/04_usuarios_10000.csv. La copia versionada omite los hashes de origen: las cuentas se crean inactivas con contraseñas aleatorias nuevas y el rol demo-colaborador sin permisos. El DNI se valida a ocho dígitos y se completa con ceros a la izquierda si faltan. Antes de activarlas se debe asignar un perfil operativo y establecer una contraseña nueva.
 - El usuario pertenece al tenant actual. Los servicios pueden recibir el ID de la empresa raíz únicamente cuando consumen configuración o una de las cuatro relaciones estructurales.
 - El email debe ser único según la regla empresarial vigente.
 - La contraseña se guarda únicamente mediante hash.
