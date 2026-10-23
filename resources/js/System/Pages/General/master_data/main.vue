@@ -2,48 +2,29 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <section class="br-master-data">
-        <aside class="br-master-data__resources">
-            <button
-                v-for="resource in resources"
-                :key="resource.code"
-                type="button"
-                :class="['br-master-data-resource', {'is-active': selectedResourceCode === resource.code}]"
-                @click="selectResource(resource.code)">
-                <i :class="resource.icon" aria-hidden="true"></i>
-                <span>
-                    <strong>{{ resource.label }}</strong>
-                    <small>{{ resource.shortHelp }}</small>
-                </span>
-            </button>
-        </aside>
+        <CatalogFormTabs
+            :model-value="selectedResourceCode"
+            :tabs="resourceTabs"
+            id-prefix="master-data"
+            shared-controls-id="master-data-panel"
+            variant="descriptive"
+            label="Tipos de maestros internos"
+            @update:modelValue="selectResource"/>
 
-        <main class="br-master-data__workspace">
+        <main
+            id="master-data-panel"
+            class="br-master-data__workspace"
+            role="tabpanel"
+            :aria-labelledby="`master-data-tab-trigger-${selectedResourceCode}`">
             <header class="br-master-data__header">
                 <div>
-                    <p class="br-master-data__eyebrow">Configuración por empresa</p>
                     <h1>{{ selectedResource.label }}</h1>
                     <p>{{ selectedResource.help }}</p>
                 </div>
                 <button v-if="selectedResourceCode !== 'automatic'" type="button" class="br-btn br-btn-action-create" @click="startCreate">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                    <span>Nuevo registro</span>
+                    <span>Agregar {{ selectedResource.singular }}</span>
                 </button>
             </header>
-
-            <section class="br-master-data__impact">
-                <article>
-                    <span>Tipo</span>
-                    <strong>{{ selectedResource.typeLabel }}</strong>
-                </article>
-                <article>
-                    <span>Alcance</span>
-                    <strong>{{ selectedResource.scopeLabel }}</strong>
-                </article>
-                <article>
-                    <span>Impacto</span>
-                    <strong>{{ selectedResource.impact }}</strong>
-                </article>
-            </section>
 
             <section v-if="selectedResourceCode === 'automatic'" class="br-master-data-automatic" aria-label="Datos automáticos">
                 <div class="br-master-data__records-head">
@@ -54,7 +35,7 @@
                     <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                 </div>
                 <Loader v-if="loading"/>
-                <WithoutData v-else-if="filteredRecords.length === 0" type="image"/>
+                <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin datos automáticos" description="No hay datos que coincidan con la búsqueda."/>
                 <div v-else class="br-master-data-automatic__list">
                     <article v-for="record in filteredRecords" :key="record.code" class="br-master-data-automatic__item">
                         <div class="br-master-data-automatic__detail">
@@ -81,7 +62,7 @@
                     </div>
 
                     <Loader v-if="loading"/>
-                    <WithoutData v-else-if="filteredRecords.length === 0" type="image"/>
+                    <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin registros disponibles" description="Agrega un registro o prueba otra búsqueda."/>
                     <div v-else class="br-master-data-list">
                         <article
                             v-for="record in filteredRecords"
@@ -105,7 +86,6 @@
                 <section class="br-master-data-form">
                     <header>
                         <div>
-                            <p class="br-master-data__eyebrow">{{ isEditing ? "Edición" : "Nuevo" }}</p>
                             <h2>{{ isEditing ? recordTitle(form) : `Agregar ${selectedResource.singular}` }}</h2>
                         </div>
                         <button v-if="isEditing" type="button" class="br-btn br-btn-sm br-btn-cancel" @click="startCreate">
@@ -129,7 +109,7 @@
                                         :options="field.options"
                                         :clearable="false"
                                         :searchable="field.searchable ?? false"
-                                        class="bg-white">
+                                        :class="config.forms.classes.select2">
                                         <template #no-options>Sin opciones disponibles</template>
                                     </v-select>
                                 </template>
@@ -176,8 +156,8 @@
 
                     <footer>
                         <button type="button" class="br-btn br-btn-cancel" @click="startCreate">Cancelar</button>
-                        <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="saveRecord">
-                            <span>{{ saving ? "Guardando" : (isEditing ? "Guardar cambios" : "Agregar registro") }}</span>
+                        <button type="button" :class="['br-btn', isEditing ? 'br-btn-action-update' : 'br-btn-action-create']" :disabled="saving" @click="saveRecord">
+                            <span>{{ saving ? "Guardando..." : `Guardar ${selectedResource.singular.toLocaleLowerCase('es-PE')}` }}</span>
                         </button>
                     </footer>
                 </section>
@@ -191,6 +171,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const OPTION = {
@@ -353,7 +334,7 @@ const RESOURCES = [
 ];
 
 export default {
-    components: {SearchInput},
+    components: {CatalogFormTabs, SearchInput},
     data() {
         return {
             resources: RESOURCES,
@@ -385,6 +366,14 @@ export default {
         await this.loadRecords();
     },
     computed: {
+        resourceTabs() {
+            return this.resources.map(resource => ({
+                id: resource.code,
+                label: resource.label.toLocaleUpperCase("es-PE"),
+                description: resource.shortHelp,
+                icon: resource.icon
+            }));
+        },
         selectedResource() {
             return this.resources.find(resource => resource.code === this.selectedResourceCode) || this.resources[0];
         },

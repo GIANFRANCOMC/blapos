@@ -55,7 +55,7 @@
                             :disabled="submitDisabled"
                             @click="$emit('submit')">
                             <i v-if="submitButtonIcon" :class="submitButtonIcon" aria-hidden="true"></i>
-                            <span>{{ submitButtonText }}</span>
+                            <span>{{ resolvedSubmitButtonText }}</span>
                         </button>
                     </slot>
                 </div>
@@ -136,7 +136,7 @@ export default {
         },
         submitButtonText: {
             type: String,
-            default: "Guardar"
+            default: ""
         },
         submitButtonClass: {
             type: String,
@@ -148,6 +148,15 @@ export default {
         }
     },
     computed: {
+        resolvedSubmitButtonText() {
+
+            if(this.submitButtonText) return this.submitButtonText;
+
+            const entity = this.title.trim().match(/^(?:AGREGAR|EDITAR|CREAR|REGISTRAR)\s+(.+)$/i)?.[1];
+
+            return entity ? `Guardar ${entity.toLocaleLowerCase("es-PE")}` : "Guardar";
+
+        },
         titleId() {
             return `${this.modalId}-title`;
         }

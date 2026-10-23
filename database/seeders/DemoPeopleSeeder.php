@@ -165,20 +165,7 @@ final class DemoPeopleSeeder extends Seeder {
 
     private function seedCollaborators(int $adminId, int $documentTypeId, int $limit): void {
 
-        $roleId = (int) DB::table("roles")->where("slug", "demo-colaborador")->value("id");
-
-        if(!$roleId) {
-
-            $roleId = (int) DB::table("roles")->insertGetId([
-                "slug" => "demo-colaborador",
-                "name" => "Colaborador de prueba",
-                "is_full_access" => false,
-                "status" => "active",
-                "created_at" => now(),
-                "created_by" => $adminId,
-            ]);
-
-        }
+        $roleIds = app(AccessProfilesSeeder::class)->run($adminId);
 
         $path = __DIR__."/data/04_usuarios_10000.csv";
         $documents = [];
@@ -242,7 +229,7 @@ final class DemoPeopleSeeder extends Seeder {
             }
 
             $batch[] = $person + [
-                "role_id" => $roleId,
+                "role_id" => AccessProfilesSeeder::roleIdForEmail($email, $roleIds),
                 "branch_scope_mode" => "inherit",
                 "cash_register_scope_mode" => "inherit",
                 "warehouse_scope_mode" => "inherit",

@@ -149,7 +149,7 @@
                     <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" :class="['btn waves-effect', isAssign ? 'btn-warning' : 'btn-primary']" @click="assetInBranch()">
                         <i class="fa fa-save"></i>
-                        <span class="ms-2">Guardar</span>
+                        <span class="ms-2">Guardar activo</span>
                     </button>
                 </div>
             </div>
@@ -310,7 +310,7 @@
                     <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" :class="['btn waves-effect', 'btn-primary']" @click="assignToUser()">
                         <i class="fa fa-save"></i>
-                        <span class="ms-2">Guardar</span>
+                        <span class="ms-2">Guardar asignación</span>
                     </button>
                 </div>
             </div>

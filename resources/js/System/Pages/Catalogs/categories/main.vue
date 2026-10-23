@@ -63,13 +63,17 @@
                 </tr>
                 <template v-else-if="entityList.records.total > 0">
                     <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td>
-                            <div class="br-entity-identifier">
-                                <span class="br-entity-identifier__label">Código interno</span>
-                                <span class="br-entity-identifier__value">
-                                    <span class="br-entity-code" v-text="record.internal_code"></span>
-                                    <CopyButton :value="record.internal_code" label="Código interno"/>
-                                </span>
+                        <td class="br-entity-table__identification-cell">
+                            <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                <div class="br-entity-identifier">
+                                    <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                    <span class="br-entity-identifier__value">
+                                        <span class="br-entity-code" v-text="record.internal_code"></span>
+                                        <span class="br-entity-identifier__actions">
+                                            <CopyButton :value="record.internal_code" label="Código interno"/>
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         </td>
                         <td>
@@ -267,7 +271,7 @@ const TEXTS = {
     },
     modal: {
         close: "Cerrar",
-        save: "Guardar"
+        save: "Guardar categoría"
     }
 };
 

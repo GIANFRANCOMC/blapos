@@ -25,6 +25,7 @@ final class SystemNavigationSeeder extends Seeder {
         "assets_management.index",
         "biometric_devices.index",
         "user_attendances.index",
+        "business_profile.index",
     ];
 
     public function run(): void {
@@ -32,6 +33,8 @@ final class SystemNavigationSeeder extends Seeder {
         if(DB::table("sections")->exists() || DB::table("sub_sections")->exists()) {
 
             $this->consolidateCatalogMasters();
+            $this->consolidateConfigurationAccess();
+            $this->disableBusinessProfile();
 
             return;
 
@@ -71,8 +74,7 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Maestras", "order" => 2],
                 ["id" => 20, "section_id" => 7, "code" => "organization", "label" => "Organización", "order" => 1],
                 ["id" => 19, "section_id" => 7, "code" => "assets", "label" => "Activos", "order" => 2],
-                ["id" => 21, "section_id" => 7, "code" => "access", "label" => "Accesos", "order" => 3],
-                ["id" => 22, "section_id" => 7, "code" => "master_data", "label" => "Datos maestros", "order" => 4],
+                ["id" => 21, "section_id" => 7, "code" => "access", "label" => "Accesos y ajustes", "order" => 3],
                 ["id" => 23, "section_id" => 1, "code" => "personal_workspace", "label" => "Mi espacio", "order" => 1],
                 ["id" => 24, "section_id" => 1, "code" => "workspace_analysis", "label" => "Análisis", "order" => 2],
             ],
@@ -125,8 +127,8 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 62, "section_id" => 7, "menu_group_id" => 19, "order" => 2, "slug" => "sc_configuration-assets-management", "name" => "configuration-assets-management", "dom_id" => "menu-configuration-assets-management", "dom_label" => "Gestión de activos", "dom_route" => "assets_management.index", "description" => "Asigna, traslada y controla activos."],
                 ["id" => 63, "section_id" => 7, "menu_group_id" => 19, "order" => 3, "slug" => "sc_configuration-biometric-devices", "name" => "configuration-biometric-devices", "dom_id" => "menu-configuration-biometric-devices", "dom_label" => "Dispositivos biométricos", "dom_route" => "biometric_devices.index", "description" => "Configura dispositivos de control biométrico."],
                 ["id" => 72, "section_id" => 7, "menu_group_id" => 21, "order" => 1, "slug" => "sc_configuration-roles", "name" => "configuration-roles", "dom_id" => "menu-configuration-roles", "dom_label" => "Perfiles de acceso", "dom_route" => "roles.index", "description" => "Define perfiles, permisos y módulos."],
-                ["id" => 73, "section_id" => 7, "menu_group_id" => 22, "order" => 1, "slug" => "sc_configuration-master-data", "name" => "configuration-master-data", "dom_id" => "menu-configuration-master-data", "dom_label" => "Maestros internos", "dom_route" => "master_data.index", "description" => "Administra tributos, pagos y maestros internos."],
-                ["id" => 74, "section_id" => 7, "menu_group_id" => 22, "order" => 2, "slug" => "sc-configuration-business-profile", "name" => "configuration-business-profile", "dom_id" => "menu-configuration-business-profile", "dom_label" => "Rubro y módulos", "dom_route" => "business_profile.index", "description" => "Configura el rubro y módulos sugeridos."],
+                ["id" => 73, "section_id" => 7, "menu_group_id" => 21, "order" => 2, "slug" => "sc_configuration-master-data", "name" => "configuration-master-data", "dom_id" => "menu-configuration-master-data", "dom_label" => "Maestros internos", "dom_route" => "master_data.index", "description" => "Administra tributos, pagos y maestros internos."],
+                ["id" => 74, "section_id" => 7, "menu_group_id" => 21, "order" => 3, "slug" => "sc-configuration-business-profile", "name" => "configuration-business-profile", "dom_id" => "menu-configuration-business-profile", "dom_label" => "Rubro y módulos", "dom_route" => "business_profile.index", "description" => "Configura el rubro y módulos sugeridos."],
                 ["id" => 80, "section_id" => 1, "menu_group_id" => 24, "order" => 2, "slug" => "sc_reports", "name" => "reports", "dom_id" => "menu-reports", "dom_label" => "Reportes", "dom_route" => "reports.index", "description" => "Genera reportes para análisis operativo."],
             ],
         ];
@@ -185,6 +187,50 @@ final class SystemNavigationSeeder extends Seeder {
             }
 
         });
+
+    }
+
+    private function disableBusinessProfile(): void {
+
+        if(!Schema::hasTable("sub_sections")) return;
+
+        $moduleId = DB::table("sub_sections")
+            ->where("dom_route", "business_profile.index")
+            ->value("id");
+
+        if(!$moduleId) return;
+
+        $changed = DB::transaction(function() use ($moduleId): bool {
+
+            $now = now();
+            $changed = DB::table("sub_sections")
+                ->where("id", $moduleId)
+                ->where("is_enabled_by_default", true)
+                ->update(["is_enabled_by_default" => false, "updated_at" => $now]) > 0;
+
+            if(Schema::hasTable("companies_sub_sections")) {
+
+                $changed = DB::table("companies_sub_sections")
+                    ->where("sub_section_id", $moduleId)
+                    ->where("status", "active")
+                    ->update(["status" => "inactive", "updated_at" => $now]) > 0 || $changed;
+
+            }
+
+            if(Schema::hasTable("business_industry_module_sets")) {
+
+                $changed = DB::table("business_industry_module_sets")
+                    ->where("sub_section_id", $moduleId)
+                    ->where("is_enabled_by_default", true)
+                    ->update(["is_enabled_by_default" => false, "updated_at" => $now]) > 0 || $changed;
+
+            }
+
+            return $changed;
+
+        });
+
+        if($changed) CompanySectionService::clearTenantCache();
 
     }
 
@@ -269,6 +315,53 @@ final class SystemNavigationSeeder extends Seeder {
             CompanySectionService::clearTenantCache();
 
         }
+
+    }
+
+    private function consolidateConfigurationAccess(): void {
+
+        if(!Schema::hasTable("menu_groups") || !Schema::hasTable("sub_sections")) return;
+
+        $changed = DB::transaction(function(): bool {
+
+            $group = DB::table("menu_groups")->where("id", 21)->where("section_id", 7)->first();
+
+            if(!$group) return false;
+
+            $changed = DB::table("menu_groups")
+                ->where("id", 21)
+                ->where("name", "!=", "Accesos y ajustes")
+                ->update(["name" => "Accesos y ajustes", "updated_at" => now()]) > 0;
+
+            foreach([73 => 2, 74 => 3] as $id => $order) {
+
+                $updated = DB::table("sub_sections")
+                    ->where("id", $id)
+                    ->where("section_id", 7)
+                    ->where(function($query) use ($order): void {
+                        $query->where("menu_group_id", "!=", 21)->orWhere("order", "!=", $order);
+                    })
+                    ->update(["menu_group_id" => 21, "order" => $order, "updated_at" => now()]);
+
+                if(!$updated) continue;
+
+                $changed = true;
+
+                if(Schema::hasTable("companies_sub_sections")) {
+                    DB::table("companies_sub_sections")
+                        ->where("sub_section_id", $id)
+                        ->update(["sub_section_order" => NavigationOrder::item(3, $order), "updated_at" => now()]);
+                }
+
+            }
+
+            DB::table("menu_groups")->where("id", 22)->where("section_id", 7)->delete();
+
+            return $changed;
+
+        });
+
+        if($changed) CompanySectionService::clearTenantCache();
 
     }
 

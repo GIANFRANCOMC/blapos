@@ -8,9 +8,12 @@ test("colaboradores reutiliza tabla, menú y modal con pestañas sin perder acce
     const source = readFileSync(new URL("../../resources/js/System/Pages/Organizations/users/main.vue", import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: "users/main.vue"}).errors.length, 0);
-    assert.match(source, /class="table br-entity-table mb-0"/);
+    assert.match(source, /class="table br-entity-table br-entity-table--directory mb-0"/);
     assert.match(source, /class="br-users-list__stack"/);
-    assert.doesNotMatch(source, /br-users-profile-label|br-entity-code|<CopyButton/);
+    assert.doesNotMatch(source, /br-users-profile-label/);
+    assert.match(source, /<CopyButton :value="record.document_number" label="Número de documento"\/>/);
+    assert.match(source, /<CopyButton :value="record.email"/);
+    assert.match(source, /<CopyButton :value="record.phone_number"/);
     assert.match(source, /edit: "Editar colaborador"/);
     assert.match(source, /changePassword: "Cambiar contraseña"/);
     assert.match(source, /accessHistory: "Historial de acceso"/);
@@ -19,6 +22,7 @@ test("colaboradores reutiliza tabla, menú y modal con pestañas sin perder acce
     assert.match(source, /@click="openAuthenticationEvents\(record\)"/);
     assert.match(source, /<FormModal/);
     assert.match(source, /<CatalogFormTabs/);
+    assert.match(source, /variant="descriptive"/);
     assert.match(source, /<CatalogReferenceImportModal/);
     assert.match(source, /@download="downloadRecords"/);
     assert.match(source, /@import="openImportModal"/);

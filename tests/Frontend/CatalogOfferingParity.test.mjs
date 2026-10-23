@@ -24,6 +24,7 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
 
     const product = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
+    const copyStyles = readFileSync(new URL("../../resources/css/System/br-branding/40-buttons-quick-create.css", import.meta.url), "utf8");
 
     assert.equal(parse(product, {filename: "products/main.vue"}).errors.length, 0);
     assert.match(product, /br-entity-identifiers br-entity-identifiers--plain/);
@@ -38,10 +39,10 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?font-size: 0\.67rem/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__value \{\s*display: flex;\s*align-items: baseline/);
     assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[\s\S]*?font-size: 0\.76rem/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button \{[\s\S]*?color: var\(--br-primary-active\)/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-copy-button:is\(:hover, :focus-visible\) i \{[\s\S]*?filter: brightness\(0\.78\)/);
+    assert.match(copyStyles, /\.br-copy-button \{[^}]*width: 1\.25rem;[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--br-primary-active\)/);
+    assert.match(copyStyles, /\.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
+    assert.match(copyStyles, /\.br-copy-button:is\(:hover, :focus-visible\) i \{\s*filter: brightness\(0\.78\)/);
+    assert.doesNotMatch(branding, /\.br-entity-identifiers--plain \.br-copy-button/);
 
 });
 

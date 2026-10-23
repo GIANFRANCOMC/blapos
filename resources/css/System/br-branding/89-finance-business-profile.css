@@ -103,6 +103,16 @@
   min-width: 15rem;
 }
 
+.br-business-profile__industry-field {
+  display: grid;
+  min-width: min(18rem, 100%);
+  gap: 0.2rem;
+}
+
+.br-business-profile__industry-field .form-label {
+  margin: 0;
+}
+
 .br-business-profile__modules > header,
 .br-business-profile__modules > footer {
   display: flex;

@@ -483,7 +483,7 @@
                                                 class="br-btn br-btn-action-create"
                                                 :disabled="savingTransfer || !transferForm.source?.code || !transferForm.destination?.code"
                                                 @click="saveTransfer">
-                                                Guardar
+                                                Guardar traslado
                                             </button>
                                         </div>
                                     </div>
@@ -867,7 +867,7 @@
                             class="br-btn br-btn-action-create"
                             :disabled="savingMovement || confirmingMovement || previewingOperation || !movementForm.warehouse?.code"
                             @click="saveMovement">
-                            Guardar
+                            Guardar operación
                         </button>
                     </div>
                 </div>

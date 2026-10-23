@@ -555,7 +555,7 @@
         :title="isRestaurant ? 'ABRIR MESA' : 'INICIAR ATENCIÓN'"
         modal-size="modal-lg"
         :submit-disabled="saving || !selectedBranch"
-        :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar'"
+        :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar atención'"
         @submit="saveSession">
         <template #body>
             <div class="row g-3">

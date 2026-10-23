@@ -28,6 +28,11 @@ for(const entity of ["brands", "categories"]) {
         assert.doesNotMatch(source, /template-route|importTemplate|import-template/);
         assert.match(source, /class="br-entity-empty-state"/);
         assert.doesNotMatch(source, /btn-header-modal|table table-hover|btn btn-xs btn-warning/);
+        assert.match(source, /<thead class="br-table-header-surface">\s*<tr>\s*<th>Identificación<\/th>/);
+        assert.match(source, /<tr v-for="record in entityList\.records\.data" :key="record\.id">\s*<td class="br-entity-table__identification-cell">/);
+        assert.match(source, /br-entity-identifiers br-entity-identifiers--plain/);
+        assert.match(source, /br-entity-identifier__label colon-at-end">Cód\. interno<\/span>/);
+        assert.match(source, /br-entity-identifier__actions[\s\S]*?<CopyButton :value="record\.internal_code" label="Código interno"\/>/);
 
     });
 

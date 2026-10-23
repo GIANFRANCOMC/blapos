@@ -239,7 +239,6 @@ body > .vs__dropdown-menu .vs__dropdown-option {
   box-shadow: 0 4px 10px color-mix(in srgb, var(--br-primary) 22%, transparent);
 }
 
-.br-copy-button,
 .br-barcode-download {
   width: 1.86rem;
   min-width: 1.86rem;

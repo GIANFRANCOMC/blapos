@@ -18,6 +18,8 @@ import Loader         from "@System/Components/Loader.vue";
 import WithoutData    from "@System/Components/WithoutData.vue";
 import FiltersSection from "@System/Components/Generics/FiltersSection.vue";
 import StatusBadge    from "@System/Components/Generics/StatusBadge.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import CopyButton     from "@System/Components/CopyButton.vue";
 
 // App creation and mounted
 createApp(App)
@@ -35,4 +37,6 @@ createApp(App)
 .component("WithoutData", WithoutData)
 .component("FiltersSection", FiltersSection)
 .component("StatusBadge", StatusBadge)
+.component("TableActionsDropdown", TableActionsDropdown)
+.component("CopyButton", CopyButton)
 .mount("#app");

@@ -275,7 +275,6 @@
             </div>
             <footer v-if="hasRecord" class="br-company-settings__footer">
                 <button type="button" class="br-btn br-btn-primary" @click="saveEntity" :disabled="isSaving">
-                    <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
                     <span v-text="isSaving ? 'Guardando...' : MODULE.texts.actions.save"></span>
                 </button>
             </footer>
@@ -380,7 +379,7 @@ const TEXTS = {
         searchDocumentTooltip: "Buscar N° documento"
     },
     actions: {
-        save: "Guardar"
+        save: "Guardar información"
     }
 };
 

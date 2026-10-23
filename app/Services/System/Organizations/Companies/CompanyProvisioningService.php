@@ -6,6 +6,7 @@ namespace App\Services\System\Organizations\Companies;
 
 use App\Helpers\System\{Utilities};
 use App\Services\System\Tenancy\{TenantCompanyContext};
+use Database\Seeders\AccessProfilesSeeder;
 use Illuminate\Support\Facades\{DB, Hash, Schema};
 use RuntimeException;
 
@@ -67,6 +68,7 @@ final class CompanyProvisioningService {
             if($enableModules) {
 
                 $this->ensureAdminRole();
+                app(AccessProfilesSeeder::class)->run();
 
             }
 
@@ -394,12 +396,12 @@ final class CompanyProvisioningService {
             ->whereIn("slug", array_keys($profiles))
             ->pluck("id", "slug");
 
-        $subSectionIds = DB::table("sub_sections")
+        $subSections = DB::table("sub_sections")
             ->where("status", "active")
-            ->pluck("id");
+            ->get(["id", "is_enabled_by_default"]);
 
         $moduleSetRecords = collect($profiles)
-            ->flatMap(function($profile, $slug) use ($industries, $subSectionIds, $now) {
+            ->flatMap(function($profile, $slug) use ($industries, $subSections, $now) {
 
                 $industryId = (int) ($industries[$slug] ?? 0);
 
@@ -409,10 +411,10 @@ final class CompanyProvisioningService {
 
                 }
 
-                return $subSectionIds->map(fn($subSectionId) => [
+                return $subSections->map(fn($subSection) => [
                     "business_industry_id" => $industryId,
-                    "sub_section_id" => (int) $subSectionId,
-                    "is_enabled_by_default" => true,
+                    "sub_section_id" => (int) $subSection->id,
+                    "is_enabled_by_default" => (bool) $subSection->is_enabled_by_default,
                     "reason" => "Módulo disponible para el rubro {$profile["name"]}.",
                     "status" => "active",
                     "updated_at" => $now,

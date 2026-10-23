@@ -364,18 +364,19 @@
   }
 }
 
-.br-btn-action-update {
-  border-color: var(--br-secondary);
-  background: var(--br-secondary);
-  color: var(--br-on-secondary);
+.br-btn.br-btn-action-update {
+  border-color: var(--br-warning);
+  background: var(--br-warning);
+  color: var(--br-white);
   box-shadow: var(--br-shadow-sm);
 }
 
-.br-btn-action-update:hover,
-.br-btn-action-update:focus-visible {
-  border-color: var(--br-secondary-hover);
-  background: var(--br-secondary-hover);
-  color: var(--br-on-secondary);
+.br-btn.br-btn-action-update:hover,
+.br-btn.br-btn-action-update:focus-visible,
+.br-btn.br-btn-action-update:active {
+  border-color: var(--br-warning-hover);
+  background: var(--br-warning-hover);
+  color: var(--br-white);
 }
 
 .br-btn.br-btn-action-edit {
@@ -388,6 +389,20 @@
 .br-btn.br-btn-action-edit:hover,
 .br-btn.br-btn-action-edit:focus-visible,
 .br-btn.br-btn-action-edit:active {
+  border-color: var(--br-warning-hover);
+  background: var(--br-warning-hover);
+  color: var(--br-white);
+}
+
+.br-layout .btn-warning {
+  border-color: var(--br-warning);
+  background: var(--br-warning);
+  color: var(--br-white);
+}
+
+.br-layout .btn-warning:hover,
+.br-layout .btn-warning:focus-visible,
+.br-layout .btn-warning:active {
   border-color: var(--br-warning-hover);
   background: var(--br-warning-hover);
   color: var(--br-white);
@@ -491,7 +506,6 @@
   color: var(--br-secondary-active);
 }
 
-.br-copy-button,
 .br-barcode-download-button {
   display: inline-grid;
   flex: 0 0 auto;
@@ -507,8 +521,6 @@
   transition: var(--br-transition);
 }
 
-.br-copy-button:hover,
-.br-copy-button:focus-visible,
 .br-barcode-download-button:hover,
 .br-barcode-download-button:focus-visible {
   border-color: color-mix(in srgb, var(--br-primary) 36%, var(--br-border));
@@ -528,6 +540,48 @@
   border-color: color-mix(in srgb, var(--br-primary) 45%, var(--br-secondary));
   background: color-mix(in srgb, var(--br-primary-soft) 58%, var(--br-surface-elevated));
   color: var(--br-primary-active);
+}
+
+.br-copy-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.25rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  min-height: 1.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--br-radius-sm);
+  background: transparent;
+  box-shadow: none;
+  color: var(--br-primary-active);
+  font-size: 0.76rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.br-copy-button i {
+  transform: translateY(0.12em);
+  transition: filter 0.14s ease;
+}
+
+.br-copy-button:hover,
+.br-copy-button:focus-visible {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--br-primary-active);
+  transform: none;
+}
+
+.br-copy-button:focus-visible {
+  outline: 2px solid var(--br-primary);
+  outline-offset: 1px;
+}
+
+.br-copy-button:is(:hover, :focus-visible) i {
+  filter: brightness(0.78);
 }
 
 .br-copy-button:disabled,

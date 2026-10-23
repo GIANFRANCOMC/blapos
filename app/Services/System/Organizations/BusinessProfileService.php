@@ -17,7 +17,6 @@ final class BusinessProfileService {
         "workspace.index",
         "home.index",
         "account.index",
-        "business_profile.index",
     ];
 
     public static function industries() {

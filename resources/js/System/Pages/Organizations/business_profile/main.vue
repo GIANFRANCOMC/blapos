@@ -4,7 +4,6 @@
     <section class="br-business-profile">
         <header class="br-module-heading">
             <div>
-                <span class="br-module-heading__eyebrow">Configuración empresarial</span>
                 <h1>Rubro y módulos</h1>
                 <p>Parte de una configuración sugerida y ajusta las funciones que estarán disponibles para la empresa.</p>
             </div>
@@ -16,12 +15,14 @@
                 <p>Aplicar un rubro reemplaza la selección actual por su conjunto recomendado.</p>
             </div>
             <div class="br-business-profile__industry-action">
-                <select v-model="selectedIndustryId" class="form-select">
-                    <option :value="null">Selecciona un rubro</option>
-                    <option v-for="industry in industries" :key="industry.id" :value="industry.id">{{ industry.name }}</option>
-                </select>
-                <button type="button" class="br-btn br-btn-action-update" :disabled="!selectedIndustryId || saving" @click="applyIndustry">
-                    <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                <label class="br-business-profile__industry-field">
+                    <span class="form-label colon-at-end">Rubro</span>
+                    <select v-model="selectedIndustryId" class="form-select" :disabled="loading || saving">
+                        <option :value="null">Selecciona un rubro</option>
+                        <option v-for="industry in industries" :key="industry.id" :value="industry.id">{{ industry.name }}</option>
+                    </select>
+                </label>
+                <button type="button" class="br-btn br-btn-action-update" :disabled="loading || !selectedIndustryId || saving" @click="applyIndustry">
                     <span>Aplicar rubro</span>
                 </button>
             </div>
@@ -34,12 +35,13 @@
                     <p>{{ enabledIds.length }} de {{ modules.length }} funciones activas.</p>
                 </div>
                 <div class="br-business-profile__bulk">
-                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="selectAll">Activar todas</button>
-                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="clearOptional">Limpiar opcionales</button>
+                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading || saving" @click="selectAll">Activar todas</button>
+                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading || saving" @click="clearOptional">Limpiar opcionales</button>
                 </div>
             </header>
 
-            <div v-if="loading" class="br-loading-state">Cargando módulos...</div>
+            <div v-if="loading" class="br-loading-state"><Loader/></div>
+            <WithoutData v-else-if="modules.length === 0" type="image" text="Sin módulos disponibles" description="No hay funciones configuradas para esta empresa."/>
             <div v-else class="br-business-profile__groups">
                 <article v-for="group in moduleGroups" :key="group.id" class="br-business-profile__group">
                     <div class="br-business-profile__group-head">
@@ -57,10 +59,9 @@
             </div>
 
             <footer>
-                <span>Los accesos esenciales de Mi espacio y esta configuración permanecen activos.</span>
-                <button type="button" class="br-btn br-btn-primary" :disabled="saving" @click="saveModules">
-                    <i class="fa-solid fa-check" aria-hidden="true"></i>
-                    <span>Guardar módulos</span>
+                <span>Los accesos esenciales de Mi espacio permanecen activos.</span>
+                <button type="button" class="br-btn br-btn-primary" :disabled="loading || modules.length === 0 || saving" @click="saveModules">
+                    <span>{{ saving ? 'Guardando...' : 'Guardar módulos' }}</span>
                 </button>
             </footer>
         </section>
@@ -72,7 +73,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
-const PROTECTED_ROUTES = ["workspace.index", "home.index", "account.index", "business_profile.index"];
+const PROTECTED_ROUTES = ["workspace.index", "home.index", "account.index"];
 
 export default {
     data() {

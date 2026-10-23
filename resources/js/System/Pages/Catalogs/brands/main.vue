@@ -40,8 +40,8 @@
             <div class="table-responsive">
                 <table class="table br-entity-table mb-0">
                     <colgroup>
-                        <col style="width: 26%;">
                         <col style="width: 20%;">
+                        <col style="width: 26%;">
                         <col style="width: 19%;">
                         <col style="width: 16%;">
                         <col style="width: 11%;">
@@ -49,8 +49,8 @@
                     </colgroup>
                     <thead class="br-table-header-surface">
                         <tr>
-                            <th>Marca</th>
                             <th>Identificación</th>
+                            <th>Marca</th>
                             <th>Sitio oficial</th>
                             <th class="text-center">Uso actual</th>
                             <th class="text-center">Estado</th>
@@ -63,6 +63,19 @@
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
+                                <td class="br-entity-table__identification-cell">
+                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                        <div class="br-entity-identifier">
+                                            <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                            <span class="br-entity-identifier__value">
+                                                <span class="br-entity-code" v-text="record.internal_code"></span>
+                                                <span class="br-entity-identifier__actions">
+                                                    <CopyButton :value="record.internal_code" label="Código interno"/>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>
                                     <span class="br-entity-table__name" v-text="record.name"></span>
                                     <span
@@ -70,15 +83,6 @@
                                         class="br-entity-table__description"
                                         v-text="record.description">
                                     </span>
-                                </td>
-                                <td>
-                                    <div class="br-entity-identifier">
-                                        <span class="br-entity-identifier__label">Código interno</span>
-                                        <span class="br-entity-identifier__value">
-                                            <span class="br-entity-code" v-text="record.internal_code"></span>
-                                            <CopyButton :value="record.internal_code" label="Código interno"/>
-                                        </span>
-                                    </div>
                                 </td>
                                 <td>
                                     <a

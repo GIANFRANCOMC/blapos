@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Database\Seeders\DemoPeopleSeeder;
+use Database\Seeders\{AccessProfilesSeeder, DemoPeopleSeeder};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\ProvisionsSystemDatabase;
@@ -20,6 +20,17 @@ final class DemoPeopleSeederTest extends TestCase {
         $this->provisionSystemDatabase();
         $seeder = app(DemoPeopleSeeder::class);
         $adminId = (int) DB::table("users")->where("email", "admin@example.test")->value("id");
+        $profileGroups = (new \ReflectionClass(AccessProfilesSeeder::class))
+            ->getReflectionConstant("PROFILE_PERMISSIONS")
+            ->getValue();
+        $routes = array_unique(array_merge(...array_map(
+            fn(array $groups): array => array_merge(...array_column($groups, "routes")),
+            array_values($profileGroups)
+        )));
+        $this->assertSame([], array_values(array_diff(
+            $routes,
+            DB::table("sub_sections")->pluck("dom_route")->all()
+        )));
 
         $seeder->run(25, 25);
 
@@ -38,14 +49,44 @@ final class DemoPeopleSeederTest extends TestCase {
             "document_number" => "50000000",
             "email" => "cliente00001@example.test",
         ]);
-        $this->assertDatabaseHas("roles", [
-            "slug" => "demo-colaborador",
-            "is_full_access" => false,
-        ]);
+        $profileIds = DB::table("roles")
+            ->whereIn("slug", ["vendedor", "compras", "gestion", "auditoria", "contador"])
+            ->pluck("id", "slug");
+        $this->assertCount(5, $profileIds);
+        $this->assertDatabaseMissing("roles", ["slug" => "demo-colaborador"]);
+        $this->assertSame(5, DB::table("users")
+            ->where("email", "like", "usuario%@example.test")
+            ->distinct()
+            ->count("role_id"));
+        $this->assertSame(0, DB::table("roles")
+            ->whereIn("id", $profileIds->values())
+            ->where("is_full_access", true)
+            ->count());
+        foreach($profileIds as $roleId) {
+
+            $this->assertGreaterThan(0, DB::table("role_sub_sections")->where("role_id", $roleId)->count());
+
+        }
+        $auditorRoleId = $profileIds["auditoria"];
+        $auditorSalesActions = DB::table("role_sub_sections")
+            ->where("role_id", $auditorRoleId)
+            ->where("sub_section_id", DB::table("sub_sections")->where("dom_route", "sales.index")->value("id"))
+            ->value("actions");
+        $this->assertSame(["view", "export"], json_decode($auditorSalesActions, true));
         $this->assertSame(25, DB::table("users")
             ->where("email", "like", "usuario%@example.test")
             ->distinct()
             ->count("password"));
+
+        $legacyRoleId = DB::table("roles")->insertGetId([
+            "slug" => "demo-colaborador",
+            "name" => "Colaborador de prueba",
+            "is_full_access" => false,
+            "status" => "active",
+        ]);
+        DB::table("users")
+            ->where("email", "usuario00001@example.test")
+            ->update(["role_id" => $legacyRoleId]);
 
         $seeder->run(25, 25);
 
@@ -59,6 +100,13 @@ final class DemoPeopleSeederTest extends TestCase {
             "email" => "admin@example.test",
             "status" => "active",
         ]);
+        $this->assertSame(5, DB::table("roles")
+            ->whereIn("slug", ["vendedor", "compras", "gestion", "auditoria", "contador"])
+            ->count());
+        $this->assertDatabaseMissing("roles", ["id" => $legacyRoleId]);
+        $this->assertNotEquals($legacyRoleId, DB::table("users")
+            ->where("email", "usuario00001@example.test")
+            ->value("role_id"));
 
     }
 

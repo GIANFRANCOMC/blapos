@@ -130,6 +130,7 @@
                         <i v-if="downloadButtonClass !== 'br-btn-search'" :class="downloadButtonIcon" aria-hidden="true"></i>
                         <span class="br-btn-action-export__label" v-text="downloadButtonText"></span>
                     </button>
+                    <slot name="secondaryActions"></slot>
                 </template>
             </InputSlot>
         </div>

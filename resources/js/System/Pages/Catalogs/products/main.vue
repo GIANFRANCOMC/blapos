@@ -44,8 +44,8 @@
             <div class="table-responsive">
                 <table class="table br-entity-table mb-0">
                     <colgroup>
-                        <col class="br-entity-table__col-product">
                         <col class="br-entity-table__col-identification">
+                        <col class="br-entity-table__col-product">
                         <col class="br-entity-table__col-price">
                         <col class="br-entity-table__col-inventory">
                         <col class="br-entity-table__col-status">
@@ -53,8 +53,8 @@
                     </colgroup>
                     <thead class="br-table-header-surface">
                         <tr>
+                            <th>Identificación</th>
                             <th class="text-center">Producto</th>
-                            <th class="text-center">Identificación</th>
                             <th class="text-end">Precio</th>
                             <th>Inventario</th>
                             <th class="text-center">Estado</th>
@@ -71,22 +71,6 @@
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
-                                <td>
-                                    <span class="br-entity-table__name" v-text="record.name"></span>
-                                    <span v-if="record.brand" class="br-entity-table__attribute">
-                                        <span
-                                            class="br-entity-table__attribute-icon"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Marca"
-                                            aria-label="Marca"
-                                            tabindex="0">
-                                            <i class="fa-solid fa-tag" aria-hidden="true"></i>
-                                        </span>
-                                        <strong v-text="record.brand.name"></strong>
-                                    </span>
-                                    <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
-                                </td>
                                 <td class="br-entity-table__identification-cell">
                                     <div class="br-entity-identifiers br-entity-identifiers--plain">
                                         <div class="br-entity-identifier">
@@ -116,6 +100,22 @@
                                             </span>
                                         </div>
                                     </div>
+                                </td>
+                                <td>
+                                    <span class="br-entity-table__name" v-text="record.name"></span>
+                                    <span v-if="record.brand" class="br-entity-table__attribute">
+                                        <span
+                                            class="br-entity-table__attribute-icon"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Marca"
+                                            aria-label="Marca"
+                                            tabindex="0">
+                                            <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                                        </span>
+                                        <strong v-text="record.brand.name"></strong>
+                                    </span>
+                                    <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
                                 </td>
                                 <td class="text-end">
                                     <div class="br-entity-prices">

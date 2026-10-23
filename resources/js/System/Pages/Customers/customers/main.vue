@@ -40,16 +40,18 @@
 
     <section class="br-entity-list" aria-label="Listado de clientes">
         <div class="table-responsive">
-            <table class="table br-entity-table mb-0">
+            <table class="table br-entity-table br-entity-table--directory mb-0">
                 <colgroup>
-                    <col style="width: 32%;">
-                    <col style="width: 27%;">
-                    <col style="width: 24%;">
+                    <col style="width: 20%;">
+                    <col style="width: 23%;">
+                    <col style="width: 23%;">
+                    <col style="width: 17%;">
                     <col style="width: 10%;">
                     <col style="width: 7%;">
                 </colgroup>
                 <thead class="br-table-header-surface">
                     <tr>
+                        <th>Identificación</th>
                         <th>Cliente</th>
                         <th>Contacto</th>
                         <th>Datos adicionales</th>
@@ -59,20 +61,28 @@
                 </thead>
                 <tbody>
                     <tr v-if="entityList.extras.loading">
-                        <td colspan="5" class="py-4"><Loader/></td>
+                        <td colspan="6" class="py-4"><Loader/></td>
                     </tr>
                     <template v-else-if="entityList.records.total > 0">
                         <tr v-for="record in entityList.records.data" :key="record.id">
+                            <td class="br-entity-table__identification-cell">
+                                <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                    <div class="br-entity-identifier">
+                                        <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
+                                        <span class="br-entity-identifier__value">
+                                            <span class="br-entity-code" v-text="record.document_number || '—'"></span>
+                                            <span v-if="record.document_number" class="br-entity-identifier__actions">
+                                                <CopyButton :value="record.document_number" label="Número de documento"/>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
                             <td>
                                 <div class="br-entity-person__identity">
                                     <span class="br-entity-person__avatar" aria-hidden="true" v-text="record.name?.trim()?.charAt(0)?.toUpperCase() || 'C'"></span>
                                     <div class="br-entity-person__details">
                                         <span class="br-entity-table__name" v-text="record.name"></span>
-                                        <span class="br-entity-person__document">
-                                            <span class="br-entity-table__meta" v-text="record.identity_document_type?.name || 'Documento'"></span>
-                                            <span class="br-entity-code" v-text="record.document_number"></span>
-                                            <CopyButton :value="record.document_number" label="Número de documento"/>
-                                        </span>
                                     </div>
                                 </div>
                             </td>
@@ -113,7 +123,7 @@
                         </tr>
                     </template>
                     <tr v-else>
-                        <td colspan="5" class="py-4">
+                        <td colspan="6" class="py-4">
                             <WithoutData
                                 class="br-entity-empty-state"
                                 type="image"

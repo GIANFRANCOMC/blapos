@@ -18,12 +18,13 @@
         @add="openModal()"/>
 
     <div class="list-section mb-2 table-responsive">
-        <table class="table table-hover br-entity-table mb-0">
-            <thead>
+        <table class="table table-hover br-entity-table br-entity-table--directory mb-0">
+            <thead class="br-table-header-surface">
                 <tr>
-                    <th style="width: 36%;">Platillo</th>
-                    <th style="width: 24%;">Fórmula</th>
-                    <th style="width: 24%;">Operación</th>
+                    <th style="width: 23%;">Identificación</th>
+                    <th style="width: 25%;">Platillo</th>
+                    <th style="width: 20%;">Fórmula</th>
+                    <th style="width: 16%;">Operación</th>
                     <th class="text-center" style="width: 8%;">Estado</th>
                     <th class="text-center" style="width: 8%;">
                         <span class="visually-hidden">Acciones</span>
@@ -32,16 +33,34 @@
             </thead>
             <tbody>
                 <tr v-if="loading">
-                    <td colspan="99"><Loader/></td>
+                    <td colspan="6"><Loader/></td>
                 </tr>
                 <template v-else-if="records.total > 0">
                     <tr v-for="record in records.data" :key="record.id">
+                        <td class="br-entity-table__identification-cell">
+                            <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                <div class="br-entity-identifier">
+                                    <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                    <span class="br-entity-identifier__value">
+                                        <span class="br-entity-code" v-text="record.item?.internal_code || '—'"></span>
+                                        <span v-if="record.item?.internal_code" class="br-entity-identifier__actions">
+                                            <CopyButton :value="record.item.internal_code" label="Código interno"/>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div v-if="record.item?.barcode" class="br-entity-identifier">
+                                    <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
+                                    <span class="br-entity-identifier__value">
+                                        <span class="br-entity-barcode" v-text="record.item.barcode"></span>
+                                        <span class="br-entity-identifier__actions">
+                                            <CopyButton :value="record.item.barcode" label="Código de barras"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
                         <td>
                             <strong class="d-block">{{ record.item?.name }}</strong>
-                            <small class="text-muted d-block">
-                                Cód. interno {{ record.item?.internal_code || "-" }}
-                                <template v-if="record.item?.barcode"> · Cód. barras {{ record.item.barcode }}</template>
-                            </small>
                         </td>
                         <td>
                             <span class="br-recipe-pill">{{ record.components_count }} insumos</span>
@@ -70,7 +89,7 @@
                     </tr>
                 </template>
                 <tr v-else>
-                    <td colspan="99"><WithoutData type="image"/></td>
+                    <td colspan="6"><WithoutData type="image"/></td>
                 </tr>
             </tbody>
         </table>
@@ -306,6 +325,7 @@
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
+import CopyButton from "@System/Components/CopyButton.vue";
 
 const CONFIG = {
     entity: "recipes",
@@ -327,6 +347,7 @@ const emptyForm = () => ({
 const uid = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default {
+    components: {CopyButton},
     data() {
         return {
             breadcrumbTitles: [{title: "Catálogo comercial"}, {title: "Recetas y platillos"}],

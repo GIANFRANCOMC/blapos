@@ -73,6 +73,13 @@ Orden de carga recomendado:
 - `br-branding.css`.
 - CSS especializado de pantalla, por ejemplo `br-login.css`, siempre después de `br-branding.css`.
 
+### Acciones y modales de edición
+
+- Crear o agregar usa `br-btn-action-create` en azul primario. Editar usa `br-btn-action-update` o `br-btn-action-edit` en amarillo de advertencia con texto blanco. La distinción debe mantenerse también en hover, foco y estado activo; no resolverla con colores locales del módulo.
+- El botón principal de una modal debe nombrar el objeto que se guarda: «Guardar producto», «Guardar colaborador», «Guardar sucursal», etc. `FormModal` deriva el nombre de los títulos «AGREGAR…» y «EDITAR…» cuando no recibe `submitButtonText`; las acciones especiales pueden indicar el texto explícitamente.
+- Los listados usan acciones secundarias en el menú compartido y el botón de copiar se muestra como icono primario sin recuadro mediante el componente `CopyButton`.
+- Mantener la lectura de permisos como información tabular: nombre y contexto en una sola celda; módulos, colaboradores y estado en columnas separadas. En la edición, agrupar permisos por sección con divisores discretos y mostrar las acciones sin tarjetas anidadas.
+
 Los layouts deben declarar `data-assets-path` con una URL absoluta generada por Laravel, por ejemplo `{{ asset('System/assets') }}/`. Los scripts heredados de la plantilla (`helpers.js`, `template-customizer.js`, `config.js`, `main.js` y vistas demo que usen `assetsPath`) dependen de ese atributo para cargar CSS dinámico, imágenes y JSON. `config.js` normaliza cualquier valor relativo antiguo, pero no se deben volver a introducir rutas como `../System/assets/` porque fallan en páginas profundas.
 
 Los CSS públicos de System se generan desde parciales en `resources/css/System`. Editar los parciales y ejecutar `npm run build:css:system`; no editar directamente `public/System/assets/css/br-branding.css`, `br-login.css` ni `demo.css`.

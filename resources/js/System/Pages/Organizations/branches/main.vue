@@ -1,24 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-config-scope-grid">
-        <article class="br-config-scope-card">
-            <span>Fiscal</span>
-            <strong>Series y documento</strong>
-            <p>Identifica la sede que emite comprobantes y usa correlativos propios.</p>
-        </article>
-        <article class="br-config-scope-card">
-            <span>Pública</span>
-            <strong>Ubicación y contacto</strong>
-            <p>Dirección, referencia, teléfono, correo y mapa visible para clientes.</p>
-        </article>
-        <article class="br-config-scope-card">
-            <span>Operativa</span>
-            <strong>Capacidad y estado</strong>
-            <p>Define disponibilidad de la sede para ventas, caja, almacenes y reportes.</p>
-        </article>
-    </section>
-
     <!-- Filters -->
     <FiltersSection
         :filter-by-value="filterByValue"
@@ -36,30 +18,30 @@
         :title-class="[config.forms.classes.title]"
         :select-class="config.forms.classes.select2"
         @search="handleSearch"
-        @add="openModal()"/>
-
-    <section class="br-branch-audit-toolbar">
-        <button
-            type="button"
-            class="br-btn br-btn-sm br-btn-action-export"
-            data-bs-toggle="tooltip"
-            title="Auditar correlativos emitidos y anulados"
-            @click="toggleSeriesAudit">
-            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            <span>Auditoría de series</span>
-        </button>
-        <button
-            v-if="seriesAudit.visible"
-            type="button"
-            class="br-btn br-btn-sm br-btn-action-download"
-            data-bs-toggle="tooltip"
-            title="Descargar auditoría de correlativos"
-            :disabled="seriesAudit.loading"
-            @click="downloadSeriesAudit">
-            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-            <span class="d-inline d-lg-none">Descargar</span>
-        </button>
-    </section>
+        @add="openModal()">
+        <template #secondaryActions>
+            <div class="dropdown">
+                <button type="button" class="br-btn br-btn-sm br-btn-actions" data-bs-toggle="dropdown" aria-expanded="false" :disabled="entityList.extras.loading">
+                    Acciones
+                    <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                    <li>
+                        <button type="button" class="dropdown-item" @click="toggleSeriesAudit">
+                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                            <span>{{ seriesAudit.visible ? 'Ocultar auditoría de series' : 'Auditoría de series' }}</span>
+                        </button>
+                    </li>
+                    <li v-if="seriesAudit.visible">
+                        <button type="button" class="dropdown-item" :disabled="seriesAudit.loading" @click="downloadSeriesAudit">
+                            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                            <span>Descargar auditoría</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </template>
+    </FiltersSection>
 
     <section v-if="seriesAudit.visible" class="br-entity-list br-branch-series-audit">
         <div class="br-branch-series-audit__summary">
@@ -105,48 +87,90 @@
             </table>
             <Paginator :links="seriesAudit.records.links" @clickPage="loadSeriesAudit"/>
         </div>
-        <WithoutData v-else type="image"/>
+        <WithoutData v-else type="image" text="Sin movimientos de series" description="No se registran emisiones ni anulaciones con los filtros actuales."/>
     </section>
 
     <!-- Records -->
-    <div class="list-section mb-1 mb-md-1">
-        <Loader v-if="entityList.extras.loading"/>
-        <WithoutData v-else-if="entityList.records.total === 0" type="image"/>
-        <div v-else-if="entityList.records.total > 0" class="row g-3 g-lg-4">
-            <div v-for="record in entityList.records.data" :key="record.id" class="col-12 col-md-6 col-xl-4">
-                <div class="card card-list-custom border-0 shadow-sm h-100">
-                    <div class="card-header">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
-                            <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
-                                <span class="text-muted small fw-semibold mb-1" v-text="record.internal_code"></span>
-                                <span class="fs-5 fw-bold text-dark text-truncate" v-text="record.name"></span>
-                            </div>
-                            <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-column gap-2">
-                            <div v-for="field in getCardFields(record)" :key="field.key" class="d-flex align-items-center gap-2">
-                                <i :class="[field.icon, 'icon-fixed-width']"></i>
-                                <span v-if="field.value" class="text-truncate flex-grow-1 small flex-min-w-0" v-text="field.value"></span>
-                                <span v-else class="text-muted small" v-text="field.placeholder"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 pt-2 border-top">
-                            <a v-if="isDefined(record.map_url)" :href="record.map_url" class="btn btn-xs btn-outline-success waves-effect" target="_blank" rel="noopener noreferrer">
-                                <span v-text="MODULE.texts.actions.viewMap"></span>
-                            </a>
-                            <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
-                                <span v-text="MODULE.texts.actions.edit"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section class="br-entity-list br-branches-list" aria-label="Listado de sucursales">
+        <div class="table-responsive">
+            <table class="table br-entity-table br-entity-table--directory mb-0">
+                <colgroup>
+                    <col style="width: 20%;">
+                    <col style="width: 18%;">
+                    <col style="width: 19%;">
+                    <col style="width: 19%;">
+                    <col style="width: 10%;">
+                    <col style="width: 8%;">
+                    <col style="width: 6%;">
+                </colgroup>
+                <thead class="br-table-header-surface">
+                    <tr>
+                        <th>Identificación</th>
+                        <th>Sucursal</th>
+                        <th>Ubicación</th>
+                        <th>Contacto</th>
+                        <th class="text-center">Capacidad</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="entityList.extras.loading">
+                        <td colspan="7" class="py-4"><Loader/></td>
+                    </tr>
+                    <template v-else-if="entityList.records.total > 0">
+                        <tr v-for="record in entityList.records.data" :key="record.id">
+                            <td class="br-entity-table__identification-cell">
+                                <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                    <div class="br-entity-identifier">
+                                        <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                        <span class="br-entity-identifier__value">
+                                            <span class="br-entity-code" v-text="record.internal_code || '—'"></span>
+                                            <span v-if="record.internal_code" class="br-entity-identifier__actions">
+                                                <CopyButton :value="record.internal_code" label="Código interno"/>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="br-entity-table__name" v-text="record.name"></span>
+                            </td>
+                            <td>
+                                <span class="br-branches-list__primary" v-text="record.address || 'Sin dirección'"></span>
+                                <span v-if="record.reference" class="br-entity-table__meta" v-text="record.reference"></span>
+                            </td>
+                            <td>
+                                <span class="br-branches-list__primary" v-text="record.telephone || 'Sin teléfono'"></span>
+                                <span v-if="record.email" class="br-entity-table__meta" v-text="record.email"></span>
+                            </td>
+                            <td class="text-center" v-text="record.capacity ?? '—'"></td>
+                            <td class="text-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+                            <td class="text-center">
+                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openModal(record)">
+                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                            <span>Editar sucursal</span>
+                                        </button>
+                                    </li>
+                                    <li v-if="isDefined(record.map_url)">
+                                        <a :href="record.map_url" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                                            <span>Ver mapa</span>
+                                        </a>
+                                    </li>
+                                </TableActionsDropdown>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr v-else>
+                        <td colspan="7"><WithoutData class="br-entity-empty-state" type="image"/></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </div>
+    </section>
 
     <!-- Pagination -->
     <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
@@ -154,16 +178,16 @@
     </nav>
 
     <!-- Modal: Create/Update -->
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal fade br-entity-modal br-modal-standard" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
-                        <i class="fa fa-times icon-close-modal"></i>
+                <div class="modal-header br-entity-modal__header">
+                    <h5 class="modal-title br-entity-modal__title br-entity-modal__title--form" v-text="isUpdate ? 'EDITAR SUCURSAL' : 'AGREGAR SUCURSAL'"></h5>
+                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body br-entity-modal__body">
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
                             <InputText
@@ -182,7 +206,7 @@
                                     <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
                                 </template>
                                 <template v-slot:inputGroupAppend v-if="!isUpdate">
-                                    <button type="button" :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
+                                    <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
@@ -290,20 +314,17 @@
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer br-entity-modal__footer">
                     <button
                         type="button"
-                        class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal"
-                        v-text="MODULE.texts.modal.close">
-                    </button>
+                        class="br-btn br-btn-cancel"
+                        data-bs-dismiss="modal">Cancelar</button>
                     <button
                         type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
+                        :class="['br-btn', isUpdate ? 'br-btn-action-update' : 'br-btn-action-create']"
                         @click="saveEntity"
                         :disabled="isSaving">
-                        <i class="fa fa-save"></i>
-                        <span class="ms-2" v-text="MODULE.texts.modal.save"></span>
+                        <span v-text="MODULE.texts.modal.save"></span>
                     </button>
                 </div>
             </div>
@@ -325,8 +346,8 @@ const MODULE_CONFIG = {
     pageTitle: "Sucursales",
     pageTitleSingular: "Sucursal",
     internalCodeEntity: "branch",
-    breadcrumbParent: "Infraestructura",
-    perPage: 6
+    breadcrumbParent: "Configuración",
+    perPage: 15
 };
 
 const FORM_FIELDS = {
@@ -394,15 +415,7 @@ const TEXTS = {
     },
     actions: {
         search: "Buscar",
-        add: "Agregar",
-        edit: "Editar",
-        viewMap: "Ver mapa"
-    },
-    card: {
-        noAddress: "Sin dirección",
-        noReference: "Sin referencia",
-        noTelephone: "Sin teléfono",
-        noEmail: "Sin correo electrónico"
+        add: "Agregar sucursal"
     },
     form: {
         internalCode: "Código interno",
@@ -419,7 +432,7 @@ const TEXTS = {
     },
     modal: {
         close: "Cerrar",
-        save: "Guardar"
+        save: "Guardar sucursal"
     }
 };
 
@@ -728,17 +741,6 @@ export default {
 
         },
         // Helpers
-        getCardFields(record) {
-
-            return [
-                {key: "address", icon: `fa fa-map-marker-alt ${this.isDefined(record.address) ? "text-success" : "text-muted"}`, value: this.isDefined(record.address) ? record.address : null, placeholder: this.MODULE.texts.card.noAddress},
-                {key: "reference", icon: `fa fa-comment-dots ${this.isDefined(record.reference) ? "text-success" : "text-muted"}`, value: this.isDefined(record.reference) ? record.reference : null, placeholder: this.MODULE.texts.card.noReference},
-                {key: "telephone", icon: `fa fa-phone ${this.isDefined(record.telephone) ? "text-success" : "text-muted"}`, value: this.isDefined(record.telephone) ? record.telephone : null, placeholder: this.MODULE.texts.card.noTelephone},
-                {key: "email", icon: `fa fa-envelope ${this.isDefined(record.email) ? "text-success" : "text-muted"}`, value: this.isDefined(record.email) ? record.email : null, placeholder: this.MODULE.texts.card.noEmail},
-                {key: "capacity", icon: `fa fa-users ${this.isDefined(record.capacity) ? "text-success" : "text-muted"}`, value: this.isDefined(record.capacity) ? record.capacity : null, placeholder: 0}
-            ];
-
-        },
         // Others
         isDefined(value) {
 
@@ -795,13 +797,6 @@ export default {
         isUpdate() {
 
             return this.isDefined(this.forms[this.entity].createUpdate.data.id);
-
-        },
-        modalTitles() {
-
-            return {
-                createUpdate: this.forms[this.entity].createUpdate.extras.modals.default.titles
-            };
 
         },
         filterByOptions() {

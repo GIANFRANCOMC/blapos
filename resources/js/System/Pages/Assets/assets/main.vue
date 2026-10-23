@@ -319,7 +319,7 @@ const TEXTS = {
     },
     modal: {
         close: "Cerrar",
-        save: "Guardar"
+        save: "Guardar activo"
     }
 };
 

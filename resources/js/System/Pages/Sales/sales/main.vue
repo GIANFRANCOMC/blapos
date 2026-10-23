@@ -1478,7 +1478,7 @@
                     <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="br-btn br-btn-primary waves-effect" @click="saveInformationSectionModal">
                         <i class="fa fa-save"></i>
-                        <span class="ms-2">Guardar información</span>
+                        <span class="ms-2">Guardar información de venta</span>
                     </button>
                 </div>
             </div>
@@ -1725,7 +1725,7 @@ const TEXTS = {
         viewCustomerHistory: "Historial del cliente",
         close: "Cerrar",
         add: "Agregar",
-        save: "Guardar",
+        save: "Guardar venta",
         delete: "Eliminar",
         duplicate: "Duplicar",
         refresh: "Actualizar",

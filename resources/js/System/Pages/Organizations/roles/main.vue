@@ -38,7 +38,6 @@
                     <thead class="br-table-header-surface">
                         <tr>
                             <th>Perfil de acceso</th>
-                            <th>Tipo</th>
                             <th>Módulos permitidos</th>
                             <th>Colaboradores</th>
                             <th>Estado</th>
@@ -47,61 +46,35 @@
                     </thead>
                     <tbody>
                         <tr v-if="loading">
-                            <td colspan="6" class="py-4"><Loader/></td>
+                            <td colspan="5" class="py-4"><Loader/></td>
                         </tr>
                         <template v-else-if="records.total > 0">
                             <tr v-for="role in records.data" :key="role.id">
                                 <td>
-                                    <strong>{{ role.name }}</strong>
-                                    <span class="br-roles__meta">
-                                        Se asigna desde Colaboradores
-                                    </span>
-                                </td>
-                                <td>
-                                    <span :class="['br-roles__access-type', {'is-full': role.is_full_access}]">
+                                    <strong class="br-roles__name">{{ role.name }}</strong>
+                                    <span class="br-roles__access-type">
                                         {{ roleAccessType(role) }}
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="br-roles__metric" :title="roleModuleTooltip(role)">
+                                    <span class="br-roles__metric">
                                         {{ roleModuleSummary(role) }}
                                     </span>
                                 </td>
                                 <td>{{ role.users_count || 0 }}</td>
                                 <td>
-                                    <span :class="['br-status-label', `br-status-${role.status}`]">
-                                        {{ role.formatted_status || statusLabel(role.status) }}
-                                    </span>
+                                    <StatusBadge :status="role.status" :formatted-status="role.formatted_status || statusLabel(role.status)"/>
                                 </td>
                                 <td class="text-center">
-                                    <div class="br-table-actions">
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-edit"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#roleModal"
-                                        data-bs-placement="top"
-                                        title="Editar perfil"
-                                        :aria-label="`Editar perfil ${role.name}`"
-                                        @click="openModal(role)">
-                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-info"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Duplicar perfil"
-                                        :aria-label="`Duplicar perfil ${role.name}`"
-                                        @click="duplicateRole(role)">
-                                        <i class="fa-solid fa-copy" aria-hidden="true"></i>
-                                    </button>
-                                    </div>
+                                    <TableActionsDropdown :label="`Acciones de ${role.name}`">
+                                        <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#roleModal" @click="openModal(role)"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar perfil</span></button></li>
+                                        <li><button type="button" class="dropdown-item" @click="duplicateRole(role)"><i class="fa-solid fa-copy" aria-hidden="true"></i><span>Duplicar perfil</span></button></li>
+                                    </TableActionsDropdown>
                                 </td>
                             </tr>
                         </template>
                         <tr v-else>
-                            <td colspan="6"><WithoutData type="image"/></td>
+                            <td colspan="5"><WithoutData type="image"/></td>
                         </tr>
                     </tbody>
                 </table>
@@ -117,15 +90,9 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Configuración</p>
-                        <h2 class="modal-title br-entity-modal__title">
-                            {{ editingId ? "Editar perfil de acceso" : "Agregar perfil de acceso" }}
-                        </h2>
-                        <p class="br-roles__modal-help">
-                            El sistema lo guarda como rol técnico, pero para el usuario representa el perfil de acceso que se asigna a cada colaborador.
-                        </p>
-                    </div>
+                    <h2 class="modal-title br-entity-modal__title br-entity-modal__title--form">
+                        {{ editingId ? "EDITAR PERFIL DE ACCESO" : "AGREGAR PERFIL DE ACCESO" }}
+                    </h2>
                     <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
@@ -150,6 +117,7 @@
                             <v-select
                                 v-model="form.status"
                                 :options="statusOptions"
+                                :class="config.forms.classes.select2"
                                 :clearable="false"
                                 :searchable="false"/>
                             <small v-if="errors.status" class="text-danger">{{ firstError(errors.status) }}</small>
@@ -174,7 +142,7 @@
                         <div class="br-roles__permissions-head">
                             <div>
                                 <strong>Módulos disponibles</strong>
-                                <small>Selecciona lo que verá y podrá abrir el colaborador con este perfil.</small>
+                                <small>Selecciona los módulos y las acciones permitidas.</small>
                             </div>
                             <button
                                 type="button"
@@ -277,6 +245,7 @@
                                     v-if="form[scope.modeField] === 'restricted' && !form.isFullAccess"
                                     v-model="form[scope.selectionField]"
                                     :options="scope.options"
+                                    :class="config.forms.classes.select2"
                                     :clearable="true"
                                     :searchable="scope.options.length > 6"
                                     multiple
@@ -301,7 +270,7 @@
                         :class="['br-btn', editingId ? 'br-btn-action-update' : 'br-btn-action-create']"
                         :disabled="saving"
                         @click="saveRole">
-                        {{ editingId ? "Actualizar perfil" : "Agregar perfil" }}
+                        Guardar perfil de acceso
                     </button>
                 </div>
             </div>
@@ -315,9 +284,11 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
+import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 export default {
-    components: {SearchInput},
+    components: {SearchInput, StatusBadge, TableActionsDropdown},
     mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-roles", {});
@@ -696,18 +667,13 @@ export default {
             return this.statusOptions.find(option => option.code === status)?.label || status;
         },
         roleAccessType(role) {
-            return role.is_full_access ? "Administrador" : "Limitado";
+            return role.is_full_access ? "Acceso total" : "Permisos configurados";
         },
         roleModuleSummary(role) {
             return role.is_full_access
                 ? "Todos los módulos"
                 : `${role.modules_count || 0} módulos`;
         },
-        roleModuleTooltip(role) {
-            return role.is_full_access
-                ? "Acceso a todos los módulos habilitados para la empresa"
-                : "Acceso solo a los módulos seleccionados";
-        }
     },
     computed: {
         breadcrumbTitles() {

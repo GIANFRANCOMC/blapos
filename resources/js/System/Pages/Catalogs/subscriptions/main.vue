@@ -37,8 +37,8 @@
             <div class="table-responsive">
         <table class="table br-entity-table br-entity-table--offering mb-0">
             <colgroup>
-                <col class="br-entity-table__col-offering">
                 <col class="br-entity-table__col-code">
+                <col class="br-entity-table__col-offering">
                 <col class="br-entity-table__col-detail">
                 <col class="br-entity-table__col-offering-price">
                 <col class="br-entity-table__col-status">
@@ -46,8 +46,8 @@
             </colgroup>
             <thead class="br-table-header-surface">
                 <tr>
+                    <th>Identificación</th>
                     <th>Membresía</th>
-                    <th class="text-center">Identificación</th>
                     <th>Detalles</th>
                     <th class="text-end">Precio</th>
                     <th class="text-center">Estado</th>
@@ -62,10 +62,6 @@
                 </tr>
                 <template v-else-if="entityList.records.total > 0">
                     <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td>
-                            <span v-text="record.name" class="br-entity-table__name"></span>
-                            <span v-if="record.description" v-text="record.description" class="br-entity-table__description"></span>
-                        </td>
                         <td class="br-entity-table__identification-cell">
                             <div class="br-entity-identifiers br-entity-identifiers--plain">
                                 <div class="br-entity-identifier">
@@ -76,6 +72,10 @@
                                     </span>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            <span v-text="record.name" class="br-entity-table__name"></span>
+                            <span v-if="record.description" v-text="record.description" class="br-entity-table__description"></span>
                         </td>
                         <td>
                             <div class="br-entity-offering-details">
@@ -658,7 +658,7 @@ const TEXTS = {
     modal: {
         store: "Agregar membresía",
         update: "Editar membresía",
-        save: "Guardar",
+        save: "Guardar membresía",
         saving: "Guardando..."
     }
 };

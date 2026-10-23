@@ -34,11 +34,21 @@
 
         <section class="br-entity-list">
             <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
+                <table class="table br-entity-table br-entity-table--directory mb-0">
+                    <colgroup>
+                        <col style="width: 20%;">
+                        <col style="width: 17%;">
+                        <col style="width: 11%;">
+                        <col style="width: 16%;">
+                        <col style="width: 12%;">
+                        <col style="width: 12%;">
+                        <col style="width: 7%;">
+                        <col style="width: 5%;">
+                    </colgroup>
                     <thead class="br-table-header-surface">
                         <tr>
+                            <th>Identificación</th>
                             <th>Proveedor</th>
-                            <th>Documento</th>
                             <th>Contacto</th>
                             <th>Comunicación</th>
                             <th>Condiciones</th>
@@ -51,11 +61,20 @@
                         <tr v-if="loading"><td colspan="8" class="py-4"><Loader/></td></tr>
                         <template v-else-if="records.total > 0">
                             <tr v-for="supplier in records.data" :key="supplier.id">
+                                <td class="br-entity-table__identification-cell">
+                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                        <div class="br-entity-identifier">
+                                            <span class="br-entity-identifier__label colon-at-end" v-text="supplier.document_type || 'Documento'"></span>
+                                            <span class="br-entity-identifier__value">
+                                                <span class="br-entity-code" v-text="supplier.document_number || '—'"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>
                                     <strong>{{ supplier.name }}</strong>
                                     <span class="br-purchases__meta">{{ supplier.address }}</span>
                                 </td>
-                                <td>{{ supplier.document_type }} {{ supplier.document_number }}</td>
                                 <td>{{ supplier.contact_name || "Sin contacto" }}</td>
                                 <td>
                                     <span>{{ supplier.telephone }}</span>

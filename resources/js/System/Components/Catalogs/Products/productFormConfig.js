@@ -192,7 +192,7 @@ export const PRODUCT_TEXTS = {
     modal: {
         store: "Agregar producto",
         update: "Editar producto",
-        save: "Guardar",
+        save: "Guardar producto",
         saving: "Guardando..."
     }
 };

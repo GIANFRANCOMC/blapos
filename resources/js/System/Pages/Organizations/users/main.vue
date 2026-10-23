@@ -41,16 +41,18 @@
     <!-- Records -->
     <section class="br-entity-list br-users-list" aria-label="Listado de colaboradores">
       <div class="table-responsive">
-        <table class="table br-entity-table mb-0">
+        <table class="table br-entity-table br-entity-table--directory mb-0">
             <colgroup>
-                <col style="width: 33%;">
+                <col style="width: 20%;">
+                <col style="width: 20%;">
+                <col style="width: 20%;">
                 <col style="width: 25%;">
-                <col style="width: 27%;">
                 <col style="width: 9%;">
                 <col style="width: 6%;">
             </colgroup>
             <thead class="br-table-header-surface">
                 <tr>
+                    <th>Identificación</th>
                     <th>Colaborador</th>
                     <th>Acceso</th>
                     <th>Contacto</th>
@@ -60,16 +62,28 @@
             </thead>
             <tbody>
                 <tr v-if="entityList.extras.loading">
-                    <td colspan="5" class="py-4">
+                    <td colspan="6" class="py-4">
                         <Loader/>
                     </td>
                 </tr>
                 <template v-else-if="entityList.records.total > 0">
                     <tr v-for="record in entityList.records.data" :key="record.id">
+                        <td class="br-entity-table__identification-cell">
+                            <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                <div class="br-entity-identifier">
+                                    <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
+                                    <span class="br-entity-identifier__value">
+                                        <span class="br-entity-code" v-text="record.document_number || '—'"></span>
+                                        <span v-if="record.document_number" class="br-entity-identifier__actions">
+                                            <CopyButton :value="record.document_number" label="Número de documento"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
                         <td>
                             <div class="br-users-list__stack">
                                 <span class="br-entity-table__name" v-text="record.name"></span>
-                                <span class="br-entity-table__meta" v-text="`${record.identity_document_type?.name || 'Documento'} ${record.document_number || ''}`.trim()"></span>
                             </div>
                         </td>
                         <td>
@@ -80,13 +94,15 @@
                         </td>
                         <td>
                             <div class="br-users-list__stack">
-                                <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-if="isDefined(record.email)">
-                                    <span v-text="record.email"></span>
-                                </a>
+                                <span v-if="isDefined(record.email)" class="br-users-list__copy-line">
+                                    <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-text="record.email"></a>
+                                    <CopyButton :value="record.email" label="Correo electrónico"/>
+                                </span>
                                 <span v-else class="br-entity-table__meta">Sin correo electrónico</span>
-                                <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-if="isDefined(record.phone_number)">
-                                    <span v-text="record.phone_number"></span>
-                                </a>
+                                <span v-if="isDefined(record.phone_number)" class="br-users-list__copy-line">
+                                    <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-text="record.phone_number"></a>
+                                    <CopyButton :value="record.phone_number" label="Celular"/>
+                                </span>
                                 <span v-else class="br-entity-table__meta">Sin celular</span>
                             </div>
                         </td>
@@ -118,7 +134,7 @@
                     </tr>
                 </template>
                 <tr v-else>
-                    <td colspan="5" class="py-4">
+                    <td colspan="6" class="py-4">
                         <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
                     </td>
                 </tr>
@@ -230,7 +246,7 @@
                                     </tr>
                                 </template>
                                 <tr v-else>
-                                    <td colspan="5"><WithoutData type="image"/></td>
+                                    <td colspan="5"><WithoutData type="image" text="Sin eventos de acceso" description="Prueba otros filtros o revisa más adelante."/></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -258,7 +274,8 @@
                 :has-errors="tabHasErrors"
                 :id-prefix="collaboratorFormModalId"
                 :controls-prefix="collaboratorFormModalId"
-                label="Secciones del colaborador"/>
+                label="Secciones del colaborador"
+                variant="descriptive"/>
             <form @submit.prevent="saveEntity">
                 <section
                     v-show="activeFormTab === 'access'"
@@ -530,7 +547,7 @@
         title="CAMBIAR CONTRASEÑA"
         modal-size="modal-md"
         :keyboard="false"
-        submit-button-text="Guardar"
+        submit-button-text="Guardar contraseña"
         submit-button-class="br-btn-action-update"
         :submit-disabled="passwordModal.saving"
         @submit="savePassword">
@@ -580,6 +597,7 @@ import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import CopyButton from "@System/Components/CopyButton.vue";
 
 const MODULE_CONFIG = {
     entity: "users",
@@ -607,9 +625,9 @@ const FORM_FIELDS = {
 };
 
 const COLLABORATOR_FORM_TABS = [
-    {id: "collaborator", label: "COLABORADOR", fields: ["identity_document_type", "identity_document_type_id", "document_number", "name", "status"]},
-    {id: "contact", label: "CONTACTO", fields: ["email", "phone_number", "gender", "birthdate"]},
-    {id: "access", label: "ACCESO", fields: ["role", "role_id", "branches", "branch_ids", "cashRegisters", "cash_register_ids", "warehouses", "warehouse_ids", "password"]}
+    {id: "collaborator", label: "COLABORADOR", description: "Identificación", icon: "fa-solid fa-user", fields: ["identity_document_type", "identity_document_type_id", "document_number", "name", "status"]},
+    {id: "contact", label: "CONTACTO", description: "Datos de contacto", icon: "fa-solid fa-address-book", fields: ["email", "phone_number", "gender", "birthdate"]},
+    {id: "access", label: "ACCESO", description: "Perfil y permisos", icon: "fa-solid fa-key", fields: ["role", "role_id", "branches", "branch_ids", "cashRegisters", "cash_register_ids", "warehouses", "warehouse_ids", "password"]}
 ];
 
 const FORM_FIELD_CONFIG = {
@@ -731,7 +749,7 @@ const MODULE = {
 
 export default {
     name: "UsersMain",
-    components: {CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown},
+    components: {CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton},
     data() {
 
         const crudModule = initCrudModule({
