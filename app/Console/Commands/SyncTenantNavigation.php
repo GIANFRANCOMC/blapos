@@ -15,7 +15,7 @@ final class SyncTenantNavigation extends Command {
 
     protected $signature = "tenant:navigation-sync {slug? : Tenant específico; omitir para sincronizar todos}";
 
-    protected $description = "Consolida el catálogo de navegación de cada tenant y actualiza su proyección sin recrear datos.";
+    protected $description = "Completa registros de navegación faltantes sin modificar la configuración existente de cada tenant.";
 
     public function handle(
         TenantConnectionManager $connections,
@@ -46,12 +46,12 @@ final class SyncTenantNavigation extends Command {
                 $connections->connect($tenant);
                 $navigation->run();
                 $catalog->sync();
-                $this->info("Navegación actualizada: {$tenant->slug}.");
+                $this->info("Navegación verificada: {$tenant->slug}.");
 
             }catch(Throwable $exception) {
 
                 $hasFailure = true;
-                $this->error("No se pudo actualizar {$tenant->slug}: {$exception->getMessage()}");
+                $this->error("No se pudo verificar {$tenant->slug}: {$exception->getMessage()}");
 
             }finally {
 

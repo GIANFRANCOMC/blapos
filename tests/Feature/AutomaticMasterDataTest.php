@@ -7,6 +7,8 @@ namespace Tests\Feature;
 use App\Http\Middleware\{EnsureAuthenticatedSession, EnsureOperationalScope, EnsureTenantSession, ResolveTenant, TrustHosts};
 use App\Models\System\Organizations\{User};
 use App\Services\System\General\{AutomaticMasterDataService};
+use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Services\System\Organizations\Roles\{RolePermissionService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{Auth, DB};
 use Tests\Concerns\{ProvisionsSystemDatabase};
@@ -88,6 +90,59 @@ final class AutomaticMasterDataTest extends TestCase {
             ->update(["status" => "inactive"]);
 
         $this->assertFalse(AutomaticMasterDataService::enabled($key));
+
+    }
+
+    public function test_favorites_follow_home_module_and_disappear_when_it_is_disabled(): void {
+
+        $key = AutomaticMasterDataService::MENU_FAVORITES;
+        $moduleId = (int) DB::table("sub_sections")
+            ->where("dom_route", "home.index")
+            ->value("id");
+
+        $this->assertGreaterThan(0, $moduleId);
+        $this->assertFalse(AutomaticMasterDataService::enabled($key));
+        $this->get(route("workspace.index"))
+            ->assertOk()
+            ->assertDontSee('id="brFabFavoritesToggle"', false);
+        $this->get(route("home.index"))->assertForbidden();
+
+        DB::table("companies_sub_sections")
+            ->where("company_id", 1)
+            ->where("sub_section_id", $moduleId)
+            ->update(["status" => "active"]);
+        CompanySectionService::clearTenantCache();
+
+        $this->assertTrue(AutomaticMasterDataService::enabled($key));
+        $this->assertTrue(collect(AutomaticMasterDataService::list())
+            ->firstWhere("code", $key)["value"]);
+
+        $this->get(route("workspace.index"))
+            ->assertOk()
+            ->assertSee('id="brFabFavoritesToggle"', false);
+        $this->get(route("home.index"))
+            ->assertOk()
+            ->assertSee('data-navigation-world="Configuración"', false)
+            ->assertSee('data-navigation-group="Ajustes"', false);
+
+        DB::table("companies_sub_sections")
+            ->where("company_id", 1)
+            ->where("sub_section_id", $moduleId)
+            ->update(["status" => "inactive"]);
+        CompanySectionService::clearTenantCache();
+
+        $this->assertFalse(AutomaticMasterDataService::enabled($key));
+        $this->assertFalse(RolePermissionService::canAccessRoute(Auth::user(), "home.index"));
+        $this->assertFalse(collect(AutomaticMasterDataService::list())
+            ->firstWhere("code", $key)["value"]);
+
+        $this->get(route("workspace.index"))
+            ->assertOk()
+            ->assertDontSee('id="brFabFavoritesToggle"', false)
+            ->assertDontSee('id="brFabFavoritesPanel"', false);
+        $this->get(route("home.index"))->assertForbidden();
+        $this->getJson(route("home.initParams"))->assertForbidden();
+        $this->patchJson(route("home.update", ["id" => 0]), [])->assertForbidden();
 
     }
 

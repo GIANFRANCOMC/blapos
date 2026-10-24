@@ -40,14 +40,14 @@
 
     <section class="br-entity-list" aria-label="Listado de clientes">
         <div class="table-responsive">
-            <table class="table br-entity-table br-entity-table--directory mb-0">
+            <table class="table br-entity-table br-entity-table--directory br-customer-table mb-0">
                 <colgroup>
-                    <col style="width: 20%;">
+                    <col style="width: 19%;">
                     <col style="width: 23%;">
-                    <col style="width: 23%;">
-                    <col style="width: 17%;">
-                    <col style="width: 10%;">
-                    <col style="width: 7%;">
+                    <col style="width: 25%;">
+                    <col style="width: 19%;">
+                    <col style="width: 8%;">
+                    <col style="width: 6%;">
                 </colgroup>
                 <thead class="br-table-header-surface">
                     <tr>
@@ -78,22 +78,27 @@
                                     </div>
                                 </div>
                             </td>
+                            <td><span class="br-entity-table__name" v-text="record.name"></span></td>
                             <td>
-                                <div class="br-entity-person__identity">
-                                    <span class="br-entity-person__avatar" aria-hidden="true" v-text="record.name?.trim()?.charAt(0)?.toUpperCase() || 'C'"></span>
-                                    <div class="br-entity-person__details">
-                                        <span class="br-entity-table__name" v-text="record.name"></span>
-                                    </div>
+                                <div class="br-customer-table__stack">
+                                    <span v-if="record.email" class="br-customer-table__value">
+                                        <span v-text="record.email"></span>
+                                        <CopyButton :value="record.email" label="Correo electrónico"/>
+                                    </span>
+                                    <span v-if="record.phone_number" class="br-customer-table__value">
+                                        <span v-text="record.phone_number"></span>
+                                        <CopyButton :value="record.phone_number" label="Celular"/>
+                                    </span>
+                                    <span v-if="!record.email && !record.phone_number" class="br-customer-table__muted">Sin datos de contacto</span>
                                 </div>
                             </td>
                             <td>
-                                <span class="br-entity-table__meta" v-text="record.email || 'Sin correo electrónico'"></span>
-                                <span class="br-entity-table__meta" v-text="record.phone_number || 'Sin celular'"></span>
-                            </td>
-                            <td>
-                                <span class="br-entity-table__meta" v-text="record.formatted_gender || 'Sin género'"></span>
-                                <span class="br-entity-table__meta" v-text="record.birthdate ? legibleFormatDate({dateString: record.birthdate, type: 'date'}) : 'Sin fecha de nacimiento'"></span>
-                                <span v-if="getEmergencyContactLabel(record)" class="br-entity-table__meta" v-text="`Emergencia: ${getEmergencyContactLabel(record)}`"></span>
+                                <div class="br-entity-offering-details">
+                                    <span v-if="record.formatted_gender"><strong class="colon-at-end">Género</strong> {{ record.formatted_gender }}</span>
+                                    <span v-if="record.birthdate"><strong class="colon-at-end">Nacimiento</strong> {{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
+                                    <span v-if="getEmergencyContactLabel(record)"><strong class="colon-at-end">Emergencia</strong> {{ getEmergencyContactLabel(record) }}</span>
+                                    <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="br-customer-table__muted">Sin datos adicionales</span>
+                                </div>
                             </td>
                             <td class="text-center">
                                 <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
@@ -124,11 +129,7 @@
                     </template>
                     <tr v-else>
                         <td colspan="6" class="py-4">
-                            <WithoutData
-                                class="br-entity-empty-state"
-                                type="image"
-                                text="Aún no hay clientes"
-                                description="Agrega un cliente o carga un archivo para empezar."/>
+                            <WithoutData class="br-entity-empty-state" type="image"/>
                         </td>
                     </tr>
                 </tbody>
@@ -157,6 +158,7 @@
                 :has-errors="tabHasErrors"
                 :id-prefix="customerFormModalId"
                 :controls-prefix="customerFormModalId"
+                variant="descriptive"
                 label="Secciones del cliente"/>
             <form @submit.prevent="saveEntity">
                 <section
@@ -455,9 +457,9 @@ const FORM_FIELDS = {
 };
 
 const CUSTOMER_FORM_TABS = [
-    {id: "client", label: "CLIENTE", fields: ["identity_document_type", "identity_document_type_id", "document_number", "name", "status"]},
-    {id: "contact", label: "CONTACTO", fields: ["email", "phone_number", "gender", "birthdate"]},
-    {id: "emergency", label: "EMERGENCIA", fields: ["emergency_contact_name", "emergency_contact_phone", "medical_notes"]}
+    {id: "client", label: "CLIENTE", description: "Identificación y estado", icon: "fa-solid fa-id-card", fields: ["identity_document_type", "identity_document_type_id", "document_number", "name", "status"]},
+    {id: "contact", label: "CONTACTO", description: "Medios y datos personales", icon: "fa-solid fa-address-book", fields: ["email", "phone_number", "gender", "birthdate"]},
+    {id: "emergency", label: "EMERGENCIA", description: "Contacto y salud", icon: "fa-solid fa-kit-medical", fields: ["emergency_contact_name", "emergency_contact_phone", "medical_notes"]}
 ];
 
 const FORM_FIELD_CONFIG = {

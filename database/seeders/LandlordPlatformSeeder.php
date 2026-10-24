@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\System\Tenancy\{PlatformUser};
 use Illuminate\Database\{Seeder};
-use Illuminate\Support\Facades\{Hash};
+use Illuminate\Support\Facades\{DB, Hash};
 use RuntimeException;
 
 final class LandlordPlatformSeeder extends Seeder {
@@ -29,15 +28,13 @@ final class LandlordPlatformSeeder extends Seeder {
 
         }
 
-        PlatformUser::query()->firstOrCreate(
-            ["email" => $email],
-            [
-                "name" => $name,
-                "password" => Hash::make($password),
-                "status" => "active",
-                "session_version" => 1,
-            ]
-        );
+        DB::connection("landlord")->table("platform_users")->insertOrIgnore([
+            "name" => $name,
+            "email" => $email,
+            "password" => Hash::make($password),
+            "status" => "active",
+            "session_version" => 1,
+        ]);
 
     }
 

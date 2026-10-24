@@ -296,6 +296,47 @@
   line-height: 1.25;
 }
 
+/* --- [br-customers] Directorio compacto --- */
+.br-customer-table .br-entity-table__name {
+  color: var(--br-secondary);
+  font-size: var(--br-table-value-font-size);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.br-customer-table__stack {
+  display: grid;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.br-customer-table__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.14rem;
+  min-width: 0;
+  color: var(--br-text);
+  font-size: var(--br-table-secondary-font-size);
+  line-height: 1.35;
+}
+
+.br-customer-table__value > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.br-customer-table__value .br-copy-button {
+  flex: 0 0 auto;
+}
+
+.br-customer-table__muted {
+  color: var(--br-text-muted);
+  font-size: var(--br-table-secondary-font-size);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 /* --- [br-customers] Notificaciones --- */
 .br-notification-error {
   display: inline-flex;

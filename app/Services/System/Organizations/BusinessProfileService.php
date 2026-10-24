@@ -15,7 +15,6 @@ final class BusinessProfileService {
 
     private const PROTECTED_ROUTES = [
         "workspace.index",
-        "home.index",
         "account.index",
     ];
 

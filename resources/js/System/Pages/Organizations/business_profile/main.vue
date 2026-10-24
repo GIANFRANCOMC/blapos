@@ -59,7 +59,7 @@
             </div>
 
             <footer>
-                <span>Los accesos esenciales de Mi espacio permanecen activos.</span>
+                <span>Mi espacio y Mi cuenta permanecen activos.</span>
                 <button type="button" class="br-btn br-btn-primary" :disabled="loading || modules.length === 0 || saving" @click="saveModules">
                     <span>{{ saving ? 'Guardando...' : 'Guardar módulos' }}</span>
                 </button>
@@ -73,7 +73,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
-const PROTECTED_ROUTES = ["workspace.index", "home.index", "account.index"];
+const PROTECTED_ROUTES = ["workspace.index", "account.index"];
 
 export default {
     data() {

@@ -86,23 +86,20 @@ final class AccessProfilesSeeder extends Seeder {
 
             foreach($permissions as $subSectionId => $actions) {
 
-                DB::table("role_sub_sections")->updateOrInsert(
-                    ["role_id" => $roleId, "sub_section_id" => $subSectionId],
-                    [
-                        "actions" => json_encode($actions, JSON_THROW_ON_ERROR),
-                        "status" => "active",
-                        "updated_at" => now(),
-                        "updated_by" => $actorId,
-                    ]
-                );
+                DB::table("role_sub_sections")->insertOrIgnore([
+                    "role_id" => $roleId,
+                    "sub_section_id" => $subSectionId,
+                    "actions" => json_encode($actions, JSON_THROW_ON_ERROR),
+                    "status" => "active",
+                    "updated_at" => now(),
+                    "updated_by" => $actorId,
+                ]);
 
             }
 
             RolePermissionService::clearRoleCache($roleId);
 
         }
-
-        $this->replaceLegacyDemoRole($roleIds);
 
         return $roleIds;
 
@@ -111,33 +108,6 @@ final class AccessProfilesSeeder extends Seeder {
     public static function roleIdForEmail(string $email, array $roleIds): int {
 
         return $roleIds[hexdec(substr(hash("sha256", strtolower($email)), 0, 8)) % count($roleIds)];
-
-    }
-
-    private function replaceLegacyDemoRole(array $roleIds): void {
-
-        $legacyRoleId = (int) DB::table("roles")->where("slug", "demo-colaborador")->value("id");
-
-        if(!$legacyRoleId) return;
-
-        DB::table("users")
-            ->where("role_id", $legacyRoleId)
-            ->orderBy("id")
-            ->chunkById(250, function($users) use ($roleIds, $legacyRoleId): void {
-
-                foreach($users as $user) {
-
-                    DB::table("users")->where("id", $user->id)->where("role_id", $legacyRoleId)->update([
-                        "role_id" => self::roleIdForEmail((string) $user->email, $roleIds),
-                        "updated_at" => now(),
-                    ]);
-
-                }
-
-            });
-
-        RolePermissionService::clearRoleCache($legacyRoleId);
-        DB::table("roles")->where("id", $legacyRoleId)->delete();
 
     }
 

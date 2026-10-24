@@ -3,12 +3,6 @@
         <Breadcrumb :list="breadcrumbItems"/>
 
         <header class="br-home__header">
-            <div class="br-home__heading">
-                <p class="br-home__eyebrow mb-1">{{ page.eyebrow }}</p>
-                <h1 class="br-home__title mb-1">{{ page.title }}</h1>
-                <p class="br-home__subtitle mb-0">{{ page.subtitle }}</p>
-            </div>
-
             <div class="br-home__filters">
                 <div class="br-home-search">
                     <i class="fa-solid fa-magnifying-glass br-home-search__icon" aria-hidden="true"></i>
@@ -125,17 +119,15 @@ const PREFERENCES_UPDATED_EVENT = "br:preferences-updated";
 const HIDDEN_HOME_DIRECTORY_SLUGS = new Set(["sc_home", "sc_dashboard"]);
 
 const PAGE_CONFIG = {
-    eyebrow: "Plataforma de trabajo",
-    title: "Favoritos",
     breadcrumb: [
-        {title: "Inicio"},
-        {title: "Favoritos", active: true}
+        {title: "Configuración"},
+        {title: "Ajustes"},
+        {title: "Menú y favoritos", active: true}
     ],
-    subtitle: "Accede a los módulos habilitados para tu empresa.",
     modulesAriaLabel: "Módulos disponibles",
     active: true,
     menu: {
-        id: "menu-parent-workspace"
+        id: "menu-parent-configuration"
     },
     filters: {
         search: {

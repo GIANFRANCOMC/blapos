@@ -78,15 +78,9 @@ final class DemoPeopleSeederTest extends TestCase {
             ->distinct()
             ->count("password"));
 
-        $legacyRoleId = DB::table("roles")->insertGetId([
-            "slug" => "demo-colaborador",
-            "name" => "Colaborador de prueba",
-            "is_full_access" => false,
-            "status" => "active",
-        ]);
-        DB::table("users")
+        $firstCollaboratorRoleId = DB::table("users")
             ->where("email", "usuario00001@example.test")
-            ->update(["role_id" => $legacyRoleId]);
+            ->value("role_id");
 
         $seeder->run(25, 25);
 
@@ -103,8 +97,7 @@ final class DemoPeopleSeederTest extends TestCase {
         $this->assertSame(5, DB::table("roles")
             ->whereIn("slug", ["vendedor", "compras", "gestion", "auditoria", "contador"])
             ->count());
-        $this->assertDatabaseMissing("roles", ["id" => $legacyRoleId]);
-        $this->assertNotEquals($legacyRoleId, DB::table("users")
+        $this->assertSame($firstCollaboratorRoleId, DB::table("users")
             ->where("email", "usuario00001@example.test")
             ->value("role_id"));
 

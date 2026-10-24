@@ -14,6 +14,8 @@ final class AutomaticMasterDataService {
 
     public const CUSTOMER_FINGERPRINT_REGISTRATION = "customer_fingerprint_registration";
 
+    public const MENU_FAVORITES = "menu_favorites";
+
     private const DEFINITIONS = [
         self::CUSTOMER_FINGERPRINT_REGISTRATION => [
             "name" => "Registro de huella de clientes",
@@ -22,6 +24,14 @@ final class AutomaticMasterDataService {
             "condition_label" => "Asistencias de clientes activo",
             "condition" => "module_enabled",
             "module_route" => "tracking_attendances.index",
+        ],
+        self::MENU_FAVORITES => [
+            "name" => "Menú de favoritos",
+            "description" => "Muestra los accesos favoritos cuando Menú y favoritos está activo.",
+            "source" => "Módulos del tenant",
+            "condition_label" => "Menú y favoritos activo",
+            "condition" => "module_enabled",
+            "module_route" => "home.index",
         ],
     ];
 

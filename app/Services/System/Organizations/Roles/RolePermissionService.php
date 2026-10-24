@@ -16,7 +16,7 @@ final class RolePermissionService {
 
     private const CACHE_PREFIX = "role_permissions";
 
-    private const PUBLIC_ROUTE_PREFIXES = ["account", "workspace", "home", "helpers", "logout"];
+    private const PUBLIC_ROUTE_PREFIXES = ["account", "workspace", "helpers", "logout"];
 
     public static function canAccessRoute(
         User $user,

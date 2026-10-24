@@ -27,6 +27,7 @@ return [
     ],
 
     "route_actions" => [
+        "home.update" => "view",
         "products.import.template" => "import",
         "services.import.template" => "import",
         "subscriptions.import.template" => "import",
@@ -90,6 +91,8 @@ return [
 
     /* Endpoints compartidos por varias pantallas del mismo módulo técnico. */
     "route_modules" => [
+        "home.initParams" => ["home.index"],
+        "home.update" => ["home.index"],
         "master_data.list" => ["companies.index"],
         "master_data.store" => ["companies.index"],
         "master_data.update" => ["companies.index"],

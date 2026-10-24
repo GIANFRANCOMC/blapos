@@ -162,11 +162,7 @@ final class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        DB::table("brands")->upsert(
-            $rows,
-            ["internal_code"],
-            ["name", "description", "website_url", "status", "updated_at", "updated_by"]
-        );
+        DB::table("brands")->insertOrIgnore($rows);
 
         $ids = DB::table("brands")->whereIn("internal_code", array_keys($codes))->pluck("id", "internal_code");
 
@@ -230,11 +226,7 @@ final class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        DB::table("categories")->upsert(
-            $rows,
-            ["internal_code"],
-            ["name", "description", "status", "updated_at", "updated_by"]
-        );
+        DB::table("categories")->insertOrIgnore($rows);
 
         $ids = DB::table("categories")->whereIn("internal_code", array_keys($codes))->pluck("id", "internal_code");
 
@@ -448,19 +440,7 @@ final class CommercialCatalogSeeder extends Seeder {
             "updated_by" => $this->userId,
         ], $batch);
 
-        DB::table("items")->upsert(
-            $rows,
-            ["type", "internal_code"],
-            [
-                "brand_id", "barcode", "name", "description", "price", "price_includes_tax",
-                "igv_exempt", "min_price", "max_price", "currency_id", "measurement_unit_id",
-                "duration_type", "duration_value", "estimated_duration_minutes",
-                "capacity_control_enabled", "capacity_limit", "capacity_used", "expires_at",
-                "commission_rate", "commission_type", "commission_value",
-                "attendance_limit_per_day", "benefits", "restrictions", "see_my_web",
-                "see_my_web_price", "status", "updated_at", "updated_by",
-            ]
-        );
+        DB::table("items")->insertOrIgnore($rows);
 
         $this->seedCategoryLinks($batch, $categoryIdsBySegment, $now);
 
@@ -638,11 +618,7 @@ final class CommercialCatalogSeeder extends Seeder {
 
         }
 
-        DB::table("category_items")->upsert(
-            $rows,
-            ["category_id", "item_id"],
-            ["status", "updated_at", "updated_by"]
-        );
+        DB::table("category_items")->insertOrIgnore($rows);
 
     }
 

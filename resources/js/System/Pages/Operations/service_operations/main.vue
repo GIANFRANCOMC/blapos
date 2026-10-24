@@ -1,15 +1,8 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-service-page" :class="{'br-service-page--sessions': !isRestaurant}">
-        <div v-if="!isRestaurant" class="br-service-intro">
-            <div>
-                <h1>Atenciones de servicio</h1>
-                <p>Organiza los turnos, responsables y tiempos de atención desde un solo lugar.</p>
-            </div>
-        </div>
-
-        <div class="br-service-toolbar" :class="{'br-service-toolbar--sessions': !isRestaurant}">
+    <main class="br-service-page" :class="{'br-service-page--sessions br-entity': !isRestaurant}">
+        <div class="br-service-toolbar" :class="{'br-service-toolbar--sessions br-filter-bar': !isRestaurant}">
             <div class="br-service-toolbar__field">
                 <label class="form-label colon-at-end">Sucursal</label>
                 <v-select
@@ -17,6 +10,7 @@
                     :options="branchOptions"
                     :clearable="false"
                     :searchable="true"
+                    :disabled="loading"
                     @option:selected="handleBranchChange"/>
             </div>
             <div v-if="!isRestaurant" class="br-service-toolbar__field">
@@ -26,6 +20,7 @@
                     :options="statusOptions"
                     :clearable="false"
                     :searchable="false"
+                    :disabled="loading || !selectedBranch"
                     @option:selected="getSessions()"/>
             </div>
             <div class="br-service-toolbar__actions">
@@ -50,8 +45,8 @@
                 <button
                     v-else
                     type="button"
-                    class="br-btn br-btn-action-create"
-                    :disabled="!selectedBranch"
+                    class="br-btn br-btn-sm br-btn-action-open-create"
+                    :disabled="loading || !selectedBranch"
                     @click="openSessionModal()">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                     <span>Iniciar atención</span>
@@ -59,7 +54,7 @@
             </div>
         </div>
 
-        <Loader v-if="loading"/>
+        <Loader v-if="isRestaurant && loading"/>
 
         <template v-if="isRestaurant && !loading">
             <template v-if="floors.length">
@@ -156,7 +151,7 @@
                 description="Crea el primer piso o zona para ubicar las mesas de esta sucursal."/>
         </template>
 
-        <template v-if="!isRestaurant && !loading">
+        <template v-if="!isRestaurant">
             <div v-if="reports" class="br-service-report-grid" aria-label="Resumen del mes">
                 <article>
                     <span>Atenciones del mes</span>
@@ -181,26 +176,21 @@
             </div>
 
             <section class="br-entity-list br-service-list" aria-label="Listado de atenciones">
-                <div class="br-service-list__heading">
-                    <div>
-                        <h2>Atenciones</h2>
-                        <span>Consulta y gestiona el estado de cada servicio.</span>
-                    </div>
-                    <small>{{ sessions.total || 0 }} {{ sessions.total === 1 ? 'registro' : 'registros' }}</small>
-                </div>
                 <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
+                <table class="table br-entity-table br-service-list__table mb-0">
                     <colgroup>
-                        <col style="width: 25%;">
-                        <col style="width: 16%;">
-                        <col style="width: 16%;">
                         <col style="width: 15%;">
+                        <col style="width: 20%;">
+                        <col style="width: 15%;">
+                        <col style="width: 14%;">
+                        <col style="width: 13%;">
                         <col style="width: 9%;">
-                        <col style="width: 11%;">
                         <col style="width: 8%;">
+                        <col style="width: 6%;">
                     </colgroup>
                     <thead class="br-table-header-surface">
                         <tr>
+                            <th>Identificación</th>
                             <th>Servicio</th>
                             <th>Cliente</th>
                             <th>Responsable</th>
@@ -211,47 +201,53 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr v-if="loading">
+                            <td colspan="8" class="py-4"><Loader/></td>
+                        </tr>
+                        <template v-else-if="sessions.data.length">
                         <tr v-for="session in sessions.data" :key="session.id">
-                            <td>
-                                <div class="br-service-list__identity">
-                                    <span class="br-entity-table__name">{{ session.items?.[0]?.name || 'Atención sin servicio inicial' }}</span>
-                                    <span class="br-entity-table__meta">{{ session.reference }}</span>
+                            <td class="br-entity-table__identification-cell">
+                                <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                    <div class="br-entity-identifier">
+                                        <span class="br-entity-identifier__label colon-at-end">Atención</span>
+                                        <span class="br-entity-identifier__value">
+                                            <span class="br-entity-code">{{ session.reference || '—' }}</span>
+                                            <span v-if="session.reference" class="br-entity-identifier__actions">
+                                                <CopyButton :value="session.reference" label="Número de atención"/>
+                                            </span>
+                                        </span>
+                                    </div>
                                 </div>
                             </td>
-                            <td>{{ session.customer?.name || 'Cliente general' }}</td>
+                            <td>
+                                <span class="br-entity-table__name">{{ session.items?.[0]?.name || 'Sin servicio inicial' }}</span>
+                                <span v-if="session.items?.length > 1" class="br-entity-table__meta">+ {{ session.items.length - 1 }} {{ session.items.length === 2 ? 'servicio' : 'servicios' }}</span>
+                            </td>
+                            <td><span :class="{'br-service-list__muted': !session.customer}">{{ session.customer?.name || 'Cliente general' }}</span></td>
                             <td><span :class="{'br-service-list__muted': !session.assigned_user}">{{ session.assigned_user?.name || 'Sin asignar' }}</span></td>
                             <td class="br-service-list__date">{{ formatDateTime(session.started_at || session.created_at) }}</td>
                             <td class="br-service-list__time">{{ elapsedLabel(session) }}</td>
                             <td class="text-center">
-                                <span class="br-status-label" :class="statusClass(session.status)">
-                                    {{ statusLabel(session.status) }}
-                                </span>
+                                <StatusBadge :status="session.status" :formatted-status="statusLabel(session.status)" :custom-variants="sessionStatusVariants"/>
                             </td>
                             <td class="text-center">
-                                <button
-                                    type="button"
-                                    class="br-service-list__open"
-                                    :aria-label="`Gestionar ${session.reference}`"
-                                    @click="selectSession(session)">
-                                    <span>Gestionar</span>
-                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                                </button>
+                                <TableActionsDropdown :label="`Acciones de ${session.reference}`">
+                                    <li><button type="button" class="dropdown-item" @click="selectSession(session)"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i><span>Gestionar atención</span></button></li>
+                                </TableActionsDropdown>
                             </td>
                         </tr>
-                        <tr v-if="!sessions.data.length">
-                            <td colspan="7">
-                                <WithoutData
-                                    class="br-entity-empty-state"
-                                    type="image"
-                                    :text="selectedBranch ? 'No hay atenciones para mostrar' : 'No hay sucursales disponibles'"
-                                    :description="selectedBranch ? 'Inicia una atención o cambia el filtro de estado.' : 'Solicita acceso a una sucursal para gestionar atenciones.'"/>
+                        </template>
+                        <tr v-else>
+                            <td colspan="8" class="py-4">
+                                <WithoutData v-if="selectedBranch" class="br-entity-empty-state" type="image"/>
+                                <WithoutData v-else class="br-entity-empty-state" type="image" text="No hay sucursales disponibles" description="Solicita acceso a una sucursal para gestionar atenciones."/>
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 </div>
             </section>
-            <nav v-if="sessions.total > 0" class="br-service-list__pagination" aria-label="Paginación de atenciones">
+            <nav v-if="!loading && sessions.total > 0" class="br-service-list__pagination" aria-label="Paginación de atenciones">
                 <Paginator :links="sessions.links" @clickPage="getSessions"/>
             </nav>
         </template>
@@ -360,7 +356,7 @@
                     </div>
                     <button
                         type="button"
-                        class="br-btn br-btn-primary"
+                        class="br-btn br-btn-action-create"
                         :disabled="saving || !detailForm.item"
                         @click="addSessionItem">
                         Agregar
@@ -426,7 +422,7 @@
                 <button
                     v-if="selectedSession.status === 'pending'"
                     type="button"
-                    class="br-btn br-btn-secondary"
+                    class="br-btn br-btn-action-create"
                     :disabled="saving"
                     @click="changeSessionStatus('start')">
                     <i class="fa-solid fa-play" aria-hidden="true"></i>
@@ -554,11 +550,26 @@
         modal-id="brServiceSessionModal"
         :title="isRestaurant ? 'ABRIR MESA' : 'INICIAR ATENCIÓN'"
         modal-size="modal-lg"
+        :modal-class="isRestaurant ? '' : 'br-entity-modal--tabbed'"
         :submit-disabled="saving || !selectedBranch"
         :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar atención'"
         @submit="saveSession">
         <template #body>
-            <div class="row g-3">
+            <CatalogFormTabs
+                v-if="!isRestaurant"
+                v-model="sessionFormTab"
+                :tabs="sessionFormTabs"
+                id-prefix="service-session"
+                controls-prefix="service-session"
+                variant="descriptive"
+                label="Secciones de la atención"/>
+            <section
+                v-show="isRestaurant || sessionFormTab === 'attention'"
+                :id="isRestaurant ? undefined : 'service-session-tab-attention'"
+                :aria-labelledby="isRestaurant ? undefined : 'service-session-tab-trigger-attention'"
+                :role="isRestaurant ? undefined : 'tabpanel'"
+                class="br-entity-form-section">
+                <div class="row g-3">
                         <div v-if="sessionForm.station" class="col-12">
                             <div class="br-service-selected-station">
                                 <i class="fa-solid fa-utensils" aria-hidden="true"></i>
@@ -578,19 +589,6 @@
                             <v-select v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" @search="searchItems" placeholder="Opcional · puedes agregarlo después"/>
                         </div>
                         <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="0.0001" :decimals="4" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
-                        <template v-if="!isRestaurant">
-                            <div class="col-12 br-service-form__section-title">Programación <span>Opcional</span></div>
-                            <div class="form-group col-md-4">
-                                <label class="form-label colon-at-end">Fecha programada</label>
-                                <input v-model="sessionForm.scheduledAt" type="datetime-local" class="form-control">
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label class="form-label colon-at-end">Fin esperado</label>
-                                <input v-model="sessionForm.expectedEndAt" type="datetime-local" class="form-control">
-                            </div>
-                            <InputNumber v-model="sessionForm.toleranceMinutes" title="Tolerancia" :decimals="0" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
-                            <InputText v-model="sessionForm.queueCode" title="Código de turno" :xl="4" :lg="4" :md="12" :sm="12"/>
-                        </template>
                         <div class="col-12">
                             <label class="br-entity-switch" for="startServiceImmediately">
                                 <input id="startServiceImmediately" v-model="sessionForm.startImmediately" class="form-check-input" type="checkbox" role="switch">
@@ -600,7 +598,28 @@
                                 </span>
                             </label>
                         </div>
-            </div>
+                </div>
+            </section>
+            <section
+                v-if="!isRestaurant"
+                v-show="sessionFormTab === 'schedule'"
+                id="service-session-tab-schedule"
+                aria-labelledby="service-session-tab-trigger-schedule"
+                class="br-entity-form-section"
+                role="tabpanel">
+                <div class="row g-3">
+                    <div class="form-group col-md-6">
+                        <label class="form-label colon-at-end">Fecha programada</label>
+                        <input v-model="sessionForm.scheduledAt" type="datetime-local" class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="form-label colon-at-end">Fin esperado</label>
+                        <input v-model="sessionForm.expectedEndAt" type="datetime-local" class="form-control">
+                    </div>
+                    <InputNumber v-model="sessionForm.toleranceMinutes" title="Tolerancia (min)" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
+                    <InputText v-model="sessionForm.queueCode" title="Código de turno" :xl="6" :lg="6" :md="12" :sm="12"/>
+                </div>
+            </section>
         </template>
     </FormModal>
 </template>
@@ -609,10 +628,21 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import CopyButton from "@System/Components/CopyButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+
+const SESSION_FORM_TABS = [
+    {id: "attention", label: "ATENCIÓN", description: "Cliente y servicio", icon: "fa-solid fa-clipboard-list"},
+    {id: "schedule", label: "PROGRAMACIÓN", description: "Fechas y turno", icon: "fa-solid fa-calendar-days"}
+];
+
+const SESSION_STATUS_VARIANTS = {pending: "warning", in_progress: "primary", completed: "success", canceled: "danger"};
 
 export default {
-    components: {FormModal},
+    components: {CatalogFormTabs, CopyButton, FormModal, StatusBadge, TableActionsDropdown},
     data() {
         const isRestaurant = window.location.pathname.includes("/restaurant");
 
@@ -637,6 +667,7 @@ export default {
             sessions: {data: [], links: []},
             reports: null,
             selectedSession: null,
+            sessionFormTab: SESSION_FORM_TABS[0].id,
             loading: false,
             sessionsRequestSequence: 0,
             reportsRequestSequence: 0,
@@ -668,6 +699,12 @@ export default {
         };
     },
     computed: {
+        sessionFormTabs() {
+            return SESSION_FORM_TABS;
+        },
+        sessionStatusVariants() {
+            return SESSION_STATUS_VARIANTS;
+        },
         breadcrumbTitles() {
             return this.isRestaurant
                 ? [{title: "Ventas"}, {title: "Punto de venta"}, {title: "POS restaurante", active: true}]
@@ -877,6 +914,8 @@ export default {
                 this.sessions = {data: [], links: [], total: 0};
                 this.notify(result, "No fue posible cargar las atenciones.");
             }
+
+            this.$nextTick(() => Alerts.tooltips({}));
         },
         async getReports() {
             if(this.isRestaurant || !this.selectedBranch) return;
@@ -991,6 +1030,7 @@ export default {
             this.notify(result, "Piso guardado correctamente.", "success");
         },
         openSessionModal(station = null) {
+            this.sessionFormTab = SESSION_FORM_TABS[0].id;
             this.sessionForm = {
                 station,
                 customer: null,

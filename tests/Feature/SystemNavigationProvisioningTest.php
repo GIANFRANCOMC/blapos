@@ -55,7 +55,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $this->assertSame(51, $catalogCount);
         $disabledRoutes = [
-            "dashboard.index", "reports.index", "restaurant_pos.index",
+            "home.index", "dashboard.index", "reports.index", "restaurant_pos.index",
             "tracking_customers.index", "tracking_subscriptions.index", "tracking_attendances.index",
             "tracking_notifications.index", "book_complaints.index", "recipes.index",
             "assets.index", "assets_management.index", "biometric_devices.index", "user_attendances.index",
@@ -64,7 +64,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $disabledIds = DB::table("sub_sections")->whereIn("dom_route", $disabledRoutes)->pluck("id");
 
-        $this->assertCount(14, $disabledIds);
+        $this->assertCount(15, $disabledIds);
         $this->assertSame($catalogCount - count($disabledRoutes), $companyCount);
         $this->assertSame($catalogCount, $adminCount);
         $this->assertSame(
@@ -380,7 +380,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_catalog_sync_preserves_company_choices_and_repairs_full_access_roles(): void {
+    public function test_catalog_sync_preserves_existing_choices_and_inserts_missing_role_permissions(): void {
 
         $subSectionId = (int) DB::table("sub_sections")
             ->where("dom_route", "sales.create")
@@ -388,6 +388,9 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $roleId = (int) DB::table("roles")
             ->where("is_full_access", true)
+            ->value("id");
+        $existingRoleModuleId = (int) DB::table("sub_sections")
+            ->where("dom_route", "sales.index")
             ->value("id");
 
         DB::table("companies_sub_sections")
@@ -398,6 +401,11 @@ final class SystemNavigationProvisioningTest extends TestCase {
         DB::table("role_sub_sections")
             ->where("role_id", $roleId)
             ->where("sub_section_id", $subSectionId)
+            ->delete();
+
+        DB::table("role_sub_sections")
+            ->where("role_id", $roleId)
+            ->where("sub_section_id", $existingRoleModuleId)
             ->update(["status" => "inactive"]);
 
         app(SystemCatalogSyncService::class)->sync();
@@ -412,6 +420,11 @@ final class SystemNavigationProvisioningTest extends TestCase {
             "role_id" => $roleId,
             "sub_section_id" => $subSectionId,
             "status" => "active",
+        ]);
+        $this->assertDatabaseHas("role_sub_sections", [
+            "role_id" => $roleId,
+            "sub_section_id" => $existingRoleModuleId,
+            "status" => "inactive",
         ]);
 
     }
@@ -628,7 +641,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_reseeding_hides_an_existing_business_profile_module(): void {
+    public function test_reseeding_does_not_overwrite_existing_module_preferences(): void {
 
         $moduleId = DB::table("sub_sections")->where("dom_route", "business_profile.index")->value("id");
 
@@ -638,11 +651,11 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         app(SystemNavigationSeeder::class)->run();
 
-        $this->assertDatabaseHas("sub_sections", ["id" => $moduleId, "is_enabled_by_default" => false]);
-        $this->assertDatabaseHas("companies_sub_sections", ["company_id" => 1, "sub_section_id" => $moduleId, "status" => "inactive"]);
+        $this->assertDatabaseHas("sub_sections", ["id" => $moduleId, "is_enabled_by_default" => true]);
+        $this->assertDatabaseHas("companies_sub_sections", ["company_id" => 1, "sub_section_id" => $moduleId, "status" => "active"]);
         $this->assertSame(3, DB::table("business_industry_module_sets")
             ->where("sub_section_id", $moduleId)
-            ->where("is_enabled_by_default", false)
+            ->where("is_enabled_by_default", true)
             ->count());
 
     }
@@ -655,7 +668,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         BusinessProfileService::updateModules([], $administratorId);
 
-        $protectedRoutes = ["workspace.index", "home.index", "account.index"];
+        $protectedRoutes = ["workspace.index", "account.index"];
         $protectedIds = DB::table("sub_sections")->whereIn("dom_route", $protectedRoutes)->pluck("id");
 
         $this->assertSame(
@@ -666,6 +679,12 @@ final class SystemNavigationProvisioningTest extends TestCase {
                 ->where("status", "active")
                 ->count()
         );
+
+        $this->assertDatabaseHas("companies_sub_sections", [
+            "company_id" => 1,
+            "sub_section_id" => DB::table("sub_sections")->where("dom_route", "home.index")->value("id"),
+            "status" => "inactive",
+        ]);
 
         $this->assertSame(
             "inactive",
@@ -750,37 +769,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_catalog_masters_absorb_legacy_classification_without_changing_routes(): void {
-
-        $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
-        $this->assertDatabaseMissing("menu_groups", ["id" => 14]);
-
-        DB::table("menu_groups")->where("id", 13)->update(["name" => "Oferta comercial"]);
-        DB::table("menu_groups")->insert([
-            "id" => 14,
-            "section_id" => 5,
-            "slug" => "catalog_organization",
-            "name" => "Clasificación",
-            "order" => 3,
-            "status" => "active",
-            "created_at" => now(),
-            "updated_at" => now(),
-        ]);
-
-        foreach([53 => 1, 55 => 2] as $id => $order) {
-
-            DB::table("sub_sections")->where("id", $id)->update([
-                "menu_group_id" => 14,
-                "order" => $order,
-            ]);
-
-            DB::table("companies_sub_sections")->where("sub_section_id", $id)->update([
-                "sub_section_order" => \App\Support\System\NavigationOrder::item(3, $order),
-            ]);
-
-        }
-
-        app(SystemNavigationSeeder::class)->run();
+    public function test_catalog_masters_are_inserted_in_the_final_group_without_legacy_migration(): void {
 
         $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
         $this->assertDatabaseMissing("menu_groups", ["id" => 14]);
@@ -799,11 +788,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ]);
 
         }
-
-        DB::table("menu_groups")->where("id", 13)->update(["name" => "Maestras personalizadas"]);
-        app(SystemNavigationSeeder::class)->run();
-
-        $this->assertSame("Maestras personalizadas", DB::table("menu_groups")->where("id", 13)->value("name"));
 
     }
 
@@ -918,25 +902,47 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $response->assertSee("br-navigation__rail", false);
         $response->assertSee("br-navigation has-context", false);
         $response->assertSee("id=\"menu-parent-workspace\"", false);
+        $response->assertSee("class=\"fa fa-home\"", false);
+        $response->assertDontSee("br-navigation__brand", false);
+        $response->assertDontSee("Volver a Mi espacio de trabajo", false);
         $response->assertSee("id=\"brNavigationContext\"", false);
+        $response->assertSee("data-navigation-panel=\"5\"", false);
+        $response->assertSee("id=\"menu-parent-items\"", false);
+        $response->assertDontSee("id=\"brNavigationPreview\"", false);
         $response->assertSee("Mi espacio de trabajo", false);
         $response->assertDontSee("br-menu-category__full", false);
 
     }
 
-    public function test_workspace_groups_home_dashboard_and_reports_in_one_primary_module(): void {
+    public function test_navigation_seeder_inserts_the_workspace_icon_once(): void {
+
+        $this->assertSame("fa fa-home", DB::table("sections")
+            ->where("slug", "sc_workspace")
+            ->value("dom_icon"));
+
+        DB::table("sections")->where("slug", "sc_workspace")->update(["dom_icon" => "fa-solid fa-compass"]);
+
+        app(SystemNavigationSeeder::class)->run();
+
+        $this->assertSame("fa-solid fa-compass", DB::table("sections")
+            ->where("slug", "sc_workspace")
+            ->value("dom_icon"));
+
+    }
+
+    public function test_workspace_keeps_only_its_own_pages(): void {
 
         $routes = DB::table("sub_sections")
             ->join("menu_groups", "menu_groups.id", "=", "sub_sections.menu_group_id")
-            ->whereIn("dom_route", ["workspace.index", "home.index", "account.index", "dashboard.index", "reports.index"])
+            ->where("sub_sections.section_id", 1)
             ->orderBy("menu_groups.order")
             ->orderBy("sub_sections.order")
             ->get(["sub_sections.section_id", "sub_sections.dom_route"]);
 
-        $this->assertCount(5, $routes);
+        $this->assertCount(3, $routes);
         $this->assertSame([1], $routes->pluck("section_id")->unique()->values()->all());
         $this->assertSame(
-            ["workspace.index", "home.index", "account.index", "dashboard.index", "reports.index"],
+            ["workspace.index", "dashboard.index", "reports.index"],
             $routes->pluck("dom_route")->all()
         );
 
@@ -1041,7 +1047,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->pluck("name")
             ->all();
 
-        $this->assertSame(["Organización", "Activos", "Accesos y ajustes"], $groups);
+        $this->assertSame(["Organización", "Activos", "Ajustes"], $groups);
         $this->assertDatabaseMissing("menu_groups", ["id" => 22]);
 
         $expectedRoutes = [
@@ -1055,6 +1061,8 @@ final class SystemNavigationProvisioningTest extends TestCase {
             "roles.index",
             "master_data.index",
             "business_profile.index",
+            "account.index",
+            "home.index",
         ];
 
         $orderedRoutes = DB::table("companies_sub_sections as company_modules")
@@ -1069,36 +1077,12 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_existing_configuration_access_groups_are_consolidated(): void {
+    public function test_configuration_access_is_inserted_in_its_final_group(): void {
 
-        DB::table("menu_groups")->insert([
-            "id" => 22,
-            "section_id" => 7,
-            "slug" => "sc_configuration-master_data",
-            "name" => "Datos maestros",
-            "order" => 4,
-            "status" => "active",
-            "created_at" => now(),
-            "updated_at" => now(),
-        ]);
-
-        DB::table("menu_groups")->where("id", 21)->update(["name" => "Accesos"]);
-
-        foreach([73 => 1, 74 => 2] as $id => $order) {
-
-            DB::table("sub_sections")->where("id", $id)->update(["menu_group_id" => 22, "order" => $order]);
-            DB::table("companies_sub_sections")->where("sub_section_id", $id)->update([
-                "sub_section_order" => \App\Support\System\NavigationOrder::item(4, $order),
-            ]);
-
-        }
-
-        app(SystemNavigationSeeder::class)->run();
-
-        $this->assertSame("Accesos y ajustes", DB::table("menu_groups")->where("id", 21)->value("name"));
+        $this->assertSame("Ajustes", DB::table("menu_groups")->where("id", 21)->value("name"));
         $this->assertDatabaseMissing("menu_groups", ["id" => 22]);
 
-        foreach([73 => 2, 74 => 3] as $id => $order) {
+        foreach([73 => 2, 74 => 3, 12 => 4, 10 => 5] as $id => $order) {
 
             $this->assertDatabaseHas("sub_sections", ["id" => $id, "menu_group_id" => 21, "order" => $order]);
             $this->assertDatabaseHas("companies_sub_sections", [
@@ -1107,6 +1091,37 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ]);
 
         }
+
+        $this->assertDatabaseHas("sub_sections", [
+            "id" => 10,
+            "section_id" => 7,
+            "menu_group_id" => 21,
+            "is_enabled_by_default" => false,
+        ]);
+        $this->assertDatabaseHas("companies_sub_sections", [
+            "company_id" => 1,
+            "sub_section_id" => 10,
+            "status" => "inactive",
+        ]);
+
+    }
+
+    public function test_account_page_uses_configuration_and_adjustments_navigation(): void {
+
+        Auth::login(\App\Models\System\Organizations\User::query()
+            ->where("email", "admin@example.test")
+            ->firstOrFail());
+
+        $this->withoutMiddleware([
+            \App\Http\Middleware\ResolveTenant::class,
+            \App\Http\Middleware\TrustHosts::class,
+            \App\Http\Middleware\EnsureTenantSession::class,
+            \App\Http\Middleware\EnsureAuthenticatedSession::class,
+            \App\Http\Middleware\EnsureOperationalScope::class,
+        ])->get(route("account.index"))
+            ->assertOk()
+            ->assertSee('data-navigation-world="Configuración"', false)
+            ->assertSee('data-navigation-group="Ajustes"', false);
 
     }
 

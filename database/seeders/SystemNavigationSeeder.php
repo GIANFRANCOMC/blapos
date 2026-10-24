@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Services\System\Organizations\Companies\{CompanySectionService};
-use App\Support\System\NavigationOrder;
 use Illuminate\Database\{Seeder};
-use Illuminate\Support\Facades\{DB, Schema};
+use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 final class SystemNavigationSeeder extends Seeder {
 
     private const DISABLED_BY_DEFAULT_ROUTES = [
+        "home.index",
         "dashboard.index",
         "reports.index",
         "restaurant_pos.index",
@@ -30,11 +30,16 @@ final class SystemNavigationSeeder extends Seeder {
 
     public function run(): void {
 
-        if(DB::table("sections")->exists() || DB::table("sub_sections")->exists()) {
+        $catalogTables = ["menu_categories", "sections", "menu_groups", "sub_sections"];
+        $populated = array_map(fn(string $table): bool => DB::table($table)->exists(), $catalogTables);
 
-            $this->consolidateCatalogMasters();
-            $this->consolidateConfigurationAccess();
-            $this->disableBusinessProfile();
+        if(in_array(true, $populated, true)) {
+
+            if(in_array(false, $populated, true)) {
+
+                throw new RuntimeException("El catálogo de navegación está incompleto; inicialízalo desde una base limpia.");
+
+            }
 
             return;
 
@@ -48,7 +53,7 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 4, "code" => "administration", "label" => "Administración", "order" => 4],
             ],
             "sections" => [
-                ["id" => 1, "menu_category_id" => 1, "slug" => "sc_workspace", "name" => "workspace", "order" => 1, "dom_id" => "menu-parent-workspace", "dom_label" => "Mi espacio de trabajo", "dom_icon" => "fa-solid fa-compass", "has_sub_menu" => true],
+                ["id" => 1, "menu_category_id" => 1, "slug" => "sc_workspace", "name" => "workspace", "order" => 1, "dom_id" => "menu-parent-workspace", "dom_label" => "Mi espacio de trabajo", "dom_icon" => "fa fa-home", "has_sub_menu" => true],
                 ["id" => 3, "menu_category_id" => 2, "slug" => "sc_sales", "name" => "sales", "order" => 1, "dom_id" => "menu-parent-sales", "dom_label" => "Ventas", "dom_icon" => "fa-solid fa-cash-register", "has_sub_menu" => true],
                 ["id" => 9, "menu_category_id" => 2, "slug" => "sc_purchases", "name" => "purchases", "order" => 2, "dom_id" => "menu-parent-purchases", "dom_label" => "Compras", "dom_icon" => "fa-solid fa-cart-flatbed", "has_sub_menu" => true],
                 ["id" => 10, "menu_category_id" => 2, "slug" => "sc_cash", "name" => "cash", "order" => 3, "dom_id" => "menu-parent-cash", "dom_label" => "Caja y finanzas", "dom_icon" => "fa-solid fa-vault", "has_sub_menu" => true],
@@ -74,14 +79,12 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Maestras", "order" => 2],
                 ["id" => 20, "section_id" => 7, "code" => "organization", "label" => "Organización", "order" => 1],
                 ["id" => 19, "section_id" => 7, "code" => "assets", "label" => "Activos", "order" => 2],
-                ["id" => 21, "section_id" => 7, "code" => "access", "label" => "Accesos y ajustes", "order" => 3],
+                ["id" => 21, "section_id" => 7, "code" => "access", "label" => "Ajustes", "order" => 3],
                 ["id" => 23, "section_id" => 1, "code" => "personal_workspace", "label" => "Mi espacio", "order" => 1],
                 ["id" => 24, "section_id" => 1, "code" => "workspace_analysis", "label" => "Análisis", "order" => 2],
             ],
             "items" => [
                 ["id" => 11, "section_id" => 1, "menu_group_id" => 23, "order" => 1, "slug" => "sc_workspace", "name" => "workspace", "dom_id" => "menu-workspace", "dom_label" => "Mi espacio", "dom_route" => "workspace.index", "description" => "Retoma tus rutas recientes y accede a las funciones que más utilizas."],
-                ["id" => 10, "section_id" => 1, "menu_group_id" => 23, "order" => 2, "slug" => "sc_home", "name" => "home", "dom_id" => "menu-home", "dom_label" => "Menú y favoritos", "dom_route" => "home.index", "description" => "Organiza y abre tus accesos favoritos del sistema."],
-                ["id" => 12, "section_id" => 1, "menu_group_id" => 23, "order" => 3, "slug" => "sc_account", "name" => "account", "dom_id" => "menu-account", "dom_label" => "Mi cuenta", "dom_route" => "account.index", "description" => "Actualiza tus datos personales y la información de tu cuenta."],
                 ["id" => 20, "section_id" => 1, "menu_group_id" => 24, "order" => 1, "slug" => "sc_dashboard", "name" => "dashboard", "dom_id" => "menu-dashboard", "dom_label" => "Dashboard", "dom_route" => "dashboard.index", "description" => "Consulta indicadores y el estado general de la operación."],
                 ["id" => 31, "section_id" => 3, "menu_group_id" => 1, "order" => 1, "slug" => "sc_sales-create", "name" => "sales-create", "dom_id" => "menu-sales-create", "dom_label" => "Nueva venta", "dom_route" => "sales.create", "description" => "Registra una venta de productos, servicios o membresías."],
                 ["id" => 30, "section_id" => 3, "menu_group_id" => 1, "order" => 2, "slug" => "sc_sales-list", "name" => "sales-list", "dom_id" => "menu-sales-list", "dom_label" => "Listado de ventas", "dom_route" => "sales.index", "description" => "Consulta las ventas registradas y sus detalles."],
@@ -129,6 +132,8 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 72, "section_id" => 7, "menu_group_id" => 21, "order" => 1, "slug" => "sc_configuration-roles", "name" => "configuration-roles", "dom_id" => "menu-configuration-roles", "dom_label" => "Perfiles de acceso", "dom_route" => "roles.index", "description" => "Define perfiles, permisos y módulos."],
                 ["id" => 73, "section_id" => 7, "menu_group_id" => 21, "order" => 2, "slug" => "sc_configuration-master-data", "name" => "configuration-master-data", "dom_id" => "menu-configuration-master-data", "dom_label" => "Maestros internos", "dom_route" => "master_data.index", "description" => "Administra tributos, pagos y maestros internos."],
                 ["id" => 74, "section_id" => 7, "menu_group_id" => 21, "order" => 3, "slug" => "sc-configuration-business-profile", "name" => "configuration-business-profile", "dom_id" => "menu-configuration-business-profile", "dom_label" => "Rubro y módulos", "dom_route" => "business_profile.index", "description" => "Configura el rubro y módulos sugeridos."],
+                ["id" => 12, "section_id" => 7, "menu_group_id" => 21, "order" => 4, "slug" => "sc_account", "name" => "account", "dom_id" => "menu-account", "dom_label" => "Mi cuenta", "dom_route" => "account.index", "description" => "Actualiza tus datos personales y la información de tu cuenta."],
+                ["id" => 10, "section_id" => 7, "menu_group_id" => 21, "order" => 5, "slug" => "sc_home", "name" => "home", "dom_id" => "menu-home", "dom_label" => "Menú y favoritos", "dom_route" => "home.index", "description" => "Organiza y abre tus accesos favoritos del sistema."],
                 ["id" => 80, "section_id" => 1, "menu_group_id" => 24, "order" => 2, "slug" => "sc_reports", "name" => "reports", "dom_id" => "menu-reports", "dom_label" => "Reportes", "dom_route" => "reports.index", "description" => "Genera reportes para análisis operativo."],
             ],
         ];
@@ -187,181 +192,6 @@ final class SystemNavigationSeeder extends Seeder {
             }
 
         });
-
-    }
-
-    private function disableBusinessProfile(): void {
-
-        if(!Schema::hasTable("sub_sections")) return;
-
-        $moduleId = DB::table("sub_sections")
-            ->where("dom_route", "business_profile.index")
-            ->value("id");
-
-        if(!$moduleId) return;
-
-        $changed = DB::transaction(function() use ($moduleId): bool {
-
-            $now = now();
-            $changed = DB::table("sub_sections")
-                ->where("id", $moduleId)
-                ->where("is_enabled_by_default", true)
-                ->update(["is_enabled_by_default" => false, "updated_at" => $now]) > 0;
-
-            if(Schema::hasTable("companies_sub_sections")) {
-
-                $changed = DB::table("companies_sub_sections")
-                    ->where("sub_section_id", $moduleId)
-                    ->where("status", "active")
-                    ->update(["status" => "inactive", "updated_at" => $now]) > 0 || $changed;
-
-            }
-
-            if(Schema::hasTable("business_industry_module_sets")) {
-
-                $changed = DB::table("business_industry_module_sets")
-                    ->where("sub_section_id", $moduleId)
-                    ->where("is_enabled_by_default", true)
-                    ->update(["is_enabled_by_default" => false, "updated_at" => $now]) > 0 || $changed;
-
-            }
-
-            return $changed;
-
-        });
-
-        if($changed) CompanySectionService::clearTenantCache();
-
-    }
-
-    private function consolidateCatalogMasters(): void {
-
-        if(!Schema::hasTable("menu_groups") || !Schema::hasTable("sub_sections")) {
-
-            return;
-
-        }
-
-        $updated = DB::transaction(function(): bool {
-
-            $masters = DB::table("menu_groups")
-                ->where("id", 13)
-                ->where("section_id", 5)
-                ->first();
-
-            if(!$masters) return false;
-
-            $changed = DB::table("menu_groups")
-                ->where("id", 13)
-                ->where("name", "Oferta comercial")
-                ->update(["name" => "Maestras", "updated_at" => now()]) > 0;
-
-            $legacyGroup = DB::table("menu_groups")
-                ->where("id", 14)
-                ->where("section_id", 5)
-                ->exists();
-
-            if(!$legacyGroup) return $changed;
-
-            $legacyItems = DB::table("sub_sections")
-                ->where("menu_group_id", 14)
-                ->orderBy("order")
-                ->pluck("id");
-
-            $orders = [53 => 4, 55 => 5, 59 => 6];
-            $nextOrder = max(7, (int) DB::table("sub_sections")
-                ->where("menu_group_id", 13)
-                ->max("order") + 1);
-
-            foreach($legacyItems as $id) {
-
-                $order = $orders[$id] ?? $nextOrder++;
-
-                DB::table("sub_sections")
-                    ->where("id", $id)
-                    ->update(["menu_group_id" => 13, "order" => $order, "updated_at" => now()]);
-
-                if(Schema::hasTable("companies_sub_sections")) {
-
-                    DB::table("companies_sub_sections")
-                        ->where("sub_section_id", $id)
-                        ->update(["sub_section_order" => NavigationOrder::item(2, $order), "updated_at" => now()]);
-
-                }
-
-            }
-
-            DB::table("sub_sections")
-                ->where("id", 59)
-                ->where("menu_group_id", 13)
-                ->update(["order" => 6, "updated_at" => now()]);
-
-            if(Schema::hasTable("companies_sub_sections")) {
-
-                DB::table("companies_sub_sections")
-                    ->where("sub_section_id", 59)
-                    ->update(["sub_section_order" => NavigationOrder::item(2, 6), "updated_at" => now()]);
-
-            }
-
-            DB::table("menu_groups")->where("id", 14)->delete();
-
-            return true;
-
-        });
-
-        if($updated) {
-
-            CompanySectionService::clearTenantCache();
-
-        }
-
-    }
-
-    private function consolidateConfigurationAccess(): void {
-
-        if(!Schema::hasTable("menu_groups") || !Schema::hasTable("sub_sections")) return;
-
-        $changed = DB::transaction(function(): bool {
-
-            $group = DB::table("menu_groups")->where("id", 21)->where("section_id", 7)->first();
-
-            if(!$group) return false;
-
-            $changed = DB::table("menu_groups")
-                ->where("id", 21)
-                ->where("name", "!=", "Accesos y ajustes")
-                ->update(["name" => "Accesos y ajustes", "updated_at" => now()]) > 0;
-
-            foreach([73 => 2, 74 => 3] as $id => $order) {
-
-                $updated = DB::table("sub_sections")
-                    ->where("id", $id)
-                    ->where("section_id", 7)
-                    ->where(function($query) use ($order): void {
-                        $query->where("menu_group_id", "!=", 21)->orWhere("order", "!=", $order);
-                    })
-                    ->update(["menu_group_id" => 21, "order" => $order, "updated_at" => now()]);
-
-                if(!$updated) continue;
-
-                $changed = true;
-
-                if(Schema::hasTable("companies_sub_sections")) {
-                    DB::table("companies_sub_sections")
-                        ->where("sub_section_id", $id)
-                        ->update(["sub_section_order" => NavigationOrder::item(3, $order), "updated_at" => now()]);
-                }
-
-            }
-
-            DB::table("menu_groups")->where("id", 22)->where("section_id", 7)->delete();
-
-            return $changed;
-
-        });
-
-        if($changed) CompanySectionService::clearTenantCache();
 
     }
 

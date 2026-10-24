@@ -90,11 +90,7 @@ final class SystemCatalogSyncService {
             })
             ->all();
 
-        DB::table("companies_sub_sections")->upsert(
-            $companyModules,
-            ["company_id", "sub_section_id"],
-            ["section_order", "sub_section_order", "updated_at"]
-        );
+        DB::table("companies_sub_sections")->insertOrIgnore($companyModules);
 
         if(!Schema::hasTable("role_sub_sections")) {
 
@@ -123,11 +119,7 @@ final class SystemCatalogSyncService {
 
         }
 
-        DB::table("role_sub_sections")->upsert(
-            $roleModules,
-            ["role_id", "sub_section_id"],
-            ["status", "updated_at"]
-        );
+        DB::table("role_sub_sections")->insertOrIgnore($roleModules);
 
     }
 
