@@ -17,14 +17,12 @@ final class UserNavigationMetric extends Model {
         "user_id",
         "sub_section_id",
         "visit_count",
-        "recent_rank",
     ];
 
     protected $casts = [
         "user_id" => "integer",
         "sub_section_id" => "integer",
         "visit_count" => "integer",
-        "recent_rank" => "integer",
     ];
 
     public function user() {

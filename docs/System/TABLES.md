@@ -43,7 +43,7 @@ Landlord no guarda el ID local de `companies`. El tenant se identifica extername
 | `role_branches`, `role_cash_registers`, `role_warehouses` | Alcances operativos de perfiles. |
 | `users` | Colaboradores autenticables del tenant. |
 | `user_branches`, `user_cash_registers`, `user_warehouses` | Restricciones adicionales del usuario. |
-| `user_preferences`, `user_navigation_metrics` | Preferencias, rutas recientes y contador de uso. |
+| `user_preferences`, `user_navigation_metrics` | Preferencias y contadores de uso para accesos frecuentes. |
 
 `company_settings` y `companies_sub_sections` usan una clave única compuesta con `company_id` porque son extensiones directas de la raíz. Las demás tablas son únicas dentro de su base tenant.
 

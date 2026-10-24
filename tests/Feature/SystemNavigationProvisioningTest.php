@@ -900,8 +900,10 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $response->assertOk();
         $response->assertSee("br-navigation__rail", false);
-        $response->assertSee("br-navigation has-context", false);
+        $response->assertSee("br-navigation without-context", false);
         $response->assertSee("id=\"menu-parent-workspace\"", false);
+        $response->assertSee('href="'.route("workspace.index").'"', false);
+        $response->assertSee('data-navigation-count="1"', false);
         $response->assertSee("class=\"fa fa-home\"", false);
         $response->assertDontSee("br-navigation__brand", false);
         $response->assertDontSee("Volver a Mi espacio de trabajo", false);

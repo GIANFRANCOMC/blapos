@@ -2,20 +2,23 @@
 
 ## Propósito
 
-`Mi espacio de trabajo` consolida en un solo mundo las páginas Mi espacio, Menú y favoritos, Mi cuenta, Dashboard y Reportes. Su página inicial, `Mi espacio`, permite retomar rápidamente las rutas recientes y acceder a las funciones más utilizadas por cada usuario.
+`Mi espacio de trabajo` presenta las funciones más utilizadas por cada usuario y otros accesos permitidos. No muestra un historial de páginas recientes.
+
+Ambos grupos comparten tarjetas horizontales con el nombre del submódulo y su mundo. El contador de visitas ordena «Más utilizados», pero no se muestra en la interfaz.
+
+«También puedes usar» muestra funciones habilitadas para la empresa y el perfil que no estén entre las más utilizadas, aunque el usuario ya las haya visitado. Workspace saluda al usuario y mantiene visible un panel con el logo, la identificación y el contacto de la empresa. En escritorio el panel queda a la derecha; en pantallas estrechas aparece antes de los accesos.
 
 La autenticación tenant utiliza `/workspace` como destino predeterminado.
 
-## Persistencia escalable
+## Persistencia
 
-La tabla `user_navigation_metrics` utiliza una fila agregada por empresa, usuario y `sub_section`:
+La tabla `user_navigation_metrics` utiliza una fila agregada por usuario y `sub_section`:
 
 | Campo | Uso |
 | --- | --- |
 | `user_id` | Propietario de la preferencia. |
 | `sub_section_id` | Página del catálogo, sin almacenar URLs libres. |
 | `visit_count` | Total acumulado de visitas. |
-| `recent_rank` | Posición reciente entre 1 y 10; `NULL` fuera del límite. |
 
 La clave única `user_id + sub_section_id` impide duplicar registros por visita. No se almacenan timestamps porque esta funcionalidad no requiere auditoría temporal.
 
@@ -24,8 +27,8 @@ La clave única `user_id + sub_section_id` impide duplicar registros por visita.
 1. Una petición `GET` HTML supera autenticación, permisos y alcance operativo.
 2. `TrackUserNavigation` espera una respuesta exitosa.
 3. `UserNavigationService` resuelve la ruta contra el catálogo activo de `sub_sections`.
-4. Dentro de una transacción incrementa `visit_count`, coloca la página en `recent_rank = 1`, desplaza las demás y deja en `NULL` cualquier posición superior a 10.
-5. Mi espacio obtiene recientes y más usados exclusivamente entre las páginas permitidas por `CompanySectionService`.
+4. Dentro de una transacción incrementa `visit_count`.
+5. Mi espacio obtiene los más usados exclusivamente entre las páginas permitidas por `CompanySectionService`.
 
 La propia ruta `workspace.index`, endpoints AJAX, respuestas JSON y errores no se contabilizan.
 
@@ -44,7 +47,7 @@ La propia ruta `workspace.index`, endpoints AJAX, respuestas JSON y errores no s
 ## Validaciones cubiertas
 
 - Una visita repetida incrementa el contador sin crear otra fila.
-- Solo diez páginas conservan `recent_rank`.
-- Los contadores permanecen agregados aunque una página salga de recientes.
+- La tabla y el modelo no contienen `recent_rank`.
+- Los contadores permanecen agregados por usuario y página.
 - Mi espacio es el destino autenticado predeterminado.
 - Menú y favoritos, Mi cuenta, Dashboard y Reportes comparten el mismo mundo.

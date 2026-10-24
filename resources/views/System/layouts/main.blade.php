@@ -136,12 +136,32 @@
                             @foreach($navigationSections as $section)
                                 @php
                                     $isActiveSection = $activeNavigationSection?->id === $section->id;
+                                    $singlePage = $section->subSections->count() === 1
+                                        ? $section->subSections->first()
+                                        : null;
                                 @endphp
+                                @if($singlePage)
+                                <a
+                                    href="{{ $singlePage->dom_route_url }}"
+                                    id="{{ $section->dom_id }}"
+                                    class="br-navigation__module {{ $isActiveSection ? 'is-active' : '' }} {{ $section->dom_id }}"
+                                    data-navigation-section="{{ $section->id }}"
+                                    data-navigation-count="1"
+                                    aria-current="{{ $isActiveSection ? 'page' : 'false' }}"
+                                    aria-label="{{ $section->dom_label }}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="right"
+                                    data-bs-custom-class="br-navigation-tooltip"
+                                    title="{{ $section->dom_label }}">
+                                    <i class="{{ $section->dom_icon }}" aria-hidden="true"></i>
+                                </a>
+                                @else
                                 <button
                                     type="button"
                                     id="{{ $section->dom_id }}"
                                     class="br-navigation__module {{ $isActiveSection ? 'is-active' : '' }} {{ $section->dom_id }}"
                                     data-navigation-section="{{ $section->id }}"
+                                    data-navigation-count="{{ $section->subSections->count() }}"
                                     aria-controls="{{ $isActiveSection ? 'brNavigationContext' : 'brNavigationContext-'.$section->id }}"
                                     aria-pressed="{{ $isActiveSection ? 'true' : 'false' }}"
                                     aria-label="{{ $section->dom_label }}"
@@ -151,6 +171,7 @@
                                     title="{{ $section->dom_label }}">
                                     <i class="{{ $section->dom_icon }}" aria-hidden="true"></i>
                                 </button>
+                                @endif
                             @endforeach
                         </nav>
 

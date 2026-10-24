@@ -294,12 +294,10 @@ return new class extends Migration {
             $table->unsignedBigInteger("user_id");
             $table->unsignedBigInteger("sub_section_id");
             $table->unsignedBigInteger("visit_count")->default(0);
-            $table->unsignedTinyInteger("recent_rank")->nullable();
 
             $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
             $table->foreign("sub_section_id")->references("id")->on("sub_sections")->onDelete("cascade");
             $table->unique(["user_id", "sub_section_id"], "user_navigation_route_unique");
-            $table->index(["user_id", "recent_rank"], "user_navigation_recent_index");
             $table->index(["user_id", "visit_count"], "user_navigation_visits_index");
 
         });

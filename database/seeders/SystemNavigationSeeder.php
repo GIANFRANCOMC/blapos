@@ -84,7 +84,7 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 24, "section_id" => 1, "code" => "workspace_analysis", "label" => "Análisis", "order" => 2],
             ],
             "items" => [
-                ["id" => 11, "section_id" => 1, "menu_group_id" => 23, "order" => 1, "slug" => "sc_workspace", "name" => "workspace", "dom_id" => "menu-workspace", "dom_label" => "Mi espacio", "dom_route" => "workspace.index", "description" => "Retoma tus rutas recientes y accede a las funciones que más utilizas."],
+                ["id" => 11, "section_id" => 1, "menu_group_id" => 23, "order" => 1, "slug" => "sc_workspace", "name" => "workspace", "dom_id" => "menu-workspace", "dom_label" => "Mi espacio", "dom_route" => "workspace.index", "description" => "Accede a las funciones que más utilizas."],
                 ["id" => 20, "section_id" => 1, "menu_group_id" => 24, "order" => 1, "slug" => "sc_dashboard", "name" => "dashboard", "dom_id" => "menu-dashboard", "dom_label" => "Dashboard", "dom_route" => "dashboard.index", "description" => "Consulta indicadores y el estado general de la operación."],
                 ["id" => 31, "section_id" => 3, "menu_group_id" => 1, "order" => 1, "slug" => "sc_sales-create", "name" => "sales-create", "dom_id" => "menu-sales-create", "dom_label" => "Nueva venta", "dom_route" => "sales.create", "description" => "Registra una venta de productos, servicios o membresías."],
                 ["id" => 30, "section_id" => 3, "menu_group_id" => 1, "order" => 2, "slug" => "sc_sales-list", "name" => "sales-list", "dom_id" => "menu-sales-list", "dom_label" => "Listado de ventas", "dom_route" => "sales.index", "description" => "Consulta las ventas registradas y sus detalles."],

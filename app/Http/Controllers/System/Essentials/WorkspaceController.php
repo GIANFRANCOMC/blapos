@@ -6,7 +6,9 @@ namespace App\Http\Controllers\System\Essentials;
 
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Services\System\Essentials\{UserNavigationService};
+use App\Services\System\Tenancy\{TenantCompanyContext};
 use Illuminate\Contracts\View\{View};
+use Illuminate\Support\Facades\{Storage};
 
 final class WorkspaceController extends BaseController {
 
@@ -16,9 +18,19 @@ final class WorkspaceController extends BaseController {
 
     public function index(): View {
 
-        $workspace = $this->navigationService->getWorkspace($this->getAuthUser());
+        $user = $this->getAuthUser();
+        $workspace = $this->navigationService->getWorkspace($user);
+        $company = app(TenantCompanyContext::class)->get()->loadMissing("identityDocumentType", "socialsMedia");
+        $companySocials = $company->socialsMedia->keyBy("type");
+        $companyName = $company->commercial_name ?: $company->legal_name ?: "Empresa";
+        $logoPath = collect([$company->combinationmark, $company->logomark, $company->logotype])
+            ->filter()
+            ->first(fn(string $path): bool => Storage::disk("public")->exists($path));
+        $logoUrl = $logoPath
+            ? asset("storage/".$logoPath)
+            : asset(config("app.owner_app")->assets->img->combinationmark);
 
-        return view("System/general/Essentials/workspace/main", compact("workspace"));
+        return view("System/general/Essentials/workspace/main", compact("user", "workspace", "company", "companyName", "companySocials", "logoUrl"));
 
     }
 

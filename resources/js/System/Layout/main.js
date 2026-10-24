@@ -1,5 +1,36 @@
 // Comportamientos compartidos del layout del sistema.
 
+import {createTooltip} from "../Helpers/Alerts.js";
+import {writeClipboard} from "../Helpers/Clipboard.js";
+
+const copyResetTimers = new WeakMap();
+
+document.addEventListener("click", async function (event) {
+
+    const button = event.target.closest("[data-br-copy-value]");
+
+    if(!button) return;
+
+    try {
+
+        await writeClipboard(button.dataset.brCopyValue);
+        createTooltip(button, "Copiado")?.show();
+
+    }catch(error) {
+
+        createTooltip(button, "No se pudo copiar")?.show();
+
+    }
+
+    window.clearTimeout(copyResetTimers.get(button));
+    copyResetTimers.set(button, window.setTimeout(function () {
+
+        createTooltip(button, "Copiar");
+
+    }, 1400));
+
+});
+
 function confirmLogout() {
 
     var submitLogout = function () {
@@ -262,7 +293,9 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
 
         if(!selectedModule) return;
 
-        showingOtherWorldMenu = sectionId !== currentSectionId;
+        var hasSubmenu = Number(selectedModule.dataset.navigationCount) > 1;
+
+        showingOtherWorldMenu = hasSubmenu && sectionId !== currentSectionId;
 
         modules.forEach(function (moduleButton) {
 
@@ -270,19 +303,21 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
 
             moduleButton.classList.remove("active", "open");
             moduleButton.classList.toggle("is-active", selected);
-            moduleButton.setAttribute("aria-pressed", selected ? "true" : "false");
+            if(moduleButton.tagName === "BUTTON") {
+                moduleButton.setAttribute("aria-pressed", selected ? "true" : "false");
+            }
 
         });
 
         panels.forEach(function (panel) {
-            panel.hidden = panel.dataset.navigationPanel !== sectionId;
+            panel.hidden = !hasSubmenu || panel.dataset.navigationPanel !== sectionId;
         });
 
-        navigation.classList.remove("without-context");
-        navigation.classList.add("has-context");
-        document.documentElement.classList.remove("br-navigation-without-context");
-        document.documentElement.classList.add("br-navigation-with-context");
-        if(document.documentElement.classList.contains("layout-menu-collapsed")) {
+        navigation.classList.toggle("without-context", !hasSubmenu);
+        navigation.classList.toggle("has-context", hasSubmenu);
+        document.documentElement.classList.toggle("br-navigation-without-context", !hasSubmenu);
+        document.documentElement.classList.toggle("br-navigation-with-context", hasSubmenu);
+        if(hasSubmenu && document.documentElement.classList.contains("layout-menu-collapsed")) {
             document.documentElement.classList.remove("layout-menu-collapsed");
             window.dispatchEvent(new Event("resize"));
         }
@@ -293,6 +328,9 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
         moduleButton.addEventListener("click", function (event) {
 
             window.bootstrap?.Tooltip?.getInstance(moduleButton)?.hide();
+
+            if(moduleButton.tagName === "A") return;
+
             selectWorld(moduleButton.dataset.navigationSection);
 
             if(event.detail === 0) {
@@ -367,7 +405,9 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
 
                 var isActive = moduleLink.dataset.navigationSection === sectionId;
                 moduleLink.classList.toggle("is-active", isActive);
-                moduleLink.setAttribute("aria-pressed", isActive ? "true" : "false");
+                if(moduleLink.tagName === "BUTTON") {
+                    moduleLink.setAttribute("aria-pressed", isActive ? "true" : "false");
+                }
 
             });
 

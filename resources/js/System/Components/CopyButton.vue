@@ -14,6 +14,7 @@
 
 <script>
 import {createTooltip} from "../Helpers/Alerts.js";
+import {writeClipboard} from "../Helpers/Clipboard.js";
 
 export default {
     name: "CopyButton",
@@ -106,7 +107,7 @@ export default {
 
             try {
 
-                await this.writeClipboard(this.cleanValue);
+                await writeClipboard(this.cleanValue);
                 this.showTooltip(this.copiedTooltip ?? this.defaultCopiedTooltip);
 
             }catch(error) {
@@ -114,32 +115,6 @@ export default {
                 this.showTooltip("No se pudo copiar");
 
             }
-
-        },
-        async writeClipboard(text) {
-
-            if(navigator.clipboard?.writeText && window.isSecureContext) {
-
-                await navigator.clipboard.writeText(text);
-                return;
-
-            }
-
-            const textarea = document.createElement("textarea");
-
-            textarea.value = text;
-            textarea.setAttribute("readonly", "");
-            textarea.style.position = "fixed";
-            textarea.style.left = "-9999px";
-            textarea.style.top = "0";
-            document.body.appendChild(textarea);
-            textarea.select();
-
-            const copied = document.execCommand("copy");
-
-            document.body.removeChild(textarea);
-
-            if(!copied) throw new Error("Clipboard copy failed");
 
         },
         showTooltip(message) {

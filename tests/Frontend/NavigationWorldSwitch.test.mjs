@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
-test("cambiar de mundo muestra su menú sin navegar al primer submódulo", () => {
+test("un mundo de página única navega y los demás muestran su menú lateral", () => {
 
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
     const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
@@ -11,9 +11,13 @@ test("cambiar de mundo muestra su menú sin navegar al primer submódulo", () =>
     assert.match(layout, /@vite\("resources\/js\/System\/Layout\/main\.js"\)/);
     assert.match(layout, /data-navigation-section-id="\{\{ \$activeNavigationSection\?->id \}\}"/);
     assert.match(layout, /<button\s+type="button"\s+id="\{\{ \$section->dom_id \}\}"\s+class="br-navigation__module/);
+    assert.match(layout, /@if\(\$singlePage\)[\s\S]*?<a\s+href="\{\{ \$singlePage->dom_route_url \}\}"/);
+    assert.match(layout, /data-navigation-count="\{\{ \$section->subSections->count\(\) \}\}"/);
     assert.doesNotMatch(layout, /href="\{\{ \$reference->dom_route_url \}\}"/);
     assert.match(layout, /@foreach\(\$navigationSections as \$section\)[\s\S]*data-navigation-panel="\{\{ \$section->id \}\}"/);
-    assert.match(behavior, /panel\.hidden = panel\.dataset\.navigationPanel !== sectionId/);
+    assert.match(behavior, /panel\.hidden = !hasSubmenu \|\| panel\.dataset\.navigationPanel !== sectionId/);
+    assert.match(behavior, /var hasSubmenu = Number\(selectedModule\.dataset\.navigationCount\) > 1/);
+    assert.match(behavior, /if\(moduleButton\.tagName === "A"\) return;/);
     assert.doesNotMatch(behavior, /content\.hidden|preview\.hidden|br-navigation-previewing/);
     assert.match(behavior, /selectWorld\(currentSectionId\)/);
     assert.match(behavior, /if\(!showingOtherWorldMenu\) return;/);

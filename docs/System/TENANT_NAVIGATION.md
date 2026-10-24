@@ -15,23 +15,14 @@ La estructura visible se obtiene de los catálogos existentes de base de datos:
 
 `menu_categories` continúa disponible para ordenamiento y configuración interna, pero sus categorías no se muestran en la navegación.
 
-El primer módulo se denomina `Mi espacio de trabajo` y agrupa las páginas estructurales:
+El primer módulo se denomina `Mi espacio de trabajo` y ofrece la página Mi espacio. Mi cuenta y Menú y favoritos pertenecen a Configuración. Dashboard y Reportes se muestran solo cuando están habilitados.
 
-- Mi espacio.
-- Menú y favoritos.
-- Mi cuenta.
-- Dashboard.
-- Reportes.
-
-De esta forma ocupan un único acceso en la barra primaria y se seleccionan desde el panel contextual.
-
-## Mi espacio y recomendaciones
+## Mi espacio y accesos frecuentes
 
 Después de autenticarse, el usuario es dirigido a `/workspace`. Esta pantalla presenta:
 
-- las últimas diez páginas visitadas;
 - las diez páginas con mayor cantidad de visitas;
-- accesos iniciales permitidos cuando todavía no existe actividad suficiente.
+- otros accesos permitidos que no aparezcan entre los más utilizados.
 
 La navegación se registra mediante `UserNavigationService` únicamente para peticiones `GET` HTML exitosas cuya ruta corresponda exactamente a una `sub_section` activa. No se contabilizan solicitudes AJAX, respuestas JSON, errores ni la propia pantalla `workspace.index`.
 
@@ -40,7 +31,6 @@ Durante una recreación progresiva de bases tenant, `UserNavigationService` comp
 `user_navigation_metrics` no es un historial de eventos. Conserva una sola fila por combinación `user_id` y `sub_section_id` con:
 
 - `visit_count`: contador acumulado y atómico;
-- `recent_rank`: posición de 1 a 10, o `NULL` cuando la página ya no pertenece a las últimas diez.
 
 Por tanto, el número de filas por usuario está limitado naturalmente por la cantidad de páginas navegables del catálogo. No se almacenan fecha, hora ni una fila nueva por visita. Las consultas de Mi espacio vuelven a filtrar las páginas con `CompanySectionService`, por lo que nunca recomiendan módulos desactivados o no permitidos para el rol.
 
@@ -98,7 +88,7 @@ El seguimiento captura el nombre de ruta y la URL solicitada antes de ejecutar e
 - `resources/css/System/br-branding/51-two-level-navigation.css`: diseño responsive de dos niveles.
 - `app/Services/System/Organizations/Companies/CompanySectionService.php`: permisos y módulos disponibles.
 - `database/seeders/SystemNavigationSeeder.php`: catálogo de módulos, secciones y páginas.
-- `app/Services/System/Essentials/UserNavigationService.php`: contadores, recientes y recomendaciones.
+- `app/Services/System/Essentials/UserNavigationService.php`: contadores y accesos frecuentes.
 - `app/Http/Middleware/TrackUserNavigation.php`: registro no intrusivo de navegación.
 - `resources/views/System/general/Essentials/workspace/main.blade.php`: pantalla Mi espacio.
 - `resources/css/System/br-branding/52-workspace.css`: presentación responsive de Mi espacio.
