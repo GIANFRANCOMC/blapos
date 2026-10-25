@@ -1,6 +1,7 @@
 <x-system-guest-layout>
     @php
         $ownerApp     = config("app.owner_app");
+        $supportContact = app(\App\Services\System\Tenancy\PlatformSupportService::class)->contact();
         $hasCompany   = isset($data->company) && !empty($data->company);
         $seeLoginForm = $hasCompany;
     @endphp
@@ -80,11 +81,11 @@
                                 <div class="br-auth-support-bar__inner">
                                     <div class="br-auth-support-bar__channel">
                                         <span class="br-auth-support-bar__label">Correo electrónico</span>
-                                        <a href="mailto:{{ $ownerApp->support->email }}" class="br-link">{{ $ownerApp->support->email }}</a>
+                                        <a href="mailto:{{ $supportContact['email'] }}" class="br-link">{{ $supportContact['email'] }}</a>
                                     </div>
                                     <div class="br-auth-support-bar__channel br-auth-support-bar__channel--phone">
                                         <span class="br-auth-support-bar__label">Teléfono</span>
-                                        <a href="tel:{{ $ownerApp->support->phone }}" class="br-link">{{ $ownerApp->support->phone }}</a>
+                                        <a href="tel:{{ $supportContact['phone_href'] }}" class="br-link">{{ $supportContact['phone'] }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -96,11 +97,7 @@
         @if($seeLoginForm)
             <div class="text-center mt-3 mt-md-4 px-2">
                 <small class="br-auth-help-footer d-inline-block mb-0">
-                    <span class="br-auth-help-question">¿Necesitas ayuda?</span>
-                    <span class="text-muted"> Escríbenos a </span>
-                    <a href="mailto:{{ $ownerApp->support->email }}" class="br-link">{{ $ownerApp->support->email }}</a>
-                    <span class="text-muted"> o llámanos al </span>
-                    <a href="tel:{{ $ownerApp->support->phone }}" class="br-link">{{ $ownerApp->support->phone }}</a>
+                    @include("shared.support-contact")
                 </small>
             </div>
         @endif

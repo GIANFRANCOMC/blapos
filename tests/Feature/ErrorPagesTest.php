@@ -19,6 +19,9 @@ final class ErrorPagesTest extends TestCase {
 
             $this->assertStringContainsString("Error {$code}", $html);
             $this->assertStringContainsString('class="br-error-page"', $html);
+            $this->assertStringContainsString("¿Necesitas ayuda?", $html);
+            $this->assertStringContainsString('href="mailto:gianfranco_29_01@hotmail.com"', $html);
+            $this->assertStringContainsString('href="tel:+51987057624"', $html);
             $action = match($code) {
                 401, 419 => "Iniciar sesión",
                 503 => "Reintentar",

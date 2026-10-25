@@ -132,7 +132,7 @@
             <div class="layout-container">
                 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme br-menu-brand br-navigation {{ $showNavigationContext ? 'has-context' : 'without-context' }}" aria-label="Navegación principal">
                     <div class="br-navigation__rail">
-                        <nav class="br-navigation__modules" aria-label="Módulos disponibles">
+                        <nav id="brNavigationWorlds" class="br-navigation__modules" aria-label="Módulos disponibles">
                             @foreach($navigationSections as $section)
                                 @php
                                     $isActiveSection = $activeNavigationSection?->id === $section->id;
@@ -200,15 +200,12 @@
                         @if(!$isActiveSection || !$showNavigationContext) hidden @endif>
                         <div class="br-navigation__context-head">
                             <div class="br-navigation__world-card">
-                                <span class="br-navigation__world-icon" aria-hidden="true">
-                                    <i class="{{ $section->dom_icon }}"></i>
-                                </span>
                                 <h2 class="br-navigation__world-title">{{ $section->dom_label }}</h2>
                             </div>
                         </div>
 
                         <nav class="br-navigation__context-body" aria-label="Opciones de {{ $section->dom_label }}">
-                            @foreach($section->subSections->groupBy(fn($subSection) => $subSection->menuGroup?->id ?? 0) as $menuGroupItems)
+                            @foreach(\App\Support\System\NavigationMenuGroups::ordered($section->subSections) as $menuGroupItems)
                                 @php
                                     $menuGroup = $menuGroupItems->first()->menuGroup;
                                 @endphp
@@ -252,14 +249,6 @@
                                         <i class="ti ti-menu-2" aria-hidden="true"></i>
                                     </a>
                                 </div>
-                            {{-- <div class="navbar-nav align-items-center">
-                                <div class="nav-item navbar-search-wrapper mb-0">
-                                    <a class="nav-item nav-link search-toggler d-flex align-items-center px-0 br-navbar-brand-link" href="{{ $ownerApp->web }}" target="_blank" rel="noopener noreferrer">
-                                        <img src="{{ asset($ownerApp->assets->img->logotype) }}" class="d-none d-md-block" width="80"/>
-                                        <img src="{{ asset($ownerApp->assets->img->logomark) }}" class="d-block d-md-none" width="50"/>
-                                    </a>
-                                </div>
-                            </div> --}}
                             </div>
 
                             <div class="br-navbar-actions">

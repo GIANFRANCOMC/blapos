@@ -251,7 +251,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
   font-size: 0.875rem;
 }
 
-.br-auth-login-page .br-auth-help-footer .br-auth-help-question {
+.br-auth-login-page .br-auth-help-footer .br-support-contact__question {
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--br-white) !important;

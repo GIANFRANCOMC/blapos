@@ -31,11 +31,11 @@ test("el breadcrumb usa la navegación activa como fuente para todos los módulo
     assert.deepEqual(
         withNavigationGroup(
             [{title: "Restaurante y servicios"}, {title: "Servicios en curso", active: true}],
-            {world: "Clientes", group: "Servicios", page: "Servicios en curso"}
+            {world: "Inicio", group: "Seguimiento", page: "Servicios en curso"}
         ),
         [
-            {title: "Clientes", active: false},
-            {title: "Servicios", active: false},
+            {title: "Inicio", active: false},
+            {title: "Seguimiento", active: false},
             {title: "Servicios en curso", active: true}
         ]
     );

@@ -371,7 +371,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-C0ybm39O.css",
+    "file": "assets/platform-DTqNfYbt.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -499,7 +499,7 @@
     ]
   },
   "resources/js/System/Layout/main.js": {
-    "file": "assets/main-CcWNeLEi.js",
+    "file": "assets/main-BDoccH1y.js",
     "name": "main",
     "src": "resources/js/System/Layout/main.js",
     "isEntry": true,
@@ -1142,7 +1142,7 @@
     ]
   },
   "resources/js/System/Pages/Operations/service_operations/main.js": {
-    "file": "assets/main-CmOIBDZ1.js",
+    "file": "assets/main-DDNdrU--.js",
     "name": "main",
     "src": "resources/js/System/Pages/Operations/service_operations/main.js",
     "isEntry": true,
@@ -1243,7 +1243,7 @@
     ]
   },
   "resources/js/System/Pages/Organizations/companies/main.js": {
-    "file": "assets/main-BSkQdWdl.js",
+    "file": "assets/main-PU1GILOB.js",
     "name": "main",
     "src": "resources/js/System/Pages/Organizations/companies/main.js",
     "isEntry": true,

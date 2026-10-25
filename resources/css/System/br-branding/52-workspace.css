@@ -268,6 +268,26 @@
     font-weight: 400;
 }
 
+.br-workspace__support {
+    padding: 0.72rem 0.85rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--br-primary-soft) 48%, var(--br-white));
+    color: var(--br-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.br-workspace__support .br-support-contact__question {
+    color: var(--br-secondary);
+    font-weight: 600;
+}
+
+.br-workspace__support .br-link {
+    font-weight: 600;
+}
+
 @media (max-width: 991.98px) {
     .br-workspace__layout {
         grid-template-columns: 1fr;

@@ -41,9 +41,9 @@ El servicio carga categoría y grupo, aplica el orden empresarial y genera la UR
 
 Cuando una sección contiene más de un grupo, cada uno muestra un encabezado y sus opciones en una lista compacta. La opción actual se distingue visualmente sin expandir paneles adicionales.
 
-`Principal` contiene el mundo Inicio. Su página Mi espacio es el acceso habitual; Dashboard y Reportes aparecen solo si están habilitados. Mi cuenta y Menú y favoritos se ubican en Administración. El riel de mundos mantiene disponibles los iconos aunque un mundo tenga una sola página visible.
+`Principal` contiene el mundo Inicio. Mi espacio y Mi cuenta comparten el grupo Mi espacio; Dashboard y Reportes aparecen solo si están habilitados. Menú y favoritos permanece en Administración. El riel de mundos mantiene disponibles los iconos aunque un mundo tenga una sola página visible.
 
-Los grupos internos usan encabezados compactos en mayúsculas, separados por líneas tenues. Se muestran incluso cuando el perfil solo puede ver una opción del grupo; así, el acceso no queda aislado. Cada submódulo lleva una viñeta circular discreta como marcador de lista, no un icono de Font Awesome. El estado activo recibe un fondo suave y resalta ligeramente la viñeta, sin flechas adicionales.
+Los submódulos sin grupo se reúnen primero, sin encabezado; luego aparecen los grupos según su orden. Los grupos internos usan encabezados compactos en mayúsculas, separados por líneas tenues. Se muestran incluso cuando el perfil solo puede ver una opción del grupo; así, el acceso no queda aislado. Cada submódulo lleva una viñeta circular discreta como marcador de lista, no un icono de Font Awesome. El estado activo recibe un fondo suave y resalta ligeramente la viñeta, sin flechas adicionales.
 
 En el riel principal, los iconos de los mundos se centran verticalmente entre la marca superior y la cuenta del usuario, con separación suficiente entre accesos. Si la cantidad de mundos supera la altura disponible, el contenedor mantiene desplazamiento vertical. Sus tooltips usan el fondo, contraste, borde y sombra del branding System.
 
@@ -90,7 +90,7 @@ Inventario es el primer grupo de Catálogo e inventario. Sus cinco rutas, permis
 
 - **Organización**: Mi empresa, Sucursales, Colaboradores, Asistencia del personal.
 - **Equipos y bienes**: Activos, Gestión de activos, Dispositivos biométricos.
-- **Ajustes**: Perfiles de acceso, Maestros internos, Rubro y módulos, Mi cuenta y Menú y favoritos.
+- **Ajustes**: Perfiles de acceso, Maestros internos, Rubro y módulos, Menú y favoritos.
 
 ## Orden por organización
 

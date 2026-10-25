@@ -68,15 +68,31 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_customer_groups_start_with_data_and_follow_up(): void {
+    public function test_follow_up_belongs_to_start_and_customers_keep_their_own_groups(): void {
 
         $this->assertSame(
-            ["Datos", "Seguimiento", "Vigencias y asistencia", "Atención al cliente"],
+            ["Mi espacio", "Seguimiento", "Análisis"],
+            DB::table("menu_groups")
+                ->where("section_id", 1)
+                ->orderBy("order")
+                ->pluck("name")
+                ->all()
+        );
+
+        $this->assertSame(
+            ["Datos", "Vigencias y asistencia", "Atención al cliente"],
             DB::table("menu_groups")
                 ->where("section_id", 4)
                 ->orderBy("order")
                 ->pluck("name")
                 ->all()
+        );
+
+        $this->assertSame(
+            ["section_id" => 1, "menu_group_id" => 9, "dom_route" => "service_sessions.index"],
+            (array) DB::table("sub_sections")
+                ->where("slug", "sc_service-sessions")
+                ->first(["section_id", "menu_group_id", "dom_route"])
         );
 
     }
@@ -978,10 +994,10 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $response->assertOk();
         $response->assertSee("br-navigation__rail", false);
-        $response->assertSee("br-navigation without-context", false);
+        $response->assertSee("br-navigation has-context", false);
         $response->assertSee("id=\"menu-parent-workspace\"", false);
         $response->assertSee('href="'.route("workspace.index").'"', false);
-        $response->assertSee('data-navigation-count="1"', false);
+        $response->assertSee('data-navigation-count="2"', false);
         $response->assertSee("class=\"fa fa-home\"", false);
         $response->assertDontSee("br-navigation__brand", false);
         $response->assertDontSee("Volver a Inicio", false);
@@ -1013,7 +1029,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_workspace_keeps_only_its_own_pages(): void {
+    public function test_start_world_contains_workspace_and_account_in_one_group(): void {
 
         $routes = DB::table("sub_sections")
             ->join("menu_groups", "menu_groups.id", "=", "sub_sections.menu_group_id")
@@ -1022,12 +1038,18 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->orderBy("sub_sections.order")
             ->get(["sub_sections.section_id", "sub_sections.dom_route"]);
 
-        $this->assertCount(3, $routes);
+        $this->assertCount(4, $routes);
         $this->assertSame([1], $routes->pluck("section_id")->unique()->values()->all());
         $this->assertSame(
-            ["workspace.index", "dashboard.index", "reports.index"],
+            ["workspace.index", "account.index", "dashboard.index", "reports.index"],
             $routes->pluck("dom_route")->all()
         );
+        $this->assertDatabaseHas("sub_sections", [
+            "id" => 12,
+            "section_id" => 1,
+            "menu_group_id" => 23,
+            "order" => 2,
+        ]);
 
     }
 
@@ -1097,12 +1119,16 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_customer_attention_remains_in_the_customer_world(): void {
+    public function test_customer_attention_stays_with_customers_and_service_follow_up_moves_to_start(): void {
+
+        $this->assertSame("Inicio", DB::table("sub_sections")
+            ->join("sections", "sections.id", "=", "sub_sections.section_id")
+            ->where("sub_sections.dom_route", "service_sessions.index")
+            ->value("sections.dom_label"));
 
         $customerSections = DB::table("sub_sections")
             ->join("sections", "sections.id", "=", "sub_sections.section_id")
             ->whereIn("sub_sections.dom_route", [
-                "service_sessions.index",
                 "tracking_notifications.index",
                 "book_complaints.index",
             ])
@@ -1144,7 +1170,6 @@ final class SystemNavigationProvisioningTest extends TestCase {
             "roles.index",
             "master_data.index",
             "business_profile.index",
-            "account.index",
             "home.index",
         ];
 
@@ -1165,7 +1190,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $this->assertSame("Ajustes", DB::table("menu_groups")->where("id", 21)->value("name"));
         $this->assertDatabaseMissing("menu_groups", ["id" => 22]);
 
-        foreach([73 => 2, 74 => 3, 12 => 4, 10 => 5] as $id => $order) {
+        foreach([73 => 2, 74 => 3, 10 => 4] as $id => $order) {
 
             $this->assertDatabaseHas("sub_sections", ["id" => $id, "menu_group_id" => 21, "order" => $order]);
             $this->assertDatabaseHas("companies_sub_sections", [
@@ -1189,7 +1214,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_account_page_uses_administration_and_adjustments_navigation(): void {
+    public function test_account_page_uses_start_and_personal_space_navigation(): void {
 
         Auth::login(\App\Models\System\Organizations\User::query()
             ->where("email", "admin@example.test")
@@ -1203,8 +1228,8 @@ final class SystemNavigationProvisioningTest extends TestCase {
             \App\Http\Middleware\EnsureOperationalScope::class,
         ])->get(route("account.index"))
             ->assertOk()
-            ->assertSee('data-navigation-world="Administración"', false)
-            ->assertSee('data-navigation-group="Ajustes"', false);
+            ->assertSee('data-navigation-world="Inicio"', false)
+            ->assertSee('data-navigation-group="Mi espacio"', false);
 
     }
 

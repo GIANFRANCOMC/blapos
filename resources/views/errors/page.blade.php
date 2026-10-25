@@ -5,6 +5,7 @@
     $requiresLogin = in_array($code, [401, 419], true);
     $actionHref = $actionHref ?? ($requiresLogin ? url("/login") : url("/"));
     $actionText = $actionText ?? ($requiresLogin ? "Iniciar sesión" : "Ir al inicio");
+    $supportContact = app(\App\Services\System\Tenancy\PlatformSupportService::class)->contact();
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -37,6 +38,9 @@
                 {{ $actionText }}
             </a>
         </main>
+        <footer class="br-error-support" aria-label="Ayuda de Blapos">
+            @include("shared.support-contact")
+        </footer>
     </div>
 </body>
 </html>

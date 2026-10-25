@@ -185,6 +185,15 @@ final class UserWorkspaceTest extends TestCase {
         $response->assertDontSee("Accede a tus funciones habituales o explora otras disponibles para tu perfil.");
         $response->assertDontSee("Vistos recientemente");
         $response->assertSee("¿Qué quiero hacer ahora?");
+        $response->assertSee('<div class="br-workspace__support" role="note"', false);
+        $response->assertSeeInOrder([
+            'id="workspace-popular-title"',
+            'class="br-workspace__support"',
+            'class="br-workspace__aside"',
+        ], false);
+        $response->assertSee("¿Necesitas ayuda?");
+        $response->assertSee('href="mailto:gianfranco_29_01@hotmail.com"', false);
+        $response->assertSee('href="tel:+51987057624"', false);
         $response->assertDontSee("También puedes usar");
         $response->assertSee("Registra una venta de productos, servicios o membresías.");
         $response->assertDontSee('class="br-workspace__link-icon"', false);
@@ -220,6 +229,11 @@ final class UserWorkspaceTest extends TestCase {
         $this->assertSame(
             asset(config("app.owner_app")->assets->img->combinationmark),
             $response->viewData("logoUrl")
+        );
+        $response->assertSee('class="br-navbar-brand"', false);
+        $response->assertSee(
+            'src="'.asset(config("app.owner_app")->assets->img->combinationmark).'" alt="Marca combinada de Blapos"',
+            false
         );
         $response->assertSee('alt="Logo de Empresa de pruebas"', false);
         $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
@@ -328,6 +342,10 @@ final class UserWorkspaceTest extends TestCase {
 
         $response->assertOk();
         $this->assertSame(asset("storage/".$logoPath), $response->viewData("logoUrl"));
+        $response->assertSee(
+            'src="'.asset("storage/".$logoPath).'" alt="Marca combinada de Empresa de pruebas"',
+            false
+        );
         $response->assertSee('alt="Logo de Empresa de pruebas"', false);
 
     }

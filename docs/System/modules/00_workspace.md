@@ -8,6 +8,8 @@ La sección «¿Qué quiero hacer ahora?» muestra dos tarjetas por fila en escr
 
 Si faltan acciones habituales, se añaden funciones habilitadas para la empresa y el perfil sin repetir las seleccionadas. La pantalla saluda al usuario y mantiene visible un panel con el logo, la identificación y el contacto de la empresa. En escritorio el panel queda a la derecha; en pantallas estrechas aparece antes de los accesos.
 
+Debajo de «¿Qué quiero hacer ahora?» se muestra una ayuda breve con enlaces de correo y teléfono de Blapos. Los datos no pertenecen al tenant: se leen de `landlord.platform_settings` mediante `PlatformSupportService`, al igual que en el inicio de sesión y las páginas de error.
+
 La autenticación tenant utiliza `/workspace` como destino predeterminado.
 
 ## Persistencia
@@ -50,4 +52,4 @@ La propia ruta `workspace.index`, endpoints AJAX, respuestas JSON y errores no s
 - La tabla y el modelo no contienen `recent_rank`.
 - Los contadores permanecen agregados por usuario y página.
 - Mi espacio es el destino autenticado predeterminado.
-- Menú y favoritos, Mi cuenta, Dashboard y Reportes comparten el mismo mundo.
+- Mi espacio y Mi cuenta comparten el grupo Mi espacio dentro de Inicio; Dashboard y Reportes comparten el mundo Inicio bajo Análisis.

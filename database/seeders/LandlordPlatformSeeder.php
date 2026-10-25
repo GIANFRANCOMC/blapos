@@ -28,6 +28,8 @@ final class LandlordPlatformSeeder extends Seeder {
 
         }
 
+        $this->call(LandlordSupportSeeder::class);
+
         DB::connection("landlord")->table("platform_users")->insertOrIgnore([
             "name" => $name,
             "email" => $email,

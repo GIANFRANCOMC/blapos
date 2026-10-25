@@ -19,6 +19,9 @@
                         @endforelse
                     </div>
                 </section>
+                <div class="br-workspace__support" role="note" aria-label="Ayuda de Blapos">
+                    @include("shared.support-contact")
+                </div>
             </div>
 
             <aside class="br-workspace__aside" aria-labelledby="workspace-company-title">

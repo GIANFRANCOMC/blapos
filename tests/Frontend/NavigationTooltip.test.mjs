@@ -25,6 +25,8 @@ test("los tooltips del menú conservan su clase al reconstruirse", async () => {
     const navigation = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
 
     assert.match(alerts, /new Bootstrap\.Tooltip\(element, tooltipOptionsFor\(element\)\)/);
-    assert.match(navigation, /tooltips\.forEach\(function \(element\) \{[\s\S]*?createTooltip\(element\)/);
+    assert.match(navigation, /window\.bootstrap\?\.Tooltip\?\.getInstance\(moduleButton\)\?\.hide\(\)/);
+    assert.match(navigation, /navigation\.querySelectorAll\('\[data-bs-toggle="tooltip"\]'\)\.forEach\(function \(element\) \{[\s\S]*?createTooltip\(element, element\.getAttribute\("title"\) \|\| ""\)/);
+    assert.doesNotMatch(navigation, /tooltip\?\.disable\(\)|element\.removeAttribute\("data-bs-toggle"\)/);
 
 });

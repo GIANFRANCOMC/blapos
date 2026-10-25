@@ -349,7 +349,7 @@ const TAB_ITEMS = [
 const BRANDING_ITEMS = [
     {formField: "logomark", formKey: "logomark", fileInputId: "logomarkFileId", hint: "Símbolo o ícono de la marca sin texto."},
     {formField: "logotype", formKey: "logotype", fileInputId: "logotypeFileId", hint: "Texto del nombre de la marca, solo letras."},
-    {formField: "combinationmark", formKey: "combinationmark", fileInputId: "combinationmarkFileId", hint: "Logo e isotipo combinados en una sola imagen."},
+    {formField: "combinationmark", formKey: "combinationmark", fileInputId: "combinationmarkFileId", hint: "Logo e isotipo combinados para la identidad de la empresa."},
     {formField: "login_image", formKey: "loginImage", fileInputId: "loginImageFileId", hint: "Imagen de la pantalla de inicio de sesión."}
 ];
 

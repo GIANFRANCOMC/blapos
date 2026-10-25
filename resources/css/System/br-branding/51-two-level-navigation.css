@@ -7,6 +7,7 @@
   --br-navigation-rail-width: 4.25rem;
   --br-navigation-context-width: 13.25rem;
   --br-navigation-width: calc(var(--br-navigation-rail-width) + var(--br-navigation-context-width));
+  --br-navigation-worlds-bg: color-mix(in srgb, var(--br-secondary) 96%, var(--br-white));
 }
 
 @media (min-width: 1200px) {
@@ -16,13 +17,13 @@
 
   html.br-navigation-with-context.layout-menu-fixed:not(.layout-menu-collapsed) .layout-page,
   html.br-navigation-with-context.layout-menu-fixed-offcanvas:not(.layout-menu-collapsed) .layout-page {
-    padding-left: 17.5rem;
+    padding-left: var(--br-navigation-width);
   }
 
   html.br-navigation-without-context.layout-menu-fixed .layout-page,
   html.br-navigation-without-context.layout-menu-fixed-offcanvas .layout-page,
   html.br-navigation-ready.layout-menu-fixed.layout-menu-collapsed .layout-page {
-    padding-left: 4.25rem;
+    padding-left: var(--br-navigation-rail-width);
   }
 }
 
@@ -37,6 +38,7 @@
   border-right: 1px solid var(--br-border) !important;
   background: var(--br-white) !important;
   box-shadow: 0.35rem 0 1.4rem color-mix(in srgb, var(--br-secondary) 6%, transparent) !important;
+  transition: width 0.22s ease, min-width 0.22s ease, max-width 0.22s ease, transform 0.3s ease;
 }
 
 .br-layout .br-navigation.layout-menu:hover {
@@ -61,8 +63,8 @@
   min-width: var(--br-navigation-rail-width);
   height: 100%;
   padding: 0.72rem 0.5rem;
-  border-right: 1px solid color-mix(in srgb, var(--br-border) 82%, var(--br-white));
-  background: color-mix(in srgb, var(--br-secondary) 96%, var(--br-white));
+  background: var(--br-navigation-worlds-bg);
+  transition: flex-basis 0.22s ease, width 0.22s ease, min-width 0.22s ease;
 }
 
 .br-navigation__module,
@@ -186,41 +188,30 @@
 
 .br-navigation__world-card {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  min-width: 0;
-  padding: 0.5rem 0.68rem;
-  background: var(--br-primary-soft);
-}
-
-.br-navigation__world-icon {
-  display: inline-flex;
-  flex: 0 0 1.9rem;
+  flex: 0 0 2.95rem;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 0.52rem;
-  background: var(--br-surface-soft);
-  color: var(--br-primary-active);
-  font-size: 0.98rem;
+  width: 100%;
+  min-width: 0;
+  height: 2.95rem;
+  padding: 0.4rem 0.68rem;
+  background: var(--br-navigation-worlds-bg);
 }
 
 .br-navigation__world-title {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  color: var(--br-secondary);
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.3;
+  color: var(--br-white);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-align: center;
   white-space: normal;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
-.br-navigation__context.is-entering .br-navigation__world-card,
 .br-navigation__context.is-entering .br-navigation__context-body {
   animation: br-navigation-world-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -247,12 +238,10 @@
 
 .br-navigation__group {
   padding-bottom: 0.66rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--br-border) 55%, var(--br-white));
 }
 
 .br-navigation__group:last-child {
   padding-bottom: 0;
-  border-bottom: 0;
 }
 
 .br-navigation__group + .br-navigation__group {
@@ -271,7 +260,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .br-navigation__context.is-entering .br-navigation__world-card,
   .br-navigation__context.is-entering .br-navigation__context-body {
     animation: none;
   }
@@ -289,8 +277,8 @@
   display: flex;
   align-items: center;
   gap: 0.66rem;
-  min-height: 1.8rem;
-  padding: 0.32rem 0.52rem;
+  min-height: 1.65rem;
+  padding: 0.24rem 0.52rem;
   border-radius: 0.38rem;
   color: var(--br-secondary);
   font-size: 0.73rem;
@@ -372,6 +360,14 @@
 }
 
 @media (min-width: 1200px) {
+  .br-layout .layout-page {
+    transition: padding-left 0.22s ease;
+  }
+
+  .br-layout .br-layout-navbar {
+    transition: left 0.22s ease;
+  }
+
   html.layout-menu-fixed:not(.layout-menu-collapsed) .layout-page,
   html.layout-menu-fixed-offcanvas:not(.layout-menu-collapsed) .layout-page {
     padding-left: var(--br-navigation-width);
@@ -456,5 +452,14 @@
 
   .br-navigation__context-body {
     padding-inline: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-layout .br-navigation.layout-menu,
+  .br-navigation__rail,
+  .br-layout .layout-page,
+  .br-layout .br-layout-navbar {
+    transition: none;
   }
 }

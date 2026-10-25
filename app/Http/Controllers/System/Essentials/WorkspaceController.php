@@ -7,6 +7,7 @@ namespace App\Http\Controllers\System\Essentials;
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Services\System\Essentials\{UserNavigationService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
+use App\Services\System\Tenancy\{PlatformSupportService};
 use Illuminate\Contracts\View\{View};
 use Illuminate\Support\Facades\{Storage};
 
@@ -31,8 +32,9 @@ final class WorkspaceController extends BaseController {
         $logoUrl = $logoPath
             ? asset("storage/".$logoPath)
             : asset(config("app.owner_app")->assets->img->combinationmark);
+        $supportContact = app(PlatformSupportService::class)->contact();
 
-        return view("System/general/Essentials/workspace/main", compact("user", "workspace", "greeting", "company", "companyName", "companySocials", "logoUrl"));
+        return view("System/general/Essentials/workspace/main", compact("user", "workspace", "greeting", "company", "companyName", "companySocials", "logoUrl", "supportContact"));
 
     }
 

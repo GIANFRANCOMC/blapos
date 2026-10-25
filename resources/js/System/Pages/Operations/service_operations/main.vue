@@ -708,7 +708,7 @@ export default {
         breadcrumbTitles() {
             return this.isRestaurant
                 ? [{title: "Ventas"}, {title: "Punto de venta"}, {title: "POS restaurante", active: true}]
-                : [{title: "Clientes"}, {title: "Servicios"}, {title: "Servicios en curso", active: true}];
+                : [{title: "Inicio"}, {title: "Seguimiento"}, {title: "Servicios en curso", active: true}];
         },
         branchOptions() {
             return this.options.branches.map(record => ({...record, label: record.name}));

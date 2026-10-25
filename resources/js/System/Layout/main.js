@@ -265,21 +265,20 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
 
     }
 
-    var tooltips = navigation.querySelectorAll('[data-bs-toggle="tooltip"]');
     var modules = Array.from(navigation.querySelectorAll(".br-navigation__module"));
     var panels = Array.from(navigation.querySelectorAll("[data-navigation-panel]"));
     var currentSectionId = document.documentElement.dataset.navigationSectionId || "";
     var showingOtherWorldMenu = false;
 
-    tooltips.forEach(function (element) {
+    if(window.bootstrap?.Tooltip) {
 
-        if(window.bootstrap?.Tooltip) {
+        navigation.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
 
-            createTooltip(element);
+            createTooltip(element, element.getAttribute("title") || "");
 
-        }
+        });
 
-    });
+    }
 
     function selectWorld(sectionId) {
 
@@ -350,7 +349,6 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
         if(!showingOtherWorldMenu) return;
         if(event.target.closest(".br-navigation__context")) return;
         if(event.target.closest(".br-navigation__module")) return;
-
         selectWorld(currentSectionId);
 
     });

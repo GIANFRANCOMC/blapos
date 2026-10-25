@@ -4,8 +4,10 @@
 
 La navegación de cada tenant utiliza dos niveles permanentes en escritorio:
 
-1. Barra primaria: muestra únicamente los módulos disponibles mediante iconos y tooltips.
+1. Barra primaria: muestra los mundos disponibles mediante iconos compactos con tooltips.
 2. Panel contextual: muestra las secciones y páginas del módulo activo.
+
+Encima del título del mundo en el panel de submódulos se muestra la **Marca combinada** configurada en Mi empresa > Identidad visual. Si falta el archivo o no está configurado, se usa la marca combinada predeterminada de Blapos. El navbar no repite esta imagen.
 
 La estructura visible se obtiene de los catálogos existentes de base de datos:
 
@@ -15,7 +17,7 @@ La estructura visible se obtiene de los catálogos existentes de base de datos:
 
 `menu_categories` continúa disponible para ordenamiento y configuración interna, pero sus categorías no se muestran en la navegación.
 
-El primer mundo se denomina `Inicio` y ofrece la página Mi espacio. Mi cuenta y Menú y favoritos pertenecen a Administración. Dashboard y Reportes se muestran solo cuando están habilitados. Los demás mundos son Ventas, Compras, Caja, Clientes y Catálogo e inventario. Todos los submódulos de Ventas, Compras y Caja se insertan deshabilitados por defecto; los mundos desaparecen del menú hasta que se active alguna de sus opciones para la empresa.
+El primer mundo se denomina `Inicio` y reúne Mi espacio y Mi cuenta bajo el grupo Mi espacio. Menú y favoritos permanece en Administración. Dashboard y Reportes se muestran solo cuando están habilitados. Los demás mundos son Ventas, Compras, Caja, Clientes y Catálogo e inventario. Todos los submódulos de Ventas, Compras y Caja se insertan deshabilitados por defecto; los mundos desaparecen del menú hasta que se active alguna de sus opciones para la empresa.
 
 ## Mi espacio y accesos frecuentes
 
@@ -60,10 +62,12 @@ Se conservan los `dom_id` y clases históricas para que los componentes Vue que 
 
 ## Colapsado y responsive
 
-- Escritorio expandido: barra primaria y panel contextual visibles con ancho fijo, sin cambios al pasar el cursor.
+- Escritorio: barra de mundos compacta con tooltips. El panel contextual mantiene su ancho.
 - Si el módulo activo solo ofrece una página, el icono navega directamente y el panel contextual no se renderiza.
 - Escritorio colapsado: permanece únicamente la barra primaria; el hover no modifica su ancho.
 - Tablet y móvil: la navegación completa funciona como drawer/offcanvas y conserva la jerarquía módulo, sección y página.
+
+Los submódulos sin `menu_group_id` aparecen juntos al inicio del panel contextual, sin encabezado. Luego aparecen los grupos por `menu_groups.order`; dentro de cada grupo se conserva el orden de las opciones habilitadas para la empresa.
 
 Las variables históricas `--br-sidebar-width` y `--br-sidebar-collapsed-width` se proyectan sobre las dimensiones de la navegación nueva. Navbar, panel contextual y contenido comparten así una sola fuente de ancho y nunca se superponen.
 

@@ -22,6 +22,7 @@ final class LandlordSchemaService {
         $schema = Schema::connection((string) config("tenancy.landlord_connection", "landlord"));
 
         $requiredTables = [
+            "platform_settings",
             "platform_users",
             "tenant_databases",
             "tenant_domains",

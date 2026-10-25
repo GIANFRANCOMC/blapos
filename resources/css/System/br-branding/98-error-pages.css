@@ -106,6 +106,23 @@
   outline-offset: 3px;
 }
 
+.br-error-support {
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--br-border);
+  color: var(--br-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.br-error-support .br-support-contact__question {
+  color: var(--br-secondary);
+  font-weight: 600;
+}
+
+.br-error-support .br-link {
+  font-weight: 600;
+}
+
 @media (max-width: 575.98px) {
   .br-error-shell {
     width: min(100% - 2rem, 34rem);
