@@ -1,5 +1,5 @@
 <template>
-    <Breadcrumb :list="[{title: 'Configuración'}, {title: 'Rubro y módulos', active: true}]"/>
+    <Breadcrumb :list="[{title: 'Administración'}, {title: 'Rubro y módulos', active: true}]"/>
 
     <section class="br-business-profile">
         <header class="br-module-heading">

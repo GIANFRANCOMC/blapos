@@ -25,7 +25,7 @@ Agrupa entidades técnicas de soporte usadas por múltiples módulos.
 ## Pantalla administrativa
 
 - Ruta UI: `/master-data`.
-- Entrada de menú: Configuración -> Maestros internos.
+- Entrada de menú: Administración -> Ajustes -> Maestros internos.
 - Recursos administrables: configuraciones, tributos, métodos de pago, documentos de identidad, tipos de comprobante y monedas.
 - El apartado **Automáticos** muestra el valor actual, su condición y su origen. No ofrece edición.
 - Cada recurso muestra tipo, alcance e impacto antes de editar o inactivar.

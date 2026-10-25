@@ -104,7 +104,7 @@
             <div class="modal-content br-entity-modal">
                 <div class="modal-header br-entity-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Catálogo comercial</p>
+                        <p class="br-entity-modal__eyebrow mb-1">Catálogo e inventario</p>
                         <h5 class="modal-title text-uppercase fw-bold mb-0">
                             {{ isUpdate ? "Editar receta o platillo" : "Agregar receta o platillo" }}
                         </h5>
@@ -350,7 +350,7 @@ export default {
     components: {CopyButton},
     data() {
         return {
-            breadcrumbTitles: [{title: "Catálogo comercial"}, {title: "Recetas y platillos"}],
+            breadcrumbTitles: [{title: "Catálogo e inventario"}, {title: "Recetas y platillos"}],
             filterBy: "all",
             word: "",
             records: {data: [], links: [], total: 0},

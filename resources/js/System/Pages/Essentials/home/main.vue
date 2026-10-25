@@ -120,7 +120,7 @@ const HIDDEN_HOME_DIRECTORY_SLUGS = new Set(["sc_home", "sc_dashboard"]);
 
 const PAGE_CONFIG = {
     breadcrumb: [
-        {title: "Configuración"},
+        {title: "Administración"},
         {title: "Ajustes"},
         {title: "Menú y favoritos", active: true}
     ],

@@ -8,6 +8,7 @@ use App\Models\System\Organizations\{User};
 use App\Services\System\Essentials\{UserNavigationService};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{Auth, DB, Schema, Storage};
 use Tests\Concerns\{ProvisionsSystemDatabase};
@@ -26,6 +27,12 @@ final class UserWorkspaceTest extends TestCase {
 
         parent::setUp();
         $this->provisionSystemDatabase();
+
+        DB::table("companies_sub_sections")
+            ->where("company_id", 1)
+            ->where("sub_section_id", DB::table("sub_sections")->where("dom_route", "sales.create")->value("id"))
+            ->update(["status" => "active"]);
+        CompanySectionService::clearTenantCache();
 
         $this->user = User::query()
             ->where("email", "admin@example.test")
@@ -75,6 +82,12 @@ final class UserWorkspaceTest extends TestCase {
         $this->assertSame(11, (clone $metrics)->count());
         $this->assertFalse(Schema::hasColumn("user_navigation_metrics", "recent_rank"));
 
+        $workspace = $this->navigationService->getWorkspace($this->user);
+
+        $this->assertCount(6, $workspace["actions"]);
+        $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
+        $this->assertTrue($workspace["actions"]->every(fn(array $item) => ($item["visit_count"] ?? 0) > 0));
+
     }
 
     public function test_revisiting_a_route_only_increments_its_visit_count(): void {
@@ -119,9 +132,35 @@ final class UserWorkspaceTest extends TestCase {
         $workspace = $this->navigationService->getWorkspace($this->user);
 
         $this->assertArrayNotHasKey("recent", $workspace);
-        $this->assertSame("Nueva venta", $workspace["popular"][0]["label"]);
-        $this->assertSame(2, $workspace["popular"][0]["visit_count"]);
-        $this->assertEmpty($workspace["popular"]->pluck("id")->intersect($workspace["suggested"]->pluck("id")));
+        $this->assertCount(6, $workspace["actions"]);
+        $this->assertSame("Nueva venta", $workspace["actions"][0]["label"]);
+        $this->assertSame(
+            DB::table("sub_sections")->where("dom_route", "sales.create")->value("description"),
+            $workspace["actions"][0]["description"]
+        );
+        $this->assertSame(2, $workspace["actions"][0]["visit_count"]);
+        $this->assertSame("Productos", $workspace["actions"][1]["label"]);
+        $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
+        $this->assertFalse(array_key_exists("visit_count", $workspace["actions"][2]));
+
+        foreach($workspace["actions"] as $item) {
+
+            $this->assertSame(
+                DB::table("sub_sections")->where("id", $item["id"])->value("description"),
+                $item["description"]
+            );
+
+        }
+
+    }
+
+    public function test_workspace_uses_allowed_actions_when_the_user_has_no_visit_history(): void {
+
+        $workspace = $this->navigationService->getWorkspace($this->user);
+
+        $this->assertCount(6, $workspace["actions"]);
+        $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
+        $this->assertTrue($workspace["actions"]->every(fn(array $item) => !array_key_exists("visit_count", $item)));
 
     }
 
@@ -129,6 +168,7 @@ final class UserWorkspaceTest extends TestCase {
 
         $this->navigationService->record($this->user, "sales.create");
         Auth::login($this->user);
+        $this->travelTo(Carbon::parse("2026-10-25 09:00:00", config("app.timezone")));
 
         $response = $this->withoutMiddleware([
             \App\Http\Middleware\ResolveTenant::class,
@@ -140,41 +180,91 @@ final class UserWorkspaceTest extends TestCase {
         ])->get(route("workspace.index"));
 
         $response->assertOk();
-        $response->assertSee("¡Hola, Administrador!");
+        $response->assertSee('Buenos días, <span class="br-workspace__hero-name">Administrador</span>', false);
+        $response->assertDontSee("¿Qué deseas hacer hoy?");
         $response->assertDontSee("Accede a tus funciones habituales o explora otras disponibles para tu perfil.");
         $response->assertDontSee("Vistos recientemente");
-        $response->assertSee("Más utilizados");
-        $response->assertSee("También puedes usar");
+        $response->assertSee("¿Qué quiero hacer ahora?");
+        $response->assertDontSee("También puedes usar");
+        $response->assertSee("Registra una venta de productos, servicios o membresías.");
+        $response->assertDontSee('class="br-workspace__link-icon"', false);
+        $response->assertSee('class="br-workspace__link-arrow"', false);
+        $response->assertSee('fa-solid fa-circle-arrow-right', false);
+        $response->assertSee('class="br-workspace__section"', false);
+        $response->assertDontSee('class="br-workspace__panel-head"', false);
         $response->assertSee("Nueva venta");
         $response->assertSee("Empresa de pruebas");
         $response->assertSee("20999999999");
         $response->assertSee("Tipo de documento");
         $response->assertSee("Número de documento");
-        $response->assertSee('<span class="br-workspace__company-text">RUC</span>', false);
+        $response->assertSee('<h2 id="workspace-company-title">EMPRESA DE PRUEBAS S.A.C.</h2>', false);
+        $response->assertSee('<span class="br-workspace__company-document-type">RUC</span>', false);
+        $response->assertSee('<span class="br-workspace__company-document-number">20999999999</span>', false);
+        $response->assertSee('<dt class="colon-at-end">Nombre comercial</dt>', false);
+        $response->assertSee('<dt class="colon-at-end">Dirección</dt>', false);
+        $response->assertSee('<dt class="colon-at-end">Correo electrónico</dt>', false);
+        $response->assertSee('<dt class="colon-at-end">Teléfono</dt>', false);
+        $response->assertSee('<dt class="colon-at-end">Facebook</dt>', false);
+        $response->assertSee('<dt class="colon-at-end">Instagram</dt>', false);
+        $response->assertSee('<dt class="colon-at-end">WhatsApp</dt>', false);
+        $response->assertDontSee('<dt>Razón social</dt>', false);
+        $response->assertDontSee('br-workspace__company-document-separator', false);
+        $response->assertDontSee('br-workspace__overline', false);
         $response->assertDontSee("Oferta comercial");
         $response->assertDontSee("1 visita");
         $response->assertDontSee("Dashboard");
         $workspace = $response->viewData("workspace");
 
-        $this->assertSame("Ventas", $workspace["popular"][0]["world"]);
-        $this->assertNotEmpty($workspace["suggested"][0]["world"]);
+        $this->assertSame("Ventas", $workspace["actions"][0]["world"]);
+        $this->assertNotSame($workspace["actions"][0]["world"], $workspace["actions"][0]["description"]);
         $this->assertSame(
             asset(config("app.owner_app")->assets->img->combinationmark),
             $response->viewData("logoUrl")
         );
         $response->assertSee('alt="Logo de Empresa de pruebas"', false);
-        $this->assertEmpty($workspace["popular"]->pluck("id")->intersect($workspace["suggested"]->pluck("id")));
+        $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
         $this->assertSame(
-            $workspace["popular"]->count() + $workspace["suggested"]->count(),
+            $workspace["actions"]->count(),
             substr_count($response->getContent(), 'class="br-workspace__link"')
         );
         $response->assertSeeInOrder([
-            "<dt>Correo</dt>",
-            "<dt>Dirección</dt>",
-            "<dt>Teléfono</dt>",
-            "<dt>WhatsApp</dt>",
+            '<dt class="colon-at-end">Nombre comercial</dt>',
+            '<dt class="colon-at-end">Dirección</dt>',
+            '<dt class="colon-at-end">Correo electrónico</dt>',
+            '<dt class="colon-at-end">Teléfono</dt>',
+            '<dt class="colon-at-end">WhatsApp</dt>',
         ], false);
         $this->assertSame("/workspace", \App\Providers\RouteServiceProvider::HOME);
+
+    }
+
+    public function test_workspace_greeting_changes_with_the_time_of_day_and_uses_the_user_name(): void {
+
+        $this->user->update(["name" => "Lucía Torres"]);
+        Auth::login($this->user);
+
+        foreach([
+            "09:00:00" => "Buenos días",
+            "15:00:00" => "Buenas tardes",
+            "21:00:00" => "Buenas noches",
+        ] as $time => $greeting) {
+
+            $this->travelTo(Carbon::parse("2026-10-25 ".$time, config("app.timezone")));
+
+            $this->withoutMiddleware([
+                \App\Http\Middleware\ResolveTenant::class,
+                \App\Http\Middleware\TrustHosts::class,
+                \App\Http\Middleware\EnsureTenantSession::class,
+                \App\Http\Middleware\EnsureAuthenticatedSession::class,
+                \App\Http\Middleware\EnsureModulePermission::class,
+                \App\Http\Middleware\EnsureOperationalScope::class,
+            ])->get(route("workspace.index"))
+                ->assertOk()
+                ->assertSee($greeting.', <span class="br-workspace__hero-name">Lucía</span>', false);
+
+        }
+
+        $this->travelBack();
 
     }
 
@@ -202,8 +292,7 @@ final class UserWorkspaceTest extends TestCase {
             ])->get(route("workspace.index"));
 
             $response->assertOk();
-            $this->assertNotContains($productsId, $workspace["popular"]->pluck("id"));
-            $this->assertNotContains($productsId, $workspace["suggested"]->pluck("id"));
+            $this->assertNotContains($productsId, $workspace["actions"]->pluck("id"));
             $this->assertSame("Empresa de pruebas", $response->viewData("company")->commercial_name);
 
         }finally {

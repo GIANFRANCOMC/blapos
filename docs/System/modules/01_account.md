@@ -6,7 +6,7 @@
 
 ## Ubicación
 
-El acceso pertenece al mundo `Mi espacio de trabajo`, después de `Menú y favoritos`. Su ruta principal es `account.index`.
+El acceso pertenece al mundo `Administración`, dentro del grupo `Ajustes`. Su ruta principal es `account.index`.
 
 ## Datos editables
 

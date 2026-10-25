@@ -1,12 +1,12 @@
-# Mi espacio de trabajo
+# Inicio
 
 ## Propósito
 
-`Mi espacio de trabajo` presenta las funciones más utilizadas por cada usuario y otros accesos permitidos. No muestra un historial de páginas recientes.
+`Inicio` presenta las funciones más utilizadas por cada usuario y completa hasta seis accesos con otras opciones permitidas. No muestra un historial de páginas recientes.
 
-Ambos grupos comparten tarjetas horizontales con el nombre del submódulo y su mundo. El contador de visitas ordena «Más utilizados», pero no se muestra en la interfaz.
+La sección «¿Qué quiero hacer ahora?» muestra dos tarjetas por fila en escritorio. Cada tarjeta incluye el nombre, la descripción del submódulo almacenada en la base de datos y un icono de acceso. El contador de visitas ordena las primeras opciones, pero no se muestra en la interfaz.
 
-«También puedes usar» muestra funciones habilitadas para la empresa y el perfil que no estén entre las más utilizadas, aunque el usuario ya las haya visitado. Workspace saluda al usuario y mantiene visible un panel con el logo, la identificación y el contacto de la empresa. En escritorio el panel queda a la derecha; en pantallas estrechas aparece antes de los accesos.
+Si faltan acciones habituales, se añaden funciones habilitadas para la empresa y el perfil sin repetir las seleccionadas. La pantalla saluda al usuario y mantiene visible un panel con el logo, la identificación y el contacto de la empresa. En escritorio el panel queda a la derecha; en pantallas estrechas aparece antes de los accesos.
 
 La autenticación tenant utiliza `/workspace` como destino predeterminado.
 

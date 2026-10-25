@@ -15,14 +15,13 @@ La estructura visible se obtiene de los catálogos existentes de base de datos:
 
 `menu_categories` continúa disponible para ordenamiento y configuración interna, pero sus categorías no se muestran en la navegación.
 
-El primer módulo se denomina `Mi espacio de trabajo` y ofrece la página Mi espacio. Mi cuenta y Menú y favoritos pertenecen a Configuración. Dashboard y Reportes se muestran solo cuando están habilitados.
+El primer mundo se denomina `Inicio` y ofrece la página Mi espacio. Mi cuenta y Menú y favoritos pertenecen a Administración. Dashboard y Reportes se muestran solo cuando están habilitados. Los demás mundos son Ventas, Compras, Caja, Clientes y Catálogo e inventario. Todos los submódulos de Ventas, Compras y Caja se insertan deshabilitados por defecto; los mundos desaparecen del menú hasta que se active alguna de sus opciones para la empresa.
 
 ## Mi espacio y accesos frecuentes
 
 Después de autenticarse, el usuario es dirigido a `/workspace`. Esta pantalla presenta:
 
-- las diez páginas con mayor cantidad de visitas;
-- otros accesos permitidos que no aparezcan entre los más utilizados.
+- hasta seis acciones, priorizando las páginas más visitadas y completando los espacios con otros accesos permitidos sin duplicarlos.
 
 La navegación se registra mediante `UserNavigationService` únicamente para peticiones `GET` HTML exitosas cuya ruta corresponda exactamente a una `sub_section` activa. No se contabilizan solicitudes AJAX, respuestas JSON, errores ni la propia pantalla `workspace.index`.
 

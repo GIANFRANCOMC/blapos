@@ -81,7 +81,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - El selector de **Almacén de trabajo** define el contexto del listado, no el almacén donde se registra una operación o un traslado. En Control de stock, la barra sigue el orden **Almacén de trabajo**, **Búsqueda**, **Buscar**, **Registrar operación** y **Acciones**; este último contiene **Descargar Excel**.
 - Las cinco páginas tienen **Buscar**. Elegir otro almacén o cambiar un filtro invalida los resultados anteriores, pero no consulta el servidor: la nueva consulta solo empieza al pulsar **Buscar**. Sin resultados se reutilizan el título y subtítulo predeterminados de `WithoutData`, igual que en Productos.
 - En las cinco páginas, cada opción de **Almacén de trabajo** identifica `Sucursal - Almacén`. **Todos los almacenes** está disponible en Control de stock y Traslados. La tabla de Traslados muestra siempre **Almacén origen** y **Almacén destino**, con su sucursal; los nombres se resuelven también para almacenes inactivos, siempre dentro del alcance autorizado. El origen y destino al registrar un traslado deben ser almacenes reales.
-- `Catálogo comercial` expone los cinco accesos bajo `Inventario`:
+- `Catálogo e inventario` expone los cinco accesos bajo `Inventario`:
   - **Control de stock**: `/inventory/stock`, existencias actuales, mínimos y alertas.
   - **Traslados**: `/inventory/transfers`, movimientos multiproducto entre almacenes.
   - **Guías**: `/inventory/guides`, entradas y salidas numeradas.

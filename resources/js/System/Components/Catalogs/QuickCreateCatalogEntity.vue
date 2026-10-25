@@ -145,7 +145,7 @@ export default {
         },
         eyebrow: {
             type: String,
-            default: "Catálogo comercial"
+            default: "Catálogo e inventario"
         },
         triggerMode: {
             type: String,

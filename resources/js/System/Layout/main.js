@@ -275,11 +275,7 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
 
         if(window.bootstrap?.Tooltip) {
 
-            window.bootstrap.Tooltip.getOrCreateInstance(element, {
-                container: document.body,
-                customClass: element.dataset.bsCustomClass || "br-navigation-tooltip",
-                trigger: "hover focus"
-            });
+            createTooltip(element);
 
         }
 
@@ -309,8 +305,14 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
 
         });
 
+        var alreadyVisible = panels.some(function (panel) {
+            return !panel.hidden && panel.dataset.navigationPanel === sectionId;
+        });
+
         panels.forEach(function (panel) {
-            panel.hidden = !hasSubmenu || panel.dataset.navigationPanel !== sectionId;
+            var visible = hasSubmenu && panel.dataset.navigationPanel === sectionId;
+            panel.hidden = !visible;
+            panel.classList.toggle("is-entering", visible && !alreadyVisible);
         });
 
         navigation.classList.toggle("without-context", !hasSubmenu);

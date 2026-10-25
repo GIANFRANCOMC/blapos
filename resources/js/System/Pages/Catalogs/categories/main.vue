@@ -213,7 +213,7 @@ const MODULE_CONFIG = {
     pageTitle: "Categorías",
     pageTitleSingular: "Categoría",
     internalCodeEntity: "category",
-    breadcrumbParent: "Catálogo comercial",
+    breadcrumbParent: "Catálogo e inventario",
     perPage: 10
 };
 

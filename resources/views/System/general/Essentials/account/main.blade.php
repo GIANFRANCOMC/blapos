@@ -4,7 +4,7 @@
     <main class="br-account" aria-labelledby="account-title">
         <header class="br-account__header">
             <div>
-                <span>Configuración · Ajustes</span>
+                <span>Administración · Ajustes</span>
                 <h1 id="account-title">Mi cuenta</h1>
                 <p>Actualiza los datos personales asociados a tu acceso.</p>
             </div>

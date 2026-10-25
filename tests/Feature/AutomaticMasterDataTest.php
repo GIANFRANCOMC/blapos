@@ -122,7 +122,7 @@ final class AutomaticMasterDataTest extends TestCase {
             ->assertSee('id="brFabFavoritesToggle"', false);
         $this->get(route("home.index"))
             ->assertOk()
-            ->assertSee('data-navigation-world="Configuración"', false)
+            ->assertSee('data-navigation-world="Administración"', false)
             ->assertSee('data-navigation-group="Ajustes"', false);
 
         DB::table("companies_sub_sections")

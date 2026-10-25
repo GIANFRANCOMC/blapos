@@ -20,6 +20,8 @@ final class WorkspaceController extends BaseController {
 
         $user = $this->getAuthUser();
         $workspace = $this->navigationService->getWorkspace($user);
+        $hour = now()->hour;
+        $greeting = $hour < 12 ? "Buenos días" : ($hour < 19 ? "Buenas tardes" : "Buenas noches");
         $company = app(TenantCompanyContext::class)->get()->loadMissing("identityDocumentType", "socialsMedia");
         $companySocials = $company->socialsMedia->keyBy("type");
         $companyName = $company->commercial_name ?: $company->legal_name ?: "Empresa";
@@ -30,7 +32,7 @@ final class WorkspaceController extends BaseController {
             ? asset("storage/".$logoPath)
             : asset(config("app.owner_app")->assets->img->combinationmark);
 
-        return view("System/general/Essentials/workspace/main", compact("user", "workspace", "company", "companyName", "companySocials", "logoUrl"));
+        return view("System/general/Essentials/workspace/main", compact("user", "workspace", "greeting", "company", "companyName", "companySocials", "logoUrl"));
 
     }
 

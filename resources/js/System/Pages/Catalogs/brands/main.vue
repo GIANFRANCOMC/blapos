@@ -272,7 +272,7 @@ const MODULE = {
     pageTitle: "Marcas",
     pageTitleSingular: "Marca",
     internalCodeEntity: "brand",
-    breadcrumbParent: "Catálogo comercial",
+    breadcrumbParent: "Catálogo e inventario",
     perPage: 10,
     fields: {
         internal_code: "",

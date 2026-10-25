@@ -77,7 +77,7 @@ El método inicial es promedio ponderado por producto y almacén. Los impuestos 
 ## Productos disponibles
 
 - Compras solo lista productos con estado `active`.
-- Un producto `inactive` no puede seleccionarse para nuevas órdenes o facturas de compra; primero debe reactivarse desde Catálogo comercial.
+- Un producto `inactive` no puede seleccionarse para nuevas órdenes o facturas de compra; primero debe reactivarse desde Catálogo e inventario.
 - Los almacenes disponibles respetan las sucursales permitidas del colaborador.
 
 ## Ingresos pendientes

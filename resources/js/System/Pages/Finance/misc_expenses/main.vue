@@ -1,5 +1,5 @@
 <template>
-    <Breadcrumb :list="[{title: 'Caja y finanzas'}, {title: 'Gastos varios', active: true}]"/>
+    <Breadcrumb :list="[{title: 'Caja'}, {title: 'Gastos varios', active: true}]"/>
 
     <section class="br-misc-expenses">
         <header class="br-module-heading">

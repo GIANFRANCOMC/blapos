@@ -220,7 +220,7 @@ const MODULE_CONFIG = {
     menuId: "menu-items-products",
     pageTitle: "Productos",
     pageTitleSingular: "Producto",
-    breadcrumbParent: "Catálogo comercial",
+    breadcrumbParent: "Catálogo e inventario",
     perPage: 10,
     hasDownloadRecords: true,
     hasImportRecords: true

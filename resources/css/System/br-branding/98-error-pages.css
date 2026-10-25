@@ -1,0 +1,123 @@
+/* Páginas de error: una presentación liviana, sin depender del layout autenticado. */
+.br-error-page {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--br-surface);
+  color: var(--br-text);
+  font-family: var(--br-font-sans);
+}
+
+.br-error-shell {
+  display: flex;
+  flex-direction: column;
+  width: min(100% - 2.5rem, 68rem);
+  min-height: 100vh;
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 4vh, 2.5rem);
+}
+
+.br-error-brand {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.6rem;
+  color: var(--br-secondary);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+.br-error-brand img {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+}
+
+.br-error-content {
+  width: min(100%, 34rem);
+  margin: auto;
+  padding-block: 3rem;
+}
+
+.br-error-code {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--br-primary-active);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.br-error-content h1 {
+  margin: 0;
+  color: var(--br-secondary);
+  font-size: clamp(1.65rem, 4vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.18;
+}
+
+.br-error-description {
+  max-width: 30rem;
+  margin: 0.9rem 0 0;
+  color: var(--br-text-muted);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.br-error-detail {
+  margin: 1.15rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-left: 2px solid var(--br-primary-muted);
+  background: var(--br-surface-elevated);
+  color: var(--br-text);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.br-error-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  margin-top: 1.8rem;
+  padding: 0.55rem 1.05rem;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-primary);
+  color: var(--br-on-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.16s ease;
+}
+
+.br-error-action:hover,
+.br-error-action:focus-visible {
+  background: var(--br-primary-hover);
+  color: var(--br-on-primary);
+  text-decoration: none;
+}
+
+.br-error-action:focus-visible {
+  outline: 2px solid var(--br-primary-active);
+  outline-offset: 3px;
+}
+
+@media (max-width: 575.98px) {
+  .br-error-shell {
+    width: min(100% - 2rem, 34rem);
+  }
+
+  .br-error-content {
+    padding-block: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-error-action {
+    transition: none;
+  }
+}

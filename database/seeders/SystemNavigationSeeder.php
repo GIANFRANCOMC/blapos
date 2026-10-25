@@ -10,6 +10,8 @@ use RuntimeException;
 
 final class SystemNavigationSeeder extends Seeder {
 
+    private const DISABLED_BY_DEFAULT_WORLD_SLUGS = ["sc_sales", "sc_purchases", "sc_cash"];
+
     private const DISABLED_BY_DEFAULT_ROUTES = [
         "home.index",
         "dashboard.index",
@@ -53,32 +55,32 @@ final class SystemNavigationSeeder extends Seeder {
                 ["id" => 4, "code" => "administration", "label" => "Administración", "order" => 4],
             ],
             "sections" => [
-                ["id" => 1, "menu_category_id" => 1, "slug" => "sc_workspace", "name" => "workspace", "order" => 1, "dom_id" => "menu-parent-workspace", "dom_label" => "Mi espacio de trabajo", "dom_icon" => "fa fa-home", "has_sub_menu" => true],
+                ["id" => 1, "menu_category_id" => 1, "slug" => "sc_workspace", "name" => "workspace", "order" => 1, "dom_id" => "menu-parent-workspace", "dom_label" => "Inicio", "dom_icon" => "fa fa-home", "has_sub_menu" => true],
                 ["id" => 3, "menu_category_id" => 2, "slug" => "sc_sales", "name" => "sales", "order" => 1, "dom_id" => "menu-parent-sales", "dom_label" => "Ventas", "dom_icon" => "fa-solid fa-cash-register", "has_sub_menu" => true],
                 ["id" => 9, "menu_category_id" => 2, "slug" => "sc_purchases", "name" => "purchases", "order" => 2, "dom_id" => "menu-parent-purchases", "dom_label" => "Compras", "dom_icon" => "fa-solid fa-cart-flatbed", "has_sub_menu" => true],
-                ["id" => 10, "menu_category_id" => 2, "slug" => "sc_cash", "name" => "cash", "order" => 3, "dom_id" => "menu-parent-cash", "dom_label" => "Caja y finanzas", "dom_icon" => "fa-solid fa-vault", "has_sub_menu" => true],
+                ["id" => 10, "menu_category_id" => 2, "slug" => "sc_cash", "name" => "cash", "order" => 3, "dom_id" => "menu-parent-cash", "dom_label" => "Caja", "dom_icon" => "fa-solid fa-vault", "has_sub_menu" => true],
                 ["id" => 4, "menu_category_id" => 3, "slug" => "sc_customers", "name" => "customers", "order" => 1, "dom_id" => "menu-parent-customers", "dom_label" => "Clientes", "dom_icon" => "fa fa-user", "has_sub_menu" => true],
-                ["id" => 5, "menu_category_id" => 3, "slug" => "sc_items", "name" => "items", "order" => 2, "dom_id" => "menu-parent-items", "dom_label" => "Catálogo comercial", "dom_icon" => "fa fa-book", "has_sub_menu" => true],
-                ["id" => 7, "menu_category_id" => 4, "slug" => "sc_configuration", "name" => "configuration", "order" => 1, "dom_id" => "menu-parent-configuration", "dom_label" => "Configuración", "dom_icon" => "fa fa-gear", "has_sub_menu" => true],
+                ["id" => 5, "menu_category_id" => 3, "slug" => "sc_items", "name" => "items", "order" => 2, "dom_id" => "menu-parent-items", "dom_label" => "Catálogo e inventario", "dom_icon" => "fa fa-book", "has_sub_menu" => true],
+                ["id" => 7, "menu_category_id" => 4, "slug" => "sc_configuration", "name" => "configuration", "order" => 1, "dom_id" => "menu-parent-configuration", "dom_label" => "Administración", "dom_icon" => "fa fa-gear", "has_sub_menu" => true],
             ],
             "groups" => [
-                ["id" => 1, "section_id" => 3, "code" => "sales", "label" => "Ventas", "order" => 1],
+                ["id" => 1, "section_id" => 3, "code" => "sales", "label" => "Registro y consulta", "order" => 1],
                 ["id" => 2, "section_id" => 3, "code" => "point_of_sale", "label" => "Punto de venta", "order" => 2],
                 ["id" => 3, "section_id" => 3, "code" => "quotations", "label" => "Cotizaciones", "order" => 3],
                 ["id" => 4, "section_id" => 3, "code" => "dispatch_collection", "label" => "Despacho y cobranza", "order" => 4],
-                ["id" => 5, "section_id" => 9, "code" => "purchases", "label" => "Compras", "order" => 1],
+                ["id" => 5, "section_id" => 9, "code" => "purchases", "label" => "Registro y consulta", "order" => 1],
                 ["id" => 25, "section_id" => 9, "code" => "purchase_control", "label" => "Recepción y pagos", "order" => 2],
                 ["id" => 6, "section_id" => 9, "code" => "suppliers", "label" => "Proveedores", "order" => 3],
-                ["id" => 7, "section_id" => 10, "code" => "cash_operation", "label" => "Operación de caja", "order" => 1],
-                ["id" => 8, "section_id" => 10, "code" => "financial_control", "label" => "Control", "order" => 2],
-                ["id" => 9, "section_id" => 4, "code" => "services", "label" => "Servicios", "order" => 3],
+                ["id" => 7, "section_id" => 10, "code" => "cash_operation", "label" => "Operaciones", "order" => 1],
+                ["id" => 8, "section_id" => 10, "code" => "financial_control", "label" => "Resumen y gastos", "order" => 2],
+                ["id" => 11, "section_id" => 4, "code" => "customer_management", "label" => "Datos", "order" => 1],
+                ["id" => 9, "section_id" => 4, "code" => "services", "label" => "Seguimiento", "order" => 2],
+                ["id" => 12, "section_id" => 4, "code" => "memberships", "label" => "Vigencias y asistencia", "order" => 3],
                 ["id" => 10, "section_id" => 4, "code" => "communications", "label" => "Atención al cliente", "order" => 4],
-                ["id" => 11, "section_id" => 4, "code" => "customer_management", "label" => "Gestión", "order" => 1],
-                ["id" => 12, "section_id" => 4, "code" => "memberships", "label" => "Membresías", "order" => 2],
                 ["id" => 15, "section_id" => 5, "code" => "inventory", "label" => "Inventario", "order" => 1],
-                ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Maestras", "order" => 2],
+                ["id" => 13, "section_id" => 5, "code" => "commercial_offer", "label" => "Catálogo comercial", "order" => 2],
                 ["id" => 20, "section_id" => 7, "code" => "organization", "label" => "Organización", "order" => 1],
-                ["id" => 19, "section_id" => 7, "code" => "assets", "label" => "Activos", "order" => 2],
+                ["id" => 19, "section_id" => 7, "code" => "assets", "label" => "Equipos y bienes", "order" => 2],
                 ["id" => 21, "section_id" => 7, "code" => "access", "label" => "Ajustes", "order" => 3],
                 ["id" => 23, "section_id" => 1, "code" => "personal_workspace", "label" => "Mi espacio", "order" => 1],
                 ["id" => 24, "section_id" => 1, "code" => "workspace_analysis", "label" => "Análisis", "order" => 2],
@@ -138,7 +140,12 @@ final class SystemNavigationSeeder extends Seeder {
             ],
         ];
 
-        DB::transaction(function() use ($catalog): void {
+        $disabledWorldIds = array_column(array_filter(
+            $catalog["sections"],
+            fn(array $section): bool => in_array($section["slug"], self::DISABLED_BY_DEFAULT_WORLD_SLUGS, true)
+        ), "id");
+
+        DB::transaction(function() use ($catalog, $disabledWorldIds): void {
 
             foreach($catalog["categories"] as $record) {
 
@@ -183,7 +190,8 @@ final class SystemNavigationSeeder extends Seeder {
 
                 DB::table("sub_sections")->insert($record + [
                     "dom_icon" => "",
-                    "is_enabled_by_default" => !in_array($record["dom_route"], self::DISABLED_BY_DEFAULT_ROUTES, true),
+                    "is_enabled_by_default" => !in_array($record["section_id"], $disabledWorldIds, true)
+                        && !in_array($record["dom_route"], self::DISABLED_BY_DEFAULT_ROUTES, true),
                     "status" => "active",
                     "created_at" => now(),
                     "updated_at" => now(),

@@ -30,6 +30,57 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
+    public function test_world_names_match_their_navigation_content(): void {
+
+        $this->assertSame([
+            "sc_workspace" => "Inicio",
+            "sc_sales" => "Ventas",
+            "sc_customers" => "Clientes",
+            "sc_items" => "Catálogo e inventario",
+            "sc_configuration" => "Administración",
+            "sc_purchases" => "Compras",
+            "sc_cash" => "Caja",
+        ], DB::table("sections")
+            ->whereIn("slug", ["sc_workspace", "sc_sales", "sc_purchases", "sc_cash", "sc_customers", "sc_items", "sc_configuration"])
+            ->orderBy("id")
+            ->pluck("dom_label", "slug")
+            ->all());
+
+    }
+
+    public function test_group_names_describe_their_pages_without_repeating_world_names(): void {
+
+        $this->assertSame([
+            1 => "Registro y consulta",
+            5 => "Registro y consulta",
+            7 => "Operaciones",
+            8 => "Resumen y gastos",
+            9 => "Seguimiento",
+            11 => "Datos",
+            12 => "Vigencias y asistencia",
+            13 => "Catálogo comercial",
+            19 => "Equipos y bienes",
+        ], DB::table("menu_groups")
+            ->whereIn("id", [1, 5, 7, 8, 9, 11, 12, 13, 19])
+            ->orderBy("id")
+            ->pluck("name", "id")
+            ->all());
+
+    }
+
+    public function test_customer_groups_start_with_data_and_follow_up(): void {
+
+        $this->assertSame(
+            ["Datos", "Seguimiento", "Vigencias y asistencia", "Atención al cliente"],
+            DB::table("menu_groups")
+                ->where("section_id", 4)
+                ->orderBy("order")
+                ->pluck("name")
+                ->all()
+        );
+
+    }
+
     public function test_new_company_uses_catalog_defaults_and_keeps_the_admin_role_complete(): void {
 
         $catalogCount = DB::table("sub_sections")->where("status", "active")->count();
@@ -62,19 +113,42 @@ final class SystemNavigationProvisioningTest extends TestCase {
             "business_profile.index",
         ];
 
-        $disabledIds = DB::table("sub_sections")->whereIn("dom_route", $disabledRoutes)->pluck("id");
+        $disabledIds = DB::table("sub_sections")
+            ->whereIn("dom_route", $disabledRoutes)
+            ->orWhereIn("section_id", [3, 9, 10])
+            ->pluck("id");
 
-        $this->assertCount(15, $disabledIds);
-        $this->assertSame($catalogCount - count($disabledRoutes), $companyCount);
+        $this->assertCount(32, $disabledIds);
+        $this->assertSame($catalogCount - $disabledIds->count(), $companyCount);
         $this->assertSame($catalogCount, $adminCount);
         $this->assertSame(
-            count($disabledRoutes),
+            $disabledIds->count(),
             DB::table("companies_sub_sections")
                 ->where("company_id", 1)
                 ->whereIn("sub_section_id", $disabledIds)
                 ->where("status", "inactive")
                 ->count()
         );
+
+    }
+
+    public function test_sales_purchases_and_cash_worlds_are_disabled_by_default(): void {
+
+        $modules = DB::table("sub_sections")
+            ->whereIn("section_id", [3, 9, 10])
+            ->get(["id", "is_enabled_by_default"]);
+
+        $this->assertCount(18, $modules);
+        $this->assertTrue($modules->every(fn(object $module) => !(bool) $module->is_enabled_by_default));
+        $this->assertSame(0, DB::table("companies_sub_sections")
+            ->where("company_id", 1)
+            ->whereIn("sub_section_id", $modules->pluck("id"))
+            ->where("status", "active")
+            ->count());
+        $this->assertSame(0, DB::table("business_industry_module_sets")
+            ->whereIn("sub_section_id", $modules->pluck("id"))
+            ->where("is_enabled_by_default", true)
+            ->count());
 
     }
 
@@ -396,7 +470,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
         DB::table("companies_sub_sections")
             ->where("company_id", 1)
             ->where("sub_section_id", $subSectionId)
-            ->update(["status" => "inactive"]);
+            ->update(["status" => "active"]);
 
         DB::table("role_sub_sections")
             ->where("role_id", $roleId)
@@ -413,7 +487,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $this->assertDatabaseHas("companies_sub_sections", [
             "company_id" => 1,
             "sub_section_id" => $subSectionId,
-            "status" => "inactive",
+            "status" => "active",
         ]);
 
         $this->assertDatabaseHas("role_sub_sections", [
@@ -606,8 +680,12 @@ final class SystemNavigationProvisioningTest extends TestCase {
             \App\Services\System\Organizations\Roles\RolePermissionService::canAccessRoute($user, "dashboard.index")
         );
 
-        $this->assertTrue(
+        $this->assertFalse(
             \App\Services\System\Organizations\Roles\RolePermissionService::canAccessRoute($user, "sales.create")
+        );
+
+        $this->assertTrue(
+            \App\Services\System\Organizations\Roles\RolePermissionService::canAccessRoute($user, "products.index")
         );
 
     }
@@ -764,14 +842,14 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $this->assertNotNull($attendance);
         $this->assertSame("Clientes", $attendance->section_name);
-        $this->assertSame("Membresías", $attendance->group_name);
+        $this->assertSame("Vigencias y asistencia", $attendance->group_name);
         $this->assertSame(2, (int) $attendance->order);
 
     }
 
     public function test_catalog_masters_are_inserted_in_the_final_group_without_legacy_migration(): void {
 
-        $this->assertSame("Maestras", DB::table("menu_groups")->where("id", 13)->value("name"));
+        $this->assertSame("Catálogo comercial", DB::table("menu_groups")->where("id", 13)->value("name"));
         $this->assertDatabaseMissing("menu_groups", ["id" => 14]);
 
         foreach([53 => 4, 55 => 5, 59 => 6] as $id => $order) {
@@ -808,8 +886,8 @@ final class SystemNavigationProvisioningTest extends TestCase {
             \App\Http\Middleware\EnsureOperationalScope::class,
         ])->get(route("products.index"))
             ->assertOk()
-            ->assertSee("data-navigation-world=\"Catálogo comercial\"", false)
-            ->assertSee("data-navigation-group=\"Maestras\"", false);
+            ->assertSee("data-navigation-world=\"Catálogo e inventario\"", false)
+            ->assertSee("data-navigation-group=\"Catálogo comercial\"", false);
 
     }
 
@@ -823,7 +901,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->pluck("name")
             ->all();
 
-        $this->assertSame(["Inventario", "Maestras"], $groups);
+        $this->assertSame(["Inventario", "Catálogo comercial"], $groups);
         $this->assertDatabaseMissing("menu_groups", ["id" => 16]);
 
         $masterRoutes = DB::table("sub_sections")
@@ -856,7 +934,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->get(["sections.dom_label as world", "menu_groups.name as group_name", "sub_sections.dom_route"]);
 
         $this->assertCount(5, $routes);
-        $this->assertSame(["Catálogo comercial"], $routes->pluck("world")->unique()->values()->all());
+        $this->assertSame(["Catálogo e inventario"], $routes->pluck("world")->unique()->values()->all());
         $this->assertSame(["Inventario"], $routes->pluck("group_name")->unique()->values()->all());
         $this->assertSame([
             "stocks_management.stock.index",
@@ -877,7 +955,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->values()
             ->all();
 
-        $this->assertSame(["Inventario", "Maestras"], $orderedGroups);
+        $this->assertSame(["Inventario", "Catálogo comercial"], $orderedGroups);
 
     }
 
@@ -906,12 +984,15 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $response->assertSee('data-navigation-count="1"', false);
         $response->assertSee("class=\"fa fa-home\"", false);
         $response->assertDontSee("br-navigation__brand", false);
-        $response->assertDontSee("Volver a Mi espacio de trabajo", false);
+        $response->assertDontSee("Volver a Inicio", false);
         $response->assertSee("id=\"brNavigationContext\"", false);
         $response->assertSee("data-navigation-panel=\"5\"", false);
         $response->assertSee("id=\"menu-parent-items\"", false);
+        $response->assertDontSee("id=\"menu-parent-sales\"", false);
+        $response->assertDontSee("id=\"menu-parent-purchases\"", false);
+        $response->assertDontSee("id=\"menu-parent-cash\"", false);
         $response->assertDontSee("id=\"brNavigationPreview\"", false);
-        $response->assertSee("Mi espacio de trabajo", false);
+        $response->assertSee('data-navigation-world="Inicio"', false);
         $response->assertDontSee("br-menu-category__full", false);
 
     }
@@ -1049,7 +1130,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->pluck("name")
             ->all();
 
-        $this->assertSame(["Organización", "Activos", "Ajustes"], $groups);
+        $this->assertSame(["Organización", "Equipos y bienes", "Ajustes"], $groups);
         $this->assertDatabaseMissing("menu_groups", ["id" => 22]);
 
         $expectedRoutes = [
@@ -1108,7 +1189,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_account_page_uses_configuration_and_adjustments_navigation(): void {
+    public function test_account_page_uses_administration_and_adjustments_navigation(): void {
 
         Auth::login(\App\Models\System\Organizations\User::query()
             ->where("email", "admin@example.test")
@@ -1122,7 +1203,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
             \App\Http\Middleware\EnsureOperationalScope::class,
         ])->get(route("account.index"))
             ->assertOk()
-            ->assertSee('data-navigation-world="Configuración"', false)
+            ->assertSee('data-navigation-world="Administración"', false)
             ->assertSee('data-navigation-group="Ajustes"', false);
 
     }

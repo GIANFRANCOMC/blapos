@@ -3,35 +3,19 @@
 @section("content")
     <main class="br-workspace" aria-labelledby="workspace-title">
         <header class="br-workspace__hero">
-            <h1 id="workspace-title">¡Hola, {{ Str::before(trim($user->name), " ") }}!</h1>
+            <h1 id="workspace-title">{{ $greeting }}, <span class="br-workspace__hero-name">{{ Str::before(trim($user->name), " ") }}</span></h1>
         </header>
 
         <div class="br-workspace__layout">
             <div class="br-workspace__main">
-                <section class="br-workspace__panel" aria-labelledby="workspace-popular-title">
-                    <div class="br-workspace__panel-head">
-                        <h2 id="workspace-popular-title">Más utilizados</h2>
-                    </div>
+                <section class="br-workspace__section" aria-labelledby="workspace-popular-title">
+                    <h2 id="workspace-popular-title">¿Qué quiero hacer ahora?</h2>
 
                     <div class="br-workspace__links">
-                        @forelse($workspace["popular"] as $item)
+                        @forelse($workspace["actions"] as $item)
                             @include("System.general.Essentials.workspace.partials.link", ["item" => $item])
                         @empty
-                            <div class="br-workspace__empty">Tus accesos más utilizados aparecerán aquí.</div>
-                        @endforelse
-                    </div>
-                </section>
-
-                <section class="br-workspace__panel" aria-labelledby="workspace-suggested-title">
-                    <div class="br-workspace__panel-head">
-                        <h2 id="workspace-suggested-title">También puedes usar</h2>
-                    </div>
-
-                    <div class="br-workspace__links">
-                        @forelse($workspace["suggested"] as $item)
-                            @include("System.general.Essentials.workspace.partials.link", ["item" => $item])
-                        @empty
-                            <div class="br-workspace__empty">No hay otros módulos disponibles para tu perfil.</div>
+                            <div class="br-workspace__empty">No hay módulos disponibles para tu perfil.</div>
                         @endforelse
                     </div>
                 </section>
@@ -43,22 +27,26 @@
                         <span class="br-workspace__company-logo">
                             <img src="{{ $logoUrl }}" alt="Logo de {{ $companyName }}" />
                         </span>
-                        <div>
-                            <span class="br-workspace__overline">Tu empresa</span>
-                            <h2 id="workspace-company-title">{{ $companyName }}</h2>
+                        <div class="br-workspace__company-identity">
+                            <h2 id="workspace-company-title">{{ $company->legal_name ?: $companyName }}</h2>
+                            <p class="br-workspace__company-document">
+                                <span class="visually-hidden">Tipo de documento:</span>
+                                <span class="br-workspace__company-document-type">{{ $company->identityDocumentType?->name ?: "Sin información" }}</span>
+                                <span class="visually-hidden">Número de documento:</span>
+                                <span class="br-workspace__company-document-number">{{ $company->document_number ?: "Sin información" }}</span>
+                                @include("System.components.copy-button", ["value" => $company->document_number, "label" => "Número de documento"])
+                            </p>
                             @if($company->tagline)
-                                <p>{{ $company->tagline }}</p>
+                                <p class="br-workspace__company-tagline">{{ $company->tagline }}</p>
                             @endif
                         </div>
                     </div>
 
                     <dl class="br-workspace__company-details">
                         @foreach([
-                            ["label" => "Razón social", "value" => $company->legal_name, "full" => true],
-                            ["label" => "Tipo de documento", "value" => $company->identityDocumentType?->name],
-                            ["label" => "Número de documento", "value" => $company->document_number, "copyable" => true],
-                            ["label" => "Correo", "value" => $company->email, "copyable" => true, "full" => true],
+                            ["label" => "Nombre comercial", "value" => $company->commercial_name, "full" => true],
                             ["label" => "Dirección", "value" => $company->address, "full" => true],
+                            ["label" => "Correo electrónico", "value" => $company->email, "copyable" => true, "full" => true],
                             ["label" => "Teléfono", "value" => $company->telephone],
                             ["label" => "WhatsApp", "value" => $companySocials->get("whatsapp")?->link],
                             ["label" => "Facebook", "value" => $companySocials->get("facebook")?->link],

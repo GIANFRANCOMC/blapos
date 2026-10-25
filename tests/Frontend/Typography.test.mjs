@@ -11,9 +11,7 @@ test("Inter se carga una sola vez por layout y sustituye la fuente base de la pl
         "resources/views/System/layouts/partials/up.blade.php",
         "resources/views/Guest/layouts/partials/up.blade.php",
         "resources/views/Platform/layouts/app.blade.php",
-        "resources/views/errors/404.blade.php",
-        "resources/views/errors/419.blade.php",
-        "resources/views/errors/500.blade.php"
+        "resources/views/errors/page.blade.php"
     ];
 
     assert.match(font, /fonts\.googleapis\.com\/css2\?family=Inter/);

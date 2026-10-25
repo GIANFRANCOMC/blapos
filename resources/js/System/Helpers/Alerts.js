@@ -1,5 +1,6 @@
 import { requestRoute } from "./Constants.js";
 import {LOADER_IMAGE_SRC} from "./BrandAssets.js";
+import {tooltipOptionsFor} from "./TooltipOptions.js";
 
 /** Paleta para `swals()` (alineada con `br-branding.css`). */
 const SWAL_BR = {
@@ -548,21 +549,6 @@ export function toastrs({type = "success", options = null, code = null, title = 
  * @param {number} [options.time] — Retraso en ms (0 = inmediato). Si se omite: `10` con `show: true`, `0` con `show: false`.
  * @param {string} [options.selector='[data-bs-toggle="tooltip"]'] — Selectores de disparadores.
  */
-function bootstrapTooltipOptions() {
-
-    return {
-        animation: false,
-        boundary: "viewport",
-        customClass: "br-tooltip",
-        delay: {
-            show: 0,
-            hide: 0
-        },
-        trigger: "hover focus"
-    };
-
-}
-
 /**
  * Recrea un tooltip con la configuración visual global.
  *
@@ -588,7 +574,7 @@ export function createTooltip(element, title = null) {
 
     if(currentTitle) element.setAttribute("title", currentTitle);
 
-    return new Bootstrap.Tooltip(element, bootstrapTooltipOptions());
+    return new Bootstrap.Tooltip(element, tooltipOptionsFor(element));
 
 }
 

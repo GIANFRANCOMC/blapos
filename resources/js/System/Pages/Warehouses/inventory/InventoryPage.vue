@@ -1661,7 +1661,7 @@ export default {
     },
     computed: {
         breadcrumbTitles() {
-            return [{title: "Catálogo comercial"}, this.config.entity.page];
+            return [{title: "Catálogo e inventario"}, this.config.entity.page];
         },
         currentView() {
             return VIEWS.find(view => view.code === this.activeView) || VIEWS[0];

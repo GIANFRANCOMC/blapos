@@ -506,7 +506,7 @@ const MODULE_CONFIG = {
     pageTitle: "Membresías",
     pageTitleSingular: "Membresía",
     internalCodeEntity: "subscription",
-    breadcrumbParent: "Catálogo comercial",
+    breadcrumbParent: "Catálogo e inventario",
     perPage: 10
 };
 

@@ -9,7 +9,7 @@ La definición vigente se encuentra en `menu_categories`, `sections`, `menu_grou
 - grupos visuales dentro de una sección;
 - opciones, rutas, etiquetas y descripciones.
 
-`SystemNavigationSeeder` carga este catálogo cuando la base está vacía y consolida los grupos heredados cuando ya existe. `SystemCatalogSyncService` lee esas tablas y actualiza `companies_sub_sections` y los permisos de perfiles con acceso total, sin sobrescribir la estructura del menú.
+`SystemNavigationSeeder` carga este catálogo cuando la base está vacía; no modifica los nombres de una instalación ya poblada. `SystemCatalogSyncService` lee esas tablas y actualiza `companies_sub_sections` y los permisos de perfiles con acceso total, sin sobrescribir la estructura del menú.
 
 No definir opciones de menú en archivos de configuración ni componentes Vue. Los cambios sobre instalaciones existentes deben usar una migración de datos concreta; el seeder conserva el estado inicial de instalaciones nuevas.
 
@@ -26,73 +26,71 @@ El servicio carga categoría y grupo, aplica el orden empresarial y genera la UR
 ## Categorías principales
 
 1. **Principal**
-   - Mi espacio de trabajo.
+   - Inicio.
 2. **Operaciones**
    - Ventas.
    - Compras.
-   - Caja y finanzas.
+   - Caja.
 3. **Gestión**
    - Clientes.
-   - Catálogo comercial.
+   - Catálogo e inventario.
 4. **Administración**
-   - Configuración.
+   - Administración.
 
 ## Grupos y opciones
 
 Cuando una sección contiene más de un grupo, cada uno muestra un encabezado y sus opciones en una lista compacta. La opción actual se distingue visualmente sin expandir paneles adicionales.
 
-Los títulos de categoría tienen peso normal y tamaño reducido. `Principal` no dibuja encabezado. Su único mundo, `Mi espacio de trabajo`, agrupa Mi espacio, Menú y favoritos, Mi cuenta, Dashboard y Reportes dentro del panel contextual. En escritorio colapsado las demás categorías muestran únicamente sus tres primeros caracteres; al expandir o pasar el cursor recuperan el nombre completo.
+`Principal` contiene el mundo Inicio. Su página Mi espacio es el acceso habitual; Dashboard y Reportes aparecen solo si están habilitados. Mi cuenta y Menú y favoritos se ubican en Administración. El riel de mundos mantiene disponibles los iconos aunque un mundo tenga una sola página visible.
 
-Los grupos internos usan encabezados compactos en mayúsculas y espaciado tipográfico, sin líneas decorativas. El grupo actual recibe solamente una variación leve de color; así, el encabezado no se confunde con una página seleccionable ni agrega ruido visual. Sus opciones usan una segunda sangría y menor contraste, de modo que se distinguen mundo, grupo y acceso final.
+Los grupos internos usan encabezados compactos en mayúsculas, separados por líneas tenues. Se muestran incluso cuando el perfil solo puede ver una opción del grupo; así, el acceso no queda aislado. Cada submódulo lleva una viñeta circular discreta como marcador de lista, no un icono de Font Awesome. El estado activo recibe un fondo suave y resalta ligeramente la viñeta, sin flechas adicionales.
 
 En el riel principal, los iconos de los mundos se centran verticalmente entre la marca superior y la cuenta del usuario, con separación suficiente entre accesos. Si la cantidad de mundos supera la altura disponible, el contenedor mantiene desplazamiento vertical. Sus tooltips usan el fondo, contraste, borde y sombra del branding System.
 
-La cabecera contextual muestra únicamente el nombre del mundo. No repite el grupo, la página, la ruta completa ni muestra un icono decorativo.
+La cabecera contextual reúne únicamente el icono ya definido para el mundo y su nombre en una superficie compacta, sin badge, descripción ni línea divisoria debajo. El cambio entre mundos atenúa brevemente la cabecera y el contenido, sin animar el marco del panel y respetando la preferencia de movimiento reducido.
 
-- **Clientes** agrupa Gestión, Membresías, Servicios y Atención al cliente.
-- **Configuración** agrupa Organización, Activos, Accesos y Datos maestros; el mundo Mi organización ya no aparece por separado.
+- **Clientes** agrupa Datos, Seguimiento, Vigencias y asistencia y Atención al cliente, en ese orden.
+- **Administración** agrupa Organización, Equipos y bienes y Ajustes; el mundo Mi organización ya no aparece por separado.
 
 ### Ventas
 
-- **Ventas**: Nueva venta, Ventas registradas.
+- **Registro y consulta**: Nueva venta, Listado de ventas.
 - **Punto de venta**: Venta POS, POS restaurante.
 - **Cotizaciones**: Nueva cotización, Cotizaciones registradas.
 - **Despacho y cobranza**: Entregas pendientes, Cuentas por cobrar.
 
 ### Compras
 
-- **Compras**: Nueva compra, Compras registradas.
+- **Registro y consulta**: Nueva compra, Compras registradas.
+- **Recepción y pagos**: Ingresos pendientes, Cuentas por pagar.
 - **Proveedores**: Proveedores.
 
-### Caja y finanzas
+### Caja
 
-- **Operación de caja**: Cajas, Aperturas y cierres, Movimientos.
-- **Control**: Resumen de caja, Gastos varios.
+- **Operaciones**: Cajas, Aperturas y cierres, Movimientos.
+- **Resumen y gastos**: Resumen de caja, Gastos varios.
 
 ### Clientes
 
-- **Gestión**: Clientes, Historial.
-- **Membresías**: Membresías, Asistencias de clientes.
-- **Servicios**: Servicios en curso.
+- **Datos**: Clientes, Historial.
+- **Seguimiento**: Servicios en curso.
+- **Vigencias y asistencia**: Membresías, Asistencias de clientes.
 - **Atención al cliente**: Notificaciones, Libro de reclamaciones.
 
-### Catálogo comercial
+### Catálogo e inventario
 
 - **Inventario**: Control de stock, Traslados, Guías, Kardex, Kardex valorizado.
-- **Maestras**: Productos, Servicios, Membresías, Categorías, Marcas, Recetas y platillos.
+- **Catálogo comercial**: Productos, Servicios, Membresías, Categorías, Marcas, Recetas y platillos.
 
-El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y rutas para no romper permisos ni favoritos. Al volver a ejecutarse en un tenant existente, reúne las opciones de la antigua Clasificación en Maestras, actualiza el orden de los módulos de la empresa y elimina el grupo vacío; la operación es idempotente y respeta un nombre personalizado de Maestras.
+El breadcrumb muestra mundo, subgrupo activo y página cuando los tres niveles son distintos. `SystemNavigationSeeder` conserva los identificadores y rutas para no romper permisos ni favoritos. Los nombres nuevos se aplican al recrear la base; las instalaciones ya pobladas requieren una actualización de datos explícita, porque el seeder no sobrescribe su navegación.
 
-Para aplicar esta consolidación en bases ya creadas, ejecutar `php artisan tenant:navigation-sync` para todos los tenants o `php artisan tenant:navigation-sync demo` para uno. El comando conecta cada base de forma aislada, ejecuta el seeder y sincroniza la proyección sin recrear tablas ni modificar el estado de los módulos.
+Inventario es el primer grupo de Catálogo e inventario. Sus cinco rutas, permisos y favoritos conservan sus identificadores.
 
-Inventario ya no es un mundo independiente: es el primer grupo de Catálogo comercial. Sus cinco rutas, permisos y favoritos conservan sus identificadores. `menu_groups` contiene una única fila para los cinco accesos, sin grupos intermedios de Existencias o Movimientos. Este orden inicial se aplica al recrear la base del tenant; no se ejecuta una migración de datos sobre tenants existentes.
-
-### Configuración
+### Administración
 
 - **Organización**: Mi empresa, Sucursales, Colaboradores, Asistencia del personal.
-- **Activos**: Activos, Gestión de activos, Dispositivos biométricos.
-- **Accesos**: Perfiles de acceso.
-- **Datos maestros**: Maestros internos, Rubro y módulos.
+- **Equipos y bienes**: Activos, Gestión de activos, Dispositivos biométricos.
+- **Ajustes**: Perfiles de acceso, Maestros internos, Rubro y módulos, Mi cuenta y Menú y favoritos.
 
 ## Orden por organización
 

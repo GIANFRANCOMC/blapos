@@ -604,7 +604,7 @@ const MODULE_CONFIG = {
     menuId: "menu-configuration-users",
     pageTitle: "Colaboradores",
     pageTitleSingular: "Colaborador",
-    breadcrumbParent: "Configuración",
+    breadcrumbParent: "Administración",
     perPage: 15
 };
 

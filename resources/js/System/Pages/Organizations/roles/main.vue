@@ -677,7 +677,7 @@ export default {
     },
     computed: {
         breadcrumbTitles() {
-            return [{title: "Configuración"}, this.config.entity.page];
+            return [{title: "Administración"}, this.config.entity.page];
         },
         availableSections() {
             return (this.options.sections || [])

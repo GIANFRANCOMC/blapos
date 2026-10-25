@@ -199,17 +199,20 @@
                         data-navigation-panel="{{ $section->id }}"
                         @if(!$isActiveSection || !$showNavigationContext) hidden @endif>
                         <div class="br-navigation__context-head">
-                            <h2 class="br-navigation__world-title">{{ $section->dom_label }}</h2>
+                            <div class="br-navigation__world-card">
+                                <span class="br-navigation__world-icon" aria-hidden="true">
+                                    <i class="{{ $section->dom_icon }}"></i>
+                                </span>
+                                <h2 class="br-navigation__world-title">{{ $section->dom_label }}</h2>
+                            </div>
                         </div>
 
                         <nav class="br-navigation__context-body" aria-label="Opciones de {{ $section->dom_label }}">
                             @foreach($section->subSections->groupBy(fn($subSection) => $subSection->menuGroup?->id ?? 0) as $menuGroupItems)
                                 @php
                                     $menuGroup = $menuGroupItems->first()->menuGroup;
-                                    $menuGroupIsActive = $isActiveSection && $activeNavigationSubSection
-                                        && $menuGroupItems->contains("id", $activeNavigationSubSection->id);
                                 @endphp
-                                <section class="br-navigation__group {{ $menuGroupIsActive ? 'is-current' : '' }}">
+                                <section class="br-navigation__group" aria-label="{{ $menuGroup?->name ?? $section->dom_label }}">
                                     @if($menuGroup)
                                         <h3 class="br-navigation__group-title">{{ $menuGroup->name }}</h3>
                                     @endif
@@ -226,9 +229,6 @@
                                                     data-navigation-section="{{ $section->id }}"
                                                     aria-current="{{ $isActivePage ? 'page' : 'false' }}">
                                                     <span>{{ $subSection->dom_label }}</span>
-                                                    @if($isActivePage)
-                                                        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                                                    @endif
                                                 </a>
                                             </li>
                                         @endforeach

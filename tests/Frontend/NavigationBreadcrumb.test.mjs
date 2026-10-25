@@ -4,20 +4,20 @@ import {withNavigationGroup} from "../../resources/js/System/Components/breadcru
 
 test("el breadcrumb agrega el subgrupo activo del mundo", () => {
 
-    const items = [{title: "Catálogo comercial"}, {title: "Productos", active: true}];
+    const items = [{title: "Catálogo e inventario"}, {title: "Productos", active: true}];
 
     assert.deepEqual(
-        withNavigationGroup(items, {world: "Catálogo comercial", group: "Maestras"}),
-        [{title: "Catálogo comercial"}, {title: "Maestras"}, {title: "Productos", active: true}]
+        withNavigationGroup(items, {world: "Catálogo e inventario", group: "Catálogo comercial"}),
+        [{title: "Catálogo e inventario"}, {title: "Catálogo comercial"}, {title: "Productos", active: true}]
     );
 
 });
 
 test("el breadcrumb no duplica subgrupos ni altera otros mundos", () => {
 
-    const items = [{title: "Catálogo comercial"}, {title: "Clasificación"}, {title: "Marcas"}];
+    const items = [{title: "Catálogo e inventario"}, {title: "Clasificación"}, {title: "Marcas"}];
 
-    assert.deepEqual(withNavigationGroup(items, {world: "Catálogo comercial", group: "Clasificación"}), items);
+    assert.deepEqual(withNavigationGroup(items, {world: "Catálogo e inventario", group: "Clasificación"}), items);
     assert.deepEqual(withNavigationGroup(items, {world: "Ventas", group: "Punto de venta"}), items);
     assert.deepEqual(
         withNavigationGroup([{title: "Ventas"}, {title: "Nueva venta"}], {world: "Ventas", group: "Ventas"}),
@@ -43,22 +43,22 @@ test("el breadcrumb usa la navegación activa como fuente para todos los módulo
     assert.deepEqual(
         withNavigationGroup(
             [{title: "Clientes", active: true}],
-            {world: "Clientes", group: "Gestión", page: "Clientes"}
+            {world: "Clientes", group: "Datos", page: "Clientes"}
         ),
         [
             {title: "Clientes", active: false},
-            {title: "Gestión", active: false},
+            {title: "Datos", active: false},
             {title: "Clientes", active: true}
         ]
     );
 
     assert.deepEqual(
         withNavigationGroup(
-            [{title: "Configuración"}],
-            {world: "Configuración", group: "Organización", page: "Mi empresa"}
+            [{title: "Administración"}],
+            {world: "Administración", group: "Organización", page: "Mi empresa"}
         ),
         [
-            {title: "Configuración", active: false},
+            {title: "Administración", active: false},
             {title: "Organización", active: false},
             {title: "Mi empresa", active: true}
         ]

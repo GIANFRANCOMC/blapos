@@ -15,7 +15,7 @@ final class UserNavigationService {
 
     private static array $metricsAvailability = [];
 
-    private const POPULAR_LIMIT = 10;
+    private const WORKSPACE_LIST_LIMIT = 6;
 
     private const WORKSPACE_ROUTE = "workspace.index";
 
@@ -89,19 +89,19 @@ final class UserNavigationService {
 
     public function getWorkspace(User $user): array {
 
+        $catalog = $this->allowedCatalog($user);
+
         if(!$this->metricsAvailable()) {
 
-            return ["popular" => collect(), "suggested" => $this->allowedCatalog($user)->take(6)->values()];
+            return ["actions" => $catalog->take(self::WORKSPACE_LIST_LIMIT)->values()];
 
         }
-
-        $catalog = $this->allowedCatalog($user);
 
         $allowedIds = $catalog->keys()->all();
 
         if($allowedIds === []) {
 
-            return ["popular" => collect(), "suggested" => collect()];
+            return ["actions" => collect()];
 
         }
 
@@ -122,18 +122,17 @@ final class UserNavigationService {
                     ?: ($left->sub_section_id <=> $right->sub_section_id);
 
             })
-            ->take(self::POPULAR_LIMIT)
+            ->take(self::WORKSPACE_LIST_LIMIT)
             ->map($decorate)
             ->values();
 
-        $popularIds = $popular->pluck("id");
-
-        $suggested = $catalog
-            ->reject(fn($item, $id) => $popularIds->contains($id))
-            ->take(6)
+        $actions = $popular
+            ->concat($catalog
+                ->reject(fn($item, $id) => $popular->contains("id", $id))
+                ->take(self::WORKSPACE_LIST_LIMIT - $popular->count()))
             ->values();
 
-        return compact("popular", "suggested");
+        return compact("actions");
 
     }
 
@@ -151,7 +150,6 @@ final class UserNavigationService {
                             "description" => $subSection->description,
                             "url" => $subSection->dom_route_url,
                             "world" => $section->dom_label,
-                            "icon" => $subSection->dom_icon ?: $section->dom_icon,
                         ],
                     ]);
 
