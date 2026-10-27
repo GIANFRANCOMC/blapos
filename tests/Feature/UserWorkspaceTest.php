@@ -149,6 +149,10 @@ final class UserWorkspaceTest extends TestCase {
                 DB::table("sub_sections")->where("id", $item["id"])->value("description"),
                 $item["description"]
             );
+            $this->assertSame(
+                DB::table("sub_sections")->where("id", $item["id"])->value("dom_icon"),
+                $item["icon"]
+            );
 
         }
 
@@ -180,25 +184,27 @@ final class UserWorkspaceTest extends TestCase {
         ])->get(route("workspace.index"));
 
         $response->assertOk();
-        $response->assertSee('Buenos días, <span class="br-workspace__hero-name">Administrador</span>', false);
-        $response->assertDontSee("¿Qué deseas hacer hoy?");
+        $response->assertSee('<span class="br-workspace__section-eyebrow">Accesos rápidos</span>', false);
+        $response->assertSee('<h1 id="workspace-popular-title">¿Qué deseas hacer hoy, Administrador?</h1>', false);
+        $response->assertDontSee('class="br-workspace__hero"', false);
+        $response->assertSee("Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla.");
         $response->assertDontSee("Accede a tus funciones habituales o explora otras disponibles para tu perfil.");
         $response->assertDontSee("Vistos recientemente");
-        $response->assertSee("¿Qué quiero hacer ahora?");
+        $response->assertSee("¿Qué deseas hacer hoy, Administrador?");
         $response->assertSee('<div class="br-workspace__support" role="note"', false);
         $response->assertSeeInOrder([
             'id="workspace-popular-title"',
-            'class="br-workspace__support"',
             'class="br-workspace__aside"',
+            'class="br-workspace__support"',
         ], false);
         $response->assertSee("¿Necesitas ayuda?");
         $response->assertSee('href="mailto:gianfranco_29_01@hotmail.com"', false);
         $response->assertSee('href="tel:+51987057624"', false);
         $response->assertDontSee("También puedes usar");
         $response->assertSee("Registra una venta de productos, servicios o membresías.");
-        $response->assertDontSee('class="br-workspace__link-icon"', false);
+        $response->assertSee('class="br-workspace__link-icon"', false);
         $response->assertSee('class="br-workspace__link-arrow"', false);
-        $response->assertSee('fa-solid fa-circle-arrow-right', false);
+        $response->assertSee('fa-solid fa-chevron-right', false);
         $response->assertSee('class="br-workspace__section"', false);
         $response->assertDontSee('class="br-workspace__panel-head"', false);
         $response->assertSee("Nueva venta");
@@ -227,15 +233,15 @@ final class UserWorkspaceTest extends TestCase {
         $this->assertSame("Ventas", $workspace["actions"][0]["world"]);
         $this->assertNotSame($workspace["actions"][0]["world"], $workspace["actions"][0]["description"]);
         $this->assertSame(
-            asset(config("app.owner_app")->assets->img->combinationmark),
-            $response->viewData("logoUrl")
+            asset(config("app.owner_app")->assets->img->logomark),
+            $response->viewData("logomarkUrl")
         );
         $response->assertSee('class="br-navbar-brand"', false);
         $response->assertSee(
             'src="'.asset(config("app.owner_app")->assets->img->combinationmark).'" alt="Marca combinada de Blapos"',
             false
         );
-        $response->assertSee('alt="Logo de Empresa de pruebas"', false);
+        $response->assertSee('alt="Isotipo de Empresa de pruebas"', false);
         $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
         $this->assertSame(
             $workspace["actions"]->count(),
@@ -252,16 +258,12 @@ final class UserWorkspaceTest extends TestCase {
 
     }
 
-    public function test_workspace_greeting_changes_with_the_time_of_day_and_uses_the_user_name(): void {
+    public function test_workspace_heading_uses_only_the_first_name_without_a_time_of_day_greeting(): void {
 
-        $this->user->update(["name" => "Lucía Torres"]);
+        $this->user->update(["name" => "ANA PAULA Torres"]);
         Auth::login($this->user);
 
-        foreach([
-            "09:00:00" => "Buenos días",
-            "15:00:00" => "Buenas tardes",
-            "21:00:00" => "Buenas noches",
-        ] as $time => $greeting) {
+        foreach(["09:00:00", "15:00:00", "21:00:00"] as $time) {
 
             $this->travelTo(Carbon::parse("2026-10-25 ".$time, config("app.timezone")));
 
@@ -274,7 +276,8 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureOperationalScope::class,
             ])->get(route("workspace.index"))
                 ->assertOk()
-                ->assertSee($greeting.', <span class="br-workspace__hero-name">Lucía</span>', false);
+                ->assertSee('<h1 id="workspace-popular-title">¿Qué deseas hacer hoy, ANA?</h1>', false)
+                ->assertDontSee('class="br-workspace__hero"', false);
 
         }
 
@@ -317,17 +320,17 @@ final class UserWorkspaceTest extends TestCase {
 
     }
 
-    public function test_workspace_displays_the_company_logo_when_it_exists(): void {
+    public function test_workspace_displays_the_company_logomark_when_it_exists(): void {
 
         Storage::fake("public");
-        $logoPath = "tenants/tests/branding/combinationmark.png";
+        $logoPath = "tenants/tests/branding/logomark.png";
         Storage::disk("public")->put(
             $logoPath,
             base64_decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=")
         );
 
         $company = app(TenantCompanyContext::class)->get();
-        $company->combinationmark = $logoPath;
+        $company->logomark = $logoPath;
         $company->save();
         Auth::login($this->user);
 
@@ -341,12 +344,11 @@ final class UserWorkspaceTest extends TestCase {
         ])->get(route("workspace.index"));
 
         $response->assertOk();
-        $this->assertSame(asset("storage/".$logoPath), $response->viewData("logoUrl"));
+        $this->assertSame(asset("storage/".$logoPath), $response->viewData("logomarkUrl"));
         $response->assertSee(
-            'src="'.asset("storage/".$logoPath).'" alt="Marca combinada de Empresa de pruebas"',
+            'src="'.asset("storage/".$logoPath).'" alt="Isotipo de Empresa de pruebas"',
             false
         );
-        $response->assertSee('alt="Logo de Empresa de pruebas"', false);
 
     }
 

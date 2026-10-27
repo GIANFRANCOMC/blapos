@@ -15,8 +15,11 @@ test("el navbar presenta favoritos, avisos y usuario autenticado sin alterar sus
     assert.match(layout, /br-navbar-user__avatar[^>]*>\{\{ \$userInitials \}\}<\/span>\s*<span class="br-navbar-user__name" title="\{\{ \$user->name \}\}">\{\{ \$user->name \}\}<\/span>/);
     assert.match(layout, /br-navbar-user__chevron/);
     assert.match(styles, /\.br-navbar-user__name\s*\{[^}]*text-overflow: ellipsis;/);
+    assert.match(styles, /\.br-navbar-user__avatar\s*\{[^}]*width: 1\.9rem;[^}]*height: 1\.9rem;/);
     assert.match(styles, /\.br-navbar-announcements__toggle\s*\{[^}]*border: 0;/);
     assert.match(styles, /\.br-navbar-announcements__count\s*\{[^}]*background: var\(--br-danger\);/);
+    assert.match(styles, /\.br-navbar-announcements__menu\s*\{[^}]*--bs-dropdown-padding-y: 0;[^}]*padding: 0 !important;/);
+    assert.match(styles, /\.br-navbar-announcements__head\s*\{[^}]*width: 100%;[^}]*background: var\(--br-primary-soft\);/);
     assert.match(behavior, /count\.hidden = totalItems === 0;/);
 
 });

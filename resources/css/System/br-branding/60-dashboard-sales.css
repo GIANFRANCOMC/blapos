@@ -728,15 +728,15 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 
 .br-navbar-user__avatar {
   display: inline-flex;
-  flex: 0 0 2.2rem;
+  flex: 0 0 1.9rem;
   align-items: center;
   justify-content: center;
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 1.9rem;
+  height: 1.9rem;
   border-radius: 999px;
   color: var(--br-on-secondary);
   background: color-mix(in srgb, var(--br-secondary) 76%, var(--br-primary));
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   font-weight: 500;
 }
 
@@ -899,10 +899,12 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 }
 
 .br-navbar-announcements__menu {
+  --bs-dropdown-padding-x: 0;
+  --bs-dropdown-padding-y: 0;
   width: min(22rem, calc(100vw - 1.5rem));
   max-height: min(30rem, calc(100vh - 5rem));
   margin-top: 0.55rem !important;
-  padding: 0;
+  padding: 0 !important;
   overflow: hidden;
   border: 1px solid var(--br-border);
   border-radius: 0.8rem;
@@ -914,9 +916,11 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  width: 100%;
+  margin: 0;
   padding: 0.85rem 0.95rem;
-  border-bottom: 1px solid var(--br-border);
-  background: color-mix(in srgb, var(--br-primary-soft) 38%, var(--br-white));
+  border-bottom: 1px solid var(--br-primary-muted);
+  background: var(--br-primary-soft);
 }
 
 .br-navbar-announcements__head div {
@@ -926,7 +930,8 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 
 .br-navbar-announcements__head strong {
   color: var(--br-secondary);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
+  font-weight: 600;
 }
 
 .br-navbar-announcements__head span,

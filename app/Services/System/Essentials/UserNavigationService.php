@@ -150,6 +150,7 @@ final class UserNavigationService {
                             "description" => $subSection->description,
                             "url" => $subSection->dom_route_url,
                             "world" => $section->dom_label,
+                            "icon" => $subSection->dom_icon,
                         ],
                     ]);
 

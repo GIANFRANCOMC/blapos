@@ -6,14 +6,18 @@ namespace App\Http\Controllers\System\Essentials;
 
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Services\System\Essentials\{UserNavigationService};
+use App\Services\System\Organizations\Companies\{CompanyLogomarkService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Tenancy\{PlatformSupportService};
 use Illuminate\Contracts\View\{View};
-use Illuminate\Support\Facades\{Storage};
+use Illuminate\Support\Str;
 
 final class WorkspaceController extends BaseController {
 
-    public function __construct(private readonly UserNavigationService $navigationService) {
+    public function __construct(
+        private readonly UserNavigationService $navigationService,
+        private readonly CompanyLogomarkService $companyLogomarkService
+    ) {
 
     }
 
@@ -21,20 +25,14 @@ final class WorkspaceController extends BaseController {
 
         $user = $this->getAuthUser();
         $workspace = $this->navigationService->getWorkspace($user);
-        $hour = now()->hour;
-        $greeting = $hour < 12 ? "Buenos días" : ($hour < 19 ? "Buenas tardes" : "Buenas noches");
+        $firstName = Str::before(trim($user->name), " ");
         $company = app(TenantCompanyContext::class)->get()->loadMissing("identityDocumentType", "socialsMedia");
         $companySocials = $company->socialsMedia->keyBy("type");
         $companyName = $company->commercial_name ?: $company->legal_name ?: "Empresa";
-        $logoPath = collect([$company->combinationmark, $company->logomark, $company->logotype])
-            ->filter()
-            ->first(fn(string $path): bool => Storage::disk("public")->exists($path));
-        $logoUrl = $logoPath
-            ? asset("storage/".$logoPath)
-            : asset(config("app.owner_app")->assets->img->combinationmark);
+        $logomarkUrl = $this->companyLogomarkService->url($company->logomark);
         $supportContact = app(PlatformSupportService::class)->contact();
 
-        return view("System/general/Essentials/workspace/main", compact("user", "workspace", "greeting", "company", "companyName", "companySocials", "logoUrl", "supportContact"));
+        return view("System/general/Essentials/workspace/main", compact("workspace", "firstName", "company", "companyName", "companySocials", "logomarkUrl", "supportContact"));
 
     }
 

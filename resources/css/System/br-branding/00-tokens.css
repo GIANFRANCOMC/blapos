@@ -66,7 +66,7 @@
   --br-on-info: #ffffff;
 
   /* Neutrales (UI) */
-  --br-surface: #f5f8fb;
+  --br-surface: #f4f7fd;
   --br-surface-elevated: #ffffff;
   --br-surface-soft: #f9fbfd;
   --br-surface-subtle: #fbfdff;
@@ -74,7 +74,7 @@
   --br-modal-surface: #fbfcfe;
   --br-modal-chrome-surface: #f1f5f9;
   --br-modal-close-muted: color-mix(in srgb, var(--br-danger) 65%, var(--br-text-muted));
-  --br-border: #dfe7ef;
+  --br-border: #d9e3ef;
   --br-border-strong: #bdcad8;
   --br-text: #1e293b;
   --br-text-muted: #64748b;
@@ -86,7 +86,7 @@
   --br-neutral: #64748b;
   --br-neutral-soft: #f1f5f9;
   --br-neutral-panel: #f7f8fa;
-  --br-neutral-page: #f3f7fb;
+  --br-neutral-page: var(--br-surface);
   --br-neutral-700: #4b5563;
   --br-neutral-800: #374151;
   --br-neutral-900: #1f2937;

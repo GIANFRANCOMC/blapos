@@ -48,6 +48,14 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
+    public function test_every_submodule_has_its_own_icon_in_the_catalog(): void {
+
+        $this->assertSame(0, DB::table("sub_sections")->where("dom_icon", "")->count());
+        $this->assertSame("fa-solid fa-users", DB::table("sub_sections")->where("dom_route", "customers.index")->value("dom_icon"));
+        $this->assertSame("fa-solid fa-cube", DB::table("sub_sections")->where("dom_route", "stocks_management.stock.index")->value("dom_icon"));
+
+    }
+
     public function test_group_names_describe_their_pages_without_repeating_world_names(): void {
 
         $this->assertSame([
