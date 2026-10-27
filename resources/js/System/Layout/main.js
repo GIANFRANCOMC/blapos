@@ -150,6 +150,7 @@ document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").for
         }, 0);
 
         count.textContent = String(totalItems);
+        count.hidden = totalItems === 0;
         body.replaceChildren();
 
         if (totalItems === 0) {

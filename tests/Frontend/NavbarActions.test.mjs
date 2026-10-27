@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import test from "node:test";
+
+test("el navbar presenta favoritos, avisos y usuario autenticado sin alterar sus controles", () => {
+
+    const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
+    const styles = readFileSync(new URL("../../resources/css/System/br-branding/60-dashboard-sales.css", import.meta.url), "utf8");
+    const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
+
+    assert.match(layout, /@if\(\$favoritesEnabled\)[\s\S]*?id="brFabFavoritesToggle"/);
+    assert.match(layout, /id="brFabFavoritesToggle"[\s\S]*?<i class="fa-regular fa-star"/);
+    assert.match(layout, /br-navbar-announcements__toggle[\s\S]*?<i class="fa-regular fa-bell"/);
+    assert.match(layout, /br-navbar-announcements__count" @if\(\$navbarAnnouncementCount === 0\) hidden @endif/);
+    assert.match(layout, /br-navbar-user__avatar[^>]*>\{\{ \$userInitials \}\}<\/span>\s*<span class="br-navbar-user__name" title="\{\{ \$user->name \}\}">\{\{ \$user->name \}\}<\/span>/);
+    assert.match(layout, /br-navbar-user__chevron/);
+    assert.match(styles, /\.br-navbar-user__name\s*\{[^}]*text-overflow: ellipsis;/);
+    assert.match(styles, /\.br-navbar-announcements__toggle\s*\{[^}]*border: 0;/);
+    assert.match(styles, /\.br-navbar-announcements__count\s*\{[^}]*background: var\(--br-danger\);/);
+    assert.match(behavior, /count\.hidden = totalItems === 0;/);
+
+});

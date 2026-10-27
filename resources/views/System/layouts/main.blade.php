@@ -103,6 +103,9 @@
         ]);
 
     }
+
+    $favoriteCount = $favoriteMenuGroups->sum(fn($group) => $group['items']->count());
+    $navbarAnnouncementCount = ($tenantAnnouncements ?? collect())->count();
 @endphp
 
 <html
@@ -304,9 +307,9 @@
                                         aria-label="Abrir favoritos"
                                         aria-expanded="false"
                                         aria-controls="brFabFavoritesPanel">
-                                        <i class="fa-solid fa-star fa-2xs" aria-hidden="true"></i>
+                                        <i class="fa-regular fa-star" aria-hidden="true"></i>
                                         <span class="br-navbar-favorites__label">Favoritos</span>
-                                        <span class="br-navbar-favorites__count" id="brFabFavoritesCount">{{ $favoriteMenuGroups->sum(fn($group) => $group['items']->count()) }}</span>
+                                        <span class="br-navbar-favorites__count" id="brFabFavoritesCount" @if($favoriteCount === 0) hidden @endif>{{ $favoriteCount }}</span>
                                     </button>
                                     </div>
                                 @endif
@@ -317,15 +320,15 @@
                                         data-bs-toggle="dropdown"
                                         data-bs-auto-close="outside"
                                         aria-expanded="false"
-                                        aria-label="Abrir anuncios">
+                                        aria-label="Abrir avisos">
                                         <i class="fa-regular fa-bell" aria-hidden="true"></i>
-                                        <span class="br-navbar-announcements__label">Anuncios</span>
-                                        <span class="br-navbar-announcements__count">{{ ($tenantAnnouncements ?? collect())->count() }}</span>
+                                        <span class="br-navbar-announcements__label">Avisos</span>
+                                        <span class="br-navbar-announcements__count" @if($navbarAnnouncementCount === 0) hidden @endif>{{ $navbarAnnouncementCount }}</span>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end br-navbar-announcements__menu">
                                         <div class="br-navbar-announcements__head">
                                             <div>
-                                                <strong>Anuncios</strong>
+                                                <strong>Avisos</strong>
                                                 <span>Comunicaciones de la plataforma</span>
                                             </div>
                                             <i class="fa-regular fa-bell" aria-hidden="true"></i>
@@ -344,7 +347,7 @@
                                             @empty
                                                 <div class="br-navbar-announcements__empty">
                                                     <i class="fa-regular fa-bell-slash" aria-hidden="true"></i>
-                                                    <span>No hay anuncios vigentes.</span>
+                                                    <span>No hay avisos vigentes.</span>
                                                 </div>
                                             @endforelse
                                         </div>
@@ -357,8 +360,10 @@
                                         data-bs-toggle="dropdown"
                                         data-bs-auto-close="outside"
                                         aria-expanded="false"
-                                        aria-label="Abrir menú de usuario">
+                                        aria-label="Abrir menú de {{ $user->name }}">
                                         <span class="br-navbar-user__avatar" aria-hidden="true">{{ $userInitials }}</span>
+                                        <span class="br-navbar-user__name" title="{{ $user->name }}">{{ $user->name }}</span>
+                                        <i class="fa-solid fa-chevron-down br-navbar-user__chevron" aria-hidden="true"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end br-navbar-user__menu">
                                         <li class="br-navbar-user__summary">

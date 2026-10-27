@@ -366,12 +366,12 @@
     "isEntry": true
   },
   "resources/css/System/app.css": {
-    "file": "assets/app-BPmGRtii.css",
+    "file": "assets/app-CsoVb-Qw.css",
     "src": "resources/css/System/app.css",
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-DTqNfYbt.css",
+    "file": "assets/platform-JYWk7Uz5.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -499,7 +499,7 @@
     ]
   },
   "resources/js/System/Layout/main.js": {
-    "file": "assets/main-BDoccH1y.js",
+    "file": "assets/main-UUrg3uKe.js",
     "name": "main",
     "src": "resources/js/System/Layout/main.js",
     "isEntry": true,
