@@ -97,6 +97,8 @@ Inventario es el primer grupo de Catálogo e inventario. Sus cinco rutas, permis
 - La categoría define el primer nivel de orden.
 - `sections.order` ordena secciones dentro de la categoría.
 - `menu_groups.order` ordena grupos dentro de la sección.
+- `sections.description` contiene el resumen breve que acompaña al nombre e icono del mundo.
+- `menu_groups.dom_icon` define el icono de cada grupo; la vista no asigna iconos por nombre o ruta.
 - `sub_sections.order` ordena opciones dentro del grupo.
 - `companies_sub_sections.section_order` y `sub_section_order` almacenan la proyección ordenada por organización; el segundo combina el orden del grupo con el de la opción para mantener juntos sus accesos.
 - `SystemCatalogSyncService` y la administración central usan el mismo cálculo para componer categoría, sección, grupo y opción; así los grupos no se intercalan al sincronizar o guardar módulos.

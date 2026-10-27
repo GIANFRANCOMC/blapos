@@ -238,6 +238,10 @@ final class UserWorkspaceTest extends TestCase {
         );
         $response->assertSee('class="br-navbar-brand"', false);
         $response->assertSee(
+            '<span class="br-navbar-user__company" title="EMPRESA DE PRUEBAS S.A.C.">EMPRESA DE PRUEBAS S.A.C.</span>',
+            false
+        );
+        $response->assertSee(
             'src="'.asset(config("app.owner_app")->assets->img->combinationmark).'" alt="Marca combinada de Blapos"',
             false
         );

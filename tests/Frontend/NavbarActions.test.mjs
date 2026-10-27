@@ -12,9 +12,13 @@ test("el navbar presenta favoritos, avisos y usuario autenticado sin alterar sus
     assert.match(layout, /id="brFabFavoritesToggle"[\s\S]*?<i class="fa-regular fa-star"/);
     assert.match(layout, /br-navbar-announcements__toggle[\s\S]*?<i class="fa-regular fa-bell"/);
     assert.match(layout, /br-navbar-announcements__count" @if\(\$navbarAnnouncementCount === 0\) hidden @endif/);
-    assert.match(layout, /br-navbar-user__avatar[^>]*>\{\{ \$userInitials \}\}<\/span>\s*<span class="br-navbar-user__name" title="\{\{ \$user->name \}\}">\{\{ \$user->name \}\}<\/span>/);
+    assert.match(layout, /\$navbarCompanyName = \$company->legal_name \?: \$company->commercial_name \?: "Empresa"/);
+    assert.match(layout, /<span class="br-navbar-user__avatar"[^>]*>\{\{ \$userInitials \}\}<\/span>/);
+    assert.match(layout, /<span class="br-navbar-user__identity">[\s\S]*?<span class="br-navbar-user__name" title="\{\{ \$user->name \}\}">\{\{ \$user->name \}\}<\/span>/);
+    assert.match(layout, /<span class="br-navbar-user__company" title="\{\{ \$navbarCompanyName \}\}">\{\{ \$navbarCompanyName \}\}<\/span>/);
     assert.match(layout, /br-navbar-user__chevron/);
-    assert.match(styles, /\.br-navbar-user__name\s*\{[^}]*text-overflow: ellipsis;/);
+    assert.match(styles, /\.br-navbar-user__identity\s*\{[^}]*display: grid;/);
+    assert.match(styles, /\.br-navbar-user__name,\s*\.br-navbar-user__company\s*\{[^}]*text-overflow: ellipsis;/);
     assert.match(styles, /\.br-navbar-user__avatar\s*\{[^}]*width: 1\.9rem;[^}]*height: 1\.9rem;/);
     assert.match(styles, /\.br-navbar-announcements__toggle\s*\{[^}]*border: 0;/);
     assert.match(styles, /\.br-navbar-announcements__count\s*\{[^}]*background: var\(--br-danger\);/);

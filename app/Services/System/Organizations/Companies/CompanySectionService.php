@@ -120,6 +120,7 @@ final class CompanySectionService {
                 "dom_id",
                 "dom_label",
                 "dom_icon",
+                "description",
                 "has_sub_menu",
                 "status",
             ])
@@ -192,7 +193,7 @@ final class CompanySectionService {
             $query->orderByRaw("COALESCE(company_sub_section_order, `sub_sections`.`order`, 999)")
                 ->orderBy("sub_sections.order");
 
-        }, "subSections.menuGroup:id,section_id,slug,name,order,status"])
+        }, "subSections.menuGroup:id,section_id,slug,name,dom_icon,order,status"])
             ->orderByRaw("COALESCE(company_section_order, `sections`.`order`, 999)")
             ->orderBy("sections.order")
             ->get()

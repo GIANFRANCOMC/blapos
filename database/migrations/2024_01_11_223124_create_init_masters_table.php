@@ -113,6 +113,7 @@ return new class extends Migration {
             $table->string("dom_id", 255)->default("");
             $table->string("dom_label", 255)->default("");
             $table->string("dom_icon", 255)->default("");
+            $table->string("description", 120)->nullable();
             $table->boolean("has_sub_menu")->default(false);
             $table->enum("status", ["active", "inactive"])->default("active");
 
@@ -130,6 +131,7 @@ return new class extends Migration {
             $table->unsignedBigInteger("section_id");
             $table->string("slug", 100);
             $table->string("name", 100);
+            $table->string("dom_icon", 255)->default("");
             $table->integer("order")->default(0);
             $table->enum("status", ["active", "inactive"])->default("active");
             $table->timestamps();

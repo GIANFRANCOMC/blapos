@@ -56,6 +56,15 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
+    public function test_world_summaries_and_group_icons_are_stored_in_the_navigation_catalog(): void {
+
+        $this->assertSame("Accesos y seguimiento", DB::table("sections")->where("slug", "sc_workspace")->value("description"));
+        $this->assertSame(0, DB::table("sections")->whereNull("description")->orWhere("description", "")->count());
+        $this->assertSame("fa-regular fa-user", DB::table("menu_groups")->where("id", 23)->value("dom_icon"));
+        $this->assertSame(0, DB::table("menu_groups")->where("dom_icon", "")->count());
+
+    }
+
     public function test_group_names_describe_their_pages_without_repeating_world_names(): void {
 
         $this->assertSame([

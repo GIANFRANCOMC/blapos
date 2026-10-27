@@ -740,16 +740,35 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   font-weight: 500;
 }
 
-.br-navbar-user__name {
-  display: block;
+.br-navbar-user__identity {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
   max-width: min(12rem, 24vw);
+  text-align: left;
+}
+
+.br-navbar-user__name,
+.br-navbar-user__company {
+  display: block;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-navbar-user__name {
   color: var(--br-secondary);
   font-size: 0.78rem;
   font-weight: 600;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.br-navbar-user__company {
+  color: var(--br-text-muted);
+  font-size: 0.63rem;
+  font-weight: 400;
+  line-height: 1.15;
 }
 
 .br-navbar-user__chevron {
@@ -1085,7 +1104,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
     max-width: min(13rem, 53vw);
   }
 
-  .br-navbar-user__name {
+  .br-navbar-user__identity {
     max-width: min(8.5rem, 32vw);
   }
 

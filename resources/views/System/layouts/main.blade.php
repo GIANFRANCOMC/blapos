@@ -4,6 +4,8 @@
     $ownerApp = config("app.owner_app");
     $user     = Auth::user();
     $company  = app(\App\Services\System\Tenancy\TenantCompanyContext::class)->get();
+    $navigationLogomarkUrl = app(\App\Services\System\Organizations\Companies\CompanyLogomarkService::class)->url($company->logomark);
+    $navbarCompanyName = $company->legal_name ?: $company->commercial_name ?: "Empresa";
     $role     = $user->role;
     $systemAssetsPath = rtrim(asset('System/assets'), '/').'/';
     $sections = \App\Services\System\Organizations\Companies\CompanySectionService::getSections($role?->id);
@@ -34,8 +36,6 @@
 
     $navigationSections = $sections
         ->map(function($section) use ($sectionFiltered) {
-
-            if($section->slug === "sc_workspace") $section->dom_icon = "fa fa-home";
 
             $section->setRelation(
                 "subSections",
@@ -135,6 +135,9 @@
             <div class="layout-container">
                 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme br-menu-brand br-navigation {{ $showNavigationContext ? 'has-context' : 'without-context' }}" aria-label="Navegación principal">
                     <div class="br-navigation__rail">
+                        <div class="br-navigation__logomark">
+                            <img src="{{ $navigationLogomarkUrl }}" alt="Isotipo de {{ $navbarCompanyName }}" />
+                        </div>
                         <nav id="brNavigationWorlds" class="br-navigation__modules" aria-label="Módulos disponibles">
                             @foreach($navigationSections as $section)
                                 @php
@@ -203,7 +206,13 @@
                         @if(!$isActiveSection || !$showNavigationContext) hidden @endif>
                         <div class="br-navigation__context-head">
                             <div class="br-navigation__world-card">
-                                <h2 class="br-navigation__world-title">{{ $section->dom_label }}</h2>
+                                <span class="br-navigation__world-icon" aria-hidden="true"><i class="{{ $section->dom_icon }}"></i></span>
+                                <div class="br-navigation__world-copy">
+                                    <h2 class="br-navigation__world-title">{{ $section->dom_label }}</h2>
+                                    @if($section->description)
+                                        <p class="br-navigation__world-description">{{ $section->description }}</p>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
@@ -214,7 +223,10 @@
                                 @endphp
                                 <section class="br-navigation__group" aria-label="{{ $menuGroup?->name ?? $section->dom_label }}">
                                     @if($menuGroup)
-                                        <h3 class="br-navigation__group-title">{{ $menuGroup->name }}</h3>
+                                        <h3 class="br-navigation__group-title">
+                                            <i class="{{ $menuGroup->dom_icon }}" aria-hidden="true"></i>
+                                            <span>{{ $menuGroup->name }}</span>
+                                        </h3>
                                     @endif
                                     <ul class="br-navigation__pages">
                                         @foreach($menuGroupItems as $subSection)
@@ -362,13 +374,16 @@
                                         aria-expanded="false"
                                         aria-label="Abrir menú de {{ $user->name }}">
                                         <span class="br-navbar-user__avatar" aria-hidden="true">{{ $userInitials }}</span>
-                                        <span class="br-navbar-user__name" title="{{ $user->name }}">{{ $user->name }}</span>
+                                        <span class="br-navbar-user__identity">
+                                            <span class="br-navbar-user__name" title="{{ $user->name }}">{{ $user->name }}</span>
+                                            <span class="br-navbar-user__company" title="{{ $navbarCompanyName }}">{{ $navbarCompanyName }}</span>
+                                        </span>
                                         <i class="fa-solid fa-chevron-down br-navbar-user__chevron" aria-hidden="true"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end br-navbar-user__menu">
                                         <li class="br-navbar-user__summary">
                                             <strong>{{ $user->name }}</strong>
-                                            <span>{{ $company->commercial_name }}</span>
+                                            <span>{{ $navbarCompanyName }}</span>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>

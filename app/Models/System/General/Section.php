@@ -29,6 +29,7 @@ class Section extends Model {
         "dom_id",
         "dom_label",
         "dom_icon",
+        "description",
         "has_sub_menu",
         "status",
         "created_at",
