@@ -2,6 +2,9 @@
 
 import {createTooltip} from "../Helpers/Alerts.js";
 import {writeClipboard} from "../Helpers/Clipboard.js";
+import {initializeNavbarSearch} from "./navbar-search.js";
+
+initializeNavbarSearch();
 
 const copyResetTimers = new WeakMap();
 

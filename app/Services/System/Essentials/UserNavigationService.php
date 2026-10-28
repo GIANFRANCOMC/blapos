@@ -109,6 +109,7 @@ final class UserNavigationService {
             ->where("user_id", $user->id)
             ->whereIn("sub_section_id", $allowedIds)
             ->get();
+        $catalogOrder = array_flip($allowedIds);
 
         $decorate = fn(UserNavigationMetric $metric) => $catalog->get($metric->sub_section_id) + [
             "visit_count" => $metric->visit_count,
@@ -116,10 +117,10 @@ final class UserNavigationService {
 
         $popular = $metrics
             ->where("visit_count", ">", 0)
-            ->sort(function(UserNavigationMetric $left, UserNavigationMetric $right) {
+            ->sort(function(UserNavigationMetric $left, UserNavigationMetric $right) use ($catalogOrder) {
 
                 return ($right->visit_count <=> $left->visit_count)
-                    ?: ($left->sub_section_id <=> $right->sub_section_id);
+                    ?: ($catalogOrder[$left->sub_section_id] <=> $catalogOrder[$right->sub_section_id]);
 
             })
             ->take(self::WORKSPACE_LIST_LIMIT)

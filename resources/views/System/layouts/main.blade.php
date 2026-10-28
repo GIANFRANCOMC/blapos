@@ -261,8 +261,49 @@
                             <div class="br-navbar-left">
                                 <div class="layout-menu-toggle navbar-nav align-items-center br-navbar-menu-toggle">
                                     <a class="nav-item nav-link br-navbar-icon-btn" href="javascript:void(0)" aria-label="Alternar menú lateral" title="Alternar menú lateral">
-                                        <i class="ti ti-menu-2" aria-hidden="true"></i>
+                                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
                                     </a>
+                                </div>
+                            </div>
+
+                            <div class="br-navbar-search" id="brNavbarSearch">
+                                <div class="br-navbar-search__field">
+                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                    <input
+                                        id="brNavbarSearchInput"
+                                        type="search"
+                                        autocomplete="off"
+                                        placeholder="Buscar en Blapos..."
+                                        aria-label="Buscar módulos y funciones"
+                                        aria-controls="brNavbarSearchPanel"
+                                        aria-expanded="false">
+                                    <kbd class="br-navbar-search__shortcut" aria-hidden="true">Ctrl + K</kbd>
+                                </div>
+                                <div class="br-navbar-search__panel" id="brNavbarSearchPanel" role="region" aria-label="Resultados de búsqueda" hidden>
+                                    <div class="br-navbar-search__heading">Módulos</div>
+                                    <div class="br-navbar-search__results" id="brNavbarSearchResults">
+                                        @foreach($navigationSections as $section)
+                                            @foreach($section->subSections as $subSection)
+                                                @if($subSection->dom_route_url !== "#")
+                                                    <a
+                                                        href="{{ $subSection->dom_route_url }}"
+                                                        class="br-navbar-search__item"
+                                                        data-br-search-item
+                                                        data-search-label="{{ $subSection->dom_label }}"
+                                                        data-search-world="{{ $section->dom_label }}"
+                                                        data-search-description="{{ $subSection->description }}">
+                                                        <i class="{{ $subSection->dom_icon }}" aria-hidden="true"></i>
+                                                        <span class="br-navbar-search__item-copy">
+                                                            <strong>{{ $subSection->dom_label }}</strong>
+                                                            <small>{{ $subSection->description ?: $section->dom_label }}</small>
+                                                        </span>
+                                                        <i class="fa-solid fa-chevron-right br-navbar-search__item-arrow" aria-hidden="true"></i>
+                                                    </a>
+                                                @endif
+                                            @endforeach
+                                        @endforeach
+                                    </div>
+                                    <p class="br-navbar-search__empty" id="brNavbarSearchEmpty" hidden>No se encontraron módulos con ese término.</p>
                                 </div>
                             </div>
 
@@ -332,7 +373,7 @@
                                         data-bs-toggle="dropdown"
                                         data-bs-auto-close="outside"
                                         aria-expanded="false"
-                                        aria-label="Abrir avisos">
+                                        aria-label="Abrir avisos{{ $navbarAnnouncementCount > 0 ? ', '.$navbarAnnouncementCount.' vigentes' : '' }}">
                                         <i class="fa-regular fa-bell" aria-hidden="true"></i>
                                         <span class="br-navbar-announcements__label">Avisos</span>
                                         <span class="br-navbar-announcements__count" @if($navbarAnnouncementCount === 0) hidden @endif>{{ $navbarAnnouncementCount }}</span>
@@ -340,10 +381,10 @@
                                     <div class="dropdown-menu dropdown-menu-end br-navbar-announcements__menu">
                                         <div class="br-navbar-announcements__head">
                                             <div>
-                                                <strong>Avisos</strong>
+                                                <strong>Notificaciones</strong>
                                                 <span>Comunicaciones de la plataforma</span>
                                             </div>
-                                            <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                                            <span class="br-navbar-announcements__total">{{ $navbarAnnouncementCount }} {{ $navbarAnnouncementCount === 1 ? 'aviso' : 'avisos' }}</span>
                                         </div>
                                         <div class="br-navbar-announcements__body">
                                             @forelse(($tenantAnnouncements ?? collect()) as $announcement)
@@ -351,8 +392,13 @@
                                                     <span class="br-navbar-announcement__icon" aria-hidden="true">
                                                         <i class="fa-solid fa-circle-info"></i>
                                                     </span>
-                                                    <div>
-                                                        <strong>{{ $announcement->title }}</strong>
+                                                    <div class="br-navbar-announcement__content">
+                                                        <div class="br-navbar-announcement__headline">
+                                                            <strong>{{ $announcement->title }}</strong>
+                                                            @if($announcement->created_at)
+                                                                <time datetime="{{ $announcement->created_at->toIso8601String() }}">{{ $announcement->created_at->diffForHumans() }}</time>
+                                                            @endif
+                                                        </div>
                                                         <p>{{ $announcement->message }}</p>
                                                     </div>
                                                 </article>
@@ -382,19 +428,30 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end br-navbar-user__menu">
                                         <li class="br-navbar-user__summary">
-                                            <strong>{{ $user->name }}</strong>
-                                            <span>{{ $navbarCompanyName }}</span>
+                                            <span class="br-navbar-user__avatar" aria-hidden="true">{{ $userInitials }}</span>
+                                            <span class="br-navbar-user__summary-copy">
+                                                <strong>{{ $user->name }}</strong>
+                                                <small>{{ $user->email }}</small>
+                                            </span>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a href="{{ route("account.index") }}" class="dropdown-item br-navbar-user__profile">
                                                 <i class="fa-regular fa-user" aria-hidden="true"></i>
-                                                <span>Mi perfil</span>
+                                                <span>Mi cuenta</span>
                                             </a>
                                         </li>
+                                        @if($favoritesEnabled)
+                                            <li>
+                                                <a href="{{ route("home.index") }}" class="dropdown-item br-navbar-user__profile">
+                                                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                                                    <span>Preferencias</span>
+                                                </a>
+                                            </li>
+                                        @endif
                                         <li>
                                             <button type="button" class="dropdown-item br-navbar-user__logout">
-                                                <i class="fa-solid fa-power-off" aria-hidden="true"></i>
+                                                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
                                                 <span>Cerrar sesión</span>
                                             </button>
                                         </li>

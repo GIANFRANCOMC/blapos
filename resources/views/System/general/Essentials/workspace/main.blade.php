@@ -2,6 +2,17 @@
 
 @section("content")
     <main class="br-workspace" aria-labelledby="workspace-popular-title">
+        @if($breadcrumbSection && $breadcrumbPage)
+            <nav class="br-breadcrumb br-workspace__breadcrumb" aria-label="Ubicación actual">
+                <ol class="br-breadcrumb__list">
+                    <li class="br-breadcrumb__item"><span>{{ $breadcrumbSection->dom_label }}</span></li>
+                    <li class="br-breadcrumb__item is-current" aria-current="page">
+                        <i class="fa-solid fa-chevron-right br-breadcrumb__separator" aria-hidden="true"></i>
+                        <span>{{ $breadcrumbPage->dom_label }}</span>
+                    </li>
+                </ol>
+            </nav>
+        @endif
         <div class="br-workspace__layout">
             <div class="br-workspace__main">
                 <section class="br-workspace__section" aria-labelledby="workspace-popular-title">
@@ -67,11 +78,17 @@
             </div>
             <a class="br-workspace__support-channel br-workspace__support-channel--email" href="mailto:{{ $supportContact['email'] }}">
                 <i class="fa-regular fa-envelope" aria-hidden="true"></i>
-                <span>{{ $supportContact['email'] }}</span>
+                <span class="br-workspace__support-channel-copy">
+                    <strong>{{ $supportContact['email'] }}</strong>
+                    <small>Envíanos un correo</small>
+                </span>
             </a>
             <a class="br-workspace__support-channel br-workspace__support-channel--phone" href="tel:{{ $supportContact['phone_href'] }}">
                 <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                <span>{{ $supportContact['phone'] }}</span>
+                <span class="br-workspace__support-channel-copy">
+                    <strong>{{ $supportContact['phone'] }}</strong>
+                    <small>Llámanos</small>
+                </span>
             </a>
             <a class="br-workspace__support-cta" href="mailto:{{ $supportContact['email'] }}">
                 Contáctanos <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>

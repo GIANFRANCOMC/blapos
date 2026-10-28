@@ -158,6 +158,22 @@ final class UserWorkspaceTest extends TestCase {
 
     }
 
+    public function test_equally_used_actions_follow_the_navigation_order(): void {
+
+        $serviceId = (int) DB::table("sub_sections")->where("dom_route", "service_sessions.index")->value("id");
+        $customerId = (int) DB::table("sub_sections")->where("dom_route", "customers.index")->value("id");
+
+        $this->assertGreaterThan($customerId, $serviceId);
+
+        $this->navigationService->record($this->user, "customers.index");
+        $this->navigationService->record($this->user, "service_sessions.index");
+
+        $actions = $this->navigationService->getWorkspace($this->user)["actions"];
+
+        $this->assertSame([$serviceId, $customerId], $actions->take(2)->pluck("id")->all());
+
+    }
+
     public function test_workspace_uses_allowed_actions_when_the_user_has_no_visit_history(): void {
 
         $workspace = $this->navigationService->getWorkspace($this->user);
@@ -193,10 +209,13 @@ final class UserWorkspaceTest extends TestCase {
         $response->assertSee("¿Qué deseas hacer hoy, Administrador?");
         $response->assertSee('<div class="br-workspace__support" role="note"', false);
         $response->assertSeeInOrder([
+            'class="br-breadcrumb br-workspace__breadcrumb"',
             'id="workspace-popular-title"',
             'class="br-workspace__aside"',
             'class="br-workspace__support"',
         ], false);
+        $response->assertSee('<span>Inicio</span>', false);
+        $response->assertSee('<span>Mi espacio</span>', false);
         $response->assertSee("¿Necesitas ayuda?");
         $response->assertSee('href="mailto:gianfranco_29_01@hotmail.com"', false);
         $response->assertSee('href="tel:+51987057624"', false);

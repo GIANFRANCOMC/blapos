@@ -42,6 +42,8 @@ final class LandlordTenantDemoSeeder extends Seeder {
 
         }
 
+        $this->call(LandlordDemoAnnouncementsSeeder::class);
+
     }
 
 }

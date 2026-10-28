@@ -16,7 +16,7 @@ test("el nombre del mundo ocupa el encabezado del menú lateral sin logo", () =>
     assert.match(layout, /class="br-navigation__logomark"/);
     assert.match(company, /formField: "combinationmark"[^\n]*identidad de la empresa/);
     assert.doesNotMatch(styles, /\.br-navigation__context-brand/);
-    assert.match(styles, /\.br-navigation__context-head\s*\{[^}]*height: 3\.45rem;[^}]*padding: 1\.25rem 0 0;/);
+    assert.match(styles, /\.br-navigation__context-head\s*\{[^}]*height: 3\.95rem;[^}]*padding: 1\.25rem 0 0;/);
     assert.match(styles, /\.br-navigation__world-card\s*\{[^}]*height: 100%;/);
     assert.match(navbarStyles, /\.br-layout \.br-layout-navbar\.navbar-detached\s*\{[^}]*height: 2\.95rem !important;/);
     assert.match(styles, /\.br-navigation__world-title\s*\{[^}]*letter-spacing: -0\.015em;/);

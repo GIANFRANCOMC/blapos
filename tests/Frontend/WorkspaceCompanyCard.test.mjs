@@ -20,5 +20,6 @@ test("la ficha de empresa usa el isotipo y organiza datos y contactos", () => {
     assert.match(styles, /\.br-workspace__company-head\s*\{[^}]*background: color-mix\(in srgb, var\(--br-primary-soft\) 62%, var\(--br-white\)\);/);
     assert.match(styles, /\.br-workspace__company-detail--divider\s*\{[^}]*border-bottom: 1px solid var\(--br-workspace-border\);/);
     assert.match(styles, /\.br-workspace__company-details\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+    assert.match(styles, /\.br-workspace__company-detail-icon\s*\{[^}]*background: color-mix\(in srgb, var\(--br-primary-soft\) 46%, var\(--br-white\)\);/);
 
 });
