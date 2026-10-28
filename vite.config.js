@@ -84,6 +84,7 @@ export default defineConfig({
 
                 // System Pages - Essentials
                 'resources/js/System/Pages/Essentials/dashboard/main.js',
+                'resources/js/System/Pages/Essentials/account/main.js',
                 'resources/js/System/Pages/Essentials/home/main.js',
                 'resources/js/System/Pages/Essentials/reports/main.js',
 

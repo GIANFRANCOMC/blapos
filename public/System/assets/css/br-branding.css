@@ -5514,9 +5514,9 @@ body.br-layout .form-check-input:disabled {
 .br-navigation__page {
   display: flex;
   align-items: center;
-  gap: 1.1rem;
+  gap: 0.78rem;
   min-height: 2rem;
-  padding: 0.28rem 0.52rem 0.28rem 0.72rem;
+  padding: 0.28rem 0.52rem 0.28rem 1.04rem;
   border-radius: 0.38rem;
   color: var(--br-secondary);
   font-size: 0.76rem;
@@ -6244,130 +6244,6 @@ body.br-layout .form-check-input:disabled {
     .br-workspace__links {
         grid-template-columns: 1fr;
     }
-}
-
-/* Source: resources/css/System/br-branding/53-account.css */
-.br-account {
-  width: min(100%, 58rem);
-  margin: 0 auto;
-}
-
-.br-account__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 1.15rem 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--br-primary) 22%, var(--br-border));
-  border-radius: 0.85rem;
-  background: color-mix(in srgb, var(--br-primary-soft) 30%, var(--br-white));
-}
-
-.br-account__header span:first-child {
-  color: var(--br-primary);
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.br-account__header h1 {
-  margin: 0.2rem 0 0.18rem;
-  color: var(--br-secondary);
-  font-size: 1.2rem;
-  font-weight: 720;
-}
-
-.br-account__header p,
-.br-account__panel-head p {
-  margin: 0;
-  color: var(--br-text-muted);
-  font-size: 0.76rem;
-}
-
-.br-account__avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.8rem;
-  height: 2.8rem;
-  flex: 0 0 2.8rem;
-  border-radius: 0.8rem;
-  background: var(--br-primary);
-  color: var(--br-on-primary) !important;
-  font-size: 0.9rem !important;
-  letter-spacing: 0 !important;
-}
-
-.br-account__notice {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.85rem;
-  padding: 0.72rem 0.85rem;
-  border: 1px solid color-mix(in srgb, var(--br-success) 25%, var(--br-border));
-  border-radius: 0.65rem;
-  background: color-mix(in srgb, var(--br-success) 7%, var(--br-white));
-  color: color-mix(in srgb, var(--br-success) 76%, var(--br-secondary));
-  font-size: 0.76rem;
-}
-
-.br-account__panel {
-  overflow: hidden;
-  border: 1px solid var(--br-border);
-  border-radius: 0.85rem;
-  background: var(--br-white);
-  box-shadow: 0 0.45rem 1.3rem color-mix(in srgb, var(--br-secondary) 6%, transparent);
-}
-
-.br-account__panel-head {
-  padding: 1rem 1.15rem 0.8rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--br-border) 76%, var(--br-white));
-}
-
-.br-account__panel-head h2 {
-  margin: 0 0 0.15rem;
-  color: var(--br-secondary);
-  font-size: 0.88rem;
-  font-weight: 680;
-}
-
-.br-account__fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1rem;
-  padding: 1rem 1.15rem 1.15rem;
-}
-
-.br-account__field--wide {
-  grid-column: span 2;
-}
-
-.br-account__field label {
-  display: block;
-  margin-bottom: 0.32rem;
-  color: var(--br-secondary);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.br-account__actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0.8rem 1.15rem;
-  border-top: 1px solid color-mix(in srgb, var(--br-border) 76%, var(--br-white));
-  background: color-mix(in srgb, var(--br-surface) 70%, var(--br-white));
-}
-
-@media (max-width: 767.98px) {
-  .br-account__fields {
-    grid-template-columns: 1fr;
-  }
-
-  .br-account__field--wide {
-    grid-column: auto;
-  }
 }
 
 /* Source: resources/css/System/br-branding/60-dashboard-sales.css */

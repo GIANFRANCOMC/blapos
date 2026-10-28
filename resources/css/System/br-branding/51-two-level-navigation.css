@@ -359,9 +359,9 @@
 .br-navigation__page {
   display: flex;
   align-items: center;
-  gap: 1.1rem;
+  gap: 0.78rem;
   min-height: 2rem;
-  padding: 0.28rem 0.52rem 0.28rem 0.72rem;
+  padding: 0.28rem 0.52rem 0.28rem 1.04rem;
   border-radius: 0.38rem;
   color: var(--br-secondary);
   font-size: 0.76rem;
