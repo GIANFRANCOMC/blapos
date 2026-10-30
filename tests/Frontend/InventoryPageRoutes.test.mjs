@@ -5,10 +5,15 @@ import test from "node:test";
 
 const root = process.cwd();
 const read = path => readFileSync(join(root, path), "utf8");
+const inventoryPath = "resources/js/System/Pages/Warehouses/inventory/";
+const readInventory = () => ["stock", "transfers", "guides", "kardex", "valued-kardex"]
+    .map(name => read(`${inventoryPath}${name}.vue`))
+    .concat(read(`${inventoryPath}inventoryState.js`))
+    .join("\n");
 
 test("changing the work warehouse reloads the current inventory page", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
 
     assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];[\s\S]*?await this\.listCurrentView\(\{\}\);[\s\S]*?this\.warehouseSearchEnabled = true;/);
     assert.match(component, /"filters\.warehouse"\(warehouse, previous\) \{[\s\S]*?this\.invalidateListing\(\);[\s\S]*?if\(this\.warehouseSearchEnabled && warehouse\?\.code\) \{\s*this\.listCurrentView\(\{\}\);/);
@@ -18,7 +23,7 @@ test("changing the work warehouse reloads the current inventory page", () => {
 
 test("inventory and entity statuses share the semantic badge", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const badge = read("resources/js/System/Components/Generics/StatusBadge.vue");
     const constants = read("resources/js/System/Helpers/ModuleConstants.js");
     const css = read("resources/css/System/br-branding/20-sales-tables-status.css");
@@ -35,7 +40,7 @@ test("inventory submodules have independent pages without internal tabs", () => 
 
     const routes = read("routes/System/Warehouses/InventoryPages.php");
     const legacyRoutes = read("routes/System/Warehouses/StockManagement.php");
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const vite = read("vite.config.js");
 
     for(const [path, file, page] of [
@@ -48,7 +53,9 @@ test("inventory submodules have independent pages without internal tabs", () => 
 
         assert.match(routes, new RegExp(`Route::get\\("/${path}"`));
         assert.match(read(`resources/views/System/general/Warehouses/inventory/${file}.blade.php`), new RegExp(`inventory/${file}\\.js`));
-        assert.match(read(`resources/js/System/Pages/Warehouses/inventory/${file}.js`), new RegExp(`mountInventoryPage\\("${page}"\\)`));
+        const entry = read(`resources/js/System/Pages/Warehouses/inventory/${file}.js`);
+        assert.match(entry, new RegExp(`import App from "\\./${file}\\.vue"`));
+        assert.match(entry, new RegExp(`mountInventoryPage\\(App, "${page}"\\)`));
         assert.ok(vite.includes(`inventory/${file}.js`));
 
     }
@@ -61,7 +68,7 @@ test("inventory submodules have independent pages without internal tabs", () => 
 
 test("inventory labels and paginated listings stay consistent across views", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const service = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
 
@@ -78,7 +85,7 @@ test("inventory labels and paginated listings stay consistent across views", () 
 
 test("transfers open the standard modal and save without leaving the list", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const request = read("app/Http/Requests/System/Warehouses/StoreInventoryTransferRequest.php");
     const modal = component.slice(
@@ -106,7 +113,7 @@ test("transfers open the standard modal and save without leaving the list", () =
 
 test("stock operation modal uses the standard primary action and a compact product table", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const buttonsCss = read("resources/css/System/br-branding/40-buttons-quick-create.css");
     const modalCss = read("resources/css/System/br-branding/81-core-roles-entities.css");
@@ -156,7 +163,7 @@ test("stock operation modal uses the standard primary action and a compact produ
 
 test("stock places warehouse, search and actions in order", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const context = component.slice(
         component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
@@ -174,11 +181,8 @@ test("stock places warehouse, search and actions in order", () => {
 
 test("transfers show only the product-style table below the controls", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
-    const transfers = component.slice(
-        component.indexOf('<div v-else-if="activeView === \'transfers\'" class="br-inventory-transfer">'),
-        component.indexOf('<div v-else-if="activeView === \'guides\'"')
-    );
+    const component = readInventory();
+    const transfers = read(`${inventoryPath}transfers.vue`);
 
     assert.doesNotMatch(transfers, /Para registrar un traslado, configura al menos dos almacenes/);
     assert.match(transfers, /<section class="br-entity-list" aria-label="Traslados registrados">\s*<div class="table-responsive">/);
@@ -190,14 +194,11 @@ test("transfers show only the product-style table below the controls", () => {
 
 test("transfers list all accessible warehouses without allowing a virtual transfer source", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const transfers = component.slice(
-        component.indexOf('<div v-else-if="activeView === \'transfers\'" class="br-inventory-transfer">'),
-        component.indexOf('<div v-else-if="activeView === \'guides\'"')
-    );
+    const transfers = read(`${inventoryPath}transfers.vue`);
     const movements = controller.slice(
         controller.indexOf("public function movements(Request $request)"),
         controller.indexOf("public function alerts(Request $request)")
@@ -233,7 +234,7 @@ test("transfers list all accessible warehouses without allowing a virtual transf
 
 test("operation and transfer dialogs choose their own warehouses without changing the list filter", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const registerOperationButton = component.slice(
         component.indexOf('v-if="activeView === \'stock\'"', component.indexOf('class="br-btn br-btn-sm br-btn-search"')),
@@ -256,12 +257,9 @@ test("operation and transfer dialogs choose their own warehouses without changin
 
 test("stock keeps the warehouses column for both consolidated and selected-warehouse views", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const stock = component.slice(
-        component.indexOf('<section v-if="activeView === \'stock\'" class="br-entity-list"'),
-        component.indexOf('<div v-else-if="[\'kardex\', \'valued\'].includes(activeView)"')
-    );
+    const stock = read(`${inventoryPath}stock.vue`);
 
     assert.match(stock, /<col class="br-inventory__col-warehouses">/);
     assert.match(stock, /<th>Almacenes<\/th>/);
@@ -275,18 +273,19 @@ test("stock keeps the warehouses column for both consolidated and selected-wareh
 
 test("all inventory listings reuse the product loader, empty illustration and table surface", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const products = read("resources/js/System/Pages/Catalogs/products/main.vue");
     const withoutData = read("resources/js/System/Components/WithoutData.vue");
-    const listing = component
-        .slice(0, component.indexOf('id="inventoryMovementModal"'))
-        .replace(/<Teleport to="body">[\s\S]*?<\/Teleport>/, "");
+    const listing = ["stock", "transfers", "guides", "kardex", "valued-kardex"]
+        .map(name => read(`${inventoryPath}${name}.vue`)
+            .replace(/<Teleport to="body">[\s\S]*?<\/Teleport>/, ""))
+        .join("\n");
     const emptyStates = listing.match(/<WithoutData[\s\S]*?\/>/g) || [];
 
-    assert.equal((listing.match(/class="br-entity-list"/g) || []).length, 4);
-    assert.equal((listing.match(/class="br-table-header-surface"/g) || []).length, 4);
-    assert.equal((listing.match(/class="py-4"><Loader\/>/g) || []).length, 4);
-    assert.equal(emptyStates.length, 4);
+    assert.equal((listing.match(/class="br-entity-list"/g) || []).length, 5);
+    assert.equal((listing.match(/class="br-table-header-surface"/g) || []).length, 6); // Five listings and the stock operation table.
+    assert.equal((listing.match(/class="py-4"><Loader\/>/g) || []).length, 5);
+    assert.equal(emptyStates.length, 5);
     assert.equal((listing.match(/image-src=/g) || []).length, 0);
     assert.match(products, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\/>/);
     assert.match(withoutData, /default: "\/System\/assets\/img\/utils\/without_data\/empty_records\.png"/);
@@ -303,7 +302,7 @@ test("all inventory listings reuse the product loader, empty illustration and ta
 
 test("inventory filters remain outside the white table surface", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const cardCss = read("resources/css/System/br-branding/70-visual-density-brand-refresh.css");
     const polishCss = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");
@@ -321,7 +320,7 @@ test("inventory filters remain outside the white table surface", () => {
 
 test("stock and inventory reports keep filters and actions in a single desktop row", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const stockFilters = component.slice(
         component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
@@ -337,13 +336,13 @@ test("stock and inventory reports keep filters and actions in a single desktop r
 
 test("inventory loads the first real warehouse and searches again when it changes", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
     const watcher = component.slice(component.indexOf('watch: {'));
     const mounted = component.slice(component.indexOf('async mounted() {'), component.indexOf('    data() {'));
 
     assert.match(component, /@click="activeView === 'stock' \? handleProductSearch\(\) : searchCurrentView\(\)"/);
-    assert.equal((component.match(/<span>Buscar<\/span>/g) || []).length, 1);
+    assert.equal((component.match(/<span>Buscar<\/span>/g) || []).length, 5);
     assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*await this\.\$nextTick\(\);\s*await this\.listCurrentView\(\{\}\);/);
     assert.match(mounted, /this\.warehouseSearchEnabled = true;/);
     assert.match(watcher, /"filters\.warehouse"\(warehouse, previous\) \{[\s\S]*?this\.invalidateListing\(\);[\s\S]*?this\.listCurrentView\(\{\}\);/);
@@ -358,7 +357,7 @@ test("inventory loads the first real warehouse and searches again when it change
 
 test("inventory blocks filters and actions while searching", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const toolbar = component.slice(
         component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
@@ -381,7 +380,7 @@ test("inventory blocks filters and actions while searching", () => {
 
 test("inventory forms unlock dependent fields only after their warehouses are selected", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const transferModal = component.slice(
         component.indexOf('id="inventoryTransferModal"'),
         component.indexOf('</Teleport>', component.indexOf('id="inventoryTransferModal"'))
@@ -407,13 +406,13 @@ test("inventory forms unlock dependent fields only after their warehouses are se
 
 test("the shared work-warehouse selector shows branch and warehouse on every page", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const warehouseSelect = read("resources/js/System/Components/Generics/WarehouseSelect.vue");
     const warehouseCss = read("resources/css/System/br-branding/12-warehouse-select.css");
     const references = read("app/Services/System/Base/CompanyReferenceDataService.php");
 
     assert.match(component, /v-model="filters\.warehouse"\s+:options="warehouses"/);
-    assert.equal((component.match(/<WarehouseSelect\s/g) || []).length, 4);
+    assert.equal((component.match(/<WarehouseSelect\s/g) || []).length, 8);
     assert.match(component, /import WarehouseSelect from "@System\/Components\/Generics\/WarehouseSelect\.vue";/);
     assert.match(warehouseSelect, /<VueSelect[\s\S]*?:model-value="modelValue"[\s\S]*?:options="options"[\s\S]*?@update:modelValue="\$emit\('update:modelValue', \$event\)"/);
     assert.match(warehouseSelect, /br-warehouse-select[\s\S]*?#selected-option="warehouse"[\s\S]*?#option="warehouse"/);
@@ -429,7 +428,7 @@ test("the shared work-warehouse selector shows branch and warehouse on every pag
 
 test("operation form orders warehouse context, type and effect before the full-width reason", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const modal = component.slice(component.indexOf('id="inventoryMovementModal"'));
 
@@ -444,7 +443,7 @@ test("operation form orders warehouse context, type and effect before the full-w
 
 test("ingresos manuales solo admiten entrada manual y devolución de cliente", () => {
 
-    const component = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const component = readInventory();
     const service = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
     const stockService = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
     const operationRequest = read("app/Http/Requests/System/Warehouses/StoreInventoryOperationRequest.php");

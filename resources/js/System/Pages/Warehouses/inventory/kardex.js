@@ -1,3 +1,4 @@
 import {mountInventoryPage} from "./mount.js";
+import App from "./kardex.vue";
 
-mountInventoryPage("kardex");
+mountInventoryPage(App, "kardex");

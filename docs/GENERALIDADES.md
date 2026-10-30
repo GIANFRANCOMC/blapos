@@ -133,6 +133,15 @@ Criterios prácticos:
 - Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono se alinea a la izquierda del título y la descripción. Cada tab conserva un contorno tenue; el activo usa un borde azul claro, un icono en recuadro primary y una línea inferior fina, sin el borde grueso de la variante compacta. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
 - Las modales comparten `--br-modal-chrome-surface` para encabezado y pie (gris azulado suave) y `--br-modal-surface` para el cuerpo (casi blanco). Ajustar estos tokens en `br-branding/00-tokens.css` para mantener contraste uniforme; no crear paletas de modal por módulo.
 
+### Carga inicial con skeleton
+
+Desde ahora, las pantallas nuevas o migradas de `System` deben usar un skeleton ligero como modalidad visual de carga inicial. Debe reproducir la estructura y densidad del contenido real (filtros, pestañas, columnas, formularios y pie) para evitar saltos grandes al terminar la consulta. Mantener el breadcrumb visible cuando sea posible. El skeleton representa solo la primera carga completa; búsquedas, paginación, cambios de pestaña y guardados posteriores conservan sus indicadores y mensajes propios.
+
+- Usar `createInitialLoad` de `resources/js/System/Helpers/InitialLoad.js`. El helper mantiene `skeleton: false` por defecto para compatibilidad: en ese modo muestra y cierra el Swal `initParams`. Cada pantalla nueva activa explícitamente `createInitialLoad({skeleton: true})`; si necesita volver al Swal, cambia esa opción a `false` sin modificar la lógica de datos.
+- Llamar `start()` antes de las consultas iniciales y `finish()` en `finally`. Mantener el skeleton visible hasta completar tanto la configuración como el primer listado o formulario; liberar el estado también ante errores. No agregar demoras artificiales.
+- Construir el skeleton en Vue y su CSS de pantalla o componente reutilizable. Compartir variantes cuando varias pantallas tengan la misma estructura. Usar alturas y tokens `--br-*` de los controles reales, un estado accesible (`role="status"` y texto legible para lectores de pantalla) y desactivar la animación con `prefers-reduced-motion`.
+- No sustituir por skeleton los Swal de confirmación, error, operaciones de guardado o exportación. Si la pantalla no tiene skeleton activado, conservar el comportamiento de carga anterior.
+
 ## Formularios
 
 Todos los formularios deben reutilizar componentes y patrones existentes:

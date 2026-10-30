@@ -20,6 +20,7 @@ import FiltersSection from "@System/Components/Generics/FiltersSection.vue";
 import StatusBadge    from "@System/Components/Generics/StatusBadge.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import CopyButton     from "@System/Components/CopyButton.vue";
+import "../../../../../css/System/Components/Catalogs/catalog-list-skeleton.css";
 
 // App creation and mounted
 createApp(App)

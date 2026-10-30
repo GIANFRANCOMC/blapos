@@ -1,6 +1,8 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
+    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="users" label="colaboradores" :row-count="12"/>
+    <template v-else>
     <!-- Filters -->
     <FiltersSection
         :filter-by-value="filterByValue"
@@ -147,6 +149,7 @@
     <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
         <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
     </nav>
+    </template>
 
     <!-- Modal: Authentication events -->
     <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false" close-button-text="Cerrar">
@@ -592,6 +595,8 @@ import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
+import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
@@ -747,9 +752,11 @@ const MODULE = {
     filterOptions: FILTER_OPTIONS
 };
 
+const initialLoad = createInitialLoad({skeleton: true});
+
 export default {
     name: "UsersMain",
-    components: {CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton},
+    components: {CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -768,6 +775,8 @@ export default {
             isInitialized: false,
             isSaving: false,
             isExporting: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true,
             activeFormTab: COLLABORATOR_FORM_TABS[0].id,
             authenticationEvents: {
                 modalId: Utils.uuid(),
@@ -799,7 +808,7 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
+        initialLoad.start();
 
         try {
 
@@ -807,14 +816,16 @@ export default {
 
             if(initParams) {
 
-                this.listEntity({});
+                await this.listEntity({});
 
             }
 
         }finally {
 
             this.isInitialized = true;
-            Alerts.swals({show: false});
+            initialLoad.finish();
+            this.initialLoading = false;
+            this.$nextTick(() => Alerts.tooltips({}));
 
         }
 

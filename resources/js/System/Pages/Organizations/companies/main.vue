@@ -1,7 +1,9 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-company-settings br-entity-modal--tabbed">
+    <CompanySettingsSkeleton v-if="initialLoading && skeletonEnabled"/>
+
+    <main v-else class="br-company-settings br-entity-modal--tabbed">
         <section class="br-company-settings__panel" aria-label="Datos de la empresa">
             <CatalogFormTabs
                 v-model="activeTabId"
@@ -288,7 +290,9 @@ import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
+import CompanySettingsSkeleton from "./CompanySettingsSkeleton.vue";
 
 const MODULE_CONFIG = {
     entity: "companies",
@@ -392,8 +396,11 @@ const MODULE = {
     brandingItems: BRANDING_ITEMS
 };
 
+const initialLoad = createInitialLoad({skeleton: true});
+
 export default {
     name: "CompaniesMain",
+    components: {CompanySettingsSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -410,6 +417,8 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true,
             activeTabId: "general",
             selectedImageFiles: {}
         };
@@ -420,21 +429,20 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
+        initialLoad.start();
 
-        const initParams = await this.initParams();
+        try {
 
-        this.isInitialized = true;
+            const initParams = await this.initParams();
+            this.isInitialized = true;
 
-        if(initParams) {
+            if(initParams) await this.initOthers();
 
-            const initOthers = await this.initOthers();
+        }finally {
 
-            if(initOthers) {
-
-                Alerts.swals({show: false});
-
-            }
+            initialLoad.finish();
+            this.initialLoading = false;
+            this.$nextTick(() => this.tooltips({show: true, time: 500}));
 
         }
 
@@ -470,8 +478,6 @@ export default {
                     this.populateFormFromCompany(company);
 
                 }
-
-                this.tooltips({show: true, time: 500});
 
                 resolve(true);
 

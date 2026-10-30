@@ -5,12 +5,14 @@ import test from "node:test";
 
 const root = process.cwd();
 const read = path => readFileSync(join(root, path), "utf8");
+const readInventory = () => read("resources/js/System/Pages/Warehouses/inventory/stock.vue")
+    + read("resources/js/System/Pages/Warehouses/inventory/inventoryState.js");
 
 test("el buscador compartido limpia el texto y conserva la búsqueda explícita", () => {
 
     const component = read("resources/js/System/Components/Generics/SearchInput.vue");
     const filters = read("resources/js/System/Components/Generics/FiltersSection.vue");
-    const inventory = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const inventory = readInventory();
 
     assert.match(component, /<InputText[\s\S]*?@enterKeyPressed="\$emit\('search'\)"/);
     assert.match(component, /v-if="String\(modelValue \?\? ''\)\.length > 0"/);

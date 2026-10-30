@@ -1,7 +1,6 @@
 import {createApp} from "vue";
 import VueSelect from "vue-select";
 
-import App from "./InventoryPage.vue";
 import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import InputDate from "@System/Components/InputDate.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
@@ -14,7 +13,9 @@ import WithoutData from "@System/Components/WithoutData.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 
-export function mountInventoryPage(page) {
+import "../../../../../css/System/Pages/Warehouses/inventory/skeleton.css";
+
+export function mountInventoryPage(App, page) {
 
     createApp(App, {page})
         .component("v-select", VueSelect)

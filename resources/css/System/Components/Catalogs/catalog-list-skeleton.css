@@ -58,6 +58,7 @@
 
 .br-catalog-skeleton__row { height: 3.5rem; }
 .br-catalog-skeleton__row--offering { height: 4.4rem; }
+.br-catalog-skeleton__row--directory { height: 3.9rem; }
 
 .br-catalog-skeleton__identifier-label {
   width: 4.6rem;
@@ -86,6 +87,16 @@
 
 .br-catalog-skeleton__detail:nth-child(even) { width: 68%; }
 
+.br-catalog-skeleton__stack-primary {
+  width: 76%;
+  height: 0.64rem;
+}
+
+.br-catalog-skeleton__stack-secondary {
+  width: 60%;
+  height: 0.55rem;
+}
+
 .br-catalog-skeleton__cell-copy--end { justify-items: end; }
 
 .br-catalog-skeleton__price {
@@ -96,12 +107,14 @@
 .br-catalog-skeleton__price--short { width: 54%; }
 
 .br-catalog-skeleton__website,
-.br-catalog-skeleton__usage {
+.br-catalog-skeleton__usage,
+.br-catalog-skeleton__capacity {
   width: 62%;
   height: 0.64rem;
 }
 
 .br-catalog-skeleton__usage,
+.br-catalog-skeleton__capacity,
 .br-catalog-skeleton__status,
 .br-catalog-skeleton__actions { margin-inline: auto; }
 

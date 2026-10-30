@@ -1,7 +1,9 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-master-data">
+    <MasterDataSkeleton v-if="initialLoading && skeletonEnabled"/>
+
+    <section v-else class="br-master-data">
         <CatalogFormTabs
             :model-value="selectedResourceCode"
             :tabs="resourceTabs"
@@ -171,8 +173,12 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
+import MasterDataSkeleton from "./MasterDataSkeleton.vue";
+
+const initialLoad = createInitialLoad({skeleton: true});
 
 const OPTION = {
     statuses: [{code: "active", label: "Activo"}, {code: "inactive", label: "Inactivo"}],
@@ -334,7 +340,7 @@ const RESOURCES = [
 ];
 
 export default {
-    components: {CatalogFormTabs, SearchInput},
+    components: {CatalogFormTabs, SearchInput, MasterDataSkeleton},
     data() {
         return {
             resources: RESOURCES,
@@ -344,6 +350,8 @@ export default {
             originalRecord: null,
             errors: {},
             loading: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true,
             saving: false,
             searchTerm: "",
             imageFile: null,
@@ -363,7 +371,15 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
         this.startCreate();
-        await this.loadRecords();
+        initialLoad.start();
+
+        try {
+            await this.loadRecords();
+        } finally {
+            initialLoad.finish();
+            this.initialLoading = false;
+            this.$nextTick(() => Alerts.tooltips({time: 250}));
+        }
     },
     computed: {
         resourceTabs() {

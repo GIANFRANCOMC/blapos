@@ -18,6 +18,7 @@ import Loader         from "@System/Components/Loader.vue";
 import WithoutData    from "@System/Components/WithoutData.vue";
 import FiltersSection from "@System/Components/Generics/FiltersSection.vue";
 import StatusBadge    from "@System/Components/Generics/StatusBadge.vue";
+import "../../../../../css/System/Components/Catalogs/catalog-list-skeleton.css";
 
 // App creation and mounted
 createApp(App)

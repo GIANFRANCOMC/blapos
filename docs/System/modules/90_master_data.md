@@ -32,6 +32,7 @@ Agrupa entidades técnicas de soporte usadas por múltiples módulos.
 - La inactivación usa confirmación accesible con descripción del alcance operativo y del impacto esperado.
 - Los `vue-select` de esta pantalla muestran `Sin opciones disponibles` para evitar textos residuales de librería.
 - Los métodos de pago permiten imagen referencial; el backend guarda el archivo bajo storage del tenant.
+- La primera consulta muestra un skeleton con pestañas, listado y formulario. Se activa con `createInitialLoad({skeleton: true})`; al cambiar de recurso se mantiene el loader existente y el helper permite volver al Swal inicial con `skeleton: false`.
 
 ## Estado de mejoras
 

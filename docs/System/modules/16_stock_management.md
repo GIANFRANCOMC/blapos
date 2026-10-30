@@ -21,7 +21,9 @@ El módulo separa dos conceptos:
 - Modelo de kardex: `InventoryMovement`
 - Vistas Blade: `resources/views/System/general/Warehouses/inventory/`
 - Entradas frontend: `resources/js/System/Pages/Warehouses/inventory/`
-- Presentación compartida: `InventoryPage.vue`, con una página fija por entrada; no hay tabs ni cambio de submódulo dentro de la vista.
+- Presentación: `stock.vue`, `transfers.vue`, `guides.vue`, `kardex.vue` y `valued-kardex.vue`, cada una con su entrada `.js` y una página fija; no hay tabs ni cambio de submódulo dentro de la vista.
+- Estado y operaciones reutilizadas: `inventoryState.js`; montaje y registro de componentes: `mount.js`.
+- Carga inicial: `InventorySkeleton.vue` y `resources/css/System/Pages/Warehouses/inventory/skeleton.css`. El modo está activado explícitamente en `inventoryState.js` con `createInitialLoad({skeleton: true})`; cambiarlo a `false` restaura el Swal inicial sin alterar las búsquedas posteriores.
 - Selector reutilizable de almacenes: `resources/js/System/Components/Generics/WarehouseSelect.vue` y `resources/css/System/br-branding/12-warehouse-select.css`.
 - Estilos reutilizables: bloque `br-inventory` de `resources/css/System/br-branding/82-inventory.css`
 

@@ -1,7 +1,9 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-entity br-roles">
+    <RolesSkeleton v-if="initialLoading && skeletonEnabled"/>
+
+    <main v-else class="br-entity br-roles">
         <section class="br-filter-bar">
             <div class="row align-items-end g-2">
                 <SearchInput
@@ -283,21 +285,33 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import RolesSkeleton from "./RolesSkeleton.vue";
+
+const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
-    components: {SearchInput, StatusBadge, TableActionsDropdown},
-    mounted() {
+    components: {SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
+    async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-roles", {});
-        this.initParams();
-        this.listRoles({});
+        initialLoad.start();
+
+        try {
+            await Promise.all([this.initParams(), this.listRoles({})]);
+        } finally {
+            initialLoad.finish();
+            this.initialLoading = false;
+        }
     },
     data() {
         return {
             loading: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true,
             saving: false,
             editingId: null,
             records: {total: 0, data: []},
@@ -344,7 +358,6 @@ export default {
             };
         },
         async initParams() {
-            Alerts.swals({type: "initParams"});
             const result = await Requests.get({
                 route: this.config.entity.routes.initParams,
                 data: {page: "main"},
@@ -356,7 +369,6 @@ export default {
             this.options.branches = result.data?.config?.branches || [];
             this.options.cashRegisters = result.data?.config?.cashRegisters || [];
             this.options.warehouses = result.data?.config?.warehouses || [];
-            Alerts.swals({show: false});
         },
         async listRoles({url = null} = {}) {
             this.loading = true;

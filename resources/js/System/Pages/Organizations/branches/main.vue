@@ -1,6 +1,8 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
+    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="branches" label="sucursales" :row-count="12"/>
+    <template v-else>
     <!-- Filters -->
     <FiltersSection
         :filter-by-value="filterByValue"
@@ -176,6 +178,7 @@
     <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
         <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
     </nav>
+    </template>
 
     <!-- Modal: Create/Update -->
     <div class="modal fade br-entity-modal br-modal-standard" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
@@ -338,7 +341,9 @@ import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 
 const MODULE_CONFIG = {
     entity: "branches",
@@ -446,9 +451,12 @@ const MODULE = {
     filterOptions: FILTER_OPTIONS
 };
 
+const initialLoad = createInitialLoad({skeleton: true});
+
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
+    components: {CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -466,6 +474,8 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true,
             seriesAudit: {
                 visible: false,
                 loading: false,
@@ -480,16 +490,20 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
+        initialLoad.start();
 
-        const initParams = await this.initParams();
+        try {
 
-        this.isInitialized = true;
+            const initParams = await this.initParams();
+            this.isInitialized = true;
 
-        if(initParams) {
+            if(initParams) await this.listEntity({});
 
-            Alerts.swals({show: false});
-            this.listEntity({});
+        }finally {
+
+            initialLoad.finish();
+            this.initialLoading = false;
+            this.$nextTick(() => Alerts.tooltips({}));
 
         }
 

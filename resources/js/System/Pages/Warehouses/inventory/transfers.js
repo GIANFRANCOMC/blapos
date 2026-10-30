@@ -1,3 +1,4 @@
 import {mountInventoryPage} from "./mount.js";
+import App from "./transfers.vue";
 
-mountInventoryPage("transfers");
+mountInventoryPage(App, "transfers");

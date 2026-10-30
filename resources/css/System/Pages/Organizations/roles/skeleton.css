@@ -1,0 +1,79 @@
+.br-roles-skeleton { pointer-events: none; }
+
+.br-roles-skeleton__line {
+  display: block;
+  max-width: 100%;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--br-primary-soft) 55%, var(--br-border));
+  animation: br-roles-skeleton-pulse 1.7s ease-in-out infinite;
+}
+
+.br-roles-skeleton__filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--br-grid-gap-2);
+  align-items: end;
+}
+
+.br-roles-skeleton__search,
+.br-roles-skeleton__stack {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.br-roles-skeleton__label { width: 5rem; height: 0.58rem; }
+
+.br-roles-skeleton__control {
+  display: flex;
+  align-items: center;
+  height: var(--br-control-height);
+  padding: 0 var(--br-control-padding-x);
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+}
+
+.br-roles-skeleton__search-value { width: 28%; height: 0.62rem; }
+
+.br-roles-skeleton__button {
+  width: 4.6rem;
+  height: var(--br-control-height);
+  background: var(--br-primary-soft);
+}
+
+.br-roles-skeleton__button--add { width: 8.4rem; }
+.br-roles-skeleton__row { height: 3.6rem; }
+.br-roles-skeleton__name { width: 52%; height: 0.68rem; }
+.br-roles-skeleton__type { width: 35%; height: 0.55rem; }
+.br-roles-skeleton__modules { width: 74%; height: 0.62rem; }
+.br-roles-skeleton__count { width: 2rem; height: 0.62rem; }
+
+.br-roles-skeleton__badge {
+  width: 3.8rem;
+  height: 1.25rem;
+  border-radius: 1rem;
+  background: var(--br-primary-soft);
+}
+
+.br-roles-skeleton__menu { width: 1.2rem; height: 1.2rem; margin-inline: auto; }
+
+.br-roles-skeleton__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 1rem;
+}
+
+.br-roles-skeleton__page { width: 1.8rem; height: 1.8rem; }
+
+@keyframes br-roles-skeleton-pulse { 50% { opacity: 0.55; } }
+
+@media (max-width: 991.98px) {
+  .br-roles-skeleton__filters { grid-template-columns: 1fr; }
+  .br-roles-skeleton .br-entity-table { min-width: 45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-roles-skeleton__line { animation: none; }
+}

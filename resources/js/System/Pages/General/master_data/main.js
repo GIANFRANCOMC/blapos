@@ -7,6 +7,7 @@ import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import Loader from "@System/Components/Loader.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import "../../../../../css/System/Pages/General/master_data/skeleton.css";
 
 createApp(App)
     .component("v-select", VueSelect)

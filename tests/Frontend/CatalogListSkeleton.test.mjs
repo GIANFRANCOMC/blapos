@@ -35,7 +35,7 @@ test("el skeleton compartido representa las columnas y filas de cada catálogo",
     assert.match(component, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?br-entity-table/);
     for(const route of routes.map(([name]) => name)) assert.match(component, new RegExp(`${route}: \\[`, "m"));
     assert.match(component, /kind === 'subscriptions' \? 4 : 3/);
-    assert.match(component, /v-for="index in 8"/);
+    assert.match(component, /v-for="index in rowCount"/);
     assert.match(styles, /height: var\(--br-control-height\)/);
     assert.match(styles, /@media \(max-width: 991\.98px\)/);
     assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);

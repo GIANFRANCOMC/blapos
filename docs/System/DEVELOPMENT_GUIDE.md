@@ -15,6 +15,7 @@ Las reglas compartidas de branding, formularios, modales, SweetAlert, cache, mig
 - Aplicar la misma estructura de rutas, controladores, requests, servicios, Vue, CSS y documentación en módulos equivalentes.
 - Los entries Vue de módulos CRUD deben usar `mountEntityApp(App)` desde `resources/js/System/Helpers/MountEntityApp.js` para registrar componentes compartidos como `Breadcrumb`, `InputText`, `Paginator`, `Loader`, `WithoutData`, `FiltersSection`, `StatusBadge`, `CopyButton` y `vue-select` sin repetir imports por módulo.
 - Las pantallas nuevas o migradas no deben depender de JavaScript de plantilla ubicado en `public/System/assets/js/app-*`. Esos archivos permanecen como legado visual del template y cualquier comportamiento operativo debe vivir en Vue, helpers `System` o componentes reutilizables.
+- Para la carga inicial de pantallas nuevas o migradas, seguir el skeleton optativo de [Generalidades](../GENERALIDADES.md#carga-inicial-con-skeleton): activarlo explícitamente por pantalla, conservar el Swal cuando esté desactivado y no alterar los loaders de recargas posteriores.
 
 ## Al modificar un módulo CRUD
 

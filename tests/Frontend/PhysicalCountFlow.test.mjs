@@ -3,10 +3,12 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
+const readInventory = () => read("resources/js/System/Pages/Warehouses/inventory/stock.vue")
+    + read("resources/js/System/Pages/Warehouses/inventory/inventoryState.js");
 
 test("toma física descarga plantilla y revisa el archivo antes de guardar", () => {
 
-    const page = read("resources/js/System/Pages/Warehouses/inventory/InventoryPage.vue");
+    const page = readInventory();
     const routes = read("routes/System/Warehouses/StockManagement.php");
     const requestRoutes = read("resources/js/System/Helpers/Requests.js");
     const preview = read("app/Imports/System/Warehouses/InventoryOperationPreviewImport.php");
