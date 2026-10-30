@@ -1,7 +1,9 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-entity">
+    <ProductsSkeleton v-if="initialLoading && skeletonEnabled"/>
+
+    <main v-else class="br-entity">
         <FiltersSection
             :filter-by-value="filterByValue"
             @update:filterByValue="filterByValue = $event"
@@ -207,6 +209,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import BarcodeDownloadButton from "@System/Components/BarcodeDownloadButton.vue";
 import ProductImportModal from "@System/Components/Catalogs/Products/ProductImportModal.vue";
 import ProductInventoryModal from "@System/Components/Catalogs/Products/ProductInventoryModal.vue";
@@ -214,6 +217,9 @@ import AddProduct from "@System/Components/Catalogs/Products/AddProduct.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
 import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
+import ProductsSkeleton from "./ProductsSkeleton.vue";
+
+const initialLoad = createInitialLoad({skeleton: true});
 
 const MODULE_CONFIG = {
     entity: "products",
@@ -249,7 +255,8 @@ export default {
         ProductImportModal,
         ProductInventoryModal,
         AddProduct,
-        TableActionsDropdown
+        TableActionsDropdown,
+        ProductsSkeleton
     },
     data() {
 
@@ -265,7 +272,9 @@ export default {
         return {
             ...crudModule,
             MODULE,
-            isExporting: false
+            isExporting: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true
         };
 
     },
@@ -274,14 +283,16 @@ export default {
         Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
+        initialLoad.start();
 
-        const initParams = await this.initParams();
+        try {
 
-        if(initParams) {
+            if(await this.initParams()) await this.listEntity({});
 
-            Alerts.swals({show: false});
-            await this.listEntity({});
+        }finally {
+
+            initialLoad.finish();
+            this.initialLoading = false;
 
         }
 

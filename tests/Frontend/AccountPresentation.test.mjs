@@ -36,4 +36,25 @@ test("Mi cuenta usa datos del servidor y controles compartidos", () => {
     assert.match(page, /errors: \{\}/);
     assert.match(page, /Guardar cambios/);
     assert.doesNotMatch(page, /fa-check/);
+    assert.match(styles, /body\.br-layout #app \.br-account-page__field \.input-group > \.input-group-text,[\s\S]*?border: 0 !important;[\s\S]*?box-shadow: none !important;/);
+});
+
+test("Mi cuenta comparte la escala compacta de Mi empresa y muestra un skeleton proporcional", () => {
+    const page = readFileSync(new URL("../../resources/js/System/Pages/Essentials/account/main.vue", import.meta.url), "utf8");
+    const skeleton = readFileSync(new URL("../../resources/js/System/Pages/Essentials/account/AccountSkeleton.vue", import.meta.url), "utf8");
+    const styles = readFileSync(new URL("../../resources/css/System/Pages/Essentials/account/main.css", import.meta.url), "utf8");
+    const skeletonStyles = readFileSync(new URL("../../resources/css/System/Pages/Essentials/account/skeleton.css", import.meta.url), "utf8");
+    const entry = readFileSync(new URL("../../resources/js/System/Pages/Essentials/account/main.js", import.meta.url), "utf8");
+
+    assert.match(page, /createInitialLoad\(\{skeleton: true\}\)/);
+    assert.match(page, /<AccountSkeleton v-if="loading && skeletonEnabled"\/>/);
+    assert.match(page, /initialLoad\.start\(\)[\s\S]*?try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?initialLoad\.finish\(\)/);
+    assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando tu cuenta"/);
+    assert.match(skeleton, /br-account-page__panel-head[\s\S]*?br-account-page__fields[\s\S]*?v-for="index in 5"[\s\S]*?br-account-page__actions/);
+    assert.match(styles, /height: var\(--br-control-height\);[\s\S]*?min-height: var\(--br-control-height\);/);
+    assert.match(skeletonStyles, /height: var\(--br-control-height\)/);
+    assert.match(skeletonStyles, /height: var\(--br-btn-height\)/);
+    assert.match(skeletonStyles, /@media \(prefers-reduced-motion: reduce\)/);
+    assert.match(entry, /account\/skeleton\.css/);
+    assert.doesNotMatch(page, /<Loader\/>/);
 });

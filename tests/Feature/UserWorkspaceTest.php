@@ -190,93 +190,46 @@ final class UserWorkspaceTest extends TestCase {
         Auth::login($this->user);
         $this->travelTo(Carbon::parse("2026-10-25 09:00:00", config("app.timezone")));
 
-        $response = $this->withoutMiddleware([
+        $this->withoutMiddleware([
             \App\Http\Middleware\ResolveTenant::class,
             \App\Http\Middleware\TrustHosts::class,
             \App\Http\Middleware\EnsureTenantSession::class,
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->get(route("workspace.index"));
+        ]);
 
-        $response->assertOk();
-        $response->assertSee('<span class="br-workspace__section-eyebrow">Accesos rápidos</span>', false);
-        $response->assertSee('<h1 id="workspace-popular-title">¿Qué deseas hacer hoy, Administrador?</h1>', false);
-        $response->assertDontSee('class="br-workspace__hero"', false);
-        $response->assertSee("Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla.");
-        $response->assertDontSee("Accede a tus funciones habituales o explora otras disponibles para tu perfil.");
-        $response->assertDontSee("Vistos recientemente");
-        $response->assertSee("¿Qué deseas hacer hoy, Administrador?");
-        $response->assertSee('<div class="br-workspace__support" role="note"', false);
-        $response->assertSeeInOrder([
-            'class="br-breadcrumb br-workspace__breadcrumb"',
-            'id="workspace-popular-title"',
-            'class="br-workspace__aside"',
-            'class="br-workspace__support"',
-        ], false);
-        $response->assertSee('<span>Inicio</span>', false);
-        $response->assertSee('<span>Mi espacio</span>', false);
-        $response->assertSee("¿Necesitas ayuda?");
-        $response->assertSee('href="mailto:gianfranco_29_01@hotmail.com"', false);
-        $response->assertSee('href="tel:+51987057624"', false);
-        $response->assertDontSee("También puedes usar");
-        $response->assertSee("Registra una venta de productos, servicios o membresías.");
-        $response->assertSee('class="br-workspace__link-icon"', false);
-        $response->assertSee('class="br-workspace__link-arrow"', false);
-        $response->assertSee('fa-solid fa-chevron-right', false);
-        $response->assertSee('class="br-workspace__section"', false);
-        $response->assertDontSee('class="br-workspace__panel-head"', false);
-        $response->assertSee("Nueva venta");
-        $response->assertSee("Empresa de pruebas");
-        $response->assertSee("20999999999");
-        $response->assertSee("Tipo de documento");
-        $response->assertSee("Número de documento");
-        $response->assertSee('<h2 id="workspace-company-title">EMPRESA DE PRUEBAS S.A.C.</h2>', false);
-        $response->assertSee('<span class="br-workspace__company-document-type">RUC</span>', false);
-        $response->assertSee('<span class="br-workspace__company-document-number">20999999999</span>', false);
-        $response->assertSee('<dt class="colon-at-end">Nombre comercial</dt>', false);
-        $response->assertSee('<dt class="colon-at-end">Dirección</dt>', false);
-        $response->assertSee('<dt class="colon-at-end">Correo electrónico</dt>', false);
-        $response->assertSee('<dt class="colon-at-end">Teléfono</dt>', false);
-        $response->assertSee('<dt class="colon-at-end">Facebook</dt>', false);
-        $response->assertSee('<dt class="colon-at-end">Instagram</dt>', false);
-        $response->assertSee('<dt class="colon-at-end">WhatsApp</dt>', false);
-        $response->assertDontSee('<dt>Razón social</dt>', false);
-        $response->assertDontSee('br-workspace__company-document-separator', false);
-        $response->assertDontSee('br-workspace__overline', false);
-        $response->assertDontSee("Oferta comercial");
-        $response->assertDontSee("1 visita");
-        $response->assertDontSee("Dashboard");
-        $workspace = $response->viewData("workspace");
-
-        $this->assertSame("Ventas", $workspace["actions"][0]["world"]);
-        $this->assertNotSame($workspace["actions"][0]["world"], $workspace["actions"][0]["description"]);
-        $this->assertSame(
-            asset(config("app.owner_app")->assets->img->logomark),
-            $response->viewData("logomarkUrl")
-        );
-        $response->assertSee('class="br-navbar-brand"', false);
-        $response->assertSee(
+        $page = $this->get(route("workspace.index"));
+        $page->assertOk()->assertSee('<div id="app"></div>', false);
+        $page->assertDontSee('class="br-workspace__layout"', false);
+        $page->assertSee('class="br-navbar-brand"', false);
+        $page->assertSee(
             '<span class="br-navbar-user__company" title="EMPRESA DE PRUEBAS S.A.C.">EMPRESA DE PRUEBAS S.A.C.</span>',
             false
         );
-        $response->assertSee(
+        $page->assertSee(
             'src="'.asset(config("app.owner_app")->assets->img->combinationmark).'" alt="Marca combinada de Blapos"',
             false
         );
-        $response->assertSee('alt="Isotipo de Empresa de pruebas"', false);
-        $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
-        $this->assertSame(
-            $workspace["actions"]->count(),
-            substr_count($response->getContent(), 'class="br-workspace__link"')
-        );
-        $response->assertSeeInOrder([
-            '<dt class="colon-at-end">Nombre comercial</dt>',
-            '<dt class="colon-at-end">Dirección</dt>',
-            '<dt class="colon-at-end">Correo electrónico</dt>',
-            '<dt class="colon-at-end">Teléfono</dt>',
-            '<dt class="colon-at-end">WhatsApp</dt>',
-        ], false);
+
+        $response = $this->getJson(route("workspace.index"));
+        $response->assertOk()
+            ->assertJsonPath("first_name", "Administrador")
+            ->assertJsonPath("breadcrumb.section", "Inicio")
+            ->assertJsonPath("breadcrumb.page", "Mi espacio")
+            ->assertJsonPath("company.name", "EMPRESA DE PRUEBAS S.A.C.")
+            ->assertJsonPath("company.commercial_name", "Empresa de pruebas")
+            ->assertJsonPath("company.document_type", "RUC")
+            ->assertJsonPath("company.document_number", "20999999999")
+            ->assertJsonPath("support.email", "gianfranco_29_01@hotmail.com")
+            ->assertJsonPath("support.phone_href", "+51987057624");
+
+        $actions = $response->json("actions");
+        $this->assertCount(6, $actions);
+        $this->assertSame("Ventas", $actions[0]["world"]);
+        $this->assertNotSame($actions[0]["world"], $actions[0]["description"]);
+        $this->assertContains("Nueva venta", array_column($actions, "label"));
+        $this->assertSame(asset(config("app.owner_app")->assets->img->logomark), $response->json("company.logomark_url"));
         $this->assertSame("/workspace", \App\Providers\RouteServiceProvider::HOME);
 
     }
@@ -297,10 +250,9 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureAuthenticatedSession::class,
                 \App\Http\Middleware\EnsureModulePermission::class,
                 \App\Http\Middleware\EnsureOperationalScope::class,
-            ])->get(route("workspace.index"))
+            ])->getJson(route("workspace.index"))
                 ->assertOk()
-                ->assertSee('<h1 id="workspace-popular-title">¿Qué deseas hacer hoy, ANA?</h1>', false)
-                ->assertDontSee('class="br-workspace__hero"', false);
+                ->assertJsonPath("first_name", "ANA");
 
         }
 
@@ -329,11 +281,11 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureAuthenticatedSession::class,
                 \App\Http\Middleware\EnsureModulePermission::class,
                 \App\Http\Middleware\EnsureOperationalScope::class,
-            ])->get(route("workspace.index"));
+            ])->getJson(route("workspace.index"));
 
             $response->assertOk();
             $this->assertNotContains($productsId, $workspace["actions"]->pluck("id"));
-            $this->assertSame("Empresa de pruebas", $response->viewData("company")->commercial_name);
+            $this->assertSame("Empresa de pruebas", $response->json("company.commercial_name"));
 
         }finally {
 
@@ -364,14 +316,10 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->get(route("workspace.index"));
+        ])->getJson(route("workspace.index"));
 
         $response->assertOk();
-        $this->assertSame(asset("storage/".$logoPath), $response->viewData("logomarkUrl"));
-        $response->assertSee(
-            'src="'.asset("storage/".$logoPath).'" alt="Isotipo de Empresa de pruebas"',
-            false
-        );
+        $response->assertJsonPath("company.logomark_url", asset("storage/".$logoPath));
 
     }
 
@@ -402,14 +350,14 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->get(route("workspace.index"));
+        ])->getJson(route("workspace.index"));
 
         $response->assertOk();
-        $response->assertSee('data-br-copy-value="20999999999"', false);
-        $response->assertSee('data-br-copy-value="contacto@empresa.test"', false);
-        $response->assertSee("https://facebook.com/empresa");
-        $response->assertSee("https://instagram.com/empresa");
-        $response->assertSee("https://wa.me/51999888777");
+        $response->assertJsonPath("company.document_number", "20999999999")
+            ->assertJsonPath("company.email", "contacto@empresa.test")
+            ->assertJsonPath("company.socials.facebook", "https://facebook.com/empresa")
+            ->assertJsonPath("company.socials.instagram", "https://instagram.com/empresa")
+            ->assertJsonPath("company.socials.whatsapp", "https://wa.me/51999888777");
 
     }
 
@@ -430,15 +378,12 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->get(route("workspace.index"));
+        ])->getJson(route("workspace.index"));
 
         $response->assertOk();
-        $response->assertSee("Facebook");
-        $response->assertSee("Instagram");
-        $response->assertSee("WhatsApp");
-        $response->assertSee("Sin información");
-        $response->assertDontSee('data-br-copy-value=""', false);
-        $response->assertDontSee('aria-label="Copiar correo"', false);
+        $response->assertJsonPath("company.email", null)
+            ->assertJsonPath("company.telephone", null)
+            ->assertJsonPath("company.address", null);
 
     }
 

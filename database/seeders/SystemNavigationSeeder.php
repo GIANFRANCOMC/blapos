@@ -13,6 +13,7 @@ final class SystemNavigationSeeder extends Seeder {
     private const DISABLED_BY_DEFAULT_WORLD_SLUGS = ["sc_sales", "sc_purchases", "sc_cash"];
 
     private const DISABLED_BY_DEFAULT_ROUTES = [
+        "service_sessions.index",
         "home.index",
         "dashboard.index",
         "reports.index",
@@ -21,6 +22,7 @@ final class SystemNavigationSeeder extends Seeder {
         "tracking_subscriptions.index",
         "tracking_attendances.index",
         "tracking_notifications.index",
+        "customers.index",
         "book_complaints.index",
         "recipes.index",
         "assets.index",

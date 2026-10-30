@@ -12,6 +12,7 @@ import Loader from "@System/Components/Loader.vue";
 import Paginator from "@System/Components/Paginator.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
+import "../../../../../css/System/Components/Catalogs/catalog-list-skeleton.css";
 
 createApp(App)
     .component("v-select", VueSelect)

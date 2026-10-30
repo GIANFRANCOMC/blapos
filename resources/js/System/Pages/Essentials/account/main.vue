@@ -10,7 +10,23 @@
                 <p>Actualiza tus datos personales y la información de tu cuenta.</p>
             </div>
 
-            <div v-if="account" class="br-account-page__identity" aria-label="Tu usuario y empresa">
+            <div v-if="loading && skeletonEnabled" class="br-account-page__identity br-account-skeleton__identity" aria-hidden="true">
+                <div class="br-account-page__identity-person">
+                    <span class="br-account-skeleton__line br-account-skeleton__avatar"></span>
+                    <span class="br-account-skeleton__identity-copy">
+                        <span class="br-account-skeleton__line br-account-skeleton__identity-name"></span>
+                        <span class="br-account-skeleton__line br-account-skeleton__identity-detail"></span>
+                    </span>
+                </div>
+                <div class="br-account-page__identity-company">
+                    <span class="br-account-skeleton__line br-account-skeleton__company-icon"></span>
+                    <span class="br-account-skeleton__identity-copy">
+                        <span class="br-account-skeleton__line br-account-skeleton__identity-name"></span>
+                        <span class="br-account-skeleton__line br-account-skeleton__identity-detail"></span>
+                    </span>
+                </div>
+            </div>
+            <div v-else-if="account" class="br-account-page__identity" aria-label="Tu usuario y empresa">
                 <div class="br-account-page__identity-person">
                     <span class="br-account-page__avatar" aria-hidden="true">{{ userInitial }}</span>
                     <div class="br-account-page__identity-text">
@@ -31,7 +47,8 @@
             </div>
         </header>
 
-        <div v-if="loading" class="br-account-page__loading"><Loader/></div>
+        <AccountSkeleton v-if="loading && skeletonEnabled"/>
+        <div v-else-if="loading" class="br-account-page__loading" aria-hidden="true"></div>
         <div v-else-if="loadError" class="br-account-page__load-error" role="alert">
             <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
             <span>{{ loadError }}</span>
@@ -95,16 +112,21 @@
 <script>
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
+import AccountSkeleton from "./AccountSkeleton.vue";
 
 const emptyForm = () => ({name: "", email: "", phone_number: "", gender: "", birthdate: ""});
+const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
+    components: {AccountSkeleton},
     data() {
         return {
             account: null,
             company: {name: "", document_type: "", document_number: ""},
             form: emptyForm(),
             errors: {},
+            skeletonEnabled: initialLoad.skeleton,
             loading: true,
             saving: false,
             loadError: "",
@@ -138,17 +160,25 @@ export default {
         async loadAccount() {
             this.loading = true;
             this.loadError = "";
-            const result = await Requests.get({route: window.location.pathname});
-            this.loading = false;
+            initialLoad.start();
 
-            if(!result.bool || !result.data?.account) {
-                this.loadError = result.data?.msg || "No fue posible cargar los datos de tu cuenta.";
-                return;
+            try {
+                const result = await Requests.get({route: window.location.pathname});
+
+                if(!result.bool || !result.data?.account) {
+                    this.loadError = result.data?.msg || "No fue posible cargar los datos de tu cuenta.";
+                    return;
+                }
+
+                this.account = result.data.account;
+                this.company = result.data.company || this.company;
+                this.fillForm(this.account);
+            } catch(error) {
+                this.loadError = "No fue posible cargar los datos de tu cuenta.";
+            } finally {
+                initialLoad.finish();
+                this.loading = false;
             }
-
-            this.account = result.data.account;
-            this.company = result.data.company || this.company;
-            this.fillForm(this.account);
         },
         fillForm(account) {
             this.form = {

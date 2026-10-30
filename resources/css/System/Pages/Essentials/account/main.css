@@ -126,7 +126,7 @@
 .br-account-page__panel {
   overflow: hidden;
   border: 1px solid var(--br-border);
-  border-radius: 0.95rem;
+  border-radius: var(--br-radius);
   background: var(--br-white);
   box-shadow: var(--br-shadow-sm);
 }
@@ -134,8 +134,8 @@
 .br-account-page__panel-head {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 1.1rem 1.3rem;
+  gap: 0.7rem;
+  padding: 0.85rem 1.25rem;
   border-bottom: 1px solid var(--br-border);
   background: linear-gradient(110deg, var(--br-white), color-mix(in srgb, var(--br-primary-soft) 35%, var(--br-white)));
 }
@@ -143,10 +143,10 @@
 .br-account-page__panel-icon {
   display: grid;
   place-items: center;
-  flex: 0 0 2.25rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.65rem;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--br-radius-sm);
   background: var(--br-primary-soft);
   color: var(--br-primary-active);
 }
@@ -165,8 +165,8 @@
 .br-account-page__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.1rem 1.25rem;
-  padding: 1.35rem 1.3rem 1.5rem;
+  gap: var(--br-grid-gap-3) 1rem;
+  padding: 1.25rem;
 }
 
 .br-account-page__field {
@@ -175,7 +175,7 @@
 
 .br-account-page__field .form-label {
   display: inline-block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.16rem;
   color: var(--br-secondary);
   font-weight: 650;
 }
@@ -183,7 +183,7 @@
 .br-account-page__field .input-group {
   overflow: hidden;
   border: 1px solid var(--br-border-strong);
-  border-radius: 0.55rem;
+  border-radius: var(--br-radius-sm);
   background: var(--br-white);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -198,7 +198,7 @@
 }
 
 .br-account-page__field .input-group-text {
-  width: 2.5rem;
+  width: 2rem;
   padding: 0;
   justify-content: center;
   border: 0;
@@ -209,8 +209,9 @@
 .br-account-page__field .form-control,
 .br-account-page__field .form-select {
   min-width: 0;
-  min-height: 2.65rem;
-  padding: 0.55rem 0.7rem;
+  height: var(--br-control-height);
+  min-height: var(--br-control-height);
+  padding: var(--br-control-padding-y) var(--br-control-padding-x);
   border: 0;
   background-color: transparent;
   box-shadow: none;
@@ -219,6 +220,26 @@
 .br-account-page__field .form-control:focus,
 .br-account-page__field .form-select:focus {
   box-shadow: none;
+}
+
+/* El borde y el foco pertenecen al campo completo, no a cada icono o control. */
+body.br-layout #app .br-account-page__field .input-group > .input-group-text,
+body.br-layout #app .br-account-page__field .input-group > .form-control,
+body.br-layout #app .br-account-page__field .input-group > .form-select {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+body.br-layout #app .br-account-page__field .input-group > .input-group-text {
+  flex: 0 0 2rem;
+  padding: 0 !important;
+  color: var(--br-secondary-muted);
+}
+
+body.br-layout #app .br-account-page__field .input-group > .input-group-text i {
+  font-size: 0.85rem;
 }
 
 .br-account-page__field .br-form-error {
@@ -231,17 +252,13 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 0.95rem 1.3rem;
+  padding: 0.7rem 1.25rem;
   border-top: 1px solid var(--br-border);
   background: var(--br-surface-soft);
 }
 
 .br-account-page__actions > span {
   color: var(--br-text-muted);
-}
-
-.br-account-page__actions .br-btn {
-  min-width: 9.3rem;
 }
 
 .br-account-page__notice,
@@ -285,10 +302,10 @@ body.br-layout .br-account-page__identity-text small { font-size: 0.68rem !impor
 body.br-layout .br-account-page__role { font-size: 0.6rem !important; }
 body.br-layout .br-account-page__panel-head h2 { font-size: 0.95rem !important; }
 body.br-layout .br-account-page__panel-head p { font-size: 0.76rem !important; }
-body.br-layout .br-account-page__field .form-label { font-size: 0.76rem !important; }
+body.br-layout .br-account-page__field .form-label { font-size: var(--br-font-size-label) !important; }
 body.br-layout .br-account-page__field .form-control,
-body.br-layout .br-account-page__field .form-select { font-size: 0.82rem !important; }
-body.br-layout .br-account-page__actions > span { font-size: 0.75rem !important; }
+body.br-layout .br-account-page__field .form-select { font-size: var(--br-font-size-ui) !important; }
+body.br-layout .br-account-page__actions > span { font-size: var(--br-ui-font-size) !important; }
 
 @media (max-width: 900px) {
   .br-account-page__hero { grid-template-columns: 1fr; gap: 0.9rem; }

@@ -1,0 +1,126 @@
+.br-account-skeleton,
+.br-account-skeleton__identity {
+  pointer-events: none;
+}
+
+.br-account-skeleton__line {
+  display: block;
+  max-width: 100%;
+  border-radius: 0.3rem;
+  background: #e7eef7;
+  animation: br-account-skeleton-pulse 1.7s ease-in-out infinite;
+}
+
+.br-account-skeleton__avatar {
+  flex: 0 0 2.7rem;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 50%;
+  background: #dceafa;
+}
+
+.br-account-skeleton__company-icon {
+  flex: 0 0 1.6rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--br-radius-sm);
+}
+
+.br-account-skeleton__identity-copy,
+.br-account-skeleton__heading-copy {
+  display: grid;
+  align-content: center;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.br-account-skeleton__identity-name {
+  width: 70%;
+  height: 0.68rem;
+}
+
+.br-account-skeleton__identity-detail {
+  width: 82%;
+  height: 0.6rem;
+}
+
+.br-account-skeleton__panel-symbol {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.br-account-skeleton__heading-title {
+  width: 8rem;
+  height: 0.78rem;
+}
+
+.br-account-skeleton__heading-subtitle {
+  width: min(20rem, 80%);
+  height: 0.62rem;
+}
+
+.br-account-skeleton__field {
+  display: grid;
+  align-content: start;
+  gap: 0.16rem;
+}
+
+.br-account-skeleton__label {
+  width: 6.8rem;
+  height: 0.65rem;
+  margin: 0.12rem 0 0.16rem;
+}
+
+.br-account-skeleton__control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: var(--br-control-height);
+  padding: 0 var(--br-control-padding-x);
+  border: 1px solid var(--br-border-strong);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+}
+
+.br-account-skeleton__control-icon {
+  flex: 0 0 0.8rem;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.br-account-skeleton__control-value {
+  width: 35%;
+  height: 0.62rem;
+}
+
+.br-account-skeleton__field:nth-child(2) .br-account-skeleton__control-value {
+  width: 48%;
+}
+
+.br-account-skeleton__footer-hint {
+  width: 11rem;
+  height: 0.65rem;
+}
+
+.br-account-skeleton__footer-button {
+  width: 7.2rem;
+  height: var(--br-btn-height);
+  background: #dceafa;
+}
+
+@keyframes br-account-skeleton-pulse {
+  50% { opacity: 0.55; }
+}
+
+@media (max-width: 640px) {
+  .br-account-skeleton__footer-hint { display: none; }
+}
+
+@media (max-width: 430px) {
+  .br-account-skeleton__footer-button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-account-skeleton__line { animation: none; }
+}

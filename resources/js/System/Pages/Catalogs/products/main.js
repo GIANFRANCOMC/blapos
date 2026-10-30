@@ -19,6 +19,7 @@ import WithoutData    from "@System/Components/WithoutData.vue";
 import CopyButton     from "@System/Components/CopyButton.vue";
 import FiltersSection from "@System/Components/Generics/FiltersSection.vue";
 import StatusBadge    from "@System/Components/Generics/StatusBadge.vue";
+import "../../../../../css/System/Pages/Catalogs/products/skeleton.css";
 
 // App creation and mounted
 createApp(App)

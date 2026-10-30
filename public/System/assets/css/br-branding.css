@@ -5719,6 +5719,12 @@ body.br-layout .form-check-input:disabled {
     margin: 0 0 -0.45rem;
 }
 
+.br-workspace__loading {
+    display: grid;
+    min-height: 14rem;
+    place-items: center;
+}
+
 .br-workspace__layout {
     display: grid;
     grid-template-columns: minmax(0, 1.9fr) minmax(16rem, 0.85fr);

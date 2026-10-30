@@ -1,7 +1,9 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-entity">
+    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="brands" label="marcas"/>
+
+    <main v-else class="br-entity">
         <FiltersSection
             :filter-by-value="filterByValue"
             @update:filterByValue="filterByValue = $event"
@@ -260,7 +262,9 @@ import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import CopyButton from "@System/Components/CopyButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
@@ -310,10 +314,12 @@ const MODULE = {
     ]
 };
 
+const initialLoad = createInitialLoad({skeleton: true});
+
 export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
+    components: {CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -330,7 +336,9 @@ export default {
             ...crudModule,
             MODULE,
             isSaving: false,
-            isExporting: false
+            isExporting: false,
+            skeletonEnabled: initialLoad.skeleton,
+            initialLoading: true
         };
 
     },
@@ -338,12 +346,16 @@ export default {
 
         Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
+        initialLoad.start();
 
-        if(await this.initParams()) {
+        try {
 
-            Alerts.swals({show: false});
-            await this.listEntity({});
+            if(await this.initParams()) await this.listEntity({});
+
+        }finally {
+
+            initialLoad.finish();
+            this.initialLoading = false;
 
         }
 

@@ -4,21 +4,20 @@ import test from "node:test";
 
 test("las acciones rápidas conservan sus descripciones y usan el icono del submódulo", () => {
 
-    const view = readFileSync(new URL("../../resources/views/System/general/Essentials/workspace/main.blade.php", import.meta.url), "utf8");
-    const link = readFileSync(new URL("../../resources/views/System/general/Essentials/workspace/partials/link.blade.php", import.meta.url), "utf8");
+    const view = readFileSync(new URL("../../resources/js/System/Pages/Essentials/workspace/main.vue", import.meta.url), "utf8");
     const service = readFileSync(new URL("../../app/Services/System/Essentials/UserNavigationService.php", import.meta.url), "utf8");
     const controller = readFileSync(new URL("../../app/Http/Controllers/System/Essentials/WorkspaceController.php", import.meta.url), "utf8");
     const seeder = readFileSync(new URL("../../database/seeders/SystemNavigationSeeder.php", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/52-workspace.css", import.meta.url), "utf8");
 
     assert.match(view, /br-workspace__section-eyebrow">Accesos rápidos<\/span>/);
-    assert.match(view, /¿Qué deseas hacer hoy, \{\{ \$firstName \}\}\?/);
+    assert.match(view, /¿Qué deseas hacer hoy, \{\{ firstName \}\}\?/);
     assert.match(view, /Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla/);
     assert.doesNotMatch(view, /br-workspace__hero|Buenos días/);
     assert.match(controller, /\$firstName = Str::before\(trim\(\$user->name\), " "\);/);
-    assert.match(link, /br-workspace__link-icon[^>]*><i class="\{\{ \$item\["icon"\] \}\}"/);
-    assert.match(link, /\$item\["description"\]/);
-    assert.match(link, /fa-solid fa-chevron-right/);
+    assert.match(view, /br-workspace__link-icon[^>]*><i :class="item\.icon"/);
+    assert.match(view, /item\.description/);
+    assert.match(view, /fa-solid fa-chevron-right/);
     assert.match(service, /"icon" => \$subSection->dom_icon/);
     assert.doesNotMatch(service, /WORKSPACE_ACTION_ICONS/);
     const items = seeder.match(/"items" => \[([\s\S]*?)\n            \],/)?.[1];
