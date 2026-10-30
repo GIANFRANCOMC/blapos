@@ -531,10 +531,10 @@ export default {
             if(!willDeactivate) return true;
 
             const confirmation = await Swal.fire({
-                title: "Confirmar inactivación",
+                title: "Inactivar registro",
                 icon: "warning",
                 html: `
-                    <p class="mb-2">Vas a inactivar <strong>${this.recordTitle(this.form)}</strong>.</p>
+                    <p class="mb-2"><strong>${this.recordTitle(this.form)}</strong> dejará de estar disponible para nuevas operaciones.</p>
                     <div class="text-start">
                         <p class="mb-1"><strong>Tipo:</strong> ${this.selectedResource.typeLabel}</p>
                         <p class="mb-1"><strong>Alcance:</strong> ${this.selectedResource.scopeLabel}</p>
@@ -542,8 +542,10 @@ export default {
                     </div>
                 `,
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
-                confirmButtonText: "Inactivar",
+                confirmButtonText: "Inactivar registro",
                 cancelButtonText: "Cancelar",
                 allowOutsideClick: false,
                 allowEscapeKey: false,

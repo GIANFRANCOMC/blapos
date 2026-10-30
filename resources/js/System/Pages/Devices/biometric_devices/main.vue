@@ -621,8 +621,10 @@ export default {
                 text: "El dispositivo dejará de aceptar las credenciales anteriores. El nuevo secreto se mostrará una sola vez.",
                 icon: "warning",
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
-                confirmButtonText: "Rotar",
+                confirmButtonText: "Rotar credenciales",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",

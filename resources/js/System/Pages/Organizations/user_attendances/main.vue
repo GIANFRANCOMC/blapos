@@ -287,10 +287,13 @@ export default {
         async startBreak(record) {
             const confirmation = await Swal.fire({
                 title: "Iniciar pausa",
+                text: "El tiempo de pausa se registrará en la asistencia de este colaborador.",
                 input: "text",
                 inputLabel: "Motivo",
                 inputPlaceholder: "Almuerzo, descanso, gestión interna...",
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Iniciar pausa",
                 cancelButtonText: "Cancelar",
@@ -330,8 +333,10 @@ export default {
                     <textarea id="brCorrectionReason" class="swal2-textarea" placeholder="Motivo de la corrección"></textarea>
                 `,
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
-                confirmButtonText: "Solicitar",
+                confirmButtonText: "Solicitar corrección",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",
@@ -370,12 +375,17 @@ export default {
 
             const confirmation = await Swal.fire({
                 title: approve ? "Aprobar corrección" : "Rechazar corrección",
+                text: approve
+                    ? "Los horarios aprobados sustituirán los registrados en la asistencia."
+                    : "La solicitud no modificará la asistencia; indica el motivo del rechazo.",
                 input: "textarea",
                 inputLabel: "Nota de revisión",
                 inputPlaceholder: approve ? "Observación opcional" : "Indica el motivo del rechazo",
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
-                confirmButtonText: approve ? "Aprobar" : "Rechazar",
+                confirmButtonText: approve ? "Aprobar corrección" : "Rechazar corrección",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",

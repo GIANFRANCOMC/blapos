@@ -44,18 +44,19 @@ function confirmLogout() {
 
     if (!window.Swal) {
 
-        if (window.confirm("¿Deseas cerrar sesión?")) submitLogout();
+        if (window.confirm("Cerrar sesión: tendrás que volver a ingresar tus credenciales.")) submitLogout();
 
         return;
 
     }
 
     window.Swal.fire({
-        title: "¿Deseas cerrar sesión?",
+        title: "Cerrar sesión",
         text: "Tendrás que volver a ingresar tus credenciales para continuar.",
-        icon: "question",
         showCancelButton: true,
-        confirmButtonText: "Sí, cerrar sesión",
+        showCloseButton: true,
+        closeButtonAriaLabel: "Cerrar confirmación",
+        confirmButtonText: "Cerrar sesión",
         cancelButtonText: "Cancelar",
         buttonsStyling: false,
         customClass: {

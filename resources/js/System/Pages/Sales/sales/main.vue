@@ -2810,11 +2810,14 @@ export default {
             }
 
             Swal.fire({
-                html: "<span>¿Desea limpiar todos los ítems del detalle de la venta?</span>",
+                title: "Limpiar detalle de venta",
+                text: "Se quitarán todos los ítems agregados antes de guardar la venta.",
                 icon: "warning",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Sí, limpiar",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Limpiar detalle",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "br-btn br-btn-danger waves-effect",
@@ -2852,11 +2855,14 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    html: `<span>¿Desea eliminar <b>${form?.name}</b> del detalle de la venta?</span>`,
+                    title: "Eliminar ítem de venta",
+                    html: `<span><b>${form?.name}</b> dejará de formar parte del detalle.</span>`,
                     icon: "warning",
                     allowOutsideClick: false,
                     showCancelButton: true,
-                    confirmButtonText: "Sí, eliminar",
+                    showCloseButton: true,
+                    closeButtonAriaLabel: "Cerrar confirmación",
+                    confirmButtonText: "Eliminar ítem",
                     cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",
@@ -2899,11 +2905,14 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    html: `<span>¿Desea duplicar <b>${form?.name}</b> al detalle de la venta?</span>`,
+                    title: "Duplicar ítem de venta",
+                    html: `<span>Se agregará una copia de <b>${form?.name}</b> al detalle.</span>`,
                     icon: "question",
                     allowOutsideClick: false,
                     showCancelButton: true,
-                    confirmButtonText: "Sí, duplicar",
+                    showCloseButton: true,
+                    closeButtonAriaLabel: "Cerrar confirmación",
+                    confirmButtonText: "Duplicar ítem",
                     cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-info-1 waves-effect",

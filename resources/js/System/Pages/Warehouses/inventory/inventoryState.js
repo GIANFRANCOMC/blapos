@@ -587,9 +587,9 @@ export default {
             this.confirmingMovement = true;
             const productCount = this.movementForm.items.length;
             const confirmed = await Alerts.confirmAction({
-                title: "¿Registrar operación?",
-                text: `Registrarás ${operation.label.toLocaleLowerCase("es")} en ${this.movementForm.warehouse.displayLabel || this.movementForm.warehouse.label}. Se actualizará el stock de ${productCount} ${productCount === 1 ? "producto" : "productos"}. ¿Deseas continuar?`,
-                confirmButtonText: "Sí, registrar",
+                title: "Registrar operación",
+                text: `La operación ${operation.label.toLocaleLowerCase("es")} actualizará el stock de ${productCount} ${productCount === 1 ? "producto" : "productos"} en ${this.movementForm.warehouse.displayLabel || this.movementForm.warehouse.label}.`,
+                confirmButtonText: "Registrar operación",
                 icon: "warning"
             });
             this.confirmingMovement = false;

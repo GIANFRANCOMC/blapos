@@ -6,7 +6,7 @@
 import * as Alerts from "./Alerts.js";
 import * as Utils from "./Utils.js";
 import * as Requests from "./Requests.js";
-import { TEXT, CSS_CLASSES } from "./ModuleConstants.js";
+import { TEXT } from "./ModuleConstants.js";
 
 /**
  * Crea acciones estándar para tablas
@@ -34,21 +34,14 @@ export function createTableActions(actions = []) {
  * Maneja confirmación antes de acción
  */
 export function confirmAction(message, onConfirm, onCancel = null) {
-    Swal.fire({
-        html: `<span>${message}</span>`,
-        icon: "question",
-        allowOutsideClick: false,
-        showCancelButton: true,
-        confirmButtonText: TEXT.YES,
-        cancelButtonText: TEXT.NO,
-        customClass: {
-            confirmButton: CSS_CLASSES.BUTTON_PRIMARY,
-            cancelButton: CSS_CLASSES.BUTTON_SECONDARY + " ms-3"
-        }
-    }).then(result => {
-        if (result.isConfirmed && onConfirm) {
+    Alerts.confirmAction({
+        title: "Realizar acción",
+        text: message,
+        confirmButtonText: "Realizar acción"
+    }).then(confirmed => {
+        if (confirmed && onConfirm) {
             onConfirm();
-        } else if (result.isDismissed && onCancel) {
+        } else if (!confirmed && onCancel) {
             onCancel();
         }
     });

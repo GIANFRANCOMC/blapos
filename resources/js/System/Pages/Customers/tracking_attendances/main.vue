@@ -1328,7 +1328,9 @@ export default {
                 icon: "question",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Registrar corrección",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Solicitar corrección",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-primary waves-effect",
@@ -1779,11 +1781,14 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    html: `<span>¿Desea eliminar a <b>${form?.label}</b> de los clientes escaneados?</span>`,
+                    title: "Quitar cliente escaneado",
+                    html: `<span><b>${form?.label}</b> se quitará de la lista de clientes escaneados.</span>`,
                     icon: "warning",
                     allowOutsideClick: false,
                     showCancelButton: true,
-                    confirmButtonText: "Sí, eliminar",
+                    showCloseButton: true,
+                    closeButtonAriaLabel: "Cerrar confirmación",
+                    confirmButtonText: "Quitar cliente",
                     cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",
@@ -2076,7 +2081,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    html: `<span class="d-block my-1">¿Desea anular la asistencia de <b>${form?.customer?.label}</b>?</span>
+                    title: "Anular asistencia",
+                    html: `<span class="d-block my-1">La asistencia de <b>${form?.customer?.label}</b> quedará anulada. Indica el motivo.</span>
                            <div class="form-group text-start mt-2">
                                 <label class="form-label colon-at-end">Motivo</label>
                                 <div class="input-group">
@@ -2086,7 +2092,9 @@ export default {
                     icon: "warning",
                     allowOutsideClick: false,
                     showCancelButton: true,
-                    confirmButtonText: "Sí, anular",
+                    showCloseButton: true,
+                    closeButtonAriaLabel: "Cerrar confirmación",
+                    confirmButtonText: "Anular asistencia",
                     cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",

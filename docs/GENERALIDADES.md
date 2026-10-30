@@ -205,13 +205,18 @@ Las modales de System deben usar el patrón global:
 
 SweetAlert debe usarse para confirmaciones, errores, success y procesos globales. No introducir delays artificiales con `setTimeout`; si hay trabajo asíncrono, mostrar loader inmediatamente.
 
-Convención visual de SweetAlert:
+### Confirmaciones SweetAlert
 
-- Error: borde/icono rojo, botón principal celeste.
-- Warning: borde/icono amarillo, botón de confirmación danger.
-- Question: borde/icono celeste, botón secondary.
-- Success: borde/icono verde, botón principal celeste.
-- Loading: logomark centrado con respiración sutil y texto amable.
+En todos los submódulos, activos o no, las confirmaciones siguen el mismo patrón. `Alerts.confirmAction` es la opción preferida para acciones simples; si una confirmación requiere inputs o `preConfirm`, conservar esa lógica y aplicar la misma convención. El estilo global reside en `resources/css/System/br-branding/95-swal-confirmations.css` y se genera en `public/System/assets/css/br-branding.css` con `npm run build:css:system`.
+
+- No mostrar icono de question/warning ni centrar la cabecera. Título, descripción y campos se alinean a la izquierda. El color de peligro puede mantenerse en el botón de una acción destructiva, sin desplazar la jerarquía del texto.
+- El título enuncia la acción con verbo y sustantivo, en infinitivo y sin signos de interrogación: `Anular venta`, `Duplicar perfil`, `Cerrar sesión`. No usar `¿Deseas…?`, `Confirmar acción` ni títulos vagos.
+- El cuerpo no repite el título ni vuelve a preguntar. Explica consecuencias, alcance, datos afectados, irreversibilidad o pasos que el usuario no conoce. Mantenerlo breve y concreto; si hay campos obligatorios, indicar para qué se solicitan.
+- Mostrar `Cancelar` a la izquierda y la acción principal a la derecha. El texto del botón repite la acción específica (`Anular venta`, no `Sí`, `Sí, anular` ni `Continuar`), con mayúscula solo al inicio salvo nombres propios. La acción debe ser visualmente preponderante.
+- Mantener la `X` visible arriba a la derecha con `showCloseButton: true` y `closeButtonAriaLabel: "Cerrar confirmación"`. La X y `Cancelar` descartan la operación; nunca ejecutan el cambio. No cerrar haciendo clic fuera si se están revisando consecuencias o completando campos.
+- Confirmaciones de descarga también siguen el patrón. Los mensajes de éxito, error y el loader no son decisiones de dos botones y conservan su presentación específica.
+
+Los mensajes informativos de SweetAlert conservan el color semántico de error, advertencia, éxito o información. El loader usa el logomark centrado y texto breve; no se trata como una confirmación.
 
 ## Cache e initParams
 

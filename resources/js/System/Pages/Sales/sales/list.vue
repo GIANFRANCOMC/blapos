@@ -461,7 +461,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    html: `<p class="mb-3">¿Desea anular la venta <span class="fw-bold">${form?.serie_sequential ?? ""}</span>?</p>
+                    title: "Anular venta",
+                    html: `<p class="mb-3">La venta <span class="fw-bold">${form?.serie_sequential ?? ""}</span> quedará anulada.</p>
                             <div class="br-sale-cancel-hint">
                                 <p class="br-sale-cancel-hint__body">
                                     <span class="br-sale-cancel-hint__label">Importante.</span>
@@ -472,7 +473,9 @@ export default {
                     icon: "warning",
                     allowOutsideClick: false,
                     showCancelButton: true,
-                    confirmButtonText: "Sí, anular",
+                    showCloseButton: true,
+                    closeButtonAriaLabel: "Cerrar confirmación",
+                    confirmButtonText: "Anular venta",
                     cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",

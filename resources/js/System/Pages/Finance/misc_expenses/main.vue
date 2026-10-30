@@ -237,8 +237,8 @@ export default {
         },
         async cancelExpense(expense) {
             const confirmation = await Swal.fire({
-                title: "¿Anular este gasto?", text: "La salida vinculada a caja también quedará anulada.",
-                icon: "warning", showCancelButton: true, confirmButtonText: "Sí, anular", cancelButtonText: "Cancelar"
+                title: "Anular gasto", text: "La salida vinculada a caja también quedará anulada.",
+                icon: "warning", showCancelButton: true, showCloseButton: true, closeButtonAriaLabel: "Cerrar confirmación", confirmButtonText: "Anular gasto", cancelButtonText: "Cancelar"
             });
             if(!confirmation.isConfirmed) return;
             const result = await Requests.patch({route: `${this.routes.consult}/${expense.id}/cancel`});

@@ -117,9 +117,9 @@ export default {
             const industry = this.industries.find(item => Number(item.id) === Number(this.selectedIndustryId));
             if(!industry) return;
             const confirmation = await Swal.fire({
-                title: `¿Aplicar ${industry.name}?`,
-                text: "La selección actual se reemplazará por los módulos recomendados para este rubro.",
-                icon: "question", showCancelButton: true, confirmButtonText: "Aplicar rubro", cancelButtonText: "Cancelar"
+                title: "Aplicar rubro",
+                text: `La selección actual se reemplazará por los módulos recomendados para ${industry.name}.`,
+                icon: "question", showCancelButton: true, showCloseButton: true, closeButtonAriaLabel: "Cerrar confirmación", confirmButtonText: "Aplicar rubro", cancelButtonText: "Cancelar"
             });
             if(!confirmation.isConfirmed) return;
             this.saving = true;

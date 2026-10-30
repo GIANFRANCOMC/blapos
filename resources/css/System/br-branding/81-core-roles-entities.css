@@ -2090,10 +2090,10 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-inventory__head {
     padding-block: 0.58rem;
-    border-bottom: 1px solid var(--br-border-subtle);
-    background: color-mix(in srgb, var(--br-surface-soft) 55%, var(--br-white));
-    color: var(--br-text-muted);
-    font-size: var(--br-table-caption-font-size);
+    border-bottom: 1px solid var(--br-table-thead-edge);
+    background: var(--br-table-thead-bg);
+    color: var(--br-table-thead-text);
+    font-size: 0.66rem;
     font-weight: 600;
 }
 

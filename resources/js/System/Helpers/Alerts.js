@@ -434,10 +434,10 @@ export function close() {
 
 /** Confirmación reutilizable para acciones que alteran datos o inician procesos. */
 export async function confirmAction({
-    title = "¿Confirmar acción?",
+    title = "Realizar acción",
     text = "",
     icon = "question",
-    confirmButtonText = "Confirmar",
+    confirmButtonText = "Realizar acción",
     cancelButtonText = "Cancelar"
 } = {}) {
 
@@ -446,8 +446,9 @@ export async function confirmAction({
         target: document.body,
         title,
         text,
-        icon,
         showCancelButton: true,
+        showCloseButton: true,
+        closeButtonAriaLabel: "Cerrar confirmación",
         confirmButtonText,
         cancelButtonText,
         reverseButtons: true,
@@ -491,9 +492,9 @@ export function showMessage({title = "", text = "", type = "info"} = {}) {
 export function confirmDownload({resource = "el archivo", format = "Excel"} = {}) {
 
     return confirmAction({
-        title: `¿Descargar ${format}?`,
-        text: `Se preparará ${resource} en formato ${format}. La descarga comenzará automáticamente cuando esté listo y puede tardar unos segundos.`,
-        confirmButtonText: "Descargar"
+        title: `Descargar ${resource}`,
+        text: `Se generará un archivo ${format}. La descarga comenzará automáticamente cuando esté listo y puede tardar unos segundos.`,
+        confirmButtonText: `Descargar ${format}`
     });
 
 }

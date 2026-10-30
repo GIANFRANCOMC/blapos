@@ -470,6 +470,8 @@ export default {
                 icon: "question",
                 allowOutsideClick: false,
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Agregar membresía",
                 cancelButtonText: "Cancelar",
                 customClass: {
@@ -598,7 +600,9 @@ export default {
                 icon: "question",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Renovar",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Renovar membresía",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-primary waves-effect",
@@ -706,7 +710,8 @@ export default {
             const self = this;
 
             Swal.fire({
-                html: `<span class="d-block my-1">¿Desea anular la membresía del cliente <b>${form.customer?.name}</b>?</span>
+                title: "Anular membresía",
+                html: `<span class="d-block my-1">La vigencia de <b>${form.customer?.name}</b> dejará de estar activa. Indica el motivo.</span>
                        <div class="form-group text-start mt-2">
                             <label class="form-label colon-at-end">Motivo</label>
                             <div class="input-group">
@@ -716,7 +721,9 @@ export default {
                 icon: "warning",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Sí, anular",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Anular membresía",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-danger waves-effect",

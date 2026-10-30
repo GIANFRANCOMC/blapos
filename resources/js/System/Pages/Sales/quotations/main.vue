@@ -788,12 +788,15 @@ export default {
         async cancelQuotation(record) {
             const confirm = await window.Swal.fire({
                 icon: "warning",
-                html: `<div class="fw-semibold">¿Deseas anular la cotización ${record.reference}?</div>`,
+                title: "Anular cotización",
+                text: `La cotización ${record.reference} dejará de estar disponible para nuevas operaciones.`,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
-                confirmButtonText: "Sí, anular",
+                confirmButtonText: "Anular cotización",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",

@@ -459,7 +459,8 @@ export default {
             let el = this;
 
             Swal.fire({
-                html: `<span class="d-block mb-1">¿Deseas agregar el activo a la sucursal?</span>
+                title: "Agregar activo a sucursal",
+                html: `<span class="d-block mb-1">Indica la cantidad que quedará asignada a esta sucursal.</span>
                        <div class="d-flex justify-content-start align-items-center mt-3">
                             <div class="form-group text-start">
                                 <label class="form-label colon-at-end required">Cantidad</label>
@@ -472,7 +473,9 @@ export default {
                 icon: "question",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Sí, agregar",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Agregar activo",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-success waves-effect",
@@ -555,11 +558,14 @@ export default {
             let el = this;
 
             Swal.fire({
-                html: `<span>¿Deseas quitar el activo de la sucursal?</span>`,
+                title: "Quitar activo de sucursal",
+                text: "La asignación del activo a esta sucursal se retirará.",
                 icon: "question",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Sí, quitar",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Quitar activo",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-danger waves-effect",
@@ -799,11 +805,14 @@ export default {
             let el = this;
 
             Swal.fire({
-                html: `<span>¿Desea retirar la asignación al colaborador?</span>`,
+                title: "Retirar asignación de activo",
+                text: "El activo dejará de figurar como asignado al colaborador.",
                 icon: "question",
                 allowOutsideClick: false,
                 showCancelButton: true,
-                confirmButtonText: "Sí, retirar",
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
+                confirmButtonText: "Retirar asignación",
                 cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-danger waves-effect",

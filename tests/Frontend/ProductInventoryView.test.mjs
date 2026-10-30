@@ -51,6 +51,7 @@ test("el acceso al inventario abre una modal de consulta para alertas y estados 
     assert.match(branding, /\.br-entity-stock-row \{[\s\S]*?gap: 0\.12rem/);
     assert.match(branding, /\.br-entity-stock-trigger:is\(:hover, :focus-visible\) \{[\s\S]*?background: transparent/);
     assert.match(branding, /\.br-entity-prices \{[\s\S]*?gap: 0\.24rem/);
+    assert.match(branding, /\.br-entity-inventory__head \{[\s\S]*?background: var\(--br-table-thead-bg\);[\s\S]*?color: var\(--br-table-thead-text\);/);
 
 });
 

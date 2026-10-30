@@ -30,7 +30,7 @@ test("toma física descarga plantilla y revisa el archivo antes de guardar", () 
     assert.doesNotMatch(page, /Archivo de toma física<\/label>/);
     assert.match(page, /result\.data\.data\.items[\s\S]*?this\.movementForm\.items = importedItems\.map/);
     assert.match(page, /No se pudo procesar el archivo[\s\S]*?Archivo procesado/);
-    assert.match(page, /Alerts\.confirmAction\([\s\S]*?Sí, registrar/);
+    assert.match(page, /Alerts\.confirmAction\([\s\S]*?title: "Registrar operación"[\s\S]*?confirmButtonText: "Registrar operación"/);
     assert.match(page, /const confirmed = await Alerts\.confirmAction\([\s\S]*?if\(!confirmed\) return;[\s\S]*?Requests\.post\(/);
     assert.match(alerts, /export async function confirmAction\(/);
     assert.match(alerts, /export function showMessage\([\s\S]*?title,[\s\S]*?text,[\s\S]*?icon: type/);

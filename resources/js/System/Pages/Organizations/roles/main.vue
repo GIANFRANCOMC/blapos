@@ -562,15 +562,17 @@ export default {
             if(!willDisable && !removesFullAccess) return true;
 
             const confirmation = await Swal.fire({
-                title: "Revisar perfil asignado",
+                title: "Actualizar perfil asignado",
                 html: `
                     <p>Este perfil está asignado a <strong>${affectedUsers}</strong> colaborador${affectedUsers === 1 ? "" : "es"} activo${affectedUsers === 1 ? "" : "s"}.</p>
-                    <p class="mb-0">Si continúas, sus accesos cambiarán de inmediato. El backend bloqueará la operación si este cambio deja a la empresa sin administrador activo.</p>
+                    <p class="mb-0">Sus accesos cambiarán de inmediato. El sistema impedirá el cambio si deja a la empresa sin administrador activo.</p>
                 `,
                 icon: "warning",
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
-                confirmButtonText: "Continuar",
+                confirmButtonText: "Actualizar perfil",
                 cancelButtonText: "Cancelar",
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -604,6 +606,8 @@ export default {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Duplicar perfil",
                 cancelButtonText: "Cancelar",

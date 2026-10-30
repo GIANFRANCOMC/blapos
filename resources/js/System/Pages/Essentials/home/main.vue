@@ -456,6 +456,8 @@ export default {
                 allowOutsideClick: false,
                 allowEnterKey: false,
                 showCancelButton: true,
+                showCloseButton: true,
+                closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: confirmation.confirmText,
                 cancelButtonText: this.page.confirmations.cancelText,

@@ -12827,10 +12827,10 @@ body.br-layout .br-entity-table > thead > tr > th {
 
 .br-entity-inventory__head {
     padding-block: 0.58rem;
-    border-bottom: 1px solid var(--br-border-subtle);
-    background: color-mix(in srgb, var(--br-surface-soft) 55%, var(--br-white));
-    color: var(--br-text-muted);
-    font-size: var(--br-table-caption-font-size);
+    border-bottom: 1px solid var(--br-table-thead-edge);
+    background: var(--br-table-thead-bg);
+    color: var(--br-table-thead-text);
+    font-size: 0.66rem;
     font-weight: 600;
 }
 
@@ -18470,6 +18470,136 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   .br-business-profile__industry-action .form-select {
     min-width: 0;
   }
+}
+
+/* Source: resources/css/System/br-branding/95-swal-confirmations.css */
+/* Confirmaciones de System: una acción explícita, sin icono y con lectura de izquierda a derecha. */
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) {
+    box-sizing: border-box;
+    width: min(31rem, calc(100vw - 2rem)) !important;
+    max-width: calc(100vw - 2rem);
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 1.25rem !important;
+    border-radius: var(--br-radius, .5rem);
+    text-align: left !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-icon {
+    display: none !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-title,
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-html-container {
+    grid-column: 1 !important;
+    justify-self: stretch !important;
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: none !important;
+    padding-inline: 0 !important;
+    text-align: left !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-title {
+    margin: 0 !important;
+    padding-right: 2rem !important;
+    color: var(--br-secondary);
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-html-container {
+    margin: .55rem 0 0 !important;
+    color: var(--br-text);
+    font-size: .875rem;
+    line-height: 1.5;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-html-container:empty {
+    display: none !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-html-container :is(p, span, div) {
+    text-align: left;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) :is(.swal2-input, .swal2-textarea, .swal2-select, .swal2-file, .swal2-range, .swal2-radio, .swal2-checkbox) {
+    grid-column: 1 !important;
+    justify-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0 !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-input-label {
+    grid-column: 1 !important;
+    justify-self: stretch;
+    margin-inline: 0;
+    text-align: left;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-actions {
+    display: flex !important;
+    grid-column: 1 !important;
+    justify-self: stretch !important;
+    justify-content: space-between !important;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    width: 100% !important;
+    margin: 1.2rem 0 0 !important;
+    padding: 0 !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-cancel,
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-confirm {
+    min-height: var(--br-control-height, 2.5rem);
+    margin: 0 !important;
+    border-radius: var(--br-radius-sm, .25rem) !important;
+    font-size: .8125rem !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-cancel {
+    order: 0;
+    margin-right: auto !important;
+    border: 1px solid var(--br-border) !important;
+    background: var(--br-white) !important;
+    color: var(--br-secondary) !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-confirm {
+    order: 1;
+    margin-left: auto !important;
+    border: 1px solid var(--br-primary) !important;
+    background: var(--br-primary) !important;
+    color: var(--br-white) !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-confirm:is(.btn-danger, .br-btn-danger, .br-swal-alert__confirm--warning) {
+    border-color: var(--br-danger) !important;
+    background: var(--br-danger) !important;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-close {
+    position: absolute;
+    top: .65rem;
+    right: .65rem;
+    width: 2rem;
+    height: 2rem;
+    color: var(--br-text-muted);
+    font-size: 1.45rem;
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-close:is(:hover, :focus-visible) {
+    color: var(--br-secondary);
+}
+
+@media (max-width: 575.98px) {
+    body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-actions {
+        flex-direction: row;
+    }
 }
 
 /* Source: resources/css/System/br-branding/98-error-pages.css */
