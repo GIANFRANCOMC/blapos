@@ -1041,7 +1041,7 @@ input.input-number-no-range[type=number] {
 
 .swal2-popup.br-swal-alert {
     box-sizing: border-box;
-    width: min(31rem, calc(100vw - 2rem)) !important;
+    width: min(var(--br-swal-alert-width, 25rem), calc(100vw - 2rem)) !important;
     max-width: calc(100vw - 2rem);
     padding: 0 1.05rem 1rem;
     border-radius: var(--br-radius, 0.5rem);
@@ -1067,10 +1067,10 @@ input.input-number-no-range[type=number] {
 .swal2-popup.br-swal-alert .swal2-icon {
     grid-column: 1 / 4 !important;
     justify-self: center;
-    width: 4rem;
-    height: 4rem;
+    width: 5em;
+    height: 5em;
     margin: 1.35rem auto 0.4rem;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
 }
 
 .swal2-popup.br-swal-alert .swal2-title {
@@ -1095,6 +1095,12 @@ input.input-number-no-range[type=number] {
     max-width: 30rem;
     margin-inline: auto !important;
     padding-inline: 0;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-title,
+.swal2-popup.br-swal-alert--message .swal2-html-container {
+    font-size: calc(var(--br-font-size-label) + 0.075rem) !important;
+    line-height: 1.5;
 }
 
 .swal2-popup.br-swal-alert .br-swal-alert__input {
@@ -1137,21 +1143,9 @@ input.input-number-no-range[type=number] {
     color: var(--br-success);
 }
 
-.swal2-popup.br-swal-alert--success .swal2-success-ring {
-    border-color: color-mix(in srgb, var(--br-success) 38%, transparent);
-}
-
-.swal2-popup.br-swal-alert--success [class^="swal2-success-line"] {
-    background-color: var(--br-success) !important;
-}
-
 .swal2-popup.br-swal-alert--error .swal2-icon.swal2-error {
     border-color: var(--br-danger);
     color: var(--br-danger);
-}
-
-.swal2-popup.br-swal-alert--error [class^="swal2-x-mark-line"] {
-    background-color: var(--br-danger);
 }
 
 .swal2-popup.br-swal-alert--question {
@@ -1161,6 +1155,130 @@ input.input-number-no-range[type=number] {
 .swal2-popup.br-swal-alert--question .swal2-icon.swal2-question {
     border-color: var(--br-primary);
     color: var(--br-primary);
+}
+
+/* Mensajes de una acción: iconos completos y consistentes, sin alterar las confirmaciones. */
+.swal2-popup.br-swal-alert--message .swal2-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-width: 2px;
+    line-height: 1;
+    animation: br-swal-message-icon-in .32s cubic-bezier(.2, .8, .2, 1.25) both !important;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon > * {
+    display: none !important;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon::before {
+    display: block;
+    font-family: inherit;
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1;
+    animation: br-swal-message-symbol-in .2s .1s both !important;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-success {
+    border-color: color-mix(in srgb, var(--br-success) 34%, transparent);
+    color: var(--br-success-hover);
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-success .swal2-icon-content {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: inherit;
+}
+
+.swal2-popup.br-swal-alert--message .br-swal-message-check {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+}
+
+.swal2-popup.br-swal-alert--message .br-swal-message-check path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: br-swal-message-check-draw .36s .14s ease-out forwards;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-warning {
+    border-color: color-mix(in srgb, var(--br-warning) 34%, transparent);
+    color: var(--br-warning-hover);
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-warning::before {
+    content: "!";
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-info {
+    border-color: color-mix(in srgb, var(--br-info) 34%, transparent);
+    color: var(--br-info-hover);
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-info::before {
+    content: "i";
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-error {
+    border-color: color-mix(in srgb, var(--br-danger) 34%, transparent);
+    color: var(--br-danger-hover);
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-error::before,
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-error::after {
+    content: "";
+    position: absolute;
+    width: 1.7rem;
+    height: .2rem;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-error::before {
+    transform: rotate(45deg);
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-error::after {
+    transform: rotate(-45deg);
+    animation: br-swal-message-symbol-in .2s .1s both !important;
+}
+
+.swal2-popup.br-swal-alert--message .swal2-icon.swal2-question::before {
+    content: "?";
+}
+
+@keyframes br-swal-message-icon-in {
+    from { opacity: 0; transform: scale(.74); }
+    65% { opacity: 1; transform: scale(1.07); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes br-swal-message-symbol-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes br-swal-message-check-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .swal2-popup.br-swal-alert--message .swal2-icon,
+    .swal2-popup.br-swal-alert--message .swal2-icon::before,
+    .swal2-popup.br-swal-alert--message .swal2-icon::after,
+    .swal2-popup.br-swal-alert--message .br-swal-message-check path {
+        animation: none !important;
+    }
+
+    .swal2-popup.br-swal-alert--message .br-swal-message-check path {
+        stroke-dashoffset: 0;
+    }
 }
 
 .br-swal-alert__confirm--warning {

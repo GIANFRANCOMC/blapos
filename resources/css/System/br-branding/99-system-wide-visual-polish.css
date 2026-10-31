@@ -1598,3 +1598,23 @@ body > .vs__dropdown-menu,
     width: 100%;
   }
 }
+
+/* Misma jerarquía de superficies que las confirmaciones Swal. Se aplica al
+   elemento visible del modal para cubrir formularios genéricos y modales propios. */
+body.br-layout .modal .modal-content {
+  background: var(--br-white) !important;
+}
+
+body.br-layout .modal :is(.modal-header, .br-modal-shell__header, .br-entity-modal__header) {
+  background: var(--br-neutral-panel) !important;
+  border-bottom-color: var(--br-border) !important;
+}
+
+body.br-layout .modal :is(.modal-body, .br-modal-shell__body, .br-entity-modal__body) {
+  background: var(--br-white) !important;
+}
+
+body.br-layout .modal :is(.modal-footer, .br-modal-shell__footer, .br-entity-modal__footer) {
+  background: var(--br-neutral-panel) !important;
+  border-top-color: var(--br-border) !important;
+}

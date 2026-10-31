@@ -23,6 +23,8 @@ const SWAL_INSTANT_TRANSITION = Object.freeze({
     }
 });
 
+const SUCCESS_MESSAGE_ICON = '<svg class="br-swal-message-check" viewBox="2 5 20 16" aria-hidden="true" focusable="false"><path d="M4.5 12.5 10 18 20 7" pathLength="1" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 function prepareModal(modalElement) {
 
     if(!(modalElement instanceof HTMLElement)) return;
@@ -434,7 +436,7 @@ export function close() {
 
 /** Confirmación reutilizable para acciones que alteran datos o inician procesos. */
 export async function confirmAction({
-    title = "Realizar acción",
+    title = "¿Confirmar operación?",
     text = "",
     icon = "question",
     confirmButtonText = "Realizar acción",
@@ -443,6 +445,7 @@ export async function confirmAction({
 
     const result = await Swal.fire({
         ...SWAL_INSTANT_TRANSITION,
+        allowEscapeKey: false,
         target: document.body,
         title,
         text,
@@ -467,21 +470,34 @@ export async function confirmAction({
 
 }
 
-/** Mensaje seguro: usa texto plano para evitar interpretar nombres o errores como HTML. */
-export function showMessage({title = "", text = "", type = "info"} = {}) {
+function setMessageWidth(popup, width) {
+
+    if(Number.isFinite(width) && width > 0) {
+
+        popup.style.setProperty("--br-swal-alert-width", `${width}px`);
+
+    }
+
+}
+
+/** Mensaje seguro: usa texto plano. `width` opcional, en píxeles, amplía el ancho compacto predeterminado. */
+export function showMessage({title = "", text = "", type = "info", width = null} = {}) {
 
     return Swal.fire({
         ...SWAL_INSTANT_TRANSITION,
+        allowEscapeKey: false,
         target: document.body,
         title,
         text,
         icon: type,
+        iconHtml: type === "success" ? SUCCESS_MESSAGE_ICON : undefined,
+        willOpen: popup => setMessageWidth(popup, width),
         allowOutsideClick: false,
         buttonsStyling: false,
         confirmButtonText: "Entendido",
         customClass: {
             container: "br-swal-backdrop",
-            popup: `br-swal-alert br-swal-alert--${type}`,
+            popup: `br-swal-alert br-swal-alert--message br-swal-alert--${type}`,
             confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${type}`
         }
     });
@@ -492,7 +508,7 @@ export function showMessage({title = "", text = "", type = "info"} = {}) {
 export function confirmDownload({resource = "el archivo", format = "Excel"} = {}) {
 
     return confirmAction({
-        title: `Descargar ${resource}`,
+        title: `¿Descargar ${resource}?`,
         text: `Se generará un archivo ${format}. La descarga comenzará automáticamente cuando esté listo y puede tardar unos segundos.`,
         confirmButtonText: `Descargar ${format}`
     });
@@ -688,9 +704,9 @@ export function modals({type = "show", id = null, timeout = 0}) {
  * @param {String} headerTitle - Título del header del alert
  * @param {String} msgContent - Contenido del mensaje (se envuelve automáticamente con div fw-semibold si no contiene HTML)
  * @param {Array} keys - Claves para la tabla de mensajes
- * @param {Number} width - Ancho del alert
+ * @param {Number|null} width - Ancho opcional en píxeles; por defecto usa el ancho compacto compartido
  */
-export function generateAlert({messages = [], type = "warning", headerTitle = null, msgContent = null, keys = [], width = 500}) {
+export function generateAlert({messages = [], type = "warning", headerTitle = null, msgContent = null, keys = [], width = null} = {}) {
 
 	let tableAlertHtml = messages.length > 0 ? generateTableAlert({messages, type, keys}) : "";
 
@@ -713,15 +729,16 @@ export function generateAlert({messages = [], type = "warning", headerTitle = nu
 	return Swal.fire({...SWAL_INSTANT_TRANSITION,
                title             : headerTitle,
                icon              : type,
+               iconHtml          : type === "success" ? SUCCESS_MESSAGE_ICON : undefined,
+		       willOpen          : popup => setMessageWidth(popup, width),
 		       allowOutsideClick : false,
 		       allowEscapeKey    : false,
 		       html              : `${formattedMsgContent ?? ""} <div>${tableAlertHtml}</div>`,
-               width             : width,
                buttonsStyling    : false,
                confirmButtonText: "Entendido",
                customClass: {
                    container: "br-swal-backdrop",
-                   popup: `br-swal-alert br-swal-alert--${type}`,
+                   popup: `br-swal-alert br-swal-alert--message br-swal-alert--${type}`,
                    confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${type}`
                }});
 

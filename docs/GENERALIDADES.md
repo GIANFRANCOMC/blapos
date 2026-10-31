@@ -205,18 +205,30 @@ Las modales de System deben usar el patrón global:
 
 SweetAlert debe usarse para confirmaciones, errores, success y procesos globales. No introducir delays artificiales con `setTimeout`; si hay trabajo asíncrono, mostrar loader inmediatamente.
 
+Todos los SweetAlert de System y Guest llevan `allowEscapeKey: false`: pulsar Escape nunca debe descartarlos, ni siquiera cuando contienen formularios. Cerrar solo mediante la acción visible prevista (`Cancelar`, `X` o `Entendido`, según corresponda); los loaders se cierran desde el flujo que los inició. Aplicar esta regla también a llamadas directas a `Swal.fire`, no solo a los helpers compartidos.
+
 ### Confirmaciones SweetAlert
 
 En todos los submódulos, activos o no, las confirmaciones siguen el mismo patrón. `Alerts.confirmAction` es la opción preferida para acciones simples; si una confirmación requiere inputs o `preConfirm`, conservar esa lógica y aplicar la misma convención. El estilo global reside en `resources/css/System/br-branding/95-swal-confirmations.css` y se genera en `public/System/assets/css/br-branding.css` con `npm run build:css:system`.
 
 - No mostrar icono de question/warning ni centrar la cabecera. Título, descripción y campos se alinean a la izquierda. El color de peligro puede mantenerse en el botón de una acción destructiva, sin desplazar la jerarquía del texto.
-- El título enuncia la acción con verbo y sustantivo, en infinitivo y sin signos de interrogación: `Anular venta`, `Duplicar perfil`, `Cerrar sesión`. No usar `¿Deseas…?`, `Confirmar acción` ni títulos vagos.
+- El título formula una pregunta breve y específica con verbo en infinitivo y sustantivo, entre `¿` y `?`: `¿Anular venta?`, `¿Duplicar perfil?`, `¿Cerrar sesión?`. No usar `¿Deseas…?`, `Confirmar acción` ni títulos vagos. El texto del botón mantiene la acción en afirmativo, sin signos.
+- La cabecera y el pie usan el mismo gris muy tenue (`--br-neutral-panel`), mientras el cuerpo permanece blanco. Una línea separa cabecera y cuerpo; otra separa cuerpo y botones. Conservar esta estructura también cuando haya campos de entrada.
 - El cuerpo no repite el título ni vuelve a preguntar. Explica consecuencias, alcance, datos afectados, irreversibilidad o pasos que el usuario no conoce. Mantenerlo breve y concreto; si hay campos obligatorios, indicar para qué se solicitan.
 - Mostrar `Cancelar` a la izquierda y la acción principal a la derecha. El texto del botón repite la acción específica (`Anular venta`, no `Sí`, `Sí, anular` ni `Continuar`), con mayúscula solo al inicio salvo nombres propios. La acción debe ser visualmente preponderante.
-- Mantener la `X` visible arriba a la derecha con `showCloseButton: true` y `closeButtonAriaLabel: "Cerrar confirmación"`. La X y `Cancelar` descartan la operación; nunca ejecutan el cambio. No cerrar haciendo clic fuera si se están revisando consecuencias o completando campos.
+- Mantener la `X` visible arriba a la derecha con `showCloseButton: true` y `closeButtonAriaLabel: "Cerrar confirmación"`. Debe tener un área de clic de al menos `2rem`, sin fondo, con contraste suficiente y separación del título. La X y `Cancelar` descartan la operación; nunca ejecutan el cambio. No cerrar haciendo clic fuera si se están revisando consecuencias o completando campos.
 - Confirmaciones de descarga también siguen el patrón. Los mensajes de éxito, error y el loader no son decisiones de dos botones y conservan su presentación específica.
 
-Los mensajes informativos de SweetAlert conservan el color semántico de error, advertencia, éxito o información. El loader usa el logomark centrado y texto breve; no se trata como una confirmación.
+### Mensajes de estado SweetAlert
+
+Los mensajes de éxito, advertencia, información, error y pregunta usan `Alerts.showMessage` (texto plano) o `Alerts.generateAlert` (detalle tabular) y la clase visual `br-swal-alert--message`. Este patrón se aplica a todos los mensajes de un solo botón, no a las confirmaciones ni al loader.
+
+- Ancho predeterminado compacto de `25rem`; si el contenido requiere más espacio, pasar `width` en píxeles (por ejemplo, `width: 520`). El modal nunca debe exceder el viewport. No ampliar todos los mensajes por una excepción.
+- El texto visible, esté en `title` o en el cuerpo HTML, usa la misma escala tipográfica que el cuerpo de una confirmación: `calc(var(--br-font-size-label) + 0.075rem)`. Mantener esa equivalencia para éxito, advertencia, información, error y pregunta; la jerarquía se expresa con peso y espaciado, no con tamaños dispares.
+- Icono circular compacto, centrado y proporcionado al símbolo, con color semántico: verde para éxito, ámbar para advertencia, azul para información o pregunta y rojo para error. El éxito usa una marca SVG completa; no mezclar el círculo reducido con los trazos internos nativos de SweetAlert. Usar el icono común de `br-swal-alert--message`.
+- La entrada del icono es breve y sin saltos de layout; en éxito, la marca se dibuja tras aparecer el círculo. Desactivar toda esa animación con `prefers-reduced-motion: reduce`, dejando el icono completo visible de inmediato.
+- Título o mensaje breve y concreto; el cuerpo añade información útil y no repite el título. Mostrar una única respuesta principal (`Entendido`) y evitar duplicar el mismo resultado con un aviso en la página o un toastr.
+- Las confirmaciones conservan el patrón de dos botones descrito arriba, sin icono; el loader conserva su logomark y no usa estos iconos de estado.
 
 ## Cache e initParams
 

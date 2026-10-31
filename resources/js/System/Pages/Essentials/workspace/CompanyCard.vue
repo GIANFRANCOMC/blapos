@@ -1,11 +1,11 @@
 <template>
-    <section class="br-workspace__panel br-workspace__company" aria-labelledby="workspace-company-title">
+    <section class="br-workspace__panel br-workspace__company" :aria-labelledby="headingId">
         <div class="br-workspace__company-head">
             <span class="br-workspace__company-logo">
                 <img :src="company.logomark_url" :alt="`Isotipo de ${company.commercial_name || company.name}`">
             </span>
             <div class="br-workspace__company-identity">
-                <h2 id="workspace-company-title">{{ company.name }}</h2>
+                <h2 :id="headingId">{{ company.name }}</h2>
                 <p class="br-workspace__company-document">
                     <span class="visually-hidden">Tipo de documento:</span>
                     <span class="br-workspace__company-document-type">{{ company.document_type || 'Sin información' }}</span>
@@ -47,7 +47,8 @@ export default {
     name: "CompanyCard",
     components: {CopyButton},
     props: {
-        company: {type: Object, required: true}
+        company: {type: Object, required: true},
+        headingId: {type: String, default: "workspace-company-title"}
     },
     computed: {
         details() {

@@ -7,12 +7,18 @@ namespace App\Http\Controllers\System\Essentials;
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Essentials\Account\{UpdateAccountRequest};
 use App\Models\System\Organizations\User;
+use App\Services\System\Organizations\Companies\CompanyCardDataService;
 use App\Services\System\Essentials\{AccountService};
 use App\Services\System\Tenancy\TenantCompanyContext;
 use Illuminate\Contracts\View\{View};
 use Illuminate\Http\{JsonResponse, RedirectResponse, Request};
 
 final class AccountController extends BaseController {
+
+    public function __construct(
+        private readonly CompanyCardDataService $companyCardDataService
+    ) {
+    }
 
     public function index(Request $request): View|JsonResponse {
 
@@ -22,16 +28,12 @@ final class AccountController extends BaseController {
 
         }
 
-        $account = $this->getAuthUser()->loadMissing("role");
-        $company = app(TenantCompanyContext::class)->get()->loadMissing("identityDocumentType");
+        $account = $this->getAuthUser()->loadMissing("role", "identityDocumentType");
+        $company = app(TenantCompanyContext::class)->get();
 
         return response()->json([
             "account" => $this->accountData($account),
-            "company" => [
-                "name" => $company->legal_name ?: $company->commercial_name ?: "Empresa",
-                "document_type" => $company->identityDocumentType?->name,
-                "document_number" => $company->document_number,
-            ],
+            "company" => $this->companyCardDataService->forCompany($company),
         ]);
 
     }
@@ -45,7 +47,7 @@ final class AccountController extends BaseController {
             return response()->json([
                 "bool" => true,
                 "msg" => "Tus datos personales se actualizaron correctamente.",
-                "account" => $this->accountData($account->loadMissing("role")),
+                "account" => $this->accountData($account->loadMissing("role", "identityDocumentType")),
             ]);
 
         }
@@ -60,6 +62,8 @@ final class AccountController extends BaseController {
 
         return [
             "name" => $account->name,
+            "document_type" => $account->identityDocumentType?->code,
+            "document_number" => $account->document_number,
             "email" => $account->email,
             "phone_number" => $account->phone_number,
             "gender" => $account->gender,

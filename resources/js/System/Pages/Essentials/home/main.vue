@@ -155,12 +155,12 @@ const PAGE_CONFIG = {
     },
     confirmations: {
         add: {
-            title: "Agregar a favoritos",
+            title: "¿Agregar favorito?",
             message: "Se añadirá al menú de favoritos y podrás abrirlo rápidamente desde cualquier pantalla.",
             confirmText: "Agregar favorito"
         },
         remove: {
-            title: "Quitar de favoritos",
+            title: "¿Quitar favorito?",
             message: "Dejará de aparecer en favoritos, pero seguirá disponible en el menú principal.",
             confirmText: "Quitar favorito"
         },
@@ -450,6 +450,7 @@ export default {
                 : this.page.confirmations.remove;
 
             const result = await Swal.fire({
+                allowEscapeKey: false,
                 title: confirmation.title,
                 html: createConfirmationContent(section, subSection, confirmation),
                 icon: shouldFavorite ? "question" : "warning",

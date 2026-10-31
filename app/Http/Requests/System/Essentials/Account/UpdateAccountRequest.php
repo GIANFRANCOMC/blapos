@@ -12,7 +12,6 @@ final class UpdateAccountRequest extends FormRequest {
     protected function prepareForValidation(): void {
 
         $this->merge([
-            "name" => trim((string) $this->input("name")),
             "email" => strtolower(trim((string) $this->input("email"))),
             "phone_number" => $this->filled("phone_number")
                 ? trim((string) $this->input("phone_number"))
@@ -30,7 +29,6 @@ final class UpdateAccountRequest extends FormRequest {
     public function rules(): array {
 
         return [
-            "name" => ["required", "string", "max:100"],
             "email" => [
                 "required",
                 "email",
@@ -47,9 +45,8 @@ final class UpdateAccountRequest extends FormRequest {
     public function attributes(): array {
 
         return [
-            "name" => "nombre completo",
             "email" => "correo electrónico",
-            "phone_number" => "teléfono",
+            "phone_number" => "celular",
             "gender" => "género",
             "birthdate" => "fecha de nacimiento",
         ];

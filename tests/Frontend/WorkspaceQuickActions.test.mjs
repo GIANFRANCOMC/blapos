@@ -10,7 +10,7 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     const seeder = readFileSync(new URL("../../database/seeders/SystemNavigationSeeder.php", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/52-workspace.css", import.meta.url), "utf8");
 
-    assert.match(view, /br-workspace__section-eyebrow">Accesos rápidos<\/span>/);
+    assert.doesNotMatch(view, /Accesos rápidos|br-workspace__section-eyebrow/);
     assert.match(view, /¿Qué deseas hacer hoy, \{\{ firstName \}\}\?/);
     assert.match(view, /Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla/);
     assert.doesNotMatch(view, /br-workspace__hero|Buenos días/);
@@ -30,7 +30,6 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     assert.match(styles, /\.br-workspace__link-icon i\s*\{[^}]*font-size: 1\.55rem;/);
     assert.match(styles, /\.br-workspace__support-icon\s*\{[^}]*font-size: 2\.3rem;/);
     assert.match(styles, /#workspace-popular-title\s*\{[^}]*font-size: clamp\(1\.45rem, 1\.08rem \+ 1\.3vw, 2\.05rem\) !important;/);
-    assert.match(styles, /\.br-workspace__section-eyebrow\s*\{[^}]*text-transform: uppercase;/);
-    assert.match(styles, /\.br-workspace__section-eyebrow\s*\{[^}]*background: var\(--br-workspace-support-bg\);[^}]*color: var\(--br-workspace-support-link\);/);
+    assert.doesNotMatch(styles, /\.br-workspace__section-eyebrow\s*\{/);
 
 });

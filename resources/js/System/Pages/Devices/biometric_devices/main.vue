@@ -617,7 +617,8 @@ export default {
         async rotateCredentials(record) {
 
             const confirmation = await Swal.fire({
-                title: "Rotar credenciales",
+                allowEscapeKey: false,
+                title: "¿Rotar credenciales?",
                 text: "El dispositivo dejará de aceptar las credenciales anteriores. El nuevo secreto se mostrará una sola vez.",
                 icon: "warning",
                 showCancelButton: true,

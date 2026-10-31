@@ -62,7 +62,7 @@
 }
 
 #workspace-popular-title {
-    margin: 0.38rem 0 0;
+    margin: 0.55rem 0 0;
     color: var(--br-secondary);
     font-size: clamp(1.45rem, 1.08rem + 1.3vw, 2.05rem) !important;
     font-weight: 700;
@@ -72,19 +72,6 @@
 
 .br-workspace__section-heading {
     margin-bottom: 1rem;
-}
-
-.br-workspace__section-eyebrow {
-    display: inline-block;
-    padding: 0.22rem 0.62rem;
-    border-radius: 0.42rem;
-    background: var(--br-workspace-support-bg);
-    color: var(--br-workspace-support-link);
-    font-size: 0.67rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    line-height: 1.3;
-    text-transform: uppercase;
 }
 
 .br-workspace__section-heading p {

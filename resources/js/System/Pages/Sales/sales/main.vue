@@ -2810,7 +2810,8 @@ export default {
             }
 
             Swal.fire({
-                title: "Limpiar detalle de venta",
+                allowEscapeKey: false,
+                title: "¿Limpiar detalle de venta?",
                 text: "Se quitarán todos los ítems agregados antes de guardar la venta.",
                 icon: "warning",
                 allowOutsideClick: false,
@@ -2855,7 +2856,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    title: "Eliminar ítem de venta",
+                    allowEscapeKey: false,
+                    title: "¿Eliminar ítem de venta?",
                     html: `<span><b>${form?.name}</b> dejará de formar parte del detalle.</span>`,
                     icon: "warning",
                     allowOutsideClick: false,
@@ -2905,7 +2907,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    title: "Duplicar ítem de venta",
+                    allowEscapeKey: false,
+                    title: "¿Duplicar ítem de venta?",
                     html: `<span>Se agregará una copia de <b>${form?.name}</b> al detalle.</span>`,
                     icon: "question",
                     allowOutsideClick: false,

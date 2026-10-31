@@ -28,17 +28,10 @@
   gap: 0.36rem;
 }
 
-.br-workspace-skeleton__eyebrow {
-  width: 7.8rem;
-  height: 1.3rem;
-  border-radius: 0.42rem;
-  background: #deebfc;
-}
-
 .br-workspace-skeleton__title {
   width: min(88%, 30rem);
   height: clamp(1.8rem, 1.42rem + 1vw, 2.25rem);
-  margin-top: 0.05rem;
+  margin-top: 0.55rem;
 }
 
 .br-workspace-skeleton__subtitle {

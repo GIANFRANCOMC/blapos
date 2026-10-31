@@ -788,7 +788,7 @@ export default {
         async cancelQuotation(record) {
             const confirm = await window.Swal.fire({
                 icon: "warning",
-                title: "Anular cotización",
+                title: "¿Anular cotización?",
                 text: `La cotización ${record.reference} dejará de estar disponible para nuevas operaciones.`,
                 allowOutsideClick: false,
                 allowEscapeKey: false,

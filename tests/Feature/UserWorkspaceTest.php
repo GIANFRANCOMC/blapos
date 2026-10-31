@@ -391,6 +391,7 @@ final class UserWorkspaceTest extends TestCase {
 
         Auth::login($this->user);
         $originalRoleId = $this->user->role_id;
+        $originalName = $this->user->name;
 
         $response = $this->withoutMiddleware([
             \App\Http\Middleware\ResolveTenant::class,
@@ -413,7 +414,7 @@ final class UserWorkspaceTest extends TestCase {
 
         $this->user->refresh();
 
-        $this->assertSame("Administrador actualizado", $this->user->name);
+        $this->assertSame($originalName, $this->user->name);
         $this->assertSame("cuenta.actualizada@example.test", $this->user->email);
         $this->assertSame("999888777", $this->user->phone_number);
         $this->assertSame($originalRoleId, $this->user->role_id);

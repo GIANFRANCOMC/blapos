@@ -4,49 +4,6 @@
             <Breadcrumb :list="[{title: 'Inicio'}, {title: 'Mi cuenta', active: true}]"/>
         </div>
 
-        <header class="br-account-page__hero">
-            <div class="br-account-page__intro">
-                <h1 id="account-title">Mi cuenta</h1>
-                <p>Actualiza tus datos personales y la información de tu cuenta.</p>
-            </div>
-
-            <div v-if="loading && skeletonEnabled" class="br-account-page__identity br-account-skeleton__identity" aria-hidden="true">
-                <div class="br-account-page__identity-person">
-                    <span class="br-account-skeleton__line br-account-skeleton__avatar"></span>
-                    <span class="br-account-skeleton__identity-copy">
-                        <span class="br-account-skeleton__line br-account-skeleton__identity-name"></span>
-                        <span class="br-account-skeleton__line br-account-skeleton__identity-detail"></span>
-                    </span>
-                </div>
-                <div class="br-account-page__identity-company">
-                    <span class="br-account-skeleton__line br-account-skeleton__company-icon"></span>
-                    <span class="br-account-skeleton__identity-copy">
-                        <span class="br-account-skeleton__line br-account-skeleton__identity-name"></span>
-                        <span class="br-account-skeleton__line br-account-skeleton__identity-detail"></span>
-                    </span>
-                </div>
-            </div>
-            <div v-else-if="account" class="br-account-page__identity" aria-label="Tu usuario y empresa">
-                <div class="br-account-page__identity-person">
-                    <span class="br-account-page__avatar" aria-hidden="true">{{ userInitial }}</span>
-                    <div class="br-account-page__identity-text">
-                        <div class="br-account-page__name-line">
-                            <strong :title="account.name">{{ account.name }}</strong>
-                            <span v-if="account.role" class="br-account-page__role">{{ account.role }}</span>
-                        </div>
-                        <small :title="account.email">{{ account.email }}</small>
-                    </div>
-                </div>
-                <div class="br-account-page__identity-company">
-                    <span class="br-account-page__company-icon" aria-hidden="true"><i class="fa-solid fa-building"></i></span>
-                    <div class="br-account-page__identity-text">
-                        <strong :title="company.name">{{ company.name }}</strong>
-                        <small>{{ companyDocument }}</small>
-                    </div>
-                </div>
-            </div>
-        </header>
-
         <AccountSkeleton v-if="loading && skeletonEnabled"/>
         <div v-else-if="loading" class="br-account-page__loading" aria-hidden="true"></div>
         <div v-else-if="loadError" class="br-account-page__load-error" role="alert">
@@ -55,57 +12,59 @@
             <button type="button" class="br-btn br-btn-outline-secondary" @click="loadAccount">Reintentar</button>
         </div>
 
-        <template v-else>
-            <div v-if="notice" class="br-account-page__notice" role="status">
-                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                <span>{{ notice }}</span>
+        <div v-else class="br-account-page__layout">
+            <div class="br-account-page__main">
+                <header class="br-account-page__hero">
+                    <div class="br-account-page__intro">
+                        <h1 id="account-title">Mi cuenta</h1>
+                        <p>Actualiza tus datos personales y la información de tu cuenta.</p>
+                    </div>
+                </header>
+
+                <form class="br-account-page__panel" novalidate @submit.prevent="saveAccount">
+                    <div class="br-account-page__panel-head">
+                        <div>
+                            <h2>Datos personales</h2>
+                            <p>Actualiza tu información de contacto y otros datos personales.</p>
+                        </div>
+                    </div>
+
+                    <div class="br-account-page__fields">
+                        <div class="br-account-page__field">
+                            <InputBase v-model="form.email" input-type="email" title="Correo electrónico" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.email || []">
+                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span></template>
+                            </InputBase>
+                        </div>
+                        <div class="br-account-page__field">
+                            <InputText v-model="form.phone_number" title="Celular" :maxlength="15" placeholder="Sin información" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.phone_number || []">
+                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span></template>
+                            </InputText>
+                        </div>
+                        <div class="br-account-page__field">
+                            <InputSelect v-model="form.gender" title="Género" :options="genderOptions" default-option-label="Sin especificar" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.gender || []">
+                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-user" aria-hidden="true"></i></span></template>
+                            </InputSelect>
+                        </div>
+                        <div class="br-account-page__field">
+                            <InputDate v-model="form.birthdate" title="Fecha de nacimiento" :max="today" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.birthdate || []">
+                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span></template>
+                            </InputDate>
+                        </div>
+                    </div>
+
+                    <footer class="br-account-page__actions">
+                        <button type="submit" class="br-btn br-btn-primary" :disabled="saving || confirming">
+                            <span>{{ saving ? 'Guardando...' : 'Guardar cambios' }}</span>
+                        </button>
+                    </footer>
+                </form>
             </div>
 
-            <form class="br-account-page__panel" novalidate @submit.prevent="saveAccount">
-                <div class="br-account-page__panel-head">
-                    <span class="br-account-page__panel-icon" aria-hidden="true"><i class="fa-regular fa-user"></i></span>
-                    <div>
-                        <h2>Datos personales</h2>
-                        <p>Información con la que te identificas dentro de la empresa.</p>
-                    </div>
-                </div>
-
-                <div class="br-account-page__fields">
-                    <div class="br-account-page__field">
-                        <InputText v-model="form.name" title="Nombre completo" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.name || []">
-                            <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-user" aria-hidden="true"></i></span></template>
-                        </InputText>
-                    </div>
-                    <div class="br-account-page__field">
-                        <InputBase v-model="form.email" input-type="email" title="Correo electrónico" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.email || []">
-                            <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span></template>
-                        </InputBase>
-                    </div>
-                    <div class="br-account-page__field">
-                        <InputText v-model="form.phone_number" title="Teléfono" :maxlength="15" placeholder="Sin información" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.phone_number || []">
-                            <template #inputGroupPrepend><span class="input-group-text"><i class="fa-solid fa-phone" aria-hidden="true"></i></span></template>
-                        </InputText>
-                    </div>
-                    <div class="br-account-page__field">
-                        <InputSelect v-model="form.gender" title="Género" :options="genderOptions" default-option-label="Sin especificar" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.gender || []">
-                            <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-user" aria-hidden="true"></i></span></template>
-                        </InputSelect>
-                    </div>
-                    <div class="br-account-page__field">
-                        <InputDate v-model="form.birthdate" title="Fecha de nacimiento" :max="today" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.birthdate || []">
-                            <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span></template>
-                        </InputDate>
-                    </div>
-                </div>
-
-                <footer class="br-account-page__actions">
-                    <span>Los cambios se aplicarán a tu cuenta.</span>
-                    <button type="submit" class="br-btn br-btn-primary" :disabled="saving">
-                        <span>{{ saving ? 'Guardando...' : 'Guardar cambios' }}</span>
-                    </button>
-                </footer>
-            </form>
-        </template>
+            <aside class="br-account-page__aside" aria-label="Identidad de la empresa y del usuario">
+                <CompanyCard :company="company" heading-id="account-company-title"/>
+                <AccountUserCard :account="account"/>
+            </aside>
+        </div>
     </main>
 </template>
 
@@ -114,23 +73,25 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import AccountSkeleton from "./AccountSkeleton.vue";
+import AccountUserCard from "./AccountUserCard.vue";
+import CompanyCard from "../workspace/CompanyCard.vue";
 
-const emptyForm = () => ({name: "", email: "", phone_number: "", gender: "", birthdate: ""});
+const emptyForm = () => ({email: "", phone_number: "", gender: "", birthdate: ""});
 const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
-    components: {AccountSkeleton},
+    components: {AccountSkeleton, AccountUserCard, CompanyCard},
     data() {
         return {
             account: null,
-            company: {name: "", document_type: "", document_number: ""},
+            company: {},
             form: emptyForm(),
             errors: {},
             skeletonEnabled: initialLoad.skeleton,
             loading: true,
             saving: false,
+            confirming: false,
             loadError: "",
-            notice: "",
             genderOptions: [
                 {code: "male", label: "Masculino"},
                 {code: "female", label: "Femenino"},
@@ -139,12 +100,6 @@ export default {
         };
     },
     computed: {
-        userInitial() {
-            return Array.from((this.account?.name || "").trim())[0]?.toLocaleUpperCase("es") || "U";
-        },
-        companyDocument() {
-            return [this.company.document_type, this.company.document_number].filter(Boolean).join(" ") || "Sin documento registrado";
-        },
         today() {
             const now = new Date();
             const year = now.getFullYear();
@@ -182,7 +137,6 @@ export default {
         },
         fillForm(account) {
             this.form = {
-                name: account.name || "",
                 email: account.email || "",
                 phone_number: account.phone_number || "",
                 gender: account.gender || "",
@@ -190,11 +144,23 @@ export default {
             };
         },
         async saveAccount() {
-            if(this.saving) return;
+            if(this.saving || this.confirming) return;
+
+            this.confirming = true;
+            let confirmed = false;
+            try {
+                confirmed = await Alerts.confirmAction({
+                    title: "¿Guardar cambios de cuenta?",
+                    text: "Se guardarán los cambios de correo, celular, género y fecha de nacimiento. La identificación y el nombre permanecerán sin cambios.",
+                    confirmButtonText: "Guardar cambios"
+                });
+            } finally {
+                this.confirming = false;
+            }
+            if(!confirmed) return;
 
             this.saving = true;
             this.errors = {};
-            this.notice = "";
             const result = await Requests.patch({route: window.location.pathname, data: this.form});
             this.saving = false;
 
@@ -206,8 +172,10 @@ export default {
 
             this.account = result.data.account;
             this.fillForm(this.account);
-            this.notice = result.data.msg;
-            Alerts.toastrs({type: "success", subtitle: result.data.msg});
+            await Alerts.showMessage({
+                type: "success",
+                title: result.data.msg || "Cambios guardados"
+            });
         }
     }
 };

@@ -461,7 +461,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    title: "Anular venta",
+                    allowEscapeKey: false,
+                    title: "¿Anular venta?",
                     html: `<p class="mb-3">La venta <span class="fw-bold">${form?.serie_sequential ?? ""}</span> quedará anulada.</p>
                             <div class="br-sale-cancel-hint">
                                 <p class="br-sale-cancel-hint__body">

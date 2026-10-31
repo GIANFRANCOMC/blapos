@@ -1307,7 +1307,8 @@ export default {
             const self = this;
 
             const result = await Swal.fire({
-                title: "Solicitar corrección",
+                allowEscapeKey: false,
+                title: "¿Solicitar corrección?",
                 html: `<div class="text-start">
                            <p class="small text-muted mb-3">Indica las fechas correctas solo si deben cambiar. El motivo es obligatorio para auditoría.</p>
                            <div class="row g-2">
@@ -1781,7 +1782,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    title: "Quitar cliente escaneado",
+                    allowEscapeKey: false,
+                    title: "¿Quitar cliente escaneado?",
                     html: `<span><b>${form?.label}</b> se quitará de la lista de clientes escaneados.</span>`,
                     icon: "warning",
                     allowOutsideClick: false,
@@ -2081,7 +2083,8 @@ export default {
                 let el = this;
 
                 Swal.fire({
-                    title: "Anular asistencia",
+                    allowEscapeKey: false,
+                    title: "¿Anular asistencia?",
                     html: `<span class="d-block my-1">La asistencia de <b>${form?.customer?.label}</b> quedará anulada. Indica el motivo.</span>
                            <div class="form-group text-start mt-2">
                                 <label class="form-label colon-at-end">Motivo</label>

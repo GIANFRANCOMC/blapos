@@ -7,6 +7,7 @@ import InputSelect from "@System/Components/InputSelect.vue";
 import InputText from "@System/Components/InputText.vue";
 import "../../../../../css/System/Pages/Essentials/account/main.css";
 import "../../../../../css/System/Pages/Essentials/account/skeleton.css";
+import "../../../../../css/System/Pages/Essentials/workspace/skeleton.css";
 
 createApp(App)
     .component("Breadcrumb", Breadcrumb)

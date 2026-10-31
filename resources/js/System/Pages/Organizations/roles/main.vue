@@ -562,7 +562,7 @@ export default {
             if(!willDisable && !removesFullAccess) return true;
 
             const confirmation = await Swal.fire({
-                title: "Actualizar perfil asignado",
+                title: "¿Actualizar perfil asignado?",
                 html: `
                     <p>Este perfil está asignado a <strong>${affectedUsers}</strong> colaborador${affectedUsers === 1 ? "" : "es"} activo${affectedUsers === 1 ? "" : "s"}.</p>
                     <p class="mb-0">Sus accesos cambiarán de inmediato. El sistema impedirá el cambio si deja a la empresa sin administrador activo.</p>
@@ -593,7 +593,7 @@ export default {
             Alerts.tooltips({show: false});
 
             const confirmation = await Swal.fire({
-                title: "Duplicar perfil",
+                title: "¿Duplicar perfil?",
                 text: "Asigna un nombre para el nuevo perfil. Se copiarán sus permisos y alcances operativos.",
                 icon: "question",
                 input: "text",

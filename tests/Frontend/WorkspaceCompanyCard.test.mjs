@@ -8,11 +8,13 @@ test("la ficha de empresa usa el isotipo y organiza datos y contactos", () => {
     const card = readFileSync(new URL("../../resources/js/System/Pages/Essentials/workspace/CompanyCard.vue", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/52-workspace.css", import.meta.url), "utf8");
     const controller = readFileSync(new URL("../../app/Http/Controllers/System/Essentials/WorkspaceController.php", import.meta.url), "utf8");
+    const companyCardData = readFileSync(new URL("../../app/Services/System/Organizations/Companies/CompanyCardDataService.php", import.meta.url), "utf8");
     const resolver = readFileSync(new URL("../../app/Services/System/Organizations/Companies/CompanyLogomarkService.php", import.meta.url), "utf8");
 
     assert.match(view, /<CompanyCard :company="company"\/>/);
     assert.match(card, /<img :src="company\.logomark_url" :alt="`Isotipo de \$\{company\.commercial_name \|\| company\.name\}`">/);
-    assert.match(controller, /\$this->companyLogomarkService->url\(\$company->logomark\)/);
+    assert.match(controller, /\$this->companyCardDataService->forCompany\(\$company\)/);
+    assert.match(companyCardData, /\$this->logomarkService->url\(\$company->logomark\)/);
     assert.match(resolver, /assets->img->logomark/);
     assert.match(card, /label: "Correo electrónico"[^\n]*divider: true/);
     assert.match(card, /label: "WhatsApp"[^\n]*icon: "fa-brands fa-whatsapp"/);

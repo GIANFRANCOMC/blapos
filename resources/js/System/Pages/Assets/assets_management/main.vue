@@ -459,7 +459,8 @@ export default {
             let el = this;
 
             Swal.fire({
-                title: "Agregar activo a sucursal",
+                allowEscapeKey: false,
+                title: "¿Agregar activo a sucursal?",
                 html: `<span class="d-block mb-1">Indica la cantidad que quedará asignada a esta sucursal.</span>
                        <div class="d-flex justify-content-start align-items-center mt-3">
                             <div class="form-group text-start">
@@ -558,7 +559,8 @@ export default {
             let el = this;
 
             Swal.fire({
-                title: "Quitar activo de sucursal",
+                allowEscapeKey: false,
+                title: "¿Quitar activo de sucursal?",
                 text: "La asignación del activo a esta sucursal se retirará.",
                 icon: "question",
                 allowOutsideClick: false,
@@ -805,7 +807,8 @@ export default {
             let el = this;
 
             Swal.fire({
-                title: "Retirar asignación de activo",
+                allowEscapeKey: false,
+                title: "¿Retirar asignación de activo?",
                 text: "El activo dejará de figurar como asignado al colaborador.",
                 icon: "question",
                 allowOutsideClick: false,

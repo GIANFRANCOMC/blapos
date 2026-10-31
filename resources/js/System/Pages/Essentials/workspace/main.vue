@@ -21,7 +21,6 @@
                 <div class="br-workspace__main">
                     <section class="br-workspace__section" aria-labelledby="workspace-popular-title">
                         <div class="br-workspace__section-heading">
-                            <span class="br-workspace__section-eyebrow">Accesos rápidos</span>
                             <h1 id="workspace-popular-title">¿Qué deseas hacer hoy, {{ firstName }}?</h1>
                             <p>Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla.</p>
                         </div>

@@ -33,6 +33,7 @@ export function swals({show = true, type = "default", timeout = 0}) {
         }
 
         Swal.fire({
+            allowEscapeKey: false,
             html: `
                 <style>
                     @keyframes fadeInOutSwal {

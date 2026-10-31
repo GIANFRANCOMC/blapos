@@ -51,7 +51,8 @@ function confirmLogout() {
     }
 
     window.Swal.fire({
-        title: "Cerrar sesión",
+        allowEscapeKey: false,
+        title: "¿Cerrar sesión?",
         text: "Tendrás que volver a ingresar tus credenciales para continuar.",
         showCancelButton: true,
         showCloseButton: true,

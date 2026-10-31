@@ -10,7 +10,6 @@
             <div class="br-workspace__main">
                 <div class="br-workspace__section">
                     <div class="br-workspace__section-heading br-workspace-skeleton__heading">
-                        <span class="br-workspace-skeleton__line br-workspace-skeleton__eyebrow"></span>
                         <span class="br-workspace-skeleton__line br-workspace-skeleton__title"></span>
                         <span class="br-workspace-skeleton__line br-workspace-skeleton__subtitle"></span>
                     </div>
@@ -28,31 +27,7 @@
             </div>
 
             <aside class="br-workspace__aside">
-                <div class="br-workspace__panel br-workspace__company br-workspace-skeleton__company">
-                    <div class="br-workspace__company-head">
-                        <span class="br-workspace-skeleton__line br-workspace-skeleton__logo"></span>
-                        <span class="br-workspace-skeleton__company-head-copy">
-                            <span class="br-workspace-skeleton__line" style="width: 88%; height: 0.85rem"></span>
-                            <span class="br-workspace-skeleton__line" style="width: 67%; height: 0.65rem"></span>
-                        </span>
-                    </div>
-                    <div class="br-workspace__company-details">
-                        <div v-for="index in 3" :key="`full-${index}`" class="br-workspace__company-detail br-workspace__company-detail--full br-workspace-skeleton__detail">
-                            <span class="br-workspace-skeleton__line br-workspace-skeleton__detail-icon"></span>
-                            <span class="br-workspace-skeleton__detail-copy">
-                                <span class="br-workspace-skeleton__line br-workspace-skeleton__detail-label"></span>
-                                <span class="br-workspace-skeleton__line br-workspace-skeleton__detail-value"></span>
-                            </span>
-                        </div>
-                        <div v-for="index in 4" :key="`compact-${index}`" class="br-workspace__company-detail br-workspace__company-detail--compact br-workspace-skeleton__detail br-workspace-skeleton__detail--compact">
-                            <span class="br-workspace-skeleton__line br-workspace-skeleton__detail-icon"></span>
-                            <span class="br-workspace-skeleton__detail-copy">
-                                <span class="br-workspace-skeleton__line br-workspace-skeleton__detail-label"></span>
-                                <span class="br-workspace-skeleton__line br-workspace-skeleton__detail-value"></span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <CompanyCardSkeleton/>
             </aside>
         </div>
 
@@ -74,3 +49,11 @@
         </div>
     </div>
 </template>
+
+<script>
+import CompanyCardSkeleton from "./CompanyCardSkeleton.vue";
+
+export default {
+    components: {CompanyCardSkeleton}
+};
+</script>

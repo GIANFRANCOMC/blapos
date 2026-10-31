@@ -35,9 +35,9 @@ export function createTableActions(actions = []) {
  */
 export function confirmAction(message, onConfirm, onCancel = null) {
     Alerts.confirmAction({
-        title: "Realizar acción",
+        title: "¿Confirmar operación?",
         text: message,
-        confirmButtonText: "Realizar acción"
+        confirmButtonText: "Confirmar operación"
     }).then(confirmed => {
         if (confirmed && onConfirm) {
             onConfirm();

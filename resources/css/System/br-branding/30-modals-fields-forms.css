@@ -2,6 +2,11 @@
  * [br] Cabecera de modal — título centrado y franja (marca / contraste con el cuerpo)
  * Uso: <div class="modal-header br-modal-header">…</div> en cualquier módulo logueado.
  * ------------------------------------------------------------------------- */
+.modal {
+  --br-modal-surface: var(--br-white);
+  --br-modal-chrome-surface: var(--br-neutral-panel);
+}
+
 body.br-layout .modal-header.br-modal-header {
   position: relative;
   display: flex;

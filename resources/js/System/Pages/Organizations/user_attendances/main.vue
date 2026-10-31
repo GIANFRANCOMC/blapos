@@ -286,7 +286,8 @@ export default {
         },
         async startBreak(record) {
             const confirmation = await Swal.fire({
-                title: "Iniciar pausa",
+                allowEscapeKey: false,
+                title: "¿Iniciar pausa?",
                 text: "El tiempo de pausa se registrará en la asistencia de este colaborador.",
                 input: "text",
                 inputLabel: "Motivo",
@@ -325,7 +326,8 @@ export default {
         },
         async requestCorrection(record) {
             const confirmation = await Swal.fire({
-                title: "Solicitar corrección",
+                allowEscapeKey: false,
+                title: "¿Solicitar corrección?",
                 html: `
                     <p class="mb-2">Indica los horarios corregidos y el motivo. La corrección queda pendiente de revisión.</p>
                     <input id="brCorrectionIn" class="swal2-input" type="datetime-local" value="${this.datetimeInputValue(record.checked_in_at)}">
@@ -374,7 +376,8 @@ export default {
             if(!correction) return;
 
             const confirmation = await Swal.fire({
-                title: approve ? "Aprobar corrección" : "Rechazar corrección",
+                allowEscapeKey: false,
+                title: approve ? "¿Aprobar corrección?" : "¿Rechazar corrección?",
                 text: approve
                     ? "Los horarios aprobados sustituirán los registrados en la asistencia."
                     : "La solicitud no modificará la asistencia; indica el motivo del rechazo.",

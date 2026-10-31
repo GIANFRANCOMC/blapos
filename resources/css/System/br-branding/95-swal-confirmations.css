@@ -25,18 +25,22 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
 }
 
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-title {
-    margin: 0 !important;
-    padding-right: 2rem !important;
+    width: calc(100% + 2.5rem) !important;
+    margin: -1.25rem -1.25rem 0 !important;
+    padding: 1.2rem 3.25rem 1rem 1.25rem !important;
+    border-bottom: 1px solid var(--br-border);
+    border-radius: var(--br-radius, .5rem) var(--br-radius, .5rem) 0 0;
+    background: var(--br-neutral-panel);
     color: var(--br-secondary);
-    font-size: 1.125rem;
+    font-size: clamp(1.12rem, 1.05rem + 0.3vw, 1.24rem) !important;
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.28;
 }
 
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-html-container {
-    margin: .55rem 0 0 !important;
+    margin: .9rem 0 0 !important;
     color: var(--br-text);
-    font-size: .875rem;
+    font-size: calc(var(--br-font-size-label) + 0.075rem) !important;
     line-height: 1.5;
 }
 
@@ -67,13 +71,17 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
     display: flex !important;
     grid-column: 1 !important;
     justify-self: stretch !important;
+    box-sizing: border-box;
     justify-content: space-between !important;
     align-items: center;
     flex-wrap: wrap;
     gap: .5rem;
-    width: 100% !important;
-    margin: 1.2rem 0 0 !important;
-    padding: 0 !important;
+    width: calc(100% + 2.5rem) !important;
+    margin: 1.1rem -1.25rem -1.25rem !important;
+    padding: .7rem 1.25rem .8rem !important;
+    border-top: 1px solid var(--br-border);
+    border-radius: 0 0 var(--br-radius, .5rem) var(--br-radius, .5rem);
+    background: var(--br-neutral-panel);
 }
 
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-cancel,
@@ -89,9 +97,6 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-cancel {
     order: 0;
     margin-right: auto !important;
-    border: 1px solid var(--br-border) !important;
-    background: var(--br-white) !important;
-    color: var(--br-secondary) !important;
 }
 
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-confirm {
@@ -109,16 +114,26 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
 
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-close {
     position: absolute;
-    top: .65rem;
-    right: .65rem;
+    top: .45rem;
+    right: .45rem;
     width: 2rem;
     height: 2rem;
-    color: var(--br-text-muted);
-    font-size: 1.45rem;
+    margin: 0;
+    background: transparent !important;
+    color: var(--br-secondary);
+    font-size: 1.5rem !important;
+    font-weight: 600;
+    line-height: 1;
 }
 
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-close:is(:hover, :focus-visible) {
-    color: var(--br-secondary);
+    background: transparent !important;
+    color: var(--br-secondary-hover);
+}
+
+body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-close:focus-visible {
+    outline: 2px solid var(--br-primary);
+    outline-offset: 1px;
 }
 
 @media (max-width: 575.98px) {

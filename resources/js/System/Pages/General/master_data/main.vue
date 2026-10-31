@@ -531,7 +531,7 @@ export default {
             if(!willDeactivate) return true;
 
             const confirmation = await Swal.fire({
-                title: "Inactivar registro",
+                title: "¿Inactivar registro?",
                 icon: "warning",
                 html: `
                     <p class="mb-2"><strong>${this.recordTitle(this.form)}</strong> dejará de estar disponible para nuevas operaciones.</p>

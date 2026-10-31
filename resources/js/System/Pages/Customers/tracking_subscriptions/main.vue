@@ -426,7 +426,8 @@ export default {
             const self = this;
 
             Swal.fire({
-                title: "Agregar membresía manual",
+                allowEscapeKey: false,
+                title: "¿Agregar membresía manual?",
                 html: `<div class="text-start">
                            <p class="small text-muted mb-3">Registra una vigencia sin generar una venta. El sistema validará solapamientos según la política de la empresa.</p>
                            <div class="row g-2">
@@ -575,7 +576,8 @@ export default {
             const self = this;
 
             Swal.fire({
-                title: "Renovar membresía",
+                allowEscapeKey: false,
+                title: "¿Renovar membresía?",
                 html: `<div class="text-start">
                            <p class="small text-muted mb-3">Registra el nuevo rango de vigencia. Si se superpone con otra membresía activa, el sistema lo bloqueará.</p>
                            <div class="row g-2">
@@ -710,7 +712,8 @@ export default {
             const self = this;
 
             Swal.fire({
-                title: "Anular membresía",
+                allowEscapeKey: false,
+                title: "¿Anular membresía?",
                 html: `<span class="d-block my-1">La vigencia de <b>${form.customer?.name}</b> dejará de estar activa. Indica el motivo.</span>
                        <div class="form-group text-start mt-2">
                             <label class="form-label colon-at-end">Motivo</label>
