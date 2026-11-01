@@ -1010,7 +1010,7 @@
     ]
   },
   "resources/js/System/Pages/Essentials/account/main.js": {
-    "file": "assets/main-icw9fF9e.js",
+    "file": "assets/main-CpincceW.js",
     "name": "main",
     "src": "resources/js/System/Pages/Essentials/account/main.js",
     "isEntry": true,
@@ -1028,7 +1028,7 @@
       "_Clipboard-DbKZrh8S.js"
     ],
     "css": [
-      "assets/main-BN6Nzd20.css"
+      "assets/main-D3gltW8v.css"
     ]
   },
   "resources/js/System/Pages/Essentials/dashboard/main.js": {
@@ -1112,7 +1112,7 @@
     ]
   },
   "resources/js/System/Pages/Essentials/workspace/main.js": {
-    "file": "assets/main-sdcy5WtT.js",
+    "file": "assets/main-ye5AYK6n.js",
     "name": "main",
     "src": "resources/js/System/Pages/Essentials/workspace/main.js",
     "isEntry": true,

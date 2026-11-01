@@ -57,6 +57,23 @@
   height: 0.7rem;
 }
 
+.br-account-skeleton__company-logo {
+  flex: 0 0 3.7rem;
+  width: 3.7rem;
+  height: 3.7rem;
+  border-radius: 0.55rem;
+}
+
+.br-account-skeleton__company-name {
+  width: 78%;
+  height: 0.7rem;
+}
+
+.br-account-skeleton__company-document {
+  width: 62%;
+  height: 0.6rem;
+}
+
 .br-account-skeleton__heading-title {
   width: 8rem;
   height: 0.78rem;

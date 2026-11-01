@@ -1,6 +1,6 @@
 <template>
     <section class="br-workspace__panel br-workspace__company br-account-page__user-card" aria-labelledby="account-user-card-title">
-        <div class="br-workspace__company-head">
+        <div class="br-workspace__company-head br-account-page__user-head">
             <span class="br-navbar-user__avatar br-account-page__user-avatar" aria-hidden="true">{{ initials }}</span>
             <div class="br-workspace__company-identity">
                 <h2 id="account-user-card-title">{{ account.name || 'Usuario' }}</h2>
@@ -21,7 +21,6 @@
                     <dt class="colon-at-end">{{ detail.label }}</dt>
                     <dd :class="['br-workspace__company-value', {'is-empty': !detail.value}]">
                         <span class="br-workspace__company-text">{{ detail.value || 'Sin información' }}</span>
-                        <CopyButton v-if="detail.copyable && detail.value" :value="detail.value" :label="detail.label"/>
                     </dd>
                 </div>
             </div>
@@ -47,11 +46,14 @@ export default {
         documentType() {
             return this.account.document_type?.toUpperCase() || "Sin información";
         },
+        identification() {
+            return [this.account.document_type?.toUpperCase(), this.account.document_number]
+                .filter(Boolean).join(" ");
+        },
         details() {
             return [
                 {label: "Nombre completo", value: this.account.name, icon: "fa-regular fa-user", full: true},
-                {label: "Tipo de documento", value: this.account.document_type?.toUpperCase(), icon: "fa-regular fa-id-card"},
-                {label: "Número de documento", value: this.account.document_number, icon: "fa-regular fa-id-card", copyable: true},
+                {label: "Identificación", value: this.identification, icon: "fa-regular fa-id-card", full: true},
                 {label: "Perfil", value: this.account.role, icon: "fa-solid fa-user-shield", full: true}
             ];
         }

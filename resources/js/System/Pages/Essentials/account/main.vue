@@ -61,7 +61,7 @@
             </div>
 
             <aside class="br-account-page__aside" aria-label="Identidad de la empresa y del usuario">
-                <CompanyCard :company="company" heading-id="account-company-title"/>
+                <AccountCompanyCard :company="company"/>
                 <AccountUserCard :account="account"/>
             </aside>
         </div>
@@ -73,14 +73,14 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import AccountSkeleton from "./AccountSkeleton.vue";
+import AccountCompanyCard from "./AccountCompanyCard.vue";
 import AccountUserCard from "./AccountUserCard.vue";
-import CompanyCard from "../workspace/CompanyCard.vue";
 
 const emptyForm = () => ({email: "", phone_number: "", gender: "", birthdate: ""});
 const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
-    components: {AccountSkeleton, AccountUserCard, CompanyCard},
+    components: {AccountSkeleton, AccountCompanyCard, AccountUserCard},
     data() {
         return {
             account: null,
@@ -126,7 +126,7 @@ export default {
                 }
 
                 this.account = result.data.account;
-                this.company = result.data.company || this.company;
+                this.company = result.data.company || {};
                 this.fillForm(this.account);
             } catch(error) {
                 this.loadError = "No fue posible cargar los datos de tu cuenta.";

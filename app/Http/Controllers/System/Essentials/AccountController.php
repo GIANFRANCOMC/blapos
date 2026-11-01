@@ -7,20 +7,15 @@ namespace App\Http\Controllers\System\Essentials;
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Essentials\Account\{UpdateAccountRequest};
 use App\Models\System\Organizations\User;
-use App\Services\System\Organizations\Companies\CompanyCardDataService;
 use App\Services\System\Essentials\{AccountService};
+use App\Services\System\Organizations\Companies\CompanyLogomarkService;
 use App\Services\System\Tenancy\TenantCompanyContext;
 use Illuminate\Contracts\View\{View};
 use Illuminate\Http\{JsonResponse, RedirectResponse, Request};
 
 final class AccountController extends BaseController {
 
-    public function __construct(
-        private readonly CompanyCardDataService $companyCardDataService
-    ) {
-    }
-
-    public function index(Request $request): View|JsonResponse {
+    public function index(Request $request, CompanyLogomarkService $logomarkService): View|JsonResponse {
 
         if(!$request->expectsJson()) {
 
@@ -29,11 +24,15 @@ final class AccountController extends BaseController {
         }
 
         $account = $this->getAuthUser()->loadMissing("role", "identityDocumentType");
-        $company = app(TenantCompanyContext::class)->get();
-
+        $company = app(TenantCompanyContext::class)->get()->loadMissing("identityDocumentType");
         return response()->json([
             "account" => $this->accountData($account),
-            "company" => $this->companyCardDataService->forCompany($company),
+            "company" => [
+                "name" => $company->legal_name ?: $company->commercial_name ?: "Empresa",
+                "document_type" => $company->identityDocumentType?->name,
+                "document_number" => $company->document_number,
+                "logomark_url" => $logomarkService->url($company->logomark),
+            ],
         ]);
 
     }

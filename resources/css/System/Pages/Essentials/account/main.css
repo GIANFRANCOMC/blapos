@@ -62,6 +62,12 @@
   width: 100%;
 }
 
+.br-account-page__company-card,
+.br-account-page__company-card .br-workspace__company-head,
+.br-account-page__company-card .br-workspace__company-logo {
+  background: var(--br-white);
+}
+
 .br-account-page__user-avatar {
   flex: 0 0 3.25rem;
   width: 3.25rem;

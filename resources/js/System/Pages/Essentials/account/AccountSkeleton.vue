@@ -35,9 +35,17 @@
         </div>
 
         <aside class="br-account-page__aside" aria-hidden="true">
-            <CompanyCardSkeleton/>
-            <div class="br-workspace__panel br-workspace__company br-account-page__user-card">
+            <div class="br-workspace__panel br-workspace__company br-account-page__company-card">
                 <div class="br-workspace__company-head">
+                    <span class="br-account-skeleton__line br-account-skeleton__company-logo"></span>
+                    <span class="br-account-skeleton__identity-copy">
+                        <span class="br-account-skeleton__line br-account-skeleton__company-name"></span>
+                        <span class="br-account-skeleton__line br-account-skeleton__company-document"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="br-workspace__panel br-workspace__company br-account-page__user-card">
+                <div class="br-workspace__company-head br-account-page__user-head">
                     <span class="br-account-skeleton__line br-account-skeleton__avatar"></span>
                     <span class="br-account-skeleton__identity-copy">
                         <span class="br-account-skeleton__line br-account-skeleton__identity-name"></span>
@@ -45,7 +53,7 @@
                     </span>
                 </div>
                 <div class="br-workspace__company-details">
-                    <div v-for="index in 4" :key="`detail-${index}`" class="br-workspace__company-detail br-account-skeleton__detail">
+                    <div v-for="index in 3" :key="`detail-${index}`" class="br-workspace__company-detail br-workspace__company-detail--full br-account-skeleton__detail">
                         <span class="br-account-skeleton__line br-account-skeleton__detail-icon"></span>
                         <span class="br-account-skeleton__identity-copy">
                             <span class="br-account-skeleton__line br-account-skeleton__detail-label"></span>
@@ -57,11 +65,3 @@
         </aside>
     </div>
 </template>
-
-<script>
-import CompanyCardSkeleton from "../workspace/CompanyCardSkeleton.vue";
-
-export default {
-    components: {CompanyCardSkeleton}
-};
-</script>
