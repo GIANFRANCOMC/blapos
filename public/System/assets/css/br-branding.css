@@ -377,7 +377,7 @@ body.br-layout .table.table-sm > thead > tr > th {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.9rem;
   color: var(--br-text-muted);
 }
 
@@ -5721,7 +5721,7 @@ body.br-layout .form-check-input:disabled {
 
 .br-workspace__breadcrumb {
     justify-content: flex-end;
-    margin: 0 0 -0.45rem;
+    margin: 0;
 }
 
 .br-workspace__loading {
@@ -13199,6 +13199,12 @@ body.br-layout .br-entity-table > thead > tr > th {
     min-height: var(--br-control-height);
 }
 
+@media (min-width: 992px) {
+    .br-inventory__context-actions--stock {
+        justify-content: flex-end;
+    }
+}
+
 .br-inventory__warehouse {
     min-width: 0;
 }
@@ -13235,11 +13241,20 @@ body.br-layout .br-entity-table > thead > tr > th {
     table-layout: fixed;
 }
 
+.br-inventory__table--single-warehouse {
+    min-width: 46rem;
+}
+
 .br-inventory__col-product { width: 30%; }
 .br-inventory__col-current,
 .br-inventory__col-minimum { width: 14%; }
 .br-inventory__col-warehouses { width: 27%; }
 .br-inventory__col-status { width: 15%; }
+
+.br-inventory__table--single-warehouse .br-inventory__col-product { width: 40%; }
+.br-inventory__table--single-warehouse .br-inventory__col-current,
+.br-inventory__table--single-warehouse .br-inventory__col-minimum,
+.br-inventory__table--single-warehouse .br-inventory__col-status { width: 20%; }
 
 .br-inventory__table td:nth-child(2),
 .br-inventory__table td:nth-child(3) {
@@ -13277,12 +13292,12 @@ body.br-layout .br-entity-table > thead > tr > th {
     font-weight: 600;
 }
 
-.br-inventory__product-identifiers strong {
+.br-inventory__product-identifiers > span > span {
     color: var(--br-secondary);
     font-family: var(--br-font-sans);
     font-variant-numeric: tabular-nums;
     font-size: 0.67rem;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .br-inventory__product-name {
@@ -17312,62 +17327,6 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   white-space: nowrap;
 }
 
-/* --- [br-inventory] Alertas de stock --- */
-.br-inventory-alerts {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.85rem;
-  margin-bottom: 0.75rem;
-  padding: 0.68rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--br-warning) 30%, var(--br-border));
-  border-radius: var(--br-radius-md);
-  background: color-mix(in srgb, var(--br-warning-soft) 72%, var(--br-white));
-}
-
-.br-inventory-alerts__summary,
-.br-inventory-alerts__list,
-.br-inventory-alerts__item {
-  display: inline-flex;
-  align-items: center;
-}
-
-.br-inventory-alerts__summary {
-  gap: 0.45rem;
-  min-width: 0;
-  color: var(--br-secondary);
-}
-
-.br-inventory-alerts__summary i {
-  color: var(--br-warning-hover);
-}
-
-.br-inventory-alerts__summary span {
-  color: var(--br-text-muted);
-  font-size: 0.76rem;
-}
-
-.br-inventory-alerts__list {
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.br-inventory-alerts__item {
-  max-width: 11rem;
-  padding: 0.16rem 0.45rem;
-  border: 1px solid color-mix(in srgb, var(--br-warning) 24%, var(--br-border));
-  border-radius: 999px;
-  background: var(--br-white);
-  color: var(--br-secondary);
-  font-size: 0.72rem;
-  font-weight: 750;
-}
-
-.br-inventory-alerts__item.is-muted {
-  color: var(--br-text-muted);
-}
-
 /* --- [br-reports] Parametros y ayuda --- */
 .br-reports {
   display: grid;
@@ -17793,11 +17752,7 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   background: var(--br-white);
   color: var(--br-text-muted);
   font-size: 0.68rem;
-  font-weight: 650;
-}
-
-.br-inventory-warehouse-pill strong {
-  color: var(--br-secondary);
+  font-weight: 400;
 }
 
 .br-inventory-warehouse-pill.is-alert {
@@ -18294,22 +18249,12 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 }
 
 @media (max-width: 768px) {
-  .br-notification-detail,
-  .br-inventory-alerts {
+  .br-notification-detail {
     grid-template-columns: 1fr;
   }
 
   .br-customer-tracking-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .br-inventory-alerts {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .br-inventory-alerts__list {
-    justify-content: flex-start;
   }
 
   .br-supplier-related__header,

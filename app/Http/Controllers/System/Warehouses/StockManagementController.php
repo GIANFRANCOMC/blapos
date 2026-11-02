@@ -84,7 +84,8 @@ class StockManagementController extends BaseController {
         return StockManagementService::getPaginatedList(
             $warehouseId,
             $perPage,
-            (string) $request->input("product_search", "")
+            (string) $request->input("product_search", ""),
+            (string) $request->input("situation", "")
         );
 
     }
@@ -101,7 +102,8 @@ class StockManagementController extends BaseController {
             "data" => StockManagementService::getPaginatedConsolidatedStock(
                 (string) $request->input("product_search", ""),
                 $allowedWarehouseIds,
-                $this->inventoryPerPage($request)
+                $this->inventoryPerPage($request),
+                (string) $request->input("situation", "")
             ),
         ]);
 
@@ -346,6 +348,7 @@ class StockManagementController extends BaseController {
             "movement_type",
             "origin_types",
             "product_search",
+            "situation",
             "guide_type",
             "date_from",
             "date_to",

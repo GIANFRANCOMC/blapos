@@ -29,28 +29,38 @@ class StockManagementService {
     public static function getPaginatedList(
         int $warehouseId,
         int $perPage,
-        string $search = ""
+        string $search = "",
+        string $situation = ""
     ) {
 
-        return self::stockQuery($warehouseId, $search)->paginate($perPage);
+        return self::applySituationFilter(self::stockQuery($warehouseId, $search), $situation, $warehouseId)
+            ->paginate($perPage);
 
     }
 
     public static function getStockReport(
         int $warehouseId,
-        string $search = ""
+        string $search = "",
+        string $situation = ""
     ): Collection {
 
-        return self::stockQuery($warehouseId, $search)->get();
+        return self::applySituationFilter(self::stockQuery($warehouseId, $search), $situation, $warehouseId)
+            ->get();
 
     }
 
     public static function getConsolidatedStock(
         string $search = "",
-        ?array $allowedWarehouseIds = null
+        ?array $allowedWarehouseIds = null,
+        string $situation = ""
     ): Collection {
 
-        return self::consolidatedStockQuery($search, $allowedWarehouseIds)
+        return self::applySituationFilter(
+            self::consolidatedStockQuery($search, $allowedWarehouseIds),
+            $situation,
+            null,
+            $allowedWarehouseIds
+        )
             ->get()
             ->map(fn(Item $item) => self::enrichConsolidatedStock($item));
 
@@ -59,10 +69,16 @@ class StockManagementService {
     public static function getPaginatedConsolidatedStock(
         string $search,
         ?array $allowedWarehouseIds,
-        int $perPage
+        int $perPage,
+        string $situation = ""
     ) {
 
-        return self::consolidatedStockQuery($search, $allowedWarehouseIds)
+        return self::applySituationFilter(
+            self::consolidatedStockQuery($search, $allowedWarehouseIds),
+            $situation,
+            null,
+            $allowedWarehouseIds
+        )
             ->paginate($perPage)
             ->through(fn(Item $item) => self::enrichConsolidatedStock($item));
 
@@ -165,6 +181,48 @@ class StockManagementService {
         }
 
         return $query->orderBy("name");
+
+    }
+
+    private static function applySituationFilter(
+        Builder $query,
+        string $situation,
+        ?int $warehouseId,
+        ?array $allowedWarehouseIds = null
+    ): Builder {
+
+        if(!in_array($situation, ["empty", "low", "healthy"], true)) {
+
+            return $query;
+
+        }
+
+        $warehouseScope = $warehouseId !== null
+            ? " AND wi.warehouse_id = ".(int) $warehouseId
+            : "";
+
+        if($warehouseId === null && $allowedWarehouseIds !== null) {
+
+            $ids = array_values(array_filter(array_map("intval", $allowedWarehouseIds), fn(int $id) => $id > 0));
+
+            if($ids === []) {
+
+                return $situation === "empty" ? $query : $query->whereRaw("1 = 0");
+
+            }
+
+            $warehouseScope = " AND wi.warehouse_id IN (".implode(",", $ids).")";
+
+        }
+
+        $stock = "(SELECT COALESCE(SUM(wi.quantity), 0) FROM warehouse_items wi WHERE wi.item_id = items.id{$warehouseScope})";
+        $minimum = "(SELECT COALESCE(SUM(wi.minimum_stock), 0) FROM warehouse_items wi WHERE wi.item_id = items.id{$warehouseScope})";
+
+        return match($situation) {
+            "empty" => $query->whereRaw("{$stock} <= 0"),
+            "low" => $query->whereRaw("{$stock} > 0 AND {$stock} <= {$minimum}"),
+            "healthy" => $query->whereRaw("{$stock} > 0 AND {$stock} > {$minimum}"),
+        };
 
     }
 

@@ -11,7 +11,7 @@
 
 .br-workspace__breadcrumb {
     justify-content: flex-end;
-    margin: 0 0 -0.45rem;
+    margin: 0;
 }
 
 .br-workspace__loading {

@@ -255,19 +255,20 @@ test("operation and transfer dialogs choose their own warehouses without changin
 
 });
 
-test("stock keeps the warehouses column for both consolidated and selected-warehouse views", () => {
+test("stock shows the warehouses column only in the consolidated view", () => {
 
     const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const stock = read(`${inventoryPath}stock.vue`);
 
-    assert.match(stock, /<col class="br-inventory__col-warehouses">/);
-    assert.match(stock, /<th>Almacenes<\/th>/);
+    assert.match(stock, /<col v-if="isConsolidatedStock" class="br-inventory__col-warehouses">/);
+    assert.match(stock, /<th v-if="isConsolidatedStock">Almacenes<\/th>/);
+    assert.match(stock, /<td v-if="isConsolidatedStock">\s*<div class="br-inventory-warehouses">/);
     assert.match(stock, /v-for="warehouse in stockWarehouseBreakdown\(record\)\.slice\(0, 3\)"/);
-    assert.equal((stock.match(/colspan="5"/g) || []).length, 2);
-    assert.doesNotMatch(stock, /<th v-if="isConsolidatedStock">Almacenes<\/th>|<td v-if="isConsolidatedStock">/);
+    assert.equal((stock.match(/:colspan="isConsolidatedStock \? 5 : 4"/g) || []).length, 2);
     assert.match(component, /stockWarehouseBreakdown\(record\) \{[\s\S]*?if\(this\.isConsolidatedStock\) return record\.warehouse_breakdown \|\| \[\];[\s\S]*?warehouse_name: warehouse\.warehouseName/);
     assert.match(inventoryCss, /\.br-inventory__col-warehouses \{ width: 27%; \}/);
+    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \{\s*min-width: 46rem;/);
 
 });
 
@@ -312,24 +313,32 @@ test("inventory filters remain outside the white table surface", () => {
     assert.doesNotMatch(cardCss + polishCss, /\.br-inventory__content|\.br-inventory__panel/);
     assert.match(inventoryCss, /\.br-inventory__context \{[\s\S]*?padding: 0\.15rem 0 0\.25rem;/);
     assert.doesNotMatch(component, /br-inventory__kardex-filters/);
-    assert.match(component, /class="br-filter-bar__actions br-inventory__context-actions"/);
-    assert.doesNotMatch(inventoryCss, /br-inventory__context-actions--report|justify-content: flex-end/);
+    assert.match(component, /'br-filter-bar__actions', 'br-inventory__context-actions'/);
+    assert.doesNotMatch(inventoryCss, /br-inventory__context-actions--report/);
+    assert.match(inventoryCss, /\.br-inventory__context-actions--stock \{\s*justify-content: flex-end;/);
     assert.match(inventoryCss, /\.br-inventory-transfer \{[\s\S]*?background: transparent;/);
 
 });
 
-test("stock and inventory reports keep filters and actions in a single desktop row", () => {
+test("stock gives more width to its filters and moves actions to a full row", () => {
 
     const component = readInventory();
     const stockFilters = component.slice(
         component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
     );
-    assert.match(stockFilters, /v-if="\['stock', 'transfers'\]\.includes\(activeView\)"[\s\S]*?ref="productSearch"[\s\S]*?xl="3"\s+lg="3"/);
+    assert.match(stockFilters, /col-lg-4 col-xl-4 br-inventory__warehouse/);
+    assert.match(stockFilters, /:xl="activeView === 'stock' \? 5 : 3"\s+:lg="activeView === 'stock' \? 5 : 3"/);
+    assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3"[\s\S]*?for="stockSituation"/);
     assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?contextActionColumns[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>/);
+    assert.match(stockFilters, /<span>Buscar<\/span>[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Acciones<\/span>[\s\S]*?<span>Ver alertas<\/span>/);
+    assert.doesNotMatch(component, /br-inventory__alerts-action/);
+    assert.match(component, /<strong class="br-inventory__product-name">\{\{ record\.name \}\}<\/strong>/);
+    assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
     assert.match(component, /isReportView\(\) \{[\s\S]*?"kardex", "valued", "guides"/);
     assert.match(component, /if\(this\.isReportView\) return "col-12 col-md-6 col-lg-3 col-xl-3";/);
-    assert.match(component, /if\(\["stock", "transfers"\]\.includes\(this\.activeView\)\) return "col-12 col-lg-6 col-xl-6";/);
+    assert.match(component, /if\(this\.activeView === "stock"\) return "col-12";/);
+    assert.match(component, /if\(this\.activeView === "transfers"\) return "col-12 col-lg-6 col-xl-6";/);
     assert.equal((stockFilters.match(/class="col-12 col-md-6 col-lg-2 col-xl-2"/g) || []).length, 4);
 
 });
@@ -372,7 +381,7 @@ test("inventory blocks filters and actions while searching", () => {
     assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create"[\s\S]*?:disabled="isCurrentViewLoading"/);
     assert.match(toolbar, /class="br-btn br-btn-sm br-btn-actions"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /class="dropdown-item" :disabled="isCurrentViewLoading \|\| exporting/);
-    assert.match(component, /isCurrentViewLoading\(\) \{\s*if\(this\.activeView === "stock"\) return this\.loadingStock \|\| this\.loadingAlerts;/);
+    assert.match(component, /isCurrentViewLoading\(\) \{\s*if\(this\.activeView === "stock"\) return this\.loadingStock;/);
     assert.match(component, /async handleProductSearch\(\) \{\s*if\(this\.isCurrentViewLoading\) return;/);
     assert.match(component, /async exportCurrentView\(\) \{\s*if\(!this\.filters\.warehouse\?\.code \|\| this\.exporting \|\| this\.isCurrentViewLoading\) return;/);
 

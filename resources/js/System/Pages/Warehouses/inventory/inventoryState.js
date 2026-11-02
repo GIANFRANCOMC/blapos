@@ -8,6 +8,7 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
 import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
 import InventorySkeleton from "./InventorySkeleton.vue";
+import StockAlertsModal from "./StockAlertsModal.vue";
 
 const initialLoad = createInitialLoad({skeleton: true});
 
@@ -40,6 +41,13 @@ const GUIDE_TYPES = [
     {code: "exit", label: "Salida"}
 ];
 
+const STOCK_SITUATIONS = [
+    {code: "", label: "Todas las situaciones"},
+    {code: "empty", label: "Sin existencias"},
+    {code: "low", label: "Stock bajo"},
+    {code: "healthy", label: "Stock saludable"}
+];
+
 const INVENTORY_OPERATIONS = [
     {code: "manual_entry", label: "Entrada manual", amountLabel: "Cantidad de entrada", movementType: "entry", originType: "manual", description: "Suma las unidades indicadas."},
     {code: "manual_exit", label: "Salida manual", amountLabel: "Cantidad de salida", movementType: "exit", originType: "manual", description: "Resta las unidades indicadas."},
@@ -60,7 +68,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton},
+    components: {ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal},
     props: {
         page: {
             type: String,
@@ -94,6 +102,7 @@ export default {
             loadingStock: false,
             loadingKardex: false,
             loadingAlerts: false,
+            stockAlertsError: "",
             loadingGuides: false,
             warehouseSearchEnabled: false,
             requestVersion: 0,
@@ -113,6 +122,7 @@ export default {
             filters: {
                 warehouse: null,
                 productSearch: "",
+                stockSituation: STOCK_SITUATIONS[0],
                 movementType: MOVEMENT_TYPES[0],
                 guideType: GUIDE_TYPES[0],
                 dateFrom: "",
@@ -176,6 +186,7 @@ export default {
             const warehouseId = this.filters.warehouse.code;
             const isConsolidated = warehouseId === "all";
             const productSearch = this.filters.productSearch;
+            const situation = this.filters.stockSituation?.code || "";
 
             this.loadingStock = true;
 
@@ -186,7 +197,8 @@ export default {
                 }),
                 data: {
                     warehouse_id: warehouseId,
-                    product_search: productSearch
+                    product_search: productSearch,
+                    situation
                 }
             });
 
@@ -196,28 +208,31 @@ export default {
                 ? (result?.data?.data || {total: 0, data: []})
                 : (result?.data || {total: 0, data: []});
             this.loadingStock = false;
-
-            if(isConsolidated) {
-                this.stockAlerts = {total: 0, data: []};
-            }else {
-                const alertsRequest = this.listStockAlerts({warehouseId, requestVersion});
-                if(this.initialLoading) await alertsRequest;
-            }
         },
-        async listStockAlerts({warehouseId, requestVersion}) {
+        async listStockAlerts({url = null} = {}) {
+            const warehouseId = this.filters.warehouse?.code;
+            if(!warehouseId || warehouseId === "all" || this.loadingAlerts) return;
+
+            const requestVersion = this.requestVersion;
             this.loadingAlerts = true;
+            this.stockAlertsError = "";
+            this.stockAlerts = {total: 0, data: []};
 
             const result = await Requests.get({
-                route: Requests.config({entity: "stocks_management", type: "alerts"}),
+                route: url || Requests.config({entity: "stocks_management", type: "alerts"}),
                 data: {
                     warehouse_id: warehouseId,
                     status: "open"
                 }
             });
 
-            if(requestVersion !== this.requestVersion) return;
+            if(requestVersion !== this.requestVersion || warehouseId !== this.filters.warehouse?.code) return;
 
-            this.stockAlerts = result?.data || {total: 0, data: []};
+            if(result.bool) {
+                this.stockAlerts = result.data;
+            }else {
+                this.stockAlertsError = result.data?.msg || "No fue posible cargar las alertas de stock.";
+            }
             this.loadingAlerts = false;
         },
         async listKardex({url = null} = {}) {
@@ -296,6 +311,7 @@ export default {
             this.loadingStock = false;
             this.loadingKardex = false;
             this.loadingAlerts = false;
+            this.stockAlertsError = "";
             this.loadingGuides = false;
             this.scannedProductId = null;
             this.stockRecords = {total: 0, data: []};
@@ -325,6 +341,10 @@ export default {
 
             if(this.activeView === "guides") {
                 filters.guide_type = this.filters.guideType?.code || "";
+            }
+
+            if(this.activeView === "stock") {
+                filters.situation = this.filters.stockSituation?.code || "";
             }
 
             return filters;
@@ -783,9 +803,6 @@ export default {
         firstError(error) {
             return Array.isArray(error) ? error[0] : error;
         },
-        alertProductName(alert) {
-            return alert?.warehouse_item?.item?.name || "Producto sin nombre";
-        },
         separatorNumber(value) {
             return Utils.separatorNumber(value || 0);
         }
@@ -801,7 +818,8 @@ export default {
             return ["kardex", "valued", "guides"].includes(this.activeView);
         },
         contextActionColumns() {
-            if(["stock", "transfers"].includes(this.activeView)) return "col-12 col-lg-6 col-xl-6";
+            if(this.activeView === "stock") return "col-12";
+            if(this.activeView === "transfers") return "col-12 col-lg-6 col-xl-6";
             if(this.isReportView) return "col-12 col-md-6 col-lg-3 col-xl-3";
 
             return "col-12 col-md-6 col-lg-9 col-xl-9";
@@ -841,6 +859,9 @@ export default {
         movementTypes() {
             return MOVEMENT_TYPES;
         },
+        stockSituations() {
+            return STOCK_SITUATIONS;
+        },
         guideTypes() {
             return GUIDE_TYPES;
         },
@@ -872,11 +893,8 @@ export default {
 
             return this.kardexRecords;
         },
-        openStockAlerts() {
-            return this.stockAlerts?.data || [];
-        },
         isCurrentViewLoading() {
-            if(this.activeView === "stock") return this.loadingStock || this.loadingAlerts;
+            if(this.activeView === "stock") return this.loadingStock;
             if(this.activeView === "guides") return this.loadingGuides;
 
             return this.loadingKardex;
@@ -926,6 +944,10 @@ export default {
         },
         "filters.productSearch"() {
             this.invalidateListing();
+        },
+        "filters.stockSituation"() {
+            this.invalidateListing();
+            if(this.warehouseSearchEnabled && this.filters.warehouse?.code) this.listStock({});
         },
         "filters.movementType"() {
             this.invalidateListing();

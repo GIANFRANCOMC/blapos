@@ -5,7 +5,7 @@
 
     <section v-else class="br-inventory">
         <div class="row align-items-end g-2 br-inventory__context">
-            <div class="col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse">
+            <div :class="activeView === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4 br-inventory__warehouse' : 'col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse'">
                 <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
                 <WarehouseSelect
                     id="inventoryWarehouse"
@@ -25,11 +25,23 @@
                 placeholder="Buscar o escanear producto"
                 :inputClass="['form-control']"
                 :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                xl="3"
-                lg="3"
+                :xl="activeView === 'stock' ? 5 : 3"
+                :lg="activeView === 'stock' ? 5 : 3"
                 md="6"
                 @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
                 @clear="clearProductSearch"/>
+
+            <div v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3">
+                <label for="stockSituation" class="form-label">Situación</label>
+                <v-select
+                    id="stockSituation"
+                    v-model="filters.stockSituation"
+                    :options="stockSituations"
+                    :class="config.forms.classes.select2"
+                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                    :clearable="false"
+                    :searchable="false"/>
+            </div>
 
             <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
                 <label for="movementType" class="form-label">Movimiento</label>
@@ -67,7 +79,7 @@
             </template>
 
             <div :class="contextActionColumns">
-                <div class="br-filter-bar__actions br-inventory__context-actions">
+                <div :class="['br-filter-bar__actions', 'br-inventory__context-actions', {'br-inventory__context-actions--stock': activeView === 'stock'}]">
                     <button
                         type="button"
                         class="br-btn br-btn-sm br-btn-search"
@@ -114,42 +126,31 @@
                             </button>
                         </li>
                     </ul>
+                    <button
+                        v-if="activeView === 'stock'"
+                        type="button"
+                        class="br-btn br-btn-sm br-btn-cancel"
+                        :disabled="!filters.warehouse?.code || isConsolidatedStock || loadingStock"
+                        data-bs-toggle="modal"
+                        data-bs-target="#inventoryStockAlertsModal"
+                        @click="listStockAlerts({})">
+                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                        <span>Ver alertas</span>
+                    </button>
                 </div>
             </div>
         </div>
 
         <div class="br-inventory__workspace">
             <section class="br-inventory__content">
-                 <section
-                    v-if="openStockAlerts.length"
-                    class="br-inventory-alerts"
-                    aria-label="Alertas de stock">
-                    <div class="br-inventory-alerts__summary">
-                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                        <strong>{{ openStockAlerts.length }} alerta{{ openStockAlerts.length === 1 ? "" : "s" }} de stock</strong>
-                        <span>Productos en mínimo o sin existencias dentro del almacén seleccionado.</span>
-                    </div>
-                    <div class="br-inventory-alerts__list">
-                        <span
-                            v-for="alert in openStockAlerts.slice(0, 4)"
-                            :key="alert.id"
-                            class="br-inventory-alerts__item">
-                            {{ alertProductName(alert) }}
-                        </span>
-                        <span v-if="openStockAlerts.length > 4" class="br-inventory-alerts__item is-muted">
-                            +{{ openStockAlerts.length - 4 }} más
-                        </span>
-                    </div>
-                </section>
-
                 <section class="br-entity-list" aria-label="Control de stock">
                     <div class="table-responsive">
-                        <table class="table br-entity-table br-inventory__table mb-0">
+                        <table :class="['table', 'br-entity-table', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': !isConsolidatedStock}]">
                             <colgroup>
                                 <col class="br-inventory__col-product">
                                 <col class="br-inventory__col-current">
                                 <col class="br-inventory__col-minimum">
-                                <col class="br-inventory__col-warehouses">
+                                <col v-if="isConsolidatedStock" class="br-inventory__col-warehouses">
                                 <col class="br-inventory__col-status">
                             </colgroup>
                             <thead class="br-table-header-surface">
@@ -157,13 +158,13 @@
                                     <th>Producto</th>
                                     <th class="text-end">Stock actual</th>
                                     <th class="text-end">Stock mínimo</th>
-                                    <th>Almacenes</th>
+                                    <th v-if="isConsolidatedStock">Almacenes</th>
                                     <th>Situación</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-if="loadingStock">
-                                    <td colspan="5" class="py-4"><Loader/></td>
+                                    <td :colspan="isConsolidatedStock ? 5 : 4" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="stockRecords.total > 0">
                                     <tr
@@ -175,24 +176,24 @@
                                             <span class="br-inventory__product-identifiers">
                                                 <span>
                                                     <small>Cód. interno</small>
-                                                    <strong>{{ record.internal_code }}</strong>
+                                                    <span>{{ record.internal_code }}</span>
                                                 </span>
                                                 <span v-if="record.barcode">
                                                     <small>Cód. barras</small>
-                                                    <strong>{{ record.barcode }}</strong>
+                                                    <span>{{ record.barcode }}</span>
                                                 </span>
                                             </span>
                                         </td>
-                                        <td class="text-end"><strong>{{ quantityWithUnit(record.stock_quantity, record) }}</strong></td>
+                                        <td class="text-end">{{ quantityWithUnit(record.stock_quantity, record) }}</td>
                                         <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
-                                        <td>
+                                        <td v-if="isConsolidatedStock">
                                             <div class="br-inventory-warehouses">
                                                 <span
                                                     v-for="warehouse in stockWarehouseBreakdown(record).slice(0, 3)"
                                                     :key="`${record.id}-${warehouse.warehouse_id}`"
                                                     :class="['br-inventory-warehouse-pill', {'is-alert': warehouse.requires_attention}]">
                                                     {{ warehouse.branch_name }} - {{ warehouse.warehouse_name }}:
-                                                    <strong>{{ quantityWithUnit(warehouse.quantity, record) }}</strong>
+                                                    {{ quantityWithUnit(warehouse.quantity, record) }}
                                                 </span>
                                                 <span v-if="stockWarehouseBreakdown(record).length > 3" class="br-inventory-warehouse-pill is-muted">
                                                     +{{ stockWarehouseBreakdown(record).length - 3 }} más
@@ -208,7 +209,7 @@
                                     </tr>
                                 </template>
                                 <tr v-else>
-                                    <td colspan="5" class="py-4">
+                                    <td :colspan="isConsolidatedStock ? 5 : 4" class="py-4">
                                         <WithoutData
                                             class="br-entity-empty-state"
                                             type="image"/>
@@ -228,6 +229,13 @@
             </nav>
         </div>
     </section>
+    <StockAlertsModal
+        :alerts="stockAlerts"
+        :warehouse-name="filters.warehouse?.label || ''"
+        :loading="loadingAlerts"
+        :error="stockAlertsError"
+        @page="listStockAlerts"
+        @retry="listStockAlerts({})"/>
     <div
         
         id="inventoryMovementModal"

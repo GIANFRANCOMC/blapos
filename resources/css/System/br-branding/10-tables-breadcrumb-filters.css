@@ -51,7 +51,7 @@ body.br-layout .table.table-sm > thead > tr > th {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.9rem;
   color: var(--br-text-muted);
 }
 

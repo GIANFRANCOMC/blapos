@@ -14,6 +14,12 @@
     min-height: var(--br-control-height);
 }
 
+@media (min-width: 992px) {
+    .br-inventory__context-actions--stock {
+        justify-content: flex-end;
+    }
+}
+
 .br-inventory__warehouse {
     min-width: 0;
 }
@@ -50,11 +56,20 @@
     table-layout: fixed;
 }
 
+.br-inventory__table--single-warehouse {
+    min-width: 46rem;
+}
+
 .br-inventory__col-product { width: 30%; }
 .br-inventory__col-current,
 .br-inventory__col-minimum { width: 14%; }
 .br-inventory__col-warehouses { width: 27%; }
 .br-inventory__col-status { width: 15%; }
+
+.br-inventory__table--single-warehouse .br-inventory__col-product { width: 40%; }
+.br-inventory__table--single-warehouse .br-inventory__col-current,
+.br-inventory__table--single-warehouse .br-inventory__col-minimum,
+.br-inventory__table--single-warehouse .br-inventory__col-status { width: 20%; }
 
 .br-inventory__table td:nth-child(2),
 .br-inventory__table td:nth-child(3) {
@@ -92,12 +107,12 @@
     font-weight: 600;
 }
 
-.br-inventory__product-identifiers strong {
+.br-inventory__product-identifiers > span > span {
     color: var(--br-secondary);
     font-family: var(--br-font-sans);
     font-variant-numeric: tabular-nums;
     font-size: 0.67rem;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .br-inventory__product-name {

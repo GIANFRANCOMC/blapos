@@ -3,11 +3,15 @@
         <span class="visually-hidden">Cargando {{ viewLabel }}</span>
 
         <div class="row align-items-end g-2 br-inventory__context" aria-hidden="true">
-            <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+            <div :class="page === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4' : 'col-12 col-md-6 col-lg-3 col-xl-3'">
                 <span class="br-inventory-skeleton__line br-inventory-skeleton__label"></span>
                 <span class="br-inventory-skeleton__control"></span>
             </div>
-            <div :class="isReport ? 'col-12 col-md-6 col-lg-2 col-xl-2' : 'col-12 col-md-6 col-lg-3 col-xl-3'">
+            <div :class="isReport ? 'col-12 col-md-6 col-lg-2 col-xl-2' : page === 'stock' ? 'col-12 col-md-6 col-lg-5 col-xl-5' : 'col-12 col-md-6 col-lg-3 col-xl-3'">
+                <span class="br-inventory-skeleton__line br-inventory-skeleton__label"></span>
+                <span class="br-inventory-skeleton__control"></span>
+            </div>
+            <div v-if="page === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3">
                 <span class="br-inventory-skeleton__line br-inventory-skeleton__label"></span>
                 <span class="br-inventory-skeleton__control"></span>
             </div>
@@ -21,11 +25,12 @@
                     <span class="br-inventory-skeleton__control"></span>
                 </div>
             </template>
-            <div :class="isReport ? 'col-12 col-md-6 col-lg-3 col-xl-3' : 'col-12 col-lg-6 col-xl-6'">
+            <div :class="isReport ? 'col-12 col-md-6 col-lg-3 col-xl-3' : page === 'stock' ? 'col-12' : 'col-12 col-lg-6 col-xl-6'">
                 <div class="br-inventory-skeleton__actions">
                     <span class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
                     <span v-if="!isReport" class="br-inventory-skeleton__line br-inventory-skeleton__button br-inventory-skeleton__button--create"></span>
                     <span class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
+                    <span v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
                 </div>
             </div>
         </div>
@@ -33,7 +38,7 @@
         <div class="br-inventory__workspace" aria-hidden="true">
             <section class="br-inventory__content br-entity-list">
                 <div class="table-responsive">
-                    <table class="table br-entity-table br-inventory__table mb-0">
+                    <table :class="['table', 'br-entity-table', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': page === 'stock'}]">
                         <thead class="br-table-header-surface">
                             <tr>
                                 <th v-for="heading in headings" :key="heading">{{ heading }}</th>
@@ -59,7 +64,7 @@
 
 <script>
 const headingsByPage = {
-    stock: ["Producto", "Stock actual", "Stock mínimo", "Almacenes", "Situación"],
+    stock: ["Producto", "Stock actual", "Stock mínimo", "Situación"],
     transfers: ["Fecha", "Producto", "Almacén de origen", "Almacén de destino", "Movimiento", "Cantidad", "Referencia"],
     guides: ["Fecha y número", "Almacén", "Tipo", "Detalle", "Referencia", "Estado"],
     kardex: ["Fecha y responsable", "Producto", "Movimiento", "Variación", "Saldo", "Motivo y origen"],

@@ -38,7 +38,10 @@ test("el skeleton de inventario cubre la primera consulta sin Swal y conserva el
     assert.match(helper, /createInitialLoad\(\{skeleton = false\} = \{\}\)/);
     assert.match(state, /createInitialLoad\(\{skeleton: true\}\)/);
     assert.match(state, /initialLoad\.start\(\);[\s\S]*?await this\.initParams\(\);[\s\S]*?await this\.listCurrentView\(\{\}\);[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false;[\s\S]*?initialLoad\.finish\(\);/);
-    assert.match(state, /if\(this\.initialLoading\) await alertsRequest;/);
+    assert.doesNotMatch(state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts(")), /listStockAlerts/);
+    assert.match(skeleton, /col-lg-5 col-xl-5/);
+    assert.match(skeleton, /br-inventory-skeleton__actions[\s\S]*?br-inventory-skeleton__button--create[\s\S]*?v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"/);
+    assert.doesNotMatch(skeleton, /br-inventory__alerts-action/);
     assert.match(skeleton, /role="status" aria-live="polite"/);
     assert.match(skeleton, /headingsByPage = \{[\s\S]*?stock:[\s\S]*?transfers:[\s\S]*?guides:[\s\S]*?kardex:[\s\S]*?valued:/);
     assert.match(css, /prefers-reduced-motion: reduce/);
