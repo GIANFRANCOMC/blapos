@@ -824,35 +824,6 @@
   font-weight: 650;
 }
 
-.br-inventory-warehouses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.28rem;
-}
-
-.br-inventory-warehouse-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.2rem 0.4rem;
-  border: 1px solid color-mix(in srgb, var(--br-secondary) 10%, var(--br-border));
-  border-radius: var(--br-radius-sm);
-  background: var(--br-white);
-  color: var(--br-text-muted);
-  font-size: 0.68rem;
-  font-weight: 400;
-}
-
-.br-inventory-warehouse-pill.is-alert {
-  border-color: color-mix(in srgb, var(--br-warning) 34%, var(--br-border));
-  background: var(--br-warning-soft);
-  color: var(--br-warning-hover);
-}
-
-.br-inventory-warehouse-pill.is-muted {
-  background: var(--br-neutral-panel);
-}
-
 .br-supplier-related {
   display: grid;
   gap: 0.55rem;

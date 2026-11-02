@@ -4,7 +4,7 @@
     <InventorySkeleton v-if="initialLoading && skeletonEnabled" :page="page"/>
 
     <section v-else class="br-inventory">
-        <div class="row align-items-end g-2 br-inventory__context">
+        <div class="row align-items-end g-3 br-inventory__context">
             <div class="col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse">
                 <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
                 <WarehouseSelect

@@ -4,7 +4,7 @@
     <InventorySkeleton v-if="initialLoading && skeletonEnabled" :page="page"/>
 
     <section v-else class="br-inventory">
-        <div class="row align-items-end g-2 br-inventory__context">
+        <div class="row align-items-end g-3 br-inventory__context">
             <div :class="activeView === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4 br-inventory__warehouse' : 'col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse'">
                 <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
                 <WarehouseSelect
@@ -41,6 +41,27 @@
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     :clearable="false"
                     :searchable="false"/>
+            </div>
+
+            <div v-show="activeView === 'stock' && stockAdvancedOpen" id="stockAdvancedFilters" class="col-12 br-inventory__advanced-filters">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                        <label for="stockCategory" class="form-label">Categoría</label>
+                        <v-select id="stockCategory" v-model="filters.stockCategory" :options="stockCategories" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las categorías"/>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                        <label for="stockBrand" class="form-label">Marca</label>
+                        <v-select id="stockBrand" v-model="filters.stockBrand" :options="stockBrands" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las marcas"/>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                        <label for="stockWithoutMinimum" class="form-label">Stock mínimo</label>
+                        <v-select id="stockWithoutMinimum" v-model="filters.stockWithoutMinimum" :options="stockMinimumOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                        <label for="stockInactiveDays" class="form-label">Último movimiento</label>
+                        <v-select id="stockInactiveDays" v-model="filters.stockInactiveDays" :options="stockInactivityOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
+                    </div>
+                </div>
             </div>
 
             <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
@@ -90,13 +111,13 @@
                     <button
                         v-if="activeView === 'stock'"
                         type="button"
-                        class="br-btn br-btn-sm br-btn-action-open-create"
-                        :disabled="isCurrentViewLoading"
-                        data-bs-toggle="modal"
-                        data-bs-target="#inventoryMovementModal"
-                        @click="prepareMovement()">
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                        <span>Registrar operación</span>
+                        class="br-btn br-btn-sm br-btn-outline-secondary br-inventory__advanced-toggle"
+                        :aria-expanded="stockAdvancedOpen"
+                        aria-controls="stockAdvancedFilters"
+                        @click="stockAdvancedOpen = !stockAdvancedOpen">
+                        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                        <span>Más filtros</span>
+                        <span v-if="activeStockFilterCount" class="br-inventory__filter-count">{{ activeStockFilterCount }}</span>
                     </button>
                     <button
                         v-if="activeView === 'transfers'"
@@ -108,6 +129,28 @@
                         @click="prepareTransfer">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         <span>Registrar traslado</span>
+                    </button>
+                    <button
+                        v-if="activeView === 'stock'"
+                        type="button"
+                        class="br-btn br-btn-sm br-btn-action-open-create br-inventory__operation-button"
+                        :disabled="isCurrentViewLoading"
+                        data-bs-toggle="modal"
+                        data-bs-target="#inventoryMovementModal"
+                        @click="prepareMovement()">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        <span>Registrar operación</span>
+                    </button>
+                    <button
+                        v-if="activeView === 'stock'"
+                        type="button"
+                        class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"
+                        :disabled="!canViewStockAlerts"
+                        data-bs-toggle="modal"
+                        data-bs-target="#inventoryStockAlertsModal"
+                        @click="listStockAlerts({})">
+                        <i class="fa-solid fa-bell fa-shake" aria-hidden="true"></i>
+                        <span>Ver alertas</span>
                     </button>
                     <button
                         type="button"
@@ -126,17 +169,6 @@
                             </button>
                         </li>
                     </ul>
-                    <button
-                        v-if="activeView === 'stock'"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-cancel"
-                        :disabled="!filters.warehouse?.code || isConsolidatedStock || loadingStock"
-                        data-bs-toggle="modal"
-                        data-bs-target="#inventoryStockAlertsModal"
-                        @click="listStockAlerts({})">
-                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                        <span>Ver alertas</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -145,12 +177,11 @@
             <section class="br-inventory__content">
                 <section class="br-entity-list" aria-label="Control de stock">
                     <div class="table-responsive">
-                        <table :class="['table', 'br-entity-table', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': !isConsolidatedStock}]">
+                        <table class="table br-entity-table br-inventory__table br-inventory__table--single-warehouse mb-0">
                             <colgroup>
                                 <col class="br-inventory__col-product">
                                 <col class="br-inventory__col-current">
                                 <col class="br-inventory__col-minimum">
-                                <col v-if="isConsolidatedStock" class="br-inventory__col-warehouses">
                                 <col class="br-inventory__col-status">
                             </colgroup>
                             <thead class="br-table-header-surface">
@@ -158,13 +189,12 @@
                                     <th>Producto</th>
                                     <th class="text-end">Stock actual</th>
                                     <th class="text-end">Stock mínimo</th>
-                                    <th v-if="isConsolidatedStock">Almacenes</th>
                                     <th>Situación</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-if="loadingStock">
-                                    <td :colspan="isConsolidatedStock ? 5 : 4" class="py-4"><Loader/></td>
+                                    <td colspan="4" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="stockRecords.total > 0">
                                     <tr
@@ -186,20 +216,6 @@
                                         </td>
                                         <td class="text-end">{{ quantityWithUnit(record.stock_quantity, record) }}</td>
                                         <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
-                                        <td v-if="isConsolidatedStock">
-                                            <div class="br-inventory-warehouses">
-                                                <span
-                                                    v-for="warehouse in stockWarehouseBreakdown(record).slice(0, 3)"
-                                                    :key="`${record.id}-${warehouse.warehouse_id}`"
-                                                    :class="['br-inventory-warehouse-pill', {'is-alert': warehouse.requires_attention}]">
-                                                    {{ warehouse.branch_name }} - {{ warehouse.warehouse_name }}:
-                                                    {{ quantityWithUnit(warehouse.quantity, record) }}
-                                                </span>
-                                                <span v-if="stockWarehouseBreakdown(record).length > 3" class="br-inventory-warehouse-pill is-muted">
-                                                    +{{ stockWarehouseBreakdown(record).length - 3 }} más
-                                                </span>
-                                            </div>
-                                        </td>
                                         <td>
                                             <span :class="['br-badge', stockStatus(record).badgeClass]">
                                                 <i :class="stockStatus(record).icon" aria-hidden="true"></i>
@@ -209,7 +225,7 @@
                                     </tr>
                                 </template>
                                 <tr v-else>
-                                    <td :colspan="isConsolidatedStock ? 5 : 4" class="py-4">
+                                    <td colspan="4" class="py-4">
                                         <WithoutData
                                             class="br-entity-empty-state"
                                             type="image"/>
@@ -236,27 +252,15 @@
         :error="stockAlertsError"
         @page="listStockAlerts"
         @retry="listStockAlerts({})"/>
-    <div
-        
-        id="inventoryMovementModal"
-        class="modal fade br-entity-modal br-modal-standard"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="inventoryMovementModalTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <h2 id="inventoryMovementModalTitle" class="modal-title br-entity-modal__title">
-                        REGISTRAR OPERACIÓN
-                    </h2>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body br-entity-modal__body">
+    <FormModal
+        modal-id="inventoryMovementModal"
+        title="REGISTRAR OPERACIÓN"
+        modal-class="br-modal-standard"
+        modal-size="modal-lg"
+        dialog-class="modal-dialog-scrollable"
+        :keyboard="false"
+        :show-submit="false">
+        <template #body>
                     <div class="br-inventory-operation__config">
                         <div>
                             <label for="operationWarehouse" class="form-label colon-at-end">Almacén de la operación</label>
@@ -290,6 +294,7 @@
                                 :class="config.forms.classes.select2"
                                 :clearable="false"
                                 :searchable="false"
+                                append-to-body
                                 aria-required="true"
                                 placeholder="Selecciona un tipo de operación">
                                 <template #option="option">
@@ -440,9 +445,8 @@
                             </table>
                         </div>
                     </div>
-                </div>
-
-                <div class="modal-footer br-entity-modal__footer">
+        </template>
+        <template #footerClose>
                     <button
                         ref="closeMovementModal"
                         type="button"
@@ -450,6 +454,8 @@
                         data-bs-dismiss="modal">
                         Cancelar
                     </button>
+        </template>
+        <template #footer>
                     <div class="br-entity-modal__footer-actions">
                         <button
                             type="button"
@@ -466,10 +472,8 @@
                             Guardar operación
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        </template>
+    </FormModal>
 </template>
 
 <script>

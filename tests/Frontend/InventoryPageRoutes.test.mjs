@@ -74,7 +74,7 @@ test("inventory labels and paginated listings stay consistent across views", () 
 
     assert.match(component, /v-if="\['stock', 'transfers'\]\.includes\(activeView\)"[\s\S]*?title="Producto"/);
     assert.match(component, /<th>Fecha y número<\/th>[\s\S]*?<strong>\{\{ formatSimpleDate\(guide\.issue_date\) \}\}<\/strong>[\s\S]*?<span class="br-inventory__meta">\{\{ guide\.number \}\}<\/span>/);
-    assert.match(component, /this\.stockRecords = isConsolidated\s*\?\s*\(result\?\.data\?\.data \|\| \{total: 0, data: \[\]\}\)/);
+    assert.match(component, /this\.stockRecords = result\?\.data \|\| \{total: 0, data: \[\]\};/);
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
     assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, self::MAX_LIST_PER_PAGE\)\)\);/);
     assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 5);
@@ -166,12 +166,12 @@ test("stock places warehouse, search and actions in order", () => {
     const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const context = component.slice(
-        component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
+        component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
     );
 
     assert.doesNotMatch(component, /br-inventory__page-heading|br-operational-scope/);
-    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<span>Buscar<\/span>[\s\S]*?Registrar operación[\s\S]*?Registrar traslado[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel/);
+    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<span>Buscar<\/span>[\s\S]*?Registrar traslado[\s\S]*?Registrar operación[\s\S]*?Ver alertas[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel/);
     assert.doesNotMatch(context, /inputGroupPrepend|br-inventory-search__prefix|fa-barcode/);
     assert.match(inventoryCss, /\.br-layout \.br-inventory__context > \.form-group \{\s*margin-bottom: 0 !important;/);
     assert.doesNotMatch(component, /br-inventory__toolbar/);
@@ -204,7 +204,8 @@ test("transfers list all accessible warehouses without allowing a virtual transf
         controller.indexOf("public function alerts(Request $request)")
     );
 
-    assert.match(component, /return \["stock", "transfers"\]\.includes\(this\.activeView\)\s*\? \[\{code: "all", label: "Todos los almacenes"\}, \.\.\.warehouses\]/);
+    assert.match(component, /warehouses\(\) \{\s*return \(this\.options\.warehouses \|\| \[\]\)\.map\(record =>/);
+    assert.doesNotMatch(component, /Todos los almacenes/);
     assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];/);
     const registerTransferButton = component.slice(
         component.indexOf('v-if="activeView === \'transfers\'"'),
@@ -255,19 +256,18 @@ test("operation and transfer dialogs choose their own warehouses without changin
 
 });
 
-test("stock shows the warehouses column only in the consolidated view", () => {
+test("stock lists only the selected warehouse and keeps four table columns", () => {
 
     const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const stock = read(`${inventoryPath}stock.vue`);
 
-    assert.match(stock, /<col v-if="isConsolidatedStock" class="br-inventory__col-warehouses">/);
-    assert.match(stock, /<th v-if="isConsolidatedStock">Almacenes<\/th>/);
-    assert.match(stock, /<td v-if="isConsolidatedStock">\s*<div class="br-inventory-warehouses">/);
-    assert.match(stock, /v-for="warehouse in stockWarehouseBreakdown\(record\)\.slice\(0, 3\)"/);
-    assert.equal((stock.match(/:colspan="isConsolidatedStock \? 5 : 4"/g) || []).length, 2);
-    assert.match(component, /stockWarehouseBreakdown\(record\) \{[\s\S]*?if\(this\.isConsolidatedStock\) return record\.warehouse_breakdown \|\| \[\];[\s\S]*?warehouse_name: warehouse\.warehouseName/);
-    assert.match(inventoryCss, /\.br-inventory__col-warehouses \{ width: 27%; \}/);
+    assert.match(stock, /<table class="table br-entity-table br-inventory__table br-inventory__table--single-warehouse mb-0">/);
+    assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
+    assert.equal((stock.match(/colspan="4"/g) || []).length, 2);
+    assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
+    assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.data \|\| \{total: 0, data: \[\]\};/);
+    assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \{\s*min-width: 46rem;/);
 
 });
@@ -315,7 +315,7 @@ test("inventory filters remain outside the white table surface", () => {
     assert.doesNotMatch(component, /br-inventory__kardex-filters/);
     assert.match(component, /'br-filter-bar__actions', 'br-inventory__context-actions'/);
     assert.doesNotMatch(inventoryCss, /br-inventory__context-actions--report/);
-    assert.match(inventoryCss, /\.br-inventory__context-actions--stock \{\s*justify-content: flex-end;/);
+    assert.match(inventoryCss, /\.br-inventory__context-actions--stock \{\s*justify-content: flex-start;/);
     assert.match(inventoryCss, /\.br-inventory-transfer \{[\s\S]*?background: transparent;/);
 
 });
@@ -324,14 +324,14 @@ test("stock gives more width to its filters and moves actions to a full row", ()
 
     const component = readInventory();
     const stockFilters = component.slice(
-        component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
+        component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
     );
     assert.match(stockFilters, /col-lg-4 col-xl-4 br-inventory__warehouse/);
     assert.match(stockFilters, /:xl="activeView === 'stock' \? 5 : 3"\s+:lg="activeView === 'stock' \? 5 : 3"/);
     assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3"[\s\S]*?for="stockSituation"/);
     assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?contextActionColumns[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>/);
-    assert.match(stockFilters, /<span>Buscar<\/span>[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Acciones<\/span>[\s\S]*?<span>Ver alertas<\/span>/);
+    assert.match(stockFilters, /<span>Buscar<\/span>[\s\S]*?<span>Más filtros<\/span>[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Ver alertas<\/span>[\s\S]*?<span>Acciones<\/span>/);
     assert.doesNotMatch(component, /br-inventory__alerts-action/);
     assert.match(component, /<strong class="br-inventory__product-name">\{\{ record\.name \}\}<\/strong>/);
     assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
@@ -368,7 +368,7 @@ test("inventory blocks filters and actions while searching", () => {
 
     const component = readInventory();
     const toolbar = component.slice(
-        component.indexOf('<div class="row align-items-end g-2 br-inventory__context">'),
+        component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
     );
 
@@ -378,7 +378,8 @@ test("inventory blocks filters and actions while searching", () => {
     assert.match(toolbar, /id="guideType"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /id="inventoryDateFrom"[^>]*:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /id="inventoryDateTo"[^>]*:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create"[\s\S]*?:disabled="isCurrentViewLoading"/);
+    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create waves-effect"[\s\S]*?:disabled="isCurrentViewLoading"/);
+    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create br-inventory__operation-button"[\s\S]*?:disabled="isCurrentViewLoading"/);
     assert.match(toolbar, /class="br-btn br-btn-sm br-btn-actions"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /class="dropdown-item" :disabled="isCurrentViewLoading \|\| exporting/);
     assert.match(component, /isCurrentViewLoading\(\) \{\s*if\(this\.activeView === "stock"\) return this\.loadingStock;/);

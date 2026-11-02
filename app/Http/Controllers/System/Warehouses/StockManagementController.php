@@ -85,7 +85,8 @@ class StockManagementController extends BaseController {
             $warehouseId,
             $perPage,
             (string) $request->input("product_search", ""),
-            (string) $request->input("situation", "")
+            (string) $request->input("situation", ""),
+            $this->stockFilters($request)
         );
 
     }
@@ -103,7 +104,8 @@ class StockManagementController extends BaseController {
                 (string) $request->input("product_search", ""),
                 $allowedWarehouseIds,
                 $this->inventoryPerPage($request),
-                (string) $request->input("situation", "")
+                (string) $request->input("situation", ""),
+                $this->stockFilters($request)
             ),
         ]);
 
@@ -277,6 +279,17 @@ class StockManagementController extends BaseController {
 
     }
 
+    private function stockFilters(Request $request): array {
+
+        return $request->validate([
+            "category_id" => ["nullable", "integer", "min:1"],
+            "brand_id" => ["nullable", "integer", "min:1"],
+            "without_minimum" => ["nullable", "boolean"],
+            "inactive_days" => ["nullable", "integer", "in:30,60,90"],
+        ]);
+
+    }
+
     public function previewOperation(PreviewInventoryOperationRequest $request): JsonResponse {
 
         $warehouse = $this->authorizedOperationWarehouse((int) $request->validated("warehouse_id"));
@@ -353,6 +366,9 @@ class StockManagementController extends BaseController {
             "date_from",
             "date_to",
         ]);
+        if($view === "stock") {
+            $filters = array_merge($filters, $this->stockFilters($request));
+        }
         $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
             $this->getAuthUser(),
             AccessScopeService::WAREHOUSE

@@ -2452,3 +2452,13 @@ body.br-layout .br-entity-table > thead > tr > th {
     padding: 0.75rem var(--br-modal-space-x) !important;
     background-color: var(--br-modal-chrome-surface);
 }
+
+/* Recupera el desplazamiento nativo de Bootstrap cuando una modal estándar es larga. */
+.br-entity-modal .modal-dialog-scrollable .modal-content {
+    overflow: hidden;
+}
+
+.br-entity-modal .modal-dialog-scrollable .modal-body.br-entity-modal__body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}

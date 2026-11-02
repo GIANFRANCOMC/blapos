@@ -3,6 +3,7 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
+import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
@@ -48,6 +49,18 @@ const STOCK_SITUATIONS = [
     {code: "healthy", label: "Stock saludable"}
 ];
 
+const STOCK_MINIMUM_OPTIONS = [
+    {code: "", label: "Todos los productos"},
+    {code: "1", label: "Sin mínimo configurado"}
+];
+
+const STOCK_INACTIVITY_OPTIONS = [
+    {code: "", label: "Cualquier fecha"},
+    {code: "30", label: "Sin movimientos en 30 días"},
+    {code: "60", label: "Sin movimientos en 60 días"},
+    {code: "90", label: "Sin movimientos en 90 días"}
+];
+
 const INVENTORY_OPERATIONS = [
     {code: "manual_entry", label: "Entrada manual", amountLabel: "Cantidad de entrada", movementType: "entry", originType: "manual", description: "Suma las unidades indicadas."},
     {code: "manual_exit", label: "Salida manual", amountLabel: "Cantidad de salida", movementType: "exit", originType: "manual", description: "Resta las unidades indicadas."},
@@ -68,7 +81,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal},
+    components: {FormModal, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal},
     props: {
         page: {
             type: String,
@@ -105,6 +118,7 @@ export default {
             stockAlertsError: "",
             loadingGuides: false,
             warehouseSearchEnabled: false,
+            stockAdvancedOpen: false,
             requestVersion: 0,
             savingMovement: false,
             confirmingMovement: false,
@@ -123,6 +137,10 @@ export default {
                 warehouse: null,
                 productSearch: "",
                 stockSituation: STOCK_SITUATIONS[0],
+                stockCategory: null,
+                stockBrand: null,
+                stockWithoutMinimum: STOCK_MINIMUM_OPTIONS[0],
+                stockInactiveDays: STOCK_INACTIVITY_OPTIONS[0],
                 movementType: MOVEMENT_TYPES[0],
                 guideType: GUIDE_TYPES[0],
                 dateFrom: "",
@@ -151,7 +169,7 @@ export default {
                 reason: ""
             },
             transferErrors: {},
-            options: {warehouses: [], products: []},
+            options: {warehouses: [], products: [], stockCategories: [], stockBrands: []},
             config: {
                 ...Constants.generalConfig,
                 entity: {
@@ -177,6 +195,8 @@ export default {
             });
             this.options.warehouses = result.data?.config?.warehouses?.records || [];
             this.options.products = result.data?.config?.products?.records || [];
+            this.options.stockCategories = result.data?.config?.stock_categories?.records || [];
+            this.options.stockBrands = result.data?.config?.stock_brands?.records || [];
             return Requests.valid({result});
         },
         async listStock({url = null} = {}) {
@@ -184,34 +204,29 @@ export default {
 
             const requestVersion = ++this.requestVersion;
             const warehouseId = this.filters.warehouse.code;
-            const isConsolidated = warehouseId === "all";
             const productSearch = this.filters.productSearch;
             const situation = this.filters.stockSituation?.code || "";
 
             this.loadingStock = true;
 
             const result = await Requests.get({
-                route: url || Requests.config({
-                    entity: "stocks_management",
-                    type: isConsolidated ? "summary" : "list"
-                }),
+                route: url || Requests.config({entity: "stocks_management", type: "list"}),
                 data: {
                     warehouse_id: warehouseId,
                     product_search: productSearch,
-                    situation
+                    situation,
+                    ...this.currentStockAdvancedFilters()
                 }
             });
 
             if(requestVersion !== this.requestVersion) return;
 
-            this.stockRecords = isConsolidated
-                ? (result?.data?.data || {total: 0, data: []})
-                : (result?.data || {total: 0, data: []});
+            this.stockRecords = result?.data || {total: 0, data: []};
             this.loadingStock = false;
         },
         async listStockAlerts({url = null} = {}) {
             const warehouseId = this.filters.warehouse?.code;
-            if(!warehouseId || warehouseId === "all" || this.loadingAlerts) return;
+            if(!warehouseId || this.loadingStock || this.loadingAlerts) return;
 
             const requestVersion = this.requestVersion;
             this.loadingAlerts = true;
@@ -258,7 +273,7 @@ export default {
 
             const requestVersion = ++this.requestVersion;
             const filters = {
-                warehouse_id: this.isConsolidatedStock ? "" : this.filters.warehouse.code,
+                warehouse_id: this.filters.warehouse.code,
                 guide_type: this.filters.guideType?.code || "",
                 date_from: this.filters.dateFrom,
                 date_to: this.filters.dateTo
@@ -345,9 +360,22 @@ export default {
 
             if(this.activeView === "stock") {
                 filters.situation = this.filters.stockSituation?.code || "";
+                Object.assign(filters, this.currentStockAdvancedFilters());
             }
 
             return filters;
+        },
+        currentStockAdvancedFilters() {
+            return {
+                category_id: this.filters.stockCategory?.code || "",
+                brand_id: this.filters.stockBrand?.code || "",
+                without_minimum: this.filters.stockWithoutMinimum?.code || "",
+                inactive_days: this.filters.stockInactiveDays?.code || ""
+            };
+        },
+        refreshStockAdvancedFilters() {
+            this.invalidateListing();
+            if(this.warehouseSearchEnabled && this.filters.warehouse?.code) this.listStock({});
         },
         async exportCurrentView() {
             if(!this.filters.warehouse?.code || this.exporting || this.isCurrentViewLoading) return;
@@ -743,20 +771,6 @@ export default {
             if(stock <= minimum) return {label: "Stock bajo", icon: "fa-solid fa-triangle-exclamation", badgeClass: "br-badge--warning"};
             return {label: "Stock saludable", icon: "fa-solid fa-circle-check", badgeClass: "br-badge--success"};
         },
-        stockWarehouseBreakdown(record) {
-            if(this.isConsolidatedStock) return record.warehouse_breakdown || [];
-
-            const warehouse = this.filters.warehouse;
-            if(!warehouse?.code) return [];
-
-            return [{
-                warehouse_id: warehouse.code,
-                warehouse_name: warehouse.warehouseName,
-                branch_name: warehouse.branchName,
-                quantity: record.stock_quantity || 0,
-                requires_attention: this.stockStatus(record).badgeClass !== "br-badge--success"
-            }];
-        },
         movementTypeLabel(type) {
             return MOVEMENT_TYPES.find(record => record.code === type)?.label || type;
         },
@@ -825,17 +839,13 @@ export default {
             return "col-12 col-md-6 col-lg-9 col-xl-9";
         },
         warehouses() {
-            const warehouses = (this.options.warehouses || []).map(record => ({
+            return (this.options.warehouses || []).map(record => ({
                 code: record.id,
                 branchName: record.branch?.name || "",
                 warehouseName: record.name,
                 displayLabel: record.branch?.name ? `${record.branch.name} - ${record.name}` : record.name,
                 label: record.branch?.name ? `${record.branch.name} / ${record.name}` : record.name
             }));
-
-            return ["stock", "transfers"].includes(this.activeView)
-                ? [{code: "all", label: "Todos los almacenes"}, ...warehouses]
-                : warehouses;
         },
         destinationWarehouses() {
             if(!this.transferForm.source?.code) return [];
@@ -843,7 +853,7 @@ export default {
             return this.realWarehouses.filter(warehouse => Number(warehouse.code) !== Number(this.transferForm.source?.code));
         },
         realWarehouses() {
-            return this.warehouses.filter(warehouse => warehouse.code !== "all");
+            return this.warehouses;
         },
         products() {
             return (this.options.products || []).map(product => ({
@@ -861,6 +871,32 @@ export default {
         },
         stockSituations() {
             return STOCK_SITUATIONS;
+        },
+        stockCategories() {
+            return [
+                {code: "", label: "Todas las categorías"},
+                ...(this.options.stockCategories || []).map(category => ({code: category.id, label: category.name}))
+            ];
+        },
+        stockBrands() {
+            return [
+                {code: "", label: "Todas las marcas"},
+                ...(this.options.stockBrands || []).map(brand => ({code: brand.id, label: brand.name}))
+            ];
+        },
+        stockMinimumOptions() {
+            return STOCK_MINIMUM_OPTIONS;
+        },
+        stockInactivityOptions() {
+            return STOCK_INACTIVITY_OPTIONS;
+        },
+        activeStockFilterCount() {
+            return [
+                this.filters.stockCategory?.code,
+                this.filters.stockBrand?.code,
+                this.filters.stockWithoutMinimum?.code,
+                this.filters.stockInactiveDays?.code
+            ].filter(Boolean).length;
         },
         guideTypes() {
             return GUIDE_TYPES;
@@ -909,8 +945,8 @@ export default {
             return Boolean(this.transferForm.source?.code && this.transferForm.destination?.code);
 
         },
-        isConsolidatedStock() {
-            return this.filters.warehouse?.code === "all";
+        canViewStockAlerts() {
+            return Boolean(this.filters.warehouse?.code) && !this.loadingStock;
         }
     },
     watch: {
@@ -948,6 +984,18 @@ export default {
         "filters.stockSituation"() {
             this.invalidateListing();
             if(this.warehouseSearchEnabled && this.filters.warehouse?.code) this.listStock({});
+        },
+        "filters.stockCategory"() {
+            this.refreshStockAdvancedFilters();
+        },
+        "filters.stockBrand"() {
+            this.refreshStockAdvancedFilters();
+        },
+        "filters.stockWithoutMinimum"() {
+            this.refreshStockAdvancedFilters();
+        },
+        "filters.stockInactiveDays"() {
+            this.refreshStockAdvancedFilters();
         },
         "filters.movementType"() {
             this.invalidateListing();

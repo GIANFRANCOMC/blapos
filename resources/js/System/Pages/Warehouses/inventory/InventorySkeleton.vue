@@ -2,7 +2,7 @@
     <section class="br-inventory br-inventory-skeleton" role="status" aria-live="polite" :aria-label="`Cargando ${viewLabel}`">
         <span class="visually-hidden">Cargando {{ viewLabel }}</span>
 
-        <div class="row align-items-end g-2 br-inventory__context" aria-hidden="true">
+        <div class="row align-items-end g-3 br-inventory__context" aria-hidden="true">
             <div :class="page === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4' : 'col-12 col-md-6 col-lg-3 col-xl-3'">
                 <span class="br-inventory-skeleton__line br-inventory-skeleton__label"></span>
                 <span class="br-inventory-skeleton__control"></span>
@@ -26,9 +26,10 @@
                 </div>
             </template>
             <div :class="isReport ? 'col-12 col-md-6 col-lg-3 col-xl-3' : page === 'stock' ? 'col-12' : 'col-12 col-lg-6 col-xl-6'">
-                <div class="br-inventory-skeleton__actions">
+                <div :class="['br-inventory-skeleton__actions', {'br-inventory-skeleton__actions--stock': page === 'stock'}]">
                     <span class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
-                    <span v-if="!isReport" class="br-inventory-skeleton__line br-inventory-skeleton__button br-inventory-skeleton__button--create"></span>
+                    <span v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
+                    <span v-if="!isReport" :class="['br-inventory-skeleton__line', 'br-inventory-skeleton__button', 'br-inventory-skeleton__button--create', {'br-inventory-skeleton__button--stock-create': page === 'stock'}]"></span>
                     <span class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
                     <span v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
                 </div>

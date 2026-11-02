@@ -34,7 +34,8 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 return StockManagementService::getConsolidatedStock(
                     (string) ($this->filters["product_search"] ?? ""),
                     $this->filters["allowed_warehouse_ids"] ?? null,
-                    (string) ($this->filters["situation"] ?? "")
+                    (string) ($this->filters["situation"] ?? ""),
+                    $this->filters
                 );
 
             }
@@ -42,7 +43,8 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             return StockManagementService::getStockReport(
                 (int) ($this->filters["warehouse_id"] ?? 0),
                 (string) ($this->filters["product_search"] ?? ""),
-                (string) ($this->filters["situation"] ?? "")
+                (string) ($this->filters["situation"] ?? ""),
+                $this->filters
             );
 
         }

@@ -12,12 +12,47 @@
 .br-inventory__context-actions {
     align-items: center;
     min-height: var(--br-control-height);
+    margin-top: var(--br-grid-gap-2);
 }
 
-@media (min-width: 992px) {
-    .br-inventory__context-actions--stock {
-        justify-content: flex-end;
+.br-inventory__context-actions--stock {
+    justify-content: flex-start;
+}
+
+.br-inventory__operation-button {
+    margin-left: auto;
+}
+
+@media (max-width: 575.98px) {
+    .br-inventory__operation-button {
+        margin-left: 0;
     }
+}
+
+.br-inventory__advanced-filters .row > div {
+    min-width: 0;
+}
+
+.br-inventory__filter-count {
+    display: inline-grid;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    padding: 0 0.2rem;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--br-primary-soft);
+    color: var(--br-primary-active);
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.br-inventory__alerts-button .fa-bell {
+    font-size: 0.9rem;
+    --fa-animation-duration: 3s;
+}
+
+.br-inventory__alerts-button:disabled .fa-bell {
+    animation: none;
 }
 
 .br-inventory__warehouse {
@@ -59,12 +94,6 @@
 .br-inventory__table--single-warehouse {
     min-width: 46rem;
 }
-
-.br-inventory__col-product { width: 30%; }
-.br-inventory__col-current,
-.br-inventory__col-minimum { width: 14%; }
-.br-inventory__col-warehouses { width: 27%; }
-.br-inventory__col-status { width: 15%; }
 
 .br-inventory__table--single-warehouse .br-inventory__col-product { width: 40%; }
 .br-inventory__table--single-warehouse .br-inventory__col-current,

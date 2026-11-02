@@ -30,10 +30,15 @@ class StockManagementService {
         int $warehouseId,
         int $perPage,
         string $search = "",
-        string $situation = ""
+        string $situation = "",
+        array $filters = []
     ) {
 
-        return self::applySituationFilter(self::stockQuery($warehouseId, $search), $situation, $warehouseId)
+        return self::applyStockFilters(
+            self::applySituationFilter(self::stockQuery($warehouseId, $search), $situation, $warehouseId),
+            $filters,
+            $warehouseId
+        )
             ->paginate($perPage);
 
     }
@@ -41,10 +46,15 @@ class StockManagementService {
     public static function getStockReport(
         int $warehouseId,
         string $search = "",
-        string $situation = ""
+        string $situation = "",
+        array $filters = []
     ): Collection {
 
-        return self::applySituationFilter(self::stockQuery($warehouseId, $search), $situation, $warehouseId)
+        return self::applyStockFilters(
+            self::applySituationFilter(self::stockQuery($warehouseId, $search), $situation, $warehouseId),
+            $filters,
+            $warehouseId
+        )
             ->get();
 
     }
@@ -52,12 +62,18 @@ class StockManagementService {
     public static function getConsolidatedStock(
         string $search = "",
         ?array $allowedWarehouseIds = null,
-        string $situation = ""
+        string $situation = "",
+        array $filters = []
     ): Collection {
 
-        return self::applySituationFilter(
-            self::consolidatedStockQuery($search, $allowedWarehouseIds),
-            $situation,
+        return self::applyStockFilters(
+            self::applySituationFilter(
+                self::consolidatedStockQuery($search, $allowedWarehouseIds),
+                $situation,
+                null,
+                $allowedWarehouseIds
+            ),
+            $filters,
             null,
             $allowedWarehouseIds
         )
@@ -70,12 +86,18 @@ class StockManagementService {
         string $search,
         ?array $allowedWarehouseIds,
         int $perPage,
-        string $situation = ""
+        string $situation = "",
+        array $filters = []
     ) {
 
-        return self::applySituationFilter(
-            self::consolidatedStockQuery($search, $allowedWarehouseIds),
-            $situation,
+        return self::applyStockFilters(
+            self::applySituationFilter(
+                self::consolidatedStockQuery($search, $allowedWarehouseIds),
+                $situation,
+                null,
+                $allowedWarehouseIds
+            ),
+            $filters,
             null,
             $allowedWarehouseIds
         )
@@ -197,10 +219,6 @@ class StockManagementService {
 
         }
 
-        $warehouseScope = $warehouseId !== null
-            ? " AND wi.warehouse_id = ".(int) $warehouseId
-            : "";
-
         if($warehouseId === null && $allowedWarehouseIds !== null) {
 
             $ids = array_values(array_filter(array_map("intval", $allowedWarehouseIds), fn(int $id) => $id > 0));
@@ -211,18 +229,73 @@ class StockManagementService {
 
             }
 
-            $warehouseScope = " AND wi.warehouse_id IN (".implode(",", $ids).")";
-
         }
 
-        $stock = "(SELECT COALESCE(SUM(wi.quantity), 0) FROM warehouse_items wi WHERE wi.item_id = items.id{$warehouseScope})";
-        $minimum = "(SELECT COALESCE(SUM(wi.minimum_stock), 0) FROM warehouse_items wi WHERE wi.item_id = items.id{$warehouseScope})";
+        [$stock, $minimum] = self::stockExpressions($warehouseId, $allowedWarehouseIds);
 
         return match($situation) {
             "empty" => $query->whereRaw("{$stock} <= 0"),
             "low" => $query->whereRaw("{$stock} > 0 AND {$stock} <= {$minimum}"),
             "healthy" => $query->whereRaw("{$stock} > 0 AND {$stock} > {$minimum}"),
         };
+
+    }
+
+    private static function applyStockFilters(
+        Builder $query,
+        array $filters,
+        ?int $warehouseId,
+        ?array $allowedWarehouseIds = null
+    ): Builder {
+
+        $categoryId = (int) ($filters["category_id"] ?? 0);
+        $brandId = (int) ($filters["brand_id"] ?? 0);
+        $inactiveDays = (int) ($filters["inactive_days"] ?? 0);
+
+        if($categoryId > 0) {
+            $query->whereHas("categoryItems", fn(Builder $category) => $category->where("category_id", $categoryId));
+        }
+        if($brandId > 0) {
+            $query->where("brand_id", $brandId);
+        }
+
+        [, $minimum] = self::stockExpressions($warehouseId, $allowedWarehouseIds);
+
+        if(!empty($filters["without_minimum"])) {
+            $query->whereRaw("{$minimum} <= 0");
+        }
+
+        if(in_array($inactiveDays, [30, 60, 90], true)) {
+            $query->whereDoesntHave("inventoryMovements", function(Builder $movement) use ($inactiveDays, $warehouseId, $allowedWarehouseIds) {
+                $movement->where("created_at", ">=", now()->subDays($inactiveDays));
+                if($warehouseId !== null) {
+                    $movement->where("warehouse_id", $warehouseId);
+                }elseif($allowedWarehouseIds !== null) {
+                    $movement->whereIn("warehouse_id", $allowedWarehouseIds);
+                }
+            });
+        }
+
+        return $query;
+
+    }
+
+    private static function stockExpressions(?int $warehouseId, ?array $allowedWarehouseIds): array {
+
+        $warehouseScope = $warehouseId !== null
+            ? " AND wi.warehouse_id = ".(int) $warehouseId
+            : "";
+        if($warehouseId === null && $allowedWarehouseIds !== null) {
+            $ids = array_values(array_filter(array_map("intval", $allowedWarehouseIds), fn(int $id) => $id > 0));
+            $warehouseScope = $ids === []
+                ? " AND 1 = 0"
+                : " AND wi.warehouse_id IN (".implode(",", $ids).")";
+        }
+
+        return [
+            "(SELECT COALESCE(SUM(wi.quantity), 0) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
+            "(SELECT COALESCE(SUM(wi.minimum_stock), 0) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
+        ];
 
     }
 

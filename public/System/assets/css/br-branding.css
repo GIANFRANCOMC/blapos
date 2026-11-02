@@ -2348,6 +2348,19 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-color: var(--br-success-hover);
 }
 
+.br-btn-warning {
+  background-color: var(--br-warning);
+  border-color: var(--br-warning);
+  color: var(--br-white);
+  box-shadow: var(--br-shadow-sm);
+}
+
+.br-btn-warning:hover {
+  background-color: var(--br-warning-hover);
+  border-color: var(--br-warning-hover);
+  color: var(--br-white);
+}
+
 .br-btn-danger {
   background-color: var(--br-danger);
   border-color: var(--br-danger);
@@ -13182,6 +13195,16 @@ body.br-layout .br-entity-table > thead > tr > th {
     background-color: var(--br-modal-chrome-surface);
 }
 
+/* Recupera el desplazamiento nativo de Bootstrap cuando una modal estándar es larga. */
+.br-entity-modal .modal-dialog-scrollable .modal-content {
+    overflow: hidden;
+}
+
+.br-entity-modal .modal-dialog-scrollable .modal-body.br-entity-modal__body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
 /* Source: resources/css/System/br-branding/82-inventory.css */
 /* --- [br-inventory] Existencias, movimientos manuales y kardex --- */
 .br-inventory {
@@ -13197,12 +13220,47 @@ body.br-layout .br-entity-table > thead > tr > th {
 .br-inventory__context-actions {
     align-items: center;
     min-height: var(--br-control-height);
+    margin-top: var(--br-grid-gap-2);
 }
 
-@media (min-width: 992px) {
-    .br-inventory__context-actions--stock {
-        justify-content: flex-end;
+.br-inventory__context-actions--stock {
+    justify-content: flex-start;
+}
+
+.br-inventory__operation-button {
+    margin-left: auto;
+}
+
+@media (max-width: 575.98px) {
+    .br-inventory__operation-button {
+        margin-left: 0;
     }
+}
+
+.br-inventory__advanced-filters .row > div {
+    min-width: 0;
+}
+
+.br-inventory__filter-count {
+    display: inline-grid;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    padding: 0 0.2rem;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--br-primary-soft);
+    color: var(--br-primary-active);
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.br-inventory__alerts-button .fa-bell {
+    font-size: 0.9rem;
+    --fa-animation-duration: 3s;
+}
+
+.br-inventory__alerts-button:disabled .fa-bell {
+    animation: none;
 }
 
 .br-inventory__warehouse {
@@ -13244,12 +13302,6 @@ body.br-layout .br-entity-table > thead > tr > th {
 .br-inventory__table--single-warehouse {
     min-width: 46rem;
 }
-
-.br-inventory__col-product { width: 30%; }
-.br-inventory__col-current,
-.br-inventory__col-minimum { width: 14%; }
-.br-inventory__col-warehouses { width: 27%; }
-.br-inventory__col-status { width: 15%; }
 
 .br-inventory__table--single-warehouse .br-inventory__col-product { width: 40%; }
 .br-inventory__table--single-warehouse .br-inventory__col-current,
@@ -17734,35 +17786,6 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   color: var(--br-text-muted);
   font-size: 0.68rem;
   font-weight: 650;
-}
-
-.br-inventory-warehouses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.28rem;
-}
-
-.br-inventory-warehouse-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.2rem 0.4rem;
-  border: 1px solid color-mix(in srgb, var(--br-secondary) 10%, var(--br-border));
-  border-radius: var(--br-radius-sm);
-  background: var(--br-white);
-  color: var(--br-text-muted);
-  font-size: 0.68rem;
-  font-weight: 400;
-}
-
-.br-inventory-warehouse-pill.is-alert {
-  border-color: color-mix(in srgb, var(--br-warning) 34%, var(--br-border));
-  background: var(--br-warning-soft);
-  color: var(--br-warning-hover);
-}
-
-.br-inventory-warehouse-pill.is-muted {
-  background: var(--br-neutral-panel);
 }
 
 .br-supplier-related {

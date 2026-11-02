@@ -351,11 +351,11 @@
     ]
   },
   "_inventoryState-!~{01D}~.js": {
-    "file": "assets/inventoryState-CO3vjAl-.css",
+    "file": "assets/inventoryState-mUBNJpCN.css",
     "src": "_inventoryState-!~{01D}~.js"
   },
-  "_inventoryState-Cb8CVvVb.js": {
-    "file": "assets/inventoryState-Cb8CVvVb.js",
+  "_inventoryState-CEgKFRk6.js": {
+    "file": "assets/inventoryState-CEgKFRk6.js",
     "name": "inventoryState",
     "imports": [
       "__plugin-vue_export-helper-DUKQSiH9.js",
@@ -375,10 +375,11 @@
       "_Constants-BSyXGmO-.js",
       "_NumberUtils-WQ8Pk_0d.js",
       "_InitialLoad-ZR6Qc5wN.js",
+      "_FormModal-6GcPwcA5.js",
       "_SearchInput-Byy1-yLr.js"
     ],
     "css": [
-      "assets/inventoryState-CO3vjAl-.css"
+      "assets/inventoryState-mUBNJpCN.css"
     ]
   },
   "_mount-DRRn5VSO.js": {
@@ -425,7 +426,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-B7cHFOX-.css",
+    "file": "assets/platform-BuXuYZRG.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -1731,12 +1732,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/guides.js": {
-    "file": "assets/guides-P0-uMcYd.js",
+    "file": "assets/guides-DlGhZZHV.js",
     "name": "guides",
     "src": "resources/js/System/Pages/Warehouses/inventory/guides.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-Cb8CVvVb.js",
+      "_inventoryState-CEgKFRk6.js",
       "__plugin-vue_export-helper-DUKQSiH9.js",
       "_vue-select-mwIi51in.js",
       "_Breadcrumb-CP-LfM8M.js",
@@ -1755,16 +1756,17 @@
       "_StatusBadge-CM2tIlOJ.js",
       "_SelectNoOptions-BRKrjVVK.js",
       "_InitialLoad-ZR6Qc5wN.js",
+      "_FormModal-6GcPwcA5.js",
       "_SearchInput-Byy1-yLr.js"
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/kardex.js": {
-    "file": "assets/kardex-6yLng4GB.js",
+    "file": "assets/kardex-EdvnQwkh.js",
     "name": "kardex",
     "src": "resources/js/System/Pages/Warehouses/inventory/kardex.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-Cb8CVvVb.js",
+      "_inventoryState-CEgKFRk6.js",
       "__plugin-vue_export-helper-DUKQSiH9.js",
       "_vue-select-mwIi51in.js",
       "_Breadcrumb-CP-LfM8M.js",
@@ -1783,16 +1785,17 @@
       "_StatusBadge-CM2tIlOJ.js",
       "_SelectNoOptions-BRKrjVVK.js",
       "_InitialLoad-ZR6Qc5wN.js",
+      "_FormModal-6GcPwcA5.js",
       "_SearchInput-Byy1-yLr.js"
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/stock.js": {
-    "file": "assets/stock-Dg533rLO.js",
+    "file": "assets/stock-CsSNqrTS.js",
     "name": "stock",
     "src": "resources/js/System/Pages/Warehouses/inventory/stock.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-Cb8CVvVb.js",
+      "_inventoryState-CEgKFRk6.js",
       "__plugin-vue_export-helper-DUKQSiH9.js",
       "_vue-select-mwIi51in.js",
       "_Breadcrumb-CP-LfM8M.js",
@@ -1811,16 +1814,17 @@
       "_StatusBadge-CM2tIlOJ.js",
       "_SelectNoOptions-BRKrjVVK.js",
       "_InitialLoad-ZR6Qc5wN.js",
+      "_FormModal-6GcPwcA5.js",
       "_SearchInput-Byy1-yLr.js"
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/transfers.js": {
-    "file": "assets/transfers-iCQSp6mi.js",
+    "file": "assets/transfers-BL2rWLmE.js",
     "name": "transfers",
     "src": "resources/js/System/Pages/Warehouses/inventory/transfers.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-Cb8CVvVb.js",
+      "_inventoryState-CEgKFRk6.js",
       "__plugin-vue_export-helper-DUKQSiH9.js",
       "_vue-select-mwIi51in.js",
       "_Breadcrumb-CP-LfM8M.js",
@@ -1839,16 +1843,17 @@
       "_StatusBadge-CM2tIlOJ.js",
       "_SelectNoOptions-BRKrjVVK.js",
       "_InitialLoad-ZR6Qc5wN.js",
+      "_FormModal-6GcPwcA5.js",
       "_SearchInput-Byy1-yLr.js"
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js": {
-    "file": "assets/valued-kardex-DFLMHy8G.js",
+    "file": "assets/valued-kardex-Cjyh7UZX.js",
     "name": "valued-kardex",
     "src": "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-Cb8CVvVb.js",
+      "_inventoryState-CEgKFRk6.js",
       "__plugin-vue_export-helper-DUKQSiH9.js",
       "_vue-select-mwIi51in.js",
       "_Breadcrumb-CP-LfM8M.js",
@@ -1867,6 +1872,7 @@
       "_StatusBadge-CM2tIlOJ.js",
       "_SelectNoOptions-BRKrjVVK.js",
       "_InitialLoad-ZR6Qc5wN.js",
+      "_FormModal-6GcPwcA5.js",
       "_SearchInput-Byy1-yLr.js"
     ]
   },

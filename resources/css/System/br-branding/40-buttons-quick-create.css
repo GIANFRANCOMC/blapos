@@ -94,6 +94,19 @@
   border-color: var(--br-success-hover);
 }
 
+.br-btn-warning {
+  background-color: var(--br-warning);
+  border-color: var(--br-warning);
+  color: var(--br-white);
+  box-shadow: var(--br-shadow-sm);
+}
+
+.br-btn-warning:hover {
+  background-color: var(--br-warning-hover);
+  border-color: var(--br-warning-hover);
+  color: var(--br-white);
+}
+
 .br-btn-danger {
   background-color: var(--br-danger);
   border-color: var(--br-danger);
