@@ -396,8 +396,8 @@
                                                 :disabled="!canConfigureMovement"
                                                 :options="movementProductOptions(index)"
                                                 :select-class="config.forms.classes.select2"/>
-                                            <small v-if="item.product && item.currentStock === null" class="br-inventory-operation__current-stock">
-                                                Unidad: {{ item.product.unitPlural.toLocaleLowerCase("es") }}
+                                            <small v-if="item.product?.unitAbbreviation && item.currentStock === null" class="br-inventory-operation__current-stock">
+                                                Unidad: {{ item.product.unitAbbreviation }}
                                             </small>
                                             <small
                                                 v-if="item.currentStock !== null"

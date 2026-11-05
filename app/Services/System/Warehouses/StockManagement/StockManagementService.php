@@ -113,7 +113,7 @@ class StockManagementService {
 
         return Item::query()
             ->where("type", "product")
-            ->with("measurementUnit:id,singular_name,plural_name")
+            ->with("measurementUnit:id,abbreviation")
             ->with([
                 "warehouseItems" => function($query) use ($allowedWarehouseIds) {
 
@@ -176,7 +176,7 @@ class StockManagementService {
 
         $query = Item::query()
             ->where("type", "product")
-            ->with("measurementUnit:id,singular_name,plural_name")
+            ->with("measurementUnit:id,abbreviation")
             ->withSum(["warehouseItems as stock_quantity" => function($query) use ($warehouseId) {
 
                 $query->where("warehouse_id", $warehouseId);

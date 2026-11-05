@@ -51,7 +51,7 @@ final class PhysicalCountPreviewTest extends TestCase {
         $templateRow = $rows->first(fn(array $row): bool => $row[0] === "PHYSICAL-COUNT-TEST");
 
         $this->assertSame("0123456789012", $templateRow[1]);
-        $this->assertSame("UNIDADES", $templateRow[3]);
+        $this->assertSame("UND", $templateRow[3]);
         $this->assertSame("", $templateRow[5]);
         $this->assertStringStartsWith("PK", Excel::raw($template, ExcelFormat::XLSX));
 
@@ -60,12 +60,22 @@ final class PhysicalCountPreviewTest extends TestCase {
             collect([
                 "codigo_interno" => "PHYSICAL-COUNT-TEST",
                 "codigo_de_barras" => "0123456789012",
+                "unidad_de_medida" => "UND",
                 "saldo_contado" => "2,5",
             ]),
         ]));
 
         $this->assertSame($product->id, $preview->items()[0]["item_id"]);
         $this->assertSame("2.5", $preview->items()[0]["amount"]);
+        $this->assertSame("UND", $preview->items()[0]["unit_abbreviation"]);
+
+        $legacyPreview = new InventoryOperationPreviewImport($warehouseId, "physical_count");
+        $legacyPreview->collection(collect([collect([
+            "codigo_interno" => "PHYSICAL-COUNT-TEST",
+            "unidad_de_medida" => "UNIDADES",
+            "saldo_contado" => "1",
+        ])]));
+        $this->assertSame($product->id, $legacyPreview->items()[0]["item_id"]);
         $this->assertEquals(4, DB::table("warehouse_items")
             ->where("warehouse_id", $warehouseId)
             ->where("item_id", $product->id)
@@ -200,7 +210,7 @@ final class PhysicalCountPreviewTest extends TestCase {
 
         $this->assertSame("UNIDADES", $record->measurementUnit->plural_name);
         $this->assertSame("Unidad de medida", $export->headings()[3]);
-        $this->assertSame("UNIDADES", $row[3]);
+        $this->assertSame("UND", $row[3]);
         $this->assertSame(28.0, $row[4]);
         $this->assertSame(2.0, $row[5]);
 

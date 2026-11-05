@@ -133,7 +133,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 ## Exportación
 
 - Las cinco páginas permiten descargar un Excel con los filtros visibles. El backend comprueba el permiso de la página solicitada además del permiso general de exportación.
-- **Control de stock** exporta código interno, código de barras, producto, unidad de medida, stock actual, stock mínimo, almacenes, cantidad de almacenes con alerta y situación.
+- **Control de stock** exporta código interno, código de barras, producto, unidad de medida abreviada (por ejemplo, `UND`), stock actual, stock mínimo, almacenes, cantidad de almacenes con alerta y situación. La misma abreviatura se muestra junto a las cantidades en las vistas de inventario y en las demás exportaciones; siempre proviene del registro de `measurement_units`, sin valores fijos en frontend ni backend. La importación acepta tanto la abreviatura como los nombres de esa misma unidad.
 - **Kardex** exporta fecha, almacén, identificación, producto, movimiento, origen, saldos, motivo, referencia y responsable.
 - **Traslados** exporta los movimientos `transfer_in` y `transfer_out` del almacén seleccionado.
 - **Guías** exporta número, fecha, almacén, sucursal, tipo, productos, referencia, motivo, estado y responsable.

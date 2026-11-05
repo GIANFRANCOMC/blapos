@@ -70,11 +70,11 @@ export function separatorNumber(value, decimals = null) {
 export function quantityWithUnit(value, measurementUnit = null, decimals = null) {
 
     const number = normalizeNumber(value);
-    const singular = measurementUnit?.singular_name || measurementUnit?.unitSingular || "UNIDAD";
-    const plural = measurementUnit?.plural_name || measurementUnit?.unitPlural || "UNIDADES";
-    const label = Math.abs(number) === 1 ? singular : plural;
+    const abbreviation = measurementUnit?.abbreviation || measurementUnit?.unitAbbreviation;
 
-    return `${separatorNumber(number, decimals)} ${label.toLocaleLowerCase("es")}`;
+    if(abbreviation) return `${separatorNumber(number, decimals)} ${abbreviation}`;
+
+    return separatorNumber(number, decimals);
 
 }
 

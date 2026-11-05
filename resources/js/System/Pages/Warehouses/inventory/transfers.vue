@@ -219,8 +219,8 @@
                                                                     :disabled="!canConfigureTransfer"
                                                                     :options="transferProductOptions(index)"
                                                                     :select-class="config.forms.classes.select2"/>
-                                                                <small v-if="item.product" class="br-inventory-operation__current-stock">
-                                                                    Unidad: {{ item.product.unitPlural.toLocaleLowerCase("es") }}
+                                                                <small v-if="item.product?.unitAbbreviation" class="br-inventory-operation__current-stock">
+                                                                    Unidad: {{ item.product.unitAbbreviation }}
                                                                 </small>
                                                                 <small v-if="transferItemError(index, 'item_id')" class="text-danger">
                                                                     {{ transferItemError(index, "item_id") }}

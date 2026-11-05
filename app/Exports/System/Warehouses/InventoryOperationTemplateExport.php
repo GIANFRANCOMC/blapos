@@ -28,7 +28,7 @@ class InventoryOperationTemplateExport extends DefaultValueBinder implements Fro
         return Item::query()
             ->where("items.type", Item::TYPE_PRODUCT)
             ->where("items.status", Item::STATUS_ACTIVE)
-            ->with("measurementUnit:id,singular_name,plural_name")
+            ->with("measurementUnit:id,abbreviation")
             ->leftJoin("warehouse_items as warehouse_stock", function($join): void {
 
                 $join->on("warehouse_stock.item_id", "=", "items.id")
@@ -47,7 +47,7 @@ class InventoryOperationTemplateExport extends DefaultValueBinder implements Fro
             $product->internal_code,
             $product->barcode ?? "",
             $product->name,
-            $product->measurementUnit?->plural_name ?? "UNIDADES",
+            $product->measurementUnit?->abbreviation,
             (float) $product->stock_actual,
             "",
         ];

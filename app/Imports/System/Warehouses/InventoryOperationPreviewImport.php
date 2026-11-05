@@ -73,7 +73,7 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
             ->where("type", Item::TYPE_PRODUCT)
             ->where("status", Item::STATUS_ACTIVE)
             ->whereIn("internal_code", $codes)
-            ->with("measurementUnit:id,singular_name,plural_name")
+            ->with("measurementUnit:id,singular_name,plural_name,abbreviation")
             ->get(["id", "measurement_unit_id", "internal_code", "barcode", "name"])
             ->keyBy(fn(Item $product): string => mb_strtolower($product->internal_code));
 
@@ -108,8 +108,21 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
             }
 
             $unit = trim((string) $row->get("unidad_de_medida", ""));
+            $measurementUnit = $product->measurementUnit;
 
-            if($unit !== "" && mb_strtoupper($unit) !== mb_strtoupper((string) ($product->measurementUnit?->plural_name ?? "UNIDADES"))) {
+            if(!$measurementUnit || !$measurementUnit->abbreviation) {
+
+                throw ValidationException::withMessages(["file" => ["Fila {$rowNumber}: el producto no tiene una unidad de medida configurada."]]);
+
+            }
+
+            $validUnits = array_map(mb_strtoupper(...), [
+                $measurementUnit->abbreviation,
+                $measurementUnit->singular_name,
+                $measurementUnit->plural_name,
+            ]);
+
+            if($unit !== "" && !in_array(mb_strtoupper($unit), $validUnits, true)) {
 
                 throw ValidationException::withMessages(["file" => ["Fila {$rowNumber}: la unidad de medida no coincide con el producto."]]);
 
@@ -135,8 +148,7 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
                 "item_id" => (int) $product->id,
                 "internal_code" => $product->internal_code,
                 "name" => $product->name,
-                "unit_singular" => $product->measurementUnit?->singular_name ?? "UNIDAD",
-                "unit_plural" => $product->measurementUnit?->plural_name ?? "UNIDADES",
+                "unit_abbreviation" => $measurementUnit->abbreviation,
                 "current_stock" => (string) ($currentStock->get($product->id) ?? "0"),
                 "amount" => $amount,
                 "unit_cost" => $cost,

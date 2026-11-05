@@ -389,7 +389,7 @@ final class InventoryMovementService {
             ->with([
                 "warehouse.branch:id,name,status",
                 "item:id,measurement_unit_id,internal_code,barcode,name",
-                "item.measurementUnit:id,singular_name,plural_name",
+                "item.measurementUnit:id,abbreviation",
                 "user:id,name",
             ]);
 

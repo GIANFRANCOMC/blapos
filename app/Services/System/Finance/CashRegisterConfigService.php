@@ -14,7 +14,7 @@ final class CashRegisterConfigService extends BaseConfigService {
 
     protected static function getCachePrefix(): string {
 
-        return "cash_registers:v1";
+        return "cash_registers";
 
     }
 

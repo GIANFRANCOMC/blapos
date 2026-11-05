@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string("code", 50)->unique();
             $table->string("singular_name", 100);
             $table->string("plural_name", 100);
+            $table->string("abbreviation", 20);
             $table->enum("status", ["active", "inactive"])->default("active");
             $table->timestamps();
 

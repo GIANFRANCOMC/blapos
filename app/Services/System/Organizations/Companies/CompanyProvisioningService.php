@@ -177,6 +177,7 @@ final class CompanyProvisioningService {
             "code" => "UNIT",
             "singular_name" => "UNIDAD",
             "plural_name" => "UNIDADES",
+            "abbreviation" => "UND",
             "status" => "active",
             "created_at" => now(),
             "updated_at" => now(),

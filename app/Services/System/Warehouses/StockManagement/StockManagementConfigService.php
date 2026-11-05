@@ -20,7 +20,7 @@ final class StockManagementConfigService extends BaseConfigService {
 
     protected static function getCachePrefix(): string {
 
-        return "inventory_v3";
+        return "inventory";
 
     }
 
@@ -35,7 +35,7 @@ final class StockManagementConfigService extends BaseConfigService {
                     ? Item::query()
                         ->where("type", "product")
                         ->where("status", "active")
-                        ->with("measurementUnit:id,singular_name,plural_name")
+                        ->with("measurementUnit:id,abbreviation")
                         ->select(["id", "measurement_unit_id", "internal_code", "barcode", "name"])
                         ->orderBy("name")
                         ->get()

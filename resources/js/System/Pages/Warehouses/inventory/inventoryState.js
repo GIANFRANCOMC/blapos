@@ -578,8 +578,7 @@ export default {
                         barcode: null,
                         name: imported.name,
                         measurement_unit: {
-                            singular_name: imported.unit_singular,
-                            plural_name: imported.unit_plural
+                            abbreviation: imported.unit_abbreviation
                         }
                     });
                 }
@@ -861,8 +860,7 @@ export default {
                 name: product.name,
                 internalCode: product.internal_code,
                 barcode: product.barcode,
-                unitSingular: product.measurement_unit?.singular_name || "UNIDAD",
-                unitPlural: product.measurement_unit?.plural_name || "UNIDADES",
+                unitAbbreviation: product.measurement_unit?.abbreviation,
                 label: `${product.name} · ${product.internal_code}${product.barcode ? ` · ${product.barcode}` : ""}`
             }));
         },

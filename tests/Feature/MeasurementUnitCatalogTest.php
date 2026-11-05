@@ -37,6 +37,7 @@ final class MeasurementUnitCatalogTest extends TestCase {
             "code" => "UNIT",
             "singular_name" => "UNIDAD",
             "plural_name" => "UNIDADES",
+            "abbreviation" => "UND",
         ]);
 
         $userId = (int) DB::table("users")->value("id");
@@ -53,6 +54,7 @@ final class MeasurementUnitCatalogTest extends TestCase {
 
         $this->assertSame(MeasurementUnit::defaultId(), $product->measurement_unit_id);
         $this->assertSame("UNIDADES", $product->measurementUnit->plural_name);
+        $this->assertSame("UND", $product->measurementUnit->abbreviation);
 
         $import = new ProductBasicImport($currencyId, $warehouseId, $userId);
         $import->collection(collect([collect([

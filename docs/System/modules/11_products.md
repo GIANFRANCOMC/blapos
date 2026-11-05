@@ -62,7 +62,7 @@ La opción `Descargar Excel` está disponible dentro de `Acciones` con icono y t
 - `items.name`: nombre comercial.
 - `items.description`: descripción breve.
 - `items.type`: siempre `product`.
-- `items.measurement_unit_id`: referencia opcional en la tabla compartida `items`, asignada automáticamente a todo producto nuevo. El primer registro de `measurement_units` es `UNIT` (singular `UNIDAD`, plural `UNIDADES`); servicios y membresías dejan este campo en `null`. La carga masiva usa `ProductService::create()` y hereda la misma asignación, sin pedir la unidad en el Excel.
+- `items.measurement_unit_id`: referencia opcional en la tabla compartida `items`, asignada automáticamente a todo producto nuevo. El primer registro de `measurement_units` es `UNIT` (singular `UNIDAD`, plural `UNIDADES`, abreviatura `UND`); servicios y membresías dejan este campo en `null`. La carga masiva usa `ProductService::create()` y hereda la misma asignación, sin pedir la unidad en el Excel.
 - `items.status`: `active` o `inactive`.
 
 ### Precio

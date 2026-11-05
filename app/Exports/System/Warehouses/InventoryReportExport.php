@@ -180,7 +180,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->internal_code,
                 $record->barcode,
                 $record->name,
-                $record->measurementUnit?->plural_name ?? "UNIDADES",
+                $record->measurementUnit?->abbreviation,
                 $stock,
                 $minimum,
                 $this->warehouseBreakdownText($record->warehouse_breakdown ?? [], $record->measurementUnit),
@@ -198,7 +198,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->item?->internal_code,
                 $record->item?->barcode,
                 $record->item?->name,
-                $record->item?->measurementUnit?->plural_name ?? "UNIDADES",
+                $record->item?->measurementUnit?->abbreviation,
                 $this->movementLabel((string) $record->movement_type),
                 $this->originLabel((string) $record->origin_type),
                 (float) $record->quantity_change,
@@ -221,7 +221,14 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->warehouse?->name,
                 $record->warehouse?->branch?->name,
                 $record->guide_type === "entry" ? "Entrada" : "Salida",
-                $record->items->map(fn($item) => $item->item?->name." x ".(float) $item->quantity." ".mb_strtolower((string) ($item->item?->measurementUnit?->plural_name ?? "UNIDADES")))->implode("; "),
+                $record->items->map(function($item): string {
+
+                    $description = $item->item?->name." x ".(float) $item->quantity;
+                    $abbreviation = $item->item?->measurementUnit?->abbreviation;
+
+                    return $abbreviation ? $description." ".$abbreviation : $description;
+
+                })->implode("; "),
                 $record->reference,
                 $record->reason,
                 $record->status === "confirmed" ? "Confirmada" : $record->status,
@@ -236,7 +243,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             $record->item?->internal_code,
             $record->item?->barcode,
             $record->item?->name,
-            $record->item?->measurementUnit?->plural_name ?? "UNIDADES",
+            $record->item?->measurementUnit?->abbreviation,
             $this->movementLabel((string) $record->movement_type),
             $this->originLabel((string) $record->origin_type),
             (float) $record->quantity_before,
@@ -354,11 +361,10 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $location = trim(($branchName !== "" ? $branchName." / " : "").$warehouseName);
 
                 $quantity = (float) ($warehouse["quantity"] ?? 0);
-                $label = abs($quantity) === 1
-                    ? ($unit?->singular_name ?? "UNIDAD")
-                    : ($unit?->plural_name ?? "UNIDADES");
+                $description = $location.": ".$quantity;
+                $abbreviation = $unit?->abbreviation;
 
-                return $location.": ".$quantity." ".mb_strtolower($label);
+                return $abbreviation ? $description." ".$abbreviation : $description;
 
             })
             ->implode("; ");

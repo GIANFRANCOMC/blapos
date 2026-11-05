@@ -17,6 +17,7 @@ final class MeasurementUnit extends Model {
         "code",
         "singular_name",
         "plural_name",
+        "abbreviation",
         "status",
     ];
 
