@@ -354,7 +354,7 @@ const ENTITY_SPECIAL_ROUTES = {
     stocks_management: {
         summary: "summary",
         alerts: "alerts",
-        alertsPdf: "alerts/export",
+        alertsExport: "alerts/export",
         operationTemplate: "operations/template",
         operationPreview: "operations/preview",
         guides: "guides",

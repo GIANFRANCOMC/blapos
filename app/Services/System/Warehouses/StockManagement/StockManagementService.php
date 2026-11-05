@@ -10,6 +10,7 @@ use App\Models\System\Warehouses\{InventoryStockAlert, Warehouse, WarehouseItem}
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
 use DomainException;
 use Illuminate\Database\Eloquent\{Builder};
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
@@ -463,17 +464,23 @@ class StockManagementService {
 
         return self::stockAlertsQuery(
             (int) ($filters["warehouse_id"] ?? 0),
-            (string) ($filters["status"] ?? "open")
+            (string) ($filters["status"] ?? "open"),
+            (string) ($filters["product_search"] ?? "")
         )->paginate($perPage);
 
     }
 
-    public static function stockAlertsQuery(int $warehouseId, string $status = "open"): Builder {
+    public static function stockAlertsQuery(int $warehouseId, string $status = "open", string $productSearch = ""): Builder {
 
         return InventoryStockAlert::query()
             ->join("warehouse_items as alert_warehouse_items", "alert_warehouse_items.id", "=", "inventory_stock_alerts.warehouse_item_id")
             ->where("alert_warehouse_items.warehouse_id", $warehouseId)
             ->where("inventory_stock_alerts.status", $status)
+            ->when(trim($productSearch) !== "", fn($query) => self::filterAlertProducts(
+                $query->join("items as alert_products", "alert_products.id", "=", "alert_warehouse_items.item_id"),
+                $productSearch,
+                "alert_products"
+            ))
             ->select([
                 "inventory_stock_alerts.id",
                 "inventory_stock_alerts.warehouse_item_id",
@@ -492,6 +499,52 @@ class StockManagementService {
             ->when($status === "resolved", fn($query) => $query->with("resolvedBy:id,name"))
             ->orderByDesc("inventory_stock_alerts.detected_at")
             ->orderByDesc("inventory_stock_alerts.id");
+
+    }
+
+    /** Filas planas para exportación: evita hidratar modelos, accessors y relaciones por alerta. */
+    public static function stockAlertsReportQuery(int $warehouseId, string $productSearch = ""): QueryBuilder {
+
+        $query = DB::table("inventory_stock_alerts as alerts")
+            ->join("warehouse_items as stock", "stock.id", "=", "alerts.warehouse_item_id")
+            ->join("items as products", "products.id", "=", "stock.item_id")
+            ->leftJoin("measurement_units as units", "units.id", "=", "products.measurement_unit_id")
+            ->where("stock.warehouse_id", $warehouseId)
+            ->where("alerts.status", "open")
+            ->select([
+                "alerts.id",
+                "alerts.quantity",
+                "alerts.minimum_stock",
+                "alerts.detected_at",
+                "products.name as product_name",
+                "products.internal_code",
+                "products.barcode",
+                "units.abbreviation as unit_abbreviation",
+            ]);
+
+        return self::filterAlertProducts($query, $productSearch, "products")
+            ->orderByDesc("alerts.detected_at")
+            ->orderByDesc("alerts.id");
+
+    }
+
+    private static function filterAlertProducts(Builder|QueryBuilder $query, string $search, string $alias): Builder|QueryBuilder {
+
+        $term = trim($search);
+
+        if($term === "") {
+
+            return $query;
+
+        }
+
+        $pattern = "%{$term}%";
+
+        return $query->where(static fn($filter) => $filter
+            ->where("{$alias}.name", "like", $pattern)
+            ->orWhere("{$alias}.internal_code", "like", $pattern)
+            ->orWhere("{$alias}.barcode", "like", $pattern)
+        );
 
     }
 

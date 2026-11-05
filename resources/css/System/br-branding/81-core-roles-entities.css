@@ -360,7 +360,7 @@ input.input-number-no-range[type=number] {
     -moz-appearance: textfield;
 }
 
-.colon-at-end::after {
+:is(.form-label:not(.br-sale-detail-toolbar__counter), .colon-at-end)::after {
     content: ":";
     margin-left: 1px;
 }

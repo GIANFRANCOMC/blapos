@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Warehouses;
 
-use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryReportExport};
+use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryReportExport, StockAlertsExport};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
@@ -13,10 +13,9 @@ use App\Models\System\Organizations\{Company};
 use App\Services\System\Organizations\{AccessScopeService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
-use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService, StockManagementService};
+use App\Services\System\Warehouses\StockManagement\{StockAlertsPdfRenderer, StockManagementConfigService, StockManagementService};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
-use Barryvdh\DomPDF\Facade\{Pdf};
-use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Http\{JsonResponse, Request, Response};
 use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
@@ -169,6 +168,7 @@ class StockManagementController extends BaseController {
         $filters = $request->validate([
             "warehouse_id" => ["required", "integer", "min:1"],
             "status" => ["nullable", "in:open,resolved"],
+            "product_search" => ["nullable", "string", "max:100"],
         ]);
         $warehouseId = (int) $filters["warehouse_id"];
 
@@ -185,10 +185,41 @@ class StockManagementController extends BaseController {
 
     }
 
-    public function exportAlertsPdf(Request $request) {
+    public function exportAlerts(Request $request): BinaryFileResponse|Response {
 
-        $data = $request->validate(["warehouse_id" => ["required", "integer", "min:1"]]);
-        $warehouseId = (int) $data["warehouse_id"];
+        $data = $request->validate([
+            "warehouse_id" => ["required", "integer", "min:1"],
+            "export" => ["required", "in:excel,pdf"],
+            "product_search" => ["nullable", "string", "max:100"],
+        ]);
+        $warehouse = $this->authorizedAlertWarehouse((int) $data["warehouse_id"]);
+        $productSearch = trim((string) ($data["product_search"] ?? ""));
+
+        if($data["export"] === "excel") {
+
+            return Excel::download(
+                new StockAlertsExport((int) $warehouse->id, $productSearch),
+                "alertas_stock_{$warehouse->id}_".now()->format("Ymd_His").".xlsx"
+            );
+
+        }
+
+        $company = Company::query()->first(["legal_name", "commercial_name", "document_number"]);
+        $query = StockManagementService::stockAlertsReportQuery((int) $warehouse->id, $productSearch);
+        $alertCount = (clone $query)->reorder()->count();
+        $binary = (new StockAlertsPdfRenderer())->render($warehouse, $company, $query->cursor(), $alertCount, now());
+        $fileName = "alertas_stock_{$warehouse->id}_".now()->format("Ymd_His").".pdf";
+
+        return response($binary, 200, [
+            "Content-Type" => "application/pdf",
+            "Content-Disposition" => "attachment; filename=\"{$fileName}\"",
+            "Content-Length" => (string) strlen($binary),
+        ]);
+
+    }
+
+    private function authorizedAlertWarehouse(int $warehouseId): Warehouse {
+
         $user = $this->getAuthUser();
 
         if(!RolePermissionService::canAccessRoute($user, "stocks_management.stock.index")
@@ -197,17 +228,7 @@ class StockManagementController extends BaseController {
             abort(403, "No tienes permiso para descargar las alertas de este almacén.");
         }
 
-        $warehouse = Warehouse::query()->with("branch:id,name")->findOrFail($warehouseId);
-        $company = Company::query()->first(["legal_name", "commercial_name", "document_number"]);
-        $alerts = StockManagementService::stockAlertsQuery($warehouseId)->get();
-
-        return Pdf::loadView("System.pdf.inventory.stock_alerts", [
-            "warehouse" => $warehouse,
-            "company" => $company,
-            "alerts" => $alerts,
-            "generatedAt" => now(),
-        ])->setPaper("a4", "landscape")
-            ->download("alertas_stock_{$warehouseId}_".now()->format("Ymd_His").".pdf");
+        return Warehouse::query()->with("branch:id,name")->findOrFail($warehouseId);
 
     }
 

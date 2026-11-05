@@ -26,8 +26,8 @@ test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas
     assert.match(modal, /<Paginator[\s\S]*?:links="alerts\.links"[\s\S]*?@clickPage=/);
     assert.match(modal, /<FormModal[\s\S]*?modal-id="inventoryStockAlertsModal"[\s\S]*?title="ALERTAS DE STOCK"[\s\S]*?body-class="br-inventory-alerts__body"[\s\S]*?:show-submit="false"/);
     assert.match(modal, /br-inventory-alerts__table-scroll[\s\S]*?<\/section>[\s\S]*?br-inventory-alerts__pagination/);
-    assert.match(inventoryStyles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow: auto;/);
-    assert.match(inventoryStyles, /\.br-inventory-alerts__table thead th \{[\s\S]*?position: sticky;/);
+    assert.match(inventoryStyles, /\.br-inventory-alerts__table-head \{[\s\S]*?overflow-y: hidden;/);
+    assert.match(inventoryStyles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;/);
     assert.match(page, /<FormModal[\s\S]*?modal-id="inventoryMovementModal"[\s\S]*?title="REGISTRAR OPERACIÓN"[\s\S]*?dialog-class="modal-dialog-scrollable"/);
     assert.match(page, /<template #footerClose>[\s\S]*?ref="closeMovementModal"[\s\S]*?<template #footer>[\s\S]*?Guardar operación/);
     assert.match(sharedModal, /br-entity-modal__title--form/);

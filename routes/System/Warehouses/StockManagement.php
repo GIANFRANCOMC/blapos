@@ -11,7 +11,7 @@ Route::get("/list", [StockManagementController::class, "list"])->name("$entity.l
 Route::get("/summary", [StockManagementController::class, "summary"])->name("$entity.summary");
 Route::get("/movements", [StockManagementController::class, "movements"])->name("$entity.movements");
 Route::get("/alerts", [StockManagementController::class, "alerts"])->name("$entity.alerts");
-Route::get("/alerts/export", [StockManagementController::class, "exportAlertsPdf"])->name("$entity.alerts.export");
+Route::get("/alerts/export", [StockManagementController::class, "exportAlerts"])->name("$entity.alerts.export");
 Route::get("/operations/template", [StockManagementController::class, "operationTemplate"])->name("$entity.operations.template");
 Route::post("/operations/preview", [StockManagementController::class, "previewOperation"])->name("$entity.operations.preview");
 Route::get("/guides", [StockManagementController::class, "guides"])->name("$entity.guides");

@@ -117,6 +117,7 @@ $config->currencies->records = MasterReferenceDataService::currencies($companyId
 - Evitar colores aislados que no pertenezcan al branding vigente.
 - Usar iconos conocidos para acciones compactas y texto visible para comandos que puedan ser ambiguos.
 - Los `form-label` deben usar la clase global sin `fs-6`: tamaño compacto, peso medio y color secundario suavizado. Evitar labels grandes o excesivamente oscuros en formularios operativos.
+- Toda etiqueta visible de filtro, campo o dato informativo debe terminar en dos puntos. `form-label` los muestra de forma global; para otras etiquetas, usar `colon-at-end`. No escribir `:` en el texto ni añadir ambas soluciones por separado, para evitar duplicados. Los títulos, contadores y acciones no son etiquetas de datos.
 - Todo campo obligatorio debe mostrar un asterisco al final del label mediante `platform-required`; esta señal visual complementa, pero nunca reemplaza, la validación del frontend y del backend.
 - Las altas rápidas relacionadas a un selector no deben modificar la selección actual salvo que el flujo lo solicite expresamente. Deben refrescar las opciones y confirmar el resultado.
 - Si un código técnico puede generarse de forma segura, ocultarlo al usuario y explicar brevemente que se creará automáticamente con el estado inicial correspondiente.

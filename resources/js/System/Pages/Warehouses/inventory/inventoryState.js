@@ -115,7 +115,10 @@ export default {
             loadingStock: false,
             loadingKardex: false,
             loadingAlerts: false,
+            downloadingAlerts: false,
             stockAlertsError: "",
+            alertProductSearch: "",
+            appliedAlertProductSearch: "",
             loadingGuides: false,
             warehouseSearchEnabled: false,
             stockAdvancedOpen: false,
@@ -232,23 +235,65 @@ export default {
             this.loadingAlerts = true;
             this.stockAlertsError = "";
             if(!url) this.stockAlerts = {total: 0, data: []};
+            Alerts.loading({message: "Consultando alertas de stock"});
 
-            const result = await Requests.get({
-                route: url || Requests.config({entity: "stocks_management", type: "alerts"}),
-                data: {
-                    warehouse_id: warehouseId,
-                    status: "open"
+            try {
+                const result = await Requests.get({
+                    route: url || Requests.config({entity: "stocks_management", type: "alerts"}),
+                    data: {
+                        warehouse_id: warehouseId,
+                        status: "open",
+                        product_search: this.appliedAlertProductSearch
+                    }
+                });
+
+                if(requestVersion !== this.requestVersion || warehouseId !== this.filters.warehouse?.code) return;
+
+                if(result.bool) {
+                    this.stockAlerts = result.data;
+                }else {
+                    this.stockAlertsError = result.data?.msg || "No fue posible cargar las alertas de stock.";
                 }
-            });
-
-            if(requestVersion !== this.requestVersion || warehouseId !== this.filters.warehouse?.code) return;
-
-            if(result.bool) {
-                this.stockAlerts = result.data;
-            }else {
-                this.stockAlertsError = result.data?.msg || "No fue posible cargar las alertas de stock.";
+            }catch(error) {
+                if(requestVersion === this.requestVersion) this.stockAlertsError = "No fue posible cargar las alertas de stock.";
+            }finally {
+                if(requestVersion === this.requestVersion) {
+                    Alerts.close();
+                    this.loadingAlerts = false;
+                }
             }
-            this.loadingAlerts = false;
+        },
+        searchStockAlerts(value = this.alertProductSearch) {
+            if(this.loadingAlerts) return;
+
+            this.appliedAlertProductSearch = String(value ?? "").trim();
+            this.listStockAlerts({});
+        },
+        async downloadStockAlerts(format) {
+            const warehouseId = this.filters.warehouse?.code;
+            if(!warehouseId || this.loadingAlerts || this.downloadingAlerts || !this.stockAlerts.total || !["pdf", "excel"].includes(format)) return;
+
+            this.downloadingAlerts = true;
+            Alerts.loading({message: `Generando ${format === "pdf" ? "PDF" : "Excel"} de alertas`});
+
+            let result;
+
+            try {
+                result = await Requests.download({
+                    route: Requests.config({entity: "stocks_management", type: "alertsExport"}),
+                    data: {warehouse_id: warehouseId, export: format, product_search: this.appliedAlertProductSearch},
+                    fileName: `alertas_stock_${warehouseId}.${format === "pdf" ? "pdf" : "xlsx"}`
+                });
+            }catch(error) {
+                result = {bool: false, data: {msg: "No se pudo generar el archivo de alertas."}};
+            }finally {
+                Alerts.close();
+                this.downloadingAlerts = false;
+            }
+
+            if(!result?.bool) {
+                Alerts.toastrs({type: "error", subtitle: result?.data?.msg || "No se pudo descargar el archivo de alertas."});
+            }
         },
         async listKardex({url = null} = {}) {
             if(!this.filters.warehouse?.code) return;
@@ -323,6 +368,7 @@ export default {
         },
         invalidateListing() {
             this.requestVersion += 1;
+            if(this.loadingAlerts) Alerts.close();
             this.loadingStock = false;
             this.loadingKardex = false;
             this.loadingAlerts = false;
@@ -915,13 +961,6 @@ export default {
             return warehouseId && operationCode
                 ? `${Requests.config({entity: "stocks_management", type: "operationTemplate"})}?warehouse_id=${encodeURIComponent(warehouseId)}&operation_code=${encodeURIComponent(operationCode)}`
                 : null;
-        },
-        stockAlertsPdfUrl() {
-            const warehouseId = this.filters.warehouse?.code;
-
-            return warehouseId
-                ? `${Requests.config({entity: "stocks_management", type: "alertsPdf"})}?warehouse_id=${encodeURIComponent(warehouseId)}`
-                : "";
         },
         movementAmountField() {
             return this.movementForm.operation?.movementType === "correction"

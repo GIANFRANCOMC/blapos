@@ -214,7 +214,7 @@
                                                 </span>
                                             </span>
                                         </td>
-                                        <td class="text-end">{{ quantityWithUnit(record.stock_quantity, record) }}</td>
+                                        <td class="text-end"><span class="br-inventory__stock-current">{{ quantityWithUnit(record.stock_quantity, record) }}</span></td>
                                         <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
                                         <td>
                                             <span :class="['br-badge', stockStatus(record).badgeClass]">
@@ -248,11 +248,15 @@
     <StockAlertsModal
         :alerts="stockAlerts"
         :warehouse="filters.warehouse"
-        :download-url="stockAlertsPdfUrl"
+        v-model:product-search="alertProductSearch"
+        :has-search="Boolean(appliedAlertProductSearch)"
+        :downloading="downloadingAlerts"
         :loading="loadingAlerts"
         :error="stockAlertsError"
         @page="listStockAlerts"
-        @retry="listStockAlerts({})"/>
+        @retry="listStockAlerts({})"
+        @search="searchStockAlerts"
+        @download="downloadStockAlerts"/>
     <FormModal
         modal-id="inventoryMovementModal"
         title="REGISTRAR OPERACIÓN"
