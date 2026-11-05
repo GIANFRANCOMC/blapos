@@ -28,9 +28,9 @@ Administra sedes físicas de la empresa.
 
 - Fiscal: series, documento y correlativos asociados a la sede.
 - Pública: dirección, referencia, teléfono, correo y mapa visibles para clientes.
-- Operativa: capacidad, estado, almacenes, cajas, ventas y reportes dependientes.
+- Operativa: aforo, estado, almacenes, cajas, ventas y reportes dependientes.
 
-La vista muestra estos ámbitos en una guía superior para aclarar qué datos impactan a clientes y cuáles afectan operación interna.
+El formulario compartido de alta y edición organiza los campos en tres pestañas: Sucursal (identificación, aforo y estado), Ubicación (dirección, referencia y mapa) y Contacto (teléfono y correo). Al validar, abre la pestaña del primer campo con error.
 
 ## Reglas
 
@@ -42,7 +42,8 @@ La vista muestra estos ámbitos en una guía superior para aclarar qué datos im
 ## Estado de mejoras
 
 - Crear una sucursal genera sus series activas por tipo documental y un almacén predeterminado con relaciones de producto en cero.
-- `capacity` se valida como entero no negativo y queda disponible para aforo de mesas/estaciones.
+- El campo persistido `capacity` se valida como entero no negativo. Su nombre visible es **Aforo** en el formulario, listado, skeleton y exportación de sucursales; el nombre técnico no cambia para conservar compatibilidad.
+- El reporte de sucursales incluye la columna **Aforo** entre nombre y estado.
 - No puede inactivarse una sucursal con activos asignados a colaboradores.
 - La vista incorpora una sección plegable de auditoría de series para consultar emisiones, anulaciones, responsable, origen y saltos de correlativo.
 - La auditoría de series reutiliza `GET /branches/series/audit` y descarga CSV mediante `GET /branches/series/audit/export`.

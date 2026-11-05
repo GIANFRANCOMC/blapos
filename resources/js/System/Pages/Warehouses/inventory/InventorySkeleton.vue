@@ -39,7 +39,7 @@
         <div class="br-inventory__workspace" aria-hidden="true">
             <section class="br-inventory__content br-entity-list">
                 <div class="table-responsive">
-                    <table :class="['table', 'br-entity-table', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': page === 'stock'}]">
+                    <table :class="['table', 'br-entity-table', 'br-inventory-table-headings', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': page === 'stock'}]">
                         <thead class="br-table-header-surface">
                             <tr>
                                 <th v-for="heading in headings" :key="heading">{{ heading }}</th>

@@ -203,7 +203,7 @@
                                             </div>
 
                                             <div class="table-responsive br-inventory-operation__table-wrap">
-                                                <table class="table br-entity-table br-inventory-operation__table mb-0">
+                                                <table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table mb-0">
                                                     <thead class="br-table-header-surface">
                                                         <tr>
                                                             <th scope="col">Producto</th>
@@ -288,7 +288,7 @@
 
                     <section class="br-entity-list" aria-label="Traslados registrados">
                         <div class="table-responsive">
-                            <table class="table br-entity-table br-inventory-transfer__table mb-0">
+                            <table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__table mb-0">
                                 <colgroup>
                                     <col class="br-inventory-transfer__col-date">
                                     <col class="br-inventory-transfer__col-product">
@@ -305,7 +305,7 @@
                                         <th>Almacén origen</th>
                                         <th>Almacén destino</th>
                                         <th>Movimiento</th>
-                                        <th class="text-end">Cantidad</th>
+                                        <th>Cantidad</th>
                                         <th>Referencia</th>
                                     </tr>
                                 </thead>

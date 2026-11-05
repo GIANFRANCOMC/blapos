@@ -461,18 +461,37 @@ class StockManagementService {
         int $perPage
     ) {
 
+        return self::stockAlertsQuery(
+            (int) ($filters["warehouse_id"] ?? 0),
+            (string) ($filters["status"] ?? "open")
+        )->paginate($perPage);
+
+    }
+
+    public static function stockAlertsQuery(int $warehouseId, string $status = "open"): Builder {
+
         return InventoryStockAlert::query()
-            ->with([
-                "warehouseItem.warehouse.branch:id,name",
-                "warehouseItem.item:id,internal_code,barcode,name",
-                "resolvedBy:id,name",
+            ->join("warehouse_items as alert_warehouse_items", "alert_warehouse_items.id", "=", "inventory_stock_alerts.warehouse_item_id")
+            ->where("alert_warehouse_items.warehouse_id", $warehouseId)
+            ->where("inventory_stock_alerts.status", $status)
+            ->select([
+                "inventory_stock_alerts.id",
+                "inventory_stock_alerts.warehouse_item_id",
+                "inventory_stock_alerts.quantity",
+                "inventory_stock_alerts.minimum_stock",
+                "inventory_stock_alerts.status",
+                "inventory_stock_alerts.detected_at",
+                "inventory_stock_alerts.resolved_at",
+                "inventory_stock_alerts.resolved_by",
             ])
-            ->when($filters["warehouse_id"] ?? null, fn($query, $warehouseId) => $query->whereHas("warehouseItem", fn($warehouseItem) => $warehouseItem->where("warehouse_id", $warehouseId)
-            )
-            )
-            ->when($filters["status"] ?? null, fn($query, $status) => $query->where("status", $status))
-            ->orderByDesc("detected_at")
-            ->paginate($perPage);
+            ->with([
+                "warehouseItem:id,warehouse_id,item_id",
+                "warehouseItem.item:id,measurement_unit_id,internal_code,barcode,name",
+                "warehouseItem.item.measurementUnit:id,abbreviation",
+            ])
+            ->when($status === "resolved", fn($query) => $query->with("resolvedBy:id,name"))
+            ->orderByDesc("inventory_stock_alerts.detected_at")
+            ->orderByDesc("inventory_stock_alerts.id");
 
     }
 

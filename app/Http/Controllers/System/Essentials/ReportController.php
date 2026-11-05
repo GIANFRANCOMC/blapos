@@ -423,6 +423,7 @@ class ReportController extends BaseController {
 
             $record = new stdClass;
             $record->name = $branch->name;
+            $record->aforo = $branch->capacity;
             $record->status = $branch->formatted_status;
 
             $data->push($record);

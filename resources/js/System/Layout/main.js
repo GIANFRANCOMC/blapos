@@ -3,6 +3,7 @@
 import {createTooltip} from "../Helpers/Alerts.js";
 import {writeClipboard} from "../Helpers/Clipboard.js";
 import {initializeNavbarSearch} from "./navbar-search.js";
+import "../../Shared/disabled-controls.js";
 
 initializeNavbarSearch();
 

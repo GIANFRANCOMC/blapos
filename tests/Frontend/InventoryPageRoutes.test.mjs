@@ -99,7 +99,7 @@ test("transfers open the standard modal and save without leaving the list", () =
     assert.match(modal, /class="br-inventory-operation__config"[\s\S]*?transferSource[\s\S]*?transferDestination[\s\S]*?title="Motivo del traslado"/);
     assert.match(modal, /v-model\.trim="transferForm\.reason"[\s\S]*?maxlength="255"[\s\S]*?showCharCounter/);
     assert.match(request, /"reason" => \["required", "string", "max:255"\]/);
-    assert.match(modal, /class="br-inventory-operation__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-operation__table mb-0">/);
+    assert.match(modal, /class="br-inventory-operation__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table mb-0">/);
     assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.quantity"/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
     assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cancelar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
@@ -186,7 +186,7 @@ test("transfers show only the product-style table below the controls", () => {
 
     assert.doesNotMatch(transfers, /Para registrar un traslado, configura al menos dos almacenes/);
     assert.match(transfers, /<section class="br-entity-list" aria-label="Traslados registrados">\s*<div class="table-responsive">/);
-    assert.match(transfers, /<table class="table br-entity-table br-inventory-transfer__table mb-0">/);
+    assert.match(transfers, /<table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__table mb-0">/);
     assert.match(transfers, /<thead class="br-table-header-surface">/);
     assert.match(transfers, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\/>/);
 
@@ -262,7 +262,7 @@ test("stock lists only the selected warehouse and keeps four table columns", () 
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const stock = read(`${inventoryPath}stock.vue`);
 
-    assert.match(stock, /<table class="table br-entity-table br-inventory__table br-inventory__table--single-warehouse mb-0">/);
+    assert.match(stock, /<table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">/);
     assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
     assert.equal((stock.match(/colspan="4"/g) || []).length, 2);
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);

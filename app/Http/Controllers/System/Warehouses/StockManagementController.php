@@ -9,11 +9,13 @@ use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
 use App\Models\System\Warehouses\{Warehouse};
+use App\Models\System\Organizations\{Company};
 use App\Services\System\Organizations\{AccessScopeService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService, StockManagementService};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
+use Barryvdh\DomPDF\Facade\{Pdf};
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Facades\{Excel};
@@ -164,7 +166,11 @@ class StockManagementController extends BaseController {
 
     public function alerts(Request $request) {
 
-        $warehouseId = (int) $request->input("warehouse_id");
+        $filters = $request->validate([
+            "warehouse_id" => ["required", "integer", "min:1"],
+            "status" => ["nullable", "in:open,resolved"],
+        ]);
+        $warehouseId = (int) $filters["warehouse_id"];
 
         if($warehouseId <= 0 || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
 
@@ -173,9 +179,35 @@ class StockManagementController extends BaseController {
         }
 
         return StockManagementService::getStockAlerts(
-            $request->only(["warehouse_id", "status"]),
+            $filters,
             $this->inventoryPerPage($request)
         );
+
+    }
+
+    public function exportAlertsPdf(Request $request) {
+
+        $data = $request->validate(["warehouse_id" => ["required", "integer", "min:1"]]);
+        $warehouseId = (int) $data["warehouse_id"];
+        $user = $this->getAuthUser();
+
+        if(!RolePermissionService::canAccessRoute($user, "stocks_management.stock.index")
+            || !RolePermissionService::canAccessRoute($user, "stocks_management.alerts.export")
+            || !AccessScopeService::canAccess($user, AccessScopeService::WAREHOUSE, $warehouseId)) {
+            abort(403, "No tienes permiso para descargar las alertas de este almacén.");
+        }
+
+        $warehouse = Warehouse::query()->with("branch:id,name")->findOrFail($warehouseId);
+        $company = Company::query()->first(["legal_name", "commercial_name", "document_number"]);
+        $alerts = StockManagementService::stockAlertsQuery($warehouseId)->get();
+
+        return Pdf::loadView("System.pdf.inventory.stock_alerts", [
+            "warehouse" => $warehouse,
+            "company" => $company,
+            "alerts" => $alerts,
+            "generatedAt" => now(),
+        ])->setPaper("a4", "landscape")
+            ->download("alertas_stock_{$warehouseId}_".now()->format("Ymd_His").".pdf");
 
     }
 

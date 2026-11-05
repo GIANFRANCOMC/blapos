@@ -231,7 +231,7 @@ export default {
             const requestVersion = this.requestVersion;
             this.loadingAlerts = true;
             this.stockAlertsError = "";
-            this.stockAlerts = {total: 0, data: []};
+            if(!url) this.stockAlerts = {total: 0, data: []};
 
             const result = await Requests.get({
                 route: url || Requests.config({entity: "stocks_management", type: "alerts"}),
@@ -915,6 +915,13 @@ export default {
             return warehouseId && operationCode
                 ? `${Requests.config({entity: "stocks_management", type: "operationTemplate"})}?warehouse_id=${encodeURIComponent(warehouseId)}&operation_code=${encodeURIComponent(operationCode)}`
                 : null;
+        },
+        stockAlertsPdfUrl() {
+            const warehouseId = this.filters.warehouse?.code;
+
+            return warehouseId
+                ? `${Requests.config({entity: "stocks_management", type: "alertsPdf"})}?warehouse_id=${encodeURIComponent(warehouseId)}`
+                : "";
         },
         movementAmountField() {
             return this.movementForm.operation?.movementType === "correction"

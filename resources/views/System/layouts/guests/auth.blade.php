@@ -14,6 +14,7 @@
     <head>
         @include("System.layouts.partials.up")
         <link rel="stylesheet" href="{{ asset('System/assets/css/br-login.css') }}" />
+        @vite('resources/js/Shared/disabled-controls.js')
     </head>
     <body>
         {{ $slot }}

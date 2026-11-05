@@ -123,14 +123,14 @@
                 <div class="br-inventory__kardex">
                     <section class="br-entity-list" aria-label="Kardex">
                         <div class="table-responsive">
-                            <table class="table br-entity-table br-inventory__kardex-table mb-0">
+                            <table class="table br-entity-table br-inventory-table-headings br-inventory__kardex-table mb-0">
                                 <thead class="br-table-header-surface">
                                     <tr>
                                         <th>Fecha y responsable</th>
                                         <th>Producto</th>
                                         <th>Movimiento</th>
-                                        <th class="text-end">Variación</th>
-                                        <th class="text-end">Saldo</th>
+                                        <th>Variación</th>
+                                        <th>Saldo</th>
                                         <th>Motivo y origen</th>
                                     </tr>
                                 </thead>

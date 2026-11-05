@@ -4,7 +4,7 @@
         :options="options"
         :class="selectClass"
         :clearable="false"
-        :searchable="true"
+        :searchable="!disabled"
         :disabled="disabled"
         append-to-body
         @update:modelValue="$emit('update:modelValue', $event)">

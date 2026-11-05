@@ -7,8 +7,10 @@ import {buildSystemCss} from './scripts/build-system-css.mjs';
 
 function systemBrandingCss() {
 
-    const sourceDirectories = ['br-branding', 'br-login', 'demo']
-        .map(directory => path.resolve('resources/css/System', directory) + path.sep);
+    const sourceDirectories = [
+        ...['br-branding', 'br-login', 'demo'].map(directory => path.resolve('resources/css/System', directory)),
+        path.resolve('resources/css/Shared'),
+    ].map(directory => directory + path.sep);
 
     return {
         name: 'system-branding-css',
@@ -58,6 +60,7 @@ export default defineConfig({
                 'resources/css/Platform/app.css',
                 'resources/js/System/app.js',
                 'resources/js/System/Layout/main.js',
+                'resources/js/Shared/disabled-controls.js',
                 'resources/js/Platform/app.js',
 
                 // Guest Pages

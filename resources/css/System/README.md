@@ -19,6 +19,7 @@ Los archivos en `public/System/assets/css` son salida generada para mantener com
 - No editar directamente los CSS generados en `public/System/assets/css`.
 - Si un CSS vendor pisa el branding, mapear únicamente sus colores conflictivos a tokens de compatibilidad `--br-vuexy-*`; no duplicar paletas ni agregar `!important` en capas de módulo.
 - Mantener prefijos `br-*` para clases reutilizables.
+- Los controles deshabilitados no deben mostrar cursor de escritura ni conservar el foco al bloquearse. La regla común está en `resources/css/Shared/disabled-controls.css` y `resources/js/Shared/disabled-controls.js`, compartidas por System, Guest y Platform; no crear reglas por módulo. Los campos `readonly` siguen pudiendo recibir foco para seleccionar y copiar su contenido.
 - Los estados compactos usan `br-badge` con `br-badge--success`, `--warning`, `--danger`, `--info`, etc. En Vue, preferir `StatusBadge` para elegir la variante desde `ModuleConstants.js`; muestra solo texto. Las clases antiguas `br-status-label` y `br-inventory-status` son alias visuales de transición.
 - Si un bloque de `custom/` empieza a servir para varios módulos, moverlo a `br-branding/`.
 - La capa final de `custom/` debe consumir solo tokens `--br-*`; no declarar hexadecimales, `rgba()` ni paletas locales.

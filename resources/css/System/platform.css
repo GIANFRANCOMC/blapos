@@ -3,6 +3,7 @@
  * Hoy los layouts siguen usando los archivos generados en public/System/assets/css.
  * Cuando se migre el layout a @vite, este archivo ya concentra el mismo orden de parciales.
  */
+@import "../Shared/disabled-controls.css";
 @import "./br-branding/00-tokens.css";
 @import "./br-branding/01-typography.css";
 @import "./br-branding/10-tables-breadcrumb-filters.css";

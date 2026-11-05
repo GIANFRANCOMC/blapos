@@ -111,7 +111,7 @@
                         <th>Sucursal</th>
                         <th>Ubicación</th>
                         <th>Contacto</th>
-                        <th class="text-center">Capacidad</th>
+                        <th class="text-center">Aforo</th>
                         <th class="text-center">Estado</th>
                         <th class="text-center"><span class="visually-hidden">Acciones</span></th>
                     </tr>
@@ -181,19 +181,25 @@
     </template>
 
     <!-- Modal: Create/Update -->
-    <div class="modal fade br-entity-modal br-modal-standard" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <h5 class="modal-title br-entity-modal__title br-entity-modal__title--form" v-text="isUpdate ? 'EDITAR SUCURSAL' : 'AGREGAR SUCURSAL'"></h5>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="modal-body br-entity-modal__body">
-                    <form @submit.prevent="saveEntity">
-                        <div class="row g-3">
+    <FormModal
+        :modal-id="forms[entity].createUpdate.extras.modals.default.id"
+        :title="isUpdate ? 'EDITAR SUCURSAL' : 'AGREGAR SUCURSAL'"
+        modal-class="br-entity-modal--tabbed"
+        modal-size="modal-lg"
+        :show-submit="false">
+        <template #body>
+            <CatalogFormTabs
+                v-model="activeFormTab"
+                :tabs="formTabs"
+                :has-errors="tabHasErrors"
+                id-prefix="branch"
+                shared-controls-id="branch-form-panel"
+                variant="descriptive"
+                label="Secciones de la sucursal"/>
+            <form class="br-entity-form-section br-branch-form-section" @submit.prevent="saveEntity">
+                <div id="branch-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`branch-tab-trigger-${activeFormTab}`">
                             <InputText
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
@@ -215,6 +221,7 @@
                                 </template>
                             </InputText>
                             <InputText
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.name"
                                 hasDiv
                                 :title="MODULE.texts.form.name"
@@ -227,6 +234,7 @@
                                 xl="8"
                                 lg="8"/>
                             <InputText
+                                v-show="activeFormTab === 'location'"
                                 v-model="forms[entity].createUpdate.data.address"
                                 hasDiv
                                 :title="MODULE.texts.form.address"
@@ -238,6 +246,7 @@
                                 xl="6"
                                 lg="6"/>
                             <InputText
+                                v-show="activeFormTab === 'location'"
                                 v-model="forms[entity].createUpdate.data.reference"
                                 hasDiv
                                 :title="MODULE.texts.form.reference"
@@ -249,6 +258,7 @@
                                 xl="6"
                                 lg="6"/>
                             <InputText
+                                v-show="activeFormTab === 'contact'"
                                 v-model="forms[entity].createUpdate.data.telephone"
                                 hasDiv
                                 :title="MODULE.texts.form.telephone"
@@ -260,6 +270,7 @@
                                 xl="4"
                                 lg="4"/>
                             <InputText
+                                v-show="activeFormTab === 'contact'"
                                 v-model="forms[entity].createUpdate.data.email"
                                 hasDiv
                                 :title="MODULE.texts.form.email"
@@ -271,6 +282,7 @@
                                 xl="8"
                                 lg="8"/>
                             <InputNumber
+                                v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.capacity"
                                 hasDiv
                                 :title="MODULE.texts.form.capacity"
@@ -286,6 +298,7 @@
                                 </template>
                             </InputNumber>
                             <InputText
+                                v-show="activeFormTab === 'location'"
                                 v-model="forms[entity].createUpdate.data.map_url"
                                 hasDiv
                                 :title="MODULE.texts.form.mapUrl"
@@ -294,9 +307,10 @@
                                 showCharCounter
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.map_url"
-                                xl="8"
-                                lg="8"/>
+                                xl="12"
+                                lg="12"/>
                             <InputSlot
+                                v-show="activeFormTab === 'general'"
                                 hasDiv
                                 :title="MODULE.texts.form.status"
                                 :titleClass="[config.forms.classes.title]"
@@ -314,25 +328,19 @@
                                         :searchable="false"/>
                                 </template>
                             </InputSlot>
-                        </div>
-                    </form>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button
-                        type="button"
-                        class="br-btn br-btn-cancel"
-                        data-bs-dismiss="modal">Cancelar</button>
-                    <button
-                        type="button"
-                        :class="['br-btn', isUpdate ? 'br-btn-action-update' : 'br-btn-action-create']"
-                        @click="saveEntity"
-                        :disabled="isSaving">
-                        <span v-text="MODULE.texts.modal.save"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+            </form>
+        </template>
+        <template #footer>
+            <button
+                type="button"
+                :class="['br-btn', isUpdate ? 'br-btn-action-edit' : 'br-btn-action-create']"
+                @click="saveEntity"
+                :disabled="isSaving">
+                <span v-text="MODULE.texts.modal.save"></span>
+            </button>
+        </template>
+    </FormModal>
 </template>
 
 <script>
@@ -344,6 +352,14 @@ import * as Utils from "@System/Helpers/Utils.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
+import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+
+const FORM_TABS = [
+    {id: "general", label: "SUCURSAL", description: "Identidad y aforo", icon: "fa-solid fa-building", fields: ["internal_code", "name", "capacity", "status"]},
+    {id: "location", label: "UBICACIÓN", description: "Dirección y mapa", icon: "fa-solid fa-location-dot", fields: ["address", "reference", "map_url"]},
+    {id: "contact", label: "CONTACTO", description: "Teléfono y correo", icon: "fa-solid fa-address-book", fields: ["telephone", "email"]}
+];
 
 const MODULE_CONFIG = {
     entity: "branches",
@@ -398,7 +414,7 @@ const ERROR_LABELS = {
     reference: "Referencia",
     telephone: "Teléfono",
     email: "Correo electrónico",
-    capacity: "Capacidad",
+    capacity: "Aforo",
     map_url: "URL del mapa",
     status: "Estado"
 };
@@ -429,8 +445,8 @@ const TEXTS = {
         reference: "Referencia",
         telephone: "Teléfono",
         email: "Correo electrónico",
-        capacity: "Capacidad",
-        capacityTooltip: "Cantidad de personas",
+        capacity: "Aforo",
+        capacityTooltip: "Número máximo de personas que admite la sucursal",
         mapUrl: "URL del mapa",
         status: "Estado",
         generateCodeTooltip: "Generar aleatoriamente"
@@ -456,7 +472,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogListSkeleton},
+    components: {CatalogFormTabs, CatalogListSkeleton, FormModal},
     data() {
 
         const crudModule = initCrudModule({
@@ -474,6 +490,7 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
+            activeFormTab: FORM_TABS[0].id,
             skeletonEnabled: initialLoad.skeleton,
             initialLoading: true,
             seriesAudit: {
@@ -641,6 +658,7 @@ export default {
 
             entityForms.errors = {};
             Forms.clearFormData(entityForms.data, this.MODULE.formFields);
+            this.activeFormTab = FORM_TABS[0].id;
 
             if(this.isDefined(record)) {
 
@@ -696,6 +714,9 @@ export default {
 
                 if(!validation.bool) {
 
+                    entityForms.errors = validation.errors;
+                    this.focusFirstErrorTab(validation.errors);
+
                     Alerts.generateAlert({
                         type: "error",
                         messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels),
@@ -733,6 +754,7 @@ export default {
                         config: this.config,
                         errorLabels: this.MODULE.errorLabels
                     });
+                    this.focusFirstErrorTab(entityForms.errors);
 
                 }
 
@@ -752,6 +774,26 @@ export default {
             const result = Forms.validateFormData(formData, this.validationRules, {isDescriptive: true, errorLabels: this.MODULE.errorLabels});
 
             return result;
+
+        },
+        focusFirstErrorTab(errors = {}) {
+
+            const fields = Object.keys(errors);
+            const tab = FORM_TABS.find(item => item.fields.some(field =>
+                fields.some(errorField => errorField === field || errorField.startsWith(`${field}.`))
+            ));
+
+            if(tab) this.activeFormTab = tab.id;
+
+        },
+        tabHasErrors(tabId) {
+
+            const tab = FORM_TABS.find(item => item.id === tabId);
+            const errors = this.forms[this.entity].createUpdate.errors ?? {};
+
+            return tab?.fields.some(field =>
+                Object.keys(errors).some(errorField => errorField === field || errorField.startsWith(`${field}.`))
+            ) ?? false;
 
         },
         // Helpers
@@ -780,6 +822,11 @@ export default {
         },
     },
     computed: {
+        formTabs() {
+
+            return FORM_TABS;
+
+        },
         entity() {
 
             return this.MODULE.config.entity;
@@ -863,4 +910,13 @@ export default {
 </script>
 
 <style scoped>
+.br-branch-form-section {
+    min-height: 10rem;
+}
+
+@media (max-width: 575.98px) {
+    .br-branch-form-section {
+        min-height: 0;
+    }
+}
 </style>

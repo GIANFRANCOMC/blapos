@@ -24,7 +24,8 @@ class BranchExport implements FromCollection, WithColumnWidths, WithHeadings {
 
         return [
             "A" => 50,
-            "B" => 25,
+            "B" => 18,
+            "C" => 25,
         ];
 
     }
@@ -33,6 +34,7 @@ class BranchExport implements FromCollection, WithColumnWidths, WithHeadings {
 
         return [
             "NOMBRE",
+            "AFORO",
             "ESTADO",
         ];
 

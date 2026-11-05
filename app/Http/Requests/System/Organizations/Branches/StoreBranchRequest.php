@@ -55,4 +55,10 @@ class StoreBranchRequest extends CompanyFormRequest {
 
     }
 
+    public function attributes(): array {
+
+        return ["capacity" => "aforo"];
+
+    }
+
 }

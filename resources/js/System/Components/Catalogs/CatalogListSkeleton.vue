@@ -116,7 +116,7 @@ const COLUMNS = {
         {title: "Sucursal", shape: "name", width: "18%"},
         {title: "Ubicación", shape: "location", width: "19%"},
         {title: "Contacto", shape: "contact", width: "19%"},
-        {title: "Capacidad", shape: "capacity", width: "10%", align: "text-center"},
+        {title: "Aforo", shape: "capacity", width: "10%", align: "text-center"},
         {...COMMON_STATUS, width: "8%"},
         {...COMMON_ACTIONS, width: "6%"}
     ],

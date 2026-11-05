@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/core.css') }}">
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/fontawesome.css') }}">
     @vite('resources/css/Platform/app.css')
+    @vite('resources/js/Shared/disabled-controls.js')
 </head>
 <body class="platform-body" data-platform="landlord">
 <div class="platform-shell">

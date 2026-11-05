@@ -8,6 +8,7 @@ const bundles = [
     {
         name: "br-branding",
         sourceDir: "resources/css/System/br-branding",
+        sharedFiles: ["resources/css/Shared/disabled-controls.css"],
         output: "public/System/assets/css/br-branding.css",
         description: "tokens, componentes visuales y estilos de módulos System/Guest",
     },
@@ -68,7 +69,7 @@ function cssFiles(sourceDir) {
 
 function buildBundle(bundle) {
     const sourceDir = absolute(bundle.sourceDir);
-    const files = cssFiles(sourceDir);
+    const files = [...(bundle.sharedFiles || []).map(absolute), ...cssFiles(sourceDir)];
 
     if (!files.length) {
         throw new Error(`No hay parciales CSS en ${bundle.sourceDir}. Ejecuta npm run build:css:system:seed.`);
@@ -97,9 +98,9 @@ function buildBundle(bundle) {
 function writeViteEntrypoint() {
     const imports = bundles.flatMap((bundle) => {
         const sourceDir = absolute(bundle.sourceDir);
-        return cssFiles(sourceDir).map((file) => {
+        return [...(bundle.sharedFiles || []).map(absolute), ...cssFiles(sourceDir)].map((file) => {
             const relativeFile = path.relative(absolute("resources/css/System"), file).replaceAll("\\", "/");
-            return `@import "./${relativeFile}";`;
+            return `@import "${relativeFile.startsWith("..") ? "" : "./"}${relativeFile}";`;
         });
     });
 

@@ -7,6 +7,7 @@ const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "ut
 
 test("sucursales usa tabla y agrupa auditoría en acciones", () => {
     const source = read("resources/js/System/Pages/Organizations/branches/main.vue");
+    const modal = read("resources/js/System/Components/Generics/FormModal.vue");
 
     assert.equal(parse(source, {filename: "branches/main.vue"}).errors.length, 0);
     assert.match(source, /class="table br-entity-table br-entity-table--directory mb-0"/);
@@ -14,8 +15,9 @@ test("sucursales usa tabla y agrupa auditoría en acciones", () => {
     assert.match(source, /<TableActionsDropdown/);
     assert.match(source, /#secondaryActions/);
     assert.match(source, /Auditoría de series/);
-    assert.match(source, /br-entity-modal__header/);
-    assert.match(source, /br-entity-modal__footer/);
+    assert.match(source, /<FormModal/);
+    assert.match(modal, /br-entity-modal__header/);
+    assert.match(modal, /br-entity-modal__footer/);
     assert.doesNotMatch(source, /br-config-scope-grid|card-list-custom|br-branch-audit-toolbar/);
 });
 

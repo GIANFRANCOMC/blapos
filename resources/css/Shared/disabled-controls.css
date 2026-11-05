@@ -1,0 +1,26 @@
+/* Estado visual común de controles bloqueados en System, Guest y Platform. */
+:is(input, textarea, select):disabled,
+:is(input, textarea, select)[aria-disabled="true"],
+[aria-disabled="true"] :is(input, textarea, select),
+[inert] :is(input, textarea, select),
+[contenteditable="true"][aria-disabled="true"],
+[aria-disabled="true"] [contenteditable="true"],
+[inert] [contenteditable="true"],
+.v-select.vs--disabled .vs__search,
+.select2-container--disabled .select2-search__field {
+  caret-color: transparent !important;
+  cursor: not-allowed !important;
+}
+
+.v-select.vs--disabled,
+.v-select.vs--disabled *,
+.select2-container--disabled,
+.select2-container--disabled * {
+  cursor: not-allowed !important;
+}
+
+:is(input, textarea, select):disabled:focus,
+:is(input, textarea, select)[aria-disabled="true"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

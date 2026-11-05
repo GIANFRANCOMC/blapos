@@ -162,6 +162,7 @@ return [
             "stocks_management.valued.index",
         ],
         "stocks_management.alerts" => ["stocks_management.stock.index"],
+        "stocks_management.alerts.export" => ["stocks_management.stock.index"],
         "stocks_management.physicalCount.template" => ["stocks_management.stock.index"],
         "stocks_management.physicalCount.preview" => ["stocks_management.stock.index"],
         "stocks_management.guides" => ["stocks_management.guides.index"],

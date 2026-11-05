@@ -10,6 +10,7 @@ test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas
     const modal = read("resources/js/System/Pages/Warehouses/inventory/StockAlertsModal.vue");
     const sharedModal = read("resources/js/System/Components/Generics/FormModal.vue");
     const modalStyles = read("resources/css/System/br-branding/81-core-roles-entities.css");
+    const inventoryStyles = read("resources/css/System/br-branding/82-inventory.css");
     const listStock = state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts("));
 
     assert.doesNotMatch(listStock, /listStockAlerts|type: "alerts"/);
@@ -23,7 +24,10 @@ test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas
     assert.match(state, /async listStockAlerts\(\{url = null\} = \{\}\)[\s\S]*?type: "alerts"[\s\S]*?status: "open"/);
     assert.match(modal, /v-for="alert in alerts\.data"[\s\S]*?alert\.warehouse_item\?\.item\?\.name/);
     assert.match(modal, /<Paginator[\s\S]*?:links="alerts\.links"[\s\S]*?@clickPage=/);
-    assert.match(modal, /<FormModal[\s\S]*?modal-id="inventoryStockAlertsModal"[\s\S]*?title="ALERTAS DE STOCK"[\s\S]*?dialog-class="modal-dialog-scrollable"[\s\S]*?:show-submit="false"/);
+    assert.match(modal, /<FormModal[\s\S]*?modal-id="inventoryStockAlertsModal"[\s\S]*?title="ALERTAS DE STOCK"[\s\S]*?body-class="br-inventory-alerts__body"[\s\S]*?:show-submit="false"/);
+    assert.match(modal, /br-inventory-alerts__table-scroll[\s\S]*?<\/section>[\s\S]*?br-inventory-alerts__pagination/);
+    assert.match(inventoryStyles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow: auto;/);
+    assert.match(inventoryStyles, /\.br-inventory-alerts__table thead th \{[\s\S]*?position: sticky;/);
     assert.match(page, /<FormModal[\s\S]*?modal-id="inventoryMovementModal"[\s\S]*?title="REGISTRAR OPERACIÓN"[\s\S]*?dialog-class="modal-dialog-scrollable"/);
     assert.match(page, /<template #footerClose>[\s\S]*?ref="closeMovementModal"[\s\S]*?<template #footer>[\s\S]*?Guardar operación/);
     assert.match(sharedModal, /br-entity-modal__title--form/);

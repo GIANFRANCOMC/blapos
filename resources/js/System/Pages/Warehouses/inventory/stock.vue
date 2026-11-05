@@ -177,7 +177,7 @@
             <section class="br-inventory__content">
                 <section class="br-entity-list" aria-label="Control de stock">
                     <div class="table-responsive">
-                        <table class="table br-entity-table br-inventory__table br-inventory__table--single-warehouse mb-0">
+                        <table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">
                             <colgroup>
                                 <col class="br-inventory__col-product">
                                 <col class="br-inventory__col-current">
@@ -187,8 +187,8 @@
                             <thead class="br-table-header-surface">
                                 <tr>
                                     <th>Producto</th>
-                                    <th class="text-end">Stock actual</th>
-                                    <th class="text-end">Stock mínimo</th>
+                                    <th>Stock actual</th>
+                                    <th>Stock mínimo</th>
                                     <th>Situación</th>
                                 </tr>
                             </thead>
@@ -247,7 +247,8 @@
     </section>
     <StockAlertsModal
         :alerts="stockAlerts"
-        :warehouse-name="filters.warehouse?.label || ''"
+        :warehouse="filters.warehouse"
+        :download-url="stockAlertsPdfUrl"
         :loading="loadingAlerts"
         :error="stockAlertsError"
         @page="listStockAlerts"
@@ -363,7 +364,7 @@
 
                         <div class="table-responsive br-inventory-operation__table-wrap">
                             <table
-                                :class="['table', 'br-entity-table', 'br-inventory-operation__table', 'mb-0', {'has-unit-cost': movementForm.operation?.movementType === 'entry'}]">
+                                :class="['table', 'br-entity-table', 'br-inventory-table-headings', 'br-inventory-operation__table', 'mb-0', {'has-unit-cost': movementForm.operation?.movementType === 'entry'}]">
                                 <thead class="br-table-header-surface">
                                     <tr>
                                         <th scope="col">Producto</th>

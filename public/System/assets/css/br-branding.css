@@ -5,6 +5,34 @@
  * No editar este archivo directamente; modifica los parciales y ejecuta npm run build:css:system.
  */
 
+/* Source: resources/css/Shared/disabled-controls.css */
+/* Estado visual común de controles bloqueados en System, Guest y Platform. */
+:is(input, textarea, select):disabled,
+:is(input, textarea, select)[aria-disabled="true"],
+[aria-disabled="true"] :is(input, textarea, select),
+[inert] :is(input, textarea, select),
+[contenteditable="true"][aria-disabled="true"],
+[aria-disabled="true"] [contenteditable="true"],
+[inert] [contenteditable="true"],
+.v-select.vs--disabled .vs__search,
+.select2-container--disabled .select2-search__field {
+  caret-color: transparent !important;
+  cursor: not-allowed !important;
+}
+
+.v-select.vs--disabled,
+.v-select.vs--disabled *,
+.select2-container--disabled,
+.select2-container--disabled * {
+  cursor: not-allowed !important;
+}
+
+:is(input, textarea, select):disabled:focus,
+:is(input, textarea, select)[aria-disabled="true"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Source: resources/css/System/br-branding/00-tokens.css */
 /**
  * br-branding.css — Marca y UI reutilizable (prefijo `br-`)
@@ -526,11 +554,6 @@ body.br-layout .form-label {
   transition: none !important;
 }
 
-.br-layout .v-select.vs--disabled,
-.br-layout .v-select.vs--disabled * {
-  cursor: not-allowed;
-}
-
 .br-layout .v-select.vs--disabled {
   opacity: 1;
   transition: none !important;
@@ -573,7 +596,6 @@ body.br-layout .form-label {
   border-color: color-mix(in srgb, var(--br-border-strong) 78%, var(--br-border)) !important;
   background-color: var(--br-neutral-soft) !important;
   box-shadow: none !important;
-  cursor: not-allowed;
   transition: none !important;
 }
 
@@ -13378,6 +13400,11 @@ body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
     table-layout: fixed;
 }
 
+/* Solo las cabeceras: conservar la alineación propia de los datos y formularios. */
+body.br-layout .br-inventory-table-headings > thead > tr > th {
+    text-align: center !important;
+}
+
 .br-inventory__table--single-warehouse {
     min-width: 46rem;
 }
@@ -13395,6 +13422,158 @@ body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
 .br-inventory__table td:last-child {
     overflow: visible;
     text-align: center;
+}
+
+/* Alertas: contexto legible, filas desplazables y paginación siempre visible. */
+body.br-layout .br-inventory-alerts .modal-content {
+    max-height: calc(100dvh - 1.5rem);
+}
+
+body.br-layout .br-inventory-alerts__body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.br-inventory-alerts__summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid var(--br-border);
+    border-radius: 0.6rem;
+    background: var(--br-surface-cool);
+    flex-shrink: 0;
+}
+
+.br-inventory-alerts__location-icon {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 0.55rem;
+    background: var(--br-primary-soft);
+    color: var(--br-primary-active);
+    font-size: 1rem;
+}
+
+.br-inventory-alerts__location,
+.br-inventory-alerts__count {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.br-inventory-alerts__eyebrow {
+    color: var(--br-primary-active);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.br-inventory-alerts__location strong {
+    overflow: hidden;
+    color: var(--br-secondary);
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.br-inventory-alerts__location > span:last-child {
+    color: var(--br-text);
+    font-size: 0.73rem;
+}
+
+.br-inventory-alerts__count {
+    align-items: center;
+    justify-content: center;
+    min-width: 6.4rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--br-warning-border);
+    border-radius: 0.5rem;
+    background: var(--br-warning-soft);
+    color: var(--br-warning-hover);
+    text-align: center;
+}
+
+.br-inventory-alerts__count strong {
+    font-size: 1.15rem;
+    line-height: 1.1;
+}
+
+.br-inventory-alerts__count span {
+    font-size: 0.63rem;
+    font-weight: 600;
+}
+
+.br-inventory-alerts__list {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.br-inventory-alerts__table-scroll {
+    height: min(24rem, calc(100dvh - 16rem));
+    min-height: 5rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.br-inventory-alerts__table {
+    min-width: 42rem;
+}
+
+.br-inventory-alerts__table th:first-child { width: 47%; }
+.br-inventory-alerts__table th:nth-child(2),
+.br-inventory-alerts__table th:nth-child(3) { width: 18%; }
+.br-inventory-alerts__table th:last-child { width: 17%; }
+
+body.br-layout .br-inventory-alerts__table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--br-table-thead-bg) !important;
+    box-shadow: 0 1px 0 var(--br-table-thead-edge);
+}
+
+.br-inventory-alerts__table td:nth-child(2),
+.br-inventory-alerts__table td:nth-child(3) {
+    white-space: nowrap;
+}
+
+.br-inventory-alerts__pagination {
+    flex-shrink: 0;
+    margin-top: 0.8rem;
+}
+
+.br-inventory-alerts__error {
+    flex-shrink: 0;
+    margin: 0.65rem 0 0;
+    color: var(--br-danger);
+    font-size: 0.72rem;
+}
+
+.br-inventory-alerts__download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+}
+
+@media (max-width: 575.98px) {
+    .br-inventory-alerts__summary {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .br-inventory-alerts__count {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        gap: 0.4rem;
+    }
 }
 
 .br-inventory__product-name,
