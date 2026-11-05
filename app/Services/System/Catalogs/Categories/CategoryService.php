@@ -219,6 +219,9 @@ class CategoryService {
 
         $query = Category::query()
             ->withCount([
+                "items as active_products_count" => fn($builder) => $builder->whereHas("item", fn($itemQuery) => $itemQuery->where("status", "active")->where("type", "product")),
+                "items as active_services_count" => fn($builder) => $builder->whereHas("item", fn($itemQuery) => $itemQuery->where("status", "active")->where("type", "service")),
+                "items as active_subscriptions_count" => fn($builder) => $builder->whereHas("item", fn($itemQuery) => $itemQuery->where("status", "active")->where("type", "subscription")),
                 "items as active_items_count" => function($builder) {
 
                     $builder->whereHas("item", function($itemQuery) {

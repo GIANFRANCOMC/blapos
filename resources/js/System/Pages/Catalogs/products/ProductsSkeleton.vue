@@ -26,7 +26,7 @@
 
         <section class="br-entity-list" aria-hidden="true">
             <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
+                <table class="table br-entity-table br-entity-table--commercial-headings mb-0">
                     <colgroup>
                         <col class="br-entity-table__col-identification">
                         <col class="br-entity-table__col-product">
@@ -39,7 +39,7 @@
                         <tr>
                             <th>Identificación</th>
                             <th class="text-center">Producto</th>
-                            <th class="text-end">Precio</th>
+                            <th class="text-center">Precio</th>
                             <th>Inventario</th>
                             <th class="text-center">Estado</th>
                             <th><span class="visually-hidden">Acciones</span></th>

@@ -40,12 +40,12 @@
 
         <section class="br-entity-list" aria-label="Listado de marcas">
             <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
+                <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
                     <colgroup>
                         <col style="width: 20%;">
-                        <col style="width: 26%;">
-                        <col style="width: 19%;">
-                        <col style="width: 16%;">
+                        <col style="width: 22%;">
+                        <col style="width: 14%;">
+                        <col style="width: 25%;">
                         <col style="width: 11%;">
                         <col style="width: 8%;">
                     </colgroup>
@@ -54,7 +54,7 @@
                             <th>Identificación</th>
                             <th>Marca</th>
                             <th>Sitio oficial</th>
-                            <th class="text-center">Uso actual</th>
+                            <th class="text-center">En uso</th>
                             <th class="text-center">Estado</th>
                             <th><span class="visually-hidden">Acciones</span></th>
                         </tr>
@@ -99,11 +99,8 @@
                                         Sin sitio oficial
                                     </span>
                                 </td>
-                                <td class="text-center">
-                                    <span class="br-entity-table__meta">
-                                        {{ record.active_items_count || 0 }}
-                                        {{ Number(record.active_items_count || 0) === 1 ? "producto activo" : "productos activos" }}
-                                    </span>
+                                <td>
+                                    <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
                                 </td>
                                 <td class="text-center">
                                     <StatusBadge
@@ -265,6 +262,7 @@ import * as Utils from "@System/Helpers/Utils.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
+import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import CopyButton from "@System/Components/CopyButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
@@ -319,7 +317,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {CatalogReferenceImportModal, CatalogUsageBreakdown, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -382,6 +380,7 @@ export default {
             if(response?.data?.config) {
                 this.options.statuses = response.data.config.statuses;
                 this.options.internal_code_prefixes = response.data.config.internal_code_prefixes ?? {};
+                this.options.usage_types = response.data.config.usage_types ?? [];
             }
 
             return Requests.valid({result: response});

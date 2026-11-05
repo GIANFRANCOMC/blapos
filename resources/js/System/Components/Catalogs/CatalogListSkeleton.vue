@@ -22,7 +22,7 @@
 
         <section class="br-entity-list" aria-hidden="true">
             <div class="table-responsive">
-                <table :class="['table', 'br-entity-table', 'mb-0', {'br-entity-table--offering': isOffering, 'br-entity-table--directory': isDirectory}]">
+                <table :class="['table', 'br-entity-table', 'mb-0', {'br-entity-table--offering': isOffering, 'br-entity-table--directory': isDirectory, 'br-entity-table--catalog-usage': isCatalogUsage, 'br-entity-table--commercial-headings': isOffering || isCatalogUsage}]">
                     <colgroup>
                         <col v-for="column in columns" :key="column.title" :style="{width: column.width}">
                     </colgroup>
@@ -35,7 +35,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="index in rowCount" :key="index" :class="['br-catalog-skeleton__row', {'br-catalog-skeleton__row--offering': isOffering, 'br-catalog-skeleton__row--directory': isDirectory}]">
+                        <tr v-for="index in rowCount" :key="index" :class="['br-catalog-skeleton__row', {'br-catalog-skeleton__row--offering': isOffering, 'br-catalog-skeleton__row--directory': isDirectory, 'br-catalog-skeleton__row--usage': isCatalogUsage}]">
                             <td v-for="column in columns" :key="column.title" :class="column.shape === 'identity' ? 'br-entity-table__identification-cell' : ''">
                                 <span v-if="column.shape === 'identity'" class="br-catalog-skeleton__cell-copy">
                                     <span class="br-catalog-skeleton__line br-catalog-skeleton__identifier-label"></span>
@@ -55,6 +55,10 @@
                                 <span v-else-if="column.shape === 'price'" class="br-catalog-skeleton__cell-copy br-catalog-skeleton__cell-copy--end">
                                     <span class="br-catalog-skeleton__line br-catalog-skeleton__price"></span>
                                     <span class="br-catalog-skeleton__line br-catalog-skeleton__price br-catalog-skeleton__price--short"></span>
+                                </span>
+                                <span v-else-if="column.shape === 'usage'" class="br-catalog-skeleton__cell-copy br-catalog-skeleton__usage-group">
+                                    <span v-for="line in 3" :key="line" class="br-catalog-skeleton__line br-catalog-skeleton__usage-line"></span>
+                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__usage-track"></span>
                                 </span>
                                 <span v-else :class="['br-catalog-skeleton__line', `br-catalog-skeleton__${column.shape}`]"></span>
                             </td>
@@ -94,16 +98,16 @@ const COLUMNS = {
     ],
     categories: [
         {...COMMON_IDENTITY, width: "20%"},
-        {title: "Categoría", shape: "name", width: "44%"},
-        {title: "Uso actual", shape: "usage", width: "16%", align: "text-center"},
+        {title: "Categoría", shape: "name", width: "34%"},
+        {title: "En uso", shape: "usage", width: "26%", align: "text-center"},
         {...COMMON_STATUS, width: "13%"},
         {...COMMON_ACTIONS, width: "7%"}
     ],
     brands: [
         {...COMMON_IDENTITY, width: "20%"},
-        {title: "Marca", shape: "name", width: "26%"},
-        {title: "Sitio oficial", shape: "website", width: "19%"},
-        {title: "Uso actual", shape: "usage", width: "16%", align: "text-center"},
+        {title: "Marca", shape: "name", width: "22%"},
+        {title: "Sitio oficial", shape: "website", width: "14%"},
+        {title: "En uso", shape: "usage", width: "25%", align: "text-center"},
         {...COMMON_STATUS, width: "11%"},
         {...COMMON_ACTIONS, width: "8%"}
     ],
@@ -136,7 +140,8 @@ export default {
     computed: {
         columns() { return COLUMNS[this.kind] || []; },
         isOffering() { return this.kind === "services" || this.kind === "subscriptions"; },
-        isDirectory() { return this.kind === "branches" || this.kind === "users"; }
+        isDirectory() { return this.kind === "branches" || this.kind === "users"; },
+        isCatalogUsage() { return this.kind === "categories" || this.kind === "brands"; }
     }
 };
 </script>

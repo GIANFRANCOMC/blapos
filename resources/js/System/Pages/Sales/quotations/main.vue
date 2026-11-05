@@ -241,7 +241,7 @@
                                         <tr>
                                             <th>Ítem</th>
                                             <th class="text-end" style="width: 14%;">Cantidad</th>
-                                            <th class="text-end" style="width: 18%;">Precio</th>
+                                            <th class="text-center" style="width: 18%;">Precio</th>
                                             <th class="text-end" style="width: 16%;">Total</th>
                                             <th class="text-center" style="width: 7%;">Acciones</th>
                                         </tr>

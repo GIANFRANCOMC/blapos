@@ -12,6 +12,7 @@ use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Brands\{BrandConfigService, BrandService};
+use App\Services\System\Catalogs\CatalogUsageService;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Facades\{Excel};
@@ -23,10 +24,14 @@ final class BrandController extends BaseController {
 
     public function initParams(Request $request) {
 
-        return BrandConfigService::getInitParams(
+        $params = BrandConfigService::getInitParams(
             $this->getPage($request),
             $this->getUserId()
         );
+
+        $params->config->usage_types = CatalogUsageService::enabledTypes();
+
+        return $params;
 
     }
 

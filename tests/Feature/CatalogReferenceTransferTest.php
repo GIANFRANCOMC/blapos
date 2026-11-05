@@ -8,8 +8,11 @@ use App\Exports\System\Catalogs\References\{CatalogReferenceListExport, CatalogR
 use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Models\System\Catalogs\{Brand, Category};
 use App\Services\System\Catalogs\Brands\BrandService;
+use App\Services\System\Catalogs\Categories\CategoryService;
+use App\Services\System\Catalogs\CatalogUsageService;
 use App\Services\Guest\{GuestCatalogService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
+use App\Services\System\Tenancy\TenantCompanyContext;
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{DB, Schema};
 use Illuminate\Validation\{ValidationException};
@@ -25,6 +28,48 @@ final class CatalogReferenceTransferTest extends TestCase {
 
         parent::setUp();
         $this->provisionSystemDatabase();
+
+    }
+
+    public function test_catalog_usage_counts_active_items_by_type_and_respects_company_modules(): void {
+
+        $category = Category::query()->create(["internal_code" => "USAGE-CATEGORY", "name" => "Uso de prueba", "status" => "active"]);
+        $brand = Brand::query()->create(["internal_code" => "USAGE-BRAND", "name" => "Marca de prueba", "status" => "active"]);
+        $currencyId = (int) DB::table("currencies")->where("code", "PEN")->value("id");
+
+        foreach(["product", "service", "subscription"] as $type) {
+
+            $itemId = DB::table("items")->insertGetId([
+                "brand_id" => $type === "product" ? $brand->id : null,
+                "internal_code" => "USAGE-".strtoupper($type),
+                "name" => "Elemento {$type}",
+                "price" => 10,
+                "currency_id" => $currencyId,
+                "type" => $type,
+                "status" => "active",
+            ]);
+
+            DB::table("category_items")->insert(["category_id" => $category->id, "item_id" => $itemId, "status" => "active"]);
+
+        }
+
+        $listedCategory = CategoryService::getFilteredListQuery()->whereKey($category->id)->firstOrFail();
+        $listedBrand = BrandService::getFilteredListQuery()->whereKey($brand->id)->firstOrFail();
+
+        $this->assertSame(1, $listedCategory->active_products_count);
+        $this->assertSame(1, $listedCategory->active_services_count);
+        $this->assertSame(1, $listedCategory->active_subscriptions_count);
+        $this->assertSame(1, $listedBrand->active_products_count);
+        $this->assertSame(0, $listedBrand->active_services_count);
+        $this->assertSame(0, $listedBrand->active_subscriptions_count);
+
+        $moduleId = (int) DB::table("sub_sections")->where("dom_route", "services.index")->value("id");
+        DB::table("companies_sub_sections")
+            ->where("company_id", app(TenantCompanyContext::class)->id())
+            ->where("sub_section_id", $moduleId)
+            ->update(["status" => "inactive"]);
+
+        $this->assertNotContains("service", CatalogUsageService::enabledTypes());
 
     }
 

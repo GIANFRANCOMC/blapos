@@ -1419,6 +1419,83 @@ input.input-number-no-range[type=number] {
     min-width: 60rem;
 }
 
+.br-entity-table--catalog-usage {
+    min-width: 54rem;
+}
+
+.br-catalog-usage {
+    width: 100%;
+    max-width: 15rem;
+}
+
+.br-catalog-usage__rows {
+    display: grid;
+    gap: 0.24rem;
+    margin-bottom: 0.48rem;
+}
+
+.br-catalog-usage__row,
+.br-catalog-usage__label {
+    display: flex;
+    align-items: center;
+}
+
+.br-catalog-usage__row {
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: var(--br-text-muted);
+    font-size: 0.72rem;
+    line-height: 1.2;
+}
+
+.br-catalog-usage__label {
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.br-catalog-usage__dot {
+    flex: 0 0 0.42rem;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--br-catalog-usage-color);
+}
+
+.br-catalog-usage__count {
+    color: var(--br-secondary);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.br-catalog-usage__track {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: #e7edf5;
+}
+
+.br-catalog-usage__segment {
+    height: 100%;
+    background: var(--br-catalog-usage-color);
+}
+
+.br-catalog-usage__dot--product,
+.br-catalog-usage__segment--product {
+    --br-catalog-usage-color: #1885dd;
+}
+
+.br-catalog-usage__dot--service,
+.br-catalog-usage__segment--service {
+    --br-catalog-usage-color: #10a777;
+}
+
+.br-catalog-usage__dot--subscription,
+.br-catalog-usage__segment--subscription {
+    --br-catalog-usage-color: #8967d6;
+}
+
 body.br-layout .br-entity-table > thead > tr > th {
     padding: 0.75rem 0.85rem;
     border-bottom: 0 !important;
@@ -1431,16 +1508,22 @@ body.br-layout .br-entity-table > thead > tr > th {
     vertical-align: middle;
 }
 
+/* Solo los listados comerciales: centra las cabeceras sin mover el contenido de las celdas. */
+body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
+    text-align: center !important;
+}
+
 .br-entity-table__col-product {
-    width: 25%;
+    width: 27%;
 }
 
 .br-entity-table__col-identification {
-    width: 23%;
+    width: 22%;
 }
 
-.br-entity-table__col-price {
-    width: 21%;
+.br-entity-table__col-price,
+.br-entity-table__col-offering-price {
+    width: 20%;
 }
 
 .br-entity-table__col-inventory {
@@ -1468,11 +1551,7 @@ body.br-layout .br-entity-table > thead > tr > th {
 }
 
 .br-entity-table__col-detail {
-    width: 22%;
-}
-
-.br-entity-table__col-offering-price {
-    width: 17%;
+    width: 19%;
 }
 
 .br-entity-offering-details {

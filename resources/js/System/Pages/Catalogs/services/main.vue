@@ -37,7 +37,7 @@
 
         <section class="br-entity-list" aria-label="Listado de servicios">
             <div class="table-responsive">
-        <table class="table br-entity-table br-entity-table--offering mb-0">
+        <table class="table br-entity-table br-entity-table--offering br-entity-table--commercial-headings mb-0">
             <colgroup>
                 <col class="br-entity-table__col-code">
                 <col class="br-entity-table__col-offering">
@@ -51,7 +51,7 @@
                     <th>Identificación</th>
                     <th>Servicio</th>
                     <th>Detalles</th>
-                    <th class="text-end">Precio</th>
+                    <th class="text-center">Precio</th>
                     <th class="text-center">Estado</th>
                     <th><span class="visually-hidden">Acciones</span></th>
                 </tr>

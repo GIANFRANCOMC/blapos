@@ -164,7 +164,7 @@
                                         <th style="width: 5%;">#</th>
                                         <th class="min-w-150px" style="width: 18%;">ÍTEM</th>
                                         <th class="min-w-120px text-end" style="width: 11%;">CANTIDAD</th>
-                                        <th class="min-w-170px text-end" style="width: 18%;">PRECIO UNITARIO</th>
+                                        <th class="min-w-170px text-center" style="width: 18%;">PRECIO UNITARIO</th>
                                         <th class="min-w-130px text-end br-sale-detail-calc-head" style="width: 14%;">SUBTOTAL</th>
                                         <th class="min-w-110px text-end br-sale-detail-calc-head" style="width: 10%;">IGV</th>
                                         <th class="min-w-120px text-end pe-3 br-sale-detail-calc-head br-sale-detail-calc-head--total" style="width: 12%;">TOTAL</th>

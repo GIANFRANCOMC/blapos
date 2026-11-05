@@ -12,6 +12,7 @@ use App\Http\Requests\System\Catalogs\{ImportCatalogReferencesRequest};
 use App\Imports\System\Catalogs\References\{CatalogReferenceImport};
 use App\Services\System\Base\{InitParamsCacheInvalidationService};
 use App\Services\System\Catalogs\Categories\{CategoryConfigService, CategoryService};
+use App\Services\System\Catalogs\CatalogUsageService;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\{ValidationException};
 use Maatwebsite\Excel\Facades\{Excel};
@@ -33,7 +34,10 @@ class CategoryController extends BaseController {
 
         $page = $this->getPage($request);
 
-        return CategoryConfigService::getInitParams($page, $this->getUserId());
+        $params = CategoryConfigService::getInitParams($page, $this->getUserId());
+        $params->config->usage_types = CatalogUsageService::enabledTypes();
+
+        return $params;
 
     }
 

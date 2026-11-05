@@ -59,6 +59,27 @@
 .br-catalog-skeleton__row { height: 3.5rem; }
 .br-catalog-skeleton__row--offering { height: 4.4rem; }
 .br-catalog-skeleton__row--directory { height: 3.9rem; }
+.br-catalog-skeleton__row--usage { height: 5.6rem; }
+
+.br-catalog-skeleton__usage-group {
+  width: 100%;
+  max-width: 15rem;
+  gap: 0.42rem;
+}
+
+.br-catalog-skeleton__usage-line {
+  width: 82%;
+  height: 0.55rem;
+}
+
+.br-catalog-skeleton__usage-line:nth-child(2) { width: 67%; }
+.br-catalog-skeleton__usage-line:nth-child(3) { width: 74%; }
+
+.br-catalog-skeleton__usage-track {
+  width: 100%;
+  height: 0.35rem;
+  border-radius: 999px;
+}
 
 .br-catalog-skeleton__identifier-label {
   width: 4.6rem;

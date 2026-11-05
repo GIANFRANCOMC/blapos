@@ -94,6 +94,9 @@ final class BrandService {
 
         $query = Brand::query()
             ->withCount([
+                "items as active_products_count" => fn(Builder $items) => $items->where("status", "active")->where("type", "product"),
+                "items as active_services_count" => fn(Builder $items) => $items->where("status", "active")->where("type", "service"),
+                "items as active_subscriptions_count" => fn(Builder $items) => $items->where("status", "active")->where("type", "subscription"),
                 "products as active_items_count" => fn(Builder $products) => $products->where("status", "active"),
             ]);
 

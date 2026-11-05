@@ -55,9 +55,8 @@ test("brands conserva solo sus cinco campos comerciales", () => {
     const source = readFileSync(new URL(path, import.meta.url), "utf8");
 
     assert.doesNotMatch(source, /logo_path|origin_country_code|products_count|País de origen|Logo configurado/);
-    assert.match(source, /<th class="text-center">Uso actual<\/th>/);
-    assert.match(source, /record\.active_items_count/);
-    assert.match(source, /producto activo/);
+    assert.match(source, /<th class="text-center">En uso<\/th>/);
+    assert.match(source, /<CatalogUsageBreakdown :record="record" :enabled-types="options\.usage_types"\/>/);
 
     for(const field of ["internal_code", "name", "description", "status", "website_url"]) {
 
@@ -67,5 +66,52 @@ test("brands conserva solo sus cinco campos comerciales", () => {
 
     assert.match(source, /<CopyButton\b/);
     assert.match(source, /components: \{[^}]*CopyButton/);
+
+});
+
+test("categorías y marcas presentan el uso por tipo y el skeleton mantiene sus proporciones", () => {
+
+    for(const entity of ["brands", "categories"]) {
+
+        const source = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${entity}/main.vue`, import.meta.url), "utf8");
+        assert.match(source, /<th class="text-center">En uso<\/th>/);
+        assert.match(source, /<CatalogUsageBreakdown :record="record" :enabled-types="options\.usage_types"\/>/);
+        assert.doesNotMatch(source, /Uso actual|ítems activos|productos activos/);
+
+    }
+
+    const breakdown = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogUsageBreakdown.vue", import.meta.url), "utf8");
+    assert.match(breakdown, /this\.enabledTypes\.includes\(type\)/);
+    assert.match(breakdown, /entry\.count \/ total \* 100/);
+    assert.match(breakdown, /active_products_count/);
+    assert.match(breakdown, /active_services_count/);
+    assert.match(breakdown, /active_subscriptions_count/);
+
+    const skeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
+    assert.match(skeleton, /title: "En uso", shape: "usage"/);
+    assert.match(skeleton, /br-catalog-skeleton__usage-group/);
+
+});
+
+test("el desglose conserva los ceros y calcula la distribución solo con módulos visibles", () => {
+
+    const source = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogUsageBreakdown.vue", import.meta.url), "utf8");
+    const descriptor = parse(source).descriptor;
+    const component = new Function(descriptor.script.content.replace("export default", "return"))();
+    const context = {
+        enabledTypes: ["product", "subscription"],
+        record: {active_products_count: 3, active_services_count: 99, active_subscriptions_count: 1}
+    };
+
+    context.entries = component.computed.entries.call(context);
+    context.total = component.computed.total.call(context);
+
+    assert.deepEqual(context.entries.map(({type, count}) => [type, count]), [["product", 3], ["subscription", 1]]);
+    assert.equal(context.total, 4);
+    assert.equal(component.computed.summary.call(context), "Productos: 3, Membresías: 1");
+
+    context.record = {active_products_count: 0, active_subscriptions_count: 0};
+    context.entries = component.computed.entries.call(context);
+    assert.equal(component.computed.total.call(context), 0);
 
 });
