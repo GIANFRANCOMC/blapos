@@ -200,7 +200,7 @@ final class UserWorkspaceTest extends TestCase {
         ]);
 
         $page = $this->get(route("workspace.index"));
-        $page->assertOk()->assertSee('<div id="app"></div>', false);
+        $page->assertOk()->assertSee('id="app" data-endpoint="'.route("workspace.data").'"', false);
         $page->assertDontSee('class="br-workspace__layout"', false);
         $page->assertSee('class="br-navbar-brand"', false);
         $page->assertSee(
@@ -212,7 +212,11 @@ final class UserWorkspaceTest extends TestCase {
             false
         );
 
-        $response = $this->getJson(route("workspace.index"));
+        $this->getJson(route("workspace.index"))
+            ->assertOk()
+            ->assertSee('id="app" data-endpoint="'.route("workspace.data").'"', false);
+
+        $response = $this->getJson(route("workspace.data"));
         $response->assertOk()
             ->assertJsonPath("first_name", "Administrador")
             ->assertJsonPath("breadcrumb.section", "Inicio")
@@ -250,7 +254,7 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureAuthenticatedSession::class,
                 \App\Http\Middleware\EnsureModulePermission::class,
                 \App\Http\Middleware\EnsureOperationalScope::class,
-            ])->getJson(route("workspace.index"))
+            ])->getJson(route("workspace.data"))
                 ->assertOk()
                 ->assertJsonPath("first_name", "ANA");
 
@@ -281,7 +285,7 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureAuthenticatedSession::class,
                 \App\Http\Middleware\EnsureModulePermission::class,
                 \App\Http\Middleware\EnsureOperationalScope::class,
-            ])->getJson(route("workspace.index"));
+            ])->getJson(route("workspace.data"));
 
             $response->assertOk();
             $this->assertNotContains($productsId, $workspace["actions"]->pluck("id"));
@@ -316,7 +320,7 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->getJson(route("workspace.index"));
+        ])->getJson(route("workspace.data"));
 
         $response->assertOk();
         $response->assertJsonPath("company.logomark_url", asset("storage/".$logoPath));
@@ -350,7 +354,7 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->getJson(route("workspace.index"));
+        ])->getJson(route("workspace.data"));
 
         $response->assertOk();
         $response->assertJsonPath("company.document_number", "20999999999")
@@ -378,7 +382,7 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->getJson(route("workspace.index"));
+        ])->getJson(route("workspace.data"));
 
         $response->assertOk();
         $response->assertJsonPath("company.email", null)

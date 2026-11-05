@@ -27,6 +27,10 @@ Un modulo System normalmente tiene:
 - Vista Blade en `resources/views/System/general`.
 - Pagina Vue en `resources/js/System/Pages`.
 
+### Rutas de página y datos
+
+Las páginas autenticadas deben separar la respuesta HTML de las consultas JSON: `index` entrega siempre el Blade y un método/ruta GET diferente entrega los datos de Vue (por ejemplo, `/workspace` y `/workspace/data`). El Blade puede exponer la URL de datos mediante `data-endpoint` usando `route()`. Nunca decidir entre HTML y JSON en un mismo GET según `Accept`, `X-Requested-With` o un parámetro editable; evita que la caché o la navegación Atrás/Adelante reutilicen una respuesta JSON como página. Ambas rutas deben permanecer en el grupo autenticado y conservar los permisos y el alcance tenant; conocer la URL no autoriza el acceso.
+
 
 ## Multi-tenant por base de datos
 

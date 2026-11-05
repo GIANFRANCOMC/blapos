@@ -27,6 +27,8 @@ El flujo preferido en `System` es:
 
 Evitar colocar reglas críticas sólo en Vue. El frontend guía al usuario; el backend decide y protege.
 
+Las páginas Blade/Vue y sus datos JSON usan rutas GET distintas, con control de autenticación, permisos y tenant en el servidor. No usar parámetros ni cabeceras del navegador para alternar HTML y JSON en una misma URL; ver `System/ARCHITECTURE.md`.
+
 
 ## Multi-tenant por BD
 

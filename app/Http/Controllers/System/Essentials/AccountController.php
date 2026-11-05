@@ -15,13 +15,13 @@ use Illuminate\Http\{JsonResponse, RedirectResponse, Request};
 
 final class AccountController extends BaseController {
 
-    public function index(Request $request, CompanyLogomarkService $logomarkService): View|JsonResponse {
+    public function index(): View {
 
-        if(!$request->expectsJson()) {
+        return view("System/general/Essentials/account/main");
 
-            return view("System/general/Essentials/account/main");
+    }
 
-        }
+    public function data(CompanyLogomarkService $logomarkService): JsonResponse {
 
         $account = $this->getAuthUser()->loadMissing("role", "identityDocumentType");
         $company = app(TenantCompanyContext::class)->get()->loadMissing("identityDocumentType");

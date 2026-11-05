@@ -36,11 +36,16 @@ final class SecurityHeaders {
 
         }
 
-        if(
-            $request->hasSession()
-            && auth()->check()
-            && str_contains((string) $response->headers->get("Content-Type"), "text/html")
-        ) {
+        $contentType = strtolower((string) $response->headers->get("Content-Type"));
+        $isNegotiatedResponse = str_contains($contentType, "text/html") || str_contains($contentType, "json");
+
+        if($isNegotiatedResponse) {
+
+            $response->setVary(["Accept", "X-Requested-With"], false);
+
+        }
+
+        if($isNegotiatedResponse && $request->hasSession() && auth()->check()) {
 
             $response->headers->set("Cache-Control", "no-store, private");
             $response->headers->set("Pragma", "no-cache");

@@ -1245,8 +1245,17 @@ final class SystemNavigationProvisioningTest extends TestCase {
             \App\Http\Middleware\EnsureOperationalScope::class,
         ])->get(route("account.index"))
             ->assertOk()
+            ->assertSee('id="app" data-endpoint="'.route("account.data").'"', false)
             ->assertSee('data-navigation-world="Inicio"', false)
             ->assertSee('data-navigation-group="Mi espacio"', false);
+
+        $this->getJson(route("account.index"))
+            ->assertOk()
+            ->assertSee('id="app" data-endpoint="'.route("account.data").'"', false);
+
+        $this->getJson(route("account.data"))
+            ->assertOk()
+            ->assertJsonStructure(["account" => ["email"], "company" => ["name"]]);
 
     }
 

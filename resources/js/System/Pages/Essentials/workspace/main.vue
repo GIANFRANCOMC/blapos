@@ -101,7 +101,7 @@ export default {
             initialLoad.start();
 
             try {
-                const result = await Requests.get({route: window.location.pathname});
+                const result = await Requests.get({route: document.getElementById("app").dataset.endpoint});
 
                 if(!result.bool || !result.data?.company) {
                     this.loadError = result.data?.msg || "No fue posible cargar tu espacio.";

@@ -10,7 +10,7 @@ use App\Services\System\Organizations\Companies\{CompanyCardDataService, Company
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use App\Services\System\Tenancy\{PlatformSupportService};
 use Illuminate\Contracts\View\{View};
-use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
 final class WorkspaceController extends BaseController {
@@ -22,13 +22,13 @@ final class WorkspaceController extends BaseController {
 
     }
 
-    public function index(Request $request): View|JsonResponse {
+    public function index(): View {
 
-        if(!$request->expectsJson()) {
+        return view("System/general/Essentials/workspace/main");
 
-            return view("System/general/Essentials/workspace/main");
+    }
 
-        }
+    public function data(): JsonResponse {
 
         $user = $this->getAuthUser();
         $workspace = $this->navigationService->getWorkspace($user);

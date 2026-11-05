@@ -7,7 +7,7 @@ test("Mi cuenta monta Vue y mantiene el Blade sin presentación", () => {
     const entry = readFileSync(new URL("../../resources/js/System/Pages/Essentials/account/main.js", import.meta.url), "utf8");
     const vite = readFileSync(new URL("../../vite.config.js", import.meta.url), "utf8");
 
-    assert.match(view, /<div id="app"><\/div>/);
+    assert.match(view, /<div id="app" data-endpoint="\{\{ route\('account\.data'\) \}\}"><\/div>/);
     assert.match(view, /@vite\("resources\/js\/System\/Pages\/Essentials\/account\/main\.js"\)/);
     assert.doesNotMatch(view, /br-account-page|Mi cuenta|Guardar cambios/);
     assert.match(entry, /import App from "\.\/main\.vue"/);
