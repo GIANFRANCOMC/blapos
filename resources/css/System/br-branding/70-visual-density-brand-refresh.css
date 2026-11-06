@@ -4,13 +4,6 @@
  * sin cambiar la estructura HTML de los módulos existentes.
  * ------------------------------------------------------------------------- */
 :root {
-  --br-font-size-page: var(--br-ui-font-size);
-  --br-font-size-ui: var(--br-ui-font-size);
-  --br-font-size-label: var(--br-ui-font-size);
-  --br-font-size-table: var(--br-ui-font-size);
-  --br-font-size-table-head: var(--br-ui-font-size);
-  --br-font-size-title-sm: var(--br-ui-font-size);
-  --br-placeholder-font-size: 0.74rem;
 
   --br-control-height: var(--br-btn-height);
   --br-control-height-sm: var(--br-btn-height-sm);
@@ -22,8 +15,6 @@
   --br-btn-height-xs: 1.52rem;
   --br-btn-padding-x: 0.72rem;
   --br-btn-padding-y: 0.34rem;
-  --br-btn-font-size: var(--br-ui-font-size);
-  --br-btn-font-size-sm: var(--br-ui-font-size);
 
   --br-table-cell-pad-y: 0.54rem;
   --br-table-cell-pad-x: 0.68rem;
@@ -100,7 +91,7 @@ body.br-layout .form-label,
   margin-bottom: 0.16rem;
   color: color-mix(in srgb, var(--br-secondary) 64%, var(--br-text-muted));
   font-size: var(--br-font-size-label);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.15;
 }
 
@@ -197,7 +188,7 @@ body > .vs__dropdown-menu .vs__dropdown-option {
 
 .br-btn i,
 .br-layout .btn i {
-  font-size: 0.88em;
+  font-size: var(--br-icon-size-088);
 }
 
 .br-btn-sm,
@@ -258,7 +249,7 @@ body.br-layout .table > thead > tr > th,
 body.br-layout .table > thead > tr > th.bg-secondary,
 body.br-layout .br-entity-table > thead > tr > th {
   padding: 0.58rem var(--br-table-cell-pad-x);
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   font-weight: 600 !important;
   line-height: 1.12;
   letter-spacing: 0.012em;
@@ -410,20 +401,20 @@ body.br-layout :where(.fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands,
 /* Excepciones de microcopy: mantienen jerarquia sin romper la escala global. */
 body.br-layout .br-sidebar-profile-user,
 body.br-layout .br-sidebar-profile-user :where(span, strong) {
-  font-size: 0.8rem !important;
+  font-size: var(--br-font-size-080) !important;
   line-height: 1.16 !important;
 }
 
 body.br-layout .br-sidebar-profile-role,
 body.br-layout .br-sidebar-profile-role :where(span, small, strong) {
-  font-size: 0.52rem !important;
+  font-size: var(--br-font-size-052) !important;
   line-height: 1.18 !important;
   letter-spacing: 0.08em;
 }
 
 body.br-layout .br-document-payment-config,
 body.br-layout .br-document-payment-config :where(span, i) {
-  font-size: 0.58rem !important;
+  font-size: var(--br-font-size-058) !important;
   line-height: 1.1 !important;
 }
 
@@ -440,8 +431,8 @@ body.br-layout .br-document-payment-config :where(span, i) {
 body.br-layout .br-document-settlement .br-document-settlement__header > .form-label {
   margin-bottom: 0 !important;
   color: var(--br-secondary) !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
+  font-size: var(--br-font-size-070) !important;
+  font-weight: 500 !important;
   letter-spacing: 0.01em !important;
   line-height: 1.12 !important;
 }
@@ -449,8 +440,8 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
 .br-document-settlement__field > .form-label {
   margin-bottom: 0 !important;
   color: var(--br-secondary) !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
+  font-size: var(--br-font-size-070) !important;
+  font-weight: 500 !important;
   letter-spacing: 0.01em !important;
   line-height: 1.12 !important;
 }
@@ -502,7 +493,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
 
 .br-document-settlement__field-value--empty {
   color: color-mix(in srgb, var(--br-text-muted) 76%, var(--br-white));
-  font-size: 0.63rem;
+  font-size: var(--br-font-size-063);
   font-weight: 460;
   line-height: 1.15;
   letter-spacing: 0.005em;
@@ -585,7 +576,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
   border-radius: 999px;
   background: transparent;
   color: var(--br-primary-active);
-  font-size: 12px;
+  font-size: var(--br-font-size-075);
   font-weight: 600;
   line-height: 1.1;
   box-shadow: none;
@@ -600,7 +591,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
 }
 
 .br-sale-section-edit i {
-  font-size: 0.56rem !important;
+  font-size: var(--br-font-size-056) !important;
 }
 
 .br-sale-section-modal__block + .br-sale-section-modal__block {
@@ -612,7 +603,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
 .br-sale-section-modal__block h6 {
   margin: 0 0 0.18rem;
   color: var(--br-secondary);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 700;
 }
 
@@ -646,7 +637,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
   border-radius: var(--br-radius-md);
   background: var(--br-white);
   color: var(--br-text-muted);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 600;
   text-align: center;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
@@ -676,8 +667,8 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
   flex-direction: column;
   gap: 0.28rem;
   color: var(--br-text);
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-size: var(--br-font-size-068);
+  font-weight: 500;
 }
 
 .br-sale-credit-preview {
@@ -696,7 +687,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
   justify-content: space-between;
   gap: 1rem;
   color: var(--br-text-muted);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
 }
 
 .br-sale-credit-preview > div strong {
@@ -713,7 +704,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
 
 .br-sale-credit-preview small {
   color: var(--br-text-muted);
-  font-size: 0.64rem;
+  font-size: var(--br-font-size-064);
   text-align: right;
 }
 
@@ -733,7 +724,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
   border-radius: var(--br-radius-sm);
   background: var(--br-white);
   color: var(--br-danger);
-  font-size: 0.64rem;
+  font-size: var(--br-font-size-064);
   font-weight: 600;
 }
 
@@ -751,7 +742,7 @@ body.br-layout .br-document-settlement .br-document-settlement__header > .form-l
 
 body.br-layout .br-document-settlement__empty {
   color: var(--br-text-muted);
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 500;
   line-height: 1.3 !important;
 }
@@ -788,7 +779,7 @@ body.br-layout .br-document-payment-config {
 
 body.br-layout .br-document-payment-config i {
   display: inline-flex;
-  font-size: 0.42rem !important;
+  font-size: var(--br-font-size-042) !important;
   line-height: 1 !important;
 }
 
@@ -869,7 +860,7 @@ body.br-layout .br-document-payment-config--danger:focus-visible {
 }
 
 .br-sale-detail-toolbar__actions .br-btn {
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
   min-height: 1.38rem;
   padding-block: 0.12rem;
   padding-inline: 0.44rem;
@@ -916,7 +907,7 @@ body.br-layout .br-sale-detail-total-row > td {
 }
 
 body.br-layout .br-sale-detail-total-row .br-table-footer-stripe__label {
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 760 !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
@@ -925,7 +916,7 @@ body.br-layout .br-sale-detail-total-row .br-table-footer-stripe__label {
 body.br-layout .br-sale-detail-total-row .br-amount-inline__sign,
 body.br-layout .br-sale-detail-total-row .br-amount-inline__amount {
   color: var(--br-white) !important;
-  font-size: 0.72rem !important;
+  font-size: var(--br-font-size-072) !important;
   font-weight: 780 !important;
 }
 
@@ -994,7 +985,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   border: 0;
   background: transparent;
   color: var(--br-primary-active);
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   font-weight: 760;
   text-decoration: none !important;
 }
@@ -1024,8 +1015,8 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-sale-catalog-info__item > span {
   color: var(--br-text-muted);
-  font-size: 0.62rem !important;
-  font-weight: 760;
+  font-size: var(--br-font-size-062) !important;
+  font-weight: 400;
   line-height: 1.08 !important;
 }
 
@@ -1033,13 +1024,13 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 .br-sale-catalog-info__item > strong {
   overflow: hidden;
   color: var(--br-secondary);
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   line-height: 1.18 !important;
   text-overflow: ellipsis;
 }
 
 .br-sale-catalog-info__item > strong {
-  font-weight: 820;
+  font-weight: 500;
 }
 
 .br-sale-membership-duration {
@@ -1079,7 +1070,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 .br-sale-membership-duration__title {
   flex: 0 0 auto;
   color: var(--br-secondary);
-  font-size: 0.64rem !important;
+  font-size: var(--br-font-size-064) !important;
   font-weight: 780;
   line-height: 1.1 !important;
 }
@@ -1102,14 +1093,14 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-sale-membership-duration__formula > span small {
   color: var(--br-text-muted);
-  font-size: 0.54rem !important;
+  font-size: var(--br-font-size-054) !important;
   font-weight: 720;
   line-height: 1.05 !important;
 }
 
 .br-sale-membership-duration__formula > span strong {
   color: var(--br-secondary);
-  font-size: 0.64rem !important;
+  font-size: var(--br-font-size-064) !important;
   font-weight: 820;
   line-height: 1.18 !important;
 }
@@ -1129,7 +1120,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   display: inline-flex;
   align-items: center;
   color: var(--br-text-muted);
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
   font-style: normal;
   font-weight: 820;
 }
@@ -1168,7 +1159,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 .br-sale-catalog-option__head strong {
   overflow: hidden;
   color: var(--br-secondary);
-  font-weight: 760;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1180,8 +1171,8 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   border-radius: 999px;
   background: color-mix(in srgb, var(--br-white) 88%, var(--br-primary-soft));
   color: var(--br-text-muted);
-  font-size: 0.54rem !important;
-  font-weight: 720;
+  font-size: var(--br-font-size-054) !important;
+  font-weight: 500;
 }
 
 .br-sale-catalog-option__line {
@@ -1203,20 +1194,20 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   border-radius: var(--br-radius-xs);
   background: color-mix(in srgb, var(--br-secondary) 7%, var(--br-white));
   color: var(--br-text-muted);
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
   line-height: 1.1 !important;
 }
 
 .br-sale-catalog-option__codes small span,
 .br-sale-catalog-option__meta small {
   color: var(--br-text-muted);
-  font-weight: 680;
+  font-weight: 400;
 }
 
 .br-sale-catalog-option__codes strong {
   color: var(--br-secondary);
-  font-size: 0.62rem !important;
-  font-weight: 760;
+  font-size: var(--br-font-size-062) !important;
+  font-weight: 500;
   letter-spacing: 0.01em;
 }
 
@@ -1239,13 +1230,13 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 .br-sale-catalog-option__meta i {
   width: 0.72rem;
   color: var(--br-orange);
-  font-size: 0.62rem;
+  font-size: var(--br-font-size-062);
   text-align: center;
 }
 
 .br-sale-catalog-option__meta strong {
   color: var(--br-secondary);
-  font-weight: 820;
+  font-weight: 500;
 }
 
 .br-sale-catalog-option__meta-card.is-price {
@@ -1361,7 +1352,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-choice-group--stacked .br-choice-option small {
   color: var(--br-text-muted);
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   line-height: 1.18;
 }
 
@@ -1422,7 +1413,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 }
 
 .br-sale-detail-actions__trigger i {
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
   line-height: 1 !important;
 }
 
@@ -1451,7 +1442,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   padding: 0.36rem 0.48rem;
   border-radius: 0.24rem;
   color: var(--br-text) !important;
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
   font-weight: 600;
   -webkit-tap-highlight-color: transparent;
 }
@@ -1463,7 +1454,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 .br-sale-detail-actions__menu .dropdown-item i {
   width: 0.82rem;
   color: var(--br-text-muted);
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
   text-align: center;
 }
 
@@ -1554,7 +1545,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   min-height: 1.3rem;
   padding: 0.1rem 0.36rem;
   border-radius: 0.28rem;
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 760;
   line-height: 1.05;
   white-space: nowrap;
@@ -1584,7 +1575,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 .br-sale-detail-tax-amount {
   justify-content: flex-end;
   color: var(--br-secondary);
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 780;
   white-space: nowrap;
 }
@@ -1600,7 +1591,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   padding: 0.03rem 0.16rem;
   border: 0 !important;
   border-radius: 999px;
-  font-size: 0.53rem !important;
+  font-size: var(--br-font-size-053) !important;
   font-weight: 600;
   line-height: 1.05;
   white-space: nowrap;
@@ -1653,7 +1644,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-sale-detail-membership__heading strong {
   color: var(--br-secondary);
-  font-size: 0.64rem !important;
+  font-size: var(--br-font-size-064) !important;
   font-weight: 820;
   letter-spacing: 0.06em;
   line-height: 1.1;
@@ -1662,7 +1653,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-sale-detail-membership__heading small {
   color: var(--br-text-muted);
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
   line-height: 1.16;
 }
 
@@ -1685,7 +1676,7 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-sale-detail-membership__timeline > i {
   color: color-mix(in srgb, var(--br-warning) 66%, var(--br-text-muted));
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   opacity: 0.78;
 }
 
@@ -1699,16 +1690,16 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
 
 .br-sale-detail-membership__date span {
   color: var(--br-text-muted);
-  font-size: 0.62rem !important;
-  font-weight: 720;
+  font-size: var(--br-font-size-062) !important;
+  font-weight: 400;
   line-height: 1.1;
 }
 
 .br-sale-detail-membership__date strong {
   overflow: hidden;
   color: var(--br-secondary);
-  font-size: 0.68rem !important;
-  font-weight: 680;
+  font-size: var(--br-font-size-068) !important;
+  font-weight: 500;
   line-height: 1.16;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1781,7 +1772,7 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-tax-summary__row strong,
 .br-document-payment-summary__row strong {
   color: var(--br-text);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.42;
 }
@@ -1790,7 +1781,7 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-payment-summary__row small {
   display: block;
   color: var(--br-text-muted);
-  font-size: 0.64rem;
+  font-size: var(--br-font-size-064);
   font-weight: 500;
   line-height: 1.2;
 }
@@ -1799,7 +1790,7 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-payment-summary__row b {
   justify-self: end;
   color: var(--br-text);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.42;
   white-space: nowrap;
@@ -1808,7 +1799,7 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-payment-summary__amount {
   justify-self: end;
   color: var(--br-text);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.42;
   white-space: nowrap;
@@ -1829,7 +1820,7 @@ body.br-layout .br-quotation-builder__head strong {
 
 .br-document-tax-summary__row > .br-amount-inline__amount {
   color: var(--br-text);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.42;
 }
@@ -1840,7 +1831,7 @@ body.br-layout .br-quotation-builder__head strong {
   gap: 0.34rem;
   margin: 0.08rem 0 -0.12rem;
   color: color-mix(in srgb, var(--br-primary) 48%, var(--br-secondary)) !important;
-  font-size: 0.64rem !important;
+  font-size: var(--br-font-size-064) !important;
   font-weight: 820 !important;
   letter-spacing: 0.04em !important;
   line-height: 1.1 !important;
@@ -1922,7 +1913,7 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-summary-card__title {
   margin: 0;
   color: var(--br-secondary);
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0.05em;
@@ -1941,8 +1932,8 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-serie-option strong {
   overflow: hidden;
   color: var(--br-text);
-  font-size: 0.72rem;
-  font-weight: 650;
+  font-size: var(--br-font-size-072);
+  font-weight: 500;
   line-height: 1.16;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1951,7 +1942,7 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-serie-option small {
   overflow: hidden;
   color: var(--br-text-muted);
-  font-size: 0.62rem;
+  font-size: var(--br-font-size-062);
   font-weight: 500;
   line-height: 1.12;
   text-overflow: ellipsis;
@@ -1980,14 +1971,14 @@ body.br-layout .br-quotation-builder__head strong {
 .br-document-holder-option strong {
   flex: 0 0 auto;
   color: var(--br-secondary);
-  font-size: 0.72rem;
-  font-weight: 720;
+  font-size: var(--br-font-size-072);
+  font-weight: 500;
 }
 
 .br-document-holder-option span {
   min-width: 0;
   color: var(--br-text);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 520;
 }
 
@@ -1997,8 +1988,8 @@ body.br-layout .br-quotation-builder__head strong {
   gap: 0.08rem;
   min-width: 0;
   color: color-mix(in srgb, var(--br-text) 76%, var(--br-text-muted)) !important;
-  font-size: 0.68rem !important;
-  font-weight: 560;
+  font-size: var(--br-font-size-068) !important;
+  font-weight: 400;
   line-height: 1.14;
 }
 
@@ -2013,7 +2004,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 
 .br-document-settlement__summary-value {
   color: color-mix(in srgb, var(--br-text) 86%, var(--br-text-muted)) !important;
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 600;
 }
 
@@ -2038,7 +2029,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 }
 
 .br-document-settlement__summary-value--total {
-  font-size: 0.74rem !important;
+  font-size: var(--br-font-size-074) !important;
 }
 
 .br-document-settlement__summary-help {
@@ -2049,7 +2040,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
   align-self: center;
   margin-left: 0.08rem;
   color: inherit;
-  font-size: 0.78em;
+  font-size: var(--br-icon-size-078);
   transform: none;
   line-height: 1;
   cursor: default;
@@ -2063,7 +2054,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
   gap: 0.7rem;
   min-width: 0;
   margin-top: 0.02rem;
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 650;
   line-height: 1.1;
 }
@@ -2082,7 +2073,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 }
 
 .br-document-settlement__summary-status i {
-  font-size: 0.62rem !important;
+  font-size: var(--br-font-size-062) !important;
 }
 
 .br-document-settlement__summary-status strong {
@@ -2125,13 +2116,13 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 
 .br-document-delivery-summary__value {
   color: var(--br-text);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.42;
 }
 
 .br-document-delivery-summary small {
-  font-size: 0.64rem;
+  font-size: var(--br-font-size-064);
   line-height: 1.2;
 }
 
@@ -2160,7 +2151,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 
 .br-sale-delivery-progress > span {
   color: var(--br-text-muted);
-  font-size: 0.68rem !important;
+  font-size: var(--br-font-size-068) !important;
   font-weight: 560;
   line-height: 1.2;
 }
@@ -2202,7 +2193,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
   border-radius: var(--br-radius-sm);
   background: color-mix(in srgb, var(--br-primary-soft) 42%, var(--br-white));
   color: var(--br-text-muted);
-  font-size: 0.64rem !important;
+  font-size: var(--br-font-size-064) !important;
   line-height: 1.15;
 }
 
@@ -2224,7 +2215,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 .br-sale-delivery-trace h6 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: 0.72rem !important;
+  font-size: var(--br-font-size-072) !important;
   font-weight: 720;
 }
 
@@ -2245,8 +2236,8 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 
 .br-sale-delivery-trace__item strong {
   color: var(--br-secondary);
-  font-size: 0.68rem !important;
-  font-weight: 680;
+  font-size: var(--br-font-size-068) !important;
+  font-weight: 500;
   line-height: 1.18;
 }
 
@@ -2254,7 +2245,7 @@ body.br-layout .br-document-settlement__summary > .br-document-settlement__summa
 .br-sale-delivery-trace__item p {
   margin: 0;
   color: var(--br-text-muted);
-  font-size: 0.64rem !important;
+  font-size: var(--br-font-size-064) !important;
   line-height: 1.25;
 }
 
@@ -2277,7 +2268,7 @@ body.br-layout .table > thead > tr > th.bg-secondary {
   background-color: transparent !important;
   background-image: none !important;
   color: var(--br-table-thead-text) !important;
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   font-weight: 600 !important;
   line-height: 1.12 !important;
   letter-spacing: 0.012em !important;

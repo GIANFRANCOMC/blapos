@@ -96,11 +96,48 @@ La plataforma usa una densidad visual compacta definida en `br-branding/70-visua
 
 Inter es la única fuente de interfaz en System, Guest y Platform. Se carga una vez por página mediante `resources/views/shared/font-inter.blade.php`; `--br-font-sans` en `br-branding/00-tokens.css` y `fontFamily.sans` en Tailwind son sus puntos de configuración. Los controles, menús, modales y componentes de terceros heredan esta fuente desde `br-branding/01-typography.css`. La plantilla Bootstrap ya no declara Public Sans. En JavaScript, `config.typography.fontFamily` lee ese token y alimenta ApexCharts y el valor predeterminado de Chart.js: no escribir el nombre de la fuente en cada gráfico. Las fuentes de Font Awesome y Tabler Icons se conservan exclusivamente para iconos.
 
-Jerarquía de peso: títulos `700`, labels/subtítulos y botones `600`, texto e inputs `400`. Mantener los tamaños compactos existentes: cambiar la familia tipográfica no autoriza ampliar controles ni alterar espaciados. En códigos, importes y reloj usar `font-variant-numeric: tabular-nums` cuando sea útil alinear cifras, sin recurrir a otra familia. Los correos y PDF conservan fuentes seguras para sus respectivos clientes/renderizadores, donde Google Fonts no está garantizado.
+Jerarquía de peso: títulos y totales `600–700`, etiquetas y botones `500`, texto, ayudas e inputs `400`. Reservar las negritas para jerarquía o énfasis útil; los códigos, estados y datos repetidos no necesitan negrita por defecto. Mantener los tamaños compactos existentes: cambiar la familia tipográfica no autoriza ampliar controles ni alterar espaciados. En códigos, importes y reloj usar `font-variant-numeric: tabular-nums` cuando sea útil alinear cifras, sin recurrir a otra familia. Los correos y PDF conservan fuentes seguras para sus respectivos clientes/renderizadores, donde Google Fonts no está garantizado.
+
+### Tokens reutilizables para el aspecto visual
+
+Todo valor visual nuevo debe pertenecer al sistema compartido antes de usarse en una pantalla: tipografía, colores, pesos, espaciado, altura de controles, radios, bordes, sombras y transiciones. Primero elegir un token existente según la función del elemento; si falta, añadirlo al catálogo central y documentar su propósito. No duplicar valores ni crear clases por módulo para representar el mismo rol visual.
+
+La escala tipográfica está en `resources/css/Shared/typography-tokens.css`, compartida por System, Guest y Platform. Conserva los tamaños actuales en pasos reutilizables `--br-font-size-*` y los tamaños fluidos en `--br-font-size-fluid-*`. Los aliases de System/Guest se definen en `br-branding/00-tokens.css`; los parciales y componentes Vue usan `var(...)`, nunca un tamaño literal. `inherit` y `0` siguen siendo válidos para herencia o técnicas de ocultación.
+
+### Tamaños estándar según el rol
+
+La interfaz debe usar pocos tamaños y repetirlos de forma consistente. Centralizar un valor en una variable no basta: no se debe crear un tamaño para cada pantalla, etiqueta o diferencia visual pequeña. El catálogo numérico conserva medidas heredadas por compatibilidad; su existencia no las convierte en opciones recomendadas para componentes nuevos. Elegir el alias del rol, no un paso numérico por preferencia estética.
+
+| Rol de interfaz | Tamaño estándar existente | Uso |
+| --- | --- | --- |
+| Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales; los aliases de inputs, labels y botones parten de este tamaño. |
+| Ayuda o descripción breve | `--br-table-caption-font-size` | Contexto subordinado al dato principal; no reducirlo por pantalla. |
+| Dato secundario | `--br-table-secondary-font-size` | Desgloses comparables de un mismo nivel. |
+| Dato principal destacado | `--br-table-value-font-size` | Precios y métricas que requieren mayor jerarquía. |
+| Encabezado de tabla | `--br-table-heading-font-size` | Cabeceras de listados y tablas compartidas. |
+| Cantidad de stock | `--br-stock-quantity-font-size` | Stock actual y Diferencia; ambos mantienen siempre el mismo tamaño. |
+| Título de página, sección o modal | Componente compartido correspondiente | Reutilizar su jerarquía y tamaño existentes; no crear un título local con otra medida. |
+
+Elementos con el mismo rol usan el mismo alias en todos los módulos. La jerarquía adicional se resuelve primero con estructura, espaciado, color y peso moderado; no con variaciones mínimas como un tamaño nuevo para cada código, contador o etiqueta. Los aliases específicos heredados, incluidos los códigos de inventario, se mantienen mientras su componente los necesite; al migrar un componente se busca consolidarlos en los roles estándar, no propagar esas excepciones.
+
+Antes de introducir un tamaño o alias nuevo:
+
+1. Identificar el rol y comprobar si lo cubren el componente compartido o los aliases de la tabla anterior.
+2. Reutilizar el alias existente. Si hace falta un nombre semántico adicional, referenciar un tamaño ya disponible; un alias nuevo no justifica una medida nueva.
+3. Solo si ningún rol existente cubre una necesidad funcional o de legibilidad verificable, documentar el motivo, el componente compartido que lo consumirá y por qué no sirve la escala actual. Una preferencia estética local o una diferencia mínima no son justificación.
+4. Definir la excepción una sola vez en el origen central y comprobar sus consumidores y el comportamiento responsive. No añadir tamaños sueltos, duplicados ni ajustes mediante `calc()` para separarse del estándar.
+
+En revisión, rechazar tamaños nuevos sin justificación, el uso de pasos numéricos para eludir un rol existente y excepciones duplicadas entre módulos. El objetivo es consolidar la escala y mantener pocas medidas reconocibles.
+
+Para ampliar toda la tipografía, cambiar `--br-font-scale` de `1` a `1.1` (10 % más). El factor se aplica una sola vez a los tamaños absolutos y fluidos; los iconos en `em` siguen a su texto. Para cambiar solo un rol, modificar su alias en `00-tokens.css` para todos sus consumidores, siguiendo los criterios anteriores. No redefinir los aliases globales en `body`, capas de pulido o componentes porque impediría configurarlos desde su origen.
+
+Stock actual y Diferencia comparten `--br-stock-quantity-font-size` (`0.8rem` de base), conservando sus colores y peso. Los encabezados de tablas usan `--br-table-heading-font-size`; las etiquetas y valores de los códigos de inventario usan `--br-product-code-label-font-size` y `--br-product-code-font-size`. Usar `colon-at-end` en Cód. interno y Cód. barras en lugar de escribir dos puntos manuales.
+
+Modificar la regla fuente del componente y eliminar declaraciones redundantes antes de aumentar la especificidad. No resolver conflictos entre estilos propios añadiendo clases o `!important`. Las excepciones de librerías y los ajustes responsive deben consumir los mismos tokens. Los tamaños de documentos exportados, correos y dibujos de canvas se definen según su formato de salida, fuera de la escala de interfaz.
 
 ### Convención tipográfica de tablas
 
-La escala compartida se declara en `resources/css/System/br-branding/00-tokens.css` y se aplica desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
+Los aliases compartidos se declaran en `resources/css/System/br-branding/00-tokens.css`, referencian la escala de `Shared/typography-tokens.css` y se aplican desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
 
 | Rol | Token | Tamaño base |
 | --- | --- | --- |
@@ -108,6 +145,8 @@ La escala compartida se declara en `resources/css/System/br-branding/00-tokens.c
 | Dato principal (precio de venta, inventario u otro valor destacado) | `--br-table-value-font-size` | `0.82rem` |
 | Dato secundario (precio mínimo/máximo u otro desglose) | `--br-table-secondary-font-size` | `0.7rem` |
 | Etiqueta breve de un dato compuesto | `--br-table-caption-font-size` | `0.68rem` |
+| Cantidades comparables de inventario: Stock actual y Diferencia | `--br-stock-quantity-font-size` | `0.8rem` |
+| Encabezado de tabla | `--br-table-heading-font-size` | `0.66rem` |
 
 Los valores principales comparables de una misma fila, como precio e inventario, deben usar el mismo token, peso y altura de línea compatibles. La jerarquía se crea con color y peso, no con tamaños distintos para datos del mismo nivel. Los encabezados, estados e iconos conservan sus tokens o reglas propios. Antes de crear otro tamaño, identificar el rol del texto y reutilizar el token correspondiente.
 
@@ -126,10 +165,12 @@ Criterios prácticos:
 - Preferir tooltips para aclaraciones breves, no alertas visuales invasivas.
 - Usar labels sutiles, no grandes ni demasiado oscuros.
 - Los botones deben diferenciar intención: buscar, crear, editar, importar, descargar, cancelar, confirmar y peligro.
+- Ofrecer «Limpiar filtros» en barras con varios campos mediante la clase compartida `br-filter-clear` de `br-branding/40-buttons-quick-create.css`. Tiene apariencia de enlace sin subrayado, peso normal, el tamaño tipográfico existente de acciones pequeñas y alineación al extremo inferior de la fila. Se puede usar en un botón nativo o en `<a href="#" role="button">`; en enlaces, prevenir la navegación, admitir Espacio además de Enter y reflejar el bloqueo con `aria-disabled` y `tabindex`. No añadir estilos locales para repetir esta apariencia. Restablecer los campos juntos y conservar el contexto operativo (por ejemplo, el almacén); en filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
 - Los icon buttons requieren `aria-label` y tooltip.
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
-- Debajo de cada tabla paginada, disponer un pie sin tarjeta adicional: `Paginator` centrado y `ListResultCount` a la derecha. El contador muestra únicamente el total filtrado del servidor con singular o plural (por ejemplo, «Resultado: 1 registro» o «Resultado: 50 registros»); no mostrar el rango de la página. Reservar su espacio y ocultar cifras anteriores durante la carga. Aplicar este patrón a listados nuevos o migrados.
+- Debajo de todas las tablas paginadas, incluidas las modales, usar `Paginator`, que integra el pie completo `br-list-footer`: navegación centrada y `ListResultCount` a la derecha. Pasar `:pagination` con el objeto paginado completo del servidor, `:links` y `:loading`; no añadir otro contador ni wrappers de centrado o margen. El contador muestra únicamente el total filtrado del servidor con singular o plural (por ejemplo, «Resultado: 1 registro» o «Resultado: 50 registros»), nunca el número de filas de la página ni el rango. Durante cualquier carga inicial, búsqueda, cambio de filtro o página, ocultar juntos navegación y contador hasta que termine la consulta. El componente compartido centraliza esta condición mediante `loading`; no mostrar cifras anteriores ni permitir navegación mientras se actualiza la tabla. Al terminar, reaparecen con el total actualizado, incluso con cero registros o una sola página. No añadir condiciones locales por `total > 0` o `links`, ni colocar el pie dentro del scroll horizontal/vertical. Mantener únicamente condiciones de contexto, como la vista activa o el almacén seleccionado. La regla aplica también a Guest y Platform, incluidos sus paginadores propios.
+- La distancia entre tabla y pie se define una sola vez mediante `--br-list-pagination-gap` en `br-branding/00-tokens.css` (`0.75rem` de base). No sumar `mt-*`, márgenes propios del módulo o márgenes inferiores de tabla a esa separación. En móvil y contenedores estrechos, incluidas modales en pantallas grandes, el pie dispone navegación y contador en filas según su propio ancho para evitar superposición; el contador conserva alineación a la derecha. `DataTable` recibe el objeto completo mediante `pagination` cuando es paginada.
 - El paginador compartido muestra `Primera`, `Anterior`, páginas próximas, `Siguiente` y `Última`. Sus botones son compactos y usan peso tipográfico normal; la página activa se distingue por el fondo, no por negrita. Los extremos no disponibles usan botones nativos deshabilitados. Cada módulo conserva sus propios colores y estilos de botones deshabilitados; no aplicar una neutralización global.
 - Los estados vacíos y loaders deben usar componentes compartidos (`WithoutData`, `Loader`) para evitar estilos distintos por módulo.
 - Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
@@ -137,14 +178,30 @@ Criterios prácticos:
 - Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono se alinea a la izquierda del título y la descripción. Cada tab conserva un contorno tenue; el activo usa un borde azul claro, un icono en recuadro primary y una línea inferior fina, sin el borde grueso de la variante compacta. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
 - Las modales comparten `--br-modal-chrome-surface` para encabezado y pie (gris azulado suave) y `--br-modal-surface` para el cuerpo (casi blanco). Ajustar estos tokens en `br-branding/00-tokens.css` para mantener contraste uniforme; no crear paletas de modal por módulo.
 
+### Consultas de tablas y limpieza de registros
+
+- Antes de cada consulta de listado (Buscar, Enter, filtros aplicados, paginación, reintento o recarga), activar `loading` y vaciar los registros antes del `await`. Para tablas paginadas, usar `Requests.emptyPagination()` de `Helpers/ListState.js`, reexportado por `Requests.js`: devuelve un objeto nuevo con `data: []`, `total: 0`, `links: []` y metadatos reiniciados. Para listados sin paginación, asignar `[]`. Limpiar también los resúmenes que dependan de esos resultados.
+- Solo una respuesta válida puede repoblar la tabla. Si la consulta falla, conservar el estado vacío; nunca restaurar filas, totales o enlaces de la búsqueda anterior. Liberar `loading` en `finally`, también ante excepciones. Las pantallas con consultas simultáneas deben conservar sus controles de versión para descartar respuestas antiguas.
+- Editar el texto de un filtro o pulsar su X no limpia los registros ni consulta por sí solo cuando la pantalla aplica filtros con Buscar. La limpieza pertenece al inicio de la consulta, conserva los filtros escritos y no al evento de edición del input.
+- Durante la consulta mostrar el indicador habitual del listado y ocultar conjuntamente paginador y cantidad de resultados. Al finalizar, mostrar el total de la respuesta actual o cero si falló.
+
 ### Carga inicial con skeleton
 
-Desde ahora, las pantallas nuevas o migradas de `System` deben usar un skeleton ligero como modalidad visual de carga inicial. Debe reproducir la estructura y densidad del contenido real (filtros, pestañas, columnas, formularios y pie) para evitar saltos grandes al terminar la consulta. Mantener el breadcrumb visible cuando sea posible. El skeleton representa solo la primera carga completa; búsquedas, paginación, cambios de pestaña y guardados posteriores conservan sus indicadores y mensajes propios.
+Las pantallas nuevas o migradas de `System` pueden usar un skeleton ligero, el loader Swal compartido o ambos como modalidad visual durante `initParams`. El skeleton debe reproducir la estructura del estado que aparece inmediatamente después: filtros, pestañas, encabezados y formularios. En los listados, mostrar el mismo `Loader` compartido dentro de una única fila con `colspan` y el mismo espaciado que la tabla real durante la consulta. No simular filas de registros, paginadores ni cantidades: desaparecían al pasar al loader y provocaban un salto de altura. Mantener el breadcrumb visible cuando sea posible. El skeleton termina al resolver los parámetros, antes de solicitar el primer listado; tanto ese listado como búsquedas, paginación, cambios de pestaña y guardados posteriores usan sus indicadores y mensajes propios.
 
-- Usar `createInitialLoad` de `resources/js/System/Helpers/InitialLoad.js`. El helper mantiene `skeleton: false` por defecto para compatibilidad: en ese modo muestra y cierra el Swal `initParams`. Cada pantalla nueva activa explícitamente `createInitialLoad({skeleton: true})`; si necesita volver al Swal, cambia esa opción a `false` sin modificar la lógica de datos.
-- Llamar `start()` antes de las consultas iniciales y `finish()` en `finally`. Mantener el skeleton visible hasta completar tanto la configuración como el primer listado o formulario; liberar el estado también ante errores. No agregar demoras artificiales.
+- Usar `createInitialLoad` de `resources/js/System/Helpers/InitialLoad.js`. Las opciones `skeleton` y `swal` son independientes y se eligen por pantalla, sin modificar su lógica de datos. Sin opciones se conserva solo Swal (`skeleton: false`, `swal: true`); si se omite `swal`, su valor es `!skeleton`, por compatibilidad. La forma existente `createInitialLoad({skeleton: true})` conserva solo skeleton.
+
+| Modo de carga inicial | Configuración explícita |
+| --- | --- |
+| Solo skeleton | `createInitialLoad({skeleton: true, swal: false})` |
+| Solo loader Swal | `createInitialLoad({skeleton: false, swal: true})` |
+| Skeleton y Swal | `createInitialLoad({skeleton: true, swal: true})` |
+
+- Control de stock usa skeleton y Swal juntos exclusivamente durante `initParams`. Los demás submódulos de inventario conservan solo skeleton durante esa misma fase. Cada instancia configura su helper por separado; no compartir un ciclo de carga mutable entre pantallas.
+- Llamar `start()` antes de `initParams` y `finish()` en su `finally`, junto con `initialLoading = false`, antes de iniciar `list`. No incluir el primer listado en ese bloque ni ejecutarlo en paralelo con los parámetros. Liberar el estado también ante errores. Si una pantalla solo consulta configuración o datos de un formulario, esa consulta es su fase inicial equivalente; si la configuración es local, finalizarla antes de consultar registros. No agregar demoras artificiales.
 - Construir el skeleton en Vue y su CSS de pantalla o componente reutilizable. Compartir variantes cuando varias pantallas tengan la misma estructura. Usar alturas y tokens `--br-*` de los controles reales, un estado accesible (`role="status"` y texto legible para lectores de pantalla) y desactivar la animación con `prefers-reduced-motion`.
-- No sustituir por skeleton los Swal de confirmación, error, operaciones de guardado o exportación. Si la pantalla no tiene skeleton activado, conservar el comportamiento de carga anterior.
+- Envolver el skeleton y su rama de contenido en `InitialLoadTransition` de `Components/Generics`. El fundido simultáneo de opacidad comparte una celda de grid: las dos ramas no se apilan ni duplican la altura durante el relevo. Usar exclusivamente `--br-initial-load-duration` y `--br-initial-load-easing` de `00-tokens.css` (180 ms de base); no añadir tiempos por pantalla, desplazamientos, esperas mínimas ni retrasar peticiones para animar. La rama que sale queda inerte y oculta para lectores de pantalla; `prefers-reduced-motion` desactiva la transición. Las modales y otros elementos ajenos a la carga permanecen fuera del componente.
+- No sustituir por skeleton los Swal de confirmación, error, operaciones de guardado o exportación. Los indicadores de consultas posteriores son independientes del modo inicial. En todo listado, activar `loading` antes de solicitar datos y liberarlo en `finally`, también ante errores; el paginador y el contador deben permanecer ocultos mientras ese estado esté activo.
 
 ## Formularios
 

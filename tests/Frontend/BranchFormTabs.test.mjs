@@ -41,7 +41,7 @@ test("el aforo conserva el campo capacity y aparece también en el reporte", () 
     assert.match(page, /errors\?\.capacity"\s+xl="4"\s+lg="4"/);
     assert.match(page, /errors\?\.status"\s+xl="4"\s+lg="4"/);
     assert.doesNotMatch(page, />Capacidad<|capacity: "Capacidad"/);
-    assert.match(skeleton, /title: "Aforo", shape: "capacity"/);
+    assert.match(skeleton, /title: "Aforo"/);
     assert.match(report, /\$record->aforo = \$branch->capacity;/);
     assert.match(exportFile, /"AFORO"/);
     assert.match(storeRequest, /"capacity" => "aforo"/);

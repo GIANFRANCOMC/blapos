@@ -19,7 +19,7 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
     assert.match(skeleton, /stock: \["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock"\]/);
     assert.match(styles, /\.br-inventory__difference\.is-positive \{ color: var\(--br-success-hover\); \}/);
     assert.match(styles, /\.br-inventory__difference\.is-negative \{ color: var\(--br-danger-strong\); \}/);
-    assert.match(styles, /body\.br-layout \.br-inventory__difference \{[\s\S]*?font-size: 0\.78rem !important;/);
+    assert.match(styles, /body\.br-layout \.br-inventory__stock-current,\s*body\.br-layout \.br-inventory__difference \{\s*font-size: var\(--br-stock-quantity-font-size\) !important;\s*\}/);
 
     const script = descriptor.script.content
         .replace(/^import .*;\s*$/m, "")

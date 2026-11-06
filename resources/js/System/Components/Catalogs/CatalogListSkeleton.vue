@@ -35,107 +35,80 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="index in rowCount" :key="index" :class="['br-catalog-skeleton__row', {'br-catalog-skeleton__row--offering': isOffering, 'br-catalog-skeleton__row--directory': isDirectory, 'br-catalog-skeleton__row--usage': isCatalogUsage}]">
-                            <td v-for="column in columns" :key="column.title" :class="column.shape === 'identity' ? 'br-entity-table__identification-cell' : ''">
-                                <span v-if="column.shape === 'identity'" class="br-catalog-skeleton__cell-copy">
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__identifier-label"></span>
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__identifier-value"></span>
-                                </span>
-                                <span v-else-if="column.shape === 'name'" class="br-catalog-skeleton__cell-copy">
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__name"></span>
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__description"></span>
-                                </span>
-                                <span v-else-if="['location', 'contact', 'access'].includes(column.shape)" class="br-catalog-skeleton__cell-copy">
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__stack-primary"></span>
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__stack-secondary"></span>
-                                </span>
-                                <span v-else-if="column.shape === 'details'" class="br-catalog-skeleton__cell-copy">
-                                    <span v-for="line in kind === 'subscriptions' ? 4 : 3" :key="line" class="br-catalog-skeleton__line br-catalog-skeleton__detail"></span>
-                                </span>
-                                <span v-else-if="column.shape === 'price'" class="br-catalog-skeleton__cell-copy br-catalog-skeleton__cell-copy--end">
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__price"></span>
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__price br-catalog-skeleton__price--short"></span>
-                                </span>
-                                <span v-else-if="column.shape === 'usage'" class="br-catalog-skeleton__cell-copy br-catalog-skeleton__usage-group">
-                                    <span v-for="line in 3" :key="line" class="br-catalog-skeleton__line br-catalog-skeleton__usage-line"></span>
-                                    <span class="br-catalog-skeleton__line br-catalog-skeleton__usage-track"></span>
-                                </span>
-                                <span v-else :class="['br-catalog-skeleton__line', `br-catalog-skeleton__${column.shape}`]"></span>
-                            </td>
+                        <tr>
+                            <td :colspan="columns.length" class="py-4"><Loader/></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
-        <div class="br-catalog-skeleton__pagination" aria-hidden="true">
-            <span v-for="index in 4" :key="index" class="br-catalog-skeleton__line br-catalog-skeleton__page"></span>
-        </div>
     </main>
 </template>
 
 <script>
-const COMMON_IDENTITY = {title: "Identificación", shape: "identity"};
-const COMMON_STATUS = {title: "Estado", shape: "status", align: "text-center"};
-const COMMON_ACTIONS = {title: "", shape: "actions", align: "text-center"};
+import Loader from "@System/Components/Loader.vue";
+
+const COMMON_IDENTITY = {title: "Identificación"};
+const COMMON_STATUS = {title: "Estado", align: "text-center"};
+const COMMON_ACTIONS = {title: "", align: "text-center"};
 
 const COLUMNS = {
     services: [
         {...COMMON_IDENTITY, width: "22%"},
-        {title: "Servicio", shape: "name", width: "25%"},
-        {title: "Detalles", shape: "details", width: "22%"},
-        {title: "Precio", shape: "price", width: "17%", align: "text-end"},
+        {title: "Servicio", width: "25%"},
+        {title: "Detalles", width: "22%"},
+        {title: "Precio", width: "17%", align: "text-end"},
         {...COMMON_STATUS, width: "8%"},
         {...COMMON_ACTIONS, width: "6%"}
     ],
     subscriptions: [
         {...COMMON_IDENTITY, width: "22%"},
-        {title: "Membresía", shape: "name", width: "25%"},
-        {title: "Detalles", shape: "details", width: "22%"},
-        {title: "Precio", shape: "price", width: "17%", align: "text-end"},
+        {title: "Membresía", width: "25%"},
+        {title: "Detalles", width: "22%"},
+        {title: "Precio", width: "17%", align: "text-end"},
         {...COMMON_STATUS, width: "8%"},
         {...COMMON_ACTIONS, width: "6%"}
     ],
     categories: [
         {...COMMON_IDENTITY, width: "20%"},
-        {title: "Categoría", shape: "name", width: "34%"},
-        {title: "En uso", shape: "usage", width: "26%", align: "text-center"},
+        {title: "Categoría", width: "34%"},
+        {title: "En uso", width: "26%", align: "text-center"},
         {...COMMON_STATUS, width: "13%"},
         {...COMMON_ACTIONS, width: "7%"}
     ],
     brands: [
         {...COMMON_IDENTITY, width: "20%"},
-        {title: "Marca", shape: "name", width: "22%"},
-        {title: "Sitio oficial", shape: "website", width: "14%"},
-        {title: "En uso", shape: "usage", width: "25%", align: "text-center"},
+        {title: "Marca", width: "22%"},
+        {title: "Sitio oficial", width: "14%"},
+        {title: "En uso", width: "25%", align: "text-center"},
         {...COMMON_STATUS, width: "11%"},
         {...COMMON_ACTIONS, width: "8%"}
     ],
     branches: [
         {...COMMON_IDENTITY, width: "20%"},
-        {title: "Sucursal", shape: "name", width: "18%"},
-        {title: "Ubicación", shape: "location", width: "19%"},
-        {title: "Contacto", shape: "contact", width: "19%"},
-        {title: "Aforo", shape: "capacity", width: "10%", align: "text-center"},
+        {title: "Sucursal", width: "18%"},
+        {title: "Ubicación", width: "19%"},
+        {title: "Contacto", width: "19%"},
+        {title: "Aforo", width: "10%", align: "text-center"},
         {...COMMON_STATUS, width: "8%"},
         {...COMMON_ACTIONS, width: "6%"}
     ],
     users: [
         {...COMMON_IDENTITY, width: "20%"},
-        {title: "Colaborador", shape: "name", width: "20%"},
-        {title: "Acceso", shape: "access", width: "20%"},
-        {title: "Contacto", shape: "contact", width: "25%"},
+        {title: "Colaborador", width: "20%"},
+        {title: "Acceso", width: "20%"},
+        {title: "Contacto", width: "25%"},
         {...COMMON_STATUS, width: "9%"},
         {...COMMON_ACTIONS, width: "6%"}
     ]
 };
 
 export default {
+    components: {Loader},
     name: "CatalogListSkeleton",
     props: {
         kind: {type: String, required: true, validator: value => Object.prototype.hasOwnProperty.call(COLUMNS, value)},
-        label: {type: String, required: true},
-        rowCount: {type: Number, default: 8}
+        label: {type: String, required: true}
     },
     computed: {
         columns() { return COLUMNS[this.kind] || []; },

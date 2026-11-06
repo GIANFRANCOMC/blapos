@@ -14,12 +14,16 @@ use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class StockAlertsExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithColumnWidths, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles {
 
-    public function __construct(private readonly int $warehouseId, private readonly string $productSearch = "") {
+    public function __construct(
+        private readonly int $warehouseId,
+        private readonly string $productSearch = "",
+        private readonly string $minimumStatus = ""
+    ) {
     }
 
     public function query(): Builder {
 
-        return StockManagementService::stockAlertsReportQuery($this->warehouseId, $this->productSearch);
+        return StockManagementService::stockAlertsReportQuery($this->warehouseId, $this->productSearch, $this->minimumStatus);
 
     }
 
@@ -42,7 +46,7 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
             $minimum,
             max(0, $minimum - $quantity),
             $alert->unit_abbreviation,
-            Carbon::parse($alert->detected_at)->format("d/m/Y H:i"),
+            $alert->detected_at ? Carbon::parse($alert->detected_at)->format("d/m/Y H:i") : "—",
             "Abierta",
         ];
 

@@ -1,119 +1,119 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="categories" label="categorías"/>
+    <InitialLoadTransition>
+        <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="categories" label="categorías"/>
 
-    <main v-else class="br-entity">
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :show-download-button="true"
-        :show-import-button="true"
-        :group-secondary-actions="true"
-        import-button-text="Cargar masivamente"
-        download-button-text="Descargar Excel"
-        :downloading="isExporting"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()"
-        @import="openImportModal"
-        @download="downloadRecords"/>
+        <main v-else class="br-entity">
+        <FiltersSection
+            :filter-by-value="filterByValue"
+            @update:filterByValue="filterByValue = $event"
+            :filter-word-value="filterWordValue"
+            @update:filterWordValue="filterWordValue = $event"
+            :filter-by-options="filterByOptions"
+            :search-placeholder="searchPlaceholder"
+            :loading="entityList.extras.loading"
+            :filter-by-title="MODULE.texts.filters.filterBy"
+            :search-title="MODULE.texts.filters.search"
+            :search-button-text="MODULE.texts.actions.search"
+            :add-button-text="MODULE.texts.actions.add"
+            :show-add-button="true"
+            :show-download-button="true"
+            :show-import-button="true"
+            :group-secondary-actions="true"
+            import-button-text="Cargar masivamente"
+            download-button-text="Descargar Excel"
+            :downloading="isExporting"
+            :title-class="[config.forms.classes.title]"
+            :select-class="config.forms.classes.select2"
+            @search="handleSearch"
+            @add="openModal()"
+            @import="openImportModal"
+            @download="downloadRecords"/>
 
-    <CatalogReferenceImportModal
-        ref="categoryImportModal"
-        modal-id="categoryImportModal"
-        resource="categorías"
-        template-file-name="plantilla_categorias.xlsx"
-        :import-route="routeActions.import"
-        @imported="listEntity({})"/>
+        <CatalogReferenceImportModal
+            ref="categoryImportModal"
+            modal-id="categoryImportModal"
+            resource="categorías"
+            template-file-name="plantilla_categorias.xlsx"
+            :import-route="routeActions.import"
+            @imported="listEntity({})"/>
 
-    <section class="br-entity-list" aria-label="Listado de categorías">
-        <div class="table-responsive">
-        <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
-            <colgroup>
-                <col style="width: 20%;">
-                <col style="width: 34%;">
-                <col style="width: 26%;">
-                <col style="width: 13%;">
-                <col style="width: 7%;">
-            </colgroup>
-            <thead class="br-table-header-surface">
-                <tr>
-                    <th>Identificación</th>
-                    <th>Categoría</th>
-                    <th class="text-center">En uso</th>
-                    <th class="text-center">Estado</th>
-                    <th><span class="visually-hidden">Acciones</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="entityList.extras.loading">
-                    <td colspan="5" class="py-4">
-                        <Loader/>
-                    </td>
-                </tr>
-                <template v-else-if="entityList.records.total > 0">
-                    <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="br-entity-table__identification-cell">
-                            <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                <div class="br-entity-identifier">
-                                    <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                    <span class="br-entity-identifier__value">
-                                        <span class="br-entity-code" v-text="record.internal_code"></span>
-                                        <span class="br-entity-identifier__actions">
-                                            <CopyButton :value="record.internal_code" label="Código interno"/>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="br-entity-table__name" v-text="record.name"></span>
-                            <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
-                        </td>
-                        <td>
-                            <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
-                        </td>
-                        <td class="text-center">
-                            <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                        </td>
-                        <td class="text-center">
-                            <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                <li>
-                                    <button type="button" class="dropdown-item" @click="openModal(record)">
-                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                        <span>Editar</span>
-                                    </button>
-                                </li>
-                            </TableActionsDropdown>
+        <section class="br-entity-list" aria-label="Listado de categorías">
+            <div class="table-responsive">
+            <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
+                <colgroup>
+                    <col style="width: 20%;">
+                    <col style="width: 34%;">
+                    <col style="width: 26%;">
+                    <col style="width: 13%;">
+                    <col style="width: 7%;">
+                </colgroup>
+                <thead class="br-table-header-surface">
+                    <tr>
+                        <th>Identificación</th>
+                        <th>Categoría</th>
+                        <th class="text-center">En uso</th>
+                        <th class="text-center">Estado</th>
+                        <th><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="entityList.extras.loading">
+                        <td colspan="5" class="py-4">
+                            <Loader/>
                         </td>
                     </tr>
-                </template>
-                <tr v-else>
-                    <td colspan="5" class="py-4">
-                        <WithoutData class="br-entity-empty-state" type="image"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-    </section>
+                    <template v-else-if="entityList.records.total > 0">
+                        <tr v-for="record in entityList.records.data" :key="record.id">
+                            <td class="br-entity-table__identification-cell">
+                                <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                    <div class="br-entity-identifier">
+                                        <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                        <span class="br-entity-identifier__value">
+                                            <span class="br-entity-code" v-text="record.internal_code"></span>
+                                            <span class="br-entity-identifier__actions">
+                                                <CopyButton :value="record.internal_code" label="Código interno"/>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="br-entity-table__name" v-text="record.name"></span>
+                                <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
+                            </td>
+                            <td>
+                                <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
+                            </td>
+                            <td class="text-center">
+                                <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
+                            </td>
+                            <td class="text-center">
+                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openModal(record)">
+                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                            <span>Editar</span>
+                                        </button>
+                                    </li>
+                                </TableActionsDropdown>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr v-else>
+                        <td colspan="5" class="py-4">
+                            <WithoutData class="br-entity-empty-state" type="image"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </section>
 
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center mt-3" aria-label="Paginación de categorías">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
-    </main>
+        <Paginator aria-label="Paginación de categorías" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+        </main>
+    </InitialLoadTransition>
 
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
@@ -195,6 +195,7 @@
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -292,7 +293,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 export default {
     name: "CategoriesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogReferenceImportModal, CatalogUsageBreakdown, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -322,21 +323,17 @@ export default {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         initialLoad.start();
+        let initialized;
 
         try {
-
-            const initParams = await this.initParams();
+            initialized = await this.initParams();
             this.isInitialized = true;
-
-            if(initParams) await this.listEntity({});
-
-        }finally {
-
+        } finally {
             initialLoad.finish();
             this.initialLoading = false;
-
         }
 
+        if(initialized) await this.listEntity({});
     },
     methods: {
         async initParams() {
@@ -367,6 +364,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -395,7 +393,7 @@ export default {
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
 
-                entityList.records = response?.data ?? emptyRecords;
+                entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 

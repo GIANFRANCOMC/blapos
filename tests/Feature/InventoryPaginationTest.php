@@ -37,8 +37,10 @@ final class InventoryPaginationTest extends TestCase {
         $this->assertSame(35, $stock->total());
 
         $movements = $controller->movements($request);
+        $movementCount = DB::table("inventory_movements")->where("warehouse_id", $warehouseId)->count();
         $this->assertSame(30, $movements->perPage());
-        $this->assertCount(0, $movements->items());
+        $this->assertCount(min(30, $movementCount), $movements->items());
+        $this->assertSame($movementCount, $movements->total());
 
         $summary = $controller->summary($request)->getData(true)["data"];
         $this->assertSame(30, $summary["per_page"]);

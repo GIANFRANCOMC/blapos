@@ -444,9 +444,14 @@ export default {
             const filterJson = {branch_id: filters?.branch?.code};
 
             this.lists.entity.extras.loading = true;
-            this.lists.entity.records        = (await Requests.get({route: url || this.lists.entity.extras.route, data: filterJson}))?.data;
-            this.lists.entity.extras.loading = false;
 
+            try {
+                this.lists.entity.records = Requests.emptyPagination();
+                const response = await Requests.get({route: url || this.lists.entity.extras.route, data: filterJson});
+                if(response?.bool) this.lists.entity.records = response.data || Requests.emptyPagination();
+            } finally {
+                this.lists.entity.extras.loading = false;
+            }
         },
         // Forms - To branch
         hasAssetToBranch(record) {

@@ -46,39 +46,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="index in 8" :key="index" class="br-products-skeleton__row">
-                            <td class="br-entity-table__identification-cell">
-                                <span class="br-products-skeleton__identifiers">
-                                    <span class="br-products-skeleton__line br-products-skeleton__identifier-label"></span>
-                                    <span class="br-products-skeleton__line br-products-skeleton__identifier-value"></span>
-                                    <span class="br-products-skeleton__line br-products-skeleton__identifier-label"></span>
-                                    <span class="br-products-skeleton__line br-products-skeleton__identifier-value br-products-skeleton__identifier-value--short"></span>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="br-products-skeleton__cell-copy">
-                                    <span class="br-products-skeleton__line br-products-skeleton__name"></span>
-                                    <span class="br-products-skeleton__line br-products-skeleton__brand"></span>
-                                    <span class="br-products-skeleton__line br-products-skeleton__description"></span>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="br-products-skeleton__prices">
-                                    <span class="br-products-skeleton__line br-products-skeleton__price"></span>
-                                    <span class="br-products-skeleton__line br-products-skeleton__price br-products-skeleton__price--short"></span>
-                                </span>
-                            </td>
-                            <td><span class="br-products-skeleton__line br-products-skeleton__stock"></span></td>
-                            <td><span class="br-products-skeleton__line br-products-skeleton__badge"></span></td>
-                            <td><span class="br-products-skeleton__line br-products-skeleton__menu"></span></td>
+                        <tr>
+                            <td colspan="6" class="py-4"><Loader/></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
-        <div class="br-products-skeleton__pagination" aria-hidden="true">
-            <span v-for="index in 4" :key="index" class="br-products-skeleton__line br-products-skeleton__page"></span>
-        </div>
     </main>
 </template>
+
+<script>
+import Loader from "@System/Components/Loader.vue";
+
+export default {components: {Loader}};
+</script>

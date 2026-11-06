@@ -39,7 +39,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-eyebrow {
   margin: 0 0 0.45rem;
   color: var(--br-primary-active);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 850;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -58,7 +58,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-hero h1 {
   max-width: 48rem;
-  font-size: clamp(2rem, 4vw, 4.1rem);
+  font-size: var(--br-font-size-fluid-guest-hero);
   line-height: 1.03;
 }
 
@@ -69,7 +69,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   max-width: 42rem;
   margin: 0.8rem 0 0;
   color: var(--br-text-muted);
-  font-size: 1rem;
+  font-size: var(--br-font-size-100);
   line-height: 1.65;
 }
 
@@ -89,7 +89,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   padding: 0.65rem 0.95rem;
   border: 1px solid transparent;
   border-radius: 0.55rem;
-  font-size: 0.88rem;
+  font-size: var(--br-font-size-088);
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
@@ -162,7 +162,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.55rem;
   background: var(--br-white);
   color: var(--br-text-muted);
-  font-size: 0.76rem;
+  font-size: var(--br-font-size-076);
   font-weight: 750;
 }
 
@@ -187,7 +187,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.5rem;
   background: var(--br-white);
   color: var(--br-secondary);
-  font-size: 0.78rem;
+  font-size: var(--br-font-size-078);
   font-weight: 800;
   cursor: pointer;
 }
@@ -199,7 +199,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   height: 1.35rem;
   border-radius: 999px;
   background: var(--br-neutral-panel);
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
 }
 
 .br-guest-category.is-active {
@@ -252,7 +252,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.4rem;
   background: var(--br-secondary-soft);
   color: var(--br-secondary);
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
   font-weight: 850;
 }
 
@@ -274,7 +274,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-item h3 {
   margin: 0.9rem 0 0.35rem;
   color: var(--br-secondary);
-  font-size: 1.02rem;
+  font-size: var(--br-font-size-102);
   font-weight: 850;
 }
 
@@ -282,7 +282,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   flex: 1;
   margin: 0;
   color: var(--br-text-muted);
-  font-size: 0.82rem;
+  font-size: var(--br-font-size-082);
   line-height: 1.45;
 }
 
@@ -294,7 +294,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-item__footer strong {
   color: var(--br-secondary);
-  font-size: 1rem;
+  font-size: var(--br-font-size-100);
 }
 
 .br-guest-item__hidden-price {
@@ -302,7 +302,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   align-items: center;
   gap: 0.35rem;
   color: var(--br-text-muted);
-  font-size: 0.76rem;
+  font-size: var(--br-font-size-076);
   font-weight: 800;
 }
 
@@ -330,7 +330,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-empty i {
   color: var(--br-primary);
-  font-size: 2rem;
+  font-size: var(--br-font-size-200);
 }
 
 .br-guest-contact {
@@ -350,7 +350,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   align-items: center;
   gap: 0.55rem;
   color: var(--br-secondary);
-  font-size: 0.82rem;
+  font-size: var(--br-font-size-082);
   font-weight: 750;
   text-decoration: none;
 }
@@ -381,7 +381,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.5rem;
   background: var(--br-white);
   color: var(--br-secondary);
-  font-size: 0.8rem;
+  font-size: var(--br-font-size-080);
   font-weight: 800;
   cursor: pointer;
 }
@@ -414,7 +414,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-field label {
   margin: 0;
   color: var(--br-secondary);
-  font-size: 0.76rem;
+  font-size: var(--br-font-size-076);
   font-weight: 800;
 }
 
@@ -443,7 +443,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-error,
 .br-guest-help {
   min-height: 1rem;
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
   font-weight: 700;
 }
 
@@ -475,12 +475,12 @@ input.input-number-no-range::-webkit-inner-spin-button {
 }
 
 .br-guest-type strong {
-  font-size: 0.9rem;
+  font-size: var(--br-font-size-090);
 }
 
 .br-guest-type small {
   color: var(--br-text-muted);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   line-height: 1.35;
 }
 
@@ -500,7 +500,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.35rem;
   background: var(--br-neutral-panel);
   color: var(--br-secondary);
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
   font-weight: 700;
 }
 
@@ -516,7 +516,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-card__footer span {
   color: var(--br-text-muted);
-  font-size: 0.74rem;
+  font-size: var(--br-font-size-074);
   font-weight: 700;
 }
 
@@ -543,7 +543,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 999px;
   background: var(--br-white);
   color: var(--br-primary-active);
-  font-size: 0.7rem;
+  font-size: var(--br-font-size-070);
   font-weight: 850;
 }
 
@@ -594,7 +594,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-scanner-state strong {
   display: block;
   color: var(--br-secondary);
-  font-size: 0.84rem;
+  font-size: var(--br-font-size-084);
   font-weight: 850;
 }
 
@@ -602,7 +602,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-attendance__expires span,
 .br-guest-scanner-state span {
   color: var(--br-text-muted);
-  font-size: 0.73rem;
+  font-size: var(--br-font-size-073);
   font-weight: 700;
 }
 
@@ -613,7 +613,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-scanner-state i {
   color: var(--br-primary);
-  font-size: 1.25rem;
+  font-size: var(--br-font-size-125);
 }
 
 .br-guest-scanner-state.is-success {

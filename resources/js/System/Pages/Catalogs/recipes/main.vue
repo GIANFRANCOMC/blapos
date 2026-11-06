@@ -95,9 +95,7 @@
         </table>
     </div>
 
-    <nav v-if="!loading && records.total > 0" class="d-flex justify-content-center">
-        <Paginator :links="records.links" @clickPage="listRecipes"/>
-    </nav>
+    <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listRecipes"/>
 
     <div class="modal fade" id="recipeModal" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -401,17 +399,23 @@ export default {
             this.form.status = this.statuses.find(status => status.code === "active") || this.form.status;
         },
         async listRecipes(page = "") {
+            page = typeof page === "object" ? page?.url : page;
             this.loading = true;
-            const response = await Requests.get({
-                route: page || CONFIG.routes.list,
-                data: {
-                    filter_by: this.filterBy,
-                    word: this.word
-                },
-                showAlert: true
-            });
-            this.records = response?.data || {data: [], links: [], total: 0};
-            this.loading = false;
+
+            try {
+                this.records = Requests.emptyPagination();
+                const response = await Requests.get({
+                    route: page || CONFIG.routes.list,
+                    data: {
+                        filter_by: this.filterBy,
+                        word: this.word
+                    },
+                    showAlert: true
+                });
+                this.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
+            } finally {
+                this.loading = false;
+            }
         },
         openModal(record = null) {
             this.errors = {};

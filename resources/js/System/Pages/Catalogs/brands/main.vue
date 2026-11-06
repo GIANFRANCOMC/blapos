@@ -1,141 +1,138 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="brands" label="marcas"/>
+    <InitialLoadTransition>
+        <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="brands" label="marcas"/>
 
-    <main v-else class="br-entity">
-        <FiltersSection
-            :filter-by-value="filterByValue"
-            @update:filterByValue="filterByValue = $event"
-            :filter-word-value="filterWordValue"
-            @update:filterWordValue="filterWordValue = $event"
-            :filter-by-options="filterByOptions"
-            :search-placeholder="searchPlaceholder"
-            :loading="entityList.extras.loading"
-            filter-by-title="Filtrar por"
-            search-title="Búsqueda"
-            search-button-text="Buscar"
-            add-button-text="Agregar marca"
-            :show-add-button="true"
-            :show-download-button="true"
-            :show-import-button="true"
-            :group-secondary-actions="true"
-            import-button-text="Cargar masivamente"
-            download-button-text="Descargar Excel"
-            :downloading="isExporting"
-            :title-class="[config.forms.classes.title]"
-            :select-class="config.forms.classes.select2"
-            @search="listEntity({})"
-            @add="openModal()"
-            @import="openImportModal"
-            @download="downloadRecords"/>
+        <main v-else class="br-entity">
+            <FiltersSection
+                :filter-by-value="filterByValue"
+                @update:filterByValue="filterByValue = $event"
+                :filter-word-value="filterWordValue"
+                @update:filterWordValue="filterWordValue = $event"
+                :filter-by-options="filterByOptions"
+                :search-placeholder="searchPlaceholder"
+                :loading="entityList.extras.loading"
+                filter-by-title="Filtrar por"
+                search-title="Búsqueda"
+                search-button-text="Buscar"
+                add-button-text="Agregar marca"
+                :show-add-button="true"
+                :show-download-button="true"
+                :show-import-button="true"
+                :group-secondary-actions="true"
+                import-button-text="Cargar masivamente"
+                download-button-text="Descargar Excel"
+                :downloading="isExporting"
+                :title-class="[config.forms.classes.title]"
+                :select-class="config.forms.classes.select2"
+                @search="listEntity({})"
+                @add="openModal()"
+                @import="openImportModal"
+                @download="downloadRecords"/>
 
-        <CatalogReferenceImportModal
-            ref="brandImportModal"
-            modal-id="brandImportModal"
-            resource="marcas"
-            template-file-name="plantilla_marcas.xlsx"
-            :import-route="routeActions.import"
-            @imported="listEntity({})"/>
+            <CatalogReferenceImportModal
+                ref="brandImportModal"
+                modal-id="brandImportModal"
+                resource="marcas"
+                template-file-name="plantilla_marcas.xlsx"
+                :import-route="routeActions.import"
+                @imported="listEntity({})"/>
 
-        <section class="br-entity-list" aria-label="Listado de marcas">
-            <div class="table-responsive">
-                <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
-                    <colgroup>
-                        <col style="width: 20%;">
-                        <col style="width: 22%;">
-                        <col style="width: 14%;">
-                        <col style="width: 25%;">
-                        <col style="width: 11%;">
-                        <col style="width: 8%;">
-                    </colgroup>
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Identificación</th>
-                            <th>Marca</th>
-                            <th>Sitio oficial</th>
-                            <th class="text-center">En uso</th>
-                            <th class="text-center">Estado</th>
-                            <th><span class="visually-hidden">Acciones</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="entityList.extras.loading">
-                            <td colspan="6" class="py-4"><Loader/></td>
-                        </tr>
-                        <template v-else-if="entityList.records.total > 0">
-                            <tr v-for="record in entityList.records.data" :key="record.id">
-                                <td class="br-entity-table__identification-cell">
-                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                        <div class="br-entity-identifier">
-                                            <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                            <span class="br-entity-identifier__value">
-                                                <span class="br-entity-code" v-text="record.internal_code"></span>
-                                                <span class="br-entity-identifier__actions">
-                                                    <CopyButton :value="record.internal_code" label="Código interno"/>
+            <section class="br-entity-list" aria-label="Listado de marcas">
+                <div class="table-responsive">
+                    <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
+                        <colgroup>
+                            <col style="width: 20%;">
+                            <col style="width: 22%;">
+                            <col style="width: 14%;">
+                            <col style="width: 25%;">
+                            <col style="width: 11%;">
+                            <col style="width: 8%;">
+                        </colgroup>
+                        <thead class="br-table-header-surface">
+                            <tr>
+                                <th>Identificación</th>
+                                <th>Marca</th>
+                                <th>Sitio oficial</th>
+                                <th class="text-center">En uso</th>
+                                <th class="text-center">Estado</th>
+                                <th><span class="visually-hidden">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="entityList.extras.loading">
+                                <td colspan="6" class="py-4"><Loader/></td>
+                            </tr>
+                            <template v-else-if="entityList.records.total > 0">
+                                <tr v-for="record in entityList.records.data" :key="record.id">
+                                    <td class="br-entity-table__identification-cell">
+                                        <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                            <div class="br-entity-identifier">
+                                                <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                                <span class="br-entity-identifier__value">
+                                                    <span class="br-entity-code" v-text="record.internal_code"></span>
+                                                    <span class="br-entity-identifier__actions">
+                                                        <CopyButton :value="record.internal_code" label="Código interno"/>
+                                                    </span>
                                                 </span>
-                                            </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="br-entity-table__name" v-text="record.name"></span>
-                                    <span
-                                        v-if="record.description"
-                                        class="br-entity-table__description"
-                                        v-text="record.description">
-                                    </span>
-                                </td>
-                                <td>
-                                    <a
-                                        v-if="record.website_url"
-                                        class="br-entity-table__meta"
-                                        :href="record.website_url"
-                                        target="_blank"
-                                        rel="noopener noreferrer">
-                                        Sitio oficial
-                                    </a>
-                                    <span v-else class="br-entity-table__meta">
-                                        Sin sitio oficial
-                                    </span>
-                                </td>
-                                <td>
-                                    <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
-                                </td>
-                                <td class="text-center">
-                                    <StatusBadge
-                                        :status="record.status"
-                                        :formatted-status="record.formatted_status"/>
-                                </td>
-                                <td class="text-center">
-                                    <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                        <li>
-                                            <button type="button" class="dropdown-item" @click="openModal(record)">
-                                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                <span>Editar</span>
-                                            </button>
-                                        </li>
-                                    </TableActionsDropdown>
+                                    </td>
+                                    <td>
+                                        <span class="br-entity-table__name" v-text="record.name"></span>
+                                        <span
+                                            v-if="record.description"
+                                            class="br-entity-table__description"
+                                            v-text="record.description">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a
+                                            v-if="record.website_url"
+                                            class="br-entity-table__meta"
+                                            :href="record.website_url"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            Sitio oficial
+                                        </a>
+                                        <span v-else class="br-entity-table__meta">
+                                            Sin sitio oficial
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <StatusBadge
+                                            :status="record.status"
+                                            :formatted-status="record.formatted_status"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                            <li>
+                                                <button type="button" class="dropdown-item" @click="openModal(record)">
+                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                    <span>Editar</span>
+                                                </button>
+                                            </li>
+                                        </TableActionsDropdown>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr v-else>
+                                <td colspan="6" class="py-4">
+                                    <WithoutData class="br-entity-empty-state" type="image"/>
                                 </td>
                             </tr>
-                        </template>
-                        <tr v-else>
-                            <td colspan="6" class="py-4">
-                                <WithoutData class="br-entity-empty-state" type="image"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-        <nav
-            v-if="!entityList.extras.loading && entityList.records.total > 0"
-            class="d-flex justify-content-center mt-3"
-            aria-label="Paginación de marcas">
-            <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-        </nav>
-    </main>
+            <Paginator aria-label="Paginación de marcas" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+        </main>
+    </InitialLoadTransition>
 
     <FormModal
         :modal-id="brandForm.extras.modals.default.id"
@@ -254,6 +251,7 @@
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -317,7 +315,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogReferenceImportModal, CatalogUsageBreakdown, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -345,21 +343,19 @@ export default {
         Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
         initialLoad.start();
+        let initialized;
 
         try {
-
-            if(await this.initParams()) await this.listEntity({});
-
-        }finally {
-
+            initialized = await this.initParams();
+        } finally {
             initialLoad.finish();
             this.initialLoading = false;
-
         }
+
+        if(initialized) await this.listEntity({});
 
         document.getElementById(this.brandForm.extras.modals.default.id)
             ?.addEventListener("hidden.bs.modal", this.resetForm);
-
     },
     beforeUnmount() {
 
@@ -397,6 +393,7 @@ export default {
             };
 
             this.entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -429,7 +426,7 @@ export default {
                     showAlert: true
                 });
 
-                this.entityList.records = response?.data ?? emptyRecords;
+                this.entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 

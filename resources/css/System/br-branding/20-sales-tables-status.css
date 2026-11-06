@@ -34,7 +34,7 @@
 .br-sale-sidebar-actions__cta {
   width: 100%;
   justify-content: center;
-  font-size: 0.9375rem;
+  font-size: var(--br-font-size-09375);
   font-weight: 600;
   padding: 0.5rem 1rem;
   box-shadow: var(--br-shadow-sm);
@@ -100,7 +100,7 @@
   background-color: var(--bs-secondary);
   color: var(--br-white);
   font-weight: 400;
-  font-size: 0.875rem;
+  font-size: var(--br-font-size-0875);
   text-wrap: nowrap;
   text-transform: uppercase;
   text-align: center;
@@ -143,7 +143,7 @@
 }
 
 .br-layout .br-memberships-table .br-memberships-table__time {
-  font-size: 0.875rem;
+  font-size: var(--br-font-size-0875);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -172,7 +172,7 @@
  * Variante --today: acento éxito solo cuando la emisión es el día actual.
  */
 .br-layout .br-sales-relative-pill {
-  font-size: 0.875rem;
+  font-size: var(--br-font-size-0875);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -205,7 +205,7 @@
   justify-content: center;
   gap: 0.32rem;
   padding: 0.24rem 0.48rem;
-  font-size: 0.7rem !important;
+  font-size: var(--br-font-size-070) !important;
   font-weight: 650;
   line-height: 1.2;
   border-radius: var(--br-radius-sm);
@@ -298,7 +298,7 @@
   gap: 0.5rem;
   max-width: 100%;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--br-font-size-0875);
   line-height: 1.25;
   text-transform: capitalize;
   color: var(--br-memberships-origin-fg) !important;
@@ -306,7 +306,7 @@
 
 .br-layout .br-memberships-table .br-memberships-table__origin-icon {
   flex-shrink: 0;
-  font-size: 1rem;
+  font-size: var(--br-font-size-100);
   line-height: 1;
   color: var(--br-memberships-origin-icon) !important;
 }
@@ -318,7 +318,7 @@
 .br-layout .br-memberships-table .br-memberships-table__empty {
   display: block;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: var(--br-font-size-0875);
   color: var(--bs-secondary-color);
 }
 
@@ -542,7 +542,7 @@ svg.br-table-detail-empty__img {
   border-radius: 50%;
   background: var(--br-primary-soft);
   color: var(--br-primary-active);
-  font-size: 0.82rem;
+  font-size: var(--br-font-size-082);
 }
 
 .br-sale-customer-history__identity {
@@ -563,7 +563,7 @@ svg.br-table-detail-empty__img {
 .br-sale-customer-history__identity small,
 .br-sale-customer-history__panel header small {
   color: var(--br-text-muted);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
 }
 
 .br-sale-customer-history__summary {
@@ -592,13 +592,13 @@ svg.br-table-detail-empty__img {
   align-items: center;
   gap: 0.32rem;
   color: var(--br-text-muted);
-  font-size: 0.74rem;
+  font-size: var(--br-font-size-074);
   font-weight: 650;
 }
 
 .br-sale-customer-history__summary strong {
   color: var(--br-secondary);
-  font-size: 1rem;
+  font-size: var(--br-font-size-100);
   line-height: 1.1;
 }
 
@@ -614,7 +614,7 @@ svg.br-table-detail-empty__img {
 .br-sale-customer-history__panel h6 {
   margin: 0 0 0.08rem;
   color: var(--br-secondary);
-  font-size: 0.86rem;
+  font-size: var(--br-font-size-086);
   font-weight: 750;
 }
 

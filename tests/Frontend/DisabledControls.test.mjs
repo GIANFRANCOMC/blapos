@@ -21,7 +21,7 @@ test("el estado disabled global oculta el cursor en campos nativos, Vue Select y
         assert.match(view, /@vite\('resources\/js\/Shared\/disabled-controls\.js'\)/);
     }
     assert.match(platformCss, /@import "\.\.\/Shared\/disabled-controls\.css"/);
-    assert.match(cssBuilder, /sharedFiles: \["resources\/css\/Shared\/disabled-controls\.css"\]/);
+    assert.match(cssBuilder, /sharedFiles: \[[^\]]*"resources\/css\/Shared\/disabled-controls\.css"[^\]]*\]/);
 });
 
 test("un campo enfocado pierde el foco al deshabilitarse, también dentro de Vue Select", () => {

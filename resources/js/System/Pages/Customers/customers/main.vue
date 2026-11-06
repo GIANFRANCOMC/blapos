@@ -138,9 +138,7 @@
     </section>
 
     <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center mt-3" aria-label="Paginación de clientes">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
+    <Paginator aria-label="Paginación de clientes" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
     </main>
 
     <FormModal
@@ -698,6 +696,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -726,7 +725,7 @@ export default {
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
 
-                entityList.records = response?.data ?? emptyRecords;
+                entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 

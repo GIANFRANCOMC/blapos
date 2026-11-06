@@ -424,9 +424,7 @@
             </div>
         </section>
 
-        <div v-if="['list', 'receipts'].includes(activeMode) && records.links" class="d-flex justify-content-center mt-3">
-            <Paginator :links="records.links" @clickPage="listPurchases"/>
-        </div>
+        <Paginator v-if="['list', 'receipts'].includes(activeMode)" :links="records.links" :pagination="records" :loading="loading" @clickPage="listPurchases"/>
     </main>
 
     <div id="purchaseReceiptModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
@@ -645,17 +643,22 @@ export default {
         },
         async listPurchases({url = null} = {}) {
             this.loading = true;
-            const result = await Requests.get({
-                route: url || this.config.entity.routes.list,
-                data: {
-                    word: this.filters.word,
-                    status: this.activeMode === "receipts"
-                        ? (this.filters.status?.code || "pending_receipt")
-                        : (this.filters.status?.code || "")
-                }
-            });
-            this.records = result.data || {total: 0, data: []};
-            this.loading = false;
+
+            try {
+                this.records = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: url || this.config.entity.routes.list,
+                    data: {
+                        word: this.filters.word,
+                        status: this.activeMode === "receipts"
+                            ? (this.filters.status?.code || "pending_receipt")
+                            : (this.filters.status?.code || "")
+                    }
+                });
+                this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
+            } finally {
+                this.loading = false;
+            }
         },
         newPurchaseItem() {
             return {key: `${Date.now()}-${Math.random()}`, product: null, quantity: "", unitCost: ""};

@@ -80,7 +80,7 @@ test("inventory labels and paginated listings stay consistent across views", () 
 
     assert.match(component, /v-if="\['stock', 'transfers'\]\.includes\(activeView\)"[\s\S]*?title="Producto"/);
     assert.match(component, /<th>Fecha y número<\/th>[\s\S]*?<strong>\{\{ formatSimpleDate\(guide\.issue_date\) \}\}<\/strong>[\s\S]*?<span class="br-inventory__meta">\{\{ guide\.number \}\}<\/span>/);
-    assert.match(component, /this\.stockRecords = result\?\.data \|\| \{total: 0, data: \[\]\};/);
+    assert.match(component, /this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
     assert.match(controller, /private const DEFAULT_STOCK_PER_PAGE = 10;/);
     assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, \$default\)\)\);/);
@@ -275,12 +275,12 @@ test("stock lists only the selected warehouse and shows five table columns", () 
     assert.equal((stock.match(/colspan="5"/g) || []).length, 2);
     assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th>Estado del stock<\/th>/);
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
-    assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.data \|\| \{total: 0, data: \[\]\};/);
+    assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \{\s*min-width: 52rem;/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \.br-inventory__col-status \{ width: 13%; \}/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse > thead > tr > th:nth-child\(n\+2\):nth-child\(-n\+4\) \{\s*text-align: right !important;/);
-    assert.match(inventoryCss, /td\.br-inventory__situation \{[\s\S]*?text-align: left;/);
+    assert.match(inventoryCss, /td\.br-inventory__situation \{[^}]*text-align: center;/);
 
 });
 
@@ -442,7 +442,7 @@ test("the shared work-warehouse selector shows branch and warehouse on every pag
     assert.match(warehouseSelect, /br-warehouse-select__separator" aria-hidden="true">-<\/span>[\s\S]*?br-warehouse-select__name/);
     assert.match(component, /branchName: record\.branch\?\.name \|\| ""[\s\S]*?warehouseName: record\.name[\s\S]*?displayLabel: record\.branch\?\.name \? `\$\{record\.branch\.name\} - \$\{record\.name\}` : record\.name/);
     assert.match(component, /label: record\.branch\?\.name \? `\$\{record\.branch\.name\} \/ \$\{record\.name\}` : record\.name/);
-    assert.match(warehouseCss, /\.br-warehouse-select__branch \{[\s\S]*?font-weight: 700;/);
+    assert.match(warehouseCss, /\.br-warehouse-select__branch \{[\s\S]*?font-weight: 500;/);
     assert.match(warehouseCss, /\.br-warehouse-select__name \{[\s\S]*?font-weight: 400;/);
     assert.match(references, /function stockWarehouses\(\): Collection \{[\s\S]*?->with\("branch"\)/);
 

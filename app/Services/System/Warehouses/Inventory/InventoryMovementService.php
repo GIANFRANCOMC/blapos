@@ -584,7 +584,7 @@ final class InventoryMovementService {
 
         $quantity = (float) $warehouseItem->quantity;
         $minimum = (float) $warehouseItem->minimum_stock;
-        $isLow = $minimum > 0 && $quantity <= $minimum;
+        $isLow = $quantity <= 0 || ($minimum > 0 && $quantity <= $minimum);
         $openAlert = InventoryStockAlert::query()
             ->where("warehouse_item_id", $warehouseItem->id)
             ->where("status", "open")

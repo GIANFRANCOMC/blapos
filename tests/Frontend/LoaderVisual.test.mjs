@@ -12,7 +12,7 @@ test("Loader y Swal usan el mismo icono giratorio sin imágenes", () => {
 
     assert.match(component, /class="br-loader"[\s\S]*?fa-solid fa-circle-notch br-loader__icon[\s\S]*?class="visually-hidden" v-text="label"/);
     assert.match(alerts, /function buildSwalLoadingHtml\(\{message\}\)[\s\S]*?class="br-loader br-loader--swal"[\s\S]*?fa-solid fa-circle-notch br-loader__icon/);
-    assert.match(css, /\.br-loader__icon \{[\s\S]*?font-size: 2rem;[\s\S]*?color: var\(--br-primary\);[\s\S]*?animation: br-loader-spin 0\.7s linear infinite;/);
+    assert.match(css, /\.br-loader__icon \{[\s\S]*?font-size: var\(--br-font-size-200\);[\s\S]*?color: var\(--br-primary\);[\s\S]*?animation: br-loader-spin 0\.7s linear infinite;/);
     assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.br-loader__icon \{\s*animation: none;/);
     assert.doesNotMatch(component, /<img|LOADER_IMAGE_SRC|loaderImageSrc/);
     assert.doesNotMatch(alerts, /<img|LOADER_IMAGE_SRC|br-swal-load__logo/);

@@ -107,11 +107,10 @@
                         </tbody>
                     </table>
                 </div>
-                <div v-if="accounts.links" class="d-flex justify-content-center mt-3">
-                    <Paginator :links="accounts.links" @clickPage="loadAccounts"/>
-                </div>
+
             </template>
             <WithoutData v-else type="image"/>
+            <Paginator :links="accounts.links" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts"/>
         </section>
 
         <section v-if="selectedAccount" class="br-receivables__panel mt-3">
@@ -186,14 +185,21 @@ export default {
     },
     methods: {
         async loadAccounts(pageUrl = null) {
+            pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.list = true;
-            const result = await Requests.get({route: pageUrl || this.config.routes.list, data: this.filters, showAlert: true});
-            this.loading.list = false;
 
-            if(!Requests.valid({result})) return;
+            try {
+                this.accounts = Requests.emptyPagination();
+                this.summary = {accounts: 0, overdue_accounts: 0, amounts: []};
+                const result = await Requests.get({route: pageUrl || this.config.routes.list, data: this.filters, showAlert: true});
 
-            this.accounts = result.data.data || {data: [], links: []};
-            this.summary = result.data.summary || {accounts: 0, overdue_accounts: 0, amounts: []};
+                if(!Requests.valid({result})) return;
+
+                this.accounts = result.data.data || {data: [], links: []};
+                this.summary = result.data.summary || {accounts: 0, overdue_accounts: 0, amounts: []};
+            } finally {
+                this.loading.list = false;
+            }
         },
         async openDetail(account) {
             this.selectedAccount = account;

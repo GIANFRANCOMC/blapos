@@ -178,7 +178,7 @@ final class StockAlertsPdfRenderer {
 
         }
 
-        $detectedAt = Carbon::parse($alert->detected_at)->format("d/m/Y H:i");
+        $detectedAt = $alert->detected_at ? Carbon::parse($alert->detected_at)->format("d/m/Y H:i") : "—";
         $this->centerText($x, $top + 11, self::COLUMNS[5], $detectedAt, 7.5, self::TEXT);
         $this->centerText($x + self::COLUMNS[5], $top + 11, self::COLUMNS[6], "Abierta", 7.5, self::WARNING, true);
 

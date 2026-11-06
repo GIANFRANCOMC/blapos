@@ -12,7 +12,7 @@ use DomainException;
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\{DB};
-use Illuminate\Support\{Collection};
+use Illuminate\Support\{Carbon, Collection};
 
 /**
  * Service class for managing Stock Management operations
@@ -119,6 +119,7 @@ class StockManagementService {
                 "warehouseItems" => function($query) use ($allowedWarehouseIds) {
 
                     $query->with(["warehouse.branch:id,name"]);
+                    $query->where("status", "active");
 
                     if($allowedWarehouseIds !== null) {
 
@@ -156,7 +157,7 @@ class StockManagementService {
                 "branch_name" => $warehouseItem->warehouse?->branch?->name,
                 "quantity" => $quantity,
                 "minimum_stock" => $minimum,
-                "requires_attention" => $quantity <= $minimum,
+                "requires_attention" => $quantity <= 0 || ($minimum > 0 && $quantity <= $minimum),
             ];
 
         })->values();
@@ -180,12 +181,12 @@ class StockManagementService {
             ->with("measurementUnit:id,abbreviation")
             ->withSum(["warehouseItems as stock_quantity" => function($query) use ($warehouseId) {
 
-                $query->where("warehouse_id", $warehouseId);
+                $query->where("warehouse_id", $warehouseId)->where("status", "active");
 
             }], "quantity")
             ->withSum(["warehouseItems as minimum_stock" => function($query) use ($warehouseId) {
 
-                $query->where("warehouse_id", $warehouseId);
+                $query->where("warehouse_id", $warehouseId)->where("status", "active");
 
             }], "minimum_stock");
 
@@ -464,17 +465,55 @@ class StockManagementService {
         int $perPage
     ) {
 
-        return self::stockAlertsQuery(
-            (int) ($filters["warehouse_id"] ?? 0),
-            (string) ($filters["status"] ?? "open"),
-            (string) ($filters["product_search"] ?? "")
+        $warehouseId = (int) ($filters["warehouse_id"] ?? 0);
+        $status = (string) ($filters["status"] ?? "open");
+        $records = self::stockAlertsQuery(
+            $warehouseId,
+            $status,
+            (string) ($filters["product_search"] ?? ""),
+            (string) ($filters["minimum_status"] ?? "")
         )->paginate($perPage);
+
+        if($status !== "open") {
+
+            return $records;
+
+        }
+
+        return $records->through(static fn(object $row): array => [
+            "id" => $row->id,
+            "warehouse_item_id" => $row->warehouse_item_id,
+            "quantity" => (float) $row->quantity,
+            "minimum_stock" => (float) $row->minimum_stock,
+            "status" => "open",
+            "detected_at" => $row->detected_at ? Carbon::parse($row->detected_at)->toJSON() : null,
+            "warehouse_item" => [
+                "id" => $row->warehouse_item_id,
+                "warehouse_id" => $warehouseId,
+                "item" => [
+                    "id" => $row->id,
+                    "name" => $row->product_name,
+                    "internal_code" => $row->internal_code,
+                    "barcode" => $row->barcode,
+                    "measurement_unit" => [
+                        "id" => $row->measurement_unit_id,
+                        "abbreviation" => $row->unit_abbreviation,
+                    ],
+                ],
+            ],
+        ]);
 
     }
 
-    public static function stockAlertsQuery(int $warehouseId, string $status = "open", string $productSearch = ""): Builder {
+    public static function stockAlertsQuery(int $warehouseId, string $status = "open", string $productSearch = "", string $minimumStatus = ""): Builder|QueryBuilder {
 
-        return InventoryStockAlert::query()
+        if($status === "open") {
+
+            return self::stockAlertsReportQuery($warehouseId, $productSearch, $minimumStatus);
+
+        }
+
+        $query = InventoryStockAlert::query()
             ->join("warehouse_items as alert_warehouse_items", "alert_warehouse_items.id", "=", "inventory_stock_alerts.warehouse_item_id")
             ->where("alert_warehouse_items.warehouse_id", $warehouseId)
             ->where("inventory_stock_alerts.status", $status)
@@ -502,31 +541,75 @@ class StockManagementService {
             ->orderByDesc("inventory_stock_alerts.detected_at")
             ->orderByDesc("inventory_stock_alerts.id");
 
+        return self::filterAlertMinimum($query, $minimumStatus, "inventory_stock_alerts.minimum_stock");
+
     }
 
     /** Filas planas para exportación: evita hidratar modelos, accessors y relaciones por alerta. */
-    public static function stockAlertsReportQuery(int $warehouseId, string $productSearch = ""): QueryBuilder {
+    public static function stockAlertsReportQuery(int $warehouseId, string $productSearch = "", string $minimumStatus = ""): QueryBuilder {
 
-        $query = DB::table("inventory_stock_alerts as alerts")
-            ->join("warehouse_items as stock", "stock.id", "=", "alerts.warehouse_item_id")
-            ->join("items as products", "products.id", "=", "stock.item_id")
-            ->leftJoin("measurement_units as units", "units.id", "=", "products.measurement_unit_id")
-            ->where("stock.warehouse_id", $warehouseId)
+        $stock = DB::table("warehouse_items")
+            ->where("warehouse_id", $warehouseId)
+            ->where("status", "active")
+            ->select("item_id")
+            ->selectRaw("MIN(id) as warehouse_item_id, SUM(quantity) as quantity, SUM(minimum_stock) as minimum_stock")
+            ->groupBy("item_id");
+        $detected = DB::table("inventory_stock_alerts as alerts")
+            ->join("warehouse_items as alert_stock", "alert_stock.id", "=", "alerts.warehouse_item_id")
+            ->where("alert_stock.warehouse_id", $warehouseId)
+            ->where("alert_stock.status", "active")
             ->where("alerts.status", "open")
+            ->select("alert_stock.item_id")
+            ->selectRaw("MAX(alerts.detected_at) as detected_at")
+            ->groupBy("alert_stock.item_id");
+
+        $query = DB::table("items as products")
+            ->leftJoinSub($stock, "stock", "stock.item_id", "=", "products.id")
+            ->leftJoinSub($detected, "detected", "detected.item_id", "=", "products.id")
+            ->leftJoin("measurement_units as units", "units.id", "=", "products.measurement_unit_id")
+            ->where("products.type", "product")
+            ->where(static fn($query) => $query
+                ->whereRaw("COALESCE(stock.quantity, 0) <= 0")
+                ->orWhere(static fn($low) => $low
+                    ->where("stock.minimum_stock", ">", 0)
+                    ->whereColumn("stock.quantity", "<=", "stock.minimum_stock")
+                )
+            )
             ->select([
-                "alerts.id",
-                "alerts.quantity",
-                "alerts.minimum_stock",
-                "alerts.detected_at",
+                "products.id",
+                "stock.warehouse_item_id",
+                DB::raw("COALESCE(stock.quantity, 0) as quantity"),
+                DB::raw("COALESCE(stock.minimum_stock, 0) as minimum_stock"),
+                "detected.detected_at",
                 "products.name as product_name",
                 "products.internal_code",
                 "products.barcode",
+                "products.measurement_unit_id",
                 "units.abbreviation as unit_abbreviation",
             ]);
 
-        return self::filterAlertProducts($query, $productSearch, "products")
-            ->orderByDesc("alerts.detected_at")
-            ->orderByDesc("alerts.id");
+        $query = self::filterAlertProducts($query, $productSearch, "products");
+
+        return self::filterAlertMinimum($query, $minimumStatus, "COALESCE(stock.minimum_stock, 0)")
+            ->orderByDesc("detected.detected_at")
+            ->orderBy("products.name")
+            ->orderBy("products.id");
+
+    }
+
+    private static function filterAlertMinimum(Builder|QueryBuilder $query, string $status, string $column): Builder|QueryBuilder {
+
+        if($status === "configured") {
+
+            $query->where(DB::raw($column), ">", 0);
+
+        }elseif($status === "unconfigured") {
+
+            $query->where(DB::raw($column), "<=", 0);
+
+        }
+
+        return $query;
 
     }
 

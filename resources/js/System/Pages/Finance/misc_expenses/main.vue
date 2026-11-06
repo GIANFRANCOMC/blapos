@@ -82,9 +82,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <Paginator :links="expenses.links || []" @clickPage="loadExpenses($event.url)"/>
+
             </div>
             <WithoutData v-else/>
+            <Paginator :links="expenses.links || []" :pagination="expenses" :loading="loading" @clickPage="loadExpenses($event.url)"/>
         </section>
     </section>
 
@@ -206,9 +207,14 @@ export default {
         },
         async loadExpenses(url = null) {
             this.loading = true;
-            const result = await Requests.get({route: url || this.routes.list, data: this.filters});
-            this.loading = false;
-            if(result.bool) this.expenses = result.data;
+
+            try {
+                this.expenses = Requests.emptyPagination();
+                const result = await Requests.get({route: url || this.routes.list, data: this.filters});
+                if(result.bool) this.expenses = result.data;
+            } finally {
+                this.loading = false;
+            }
         },
         openCreate() {
             const today = new Date().toISOString().slice(0, 10);

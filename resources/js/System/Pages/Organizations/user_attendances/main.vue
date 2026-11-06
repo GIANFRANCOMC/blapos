@@ -174,8 +174,9 @@
                 </table>
             </div>
             <WithoutData v-if="!records.data.length"/>
-            <Paginator :links="records.links" @clickPage="getRecords"/>
+
         </template>
+        <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="getRecords"/>
     </section>
 </template>
 
@@ -240,19 +241,26 @@ export default {
             await Promise.all([this.getRecords(), this.getSummary()]);
         },
         async getRecords(url = null) {
+            url = typeof url === "object" ? url?.url : url;
             this.loading = true;
-            const result = await Requests.get({
-                route: url || this.config.routes.list,
-                data: {
-                    branch_id: this.filters.branch?.id,
-                    user_id: this.filters.user?.id,
-                    date_from: this.filters.weekStart
-                }
-            });
-            this.loading = false;
-            if(Requests.valid({result})) this.records = result.data.data;
+
+            try {
+                this.records = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: url || this.config.routes.list,
+                    data: {
+                        branch_id: this.filters.branch?.id,
+                        user_id: this.filters.user?.id,
+                        date_from: this.filters.weekStart
+                    }
+                });
+                if(Requests.valid({result})) this.records = result.data.data;
+            } finally {
+                this.loading = false;
+            }
         },
         async getSummary() {
+            this.summary = {};
             if(!this.filters.user) return;
             const result = await Requests.get({
                 route: this.config.routes.weekly,

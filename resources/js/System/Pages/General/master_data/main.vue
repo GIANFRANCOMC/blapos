@@ -1,174 +1,177 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <MasterDataSkeleton v-if="initialLoading && skeletonEnabled"/>
+    <InitialLoadTransition>
+        <MasterDataSkeleton v-if="initialLoading && skeletonEnabled"/>
 
-    <section v-else class="br-master-data">
-        <CatalogFormTabs
-            :model-value="selectedResourceCode"
-            :tabs="resourceTabs"
-            id-prefix="master-data"
-            shared-controls-id="master-data-panel"
-            variant="descriptive"
-            label="Tipos de maestros internos"
-            @update:modelValue="selectResource"/>
+        <section v-else class="br-master-data">
+            <CatalogFormTabs
+                :model-value="selectedResourceCode"
+                :tabs="resourceTabs"
+                id-prefix="master-data"
+                shared-controls-id="master-data-panel"
+                variant="descriptive"
+                label="Tipos de maestros internos"
+                @update:modelValue="selectResource"/>
 
-        <main
-            id="master-data-panel"
-            class="br-master-data__workspace"
-            role="tabpanel"
-            :aria-labelledby="`master-data-tab-trigger-${selectedResourceCode}`">
-            <header class="br-master-data__header">
-                <div>
-                    <h1>{{ selectedResource.label }}</h1>
-                    <p>{{ selectedResource.help }}</p>
-                </div>
-                <button v-if="selectedResourceCode !== 'automatic'" type="button" class="br-btn br-btn-action-create" @click="startCreate">
-                    <span>Agregar {{ selectedResource.singular }}</span>
-                </button>
-            </header>
-
-            <section v-if="selectedResourceCode === 'automatic'" class="br-master-data-automatic" aria-label="Datos automáticos">
-                <div class="br-master-data__records-head">
-                    <div class="br-master-data-search">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <SearchInput v-model.trim="searchTerm" placeholder="Buscar dato automático" aria-label="Buscar dato automático"/>
+            <main
+                id="master-data-panel"
+                class="br-master-data__workspace"
+                role="tabpanel"
+                :aria-labelledby="`master-data-tab-trigger-${selectedResourceCode}`">
+                <header class="br-master-data__header">
+                    <div>
+                        <h1>{{ selectedResource.label }}</h1>
+                        <p>{{ selectedResource.help }}</p>
                     </div>
-                    <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
-                </div>
-                <Loader v-if="loading"/>
-                <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin datos automáticos" description="No hay datos que coincidan con la búsqueda."/>
-                <div v-else class="br-master-data-automatic__list">
-                    <article v-for="record in filteredRecords" :key="record.code" class="br-master-data-automatic__item">
-                        <div class="br-master-data-automatic__detail">
-                            <strong>{{ record.name }}</strong>
-                            <span>{{ record.description }}</span>
-                            <small>Condición: {{ record.condition_label }} · Origen: {{ record.source }}</small>
-                        </div>
-                        <div class="br-master-data-automatic__value">
-                            <StatusBadge :status="record.value ? 'active' : 'inactive'" :formatted-status="record.value ? 'Activo' : 'Inactivo'"/>
-                            <small>Valor: {{ record.value ? "Sí" : "No" }}</small>
-                        </div>
-                    </article>
-                </div>
-            </section>
+                    <button v-if="selectedResourceCode !== 'automatic'" type="button" class="br-btn br-btn-action-create" @click="startCreate">
+                        <span>Agregar {{ selectedResource.singular }}</span>
+                    </button>
+                </header>
 
-            <div v-else class="br-master-data__grid">
-                <section class="br-entity-list br-master-data__records">
+                <section v-if="selectedResourceCode === 'automatic'" class="br-master-data-automatic" aria-label="Datos automáticos">
                     <div class="br-master-data__records-head">
                         <div class="br-master-data-search">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <SearchInput v-model.trim="searchTerm" placeholder="Buscar registro" aria-label="Buscar registro"/>
+                            <SearchInput v-model.trim="searchTerm" placeholder="Buscar dato automático" aria-label="Buscar dato automático"/>
                         </div>
-                        <span>{{ filteredRecords.length }} registro{{ filteredRecords.length === 1 ? "" : "s" }}</span>
+                        <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                     </div>
-
                     <Loader v-if="loading"/>
-                    <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin registros disponibles" description="Agrega un registro o prueba otra búsqueda."/>
-                    <div v-else class="br-master-data-list">
-                        <article
-                            v-for="record in filteredRecords"
-                            :key="record.id"
-                            :class="['br-master-data-row', {'is-selected': form.id === record.id}]">
-                            <div class="br-master-data-row__body">
-                                <strong>{{ recordTitle(record) }}</strong>
-                                <span>{{ recordSubtitle(record) }}</span>
-                                <small>{{ recordMeta(record) }}</small>
+                    <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin datos automáticos" description="No hay datos que coincidan con la búsqueda."/>
+                    <div v-else class="br-master-data-automatic__list">
+                        <article v-for="record in filteredRecords" :key="record.code" class="br-master-data-automatic__item">
+                            <div class="br-master-data-automatic__detail">
+                                <strong>{{ record.name }}</strong>
+                                <span>{{ record.description }}</span>
+                                <small>Condición: {{ record.condition_label }} · Origen: {{ record.source }}</small>
                             </div>
-                            <div class="br-master-data-row__actions">
-                                <StatusBadge :status="record.status" :formatted-status="statusLabel(record.status)"/>
-                                <button type="button" class="br-icon-action br-icon-action-edit" data-bs-toggle="tooltip" title="Editar" @click="startEdit(record)">
-                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                </button>
+                            <div class="br-master-data-automatic__value">
+                                <StatusBadge :status="record.value ? 'active' : 'inactive'" :formatted-status="record.value ? 'Activo' : 'Inactivo'"/>
+                                <small>Valor: {{ record.value ? "Sí" : "No" }}</small>
                             </div>
                         </article>
                     </div>
                 </section>
 
-                <section class="br-master-data-form">
-                    <header>
-                        <div>
-                            <h2>{{ isEditing ? recordTitle(form) : `Agregar ${selectedResource.singular}` }}</h2>
-                        </div>
-                        <button v-if="isEditing" type="button" class="br-btn br-btn-sm br-btn-cancel" @click="startCreate">
-                            Limpiar
-                        </button>
-                    </header>
-
-                    <div class="br-master-data-form__notice">
-                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                        <span>{{ selectedResource.notice }}</span>
-                    </div>
-
-                    <div class="row g-3">
-                        <template v-for="field in activeFields" :key="field.key">
-                            <div :class="field.wrapperClass || 'form-group col-xl-6 col-lg-6 col-md-12 col-sm-12'">
-                                <label class="form-label fw-semibold">{{ field.label }}<span v-if="field.required" class="text-danger ms-1">*</span></label>
-
-                                <template v-if="field.type === 'select'">
-                                    <v-select
-                                        v-model="form[field.key]"
-                                        :options="field.options"
-                                        :clearable="false"
-                                        :searchable="field.searchable ?? false"
-                                        :class="config.forms.classes.select2">
-                                        <template #no-options>Sin opciones disponibles</template>
-                                    </v-select>
-                                </template>
-
-                                <template v-else-if="field.type === 'checkbox'">
-                                    <label class="br-master-data-check">
-                                        <input v-model="form[field.key]" type="checkbox" class="form-check-input">
-                                        <span>{{ field.help }}</span>
-                                    </label>
-                                </template>
-
-                                <template v-else-if="field.type === 'textarea'">
-                                    <textarea v-model.trim="form[field.key]" class="form-control" rows="3" :maxlength="field.maxlength || 500"></textarea>
-                                </template>
-
-                                <template v-else-if="field.type === 'file'">
-                                    <input ref="imageInput" class="form-control" type="file" accept="image/png,image/jpeg,image/webp" @change="onImageChange">
-                                    <small v-if="form.image_path" class="br-master-data-help">Imagen actual: {{ form.image_path }}</small>
-                                </template>
-
-                                <template v-else>
-                                    <input
-                                        v-model.trim="form[field.key]"
-                                        class="form-control"
-                                        :type="field.type || 'text'"
-                                        :maxlength="field.maxlength || 255"
-                                        :step="field.step || undefined"
-                                        :disabled="field.disabled?.(form) || false">
-                                </template>
-
-                                <small class="br-form-error">{{ firstError(field.key) }}</small>
-                                <small v-if="field.help && field.type !== 'checkbox'" class="br-master-data-help">{{ field.help }}</small>
+                <div v-else class="br-master-data__grid">
+                    <section class="br-entity-list br-master-data__records">
+                        <div class="br-master-data__records-head">
+                            <div class="br-master-data-search">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                <SearchInput v-model.trim="searchTerm" placeholder="Buscar registro" aria-label="Buscar registro"/>
                             </div>
-                        </template>
-                    </div>
+                            <span>{{ filteredRecords.length }} registro{{ filteredRecords.length === 1 ? "" : "s" }}</span>
+                        </div>
 
-                    <section v-if="isEditing && statusCode === 'inactive'" class="br-master-data-warning">
-                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                        <div>
-                            <strong>Revisa el impacto antes de inactivar</strong>
-                            <span>{{ selectedResource.deactivationImpact }}</span>
+                        <Loader v-if="loading"/>
+                        <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin registros disponibles" description="Agrega un registro o prueba otra búsqueda."/>
+                        <div v-else class="br-master-data-list">
+                            <article
+                                v-for="record in filteredRecords"
+                                :key="record.id"
+                                :class="['br-master-data-row', {'is-selected': form.id === record.id}]">
+                                <div class="br-master-data-row__body">
+                                    <strong>{{ recordTitle(record) }}</strong>
+                                    <span>{{ recordSubtitle(record) }}</span>
+                                    <small>{{ recordMeta(record) }}</small>
+                                </div>
+                                <div class="br-master-data-row__actions">
+                                    <StatusBadge :status="record.status" :formatted-status="statusLabel(record.status)"/>
+                                    <button type="button" class="br-icon-action br-icon-action-edit" data-bs-toggle="tooltip" title="Editar" @click="startEdit(record)">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </article>
                         </div>
                     </section>
 
-                    <footer>
-                        <button type="button" class="br-btn br-btn-cancel" @click="startCreate">Cancelar</button>
-                        <button type="button" :class="['br-btn', isEditing ? 'br-btn-action-update' : 'br-btn-action-create']" :disabled="saving" @click="saveRecord">
-                            <span>{{ saving ? "Guardando..." : `Guardar ${selectedResource.singular.toLocaleLowerCase('es-PE')}` }}</span>
-                        </button>
-                    </footer>
-                </section>
-            </div>
-        </main>
-    </section>
+                    <section class="br-master-data-form">
+                        <header>
+                            <div>
+                                <h2>{{ isEditing ? recordTitle(form) : `Agregar ${selectedResource.singular}` }}</h2>
+                            </div>
+                            <button v-if="isEditing" type="button" class="br-btn br-btn-sm br-btn-cancel" @click="startCreate">
+                                Limpiar
+                            </button>
+                        </header>
+
+                        <div class="br-master-data-form__notice">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            <span>{{ selectedResource.notice }}</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <template v-for="field in activeFields" :key="field.key">
+                                <div :class="field.wrapperClass || 'form-group col-xl-6 col-lg-6 col-md-12 col-sm-12'">
+                                    <label class="form-label fw-semibold">{{ field.label }}<span v-if="field.required" class="text-danger ms-1">*</span></label>
+
+                                    <template v-if="field.type === 'select'">
+                                        <v-select
+                                            v-model="form[field.key]"
+                                            :options="field.options"
+                                            :clearable="false"
+                                            :searchable="field.searchable ?? false"
+                                            :class="config.forms.classes.select2">
+                                            <template #no-options>Sin opciones disponibles</template>
+                                        </v-select>
+                                    </template>
+
+                                    <template v-else-if="field.type === 'checkbox'">
+                                        <label class="br-master-data-check">
+                                            <input v-model="form[field.key]" type="checkbox" class="form-check-input">
+                                            <span>{{ field.help }}</span>
+                                        </label>
+                                    </template>
+
+                                    <template v-else-if="field.type === 'textarea'">
+                                        <textarea v-model.trim="form[field.key]" class="form-control" rows="3" :maxlength="field.maxlength || 500"></textarea>
+                                    </template>
+
+                                    <template v-else-if="field.type === 'file'">
+                                        <input ref="imageInput" class="form-control" type="file" accept="image/png,image/jpeg,image/webp" @change="onImageChange">
+                                        <small v-if="form.image_path" class="br-master-data-help">Imagen actual: {{ form.image_path }}</small>
+                                    </template>
+
+                                    <template v-else>
+                                        <input
+                                            v-model.trim="form[field.key]"
+                                            class="form-control"
+                                            :type="field.type || 'text'"
+                                            :maxlength="field.maxlength || 255"
+                                            :step="field.step || undefined"
+                                            :disabled="field.disabled?.(form) || false">
+                                    </template>
+
+                                    <small class="br-form-error">{{ firstError(field.key) }}</small>
+                                    <small v-if="field.help && field.type !== 'checkbox'" class="br-master-data-help">{{ field.help }}</small>
+                                </div>
+                            </template>
+                        </div>
+
+                        <section v-if="isEditing && statusCode === 'inactive'" class="br-master-data-warning">
+                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                            <div>
+                                <strong>Revisa el impacto antes de inactivar</strong>
+                                <span>{{ selectedResource.deactivationImpact }}</span>
+                            </div>
+                        </section>
+
+                        <footer>
+                            <button type="button" class="br-btn br-btn-cancel" @click="startCreate">Cancelar</button>
+                            <button type="button" :class="['br-btn', isEditing ? 'br-btn-action-update' : 'br-btn-action-create']" :disabled="saving" @click="saveRecord">
+                                <span>{{ saving ? "Guardando..." : `Guardar ${selectedResource.singular.toLocaleLowerCase('es-PE')}` }}</span>
+                            </button>
+                        </footer>
+                    </section>
+                </div>
+            </main>
+        </section>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -340,7 +343,7 @@ const RESOURCES = [
 ];
 
 export default {
-    components: {CatalogFormTabs, SearchInput, MasterDataSkeleton},
+    components: {InitialLoadTransition, CatalogFormTabs, SearchInput, MasterDataSkeleton},
     data() {
         return {
             resources: RESOURCES,
@@ -370,16 +373,17 @@ export default {
     async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        this.startCreate();
         initialLoad.start();
 
         try {
-            await this.loadRecords();
+            this.startCreate();
         } finally {
             initialLoad.finish();
             this.initialLoading = false;
-            this.$nextTick(() => Alerts.tooltips({time: 250}));
         }
+
+        await this.loadRecords();
+        this.$nextTick(() => Alerts.tooltips({time: 250}));
     },
     computed: {
         resourceTabs() {
@@ -424,14 +428,19 @@ export default {
         async loadRecords() {
             this.loading = true;
 
-            const result = await Requests.get({
-                route: this.resourceRoute(),
-                showAlert: true
-            });
+            try {
+                this.records = [];
 
-            this.records = Requests.valid({result}) ? (result.data.data || []) : [];
-            this.loading = false;
-            Alerts.tooltips({time: 250});
+                const result = await Requests.get({
+                    route: this.resourceRoute(),
+                    showAlert: true
+                });
+
+                this.records = Requests.valid({result}) ? (result.data.data || []) : [];
+                Alerts.tooltips({time: 250});
+            } finally {
+                this.loading = false;
+            }
         },
         startCreate() {
             this.form = this.emptyForm();

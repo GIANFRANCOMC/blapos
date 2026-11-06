@@ -39,6 +39,7 @@ export const CrudMixin = {
             };
 
             this.lists.entity.extras.loading = true;
+            this.lists.entity.records = Requests.emptyPagination();
             
             try {
                 const response = await Requests.get({

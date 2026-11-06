@@ -127,9 +127,7 @@
             </table>
         </div>
 
-        <nav v-if="!lists.entity.extras.loading && lists.entity.records.total > 0" class="d-flex justify-content-center mt-3">
-            <Paginator :links="lists.entity.records.links" @clickPage="listEntity"/>
-        </nav>
+        <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
     </section>
 
     <div class="modal fade" :id="detailModalId" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
@@ -259,12 +257,17 @@ export default {
             }
 
             this.lists.entity.extras.loading = true;
-            const result = await Requests.get({
-                route,
-                data
-            });
-            this.lists.entity.records = result?.data || {total: 0, data: [], links: []};
-            this.lists.entity.extras.loading = false;
+
+            try {
+                this.lists.entity.records = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route,
+                    data
+                });
+                this.lists.entity.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
+            } finally {
+                this.lists.entity.extras.loading = false;
+            }
         },
         openDetail(record) {
             this.selectedRecord = record;

@@ -1,262 +1,271 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <InventorySkeleton v-if="initialLoading && skeletonEnabled" :page="page"/>
+    <InitialLoadTransition>
+        <InventorySkeleton v-if="initialLoading && skeletonEnabled" :page="page"/>
 
-    <section v-else class="br-inventory">
-        <div class="row align-items-end g-3 br-inventory__context">
-            <div :class="activeView === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4 br-inventory__warehouse' : 'col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse'">
-                <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
-                <WarehouseSelect
-                    id="inventoryWarehouse"
-                    v-model="filters.warehouse"
-                    :options="warehouses"
-                    :disabled="isCurrentViewLoading"
-                    :select-class="config.forms.classes.select2"/>
-            </div>
-
-            <SearchInput
-                v-if="['stock', 'transfers'].includes(activeView)"
-                ref="productSearch"
-                v-model.trim="filters.productSearch"
-                hasDiv
-                title="Producto"
-                :titleClass="[config.forms.classes.title]"
-                placeholder="Buscar o escanear producto"
-                :inputClass="['form-control']"
-                :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                :xl="activeView === 'stock' ? 5 : 3"
-                :lg="activeView === 'stock' ? 5 : 3"
-                md="6"
-                @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
-                @clear="clearProductSearch"/>
-
-            <div v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3">
-                <label for="stockSituation" class="form-label">Estado del stock</label>
-                <v-select
-                    id="stockSituation"
-                    v-model="filters.stockSituation"
-                    :options="stockSituations"
-                    :class="config.forms.classes.select2"
-                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                    :clearable="false"
-                    :searchable="false"/>
-            </div>
-
-            <div v-show="activeView === 'stock' && stockAdvancedOpen" id="stockAdvancedFilters" class="col-12 br-inventory__advanced-filters">
-                <div class="row g-3">
-                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                        <label for="stockCategory" class="form-label">Categoría</label>
-                        <v-select id="stockCategory" v-model="filters.stockCategory" :options="stockCategories" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las categorías"/>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                        <label for="stockBrand" class="form-label">Marca</label>
-                        <v-select id="stockBrand" v-model="filters.stockBrand" :options="stockBrands" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las marcas"/>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                        <label for="stockMinimumStatus" class="form-label">Stock mínimo</label>
-                        <v-select id="stockMinimumStatus" v-model="filters.stockMinimumStatus" :options="stockMinimumOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                        <label for="stockInactiveDays" class="form-label">Último movimiento</label>
-                        <v-select id="stockInactiveDays" v-model="filters.stockInactiveDays" :options="stockInactivityOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
-                <label for="movementType" class="form-label">Movimiento</label>
-                <v-select
-                    id="movementType"
-                    v-model="filters.movementType"
-                    :options="movementTypes"
-                    :class="config.forms.classes.select2"
-                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                    :clearable="false"
-                    :searchable="false"/>
-            </div>
-
-            <div v-if="activeView === 'guides'" class="col-12 col-md-6 col-lg-2 col-xl-2">
-                <label for="guideType" class="form-label">Tipo de guía</label>
-                <v-select
-                    id="guideType"
-                    v-model="filters.guideType"
-                    :options="guideTypes"
-                    :class="config.forms.classes.select2"
-                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                    :clearable="false"
-                    :searchable="false"/>
-            </div>
-
-            <template v-if="['kardex', 'valued', 'guides'].includes(activeView)">
-                <div class="col-12 col-md-6 col-lg-2 col-xl-2">
-                    <label for="inventoryDateFrom" class="form-label">Desde</label>
-                    <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
-                </div>
-                <div class="col-12 col-md-6 col-lg-2 col-xl-2">
-                    <label for="inventoryDateTo" class="form-label">Hasta</label>
-                    <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
-                </div>
-            </template>
-
-            <div :class="contextActionColumns">
-                <div :class="['br-filter-bar__actions', 'br-inventory__context-actions', {'br-inventory__context-actions--stock': activeView === 'stock'}]">
-                    <button
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-search"
-                        :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                        @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
-                        <span>Buscar</span>
-                    </button>
-                    <button
-                        v-if="activeView === 'stock'"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-outline-secondary br-inventory__advanced-toggle"
-                        :aria-expanded="stockAdvancedOpen"
-                        aria-controls="stockAdvancedFilters"
-                        @click="stockAdvancedOpen = !stockAdvancedOpen">
-                        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                        <span>Más filtros</span>
-                        <span v-if="activeStockFilterCount" class="br-inventory__filter-count">{{ activeStockFilterCount }}</span>
-                    </button>
-                    <button
-                        v-if="activeView === 'transfers'"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
+        <section v-else class="br-inventory">
+            <div class="row align-items-end g-3 br-inventory__context">
+                <div :class="activeView === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4 br-inventory__warehouse' : 'col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse'">
+                    <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
+                    <WarehouseSelect
+                        id="inventoryWarehouse"
+                        v-model="filters.warehouse"
+                        :options="warehouses"
                         :disabled="isCurrentViewLoading"
-                        data-bs-toggle="modal"
-                        data-bs-target="#inventoryTransferModal"
-                        @click="prepareTransfer">
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                        <span>Registrar traslado</span>
-                    </button>
-                    <button
-                        v-if="activeView === 'stock'"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-action-open-create br-inventory__operation-button"
-                        :disabled="isCurrentViewLoading"
-                        data-bs-toggle="modal"
-                        data-bs-target="#inventoryMovementModal"
-                        @click="prepareMovement()">
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                        <span>Registrar operación</span>
-                    </button>
-                    <button
-                        v-if="activeView === 'stock'"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"
-                        :disabled="!canViewStockAlerts"
-                        data-bs-toggle="modal"
-                        data-bs-target="#inventoryStockAlertsModal"
-                        @click="listStockAlerts({})">
-                        <i class="fa-solid fa-bell fa-shake" aria-hidden="true"></i>
-                        <span>Ver alertas</span>
-                    </button>
-                    <button
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-actions"
+                        :select-class="config.forms.classes.select2"/>
+                </div>
+
+                <SearchInput
+                    v-if="['stock', 'transfers'].includes(activeView)"
+                    ref="productSearch"
+                    v-model.trim="filters.productSearch"
+                    hasDiv
+                    title="Producto"
+                    :titleClass="[config.forms.classes.title]"
+                    placeholder="Buscar o escanear producto"
+                    :inputClass="['form-control']"
+                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                    :xl="activeView === 'stock' ? 5 : 3"
+                    :lg="activeView === 'stock' ? 5 : 3"
+                    md="6"
+                    @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
+                    @clear="clearProductSearch"/>
+
+                <div v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3">
+                    <label for="stockSituation" class="form-label">Estado del stock</label>
+                    <v-select
+                        id="stockSituation"
+                        v-model="filters.stockSituation"
+                        :options="stockSituations"
+                        :class="config.forms.classes.select2"
                         :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        <span>Acciones</span>
-                        <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
-                        <li>
-                            <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !filters.warehouse?.code" @click="exportCurrentView">
-                                <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                <span>Descargar Excel</span>
-                            </button>
-                        </li>
-                    </ul>
+                        :clearable="false"
+                        :searchable="false"/>
+                </div>
+
+                <div v-show="activeView === 'stock' && stockAdvancedOpen" id="stockAdvancedFilters" class="col-12 br-inventory__advanced-filters">
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                            <label for="stockCategory" class="form-label">Categoría</label>
+                            <v-select id="stockCategory" v-model="filters.stockCategory" :options="stockCategories" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las categorías"/>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                            <label for="stockBrand" class="form-label">Marca</label>
+                            <v-select id="stockBrand" v-model="filters.stockBrand" :options="stockBrands" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las marcas"/>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                            <label for="stockMinimumStatus" class="form-label">Stock mínimo</label>
+                            <v-select id="stockMinimumStatus" v-model="filters.stockMinimumStatus" :options="stockMinimumOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
+                            <label for="stockInactiveDays" class="form-label">Último movimiento</label>
+                            <v-select id="stockInactiveDays" v-model="filters.stockInactiveDays" :options="stockInactivityOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
+                    <label for="movementType" class="form-label">Movimiento</label>
+                    <v-select
+                        id="movementType"
+                        v-model="filters.movementType"
+                        :options="movementTypes"
+                        :class="config.forms.classes.select2"
+                        :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                        :clearable="false"
+                        :searchable="false"/>
+                </div>
+
+                <div v-if="activeView === 'guides'" class="col-12 col-md-6 col-lg-2 col-xl-2">
+                    <label for="guideType" class="form-label">Tipo de guía</label>
+                    <v-select
+                        id="guideType"
+                        v-model="filters.guideType"
+                        :options="guideTypes"
+                        :class="config.forms.classes.select2"
+                        :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                        :clearable="false"
+                        :searchable="false"/>
+                </div>
+
+                <template v-if="['kardex', 'valued', 'guides'].includes(activeView)">
+                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                        <label for="inventoryDateFrom" class="form-label">Desde</label>
+                        <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                        <label for="inventoryDateTo" class="form-label">Hasta</label>
+                        <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
+                    </div>
+                </template>
+
+                <div :class="contextActionColumns">
+                    <div :class="['br-filter-bar__actions', 'br-inventory__context-actions', {'br-inventory__context-actions--stock': activeView === 'stock'}]">
+                        <button
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-search"
+                            :disabled="!filters.warehouse?.code || isCurrentViewLoading"
+                            @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
+                            <span>Buscar</span>
+                        </button>
+                        <button
+                            v-if="activeView === 'stock'"
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-outline-secondary br-inventory__advanced-toggle"
+                            :aria-expanded="stockAdvancedOpen"
+                            aria-controls="stockAdvancedFilters"
+                            @click="stockAdvancedOpen = !stockAdvancedOpen">
+                            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                            <span>Más filtros</span>
+                            <span v-if="activeStockFilterCount" class="br-inventory__filter-count">{{ activeStockFilterCount }}</span>
+                        </button>
+                        <a
+                            href="#"
+                            role="button"
+                            class="br-filter-clear"
+                            :aria-disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            :tabindex="isCurrentViewLoading || !filters.warehouse?.code ? -1 : 0"
+                            @click.prevent="clearFilters()"
+                            @keydown.space.prevent="clearFilters()">Limpiar filtros</a>
+                        <button
+                            v-if="activeView === 'transfers'"
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
+                            :disabled="isCurrentViewLoading"
+                            data-bs-toggle="modal"
+                            data-bs-target="#inventoryTransferModal"
+                            @click="prepareTransfer">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            <span>Registrar traslado</span>
+                        </button>
+                        <button
+                            v-if="activeView === 'stock'"
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-action-open-create br-inventory__operation-button"
+                            :disabled="isCurrentViewLoading"
+                            data-bs-toggle="modal"
+                            data-bs-target="#inventoryMovementModal"
+                            @click="prepareMovement()">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            <span>Registrar operación</span>
+                        </button>
+                        <button
+                            v-if="activeView === 'stock'"
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"
+                            :disabled="!canViewStockAlerts"
+                            @click="listStockAlerts({showModal: true})">
+                            <i class="fa-solid fa-bell fa-shake" aria-hidden="true"></i>
+                            <span>Ver alertas</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-actions"
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <span>Acciones</span>
+                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                            <li>
+                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !filters.warehouse?.code" @click="exportCurrentView">
+                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                                    <span>Descargar Excel</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="br-inventory__workspace">
-            <section class="br-inventory__content">
-                <section class="br-entity-list" aria-label="Control de stock">
-                    <div class="table-responsive">
-                        <table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">
-                            <colgroup>
-                                <col class="br-inventory__col-product">
-                                <col class="br-inventory__col-current">
-                                <col class="br-inventory__col-minimum">
-                                <col class="br-inventory__col-difference">
-                                <col class="br-inventory__col-status">
-                            </colgroup>
-                            <thead class="br-table-header-surface">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Stock actual</th>
-                                    <th>Stock mínimo</th>
-                                    <th>Diferencia</th>
-                                    <th>Estado del stock</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-if="loadingStock">
-                                    <td colspan="5" class="py-4"><Loader/></td>
-                                </tr>
-                                <template v-else-if="stockRecords.total > 0">
-                                    <tr
-                                        v-for="record in stockRecords.data"
-                                        :key="record.id"
-                                        :class="{ 'br-inventory__scanned-row': scannedProductId === Number(record.id) }">
-                                        <td>
-                                            <strong class="br-inventory__product-name">{{ record.name }}</strong>
-                                            <span class="br-inventory__product-identifiers">
-                                                <span>
-                                                    <small>Cód. interno</small>
-                                                    <span>{{ record.internal_code }}</span>
-                                                </span>
-                                                <span v-if="record.barcode">
-                                                    <small>Cód. barras</small>
-                                                    <span>{{ record.barcode }}</span>
-                                                </span>
-                                            </span>
-                                        </td>
-                                        <td class="text-end"><span class="br-inventory__stock-current">{{ quantityWithUnit(record.stock_quantity, record) }}</span></td>
-                                        <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
-                                        <td class="text-end"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></td>
-                                        <td :class="['br-inventory__situation', stockStatus(record).cellClass]">{{ stockStatus(record).label }}</td>
+            <div class="br-inventory__workspace">
+                <section class="br-inventory__content">
+                    <section class="br-entity-list" aria-label="Control de stock">
+                        <div class="table-responsive">
+                            <table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">
+                                <colgroup>
+                                    <col class="br-inventory__col-product">
+                                    <col class="br-inventory__col-current">
+                                    <col class="br-inventory__col-minimum">
+                                    <col class="br-inventory__col-difference">
+                                    <col class="br-inventory__col-status">
+                                </colgroup>
+                                <thead class="br-table-header-surface">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Stock actual</th>
+                                        <th>Stock mínimo</th>
+                                        <th>Diferencia</th>
+                                        <th>Estado del stock</th>
                                     </tr>
-                                </template>
-                                <tr v-else>
-                                    <td colspan="5" class="py-4">
-                                        <WithoutData
-                                            class="br-entity-empty-state"
-                                            type="image"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="loadingStock">
+                                        <td colspan="5" class="py-4"><Loader/></td>
+                                    </tr>
+                                    <template v-else-if="stockRecords.total > 0">
+                                        <tr
+                                            v-for="record in stockRecords.data"
+                                            :key="record.id"
+                                            :class="{ 'br-inventory__scanned-row': scannedProductId === Number(record.id) }">
+                                            <td>
+                                                <strong class="br-inventory__product-name">{{ record.name }}</strong>
+                                                <span class="br-inventory__product-identifiers">
+                                                    <span>
+                                                        <small class="colon-at-end">Cód. interno</small>
+                                                        <span>{{ record.internal_code }}</span>
+                                                    </span>
+                                                    <span v-if="record.barcode">
+                                                        <small class="colon-at-end">Cód. barras</small>
+                                                        <span>{{ record.barcode }}</span>
+                                                    </span>
+                                                </span>
+                                            </td>
+                                            <td class="text-end"><span class="br-inventory__stock-current">{{ quantityWithUnit(record.stock_quantity, record) }}</span></td>
+                                            <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
+                                            <td class="text-end"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></td>
+                                            <td :class="['br-inventory__situation', stockStatus(record).cellClass]">{{ stockStatus(record).label }}</td>
+                                        </tr>
+                                    </template>
+                                    <tr v-else>
+                                        <td colspan="5" class="py-4">
+                                            <WithoutData
+                                                class="br-entity-empty-state"
+                                                type="image"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
                 </section>
-            </section>
 
-            <div v-if="filters.warehouse?.code" class="br-inventory__list-footer">
                 <Paginator
-                    v-if="!isCurrentViewLoading && currentRecords.total > 0 && currentRecords.links"
+                    v-if="filters.warehouse?.code"
                     :links="currentRecords.links"
+                    :pagination="currentRecords"
+                    :loading="isCurrentViewLoading"
                     @clickPage="listCurrentView"/>
-                <ListResultCount
-                    :pagination="stockRecords"
-                    :loading="loadingStock"/>
             </div>
-        </div>
-    </section>
+        </section>
+    </InitialLoadTransition>
     <StockAlertsModal
         :alerts="stockAlerts"
         :warehouse="filters.warehouse"
         v-model:product-search="alertProductSearch"
-        :has-search="Boolean(appliedAlertProductSearch)"
+        v-model:minimum-status="alertMinimumStatus"
+        :minimum-options="stockMinimumOptions"
+        :select-class="config.forms.classes.select2"
+        :has-search="Boolean(appliedAlertProductSearch || appliedAlertMinimumStatus)"
         :downloading="downloadingAlerts"
         :loading="loadingAlerts"
         :error="stockAlertsError"
         @page="listStockAlerts"
         @retry="listStockAlerts({})"
         @search="searchStockAlerts"
+        @clear-filters="clearFilters({alerts: true})"
         @download="downloadStockAlerts"/>
     <FormModal
         modal-id="inventoryMovementModal"

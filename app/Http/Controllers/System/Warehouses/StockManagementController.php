@@ -170,6 +170,7 @@ class StockManagementController extends BaseController {
             "warehouse_id" => ["required", "integer", "min:1"],
             "status" => ["nullable", "in:open,resolved"],
             "product_search" => ["nullable", "string", "max:100"],
+            "minimum_status" => ["nullable", "in:configured,unconfigured"],
         ]);
         $warehouseId = (int) $filters["warehouse_id"];
 
@@ -192,21 +193,23 @@ class StockManagementController extends BaseController {
             "warehouse_id" => ["required", "integer", "min:1"],
             "export" => ["required", "in:excel,pdf"],
             "product_search" => ["nullable", "string", "max:100"],
+            "minimum_status" => ["nullable", "in:configured,unconfigured"],
         ]);
         $warehouse = $this->authorizedAlertWarehouse((int) $data["warehouse_id"]);
         $productSearch = trim((string) ($data["product_search"] ?? ""));
+        $minimumStatus = (string) ($data["minimum_status"] ?? "");
 
         if($data["export"] === "excel") {
 
             return Excel::download(
-                new StockAlertsExport((int) $warehouse->id, $productSearch),
+                new StockAlertsExport((int) $warehouse->id, $productSearch, $minimumStatus),
                 "alertas_stock_{$warehouse->id}_".now()->format("Ymd_His").".xlsx"
             );
 
         }
 
         $company = Company::query()->first(["legal_name", "commercial_name", "document_number"]);
-        $query = StockManagementService::stockAlertsReportQuery((int) $warehouse->id, $productSearch);
+        $query = StockManagementService::stockAlertsReportQuery((int) $warehouse->id, $productSearch, $minimumStatus);
         $alertCount = (clone $query)->reorder()->count();
         $binary = (new StockAlertsPdfRenderer())->render($warehouse, $company, $query->cursor(), $alertCount, now());
         $fileName = "alertas_stock_{$warehouse->id}_".now()->format("Ymd_His").".pdf";

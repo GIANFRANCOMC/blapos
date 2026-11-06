@@ -20,7 +20,7 @@
 .br-receivable-detail__eyebrow {
   margin: 0 0 0.2rem;
   color: var(--br-primary-active);
-  font-size: 0.65rem;
+  font-size: var(--br-font-size-065);
   font-weight: 750;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -29,14 +29,14 @@
 .br-receivables__header h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: 1.3rem;
+  font-size: var(--br-font-size-130);
   font-weight: 750;
 }
 
 .br-receivables__header p:last-child {
   margin: 0.22rem 0 0;
   color: var(--br-text-muted);
-  font-size: 0.76rem;
+  font-size: var(--br-font-size-076);
 }
 
 .br-receivables__header-meta {
@@ -49,17 +49,17 @@
   border-radius: var(--br-radius-md);
   background: color-mix(in srgb, var(--br-primary-soft) 38%, var(--br-white));
   color: var(--br-text-muted);
-  font-size: 0.7rem;
+  font-size: var(--br-font-size-070);
 }
 
 .br-receivables__header-meta i {
   color: var(--br-primary-active);
-  font-size: 1rem;
+  font-size: var(--br-font-size-100);
 }
 
 .br-receivables__header-meta strong {
   color: var(--br-secondary);
-  font-size: 0.9rem;
+  font-size: var(--br-font-size-090);
 }
 
 .br-receivables__metrics {
@@ -115,14 +115,14 @@
 .br-receivables-metric small,
 .br-receivables-metric span {
   color: var(--br-text-muted);
-  font-size: 0.62rem;
+  font-size: var(--br-font-size-062);
 }
 
 .br-receivables-metric strong {
   overflow: hidden;
   margin: 0.08rem 0;
   color: var(--br-secondary);
-  font-size: 0.92rem;
+  font-size: var(--br-font-size-092);
   font-weight: 720;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -146,7 +146,7 @@
   left: 0.68rem;
   z-index: 1;
   color: var(--br-text-muted);
-  font-size: 0.7rem;
+  font-size: var(--br-font-size-070);
   transform: translateY(-50%);
 }
 
@@ -176,7 +176,7 @@
 .br-receivables-table td > small {
   margin-top: 0.12rem;
   color: var(--br-text-muted);
-  font-size: 0.64rem;
+  font-size: var(--br-font-size-064);
 }
 
 .br-receivables-table__document {
@@ -190,7 +190,7 @@
 
 .br-receivables__muted {
   color: var(--br-text-muted);
-  font-size: 0.68rem;
+  font-size: var(--br-font-size-068);
 }
 
 .br-receivables-progress {
@@ -218,7 +218,7 @@
 .br-receivables-progress small {
   min-width: 2rem;
   color: var(--br-text-muted);
-  font-size: 0.6rem;
+  font-size: var(--br-font-size-060);
   text-align: right;
 }
 
@@ -231,7 +231,7 @@
   border-radius: 999px;
   background: var(--br-warning-soft);
   color: var(--br-warning-hover);
-  font-size: 0.62rem;
+  font-size: var(--br-font-size-062);
   font-weight: 650;
   white-space: nowrap;
 }
@@ -277,12 +277,12 @@
 .br-receivable-detail__identity small,
 .br-receivable-detail__identity span:not(.br-receivables-status) {
   color: var(--br-text-muted);
-  font-size: 0.65rem;
+  font-size: var(--br-font-size-065);
 }
 
 .br-receivable-detail__identity strong {
   color: var(--br-secondary);
-  font-size: 0.78rem;
+  font-size: var(--br-font-size-078);
 }
 
 .br-receivable-detail__amounts {
@@ -303,13 +303,13 @@
 
 .br-receivable-detail__amounts small {
   color: var(--br-text-muted);
-  font-size: 0.62rem;
+  font-size: var(--br-font-size-062);
 }
 
 .br-receivable-detail__amounts strong {
   margin-top: 0.12rem;
   color: var(--br-secondary);
-  font-size: 0.86rem;
+  font-size: var(--br-font-size-086);
 }
 
 .br-receivable-detail__amounts .is-pending {
@@ -332,13 +332,13 @@
 .br-receivable-detail__section-title h6 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: 0.74rem;
+  font-size: var(--br-font-size-074);
   font-weight: 700;
 }
 
 .br-receivable-detail__section-title span {
   color: var(--br-text-muted);
-  font-size: 0.64rem;
+  font-size: var(--br-font-size-064);
 }
 
 .br-receivable-detail__payments {
@@ -363,7 +363,7 @@
 
 .br-receivable-detail__payments small {
   color: var(--br-text-muted);
-  font-size: 0.62rem;
+  font-size: var(--br-font-size-062);
 }
 
 @media (max-width: 1199.98px) {

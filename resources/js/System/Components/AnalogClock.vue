@@ -144,7 +144,7 @@ export default {
 }
 
 .date {
-    font-size: 12px;
+    font-size: var(--br-font-size-075);
     /* margin-bottom: 4px; */
     letter-spacing: 1px;
     opacity: 0.85;
@@ -154,7 +154,7 @@ export default {
 .time {
     display: flex;
     align-items: center;
-    font-size: 18px;
+    font-size: var(--br-font-size-1125);
 }
 
 .digits {
@@ -174,14 +174,14 @@ export default {
 }
 
 .ampm {
-    font-size: 12px;
+    font-size: var(--br-font-size-075);
     margin-left: 6px;
     text-transform: uppercase;
     opacity: 0.7;
 }
 
 .static-label {
-    font-size: 10px;
+    font-size: var(--br-font-size-0625);
     color: #00f0ff;
     margin-top: 4px;
     font-style: italic;

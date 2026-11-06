@@ -5,6 +5,8 @@ import { requestRoute, generalConfig, applyGeneralConfig } from "./Constants.js"
 
 const DEFAULT_GET_TIMEOUT_MS = 20000;
 
+export {emptyPagination} from "./ListState.js";
+
 export function config({entity = "", type = "", extras = null}) {
 
     let baseRoute = `${requestRoute}`;

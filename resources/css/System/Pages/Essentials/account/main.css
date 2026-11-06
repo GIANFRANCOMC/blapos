@@ -179,7 +179,7 @@ body.br-layout #app .br-account-page__field .input-group > .input-group-text {
 }
 
 body.br-layout #app .br-account-page__field .input-group > .input-group-text i {
-  font-size: 0.85rem;
+  font-size: var(--br-font-size-085);
 }
 
 .br-account-page__field .br-form-error {
@@ -222,11 +222,11 @@ body.br-layout #app .br-account-page__field .input-group > .input-group-text i {
   min-height: 11rem;
 }
 
-body.br-layout .br-account-page__intro h1 { font-size: clamp(1.45rem, 1.08rem + 1.3vw, 2.05rem) !important; line-height: 1.15; }
-body.br-layout .br-account-page__intro p { font-size: 0.82rem !important; line-height: 1.4; }
-body.br-layout .br-account-page__user-avatar { font-size: 1rem !important; }
-body.br-layout .br-account-page__panel-head h2 { font-size: 0.95rem !important; }
-body.br-layout .br-account-page__panel-head p { font-size: 0.76rem !important; }
+body.br-layout .br-account-page__intro h1 { font-size: var(--br-font-size-fluid-workspace) !important; line-height: 1.15; }
+body.br-layout .br-account-page__intro p { font-size: var(--br-font-size-082) !important; line-height: 1.4; }
+body.br-layout .br-account-page__user-avatar { font-size: var(--br-font-size-100) !important; }
+body.br-layout .br-account-page__panel-head h2 { font-size: var(--br-font-size-095) !important; }
+body.br-layout .br-account-page__panel-head p { font-size: var(--br-font-size-076) !important; }
 body.br-layout .br-account-page__field .form-label { font-size: var(--br-font-size-label) !important; }
 body.br-layout .br-account-page__field .form-control,
 body.br-layout .br-account-page__field .form-select { font-size: var(--br-font-size-ui) !important; }

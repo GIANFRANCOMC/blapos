@@ -1,5 +1,5 @@
 <template>
-    <nav aria-label="Page navigation" class="my-3" v-if="links.length > 0">
+    <nav aria-label="Page navigation" class="my-3" v-if="!loading && links.length > 0">
         <ul class="pagination d-flex flex-wrap">
             <template v-for="(link, key) in links" :key="key">
                 <li :class="['page-item my-1', link.active ? 'active' : (link.url ? '' : 'disabled')]">
@@ -15,6 +15,7 @@ export default {
     name: "Paginator",
     emits: ["clickPage"],
     props: {
+        loading: {type: Boolean, default: false},
         links: {
             type: Array,
             required: false,
@@ -26,6 +27,8 @@ export default {
     },
     methods: {
         handleClickPage({url}) {
+
+            if(this.loading || !url) return;
 
             this.$emit("clickPage", {url});
 

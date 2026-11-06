@@ -25,7 +25,7 @@ Define qué módulos, acciones, sucursales, cajas y almacenes puede utilizar cad
 - El nombre sugerido usa `Copia de {perfil}` y evita repetir nombres ya visibles en la página actual; la validación final queda en el backend por empresa.
 - Las acciones de tabla se mantienen compactas con `br-table-actions` y botones `br-icon-action-*` para conservar la línea visual de Productos.
 - El listado presenta cada perfil en una fila, con el tipo bajo el nombre, el alcance de módulos y el número de colaboradores como datos sin badges decorativos. La edición usa secciones de permisos de una sola columna con filas y separadores suaves; las acciones aparecen alineadas junto al módulo.
-- La carga inicial de parámetros y listado muestra un skeleton con la barra de búsqueda y las cinco columnas hasta que ambas consultas terminen. El modo se activa por pantalla con `createInitialLoad({skeleton: true})`; las búsquedas posteriores conservan el loader del listado.
+- La consulta de `initParams` muestra un skeleton con la barra de búsqueda, los cinco encabezados y una única fila con `Loader`, sin registros ni paginación ficticios. El modo se activa por pantalla con `createInitialLoad({skeleton: true})` y termina en el `finally` de parámetros, antes del primer listado. `InitialLoadTransition` suaviza el relevo hacia el contenido. Todos los listados usan su loader habitual y vacían los registros antes de consultar.
 
 ## Perfiles iniciales de datos demo
 

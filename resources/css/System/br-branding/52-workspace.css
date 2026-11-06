@@ -9,6 +9,12 @@
     container-type: inline-size;
 }
 
+.br-workspace__content {
+    display: grid;
+    gap: inherit;
+    min-width: 0;
+}
+
 .br-workspace__breadcrumb {
     justify-content: flex-end;
     margin: 0;
@@ -54,7 +60,7 @@
 .br-workspace__panel h2 {
     margin: 0;
     color: var(--br-text, #1e293b);
-    font-size: 0.87rem;
+    font-size: var(--br-font-size-087);
     font-weight: 700;
     letter-spacing: 0.045em;
     line-height: 1.3;
@@ -64,7 +70,7 @@
 #workspace-popular-title {
     margin: 0.55rem 0 0;
     color: var(--br-secondary);
-    font-size: clamp(1.45rem, 1.08rem + 1.3vw, 2.05rem) !important;
+    font-size: var(--br-font-size-fluid-workspace) !important;
     font-weight: 700;
     letter-spacing: -0.035em;
     line-height: 1.15;
@@ -77,7 +83,7 @@
 .br-workspace__section-heading p {
     margin: 0.28rem 0 0;
     color: var(--br-text-muted);
-    font-size: 0.82rem;
+    font-size: var(--br-font-size-082);
     line-height: 1.4;
 }
 
@@ -133,17 +139,17 @@
     border-radius: 50%;
     background: #edf5ff;
     color: #1178d5;
-    font-size: 1.55rem;
+    font-size: var(--br-font-size-155);
 }
 
 .br-workspace__link-icon i {
-    font-size: 1.55rem;
+    font-size: var(--br-font-size-155);
     line-height: 1;
 }
 
 .br-workspace__link-arrow {
     color: var(--br-secondary);
-    font-size: 0.82rem;
+    font-size: var(--br-font-size-082);
     transition: color 140ms ease, transform 140ms ease;
 }
 
@@ -156,7 +162,7 @@
 .br-workspace__link-copy strong {
     overflow: hidden;
     color: var(--br-secondary);
-    font-size: 0.78rem;
+    font-size: var(--br-font-size-078);
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -166,7 +172,7 @@
     display: -webkit-box;
     overflow: hidden;
     color: var(--br-text-muted, #64748b);
-    font-size: 0.72rem;
+    font-size: var(--br-font-size-072);
     line-height: 1.35;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -179,7 +185,7 @@
     border-radius: 0.5rem;
     background: var(--br-surface-elevated);
     color: var(--br-text-muted, #64748b);
-    font-size: 0.8rem;
+    font-size: var(--br-font-size-080);
 }
 
 .br-workspace__company {
@@ -225,7 +231,7 @@
 
 .br-workspace__company-head h2 {
     overflow-wrap: anywhere;
-    font-size: 0.86rem;
+    font-size: var(--br-font-size-086);
     letter-spacing: 0;
     line-height: 1.25;
     text-transform: none;
@@ -238,7 +244,7 @@
     gap: 0.15rem 0.28rem;
     margin: 0.24rem 0 0;
     color: var(--br-text-muted, #64748b);
-    font-size: 0.72rem;
+    font-size: var(--br-font-size-072);
     line-height: 1.35;
 }
 
@@ -250,7 +256,7 @@
 .br-workspace__company-tagline {
     margin: 0.3rem 0 0;
     color: var(--br-text-muted, #64748b);
-    font-size: 0.78rem;
+    font-size: var(--br-font-size-078);
 }
 
 .br-workspace__company-details {
@@ -286,7 +292,7 @@
     border-radius: 0.35rem;
     background: color-mix(in srgb, var(--br-primary-soft) 46%, var(--br-white));
     color: color-mix(in srgb, var(--br-secondary) 72%, var(--br-primary));
-    font-size: 0.82rem;
+    font-size: var(--br-font-size-082);
 }
 
 .br-workspace__company-detail-content {
@@ -295,14 +301,14 @@
 
 .br-workspace__company-details dt {
     color: color-mix(in srgb, var(--br-secondary) 65%, var(--br-text-muted));
-    font-size: 0.72rem;
+    font-size: var(--br-font-size-072);
     font-weight: 500;
 }
 
 .br-workspace__company-details dd {
     margin: 0.08rem 0 0;
     color: var(--br-text, #1e293b);
-    font-size: 0.78rem;
+    font-size: var(--br-font-size-078);
     font-weight: 600;
     overflow-wrap: anywhere;
 }
@@ -334,12 +340,12 @@
     border-radius: 50%;
     background: var(--br-primary-soft);
     color: var(--br-primary-active);
-    font-size: 0.72rem;
+    font-size: var(--br-font-size-072);
 }
 
 .br-workspace__company-detail--compact dt,
 .br-workspace__company-detail--compact dd {
-    font-size: 0.68rem;
+    font-size: var(--br-font-size-068);
 }
 
 .br-workspace__company-detail--compact dd {
@@ -376,11 +382,11 @@
     width: 3.1rem;
     height: 3.1rem;
     color: #0c70d2;
-    font-size: 2.3rem;
+    font-size: var(--br-font-size-230);
 }
 
 .br-workspace__support-icon i {
-    font-size: 2.3rem;
+    font-size: var(--br-font-size-230);
     line-height: 1;
 }
 
@@ -393,13 +399,13 @@
 
 .br-workspace__support-intro strong {
     color: var(--br-secondary);
-    font-size: 0.82rem;
+    font-size: var(--br-font-size-082);
     font-weight: 700;
 }
 
 .br-workspace__support-intro span {
     color: #586985;
-    font-size: 0.72rem;
+    font-size: var(--br-font-size-072);
 }
 
 .br-workspace__support-channel {
@@ -422,14 +428,14 @@
 
 .br-workspace__support-channel-copy strong {
     overflow-wrap: anywhere;
-    font-size: 0.73rem;
+    font-size: var(--br-font-size-073);
     font-weight: 600;
     line-height: 1.3;
 }
 
 .br-workspace__support-channel-copy small {
     color: #586985;
-    font-size: 0.66rem;
+    font-size: var(--br-table-heading-font-size);
     font-weight: 400;
     line-height: 1.25;
 }
@@ -437,7 +443,7 @@
 .br-workspace__support-channel i {
     flex: none;
     width: 1rem;
-    font-size: 1rem;
+    font-size: var(--br-font-size-100);
     text-align: center;
 }
 
@@ -457,7 +463,7 @@
     border-radius: 0.9rem;
     background: #0868ca;
     color: var(--br-white);
-    font-size: 0.72rem;
+    font-size: var(--br-font-size-072);
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;

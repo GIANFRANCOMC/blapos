@@ -85,7 +85,7 @@ body.br-layout .br-modal-shell .br-modal-shell__heading {
 
 body.br-layout .br-modal-shell .br-modal-shell__subtitle {
   color: var(--br-text-muted);
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   line-height: 1.2 !important;
 }
 
@@ -264,7 +264,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: 50%;
   background: transparent;
   color: var(--br-text-placeholder);
-  font-size: 0.75rem;
+  font-size: var(--br-font-size-075);
   vertical-align: middle;
   place-items: center;
 }
@@ -299,7 +299,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   width: 1rem;
   height: 1rem;
   margin-left: 0;
-  font-size: 0.66rem;
+  font-size: var(--br-table-heading-font-size);
   line-height: 1;
 }
 
@@ -324,7 +324,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: 0 var(--br-radius-sm) var(--br-radius-sm) 0;
   background: var(--br-surface-elevated);
   color: var(--br-secondary);
-  font-size: 0.78rem;
+  font-size: var(--br-font-size-078);
   transition: var(--br-transition);
 }
 
@@ -423,7 +423,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   display: block;
   margin-top: 0.16rem;
   color: var(--br-danger) !important;
-  font-size: 0.66rem;
+  font-size: var(--br-table-heading-font-size);
   font-weight: 500;
   line-height: 1.25;
 }
@@ -439,6 +439,8 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: none;
 }
 
+/* El grupo conserva el foco visual antes y después de insertar acciones como limpiar. */
+.br-layout .br-form-control-group:focus-within,
 .br-layout .input-group:has(.br-input-action):focus-within,
 .br-layout .input-group:has(.br-currency-prefix):focus-within,
 .br-layout .input-group:has(.br-input-unit-suffix):focus-within,
@@ -447,6 +449,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: var(--br-focus-ring);
 }
 
+.br-layout .br-form-control-group > :is(.form-control, .form-select, .br-input-action),
 .br-layout .input-group:has(.br-input-action):focus-within .form-control,
 .br-layout .input-group:has(.br-input-action):focus-within .br-input-action,
 .br-layout .input-group:has(.br-currency-prefix):focus-within .form-control,
@@ -503,8 +506,8 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: var(--br-radius-sm);
   background: transparent;
   color: var(--br-text-muted);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: var(--br-font-size-08125);
+  font-weight: 500;
   cursor: pointer;
   transition: var(--br-transition);
 }
@@ -547,7 +550,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 
 .br-choice-option.is-selected span:last-child {
   color: var(--br-secondary);
-  font-weight: 750;
+  font-weight: 600;
 }
 
 .br-choice-option:focus-within {

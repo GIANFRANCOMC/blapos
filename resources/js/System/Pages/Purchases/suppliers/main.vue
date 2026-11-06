@@ -117,9 +117,7 @@
             </div>
         </section>
 
-        <div v-if="records.links" class="d-flex justify-content-center mt-3">
-            <Paginator :links="records.links" @clickPage="listSuppliers"/>
-        </div>
+        <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listSuppliers"/>
     </main>
 
     <div id="supplierModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
@@ -256,12 +254,17 @@ export default {
     methods: {
         async listSuppliers({url = null} = {}) {
             this.loading = true;
-            const result = await Requests.get({
-                route: url || this.config.entity.routes.list,
-                data: {word: this.word}
-            });
-            this.records = result.data || {total: 0, data: []};
-            this.loading = false;
+
+            try {
+                this.records = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: url || this.config.entity.routes.list,
+                    data: {word: this.word}
+                });
+                this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
+            } finally {
+                this.loading = false;
+            }
         },
         newContact(contact = {}) {
             return {

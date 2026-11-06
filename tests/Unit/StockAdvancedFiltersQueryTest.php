@@ -17,7 +17,7 @@ final class StockAdvancedFiltersQueryTest extends TestCase {
         $query = $method->invoke(null, Item::query()->orderBy("name"), [
             "category_id" => 5,
             "brand_id" => 7,
-            "without_minimum" => 1,
+            "minimum_status" => "unconfigured",
             "inactive_days" => 30,
         ], 3);
 
@@ -37,7 +37,7 @@ final class StockAdvancedFiltersQueryTest extends TestCase {
 
         $method = new ReflectionMethod(StockManagementService::class, "applyStockFilters");
         $query = $method->invoke(null, Item::query(), [
-            "without_minimum" => 1,
+            "minimum_status" => "unconfigured",
             "inactive_days" => 60,
         ], null, [2, 4]);
 

@@ -1,6 +1,6 @@
 <template>
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover mb-0">
             <thead>
                 <tr class="text-center align-middle">
                     <th
@@ -77,11 +77,7 @@
             </tbody>
         </table>
     </div>
-    <div
-        v-if="!loading && records.length > 0 && paginationLinks"
-        class="d-flex justify-content-center">
-        <Paginator :links="paginationLinks" @clickPage="$emit('pageChange', $event)"/>
-    </div>
+    <Paginator v-if="pagination" :links="pagination.links || []" :pagination="pagination" :loading="loading" @clickPage="$emit('pageChange', $event)"/>
 </template>
 
 <script>
@@ -112,8 +108,8 @@ export default {
             type: Array,
             default: () => []
         },
-        paginationLinks: {
-            type: Array,
+        pagination: {
+            type: Object,
             default: null
         }
     },
@@ -126,15 +122,15 @@ export default {
         },
         formatCellValue(record, column) {
             const value = this.getNestedValue(record, column.key);
-            
+
             if (column.formatter && typeof column.formatter === "function") {
                 return column.formatter(value, record);
             }
-            
+
             if (column.type === "badge" && value) {
                 return value;
             }
-            
+
             return value ?? "N/A";
         }
     }

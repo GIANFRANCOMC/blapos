@@ -1,155 +1,155 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="users" label="colaboradores" :row-count="12"/>
-    <template v-else>
-    <!-- Filters -->
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :show-download-button="true"
-        :show-import-button="true"
-        :group-secondary-actions="true"
-        import-button-text="Cargar masivamente"
-        download-button-text="Descargar Excel"
-        :downloading="isExporting"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()"
-        @import="openImportModal"
-        @download="downloadRecords"/>
+    <InitialLoadTransition>
+        <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="users" label="colaboradores"/>
+        <template v-else>
+        <!-- Filters -->
+        <FiltersSection
+            :filter-by-value="filterByValue"
+            @update:filterByValue="filterByValue = $event"
+            :filter-word-value="filterWordValue"
+            @update:filterWordValue="filterWordValue = $event"
+            :filter-by-options="filterByOptions"
+            :search-placeholder="searchPlaceholder"
+            :loading="entityList.extras.loading"
+            :filter-by-title="MODULE.texts.filters.filterBy"
+            :search-title="MODULE.texts.filters.search"
+            :search-button-text="MODULE.texts.actions.search"
+            :add-button-text="MODULE.texts.actions.add"
+            :show-add-button="true"
+            :show-download-button="true"
+            :show-import-button="true"
+            :group-secondary-actions="true"
+            import-button-text="Cargar masivamente"
+            download-button-text="Descargar Excel"
+            :downloading="isExporting"
+            :title-class="[config.forms.classes.title]"
+            :select-class="config.forms.classes.select2"
+            @search="handleSearch"
+            @add="openModal()"
+            @import="openImportModal"
+            @download="downloadRecords"/>
 
-    <CatalogReferenceImportModal
-        ref="userImportModal"
-        modal-id="userImportModal"
-        resource="colaboradores"
-        template-file-name="plantilla_colaboradores.xlsx"
-        intro="Usa el nombre del perfil y dni/ruc como tipo de documento. Las cuentas quedarán inactivas."
-        help="Excel o CSV · máximo 500 filas · fecha: AAAA-MM-DD."
-        :import-route="routeActions.import"
-        @imported="listEntity({})"/>
+        <CatalogReferenceImportModal
+            ref="userImportModal"
+            modal-id="userImportModal"
+            resource="colaboradores"
+            template-file-name="plantilla_colaboradores.xlsx"
+            intro="Usa el nombre del perfil y dni/ruc como tipo de documento. Las cuentas quedarán inactivas."
+            help="Excel o CSV · máximo 500 filas · fecha: AAAA-MM-DD."
+            :import-route="routeActions.import"
+            @imported="listEntity({})"/>
 
-    <!-- Records -->
-    <section class="br-entity-list br-users-list" aria-label="Listado de colaboradores">
-      <div class="table-responsive">
-        <table class="table br-entity-table br-entity-table--directory mb-0">
-            <colgroup>
-                <col style="width: 20%;">
-                <col style="width: 20%;">
-                <col style="width: 20%;">
-                <col style="width: 25%;">
-                <col style="width: 9%;">
-                <col style="width: 6%;">
-            </colgroup>
-            <thead class="br-table-header-surface">
-                <tr>
-                    <th>Identificación</th>
-                    <th>Colaborador</th>
-                    <th>Acceso</th>
-                    <th>Contacto</th>
-                    <th class="text-center">Estado</th>
-                    <th><span class="visually-hidden">Acciones</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="entityList.extras.loading">
-                    <td colspan="6" class="py-4">
-                        <Loader/>
-                    </td>
-                </tr>
-                <template v-else-if="entityList.records.total > 0">
-                    <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="br-entity-table__identification-cell">
-                            <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                <div class="br-entity-identifier">
-                                    <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                    <span class="br-entity-identifier__value">
-                                        <span class="br-entity-code" v-text="record.document_number || '—'"></span>
-                                        <span v-if="record.document_number" class="br-entity-identifier__actions">
-                                            <CopyButton :value="record.document_number" label="Número de documento"/>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="br-users-list__stack">
-                                <span class="br-entity-table__name" v-text="record.name"></span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="br-users-list__stack">
-                                <span class="br-users-list__role" v-text="record?.role?.name || 'Sin perfil'"></span>
-                                <span class="br-entity-table__meta" v-text="branchAccessLabel(record)"></span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="br-users-list__stack">
-                                <span v-if="isDefined(record.email)" class="br-users-list__copy-line">
-                                    <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-text="record.email"></a>
-                                    <CopyButton :value="record.email" label="Correo electrónico"/>
-                                </span>
-                                <span v-else class="br-entity-table__meta">Sin correo electrónico</span>
-                                <span v-if="isDefined(record.phone_number)" class="br-users-list__copy-line">
-                                    <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-text="record.phone_number"></a>
-                                    <CopyButton :value="record.phone_number" label="Celular"/>
-                                </span>
-                                <span v-else class="br-entity-table__meta">Sin celular</span>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                        </td>
-                        <td class="text-center">
-                            <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                <li>
-                                    <button type="button" class="dropdown-item" @click="openModal(record)">
-                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                        <span v-text="MODULE.texts.actions.edit"></span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="dropdown-item" @click="openPasswordModal(record)">
-                                        <i class="fa-solid fa-key" aria-hidden="true"></i>
-                                        <span v-text="MODULE.texts.actions.changePassword"></span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="dropdown-item" @click="openAuthenticationEvents(record)">
-                                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-                                        <span v-text="MODULE.texts.actions.accessHistory"></span>
-                                    </button>
-                                </li>
-                            </TableActionsDropdown>
+        <!-- Records -->
+        <section class="br-entity-list br-users-list" aria-label="Listado de colaboradores">
+          <div class="table-responsive">
+            <table class="table br-entity-table br-entity-table--directory mb-0">
+                <colgroup>
+                    <col style="width: 20%;">
+                    <col style="width: 20%;">
+                    <col style="width: 20%;">
+                    <col style="width: 25%;">
+                    <col style="width: 9%;">
+                    <col style="width: 6%;">
+                </colgroup>
+                <thead class="br-table-header-surface">
+                    <tr>
+                        <th>Identificación</th>
+                        <th>Colaborador</th>
+                        <th>Acceso</th>
+                        <th>Contacto</th>
+                        <th class="text-center">Estado</th>
+                        <th><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="entityList.extras.loading">
+                        <td colspan="6" class="py-4">
+                            <Loader/>
                         </td>
                     </tr>
-                </template>
-                <tr v-else>
-                    <td colspan="6" class="py-4">
-                        <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-      </div>
-    </section>
+                    <template v-else-if="entityList.records.total > 0">
+                        <tr v-for="record in entityList.records.data" :key="record.id">
+                            <td class="br-entity-table__identification-cell">
+                                <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                    <div class="br-entity-identifier">
+                                        <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
+                                        <span class="br-entity-identifier__value">
+                                            <span class="br-entity-code" v-text="record.document_number || '—'"></span>
+                                            <span v-if="record.document_number" class="br-entity-identifier__actions">
+                                                <CopyButton :value="record.document_number" label="Número de documento"/>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="br-users-list__stack">
+                                    <span class="br-entity-table__name" v-text="record.name"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="br-users-list__stack">
+                                    <span class="br-users-list__role" v-text="record?.role?.name || 'Sin perfil'"></span>
+                                    <span class="br-entity-table__meta" v-text="branchAccessLabel(record)"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="br-users-list__stack">
+                                    <span v-if="isDefined(record.email)" class="br-users-list__copy-line">
+                                        <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-text="record.email"></a>
+                                        <CopyButton :value="record.email" label="Correo electrónico"/>
+                                    </span>
+                                    <span v-else class="br-entity-table__meta">Sin correo electrónico</span>
+                                    <span v-if="isDefined(record.phone_number)" class="br-users-list__copy-line">
+                                        <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-text="record.phone_number"></a>
+                                        <CopyButton :value="record.phone_number" label="Celular"/>
+                                    </span>
+                                    <span v-else class="br-entity-table__meta">Sin celular</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
+                            </td>
+                            <td class="text-center">
+                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openModal(record)">
+                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                            <span v-text="MODULE.texts.actions.edit"></span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openPasswordModal(record)">
+                                            <i class="fa-solid fa-key" aria-hidden="true"></i>
+                                            <span v-text="MODULE.texts.actions.changePassword"></span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" @click="openAuthenticationEvents(record)">
+                                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                                            <span v-text="MODULE.texts.actions.accessHistory"></span>
+                                        </button>
+                                    </li>
+                                </TableActionsDropdown>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr v-else>
+                        <td colspan="6" class="py-4">
+                            <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+          </div>
+        </section>
 
-    <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
-    </template>
+        <!-- Pagination -->
+        <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+        </template>
+    </InitialLoadTransition>
 
     <!-- Modal: Authentication events -->
     <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false" close-button-text="Cerrar">
@@ -255,9 +255,7 @@
                         </table>
                     </div>
 
-                    <nav v-if="!authenticationEvents.loading && authenticationEvents.records.total > 0" class="d-flex justify-content-center mt-3">
-                        <Paginator :links="authenticationEvents.records.links" @clickPage="listAuthenticationEvents"/>
-                    </nav>
+                    <Paginator :links="authenticationEvents.records.links" :pagination="authenticationEvents.records" :loading="authenticationEvents.loading" @clickPage="listAuthenticationEvents"/>
         </template>
     </FormModal>
 
@@ -590,6 +588,7 @@
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -756,7 +755,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
     name: "UsersMain",
-    components: {CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
+    components: {InitialLoadTransition, CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -809,26 +808,18 @@ export default {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         initialLoad.start();
+        let initialized;
 
         try {
-
-            const initParams = await this.initParams();
-
-            if(initParams) {
-
-                await this.listEntity({});
-
-            }
-
-        }finally {
-
-            this.isInitialized = true;
+            initialized = await this.initParams();
+        } finally {
             initialLoad.finish();
             this.initialLoading = false;
-            this.$nextTick(() => Alerts.tooltips({}));
-
+            this.isInitialized = true;
         }
 
+        if(initialized) await this.listEntity({});
+        this.$nextTick(() => Alerts.tooltips({}));
     },
     methods: {
         async initParams() {
@@ -863,6 +854,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -891,7 +883,7 @@ export default {
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
 
-                entityList.records = response?.data ?? emptyRecords;
+                entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
@@ -994,6 +986,7 @@ export default {
             }
 
             this.authenticationEvents.loading = true;
+            this.authenticationEvents.records = Requests.emptyPagination();
 
             try {
 
@@ -1003,7 +996,7 @@ export default {
                     showAlert: true
                 });
 
-                this.authenticationEvents.records = response?.data || {total: 0, data: [], links: []};
+                this.authenticationEvents.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 

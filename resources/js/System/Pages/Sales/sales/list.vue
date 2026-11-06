@@ -217,9 +217,7 @@
         </table>
     </div>
 
-    <div class="d-flex justify-content-center" v-if="!lists.entity.extras.loading && lists.entity.records?.total > 0">
-        <Paginator :links="lists.entity.records.links" @clickPage="listEntity"/>
-    </div>
+    <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
     <PrintSale :modalId="forms.entity.createUpdate.extras.modals.actions.id" :data="forms.entity.createUpdate.extras.modals.actions.data">
         <template v-slot:extraGroupAppend>
@@ -404,9 +402,14 @@ export default {
             }
 
             this.lists.entity.extras.loading = true;
-            this.lists.entity.records = (await Requests.get({route: requestUrl, data: requestData}))?.data || {total: 0, data: [], links: []};
-            this.lists.entity.extras.loading = false;
 
+            try {
+                this.lists.entity.records = Requests.emptyPagination();
+                const response = await Requests.get({route: requestUrl, data: requestData});
+                this.lists.entity.records = response?.bool ? response.data : Requests.emptyPagination();
+            } finally {
+                this.lists.entity.extras.loading = false;
+            }
         },
         requestFilters() {
             const filters = Utils.cloneJson(this.lists.entity.filters);

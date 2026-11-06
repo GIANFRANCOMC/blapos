@@ -8,7 +8,7 @@ const bundles = [
     {
         name: "br-branding",
         sourceDir: "resources/css/System/br-branding",
-        sharedFiles: ["resources/css/Shared/disabled-controls.css"],
+        sharedFiles: ["resources/css/Shared/typography-tokens.css", "resources/css/Shared/disabled-controls.css"],
         output: "public/System/assets/css/br-branding.css",
         description: "tokens, componentes visuales y estilos de módulos System/Guest",
     },

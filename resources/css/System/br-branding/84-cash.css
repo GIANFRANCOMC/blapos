@@ -15,22 +15,22 @@
 
 .br-cash__eyebrow {
   color: var(--br-primary);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .br-cash__title {
   color: var(--br-secondary);
-  font-size: 1.18rem;
+  font-size: var(--br-font-size-118);
   font-weight: 800;
 }
 
 .br-cash__subtitle {
   margin-top: 0.15rem;
   color: var(--br-text-muted);
-  font-size: 0.8rem;
-  font-weight: 650;
+  font-size: var(--br-font-size-080);
+  font-weight: 400;
 }
 
 .br-cash__selector {
@@ -44,8 +44,8 @@
 .br-cash .form-label {
   margin-bottom: 0.18rem;
   color: var(--br-text-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: var(--br-font-size-078);
+  font-weight: 500;
 }
 
 .br-cash__tabs {
@@ -95,7 +95,7 @@
 
 .br-cash__muted {
   color: var(--br-text-muted);
-  font-size: 0.76rem;
+  font-size: var(--br-font-size-076);
 }
 
 .br-cash-summary {
@@ -119,14 +119,14 @@
 .br-cash-summary__card span,
 .br-cash-close-summary span {
   color: var(--br-text-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: var(--br-font-size-078);
+  font-weight: 500;
 }
 
 .br-cash-summary__card strong,
 .br-cash-close-summary strong {
   color: var(--br-secondary);
-  font-size: 1rem;
+  font-size: var(--br-font-size-100);
 }
 
 .br-cash-close-summary {
@@ -155,7 +155,7 @@
 .br-cash-inventory-count__header strong {
   display: block;
   color: var(--br-secondary);
-  font-size: 0.9rem;
+  font-size: var(--br-font-size-090);
   font-weight: 800;
 }
 
@@ -163,8 +163,8 @@
 .br-cash-inventory-count__summary span,
 .br-cash-inventory-count__empty {
   color: var(--br-text-muted);
-  font-size: 0.78rem;
-  font-weight: 650;
+  font-size: var(--br-font-size-078);
+  font-weight: 400;
 }
 
 .br-cash-inventory-count__summary {
@@ -175,7 +175,7 @@
 }
 
 .br-cash-inventory-count__summary strong {
-  font-size: 0.82rem;
+  font-size: var(--br-font-size-082);
 }
 
 .br-cash-inventory-count .table-responsive {

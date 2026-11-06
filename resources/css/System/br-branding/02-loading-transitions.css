@@ -1,0 +1,32 @@
+/* Skeleton y contenido comparten el espacio durante el fundido, sin duplicar la altura. */
+.br-initial-load {
+  display: grid;
+  gap: inherit;
+  min-width: 0;
+}
+
+.br-initial-load > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.br-initial-load-enter-active,
+.br-initial-load-leave-active {
+  transition: opacity var(--br-initial-load-duration) var(--br-initial-load-easing);
+}
+
+.br-initial-load-leave-active {
+  pointer-events: none;
+}
+
+.br-initial-load-enter-from,
+.br-initial-load-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-initial-load-enter-active,
+  .br-initial-load-leave-active {
+    transition: none;
+  }
+}

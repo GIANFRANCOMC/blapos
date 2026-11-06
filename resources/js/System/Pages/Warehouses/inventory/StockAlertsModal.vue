@@ -3,7 +3,7 @@
         modal-id="inventoryStockAlertsModal"
         title="ALERTAS DE STOCK"
         modal-class="br-modal-standard br-inventory-alerts"
-        modal-size="modal-lg"
+        modal-size="modal-xl"
         body-class="br-inventory-alerts__body"
         :show-submit="false"
         close-button-text="Cerrar">
@@ -17,7 +17,7 @@
 
             <div class="br-inventory-alerts__toolbar">
                 <form class="br-inventory-alerts__filters" role="search" @submit.prevent="$emit('search')">
-                    <div class="br-inventory-alerts__product-filter">
+                    <div class="col-12 col-sm-6 br-inventory-alerts__product-filter">
                         <label for="inventoryAlertProduct" class="form-label">Producto</label>
                         <SearchInput
                             id="inventoryAlertProduct"
@@ -27,10 +27,29 @@
                             :disabled="loading || !warehouse?.code"
                             maxlength="100"
                             @update:model-value="$emit('update:productSearch', $event)"
-                            @search="$emit('search')"
-                            @clear="$emit('search', '')"/>
+                            @search="$emit('search')"/>
+                    </div>
+                    <div class="col-12 col-sm-4 col-xl-3">
+                        <label for="inventoryAlertMinimumStatus" class="form-label">Stock mínimo</label>
+                        <v-select
+                            id="inventoryAlertMinimumStatus"
+                            :model-value="minimumStatus"
+                            :options="minimumOptions"
+                            :class="selectClass"
+                            :disabled="loading || !warehouse?.code"
+                            :clearable="false"
+                            :searchable="false"
+                            @update:model-value="$emit('update:minimumStatus', $event)"/>
                     </div>
                     <button type="submit" class="br-btn br-btn-search" :disabled="loading || !warehouse?.code">Buscar</button>
+                    <a
+                        href="#"
+                        role="button"
+                        class="br-filter-clear"
+                        :aria-disabled="loading || !warehouse?.code"
+                        :tabindex="loading || !warehouse?.code ? -1 : 0"
+                        @click.prevent="clearFilters"
+                        @keydown.space.prevent="clearFilters">Limpiar filtros</a>
                     <div class="dropdown br-inventory-alerts__actions">
                         <button
                             type="button"
@@ -57,10 +76,6 @@
                         </ul>
                     </div>
                 </form>
-                <p v-if="!loading && alerts.total > 0" class="br-inventory-alerts__count" aria-live="polite">
-                    <i class="fa-solid fa-bell fa-shake" aria-hidden="true"></i>
-                    <span>{{ alerts.total }} producto{{ alerts.total === 1 ? '' : 's' }}</span>
-                </p>
             </div>
 
             <section class="br-entity-list br-inventory-alerts__list" aria-label="Alertas abiertas del almacén" :aria-busy="loading">
@@ -135,7 +150,7 @@
                                                 class="br-entity-empty-state"
                                                 type="image"
                                                 :text="hasSearch ? 'No se encontraron productos con alertas.' : 'No hay alertas de stock abiertas.'"
-                                                :description="hasSearch ? 'Prueba con otro nombre o código de producto.' : 'Este almacén no tiene alertas abiertas.'"/>
+                                                :description="hasSearch ? 'Prueba con otro filtro o término de búsqueda.' : 'Este almacén no tiene alertas abiertas.'"/>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -145,9 +160,7 @@
                 </div>
             </section>
             <p v-if="error && alerts.data?.length" class="br-inventory-alerts__error" role="alert">{{ error }}</p>
-            <nav v-if="alerts.total > 0 && alerts.links" class="br-inventory-alerts__pagination" aria-label="Paginación de alertas de stock">
-                <Paginator :links="alerts.links" @clickPage="$emit('page', $event)"/>
-            </nav>
+            <Paginator aria-label="Paginación de alertas de stock" :links="alerts.links" :pagination="alerts" :loading="loading" @clickPage="$emit('page', $event)"/>
         </template>
     </FormModal>
 </template>
@@ -162,17 +175,24 @@ import {quantityWithUnit} from "@System/Helpers/NumberUtils.js";
 export default {
     name: "StockAlertsModal",
     components: {FormModal, SearchInput, WithoutData, StockDifference},
-    emits: ["page", "retry", "download", "update:productSearch", "search"],
+    emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "clear-filters"],
     props: {
         alerts: {type: Object, required: true},
         warehouse: {type: Object, default: null},
         productSearch: {type: String, default: ""},
+        minimumStatus: {type: Object, default: null},
+        minimumOptions: {type: Array, required: true},
+        selectClass: {type: [String, Array, Object], default: ""},
         hasSearch: {type: Boolean, default: false},
         downloading: {type: Boolean, default: false},
         loading: {type: Boolean, default: false},
         error: {type: String, default: ""}
     },
     methods: {
+        clearFilters() {
+            if(this.loading || !this.warehouse?.code) return;
+            this.$emit("clear-filters");
+        },
         formatQuantity(value, alert) {
             return quantityWithUnit(value, alert.warehouse_item?.item?.measurement_unit);
         },

@@ -165,9 +165,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <Paginator :links="sessions.links" @clickPage="getSessions"/>
+
             </div>
             <WithoutData v-else/>
+            <Paginator :links="sessions.links" :pagination="sessions" :loading="loading.sessions" @clickPage="getSessions"/>
         </section>
 
         <section v-if="activeView === 'summary'" class="br-cash__panel">
@@ -236,9 +237,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <Paginator :links="movements.links" @clickPage="getMovements"/>
+
             </div>
             <WithoutData v-else/>
+            <Paginator :links="movements.links" :pagination="movements" :loading="loading.movements" @clickPage="getMovements"/>
         </section>
     </section>
 
@@ -698,47 +700,67 @@ export default {
         },
         async getRegisters() {
             this.loading.registers = true;
-            const result = await Requests.get({route: this.config.routes.list});
-            this.loading.registers = false;
+            this.registers = [];
 
-            if(!Requests.valid({result})) return;
+            try {
+                const result = await Requests.get({route: this.config.routes.list});
+                if(!Requests.valid({result})) return;
 
-            this.registers = result.data.data || [];
-            this.options.registers = this.registers;
+                this.registers = result.data.data || [];
+                this.options.registers = this.registers;
 
-            if(this.selectedRegister) {
-                this.selectedRegister = this.registerOptions.find(register => register.id === this.selectedRegister.id) || this.selectedRegister;
+                if(this.selectedRegister) {
+                    this.selectedRegister = this.registerOptions.find(register => register.id === this.selectedRegister.id) || this.selectedRegister;
+                }
+            } finally {
+                this.loading.registers = false;
             }
         },
         async getSessions(pageUrl = null) {
+            pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.sessions = true;
-            const result = await Requests.get({
-                route: pageUrl || this.sessionConfig.routes.list,
-                data: this.baseFilters()
-            });
-            this.loading.sessions = false;
 
-            if(Requests.valid({result})) this.sessions = result.data.data;
+            try {
+                this.sessions = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: pageUrl || this.sessionConfig.routes.list,
+                    data: this.baseFilters()
+                });
+
+                if(Requests.valid({result})) this.sessions = result.data.data;
+            } finally {
+                this.loading.sessions = false;
+            }
         },
         async getMovements(pageUrl = null) {
+            pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.movements = true;
-            const result = await Requests.get({
-                route: pageUrl || this.movementConfig.routes.list,
-                data: this.baseFilters()
-            });
-            this.loading.movements = false;
 
-            if(Requests.valid({result})) this.movements = result.data.data;
+            try {
+                this.movements = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: pageUrl || this.movementConfig.routes.list,
+                    data: this.baseFilters()
+                });
+
+                if(Requests.valid({result})) this.movements = result.data.data;
+            } finally {
+                this.loading.movements = false;
+            }
         },
         async getSummary() {
             this.loading.summary = true;
-            const result = await Requests.get({
-                route: this.summaryConfig.routes.data,
-                data: this.baseFilters()
-            });
-            this.loading.summary = false;
+            this.summary = {sessions: [], payments: [], totals: {opening: 0, expected: 0, counted: 0, difference: 0}};
 
-            if(Requests.valid({result})) this.summary = result.data.data;
+            try {
+                const result = await Requests.get({
+                    route: this.summaryConfig.routes.data,
+                    data: this.baseFilters()
+                });
+                if(Requests.valid({result})) this.summary = result.data.data;
+            } finally {
+                this.loading.summary = false;
+            }
         },
         openModal(type, register = null) {
             if(register) this.selectedRegister = this.registerOptions.find(item => item.id === register.id) || register;

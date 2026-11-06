@@ -22,7 +22,7 @@
 
     <!-- Records -->
     <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover mb-0">
             <thead class="align-middle bg-secondary text-center">
                 <tr>
                     <th class="text-white" style="width: 20%;">NOMBRE</th>
@@ -104,9 +104,7 @@
     </div>
 
     <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
+    <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
 
     <!-- Modal: Create/Update -->
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
@@ -361,7 +359,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <Paginator v-if="eventsModal.records.total > 0" :links="eventsModal.records.links" @clickPage="listEvents"/>
+                    <Paginator :links="eventsModal.records.links" :pagination="eventsModal.records" :loading="eventsModal.loading" @clickPage="listEvents"/>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
                     <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
@@ -568,6 +566,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -596,7 +595,7 @@ export default {
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
 
-                entityList.records = response?.data ?? emptyRecords;
+                entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
@@ -663,17 +662,21 @@ export default {
 
             if(!this.eventsModal.device?.id) return;
 
-            const requestUrl = typeof url === "object" ? url.url : url;
+            const requestUrl = typeof url === "object" ? url?.url : url;
             this.eventsModal.loading = true;
-            const result = await Requests.get({
-                route: requestUrl || `${this.routeActions.store}/${this.eventsModal.device.id}/events`,
-                data: {per_page: 10},
-                showAlert: true
-            });
-            this.eventsModal.loading = false;
 
-            if(Requests.valid({result})) this.eventsModal.records = result.data.data;
+            try {
+                this.eventsModal.records = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: requestUrl || `${this.routeActions.store}/${this.eventsModal.device.id}/events`,
+                    data: {per_page: 10},
+                    showAlert: true
+                });
 
+                if(Requests.valid({result})) this.eventsModal.records = result.data.data;
+            } finally {
+                this.eventsModal.loading = false;
+            }
         },
         // Forms
         openModal(record = null) {

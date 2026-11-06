@@ -22,7 +22,7 @@
   align-self: flex-start;
   gap: 0.6rem;
   color: var(--br-secondary);
-  font-size: 0.84rem;
+  font-size: var(--br-font-size-084);
   font-weight: 700;
   letter-spacing: 0.025em;
 }
@@ -44,7 +44,7 @@
   display: inline-block;
   margin-bottom: 1rem;
   color: var(--br-primary-active);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -53,7 +53,7 @@
 .br-error-content h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: clamp(1.65rem, 4vw, 2.2rem);
+  font-size: var(--br-font-size-fluid-error);
   font-weight: 700;
   line-height: 1.18;
 }
@@ -62,7 +62,7 @@
   max-width: 30rem;
   margin: 0.9rem 0 0;
   color: var(--br-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--br-font-size-095);
   font-weight: 400;
   line-height: 1.6;
 }
@@ -73,7 +73,7 @@
   border-left: 2px solid var(--br-primary-muted);
   background: var(--br-surface-elevated);
   color: var(--br-text);
-  font-size: 0.84rem;
+  font-size: var(--br-font-size-084);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -88,7 +88,7 @@
   border-radius: var(--br-radius-sm);
   background: var(--br-primary);
   color: var(--br-on-primary);
-  font-size: 0.85rem;
+  font-size: var(--br-font-size-085);
   font-weight: 600;
   text-decoration: none;
   transition: background-color 0.16s ease;
@@ -110,7 +110,7 @@
   padding-top: 0.9rem;
   border-top: 1px solid var(--br-border);
   color: var(--br-text-muted);
-  font-size: 0.78rem;
+  font-size: var(--br-font-size-078);
   line-height: 1.6;
 }
 

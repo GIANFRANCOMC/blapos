@@ -99,12 +99,27 @@
   --br-border-control-hover: #a8b5c4;
 
   /* Tipografía operativa única: mismo tamaño que el menú lateral. */
-  --br-ui-font-size: 0.705rem;
+  --br-ui-font-size: var(--br-font-size-0705);
   --br-ui-line-height: 1.25;
-  --br-control-affix-font-size: calc(var(--br-ui-font-size) - 0.035rem);
-  --br-table-value-font-size: 0.82rem;
-  --br-table-secondary-font-size: 0.7rem;
-  --br-table-caption-font-size: 0.68rem;
+  --br-control-affix-font-size: calc(var(--br-ui-font-size) - var(--br-font-size-0035));
+  --br-table-value-font-size: var(--br-font-size-082);
+  --br-table-secondary-font-size: var(--br-font-size-070);
+  --br-table-caption-font-size: var(--br-font-size-068);
+  --br-font-size-page: var(--br-ui-font-size);
+  --br-font-size-ui: var(--br-ui-font-size);
+  --br-font-size-label: var(--br-ui-font-size);
+  --br-font-size-table: var(--br-ui-font-size);
+  --br-font-size-table-head: var(--br-ui-font-size);
+  --br-font-size-title-sm: var(--br-ui-font-size);
+  --br-placeholder-font-size: var(--br-font-size-074);
+  --br-btn-font-size: var(--br-ui-font-size);
+  --br-btn-font-size-sm: var(--br-ui-font-size);
+
+  --br-table-heading-font-size: var(--br-font-size-066);
+  --br-stock-quantity-font-size: var(--br-font-size-080);
+  --br-product-code-label-font-size: var(--br-font-size-061);
+  --br-product-code-font-size: var(--br-font-size-067);
+  --br-list-pagination-gap: 0.75rem;
 
   /* Compatibilidad con plantilla / Bootstrap heredado */
   --br-vuexy-primary: var(--br-primary);
@@ -206,6 +221,8 @@
   --br-focus-ring: 0 0 0 2px rgba(40, 153, 229, 0.28);
   --br-focus-ring-inset: inset 0 0 0 2px rgba(40, 153, 229, 0.38);
   --br-transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  --br-initial-load-duration: 180ms;
+  --br-initial-load-easing: cubic-bezier(0.2, 0, 0, 1);
 
   /**
    * Thead de tablas — misma familia cromática que el sidebar (.br-menu-brand):
@@ -224,21 +241,21 @@
    * Reutilizable en ventas, compras, cotizaciones, etc.
    */
   --br-amount-inline-lh: 1.35;
-  --br-amount-sign-size: 0.8125rem;
+  --br-amount-sign-size: var(--br-font-size-08125);
   --br-amount-sign-weight: 600;
   --br-amount-sign-gap: 0.28rem;
-  --br-amount-value-size: 0.9375rem;
+  --br-amount-value-size: var(--br-font-size-09375);
   --br-amount-value-weight: 700;
-  --br-amount-em-sign-size: 0.875rem;
-  --br-amount-em-value-size: 1.125rem;
-  --br-amount-sign-size-sm: 0.75rem;
-  --br-amount-value-size-sm: 0.875rem;
-  --br-amount-em-value-size-sm: 1rem;
+  --br-amount-em-sign-size: var(--br-font-size-0875);
+  --br-amount-em-value-size: var(--br-font-size-1125);
+  --br-amount-sign-size-sm: var(--br-font-size-075);
+  --br-amount-value-size-sm: var(--br-font-size-0875);
+  --br-amount-em-value-size-sm: var(--br-font-size-100);
   --br-amount-sign-gap-sm: 0.2rem;
-  --br-table-footer-label-size: 1rem;
+  --br-table-footer-label-size: var(--br-font-size-100);
   --br-table-footer-label-weight: 700;
   --br-table-footer-label-tracking: 0.02em;
-  --br-table-footer-label-size-sm: 0.9375rem;
+  --br-table-footer-label-size-sm: var(--br-font-size-09375);
   --br-table-footer-cell-pad-y: 0.7rem;
   --br-table-footer-stripe-fallback: var(--br-primary-soft);
   --br-table-footer-stripe: color-mix(in srgb, var(--br-primary-soft) 56%, var(--br-primary-muted));
@@ -257,7 +274,7 @@
    */
   --br-memberships-stack-gap: 0.5rem;
   --br-memberships-stack-max-w: 18rem;
-  --br-memberships-date-size: 1rem;
+  --br-memberships-date-size: var(--br-font-size-100);
   --br-memberships-date-weight: 700;
   /* Pills gris claro (antes estilo label secundario en tabla) */
   --br-memberships-time-pill-bg: var(--br-secondary-soft);

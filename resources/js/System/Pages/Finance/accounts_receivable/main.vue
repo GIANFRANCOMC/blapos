@@ -132,9 +132,10 @@
                         </tbody>
                     </table>
                 </div>
-                <Paginator :links="accounts.links || []" @clickPage="loadAccounts($event.url)"/>
+
             </template>
             <WithoutData v-else/>
+            <Paginator :links="accounts.links || []" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts($event.url)"/>
         </section>
     </section>
 
@@ -272,18 +273,24 @@ export default {
     methods: {
         async loadAccounts(pageUrl = null) {
             this.loading.list = true;
-            const result = await Requests.get({
-                route: pageUrl || this.config.routes.list,
-                data: this.filters,
-                showAlert: true
-            });
-            this.loading.list = false;
 
-            if(!Requests.valid({result})) return;
+            try {
+                this.accounts = Requests.emptyPagination();
+                this.summary = {accounts: 0, overdue_accounts: 0, amounts: []};
+                const result = await Requests.get({
+                    route: pageUrl || this.config.routes.list,
+                    data: this.filters,
+                    showAlert: true
+                });
 
-            this.accounts = result.data.data || {data: [], links: []};
-            this.summary = result.data.summary || {accounts: 0, overdue_accounts: 0, amounts: []};
-            this.$nextTick(() => Alerts.tooltips({}));
+                if(!Requests.valid({result})) return;
+
+                this.accounts = result.data.data || {data: [], links: []};
+                this.summary = result.data.summary || {accounts: 0, overdue_accounts: 0, amounts: []};
+                this.$nextTick(() => Alerts.tooltips({}));
+            } finally {
+                this.loading.list = false;
+            }
         },
         async openDetail(account) {
             this.selectedAccount = account;

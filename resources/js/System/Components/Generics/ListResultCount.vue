@@ -1,5 +1,5 @@
 <template>
-    <p :class="['br-list-result-count', {'br-list-result-count--loading': loading}]" aria-live="polite" aria-atomic="true" :aria-hidden="loading">
+    <p v-if="!loading" class="br-list-result-count" aria-live="polite" aria-atomic="true">
         <span>Resultado:</span>
         <strong>{{ formatNumber(total) }}</strong>
         <span>{{ total === 1 ? singular : plural }}</span>

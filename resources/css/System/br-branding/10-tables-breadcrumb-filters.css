@@ -15,7 +15,7 @@ body.br-layout .table > thead > tr > th.bg-secondary {
   background: transparent !important;
   background-color: transparent !important;
   color: var(--br-table-thead-text) !important;
-  font-size: 0.66rem !important;
+  font-size: var(--br-table-heading-font-size) !important;
   font-weight: 600;
   line-height: 1.12;
   letter-spacing: 0.012em;
@@ -41,7 +41,7 @@ body.br-layout .table :is(thead, tbody, tfoot, tr, th, td) {
 }
 
 body.br-layout .table.table-sm > thead > tr > th {
-  font-size: 0.8125rem;
+  font-size: var(--br-font-size-08125);
 }
 
 /* -------------------------------------------------------------------------
@@ -64,7 +64,7 @@ body.br-layout .table.table-sm > thead > tr > th {
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: calc(var(--br-ui-font-size) - 0.03rem);
+  font-size: calc(var(--br-ui-font-size) - var(--br-font-size-003));
   line-height: 1.2;
 }
 
@@ -92,7 +92,7 @@ body.br-layout .table.table-sm > thead > tr > th {
 .br-breadcrumb__separator {
   margin-inline: 0.3rem;
   color: var(--br-border-strong);
-  font-size: 0.5rem;
+  font-size: var(--br-font-size-050);
 }
 
 @media (max-width: 575.98px) {
@@ -118,7 +118,7 @@ body.br-layout .table.table-sm > thead > tr > th {
   margin-bottom: 0.3rem;
   color: var(--br-text-muted);
   font-size: var(--br-ui-font-size) !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   line-height: 1.25;
 }
 
@@ -126,7 +126,7 @@ body.br-layout .form-label {
   margin-bottom: 1px;
   color: color-mix(in srgb, var(--br-secondary) 72%, var(--br-text-muted));
   font-size: var(--br-ui-font-size) !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   line-height: 1.2;
   letter-spacing: 0;
 }
@@ -138,7 +138,7 @@ body.br-layout .form-label {
   --bs-tooltip-max-width: 13rem;
   --bs-tooltip-padding-x: 0.45rem;
   --bs-tooltip-padding-y: 0.28rem;
-  --bs-tooltip-font-size: 0.68rem;
+  --bs-tooltip-font-size: var(--br-font-size-068);
   --bs-tooltip-bg: var(--br-secondary);
   --bs-tooltip-color: var(--br-on-secondary);
   --bs-tooltip-opacity: 0.96;
@@ -342,7 +342,7 @@ body.br-layout .form-label {
   border-radius: var(--br-radius-sm);
   background: color-mix(in srgb, var(--br-secondary-soft) 72%, var(--br-surface-elevated));
   color: var(--br-secondary);
-  font-size: 0.78rem;
+  font-size: var(--br-font-size-078);
   font-weight: 600;
   line-height: 1.25;
 }
@@ -403,7 +403,7 @@ body.br-layout .form-label {
   display: block;
   color: currentColor;
   font-family: var(--br-font-sans);
-  font-size: 0.95rem;
+  font-size: var(--br-font-size-095);
   font-weight: 700;
   line-height: 1;
   transform: translateY(0.05rem);
@@ -437,7 +437,7 @@ body.br-layout .form-label {
   width: 100%;
   min-height: 1.75rem;
   color: var(--br-text-muted);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.35;
   text-align: center;
@@ -445,7 +445,7 @@ body.br-layout .form-label {
 
 .br-select-empty i {
   color: color-mix(in srgb, var(--br-primary) 70%, var(--br-text-muted));
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
 }
 
 .br-layout .vs__no-options,
@@ -469,7 +469,7 @@ body > .vs__dropdown-menu .vs__no-options:not(:has(.br-select-empty)) {
 body > .vs__dropdown-menu .vs__no-options:not(:has(.br-select-empty))::after {
   content: "No hay opciones disponibles.";
   color: var(--br-text-muted);
-  font-size: 0.72rem;
+  font-size: var(--br-font-size-072);
   font-weight: 500;
   line-height: 1.35;
 }
@@ -494,7 +494,7 @@ body > .vs__dropdown-menu .vs__dropdown-option {
   padding: 0.5rem 0.75rem;
   overflow: hidden;
   color: var(--br-text);
-  font-size: 0.8125rem;
+  font-size: var(--br-font-size-08125);
   line-height: 1.3;
   white-space: nowrap;
   text-overflow: ellipsis;

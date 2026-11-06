@@ -1,92 +1,92 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <RolesSkeleton v-if="initialLoading && skeletonEnabled"/>
+    <InitialLoadTransition>
+        <RolesSkeleton v-if="initialLoading && skeletonEnabled"/>
 
-    <main v-else class="br-entity br-roles">
-        <section class="br-filter-bar">
-            <div class="row align-items-end g-2">
-                <SearchInput
-                    v-model="filters.word"
-                    hasDiv
-                    title="Búsqueda"
-                    :titleClass="[config.forms.classes.title]"
-                    placeholder="Buscar perfil de acceso"
-                    xl="8"
-                    lg="8"
-                    @search="listRoles({})"/>
-                <div class="form-group col-xl-4 col-lg-4">
-                    <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({})">
-                            <span>Buscar</span>
-                        </button>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create"
-                            data-bs-toggle="modal"
-                            data-bs-target="#roleModal"
-                            @click="openModal()">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar perfil</span>
-                        </button>
+        <main v-else class="br-entity br-roles">
+            <section class="br-filter-bar">
+                <div class="row align-items-end g-2">
+                    <SearchInput
+                        v-model="filters.word"
+                        hasDiv
+                        title="Búsqueda"
+                        :titleClass="[config.forms.classes.title]"
+                        placeholder="Buscar perfil de acceso"
+                        xl="8"
+                        lg="8"
+                        @search="listRoles({})"/>
+                    <div class="form-group col-xl-4 col-lg-4">
+                        <div class="br-filter-bar__actions">
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({})">
+                                <span>Buscar</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="br-btn br-btn-sm br-btn-action-open-create"
+                                data-bs-toggle="modal"
+                                data-bs-target="#roleModal"
+                                @click="openModal()">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <span>Agregar perfil</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="br-entity-list">
-            <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Perfil de acceso</th>
-                            <th>Módulos permitidos</th>
-                            <th>Colaboradores</th>
-                            <th>Estado</th>
-                            <th class="text-center"><span class="visually-hidden">Acciones</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="loading">
-                            <td colspan="5" class="py-4"><Loader/></td>
-                        </tr>
-                        <template v-else-if="records.total > 0">
-                            <tr v-for="role in records.data" :key="role.id">
-                                <td>
-                                    <strong class="br-roles__name">{{ role.name }}</strong>
-                                    <span class="br-roles__access-type">
-                                        {{ roleAccessType(role) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="br-roles__metric">
-                                        {{ roleModuleSummary(role) }}
-                                    </span>
-                                </td>
-                                <td>{{ role.users_count || 0 }}</td>
-                                <td>
-                                    <StatusBadge :status="role.status" :formatted-status="role.formatted_status || statusLabel(role.status)"/>
-                                </td>
-                                <td class="text-center">
-                                    <TableActionsDropdown :label="`Acciones de ${role.name}`">
-                                        <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#roleModal" @click="openModal(role)"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar perfil</span></button></li>
-                                        <li><button type="button" class="dropdown-item" @click="duplicateRole(role)"><i class="fa-solid fa-copy" aria-hidden="true"></i><span>Duplicar perfil</span></button></li>
-                                    </TableActionsDropdown>
-                                </td>
+            <section class="br-entity-list">
+                <div class="table-responsive">
+                    <table class="table br-entity-table mb-0">
+                        <thead class="br-table-header-surface">
+                            <tr>
+                                <th>Perfil de acceso</th>
+                                <th>Módulos permitidos</th>
+                                <th>Colaboradores</th>
+                                <th>Estado</th>
+                                <th class="text-center"><span class="visually-hidden">Acciones</span></th>
                             </tr>
-                        </template>
-                        <tr v-else>
-                            <td colspan="5"><WithoutData type="image"/></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                        </thead>
+                        <tbody>
+                            <tr v-if="loading">
+                                <td colspan="5" class="py-4"><Loader/></td>
+                            </tr>
+                            <template v-else-if="records.total > 0">
+                                <tr v-for="role in records.data" :key="role.id">
+                                    <td>
+                                        <strong class="br-roles__name">{{ role.name }}</strong>
+                                        <span class="br-roles__access-type">
+                                            {{ roleAccessType(role) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="br-roles__metric">
+                                            {{ roleModuleSummary(role) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ role.users_count || 0 }}</td>
+                                    <td>
+                                        <StatusBadge :status="role.status" :formatted-status="role.formatted_status || statusLabel(role.status)"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <TableActionsDropdown :label="`Acciones de ${role.name}`">
+                                            <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#roleModal" @click="openModal(role)"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar perfil</span></button></li>
+                                            <li><button type="button" class="dropdown-item" @click="duplicateRole(role)"><i class="fa-solid fa-copy" aria-hidden="true"></i><span>Duplicar perfil</span></button></li>
+                                        </TableActionsDropdown>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr v-else>
+                                <td colspan="5"><WithoutData type="image"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-        <div v-if="records.links" class="d-flex justify-content-center mt-3">
-            <Paginator :links="records.links" @clickPage="listRoles"/>
-        </div>
-    </main>
+            <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listRoles"/>
+        </main>
+    </InitialLoadTransition>
 
     <div id="roleModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -281,6 +281,7 @@
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -294,18 +295,20 @@ import RolesSkeleton from "./RolesSkeleton.vue";
 const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
-    components: {SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
+    components: {InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
     async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-roles", {});
         initialLoad.start();
 
         try {
-            await Promise.all([this.initParams(), this.listRoles({})]);
+            await this.initParams();
         } finally {
             initialLoad.finish();
             this.initialLoading = false;
         }
+
+        await this.listRoles({});
     },
     data() {
         return {
@@ -372,12 +375,17 @@ export default {
         },
         async listRoles({url = null} = {}) {
             this.loading = true;
-            const result = await Requests.get({
-                route: url || this.config.entity.routes.list,
-                data: {word: this.filters.word}
-            });
-            this.records = result.data || {total: 0, data: []};
-            this.loading = false;
+
+            try {
+                this.records = Requests.emptyPagination();
+                const result = await Requests.get({
+                    route: url || this.config.entity.routes.list,
+                    data: {word: this.filters.word}
+                });
+                this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
+            } finally {
+                this.loading = false;
+            }
         },
         openModal(role = null) {
             this.errors = {};

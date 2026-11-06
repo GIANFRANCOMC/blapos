@@ -1,290 +1,293 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <CompanySettingsSkeleton v-if="initialLoading && skeletonEnabled"/>
+    <InitialLoadTransition>
+        <CompanySettingsSkeleton v-if="initialLoading && skeletonEnabled"/>
 
-    <main v-else class="br-company-settings br-entity-modal--tabbed">
-        <section class="br-company-settings__panel" aria-label="Datos de la empresa">
-            <CatalogFormTabs
-                v-model="activeTabId"
-                :tabs="tabItems"
-                label="Secciones de Mi empresa"
-                id-prefix="company"
-                controls-prefix="company"
-                variant="descriptive"/>
+        <main v-else class="br-company-settings br-entity-modal--tabbed">
+            <section class="br-company-settings__panel" aria-label="Datos de la empresa">
+                <CatalogFormTabs
+                    v-model="activeTabId"
+                    :tabs="tabItems"
+                    label="Secciones de Mi empresa"
+                    id-prefix="company"
+                    controls-prefix="company"
+                    variant="descriptive"/>
 
-            <div class="br-company-settings__content">
-            <div v-show="activeTabId === 'general'" id="company-tab-general" role="tabpanel" aria-labelledby="company-tab-trigger-general">
-                <div class="row g-3">
-                    <InputSlot
-                        hasDiv
-                        :title="MODULE.texts.form.identityDocumentType"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.identity_document_type_id"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="forms[entity].createUpdate.data.identity_document_type"
-                                :options="identityDocumentTypes"
-                                :class="config.forms.classes.select2"
-                                @close="tooltips({show: true, time: 500})"
-                                :clearable="false"
-                                :searchable="false"/>
-                        </template>
-                    </InputSlot>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.document_number"
-                        hasDiv
-                        :title="MODULE.texts.form.documentNumber"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :maxlength="documentNumberMaxLength"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.document_number"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:inputGroupAppend>
-                            <template v-if="isDocumentTypeSearchable">
-                                <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
-                                    <span>Buscar</span>
-                                </button>
+                <div class="br-company-settings__content">
+                <div v-show="activeTabId === 'general'" id="company-tab-general" role="tabpanel" aria-labelledby="company-tab-trigger-general">
+                    <div class="row g-3">
+                        <InputSlot
+                            hasDiv
+                            :title="MODULE.texts.form.identityDocumentType"
+                            :titleClass="[config.forms.classes.title]"
+                            isRequired
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.identity_document_type_id"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:input>
+                                <v-select
+                                    v-model="forms[entity].createUpdate.data.identity_document_type"
+                                    :options="identityDocumentTypes"
+                                    :class="config.forms.classes.select2"
+                                    @close="tooltips({show: true, time: 500})"
+                                    :clearable="false"
+                                    :searchable="false"/>
                             </template>
-                        </template>
-                    </InputText>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.legal_name"
-                        hasDiv
-                        :title="MODULE.texts.form.legalName"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        maxlength="100"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.legal_name"
-                        xl="6"
-                        lg="6"/>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.commercial_name"
-                        hasDiv
-                        :title="MODULE.texts.form.commercialName"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        maxlength="100"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.commercial_name"
-                        xl="6"
-                        lg="6"/>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.address"
-                        hasDiv
-                        :title="MODULE.texts.form.address"
-                        :titleClass="[config.forms.classes.title]"
-                        maxlength="100"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.address"
-                        xl="12"
-                        lg="12"/>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.tagline"
-                        hasDiv
-                        :title="MODULE.texts.form.tagline"
-                        :titleClass="[config.forms.classes.title]"
-                        maxlength="200"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.tagline"
-                        xl="12"
-                        lg="12"/>
-                    <InputText
-                        v-if="false"
-                        v-model="forms[entity].createUpdate.data.description"
-                        hasDiv
-                        :title="MODULE.texts.form.description"
-                        :titleClass="[config.forms.classes.title]"
-                        maxlength="200"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                        xl="12"
-                        lg="12"/>
+                        </InputSlot>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.document_number"
+                            hasDiv
+                            :title="MODULE.texts.form.documentNumber"
+                            :titleClass="[config.forms.classes.title]"
+                            isRequired
+                            :maxlength="documentNumberMaxLength"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.document_number"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:inputGroupAppend>
+                                <template v-if="isDocumentTypeSearchable">
+                                    <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
+                                        <span>Buscar</span>
+                                    </button>
+                                </template>
+                            </template>
+                        </InputText>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.legal_name"
+                            hasDiv
+                            :title="MODULE.texts.form.legalName"
+                            :titleClass="[config.forms.classes.title]"
+                            isRequired
+                            maxlength="100"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.legal_name"
+                            xl="6"
+                            lg="6"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.commercial_name"
+                            hasDiv
+                            :title="MODULE.texts.form.commercialName"
+                            :titleClass="[config.forms.classes.title]"
+                            isRequired
+                            maxlength="100"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.commercial_name"
+                            xl="6"
+                            lg="6"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.address"
+                            hasDiv
+                            :title="MODULE.texts.form.address"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="100"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.address"
+                            xl="12"
+                            lg="12"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.tagline"
+                            hasDiv
+                            :title="MODULE.texts.form.tagline"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="200"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.tagline"
+                            xl="12"
+                            lg="12"/>
+                        <InputText
+                            v-if="false"
+                            v-model="forms[entity].createUpdate.data.description"
+                            hasDiv
+                            :title="MODULE.texts.form.description"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="200"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.description"
+                            xl="12"
+                            lg="12"/>
+                    </div>
                 </div>
-            </div>
-            <div v-show="activeTabId === 'contacts'" id="company-tab-contacts" role="tabpanel" aria-labelledby="company-tab-trigger-contacts">
-                <div class="row g-3">
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.telephone"
-                        hasDiv
-                        :title="MODULE.texts.form.telephone"
-                        :titleClass="[config.forms.classes.title]"
-                        maxlength="15"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.telephone"
-                        xl="6"
-                        lg="6"/>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.email"
-                        @input="onEmailInput"
-                        hasDiv
-                        :title="MODULE.texts.form.email"
-                        :titleClass="[config.forms.classes.title]"
-                        maxlength="100"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.email"
-                        xl="6"
-                        lg="6"/>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.facebook"
-                        hasDiv
-                        :title="MODULE.texts.form.facebook"
-                        :titleClass="[config.forms.classes.title]"
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.facebook"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:inputGroupAppend>
-                            <a :href="forms[entity].createUpdate.data.facebook" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.facebook})" aria-label="Abrir Facebook">
-                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                            </a>
-                        </template>
-                    </InputText>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.instagram"
-                        hasDiv
-                        :title="MODULE.texts.form.instagram"
-                        :titleClass="[config.forms.classes.title]"
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.instagram"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:inputGroupAppend>
-                            <a :href="forms[entity].createUpdate.data.instagram" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.instagram})" aria-label="Abrir Instagram">
-                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                            </a>
-                        </template>
-                    </InputText>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.whatsapp"
-                        hasDiv
-                        :title="MODULE.texts.form.whatsapp"
-                        :titleClass="[config.forms.classes.title]"
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.whatsapp"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:inputGroupAppend>
-                            <a :href="forms[entity].createUpdate.data.whatsapp" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.whatsapp})" aria-label="Abrir WhatsApp">
-                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                            </a>
-                        </template>
-                    </InputText>
+                <div v-show="activeTabId === 'contacts'" id="company-tab-contacts" role="tabpanel" aria-labelledby="company-tab-trigger-contacts">
+                    <div class="row g-3">
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.telephone"
+                            hasDiv
+                            :title="MODULE.texts.form.telephone"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="15"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.telephone"
+                            xl="6"
+                            lg="6"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.email"
+                            @input="onEmailInput"
+                            hasDiv
+                            :title="MODULE.texts.form.email"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="100"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.email"
+                            xl="6"
+                            lg="6"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.facebook"
+                            hasDiv
+                            :title="MODULE.texts.form.facebook"
+                            :titleClass="[config.forms.classes.title]"
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.facebook"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:inputGroupAppend>
+                                <a :href="forms[entity].createUpdate.data.facebook" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.facebook})" aria-label="Abrir Facebook">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                </a>
+                            </template>
+                        </InputText>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.instagram"
+                            hasDiv
+                            :title="MODULE.texts.form.instagram"
+                            :titleClass="[config.forms.classes.title]"
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.instagram"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:inputGroupAppend>
+                                <a :href="forms[entity].createUpdate.data.instagram" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.instagram})" aria-label="Abrir Instagram">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                </a>
+                            </template>
+                        </InputText>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.whatsapp"
+                            hasDiv
+                            :title="MODULE.texts.form.whatsapp"
+                            :titleClass="[config.forms.classes.title]"
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.whatsapp"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:inputGroupAppend>
+                                <a :href="forms[entity].createUpdate.data.whatsapp" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.whatsapp})" aria-label="Abrir WhatsApp">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                </a>
+                            </template>
+                        </InputText>
+                    </div>
                 </div>
-            </div>
-            <div v-show="activeTabId === 'branding'" id="company-tab-branding" role="tabpanel" aria-labelledby="company-tab-trigger-branding">
-                <div class="br-company-settings__brand-intro">
-                    <span class="form-label mb-0">Recursos de marca</span>
-                    <span v-text="fileFormatHintText"></span>
-                </div>
-                <div class="br-company-settings__brand-grid">
-                    <article v-for="item in MODULE.brandingItems" :key="item.formField" class="br-company-settings__brand-item">
-                        <div class="br-company-settings__brand-preview">
-                            <img
-                                v-if="isDefined(forms[entity].createUpdate.data[item.formField])"
-                                :src="getAsset(forms[entity].createUpdate.data[item.formField], {type: 'storage'})"
-                                :alt="`Imagen actual: ${MODULE.texts.form[item.formKey]}`"/>
-                            <img
-                                v-else
-                                :src="getAsset(config.essential.ownerApp.assets.img[item.formField], {type: 'none', back: 1})"
-                                :alt="`Imagen predeterminada: ${MODULE.texts.form[item.formKey]}`"/>
-                        </div>
-                        <div class="br-company-settings__brand-details">
-                            <label :for="item.fileInputId" class="form-label" v-text="MODULE.texts.form[item.formKey]"></label>
-                            <p v-text="item.hint"></p>
-                            <div class="br-company-settings__brand-upload">
-                                <input
-                                    type="file"
-                                    class="visually-hidden"
-                                    :id="item.fileInputId"
-                                    accept="image/png, image/jpg, image/jpeg"
-                                    @change="onBrandImageChange(item.formField, $event)"/>
-                                <label :for="item.fileInputId" class="br-btn br-btn-outline-secondary br-btn-sm">
-                                    <i class="fa-solid fa-upload" aria-hidden="true"></i>
-                                    Seleccionar imagen
-                                </label>
-                                <span :title="selectedImageFiles[item.formField] || 'Sin archivo nuevo'" v-text="selectedImageFiles[item.formField] || 'Sin archivo nuevo'"></span>
+                <div v-show="activeTabId === 'branding'" id="company-tab-branding" role="tabpanel" aria-labelledby="company-tab-trigger-branding">
+                    <div class="br-company-settings__brand-intro">
+                        <span class="form-label mb-0">Recursos de marca</span>
+                        <span v-text="fileFormatHintText"></span>
+                    </div>
+                    <div class="br-company-settings__brand-grid">
+                        <article v-for="item in MODULE.brandingItems" :key="item.formField" class="br-company-settings__brand-item">
+                            <div class="br-company-settings__brand-preview">
+                                <img
+                                    v-if="isDefined(forms[entity].createUpdate.data[item.formField])"
+                                    :src="getAsset(forms[entity].createUpdate.data[item.formField], {type: 'storage'})"
+                                    :alt="`Imagen actual: ${MODULE.texts.form[item.formKey]}`"/>
+                                <img
+                                    v-else
+                                    :src="getAsset(config.essential.ownerApp.assets.img[item.formField], {type: 'none', back: 1})"
+                                    :alt="`Imagen predeterminada: ${MODULE.texts.form[item.formKey]}`"/>
                             </div>
-                        </div>
-                    </article>
+                            <div class="br-company-settings__brand-details">
+                                <label :for="item.fileInputId" class="form-label" v-text="MODULE.texts.form[item.formKey]"></label>
+                                <p v-text="item.hint"></p>
+                                <div class="br-company-settings__brand-upload">
+                                    <input
+                                        type="file"
+                                        class="visually-hidden"
+                                        :id="item.fileInputId"
+                                        accept="image/png, image/jpg, image/jpeg"
+                                        @change="onBrandImageChange(item.formField, $event)"/>
+                                    <label :for="item.fileInputId" class="br-btn br-btn-outline-secondary br-btn-sm">
+                                        <i class="fa-solid fa-upload" aria-hidden="true"></i>
+                                        Seleccionar imagen
+                                    </label>
+                                    <span :title="selectedImageFiles[item.formField] || 'Sin archivo nuevo'" v-text="selectedImageFiles[item.formField] || 'Sin archivo nuevo'"></span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
                 </div>
-            </div>
-            <div v-show="false" id="company-tab-share" role="tabpanel">
-                <div class="row g-3">
-                    <InputSlot
-                        hasDiv
-                        :isInputGroup="false"
-                        :divInputClass="['d-flex justify-content-center']"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:input>
-                            <MyDashboardCompany/>
-                        </template>
-                    </InputSlot>
-                    <InputSlot
-                        hasDiv
-                        :isInputGroup="false"
-                        :divInputClass="['d-flex justify-content-center']"
-                        xl="6"
-                        lg="6">
-                        <template v-slot:input>
-                            <MyWebCompany/>
-                        </template>
-                    </InputSlot>
+                <div v-show="false" id="company-tab-share" role="tabpanel">
+                    <div class="row g-3">
+                        <InputSlot
+                            hasDiv
+                            :isInputGroup="false"
+                            :divInputClass="['d-flex justify-content-center']"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:input>
+                                <MyDashboardCompany/>
+                            </template>
+                        </InputSlot>
+                        <InputSlot
+                            hasDiv
+                            :isInputGroup="false"
+                            :divInputClass="['d-flex justify-content-center']"
+                            xl="6"
+                            lg="6">
+                            <template v-slot:input>
+                                <MyWebCompany/>
+                            </template>
+                        </InputSlot>
+                    </div>
                 </div>
-            </div>
-            <div v-show="false" id="company-tab-configuration" role="tabpanel">
-                <div class="row g-3">
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.slug"
-                        hasDiv
-                        :title="MODULE.texts.form.slug"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :disabled="true"
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.slug"
-                        xl="6"
-                        lg="6"/>
-                    <InputText
-                        v-model="forms[entity].createUpdate.data.token_api_misc"
-                        hasDiv
-                        :title="MODULE.texts.form.tokenApiMisc"
-                        :titleClass="[config.forms.classes.title]"
-                        maxlength="100"
-                        showCharCounter
-                        hasTextBottom
-                        :textBottomInfo="forms[entity].createUpdate.errors?.token_api_misc"
-                        xl="6"
-                        lg="6"/>
+                <div v-show="false" id="company-tab-configuration" role="tabpanel">
+                    <div class="row g-3">
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.slug"
+                            hasDiv
+                            :title="MODULE.texts.form.slug"
+                            :titleClass="[config.forms.classes.title]"
+                            isRequired
+                            :disabled="true"
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.slug"
+                            xl="6"
+                            lg="6"/>
+                        <InputText
+                            v-model="forms[entity].createUpdate.data.token_api_misc"
+                            hasDiv
+                            :title="MODULE.texts.form.tokenApiMisc"
+                            :titleClass="[config.forms.classes.title]"
+                            maxlength="100"
+                            showCharCounter
+                            hasTextBottom
+                            :textBottomInfo="forms[entity].createUpdate.errors?.token_api_misc"
+                            xl="6"
+                            lg="6"/>
+                    </div>
                 </div>
-            </div>
-            </div>
-            <footer v-if="hasRecord" class="br-company-settings__footer">
-                <button type="button" class="br-btn br-btn-primary" @click="saveEntity" :disabled="isSaving">
-                    <span v-text="isSaving ? 'Guardando...' : MODULE.texts.actions.save"></span>
-                </button>
-            </footer>
-        </section>
-    </main>
+                </div>
+                <footer v-if="hasRecord" class="br-company-settings__footer">
+                    <button type="button" class="br-btn br-btn-primary" @click="saveEntity" :disabled="isSaving">
+                        <span v-text="isSaving ? 'Guardando...' : MODULE.texts.actions.save"></span>
+                    </button>
+                </footer>
+            </section>
+        </main>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -400,7 +403,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
     name: "CompaniesMain",
-    components: {CompanySettingsSkeleton},
+    components: {InitialLoadTransition, CompanySettingsSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -430,22 +433,18 @@ export default {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         initialLoad.start();
+        let initialized;
 
         try {
-
-            const initParams = await this.initParams();
+            initialized = await this.initParams();
             this.isInitialized = true;
-
-            if(initParams) await this.initOthers();
-
-        }finally {
-
+        } finally {
             initialLoad.finish();
             this.initialLoading = false;
-            this.$nextTick(() => this.tooltips({show: true, time: 500}));
-
         }
 
+        if(initialized) await this.initOthers();
+        this.$nextTick(() => this.tooltips({show: true, time: 500}));
     },
     methods: {
         async initParams() {

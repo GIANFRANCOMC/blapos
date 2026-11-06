@@ -4,71 +4,74 @@
             <Breadcrumb :list="[{title: 'Inicio'}, {title: 'Mi cuenta', active: true}]"/>
         </div>
 
-        <AccountSkeleton v-if="loading && skeletonEnabled"/>
-        <div v-else-if="loading" class="br-account-page__loading" aria-hidden="true"></div>
-        <div v-else-if="loadError" class="br-account-page__load-error" role="alert">
-            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-            <span>{{ loadError }}</span>
-            <button type="button" class="br-btn br-btn-outline-secondary" @click="loadAccount">Reintentar</button>
-        </div>
-
-        <div v-else class="br-account-page__layout">
-            <div class="br-account-page__main">
-                <header class="br-account-page__hero">
-                    <div class="br-account-page__intro">
-                        <h1 id="account-title">Mi cuenta</h1>
-                        <p>Actualiza tus datos personales y la información de tu cuenta.</p>
-                    </div>
-                </header>
-
-                <form class="br-account-page__panel" novalidate @submit.prevent="saveAccount">
-                    <div class="br-account-page__panel-head">
-                        <div>
-                            <h2>Datos personales</h2>
-                            <p>Actualiza tu información de contacto y otros datos personales.</p>
-                        </div>
-                    </div>
-
-                    <div class="br-account-page__fields">
-                        <div class="br-account-page__field">
-                            <InputBase v-model="form.email" input-type="email" title="Correo electrónico" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.email || []">
-                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span></template>
-                            </InputBase>
-                        </div>
-                        <div class="br-account-page__field">
-                            <InputText v-model="form.phone_number" title="Celular" :maxlength="15" placeholder="Sin información" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.phone_number || []">
-                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span></template>
-                            </InputText>
-                        </div>
-                        <div class="br-account-page__field">
-                            <InputSelect v-model="form.gender" title="Género" :options="genderOptions" default-option-label="Sin especificar" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.gender || []">
-                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-user" aria-hidden="true"></i></span></template>
-                            </InputSelect>
-                        </div>
-                        <div class="br-account-page__field">
-                            <InputDate v-model="form.birthdate" title="Fecha de nacimiento" :max="today" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.birthdate || []">
-                                <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span></template>
-                            </InputDate>
-                        </div>
-                    </div>
-
-                    <footer class="br-account-page__actions">
-                        <button type="submit" class="br-btn br-btn-primary" :disabled="saving || confirming">
-                            <span>{{ saving ? 'Guardando...' : 'Guardar cambios' }}</span>
-                        </button>
-                    </footer>
-                </form>
+        <InitialLoadTransition>
+            <AccountSkeleton v-if="loading && skeletonEnabled"/>
+            <div v-else-if="loading" class="br-account-page__loading" aria-hidden="true"></div>
+            <div v-else-if="loadError" class="br-account-page__load-error" role="alert">
+                <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                <span>{{ loadError }}</span>
+                <button type="button" class="br-btn br-btn-outline-secondary" @click="loadAccount">Reintentar</button>
             </div>
 
-            <aside class="br-account-page__aside" aria-label="Identidad de la empresa y del usuario">
-                <AccountCompanyCard :company="company"/>
-                <AccountUserCard :account="account"/>
-            </aside>
-        </div>
+            <div v-else class="br-account-page__layout">
+                <div class="br-account-page__main">
+                    <header class="br-account-page__hero">
+                        <div class="br-account-page__intro">
+                            <h1 id="account-title">Mi cuenta</h1>
+                            <p>Actualiza tus datos personales y la información de tu cuenta.</p>
+                        </div>
+                    </header>
+
+                    <form class="br-account-page__panel" novalidate @submit.prevent="saveAccount">
+                        <div class="br-account-page__panel-head">
+                            <div>
+                                <h2>Datos personales</h2>
+                                <p>Actualiza tu información de contacto y otros datos personales.</p>
+                            </div>
+                        </div>
+
+                        <div class="br-account-page__fields">
+                            <div class="br-account-page__field">
+                                <InputBase v-model="form.email" input-type="email" title="Correo electrónico" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.email || []">
+                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span></template>
+                                </InputBase>
+                            </div>
+                            <div class="br-account-page__field">
+                                <InputText v-model="form.phone_number" title="Celular" :maxlength="15" placeholder="Sin información" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.phone_number || []">
+                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span></template>
+                                </InputText>
+                            </div>
+                            <div class="br-account-page__field">
+                                <InputSelect v-model="form.gender" title="Género" :options="genderOptions" default-option-label="Sin especificar" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.gender || []">
+                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-user" aria-hidden="true"></i></span></template>
+                                </InputSelect>
+                            </div>
+                            <div class="br-account-page__field">
+                                <InputDate v-model="form.birthdate" title="Fecha de nacimiento" :max="today" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.birthdate || []">
+                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span></template>
+                                </InputDate>
+                            </div>
+                        </div>
+
+                        <footer class="br-account-page__actions">
+                            <button type="submit" class="br-btn br-btn-primary" :disabled="saving || confirming">
+                                <span>{{ saving ? 'Guardando...' : 'Guardar cambios' }}</span>
+                            </button>
+                        </footer>
+                    </form>
+                </div>
+
+                <aside class="br-account-page__aside" aria-label="Identidad de la empresa y del usuario">
+                    <AccountCompanyCard :company="company"/>
+                    <AccountUserCard :account="account"/>
+                </aside>
+            </div>
+        </InitialLoadTransition>
     </main>
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
@@ -80,7 +83,7 @@ const emptyForm = () => ({email: "", phone_number: "", gender: "", birthdate: ""
 const initialLoad = createInitialLoad({skeleton: true});
 
 export default {
-    components: {AccountSkeleton, AccountCompanyCard, AccountUserCard},
+    components: {InitialLoadTransition, AccountSkeleton, AccountCompanyCard, AccountUserCard},
     data() {
         return {
             account: null,

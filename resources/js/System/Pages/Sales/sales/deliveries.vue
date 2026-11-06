@@ -180,9 +180,7 @@
         </table>
     </div>
 
-    <div class="d-flex justify-content-center" v-if="!loading && records.total > 0">
-        <Paginator :links="records.links" @clickPage="listDeliveries"/>
-    </div>
+    <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listDeliveries"/>
 
     <div
         :id="modal.id"
@@ -408,9 +406,14 @@ export default {
             }
 
             this.loading = true;
-            this.records = (await Requests.get({route: requestUrl, data: requestData}))?.data || {total: 0, data: [], links: []};
-            this.loading = false;
 
+            try {
+                this.records = Requests.emptyPagination();
+                const response = await Requests.get({route: requestUrl, data: requestData});
+                this.records = response?.bool ? response.data : Requests.emptyPagination();
+            } finally {
+                this.loading = false;
+            }
         },
         clearFilters() {
             this.filters = this.defaultFilters();

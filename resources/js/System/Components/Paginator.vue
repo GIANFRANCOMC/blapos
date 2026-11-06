@@ -1,34 +1,43 @@
 <template>
-    <nav
-        v-if="shouldShowPaginator"
-        class="br-pagination mt-2"
-        role="navigation"
-        aria-label="Navegación de páginas">
-        <ul class="pagination br-pagination__list d-flex flex-wrap justify-content-center align-items-center mb-0">
-            <template v-for="(link, index) in displayLinks" :key="itemKey(link, index)">
-                <li
-                    class="page-item br-pagination__item"
-                    :class="{ active: link.active, disabled: !link.url, 'br-pagination__item--boundary': ['first', 'last'].includes(link.kind) }">
-                    <button
-                        type="button"
-                        class="page-link br-pagination__link"
-                        :aria-label="ariaLabel(link, index)"
-                        :aria-current="link.active ? 'page' : undefined"
-                        :aria-disabled="ariaDisabled(link) ? 'true' : undefined"
-                        :disabled="!navigable(link)"
-                        @click="onPageClick(link)"
-                        v-text="displayLabel(link, index)"></button>
-                </li>
-            </template>
-        </ul>
-    </nav>
+    <div v-if="!loading" class="br-list-footer">
+        <nav
+            v-if="shouldShowPaginator"
+            class="br-pagination"
+            role="navigation"
+            :aria-label="$attrs['aria-label'] || 'Navegación de páginas'">
+            <ul class="pagination br-pagination__list d-flex flex-wrap justify-content-center align-items-center mb-0">
+                <template v-for="(link, index) in displayLinks" :key="itemKey(link, index)">
+                    <li
+                        class="page-item br-pagination__item"
+                        :class="{ active: link.active, disabled: !link.url, 'br-pagination__item--boundary': ['first', 'last'].includes(link.kind) }">
+                        <button
+                            type="button"
+                            class="page-link br-pagination__link"
+                            :aria-label="ariaLabel(link, index)"
+                            :aria-current="link.active ? 'page' : undefined"
+                            :aria-disabled="ariaDisabled(link) ? 'true' : undefined"
+                            :disabled="!navigable(link)"
+                            @click="onPageClick(link)"
+                            v-text="displayLabel(link, index)"></button>
+                    </li>
+                </template>
+            </ul>
+        </nav>
+        <ListResultCount :pagination="pagination" :loading="loading"/>
+    </div>
 </template>
 
 <script>
+import ListResultCount from "./Generics/ListResultCount.vue";
+
 export default {
     name: "Paginator",
+    inheritAttrs: false,
+    components: {ListResultCount},
     emits: ["clickPage"],
     props: {
+        pagination: {type: Object, required: true},
+        loading: {type: Boolean, default: false},
         links: {
             type: Array,
             required: false,
@@ -179,7 +188,7 @@ export default {
             return `${index}-${link?.url ?? "no-url"}-${label}`;
         },
         navigable(link) {
-            return !!(link?.url && !link.active);
+            return !this.loading && !!(link?.url && !link.active);
         },
         ariaDisabled(link) {
             return !link?.active && !link?.url;

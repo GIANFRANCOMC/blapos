@@ -13,7 +13,7 @@ test("precio principal e inventario comparten la escala tipográfica de tablas",
     const tokens = readFileSync(new URL("../../resources/css/System/br-branding/00-tokens.css", import.meta.url), "utf8");
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
 
-    assert.match(tokens, /--br-table-value-font-size: 0\.82rem/);
+    assert.match(tokens, /--br-table-value-font-size: var\(--br-font-size-082\)/);
     assert.match(branding, /\.br-entity-price-row\.is-sale strong \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
     assert.match(branding, /\.br-entity-stock \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
     assert.doesNotMatch(branding.match(/\.br-entity-stock \{[^}]*\}/)?.[0], /font-weight/);
@@ -36,9 +36,9 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain \{\s*grid-template-columns: max-content minmax\(0, 1fr\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier \{\s*display: contents/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?font-size: 0\.67rem/);
+    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?font-size: var\(--br-font-size-067\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__value \{\s*display: flex;\s*align-items: baseline/);
-    assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[\s\S]*?font-size: 0\.76rem/);
+    assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[\s\S]*?font-size: var\(--br-font-size-076\)/);
     assert.match(copyStyles, /\.br-copy-button \{[^}]*width: 1\.25rem;[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--br-primary-active\)/);
     assert.match(copyStyles, /\.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
     assert.match(copyStyles, /\.br-copy-button:is\(:hover, :focus-visible\) i \{\s*filter: brightness\(0\.78\)/);

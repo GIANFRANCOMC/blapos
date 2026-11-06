@@ -22,7 +22,7 @@
 
     <!-- Records -->
     <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover mb-0">
             <thead class="align-middle bg-secondary text-center">
                 <tr>
                     <th class="text-white" style="width: 20%;">CÓDIGO INTERNO</th>
@@ -66,9 +66,7 @@
     </div>
 
     <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
+    <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
 
     <!-- Modal: Create/Update -->
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
@@ -410,6 +408,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -438,7 +437,7 @@ export default {
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
 
-                entityList.records = response?.data ?? emptyRecords;
+                entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 

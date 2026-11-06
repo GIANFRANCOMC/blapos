@@ -1,14 +1,15 @@
 import * as Alerts from "./Alerts.js";
 
-/** El skeleton es optativo; el comportamiento habitual sigue siendo el Swal de initParams. */
-export function createInitialLoad({skeleton = false} = {}) {
+/** Skeleton y Swal cubren initParams; finalizar antes del listado. Sin opciones se conserva solo Swal. */
+export function createInitialLoad({skeleton = false, swal = !skeleton} = {}) {
     return {
         skeleton,
+        swal,
         start() {
-            if(!skeleton) Alerts.swals({type: "initParams"});
+            if(swal) Alerts.swals({type: "initParams"});
         },
         finish() {
-            if(!skeleton) Alerts.swals({show: false});
+            if(swal) Alerts.swals({show: false});
         }
     };
 }

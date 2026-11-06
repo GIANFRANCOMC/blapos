@@ -339,6 +339,7 @@ export default {
         async refreshTrackingData() {
 
             const history = this.forms.entity.createUpdate.history;
+            history.customers = {};
 
             Alerts.swals({});
 
@@ -384,6 +385,7 @@ export default {
             }
 
             this.forms.entity.createUpdate.errors = {};
+            this.forms.entity.createUpdate.history.customers = {};
 
             Alerts.modals({
                 type: "hide",

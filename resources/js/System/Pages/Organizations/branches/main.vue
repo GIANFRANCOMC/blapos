@@ -1,184 +1,185 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="branches" label="sucursales" :row-count="12"/>
-    <template v-else>
-    <!-- Filters -->
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()">
-        <template #secondaryActions>
-            <div class="dropdown">
-                <button type="button" class="br-btn br-btn-sm br-btn-actions" data-bs-toggle="dropdown" aria-expanded="false" :disabled="entityList.extras.loading">
-                    Acciones
-                    <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
-                    <li>
-                        <button type="button" class="dropdown-item" @click="toggleSeriesAudit">
-                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-                            <span>{{ seriesAudit.visible ? 'Ocultar auditoría de series' : 'Auditoría de series' }}</span>
-                        </button>
-                    </li>
-                    <li v-if="seriesAudit.visible">
-                        <button type="button" class="dropdown-item" :disabled="seriesAudit.loading" @click="downloadSeriesAudit">
-                            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                            <span>Descargar auditoría</span>
-                        </button>
-                    </li>
-                </ul>
+    <InitialLoadTransition>
+        <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="branches" label="sucursales"/>
+        <template v-else>
+        <!-- Filters -->
+        <FiltersSection
+            :filter-by-value="filterByValue"
+            @update:filterByValue="filterByValue = $event"
+            :filter-word-value="filterWordValue"
+            @update:filterWordValue="filterWordValue = $event"
+            :filter-by-options="filterByOptions"
+            :search-placeholder="searchPlaceholder"
+            :loading="entityList.extras.loading"
+            :filter-by-title="MODULE.texts.filters.filterBy"
+            :search-title="MODULE.texts.filters.search"
+            :search-button-text="MODULE.texts.actions.search"
+            :add-button-text="MODULE.texts.actions.add"
+            :show-add-button="true"
+            :title-class="[config.forms.classes.title]"
+            :select-class="config.forms.classes.select2"
+            @search="handleSearch"
+            @add="openModal()">
+            <template #secondaryActions>
+                <div class="dropdown">
+                    <button type="button" class="br-btn br-btn-sm br-btn-actions" data-bs-toggle="dropdown" aria-expanded="false" :disabled="entityList.extras.loading">
+                        Acciones
+                        <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                        <li>
+                            <button type="button" class="dropdown-item" @click="toggleSeriesAudit">
+                                <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                                <span>{{ seriesAudit.visible ? 'Ocultar auditoría de series' : 'Auditoría de series' }}</span>
+                            </button>
+                        </li>
+                        <li v-if="seriesAudit.visible">
+                            <button type="button" class="dropdown-item" :disabled="seriesAudit.loading" @click="downloadSeriesAudit">
+                                <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                                <span>Descargar auditoría</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </template>
+        </FiltersSection>
+
+        <section v-if="seriesAudit.visible" class="br-entity-list br-branch-series-audit">
+            <div class="br-branch-series-audit__summary">
+                <span>
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                    Bitácora de emisiones, anulaciones y saltos de correlativo.
+                </span>
+                <strong :class="seriesAudit.gaps.length ? 'text-warning' : 'text-success'">
+                    {{ seriesAudit.gaps.length ? `${seriesAudit.gaps.length} saltos detectados` : 'Sin saltos detectados' }}
+                </strong>
             </div>
-        </template>
-    </FiltersSection>
-
-    <section v-if="seriesAudit.visible" class="br-entity-list br-branch-series-audit">
-        <div class="br-branch-series-audit__summary">
-            <span>
-                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                Bitácora de emisiones, anulaciones y saltos de correlativo.
-            </span>
-            <strong :class="seriesAudit.gaps.length ? 'text-warning' : 'text-success'">
-                {{ seriesAudit.gaps.length ? `${seriesAudit.gaps.length} saltos detectados` : 'Sin saltos detectados' }}
-            </strong>
-        </div>
-        <Loader v-if="seriesAudit.loading"/>
-        <div v-else-if="seriesAudit.records.total > 0" class="table-responsive">
-            <table class="table br-entity-table mb-0">
-                <thead class="br-table-header-surface">
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Sucursal</th>
-                        <th>Serie</th>
-                        <th class="text-end">Correlativo</th>
-                        <th>Acción</th>
-                        <th>Origen</th>
-                        <th>Responsable</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="record in seriesAudit.records.data" :key="record.id">
-                        <td>{{ formatDateTime(record.occurred_at) }}</td>
-                        <td>{{ record.branch_name || '-' }}</td>
-                        <td>
-                            <strong class="br-entity-primary">{{ record.serie_code }}{{ record.serie_number }}</strong>
-                        </td>
-                        <td class="text-end fw-bold">{{ record.sequential }}</td>
-                        <td>
-                            <span :class="['br-status-label', record.action === 'issued' ? 'br-status-active' : 'br-status-inactive']">
-                                {{ seriesActionLabel(record.action) }}
-                            </span>
-                        </td>
-                        <td>{{ record.source || '-' }}</td>
-                        <td>{{ record.user_name || '-' }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <Paginator :links="seriesAudit.records.links" @clickPage="loadSeriesAudit"/>
-        </div>
-        <WithoutData v-else type="image" text="Sin movimientos de series" description="No se registran emisiones ni anulaciones con los filtros actuales."/>
-    </section>
-
-    <!-- Records -->
-    <section class="br-entity-list br-branches-list" aria-label="Listado de sucursales">
-        <div class="table-responsive">
-            <table class="table br-entity-table br-entity-table--directory mb-0">
-                <colgroup>
-                    <col style="width: 20%;">
-                    <col style="width: 18%;">
-                    <col style="width: 19%;">
-                    <col style="width: 19%;">
-                    <col style="width: 10%;">
-                    <col style="width: 8%;">
-                    <col style="width: 6%;">
-                </colgroup>
-                <thead class="br-table-header-surface">
-                    <tr>
-                        <th>Identificación</th>
-                        <th>Sucursal</th>
-                        <th>Ubicación</th>
-                        <th>Contacto</th>
-                        <th class="text-center">Aforo</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-center"><span class="visually-hidden">Acciones</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="entityList.extras.loading">
-                        <td colspan="7" class="py-4"><Loader/></td>
-                    </tr>
-                    <template v-else-if="entityList.records.total > 0">
-                        <tr v-for="record in entityList.records.data" :key="record.id">
-                            <td class="br-entity-table__identification-cell">
-                                <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                    <div class="br-entity-identifier">
-                                        <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                        <span class="br-entity-identifier__value">
-                                            <span class="br-entity-code" v-text="record.internal_code || '—'"></span>
-                                            <span v-if="record.internal_code" class="br-entity-identifier__actions">
-                                                <CopyButton :value="record.internal_code" label="Código interno"/>
-                                            </span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="br-entity-table__name" v-text="record.name"></span>
-                            </td>
-                            <td>
-                                <span class="br-branches-list__primary" v-text="record.address || 'Sin dirección'"></span>
-                                <span v-if="record.reference" class="br-entity-table__meta" v-text="record.reference"></span>
-                            </td>
-                            <td>
-                                <span class="br-branches-list__primary" v-text="record.telephone || 'Sin teléfono'"></span>
-                                <span v-if="record.email" class="br-entity-table__meta" v-text="record.email"></span>
-                            </td>
-                            <td class="text-center" v-text="record.capacity ?? '—'"></td>
-                            <td class="text-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
-                            <td class="text-center">
-                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                    <li>
-                                        <button type="button" class="dropdown-item" @click="openModal(record)">
-                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                            <span>Editar sucursal</span>
-                                        </button>
-                                    </li>
-                                    <li v-if="isDefined(record.map_url)">
-                                        <a :href="record.map_url" class="dropdown-item" target="_blank" rel="noopener noreferrer">
-                                            <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
-                                            <span>Ver mapa</span>
-                                        </a>
-                                    </li>
-                                </TableActionsDropdown>
-                            </td>
+            <Loader v-if="seriesAudit.loading"/>
+            <div v-else-if="seriesAudit.records.total > 0" class="table-responsive">
+                <table class="table br-entity-table mb-0">
+                    <thead class="br-table-header-surface">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Sucursal</th>
+                            <th>Serie</th>
+                            <th class="text-end">Correlativo</th>
+                            <th>Acción</th>
+                            <th>Origen</th>
+                            <th>Responsable</th>
                         </tr>
-                    </template>
-                    <tr v-else>
-                        <td colspan="7"><WithoutData class="br-entity-empty-state" type="image"/></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+                    </thead>
+                    <tbody>
+                        <tr v-for="record in seriesAudit.records.data" :key="record.id">
+                            <td>{{ formatDateTime(record.occurred_at) }}</td>
+                            <td>{{ record.branch_name || '-' }}</td>
+                            <td>
+                                <strong class="br-entity-primary">{{ record.serie_code }}{{ record.serie_number }}</strong>
+                            </td>
+                            <td class="text-end fw-bold">{{ record.sequential }}</td>
+                            <td>
+                                <span :class="['br-status-label', record.action === 'issued' ? 'br-status-active' : 'br-status-inactive']">
+                                    {{ seriesActionLabel(record.action) }}
+                                </span>
+                            </td>
+                            <td>{{ record.source || '-' }}</td>
+                            <td>{{ record.user_name || '-' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
 
-    <!-- Pagination -->
-    <nav v-if="!entityList.extras.loading && entityList.records.total > 0" class="d-flex justify-content-center">
-        <Paginator :links="entityList.records.links" @clickPage="listEntity"/>
-    </nav>
-    </template>
+            </div>
+            <WithoutData v-else type="image" text="Sin movimientos de series" description="No se registran emisiones ni anulaciones con los filtros actuales."/>
+            <Paginator :links="seriesAudit.records.links" :pagination="seriesAudit.records" :loading="seriesAudit.loading" @clickPage="loadSeriesAudit"/>
+        </section>
+
+        <!-- Records -->
+        <section class="br-entity-list br-branches-list" aria-label="Listado de sucursales">
+            <div class="table-responsive">
+                <table class="table br-entity-table br-entity-table--directory mb-0">
+                    <colgroup>
+                        <col style="width: 20%;">
+                        <col style="width: 18%;">
+                        <col style="width: 19%;">
+                        <col style="width: 19%;">
+                        <col style="width: 10%;">
+                        <col style="width: 8%;">
+                        <col style="width: 6%;">
+                    </colgroup>
+                    <thead class="br-table-header-surface">
+                        <tr>
+                            <th>Identificación</th>
+                            <th>Sucursal</th>
+                            <th>Ubicación</th>
+                            <th>Contacto</th>
+                            <th class="text-center">Aforo</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="entityList.extras.loading">
+                            <td colspan="7" class="py-4"><Loader/></td>
+                        </tr>
+                        <template v-else-if="entityList.records.total > 0">
+                            <tr v-for="record in entityList.records.data" :key="record.id">
+                                <td class="br-entity-table__identification-cell">
+                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                        <div class="br-entity-identifier">
+                                            <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                            <span class="br-entity-identifier__value">
+                                                <span class="br-entity-code" v-text="record.internal_code || '—'"></span>
+                                                <span v-if="record.internal_code" class="br-entity-identifier__actions">
+                                                    <CopyButton :value="record.internal_code" label="Código interno"/>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="br-entity-table__name" v-text="record.name"></span>
+                                </td>
+                                <td>
+                                    <span class="br-branches-list__primary" v-text="record.address || 'Sin dirección'"></span>
+                                    <span v-if="record.reference" class="br-entity-table__meta" v-text="record.reference"></span>
+                                </td>
+                                <td>
+                                    <span class="br-branches-list__primary" v-text="record.telephone || 'Sin teléfono'"></span>
+                                    <span v-if="record.email" class="br-entity-table__meta" v-text="record.email"></span>
+                                </td>
+                                <td class="text-center" v-text="record.capacity ?? '—'"></td>
+                                <td class="text-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+                                <td class="text-center">
+                                    <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                        <li>
+                                            <button type="button" class="dropdown-item" @click="openModal(record)">
+                                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                <span>Editar sucursal</span>
+                                            </button>
+                                        </li>
+                                        <li v-if="isDefined(record.map_url)">
+                                            <a :href="record.map_url" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                                                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                                                <span>Ver mapa</span>
+                                            </a>
+                                        </li>
+                                    </TableActionsDropdown>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr v-else>
+                            <td colspan="7"><WithoutData class="br-entity-empty-state" type="image"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Pagination -->
+        <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+        </template>
+    </InitialLoadTransition>
 
     <!-- Modal: Create/Update -->
     <FormModal
@@ -344,6 +345,7 @@
 </template>
 
 <script>
+import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -472,7 +474,7 @@ const initialLoad = createInitialLoad({skeleton: true});
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogFormTabs, CatalogListSkeleton, FormModal},
+    components: {InitialLoadTransition, CatalogFormTabs, CatalogListSkeleton, FormModal},
     data() {
 
         const crudModule = initCrudModule({
@@ -508,22 +510,18 @@ export default {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         initialLoad.start();
+        let initialized;
 
         try {
-
-            const initParams = await this.initParams();
+            initialized = await this.initParams();
             this.isInitialized = true;
-
-            if(initParams) await this.listEntity({});
-
-        }finally {
-
+        } finally {
             initialLoad.finish();
             this.initialLoading = false;
-            this.$nextTick(() => Alerts.tooltips({}));
-
         }
 
+        if(initialized) await this.listEntity({});
+        this.$nextTick(() => Alerts.tooltips({}));
     },
     methods: {
         async initParams() {
@@ -553,6 +551,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.entityList.records = Requests.emptyPagination();
 
             try {
 
@@ -581,7 +580,7 @@ export default {
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
 
-                entityList.records = response?.data ?? emptyRecords;
+                entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
@@ -616,20 +615,25 @@ export default {
 
             this.seriesAudit.loading = true;
 
-            const url = this.isDefined(params) && typeof params === "object" ? params.url : params;
-            const response = await Requests.get({
-                route: url || this.routeActions.seriesAudit,
-                data: {per_page: 10},
-                showAlert: true
-            });
+            try {
+                this.seriesAudit.records = Requests.emptyPagination();
+                this.seriesAudit.gaps = [];
 
-            this.seriesAudit.loading = false;
+                const url = this.isDefined(params) && typeof params === "object" ? params.url : params;
+                const response = await Requests.get({
+                    route: url || this.routeActions.seriesAudit,
+                    data: {per_page: 10},
+                    showAlert: true
+                });
 
-            if(!Requests.valid({result: response})) return;
 
-            this.seriesAudit.records = response.data.data || {total: 0, data: [], links: []};
-            this.seriesAudit.gaps = response.data.gaps || [];
+                if(!Requests.valid({result: response})) return;
 
+                this.seriesAudit.records = response.data.data || {total: 0, data: [], links: []};
+                this.seriesAudit.gaps = response.data.gaps || [];
+            } finally {
+                this.seriesAudit.loading = false;
+            }
         },
         async downloadSeriesAudit() {
 

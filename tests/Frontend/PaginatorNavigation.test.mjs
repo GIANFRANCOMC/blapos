@@ -6,7 +6,9 @@ import {parse} from "@vue/compiler-sfc";
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 const source = read("resources/js/System/Components/Paginator.vue");
 const {descriptor} = parse(source);
-const {default: paginator} = await import(`data:text/javascript,${encodeURIComponent(descriptor.script.content)}`);
+const paginator = new Function("ListResultCount", descriptor.script.content
+    .replace(/^import .*;\s*$/gm, "")
+    .replace("export default", "return"))({});
 
 const context = () => {
     const instance = {align: "start"};

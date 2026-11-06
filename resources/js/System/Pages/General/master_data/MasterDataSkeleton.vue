@@ -25,18 +25,8 @@
                 <section class="br-entity-list br-master-data__records">
                     <div class="br-master-data__records-head">
                         <span class="br-master-skeleton__search"><span class="br-master-skeleton__line br-master-skeleton__search-value"></span></span>
-                        <span class="br-master-skeleton__line br-master-skeleton__count"></span>
                     </div>
-                    <div class="br-master-data-list">
-                        <article v-for="index in 5" :key="index" class="br-master-data-row">
-                            <span class="br-master-skeleton__record-copy">
-                                <span class="br-master-skeleton__line br-master-skeleton__record-title"></span>
-                                <span class="br-master-skeleton__line br-master-skeleton__record-description"></span>
-                                <span class="br-master-skeleton__line br-master-skeleton__record-meta"></span>
-                            </span>
-                            <span class="br-master-skeleton__line br-master-skeleton__badge"></span>
-                        </article>
-                    </div>
+                    <Loader/>
                 </section>
 
                 <section class="br-master-data-form">
@@ -57,3 +47,9 @@
         </main>
     </section>
 </template>
+
+<script>
+import Loader from "@System/Components/Loader.vue";
+
+export default {components: {Loader}};
+</script>

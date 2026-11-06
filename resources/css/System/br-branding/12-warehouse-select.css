@@ -29,7 +29,7 @@
     flex: 0 1 auto;
     max-width: 55%;
     color: var(--br-secondary);
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .br-warehouse-select__separator {

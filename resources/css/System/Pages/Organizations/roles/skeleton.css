@@ -15,8 +15,7 @@
   align-items: end;
 }
 
-.br-roles-skeleton__search,
-.br-roles-skeleton__stack {
+.br-roles-skeleton__search {
   display: grid;
   gap: 0.2rem;
   min-width: 0;
@@ -43,29 +42,6 @@
 }
 
 .br-roles-skeleton__button--add { width: 8.4rem; }
-.br-roles-skeleton__row { height: 3.6rem; }
-.br-roles-skeleton__name { width: 52%; height: 0.68rem; }
-.br-roles-skeleton__type { width: 35%; height: 0.55rem; }
-.br-roles-skeleton__modules { width: 74%; height: 0.62rem; }
-.br-roles-skeleton__count { width: 2rem; height: 0.62rem; }
-
-.br-roles-skeleton__badge {
-  width: 3.8rem;
-  height: 1.25rem;
-  border-radius: 1rem;
-  background: var(--br-primary-soft);
-}
-
-.br-roles-skeleton__menu { width: 1.2rem; height: 1.2rem; margin-inline: auto; }
-
-.br-roles-skeleton__pagination {
-  display: flex;
-  justify-content: center;
-  gap: 0.3rem;
-  margin-top: 1rem;
-}
-
-.br-roles-skeleton__page { width: 1.8rem; height: 1.8rem; }
 
 @keyframes br-roles-skeleton-pulse { 50% { opacity: 0.55; } }
 

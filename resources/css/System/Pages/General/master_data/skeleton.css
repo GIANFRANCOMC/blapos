@@ -36,7 +36,6 @@
 
 .br-master-skeleton__tab-copy,
 .br-master-skeleton__header-copy,
-.br-master-skeleton__record-copy,
 .br-master-skeleton__field {
   display: grid;
   gap: 0.2rem;
@@ -62,11 +61,6 @@
 }
 
 .br-master-skeleton__search-value { width: 55%; height: 0.62rem; }
-.br-master-skeleton__count { flex: 0 0 2.5rem; width: 2.5rem; height: 0.62rem; }
-.br-master-skeleton__record-title { width: 66%; height: 0.68rem; }
-.br-master-skeleton__record-description { width: 86%; height: 0.6rem; }
-.br-master-skeleton__record-meta { width: 50%; height: 0.55rem; }
-.br-master-skeleton__badge { width: 3.8rem; height: 1.25rem; border-radius: 1rem; background: var(--br-primary-soft); }
 .br-master-skeleton__form-title { width: 9rem; height: 0.78rem; }
 
 .br-master-skeleton__notice {

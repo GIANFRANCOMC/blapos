@@ -51,7 +51,7 @@
             </div>
             <div v-else class="platform-empty"><i class="fa-regular fa-building"></i><strong>No encontramos clientes</strong><span>Ajusta los filtros o crea el primer tenant.</span></div>
 
-            <div v-if="meta.last_page > 1" class="platform-pagination"><span>{{ meta.total }} clientes</span><div><button type="button" :disabled="meta.current_page <= 1" @click="loadTenants(meta.current_page - 1)"><i class="fa-solid fa-chevron-left"></i></button><span>{{ meta.current_page }} / {{ meta.last_page }}</span><button type="button" :disabled="meta.current_page >= meta.last_page" @click="loadTenants(meta.current_page + 1)"><i class="fa-solid fa-chevron-right"></i></button></div></div>
+            <div v-if="!loading && meta.last_page > 1" class="platform-pagination"><span>{{ meta.total }} clientes</span><div><button type="button" :disabled="meta.current_page <= 1" @click="loadTenants(meta.current_page - 1)"><i class="fa-solid fa-chevron-left"></i></button><span>{{ meta.current_page }} / {{ meta.last_page }}</span><button type="button" :disabled="meta.current_page >= meta.last_page" @click="loadTenants(meta.current_page + 1)"><i class="fa-solid fa-chevron-right"></i></button></div></div>
         </div>
 
         <div v-if="showCreate" class="platform-modal" role="dialog" aria-modal="true" aria-labelledby="createTenantTitle" @mousedown.self="closeCreateModal">
@@ -121,6 +121,8 @@ export default {
     methods: {
         async loadTenants(page = 1) {
             this.loading = true;
+            this.tenants = [];
+            this.meta = {current_page: 1, last_page: 1, total: 0};
             try {
                 const {data} = await api.get(this.apiBase, {params: {...this.filters, page, per_page: 20}});
                 this.tenants = data.data || []; this.counts = data.counts || this.counts; this.meta = data.meta || this.meta;

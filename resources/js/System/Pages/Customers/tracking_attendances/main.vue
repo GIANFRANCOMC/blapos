@@ -166,7 +166,7 @@
         <span v-text="lists.entity.records.data[0]?.branch?.name" class="ms-1 fw-bold"></span>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover mb-0">
             <thead>
                 <tr class="text-center align-middle">
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;"></th>
@@ -254,9 +254,7 @@
             <span class="ms-1">Registrar asistencia</span>
         </a>
     </div>
-    <div class="d-flex justify-content-center d-none" v-if="!lists.entity.extras.loading && lists.entity.records?.total > 0">
-        <Paginator :links="lists.entity.records.links" @clickPage="listEntity"/>
-    </div>
+    <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
     <!-- Modals -->
     <div class="modal fade" :id="forms.entity.createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
@@ -1254,6 +1252,7 @@ export default {
             };
 
             this.lists.entity.extras.loading = true;
+            this.lists.entity.records = Requests.emptyPagination();
 
             try {
 
@@ -1262,7 +1261,7 @@ export default {
                     data: filterJson
                 });
 
-                this.lists.entity.records = response?.data;
+                this.lists.entity.records = response?.bool ? response.data : Requests.emptyPagination();
 
             }finally {
 

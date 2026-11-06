@@ -247,9 +247,7 @@
                 </table>
                 </div>
             </section>
-            <nav v-if="!loading && sessions.total > 0" class="br-service-list__pagination" aria-label="Paginación de atenciones">
-                <Paginator :links="sessions.links" @clickPage="getSessions"/>
-            </nav>
+            <Paginator aria-label="Paginación de atenciones" :links="sessions.links" :pagination="sessions" :loading="loading" @clickPage="getSessions"/>
         </template>
 
         <div v-if="selectedSession" class="br-service-detail-backdrop" aria-hidden="true" @click="selectedSession = null"></div>
@@ -891,36 +889,43 @@ export default {
             this.options[resource] = result.data.data || [];
         },
         async getSessions(url = null) {
+            url = typeof url === "object" ? url?.url : url;
             if(!this.selectedBranch) return;
 
             const sequence = ++this.sessionsRequestSequence;
             this.loading = true;
-            const status = this.selectedStatus?.code;
-            const result = await Requests.get({
-                route: url || this.config.routes.sessions,
-                data: {
-                    branch_id: this.selectedBranch?.id,
-                    status,
-                    session_type: "catalog_service"
+
+            try {
+                this.sessions = Requests.emptyPagination();
+                const status = this.selectedStatus?.code;
+                const result = await Requests.get({
+                    route: url || this.config.routes.sessions,
+                    data: {
+                        branch_id: this.selectedBranch?.id,
+                        status,
+                        session_type: "catalog_service"
+                    }
+                });
+                if(sequence !== this.sessionsRequestSequence) return;
+
+
+                if(Requests.valid({result})) {
+                    this.sessions = result.data.data;
+                } else {
+                    this.sessions = {data: [], links: [], total: 0};
+                    this.notify(result, "No fue posible cargar las atenciones.");
                 }
-            });
-            if(sequence !== this.sessionsRequestSequence) return;
 
-            this.loading = false;
-
-            if(Requests.valid({result})) {
-                this.sessions = result.data.data;
-            } else {
-                this.sessions = {data: [], links: [], total: 0};
-                this.notify(result, "No fue posible cargar las atenciones.");
+                this.$nextTick(() => Alerts.tooltips({}));
+            } finally {
+                if(sequence === this.sessionsRequestSequence) this.loading = false;
             }
-
-            this.$nextTick(() => Alerts.tooltips({}));
         },
         async getReports() {
             if(this.isRestaurant || !this.selectedBranch) return;
 
             const sequence = ++this.reportsRequestSequence;
+            this.reports = null;
             const result = await Requests.get({
                 route: this.config.routes.reports,
                 data: {

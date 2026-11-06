@@ -92,14 +92,14 @@ test("las confirmaciones tienen presentación común sin icono y guía UX docume
     assert.doesNotMatch(css, /\.swal2-cancel \{[^}]*(?:background|color|border):/);
     assert.match(bundle, /Source: resources\/css\/System\/br-branding\/95-swal-confirmations\.css/);
     assert.match(alerts, /title: `¿Descargar \$\{resource\}\?`/);
-    assert.match(css, /\.swal2-title \{[\s\S]*?border-bottom: 1px solid var\(--br-border\);[\s\S]*?font-size: clamp\(/);
-    assert.match(css, /\.swal2-title \{[^}]*font-size: clamp\(1\.12rem, 1\.05rem \+ 0\.3vw, 1\.24rem\)/);
-    assert.match(css, /\.swal2-html-container \{[^}]*font-size: calc\(var\(--br-font-size-label\) \+ 0\.075rem\) !important;/);
+    assert.match(css, /\.swal2-title \{[\s\S]*?border-bottom: 1px solid var\(--br-border\);[\s\S]*?font-size: var\(--br-font-size-fluid-confirmation\)/);
+    assert.match(css, /\.swal2-title \{[^}]*font-size: var\(--br-font-size-fluid-confirmation\)/);
+    assert.match(css, /\.swal2-html-container \{[^}]*font-size: calc\(var\(--br-font-size-label\) \+ var\(--br-font-size-0075\)\) !important;/);
     assert.match(css, /\.swal2-actions \{[\s\S]*?border-top: 1px solid var\(--br-border\);/);
     assert.match(css, /\.swal2-actions \{[^}]*padding: \.7rem 1\.25rem \.8rem !important;/);
     assert.match(css, /\.swal2-title \{[^}]*background: var\(--br-neutral-panel\);/);
     assert.match(css, /\.swal2-actions \{[^}]*background: var\(--br-neutral-panel\);/);
-    assert.match(css, /\.swal2-close \{[\s\S]*?width: 2rem;[\s\S]*?height: 2rem;[\s\S]*?background: transparent !important;[\s\S]*?font-size: 1\.5rem !important;/);
+    assert.match(css, /\.swal2-close \{[\s\S]*?width: 2rem;[\s\S]*?height: 2rem;[\s\S]*?background: transparent !important;[\s\S]*?font-size: var\(--br-font-size-150\) !important;/);
     assert.match(docs, /El título formula una pregunta breve y específica[\s\S]*?¿Anular venta\?/);
     assert.match(docs, /### Confirmaciones SweetAlert[\s\S]*?El cuerpo no repite el título[\s\S]*?showCloseButton: true/);
 });
@@ -110,7 +110,7 @@ test("todos los mensajes de estado usan iconos completos y ancho ampliable sin a
     const docs = read("docs/GENERALIDADES.md");
 
     assert.match(css, /\.swal2-popup\.br-swal-alert \{[^}]*width: min\(var\(--br-swal-alert-width, 25rem\), calc\(100vw - 2rem\)\) !important;/);
-    assert.match(css, /\.br-swal-alert--message \.swal2-title,\s*\.swal2-popup\.br-swal-alert--message \.swal2-html-container \{\s*font-size: calc\(var\(--br-font-size-label\) \+ 0\.075rem\) !important;/);
+    assert.match(css, /\.br-swal-alert--message \.swal2-title,\s*\.swal2-popup\.br-swal-alert--message \.swal2-html-container \{\s*font-size: calc\(var\(--br-font-size-label\) \+ var\(--br-font-size-0075\)\) !important;/);
     assert.match(css, /\.br-swal-alert--message \.swal2-icon \{[^}]*width: 3\.25rem;[^}]*height: 3\.25rem;[^}]*animation: br-swal-message-icon-in/);
     assert.match(css, /\.br-swal-alert--message \.swal2-icon > \* \{\s*display: none !important;/);
     assert.match(css, /\.swal2-icon\.swal2-success \.swal2-icon-content \{\s*display: flex !important;/);

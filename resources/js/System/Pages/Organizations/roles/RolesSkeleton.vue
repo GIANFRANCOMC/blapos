@@ -33,20 +33,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="index in 8" :key="index" class="br-roles-skeleton__row">
-                            <td><span class="br-roles-skeleton__stack"><span class="br-roles-skeleton__line br-roles-skeleton__name"></span><span class="br-roles-skeleton__line br-roles-skeleton__type"></span></span></td>
-                            <td><span class="br-roles-skeleton__line br-roles-skeleton__modules"></span></td>
-                            <td><span class="br-roles-skeleton__line br-roles-skeleton__count"></span></td>
-                            <td><span class="br-roles-skeleton__line br-roles-skeleton__badge"></span></td>
-                            <td><span class="br-roles-skeleton__line br-roles-skeleton__menu"></span></td>
+                        <tr>
+                            <td colspan="5" class="py-4"><Loader/></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
-        <div class="br-roles-skeleton__pagination" aria-hidden="true">
-            <span v-for="index in 4" :key="index" class="br-roles-skeleton__line br-roles-skeleton__page"></span>
-        </div>
     </main>
 </template>
+
+<script>
+import Loader from "@System/Components/Loader.vue";
+
+export default {components: {Loader}};
+</script>

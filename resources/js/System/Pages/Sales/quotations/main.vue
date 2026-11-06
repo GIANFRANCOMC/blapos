@@ -140,9 +140,7 @@
             </table>
         </section>
 
-        <div v-if="records?.links?.length" class="d-flex justify-content-center">
-            <Paginator :links="records.links" @clickPage="listQuotations"/>
-        </div>
+        <Paginator :links="records.links" :pagination="records" :loading="loading.list" @clickPage="listQuotations"/>
     </template>
 
     <template v-else>
@@ -601,20 +599,24 @@ export default {
         async listQuotations({url = null} = {}) {
             this.loading.list = true;
 
-            const response = await Requests.get({
-                route: url || this.config.routes.list,
-                data: {
-                    word: this.filters.word,
-                    status: this.filters.status?.code
-                },
-                showAlert: true
-            });
+            try {
+                this.records = Requests.emptyPagination();
 
-            if(response.bool) {
-                this.records = response.data;
+                const response = await Requests.get({
+                    route: url || this.config.routes.list,
+                    data: {
+                        word: this.filters.word,
+                        status: this.filters.status?.code
+                    },
+                    showAlert: true
+                });
+
+                if(response.bool) {
+                    this.records = response.data;
+                }
+            } finally {
+                this.loading.list = false;
             }
-
-            this.loading.list = false;
         },
         addDetail() {
             this.form.details.push({

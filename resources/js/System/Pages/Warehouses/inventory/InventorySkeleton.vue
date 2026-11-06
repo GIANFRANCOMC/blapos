@@ -29,6 +29,7 @@
                 <div :class="['br-inventory-skeleton__actions', {'br-inventory-skeleton__actions--stock': page === 'stock'}]">
                     <span class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
                     <span v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
+                    <span class="br-inventory-skeleton__line br-inventory-skeleton__clear"></span>
                     <span v-if="!isReport" :class="['br-inventory-skeleton__line', 'br-inventory-skeleton__button', 'br-inventory-skeleton__button--create', {'br-inventory-skeleton__button--stock-create': page === 'stock'}]"></span>
                     <span class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
                     <span v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"></span>
@@ -53,30 +54,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="row in 7" :key="row" class="br-inventory-skeleton__row">
-                                <td v-for="column in headings.length" :key="column">
-                                    <span class="br-inventory-skeleton__line" :class="column === 1 ? 'br-inventory-skeleton__primary' : 'br-inventory-skeleton__cell'"></span>
-                                    <span v-if="column === 1" class="br-inventory-skeleton__line br-inventory-skeleton__secondary"></span>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tr>
+                            <td :colspan="headings.length" class="py-4"><Loader/></td>
+                        </tr>
+                    </tbody>
                     </table>
                 </div>
             </section>
-            <div v-if="page === 'stock'" class="br-inventory-skeleton__list-footer">
-                <div class="br-inventory-skeleton__pagination">
-                    <span v-for="pageNumber in 4" :key="pageNumber" class="br-inventory-skeleton__line br-inventory-skeleton__page"></span>
-                </div>
-                <span class="br-inventory-skeleton__line br-inventory-skeleton__result-count"></span>
-            </div>
-            <div v-else class="br-inventory-skeleton__pagination">
-                <span v-for="pageNumber in 4" :key="pageNumber" class="br-inventory-skeleton__line br-inventory-skeleton__page"></span>
-            </div>
         </div>
     </section>
 </template>
 
 <script>
+import Loader from "@System/Components/Loader.vue";
+
 const headingsByPage = {
     stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock"],
     transfers: ["Fecha", "Producto", "Almacén de origen", "Almacén de destino", "Movimiento", "Cantidad", "Referencia"],
@@ -94,6 +85,7 @@ const labelsByPage = {
 };
 
 export default {
+    components: {Loader},
     props: {page: {type: String, required: true}},
     computed: {
         headings() { return headingsByPage[this.page] || headingsByPage.stock; },
