@@ -8,16 +8,16 @@
             <template v-for="(link, index) in displayLinks" :key="itemKey(link, index)">
                 <li
                     class="page-item br-pagination__item"
-                    :class="{ active: link.active, disabled: !link.url }">
-                    <a
-                        class="page-link br-pagination__link waves-effect"
-                        href="javascript:void(0);"
+                    :class="{ active: link.active, disabled: !link.url, 'br-pagination__item--boundary': ['first', 'last'].includes(link.kind) }">
+                    <button
+                        type="button"
+                        class="page-link br-pagination__link"
                         :aria-label="ariaLabel(link, index)"
                         :aria-current="link.active ? 'page' : undefined"
                         :aria-disabled="ariaDisabled(link) ? 'true' : undefined"
-                        :tabindex="navigable(link) ? 0 : -1"
-                        @click.prevent="onPageClick(link)"
-                        v-text="displayLabel(link, index)"></a>
+                        :disabled="!navigable(link)"
+                        @click="onPageClick(link)"
+                        v-text="displayLabel(link, index)"></button>
                 </li>
             </template>
         </ul>
@@ -78,17 +78,22 @@ export default {
             return index === this.displayLinks.length - 1;
         },
         displayLabel(link, index) {
+            if(link?.kind === "first") return "Primera";
+            if(link?.kind === "last") return "Última";
+
             const pageNumber = this.parsePageNumber(link?.label);
 
             if(pageNumber !== null) return String(pageNumber);
-            if(this.isPreviousLink(index)) return "Anterior";
-            if(this.isNextLink(index)) return "Siguiente";
+            if(link?.kind === "previous" || this.isPreviousLink(index)) return "Anterior";
+            if(link?.kind === "next" || this.isNextLink(index)) return "Siguiente";
 
             return this.stripHtml(link?.label ?? "...");
         },
         ariaLabel(link, index) {
             const label = this.displayLabel(link, index);
 
+            if(link?.kind === "first") return this.ariaDisabled(link) ? "Primera página no disponible" : "Ir a la primera página";
+            if(link?.kind === "last") return this.ariaDisabled(link) ? `Última página, ${link.lastPage}, no disponible` : `Ir a la última página, ${link.lastPage}`;
             if(link?.active) return `Página actual, ${label}`;
             if(this.ariaDisabled(link)) return `${label} no disponible`;
 
@@ -118,8 +123,6 @@ export default {
             const nextLink = raw[raw.length - 1];
             const middle = raw.slice(1, -1);
             const templateUrl = raw.find(item => item.url)?.url ?? null;
-
-            if(!templateUrl) return raw;
 
             const pageMap = new Map();
             let lastPage = 1;
@@ -162,7 +165,13 @@ export default {
                 }
             }
 
-            return [prevLink, ...windowLinks, nextLink];
+            return [
+                {kind: "first", label: "Primera", url: current > 1 ? this.buildPageUrl(templateUrl, 1) : null, active: false},
+                {...prevLink, kind: "previous"},
+                ...windowLinks,
+                {...nextLink, kind: "next"},
+                {kind: "last", label: "Última", lastPage, url: current < lastPage ? this.buildPageUrl(templateUrl, lastPage) : null, active: false}
+            ];
         },
         itemKey(link, index) {
             const label = typeof link?.label === "string" ? this.stripHtml(link.label) : index;

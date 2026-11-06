@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 class StockManagementController extends BaseController {
 
     private const MAX_LIST_PER_PAGE = 30;
+    private const DEFAULT_STOCK_PER_PAGE = 10;
 
     /**
      * Translation namespace for stock management module
@@ -68,7 +69,7 @@ class StockManagementController extends BaseController {
     public function list(Request $request) {
 
         $warehouseId = intval($request->input("warehouse_id"));
-        $perPage = $this->inventoryPerPage($request);
+        $perPage = $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE);
 
         if(
             !StockManagementService::validateWarehouse($warehouseId)
@@ -104,7 +105,7 @@ class StockManagementController extends BaseController {
             "data" => StockManagementService::getPaginatedConsolidatedStock(
                 (string) $request->input("product_search", ""),
                 $allowedWarehouseIds,
-                $this->inventoryPerPage($request),
+                $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE),
                 (string) $request->input("situation", ""),
                 $this->stockFilters($request)
             ),
@@ -337,7 +338,7 @@ class StockManagementController extends BaseController {
         return $request->validate([
             "category_id" => ["nullable", "integer", "min:1"],
             "brand_id" => ["nullable", "integer", "min:1"],
-            "without_minimum" => ["nullable", "boolean"],
+            "minimum_status" => ["nullable", "in:configured,unconfigured"],
             "inactive_days" => ["nullable", "integer", "in:30,60,90"],
         ]);
 
@@ -535,9 +536,9 @@ class StockManagementController extends BaseController {
 
     }
 
-    private function inventoryPerPage(Request $request): int {
+    private function inventoryPerPage(Request $request, int $default = self::MAX_LIST_PER_PAGE): int {
 
-        return min(self::MAX_LIST_PER_PAGE, max(1, $this->getPerPage($request, self::MAX_LIST_PER_PAGE)));
+        return min(self::MAX_LIST_PER_PAGE, max(1, $this->getPerPage($request, $default)));
 
     }
 

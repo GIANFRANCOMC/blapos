@@ -68,12 +68,13 @@
                     <div class="br-inventory-alerts__table-group">
                         <div class="br-inventory-alerts__table-head">
                             <table class="table br-entity-table br-inventory-table-headings br-inventory-alerts__table mb-0" aria-hidden="true">
-                                <colgroup><col><col><col><col></colgroup>
+                                <colgroup><col><col><col><col><col></colgroup>
                                 <thead class="br-table-header-surface">
                                     <tr>
                                         <th>Producto</th>
                                         <th>Stock actual</th>
                                         <th>Stock mínimo</th>
+                                        <th>Diferencia</th>
                                         <th>Detectada</th>
                                     </tr>
                                 </thead>
@@ -81,18 +82,19 @@
                         </div>
                         <div class="br-inventory-alerts__table-scroll">
                             <table class="table br-entity-table br-inventory-table-headings br-inventory-alerts__table mb-0" aria-label="Listado de alertas de stock">
-                                <colgroup><col><col><col><col></colgroup>
+                                <colgroup><col><col><col><col><col></colgroup>
                                 <thead class="visually-hidden">
                                     <tr>
                                         <th scope="col">Producto</th>
                                         <th scope="col">Stock actual</th>
                                         <th scope="col">Stock mínimo</th>
+                                        <th scope="col">Diferencia</th>
                                         <th scope="col">Detectada</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-if="loading && !alerts.data?.length">
-                                        <td colspan="4" class="py-4">
+                                        <td colspan="5" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
                                                 type="image"
@@ -101,7 +103,7 @@
                                         </td>
                                     </tr>
                                     <tr v-else-if="error && !alerts.data?.length">
-                                        <td colspan="4" class="py-4 text-center">
+                                        <td colspan="5" class="py-4 text-center">
                                             <span class="text-danger">{{ error }}</span>
                                             <button type="button" class="br-btn br-btn-sm br-btn-cancel ms-2" @click="$emit('retry')">Reintentar</button>
                                         </td>
@@ -123,11 +125,12 @@
                                             </td>
                                             <td class="text-end"><span class="br-inventory__stock-current">{{ formatQuantity(alert.quantity, alert) }}</span></td>
                                             <td class="text-end">{{ formatQuantity(alert.minimum_stock, alert) }}</td>
+                                            <td class="text-end"><StockDifference :current="alert.quantity" :minimum="alert.minimum_stock" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
                                             <td class="text-center">{{ formatDate(alert.detected_at) }}</td>
                                         </tr>
                                     </template>
                                     <tr v-else>
-                                        <td colspan="4" class="py-4">
+                                        <td colspan="5" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
                                                 type="image"
@@ -153,11 +156,12 @@
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
+import StockDifference from "./StockDifference.vue";
 import {quantityWithUnit} from "@System/Helpers/NumberUtils.js";
 
 export default {
     name: "StockAlertsModal",
-    components: {FormModal, SearchInput, WithoutData},
+    components: {FormModal, SearchInput, WithoutData, StockDifference},
     emits: ["page", "retry", "download", "update:productSearch", "search"],
     props: {
         alerts: {type: Object, required: true},

@@ -45,6 +45,17 @@ final class InventoryPaginationTest extends TestCase {
         $this->assertCount(30, $summary["data"]);
         $this->assertSame(35, $summary["total"]);
 
+        $defaultRequest = Request::create("/inventory/list", "GET", [
+            "warehouse_id" => $warehouseId,
+        ]);
+        $stockDefault = $controller->list($defaultRequest);
+        $this->assertSame(10, $stockDefault->perPage());
+        $this->assertCount(10, $stockDefault->items());
+
+        $summaryDefault = $controller->summary($defaultRequest)->getData(true)["data"];
+        $this->assertSame(10, $summaryDefault["per_page"]);
+        $this->assertCount(10, $summaryDefault["data"]);
+
     }
 
 }

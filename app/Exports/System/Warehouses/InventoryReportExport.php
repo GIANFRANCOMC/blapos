@@ -94,7 +94,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 "Stock mínimo",
                 "Almacenes",
                 "Almacenes con alerta",
-                "Situación",
+                "Estado del stock",
             ];
 
         }

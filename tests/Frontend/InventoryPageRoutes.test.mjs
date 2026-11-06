@@ -21,14 +21,20 @@ test("changing the work warehouse reloads the current inventory page", () => {
 
 });
 
-test("inventory and entity statuses share the semantic badge", () => {
+test("stock paints the full situation cell without an icon while entities keep their badges", () => {
 
     const component = readInventory();
+    const stock = read(`${inventoryPath}stock.vue`);
     const badge = read("resources/js/System/Components/Generics/StatusBadge.vue");
     const constants = read("resources/js/System/Helpers/ModuleConstants.js");
     const css = read("resources/css/System/br-branding/20-sales-tables-status.css");
+    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
 
-    assert.match(component, /\['br-badge', stockStatus\(record\)\.badgeClass\]/);
+    assert.match(stock, /<td :class="\['br-inventory__situation', stockStatus\(record\)\.cellClass\]">\{\{ stockStatus\(record\)\.label \}\}<\/td>/);
+    assert.doesNotMatch(stock, /stockStatus\(record\)\.icon|stockStatus\(record\)\.badgeClass/);
+    assert.match(component, /br-inventory__situation--empty[\s\S]*?br-inventory__situation--low[\s\S]*?br-inventory__situation--healthy/);
+    assert.match(inventoryCss, /td\.br-inventory__situation \{[\s\S]*?background-color: var\(--br-situation-bg\) !important;[\s\S]*?box-shadow: none !important;/);
+    assert.match(inventoryCss, /br-inventory__situation--empty \{[\s\S]*?var\(--br-danger-soft\)[\s\S]*?br-inventory__situation--low \{[\s\S]*?var\(--br-warning-soft\)[\s\S]*?br-inventory__situation--healthy \{[\s\S]*?var\(--br-success-soft\)/);
     assert.match(badge, /<span :class="badgeClasses" v-text="displayStatus"><\/span>/);
     assert.doesNotMatch(badge, /badgeIcon|<i\b/);
     assert.match(constants, /STATUS_LABEL_BASE: \["br-badge"\]/);
@@ -76,8 +82,10 @@ test("inventory labels and paginated listings stay consistent across views", () 
     assert.match(component, /<th>Fecha y número<\/th>[\s\S]*?<strong>\{\{ formatSimpleDate\(guide\.issue_date\) \}\}<\/strong>[\s\S]*?<span class="br-inventory__meta">\{\{ guide\.number \}\}<\/span>/);
     assert.match(component, /this\.stockRecords = result\?\.data \|\| \{total: 0, data: \[\]\};/);
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
-    assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, self::MAX_LIST_PER_PAGE\)\)\);/);
-    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 5);
+    assert.match(controller, /private const DEFAULT_STOCK_PER_PAGE = 10;/);
+    assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, \$default\)\)\);/);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request, self::DEFAULT_STOCK_PER_PAGE\)/g) || []).length, 2);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 3);
     assert.match(service, /getPaginatedConsolidatedStock\([\s\S]*?->paginate\(\$perPage\)/);
     assert.match(service, /getConsolidatedStock\([\s\S]*?->get\(\)/);
 
@@ -256,7 +264,7 @@ test("operation and transfer dialogs choose their own warehouses without changin
 
 });
 
-test("stock lists only the selected warehouse and keeps four table columns", () => {
+test("stock lists only the selected warehouse and shows five table columns", () => {
 
     const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
@@ -264,11 +272,15 @@ test("stock lists only the selected warehouse and keeps four table columns", () 
 
     assert.match(stock, /<table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">/);
     assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
-    assert.equal((stock.match(/colspan="4"/g) || []).length, 2);
+    assert.equal((stock.match(/colspan="5"/g) || []).length, 2);
+    assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th>Estado del stock<\/th>/);
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
     assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.data \|\| \{total: 0, data: \[\]\};/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
-    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \{\s*min-width: 46rem;/);
+    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \{\s*min-width: 52rem;/);
+    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \.br-inventory__col-status \{ width: 13%; \}/);
+    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse > thead > tr > th:nth-child\(n\+2\):nth-child\(-n\+4\) \{\s*text-align: right !important;/);
+    assert.match(inventoryCss, /td\.br-inventory__situation \{[\s\S]*?text-align: left;/);
 
 });
 

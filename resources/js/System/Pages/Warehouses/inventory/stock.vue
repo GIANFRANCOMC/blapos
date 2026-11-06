@@ -32,7 +32,7 @@
                 @clear="clearProductSearch"/>
 
             <div v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3">
-                <label for="stockSituation" class="form-label">Situación</label>
+                <label for="stockSituation" class="form-label">Estado del stock</label>
                 <v-select
                     id="stockSituation"
                     v-model="filters.stockSituation"
@@ -54,8 +54,8 @@
                         <v-select id="stockBrand" v-model="filters.stockBrand" :options="stockBrands" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las marcas"/>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                        <label for="stockWithoutMinimum" class="form-label">Stock mínimo</label>
-                        <v-select id="stockWithoutMinimum" v-model="filters.stockWithoutMinimum" :options="stockMinimumOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
+                        <label for="stockMinimumStatus" class="form-label">Stock mínimo</label>
+                        <v-select id="stockMinimumStatus" v-model="filters.stockMinimumStatus" :options="stockMinimumOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
                         <label for="stockInactiveDays" class="form-label">Último movimiento</label>
@@ -182,6 +182,7 @@
                                 <col class="br-inventory__col-product">
                                 <col class="br-inventory__col-current">
                                 <col class="br-inventory__col-minimum">
+                                <col class="br-inventory__col-difference">
                                 <col class="br-inventory__col-status">
                             </colgroup>
                             <thead class="br-table-header-surface">
@@ -189,12 +190,13 @@
                                     <th>Producto</th>
                                     <th>Stock actual</th>
                                     <th>Stock mínimo</th>
-                                    <th>Situación</th>
+                                    <th>Diferencia</th>
+                                    <th>Estado del stock</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-if="loadingStock">
-                                    <td colspan="4" class="py-4"><Loader/></td>
+                                    <td colspan="5" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="stockRecords.total > 0">
                                     <tr
@@ -216,16 +218,12 @@
                                         </td>
                                         <td class="text-end"><span class="br-inventory__stock-current">{{ quantityWithUnit(record.stock_quantity, record) }}</span></td>
                                         <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
-                                        <td>
-                                            <span :class="['br-badge', stockStatus(record).badgeClass]">
-                                                <i :class="stockStatus(record).icon" aria-hidden="true"></i>
-                                                {{ stockStatus(record).label }}
-                                            </span>
-                                        </td>
+                                        <td class="text-end"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></td>
+                                        <td :class="['br-inventory__situation', stockStatus(record).cellClass]">{{ stockStatus(record).label }}</td>
                                     </tr>
                                 </template>
                                 <tr v-else>
-                                    <td colspan="4" class="py-4">
+                                    <td colspan="5" class="py-4">
                                         <WithoutData
                                             class="br-entity-empty-state"
                                             type="image"/>
@@ -237,12 +235,15 @@
                 </section>
             </section>
 
-            <nav
-                v-if="!isCurrentViewLoading && currentRecords.total > 0 && currentRecords.links"
-                class="d-flex justify-content-center mt-3"
-                :aria-label="`Paginación de ${currentView.title.toLocaleLowerCase('es')}`">
-                <Paginator :links="currentRecords.links" @clickPage="listCurrentView"/>
-            </nav>
+            <div v-if="filters.warehouse?.code" class="br-inventory__list-footer">
+                <Paginator
+                    v-if="!isCurrentViewLoading && currentRecords.total > 0 && currentRecords.links"
+                    :links="currentRecords.links"
+                    @clickPage="listCurrentView"/>
+                <ListResultCount
+                    :pagination="stockRecords"
+                    :loading="loadingStock"/>
+            </div>
         </div>
     </section>
     <StockAlertsModal

@@ -48,3 +48,18 @@ test("los buscadores propios reutilizan SearchInput y el panel central conserva 
     assert.match(platform, /class="platform-search__clear"[\s\S]*?@click="filters\.search = ''; scheduleSearch\(\)"/);
 
 });
+
+test("los atributos del buscador llegan al input nativo en ambas variantes", () => {
+
+    const search = read("resources/js/System/Components/Generics/SearchInput.vue");
+    const text = read("resources/js/System/Components/InputText.vue");
+    const base = read("resources/js/System/Components/InputBase.vue");
+    const modal = read("resources/js/System/Pages/Warehouses/inventory/StockAlertsModal.vue");
+
+    assert.match(search, /<InputText[\s\S]*?v-bind="\$attrs"/);
+    assert.match(text, /<InputBase[\s\S]*?v-bind="\$attrs"/);
+    assert.match(base, /name: "InputBase",\s*inheritAttrs: false/);
+    assert.equal((base.match(/<input\s+ref="inputElement"\s+v-bind="\$attrs"/g) || []).length, 2);
+    assert.match(modal, /<label for="inventoryAlertProduct"[\s\S]*?<SearchInput\s+id="inventoryAlertProduct"/);
+
+});

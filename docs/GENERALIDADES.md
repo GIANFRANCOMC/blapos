@@ -129,6 +129,8 @@ Criterios prácticos:
 - Los icon buttons requieren `aria-label` y tooltip.
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
+- Debajo de cada tabla paginada, disponer un pie sin tarjeta adicional: `Paginator` centrado y `ListResultCount` a la derecha. El contador muestra únicamente el total filtrado del servidor con singular o plural (por ejemplo, «Resultado: 1 registro» o «Resultado: 50 registros»); no mostrar el rango de la página. Reservar su espacio y ocultar cifras anteriores durante la carga. Aplicar este patrón a listados nuevos o migrados.
+- El paginador compartido muestra `Primera`, `Anterior`, páginas próximas, `Siguiente` y `Última`. Sus botones son compactos y usan peso tipográfico normal; la página activa se distingue por el fondo, no por negrita. Los extremos no disponibles usan botones nativos deshabilitados. Cada módulo conserva sus propios colores y estilos de botones deshabilitados; no aplicar una neutralización global.
 - Los estados vacíos y loaders deben usar componentes compartidos (`WithoutData`, `Loader`) para evitar estilos distintos por módulo.
 - Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
 - Las modales conservan `modal-dialog-centered`. Apertura y cierre comparten duración y curva para el diálogo, la superficie y el fondo; respetar `prefers-reduced-motion`.
@@ -230,7 +232,7 @@ Los mensajes de éxito, advertencia, información, error y pregunta usan `Alerts
 - Icono circular compacto, centrado y proporcionado al símbolo, con color semántico: verde para éxito, ámbar para advertencia, azul para información o pregunta y rojo para error. El éxito usa una marca SVG completa; no mezclar el círculo reducido con los trazos internos nativos de SweetAlert. Usar el icono común de `br-swal-alert--message`.
 - La entrada del icono es breve y sin saltos de layout; en éxito, la marca se dibuja tras aparecer el círculo. Desactivar toda esa animación con `prefers-reduced-motion: reduce`, dejando el icono completo visible de inmediato.
 - Título o mensaje breve y concreto; el cuerpo añade información útil y no repite el título. Mostrar una única respuesta principal (`Entendido`) y evitar duplicar el mismo resultado con un aviso en la página o un toastr.
-- Las confirmaciones conservan el patrón de dos botones descrito arriba, sin icono; el loader conserva su logomark y no usa estos iconos de estado.
+- Las confirmaciones conservan el patrón de dos botones descrito arriba, sin icono; el loader usa el `fa-circle-notch` compartido y no los iconos de estado.
 
 ## Cache e initParams
 

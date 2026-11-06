@@ -8,8 +8,10 @@ import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
 import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
+import ListResultCount from "@System/Components/Generics/ListResultCount.vue";
 import InventorySkeleton from "./InventorySkeleton.vue";
 import StockAlertsModal from "./StockAlertsModal.vue";
+import StockDifference from "./StockDifference.vue";
 
 const initialLoad = createInitialLoad({skeleton: true});
 
@@ -43,7 +45,7 @@ const GUIDE_TYPES = [
 ];
 
 const STOCK_SITUATIONS = [
-    {code: "", label: "Todas las situaciones"},
+    {code: "", label: "Todos los estados"},
     {code: "empty", label: "Sin existencias"},
     {code: "low", label: "Stock bajo"},
     {code: "healthy", label: "Stock saludable"}
@@ -51,7 +53,8 @@ const STOCK_SITUATIONS = [
 
 const STOCK_MINIMUM_OPTIONS = [
     {code: "", label: "Todos los productos"},
-    {code: "1", label: "Sin mínimo configurado"}
+    {code: "configured", label: "Con mínimo configurado"},
+    {code: "unconfigured", label: "Sin mínimo configurado"}
 ];
 
 const STOCK_INACTIVITY_OPTIONS = [
@@ -81,7 +84,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {FormModal, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal},
+    components: {FormModal, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, ListResultCount, InventorySkeleton, StockAlertsModal, StockDifference},
     props: {
         page: {
             type: String,
@@ -142,7 +145,7 @@ export default {
                 stockSituation: STOCK_SITUATIONS[0],
                 stockCategory: null,
                 stockBrand: null,
-                stockWithoutMinimum: STOCK_MINIMUM_OPTIONS[0],
+                stockMinimumStatus: STOCK_MINIMUM_OPTIONS[0],
                 stockInactiveDays: STOCK_INACTIVITY_OPTIONS[0],
                 movementType: MOVEMENT_TYPES[0],
                 guideType: GUIDE_TYPES[0],
@@ -415,7 +418,7 @@ export default {
             return {
                 category_id: this.filters.stockCategory?.code || "",
                 brand_id: this.filters.stockBrand?.code || "",
-                without_minimum: this.filters.stockWithoutMinimum?.code || "",
+                minimum_status: this.filters.stockMinimumStatus?.code || "",
                 inactive_days: this.filters.stockInactiveDays?.code || ""
             };
         },
@@ -812,9 +815,9 @@ export default {
         stockStatus(record) {
             const stock = Number(record.stock_quantity || 0);
             const minimum = Number(record.minimum_stock || 0);
-            if(stock <= 0) return {label: "Sin existencias", icon: "fa-solid fa-circle-xmark", badgeClass: "br-badge--danger"};
-            if(stock <= minimum) return {label: "Stock bajo", icon: "fa-solid fa-triangle-exclamation", badgeClass: "br-badge--warning"};
-            return {label: "Stock saludable", icon: "fa-solid fa-circle-check", badgeClass: "br-badge--success"};
+            if(stock <= 0) return {label: "Sin existencias", cellClass: "br-inventory__situation--empty"};
+            if(stock <= minimum) return {label: "Stock bajo", cellClass: "br-inventory__situation--low"};
+            return {label: "Stock saludable", cellClass: "br-inventory__situation--healthy"};
         },
         movementTypeLabel(type) {
             return MOVEMENT_TYPES.find(record => record.code === type)?.label || type;
@@ -938,7 +941,7 @@ export default {
             return [
                 this.filters.stockCategory?.code,
                 this.filters.stockBrand?.code,
-                this.filters.stockWithoutMinimum?.code,
+            this.filters.stockMinimumStatus?.code,
                 this.filters.stockInactiveDays?.code
             ].filter(Boolean).length;
         },
@@ -1035,7 +1038,7 @@ export default {
         "filters.stockBrand"() {
             this.refreshStockAdvancedFilters();
         },
-        "filters.stockWithoutMinimum"() {
+        "filters.stockMinimumStatus"() {
             this.refreshStockAdvancedFilters();
         },
         "filters.stockInactiveDays"() {

@@ -30,10 +30,14 @@ test("los filtros adicionales de stock comparten consulta, paginación y exporta
     assert.match(skeletonStyles, /\.br-inventory-skeleton__button--stock-create \{ margin-left: auto; \}/);
     assert.match(config, /"stock_categories"[\s\S]*?Category::query\(\)->active\(\)/);
     assert.match(config, /"stock_brands"[\s\S]*?Brand::query\(\)->active\(\)/);
-    for(const field of ["category_id", "brand_id", "without_minimum", "inactive_days"]) {
+    for(const field of ["category_id", "brand_id", "minimum_status", "inactive_days"]) {
         assert.match(state, new RegExp(`${field}: this\\.filters\\.`));
         assert.match(controller, new RegExp(`"${field}" =>`));
     }
+    assert.match(state, /\{code: "configured", label: "Con mínimo configurado"\}/);
+    assert.match(state, /\{code: "unconfigured", label: "Sin mínimo configurado"\}/);
+    assert.match(page, /id="stockMinimumStatus" v-model="filters\.stockMinimumStatus"/);
+    assert.match(controller, /"minimum_status" => \["nullable", "in:configured,unconfigured"\]/);
     assert.match(state, /product_search: productSearch,\s*situation,\s*\.\.\.this\.currentStockAdvancedFilters\(\)/);
     assert.match(state, /if\(this\.activeView === "stock"\)[\s\S]*?Object\.assign\(filters, this\.currentStockAdvancedFilters\(\)\)/);
     assert.match(controller, /getPaginatedList\([\s\S]*?\$this->stockFilters\(\$request\)/);
@@ -43,7 +47,8 @@ test("los filtros adicionales de stock comparten consulta, paginación y exporta
     assert.match(report, /getConsolidatedStock\([\s\S]*?\$this->filters[\s\S]*?getStockReport\([\s\S]*?\$this->filters/);
     assert.match(service, /whereHas\("categoryItems"/);
     assert.match(service, /whereDoesntHave\("inventoryMovements"/);
-    assert.match(service, /without_minimum[\s\S]*?\$query->whereRaw\("\{\$minimum\} <= 0"\)/);
+    assert.match(service, /\$filters\["minimum_status"\][\s\S]*?=== "configured"[\s\S]*?\$query->whereRaw\("\{\$minimum\} > 0"\)/);
+    assert.match(service, /\$filters\["minimum_status"\][\s\S]*?=== "unconfigured"[\s\S]*?\$query->whereRaw\("\{\$minimum\} <= 0"\)/);
     assert.doesNotMatch(service, /stock_asc|stock_desc|"urgency"/);
     assert.match(service, /\$allowedWarehouseIds[\s\S]*?whereIn\("warehouse_id", \$allowedWarehouseIds\)/);
 });

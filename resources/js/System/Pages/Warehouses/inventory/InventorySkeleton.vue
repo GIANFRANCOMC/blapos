@@ -40,6 +40,13 @@
             <section class="br-inventory__content br-entity-list">
                 <div class="table-responsive">
                     <table :class="['table', 'br-entity-table', 'br-inventory-table-headings', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': page === 'stock'}]">
+                        <colgroup v-if="page === 'stock'">
+                            <col class="br-inventory__col-product">
+                            <col class="br-inventory__col-current">
+                            <col class="br-inventory__col-minimum">
+                            <col class="br-inventory__col-difference">
+                            <col class="br-inventory__col-status">
+                        </colgroup>
                         <thead class="br-table-header-surface">
                             <tr>
                                 <th v-for="heading in headings" :key="heading">{{ heading }}</th>
@@ -56,7 +63,13 @@
                     </table>
                 </div>
             </section>
-            <div class="br-inventory-skeleton__pagination">
+            <div v-if="page === 'stock'" class="br-inventory-skeleton__list-footer">
+                <div class="br-inventory-skeleton__pagination">
+                    <span v-for="pageNumber in 4" :key="pageNumber" class="br-inventory-skeleton__line br-inventory-skeleton__page"></span>
+                </div>
+                <span class="br-inventory-skeleton__line br-inventory-skeleton__result-count"></span>
+            </div>
+            <div v-else class="br-inventory-skeleton__pagination">
                 <span v-for="pageNumber in 4" :key="pageNumber" class="br-inventory-skeleton__line br-inventory-skeleton__page"></span>
             </div>
         </div>
@@ -65,7 +78,7 @@
 
 <script>
 const headingsByPage = {
-    stock: ["Producto", "Stock actual", "Stock mínimo", "Situación"],
+    stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock"],
     transfers: ["Fecha", "Producto", "Almacén de origen", "Almacén de destino", "Movimiento", "Cantidad", "Referencia"],
     guides: ["Fecha y número", "Almacén", "Tipo", "Detalle", "Referencia", "Estado"],
     kardex: ["Fecha y responsable", "Producto", "Movimiento", "Variación", "Saldo", "Motivo y origen"],

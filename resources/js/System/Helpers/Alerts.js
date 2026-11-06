@@ -1,15 +1,5 @@
 import { requestRoute } from "./Constants.js";
-import {LOADER_IMAGE_SRC} from "./BrandAssets.js";
 import {tooltipOptionsFor} from "./TooltipOptions.js";
-
-/** Paleta para `swals()` (alineada con `br-branding.css`). */
-const SWAL_BR = {
-    primary: "#2899e5",
-    secondary: "#1a1a35",
-    textMuted: "#64748b",
-    surface: "#ffffff",
-    shadow: "0 4px 18px rgba(26, 26, 53, 0.1)"
-};
 
 const SWAL_INSTANT_TRANSITION = Object.freeze({
     animation: false,
@@ -67,266 +57,29 @@ if(typeof document !== "undefined") {
 
 }
 
-/** Layout y tiempos del loader circular (solo `buildSwalLoadingHtml`). */
-const SWAL_LOAD = Object.freeze({
-    segments: 20,
-    chaseCycleS: 2.8,
-    holdEndPct: 86,
-    resetStartPct: 91,
-    buildPhaseEndPct: 78,
-    orbitPx: 40
-});
+/** HTML del Swal de carga; comparte el icono y la animación de Loader.vue. */
+function buildSwalLoadingHtml({message}) {
 
-function swalBrPrimaryRgbCsv() {
-    const n = Number.parseInt(SWAL_BR.primary.slice(1), 16);
-    return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
-}
-
-/** Keyframes acumulativos; radio vía `--br-swal-orbit` en `.br-swal-load`. */
-function buildSwalAccumKeyframes(segmentCount, primaryRgb) {
-
-    const {buildPhaseEndPct, holdEndPct, resetStartPct} = SWAL_LOAD;
-    const baseT = "rotate(var(--br-t)) translateY(calc(-1 * var(--br-swal-orbit)))";
-    const dim = `opacity:0.2;transform:${baseT} scale(0.78);box-shadow:none;filter:brightness(0.95)`;
-    const bright = `opacity:1;transform:${baseT} scale(1.06);box-shadow:0 0 14px rgba(${primaryRgb},0.55),0 0 4px rgba(${primaryRgb},0.35);filter:brightness(1)`;
-
-    if(segmentCount <= 1) {
-
-        return `@keyframes brSwalAccum0{0%,100%{${dim}}2%,${holdEndPct}%{${bright}}${resetStartPct}%,100%{${dim}}}`;
-
-    }
-
-    const stepOn = buildPhaseEndPct / (segmentCount - 1);
-
-    let out = "";
-
-    for(let i = 0; i < segmentCount; i++) {
-
-        if(i === 0) {
-
-            out += `@keyframes brSwalAccum0{0%,100%{${dim}}0.55%,${holdEndPct}%{${bright}}${resetStartPct}%,100%{${dim}}}`;
-            continue;
-
-        }
-
-        const onPct = Number((i * stepOn).toFixed(3));
-        const beforeOn = Number(Math.max(0, onPct - 0.09).toFixed(3));
-        out += `@keyframes brSwalAccum${i}{0%,100%{${dim}}${beforeOn}%{${dim}}${onPct}%,${holdEndPct}%{${bright}}${resetStartPct}%,100%{${dim}}}`;
-
-    }
-
-    return out;
-
-}
-
-let swalLoadStaticPrefix = null;
-
-/** Estilos + ticks del loader (constantes; se construye una vez por carga del módulo). */
-function getSwalLoadStaticPrefix() {
-
-    if(swalLoadStaticPrefix !== null) {
-
-        return swalLoadStaticPrefix;
-
-    }
-
-    const keyframes = "";
-    const ticks = "";
-
-    swalLoadStaticPrefix = {
-        styleAndTicks: `
-                <style>
-                    .br-swal-load-popup.swal2-popup {
-                        width: min(21rem, calc(100vw - 1.25rem));
-                        padding: 1.35rem 1.5rem 1.2rem;
-                        border-top: 3px solid ${SWAL_BR.secondary};
-                        border-radius: 0.5rem;
-                        box-shadow: 0 1rem 2.6rem rgba(26, 26, 53, 0.2);
-                    }
-                    .br-swal-load-popup .swal2-html-container {
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .br-swal-load__wrap {
-                        padding: 0.15rem 0.25rem 0.25rem;
-                        text-align: center;
-                        font-family: inherit;
-                    }
-                    .br-swal-load {
-                        position: relative;
-                        display: grid;
-                        place-items: center;
-                        width: 88px;
-                        height: 88px;
-                        margin: 0 auto 0.9rem;
-                    }
-                    .br-swal-load__orbit {
-                        position: absolute;
-                        inset: 1px;
-                        border: 3px solid transparent;
-                        border-top-color: ${SWAL_BR.primary};
-                        border-right-color: rgba(40, 153, 229, 0.32);
-                        border-radius: 50%;
-                        animation: brSwalOrbitPrimary 0.9s linear infinite;
-                    }
-                    .br-swal-load__orbit::after {
-                        content: "";
-                        position: absolute;
-                        inset: 7px;
-                        border: 2px solid transparent;
-                        border-bottom-color: ${SWAL_BR.secondary};
-                        border-left-color: rgba(26, 26, 53, 0.25);
-                        border-radius: 50%;
-                        animation: brSwalOrbitSecondary 1.25s linear infinite;
-                    }
-                    .br-swal-load__tick {
-                        display: none;
-                    }
-                    .br-swal-load__logo-wrap {
-                        z-index: 1;
-                        display: grid;
-                        place-items: center;
-                        width: 62px;
-                        height: 62px;
-                        border-radius: 50%;
-                        background: ${SWAL_BR.surface};
-                        box-shadow: ${SWAL_BR.shadow}, 0 0 0 1px rgba(26, 26, 53, 0.06);
-                        animation: brSwalLogoBreathe 1.8s ease-in-out infinite;
-                    }
-                    .br-swal-load__logo {
-                        width: 43px;
-                        height: 43px;
-                        object-fit: contain;
-                        display: block;
-                        transform-origin: center center;
-                        animation: brSwalLogoFloat 1.8s ease-in-out infinite;
-                    }
-                    .br-swal-load-msg__title {
-                        margin: 0 0 0.3rem;
-                        font-size: 0.98rem;
-                        font-weight: 700;
-                        line-height: 1.35;
-                        color: ${SWAL_BR.secondary};
-                        letter-spacing: 0;
-                    }
-                    .br-swal-load-msg__hint {
-                        margin: 0;
-                        font-size: 0.76rem;
-                        font-weight: 400;
-                        line-height: 1.4;
-                        color: ${SWAL_BR.textMuted};
-                        max-width: 17rem;
-                        margin-inline: auto;
-                    }
-                    .br-swal-load__progress {
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 0.3rem;
-                        margin-top: 0.8rem;
-                    }
-                    .br-swal-load__progress span {
-                        width: 0.34rem;
-                        height: 0.34rem;
-                        border-radius: 50%;
-                        background: ${SWAL_BR.primary};
-                        opacity: 0.28;
-                        animation: brSwalProgress 1.1s ease-in-out infinite;
-                    }
-                    .br-swal-load__progress span:nth-child(2) {
-                        animation-delay: 0.16s;
-                    }
-                    .br-swal-load__progress span:nth-child(3) {
-                        background: ${SWAL_BR.secondary};
-                        animation-delay: 0.32s;
-                    }
-                    @keyframes brSwalOrbitPrimary {
-                        to { transform: rotate(360deg); }
-                    }
-                    @keyframes brSwalOrbitSecondary {
-                        to { transform: rotate(-360deg); }
-                    }
-                    @keyframes brSwalLogoBreathe {
-                        0%, 100% { box-shadow: ${SWAL_BR.shadow}, 0 0 0 1px rgba(26, 26, 53, 0.06); }
-                        50% { box-shadow: 0 6px 20px rgba(40, 153, 229, 0.18), 0 0 0 4px rgba(40, 153, 229, 0.08); }
-                    }
-                    @keyframes brSwalLogoFloat {
-                        0%, 100% { transform: translateY(0) scale(1); }
-                        50% { transform: translateY(-1px) scale(1.035); }
-                    }
-                    @keyframes brSwalProgress {
-                        0%, 100% { opacity: 0.24; transform: translateY(0) scale(0.86); }
-                        50% { opacity: 1; transform: translateY(-2px) scale(1); }
-                    }
-                    @media (prefers-reduced-motion: reduce) {
-                        .br-swal-load__orbit,
-                        .br-swal-load__orbit::after,
-                        .br-swal-load__logo-wrap,
-                        .br-swal-load__logo,
-                        .br-swal-load__progress span {
-                            animation-duration: 2.4s;
-                        }
-                    }
-                    ${keyframes}
-                </style>
-                <div class="br-swal-load__wrap">
-                    <div class="br-swal-load" role="status" aria-live="polite" aria-busy="true">
-                        <div class="br-swal-load__orbit" aria-hidden="true">${ticks}</div>
-                        <div class="br-swal-load__logo-wrap">
-            `,
-        logoSuffix: `
-                        </div>
-                    </div>
-                    <div class="br-swal-load-msg">
-            `
-    };
-
-    return swalLoadStaticPrefix;
-
-}
-
-/** HTML del Swal de carga (solo lo usa `swals()`). */
-function buildSwalLoadingHtml({message, logoSrc}) {
-
-    const resolvedTitle = message.trim().replace(/\.\s*$/, "") || "Preparando informaci\u00f3n";
+    const title = String(message).trim().replace(/\.\s*$/, "") || "Preparando información";
+    const safeTitle = title.replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
 
     return `
         <div class="br-swal-load__wrap" role="status" aria-live="polite" aria-busy="true">
-            <div class="br-swal-load__logo-stage" aria-hidden="true">
-                <img
-                    src="${logoSrc}"
-                    alt=""
-                    class="br-swal-load__logo"
-                    width="52"
-                    height="52"
-                    decoding="async">
+            <div class="br-loader br-loader--swal" aria-hidden="true">
+                <i class="fa-solid fa-circle-notch br-loader__icon"></i>
             </div>
             <div class="br-swal-load-msg">
-                <p class="br-swal-load-msg__title">${resolvedTitle}</p>
+                <p class="br-swal-load-msg__title">${safeTitle}</p>
                 <p class="br-swal-load-msg__hint">Espera un momento, por favor.</p>
-                <div class="br-swal-load__progress" aria-hidden="true">
-                    <span></span><span></span><span></span>
-                </div>
             </div>
         </div>
     `;
-
-    /*
-     * Legacy markup kept temporarily below for compatibility auditing.
-     * The early return above is the active implementation.
-     */
-    const {styleAndTicks, logoSuffix} = getSwalLoadStaticPrefix();
-    const titleLine = message.trim().replace(/\.\s*$/, "") || "Preparando información";
-    const titleHtml = `<p class="br-swal-load-msg__title">${titleLine}</p>`;
-
-    return `${styleAndTicks}<img src="${logoSrc}" alt="" class="br-swal-load__logo" width="52" height="52" decoding="async">${logoSuffix}${titleHtml}
-                        <p class="br-swal-load-msg__hint">Estamos procesando la información. No cierres esta ventana.</p>
-                        <div class="br-swal-load__progress" aria-hidden="true">
-                            <span></span><span></span><span></span>
-                        </div>
-                    </div>
-                </div>
-            `.replace(/\u00c3\u00b3/g, "\u00f3");
 
 }
 
@@ -385,7 +138,7 @@ export function swals({
         Swal.fire({
             ...SWAL_INSTANT_TRANSITION,
             target: document.body,
-            html: buildSwalLoadingHtml({message, logoSrc: LOADER_IMAGE_SRC}),
+            html: buildSwalLoadingHtml({message}),
             allowOutsideClick: false,
             allowEscapeKey: false,
             allowEnterKey: false,

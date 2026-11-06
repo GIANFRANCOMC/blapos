@@ -1409,6 +1409,27 @@ input.input-number-no-range[type=number] {
     background: var(--br-white);
 }
 
+.br-list-result-count {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .25rem;
+    margin: 0 0 .5rem;
+    color: var(--br-text-muted);
+    font-size: var(--br-table-value-font-size);
+    line-height: 1.35;
+}
+
+.br-list-result-count strong {
+    color: var(--br-secondary);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.br-list-result-count--loading {
+    visibility: hidden;
+}
+
 .br-entity-table {
     width: 100%;
     min-width: 0;

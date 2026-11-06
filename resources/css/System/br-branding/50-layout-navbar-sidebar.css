@@ -778,29 +778,41 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 .br-layout .br-pagination__list {
-  gap: 0.35rem;
+  gap: 0.22rem;
+}
+
+.br-layout .br-pagination .page-item:is(.disabled, .active) {
+  pointer-events: none;
 }
 
 .br-layout .br-pagination .page-link.br-pagination__link {
+  font-family: inherit;
   border-radius: var(--br-radius-sm);
   border: 1px solid var(--br-border-strong);
   color: var(--br-secondary);
   background-color: var(--br-surface-elevated);
-  min-width: 2.45rem;
+  min-width: 2rem;
+  min-height: var(--br-btn-height-sm);
   text-align: center;
-  padding: 0.45rem 0.65rem;
+  margin-left: 0 !important;
+  padding: 0.3rem 0.52rem;
   line-height: 1.25;
-  font-weight: 700;
-  font-size: 0.8125rem;
-  transition: var(--br-transition), box-shadow 0.28s ease-out;
-  box-shadow: var(--br-shadow-sm);
+  font-weight: 400;
+  font-size: var(--br-btn-font-size-sm);
+  transition: var(--br-transition);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.br-layout .br-pagination .br-pagination__item--boundary .br-pagination__link {
+  font-weight: 400;
 }
 
 .br-layout .br-pagination .page-item:not(.active):not(.disabled) .page-link.br-pagination__link:hover {
   border-color: var(--br-table-thead-bg) !important;
   color: var(--br-table-thead-bg) !important;
   background-color: color-mix(in srgb, var(--br-table-thead-bg) 10%, var(--br-white)) !important;
-  box-shadow: var(--br-shadow-sm);
+  box-shadow: none;
 }
 
 .br-layout .br-pagination .page-item:not(.active):not(.disabled) .page-link.br-pagination__link:active {
@@ -828,12 +840,14 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 .br-layout .br-pagination .page-item.active .page-link.br-pagination__link {
+  opacity: 1;
+  cursor: default;
   border-color: var(--br-table-thead-bg) !important;
   background: var(--br-table-thead-bg) !important;
   background-color: var(--br-table-thead-bg) !important;
   color: var(--br-table-thead-text) !important;
-  font-weight: 800;
-  box-shadow: inset 0 -1px 0 var(--br-table-thead-edge), var(--br-shadow-sm);
+  font-weight: 400;
+  box-shadow: none;
 }
 
 body.br-layout .form-check-input {

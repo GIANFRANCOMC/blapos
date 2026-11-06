@@ -262,7 +262,9 @@ class StockManagementService {
 
         [, $minimum] = self::stockExpressions($warehouseId, $allowedWarehouseIds);
 
-        if(!empty($filters["without_minimum"])) {
+        if(($filters["minimum_status"] ?? null) === "configured") {
+            $query->whereRaw("{$minimum} > 0");
+        }elseif(($filters["minimum_status"] ?? null) === "unconfigured") {
             $query->whereRaw("{$minimum} <= 0");
         }
 

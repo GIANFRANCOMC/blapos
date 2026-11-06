@@ -77,6 +77,36 @@
     min-width: 0;
 }
 
+.br-inventory__list-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: .75rem;
+    min-height: var(--br-btn-height-sm);
+    margin-top: .75rem;
+}
+
+.br-inventory__list-footer .br-pagination {
+    grid-column: 2;
+    justify-self: center;
+    width: auto;
+    margin-top: 0 !important;
+}
+
+.br-inventory__list-footer .br-list-result-count {
+    grid-column: 3;
+    justify-self: end;
+    justify-content: flex-end;
+    margin: 0;
+    text-align: right;
+}
+
+@media (max-width: 767.98px) {
+    .br-inventory__list-footer { grid-template-columns: minmax(0, 1fr); }
+    .br-inventory__list-footer .br-pagination,
+    .br-inventory__list-footer .br-list-result-count { grid-column: 1; }
+}
+
 .br-inventory__context .br-form-control-group {
     min-width: 0;
 }
@@ -96,14 +126,19 @@ body.br-layout .br-inventory-table-headings > thead > tr > th {
     text-align: center !important;
 }
 
-.br-inventory__table--single-warehouse {
-    min-width: 46rem;
+body.br-layout .br-inventory__table--single-warehouse > thead > tr > th:nth-child(n+2):nth-child(-n+4) {
+    text-align: right !important;
 }
 
-.br-inventory__table--single-warehouse .br-inventory__col-product { width: 40%; }
+.br-inventory__table--single-warehouse {
+    min-width: 52rem;
+}
+
+.br-inventory__table--single-warehouse .br-inventory__col-product { width: 41%; }
 .br-inventory__table--single-warehouse .br-inventory__col-current,
-.br-inventory__table--single-warehouse .br-inventory__col-minimum,
-.br-inventory__table--single-warehouse .br-inventory__col-status { width: 20%; }
+.br-inventory__table--single-warehouse .br-inventory__col-minimum { width: 15%; }
+.br-inventory__table--single-warehouse .br-inventory__col-difference { width: 16%; }
+.br-inventory__table--single-warehouse .br-inventory__col-status { width: 13%; }
 
 .br-inventory__table td:nth-child(2),
 .br-inventory__table td:nth-child(3) {
@@ -117,9 +152,44 @@ body.br-layout .br-inventory__stock-current {
     font-variant-numeric: tabular-nums;
 }
 
+body.br-layout .br-inventory__difference {
+    font-size: 0.78rem !important;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.br-inventory__difference.is-positive { color: var(--br-success-hover); }
+.br-inventory__difference.is-negative { color: var(--br-danger-strong); }
+.br-inventory__difference.is-neutral { color: var(--br-text-muted); }
+
 .br-inventory__table td:last-child {
     overflow: visible;
     text-align: center;
+}
+
+body.br-layout .br-inventory__table > tbody > tr > td.br-inventory__situation {
+    --bs-table-accent-bg: transparent;
+    background-color: var(--br-situation-bg) !important;
+    box-shadow: none !important;
+    color: var(--br-situation-text) !important;
+    font-weight: 600;
+    text-align: left;
+}
+
+.br-inventory__situation--empty {
+    --br-situation-bg: var(--br-danger-soft);
+    --br-situation-text: var(--br-danger-strong);
+}
+
+.br-inventory__situation--low {
+    --br-situation-bg: var(--br-warning-soft);
+    --br-situation-text: var(--br-warning-hover);
+}
+
+.br-inventory__situation--healthy {
+    --br-situation-bg: var(--br-success-soft);
+    --br-situation-text: var(--br-success-hover);
 }
 
 /* Alertas: contexto legible, filas desplazables y paginación siempre visible. */
@@ -219,7 +289,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__warehouse-name {
 }
 
 .br-inventory-alerts__table-group {
-    min-width: 42rem;
+    min-width: 46rem;
 }
 
 .br-inventory-alerts__table-head {
@@ -243,10 +313,11 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__warehouse-name {
     border-spacing: 0;
 }
 
-.br-inventory-alerts__table col:first-child { width: 47%; }
+.br-inventory-alerts__table col:first-child { width: 40%; }
 .br-inventory-alerts__table col:nth-child(2),
-.br-inventory-alerts__table col:nth-child(3) { width: 18%; }
-.br-inventory-alerts__table col:last-child { width: 17%; }
+.br-inventory-alerts__table col:nth-child(3),
+.br-inventory-alerts__table col:nth-child(4) { width: 14%; }
+.br-inventory-alerts__table col:last-child { width: 18%; }
 
 body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > thead > tr > th {
     background: var(--br-table-thead-bg) !important;
@@ -254,7 +325,8 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 }
 
 .br-inventory-alerts__table td:nth-child(2),
-.br-inventory-alerts__table td:nth-child(3) {
+.br-inventory-alerts__table td:nth-child(3),
+.br-inventory-alerts__table td:nth-child(4) {
     white-space: nowrap;
 }
 

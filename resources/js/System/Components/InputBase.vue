@@ -8,6 +8,7 @@
                 <slot name="inputGroupPrepend"></slot>
                 <input
                     ref="inputElement"
+                    v-bind="$attrs"
                     :type="inputType"
                     :value="modelValue"
                     @input="updateValue($event.target.value)"
@@ -34,6 +35,7 @@
             <slot name="inputGroupPrepend"></slot>
             <input
                 ref="inputElement"
+                v-bind="$attrs"
                 :type="inputType"
                 :value="modelValue"
                 @input="updateValue($event.target.value)"
@@ -58,6 +60,7 @@ import { generalConfig } from "../Helpers/Constants.js";
 
 export default {
     name: "InputBase",
+    inheritAttrs: false,
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
         modelValue: {
