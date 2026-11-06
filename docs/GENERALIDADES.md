@@ -29,7 +29,6 @@ Evitar colocar reglas críticas sólo en Vue. El frontend guía al usuario; el b
 
 Las páginas Blade/Vue y sus datos JSON usan rutas GET distintas, con control de autenticación, permisos y tenant en el servidor. No usar parámetros ni cabeceras del navegador para alternar HTML y JSON en una misma URL; ver `System/ARCHITECTURE.md`.
 
-
 ## Multi-tenant por BD
 
 Blapos opera exclusivamente desde subdominios registrados y con una base de datos por cliente. El dominio raíz pertenece a otro proyecto. El registro central mínimo vive en `landlord`; la operación del cliente se ejecuta en `tenant`. La guía completa está en `System/MULTITENANT.md`.
@@ -135,6 +134,22 @@ Stock actual y Diferencia comparten `--br-stock-quantity-font-size` (`0.8rem` de
 
 Modificar la regla fuente del componente y eliminar declaraciones redundantes antes de aumentar la especificidad. No resolver conflictos entre estilos propios añadiendo clases o `!important`. Las excepciones de librerías y los ajustes responsive deben consumir los mismos tokens. Los tamaños de documentos exportados, correos y dibujos de canvas se definen según su formato de salida, fuera de la escala de interfaz.
 
+### Pesos tipográficos reutilizables
+
+La interfaz comparte tres pesos definidos una sola vez en `resources/css/Shared/typography-tokens.css`: regular (400), medio (500) y seminegrita (600). Elegir el rol antes de aplicar peso; no introducir pesos literales ni negritas decorativas por pantalla.
+
+| Rol | Token | Base |
+| --- | --- | --- |
+| Texto común, inputs y datos secundarios | `--br-font-weight-body` | 400 |
+| Etiquetas | `--br-font-weight-label` | 500 |
+| Botones y acciones | `--br-font-weight-control` | 500 |
+| Encabezados de tabla | `--br-font-weight-table-heading` | 500 |
+| Valores principales y contadores | `--br-font-weight-value` | 500 |
+| Títulos | `--br-font-weight-heading` | 600 |
+| Énfasis justificado y `strong`/`b` | `--br-font-weight-emphasis` | 600 |
+
+Modificar el alias global para ajustar un rol; no redefinirlo en módulos ni capas de pulido. Los estilos heredados sin rol específico usan `--br-font-weight-regular`, `--br-font-weight-medium` o `--br-font-weight-semibold`. Las utilidades Bootstrap `fw-bold`, `fw-bolder` y `fw-semibold` se normalizan al énfasis compartido; evitar combinarlas con otro peso del componente. Los iconos conservan el peso técnico de su fuente mediante `--br-font-weight-icon` (900), que no es un peso del texto. PDFs, correos y canvas tienen formatos independientes.
+
 ### Convención tipográfica de tablas
 
 Los aliases compartidos se declaran en `resources/css/System/br-branding/00-tokens.css`, referencian la escala de `Shared/typography-tokens.css` y se aplican desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
@@ -172,7 +187,7 @@ Criterios prácticos:
 - Debajo de todas las tablas paginadas, incluidas las modales, usar `Paginator`, que integra el pie completo `br-list-footer`: navegación centrada y `ListResultCount` a la derecha. Pasar `:pagination` con el objeto paginado completo del servidor, `:links` y `:loading`; no añadir otro contador ni wrappers de centrado o margen. El contador muestra únicamente el total filtrado del servidor con singular o plural (por ejemplo, «Resultado: 1 registro» o «Resultado: 50 registros»), nunca el número de filas de la página ni el rango. Durante cualquier carga inicial, búsqueda, cambio de filtro o página, ocultar juntos navegación y contador hasta que termine la consulta. El componente compartido centraliza esta condición mediante `loading`; no mostrar cifras anteriores ni permitir navegación mientras se actualiza la tabla. Al terminar, reaparecen con el total actualizado, incluso con cero registros o una sola página. No añadir condiciones locales por `total > 0` o `links`, ni colocar el pie dentro del scroll horizontal/vertical. Mantener únicamente condiciones de contexto, como la vista activa o el almacén seleccionado. La regla aplica también a Guest y Platform, incluidos sus paginadores propios.
 - La distancia entre tabla y pie se define una sola vez mediante `--br-list-pagination-gap` en `br-branding/00-tokens.css` (`0.75rem` de base). No sumar `mt-*`, márgenes propios del módulo o márgenes inferiores de tabla a esa separación. En móvil y contenedores estrechos, incluidas modales en pantallas grandes, el pie dispone navegación y contador en filas según su propio ancho para evitar superposición; el contador conserva alineación a la derecha. `DataTable` recibe el objeto completo mediante `pagination` cuando es paginada.
 - El paginador compartido muestra `Primera`, `Anterior`, páginas próximas, `Siguiente` y `Última`. Sus botones son compactos y usan peso tipográfico normal; la página activa se distingue por el fondo, no por negrita. Los extremos no disponibles usan botones nativos deshabilitados. Cada módulo conserva sus propios colores y estilos de botones deshabilitados; no aplicar una neutralización global.
-- Los estados vacíos y loaders deben usar componentes compartidos (`WithoutData`, `Loader`) para evitar estilos distintos por módulo.
+- Los estados vacíos y loaders usan `WithoutData` y `Loader`. Sus filas llevan `br-table-state` y quedan excluidas de fondos, bordes, sombras, cursor y transiciones de hover de los registros. Neutralizar las variables de tabla Bootstrap sin bloquear botones de reintento. Los skeletons usan filas de estado en blanco, sin spinner.
 - Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
 - Las modales conservan `modal-dialog-centered`. Apertura y cierre comparten duración y curva para el diálogo, la superficie y el fondo; respetar `prefers-reduced-motion`.
 - Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono se alinea a la izquierda del título y la descripción. Cada tab conserva un contorno tenue; el activo usa un borde azul claro, un icono en recuadro primary y una línea inferior fina, sin el borde grueso de la variante compacta. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
@@ -182,14 +197,15 @@ Criterios prácticos:
 
 - Antes de cada consulta de listado (Buscar, Enter, filtros aplicados, paginación, reintento o recarga), activar `loading` y vaciar los registros antes del `await`. Para tablas paginadas, usar `Requests.emptyPagination()` de `Helpers/ListState.js`, reexportado por `Requests.js`: devuelve un objeto nuevo con `data: []`, `total: 0`, `links: []` y metadatos reiniciados. Para listados sin paginación, asignar `[]`. Limpiar también los resúmenes que dependan de esos resultados.
 - Solo una respuesta válida puede repoblar la tabla. Si la consulta falla, conservar el estado vacío; nunca restaurar filas, totales o enlaces de la búsqueda anterior. Liberar `loading` en `finally`, también ante excepciones. Las pantallas con consultas simultáneas deben conservar sus controles de versión para descartar respuestas antiguas.
+- Cada consulta lee los filtros visibles actuales. Los parámetros incluidos en enlaces de paginación anteriores nunca prevalecen: `Requests.get` elimina de la URL los filtros enviados en `data` mediante `currentQueryRoute`, incluso vacíos o nulos. En URLs construidas manualmente, sobrescribir o eliminar cada parámetro; no conservarlo por existir ya. Al reabrir una modal de búsqueda, restablecer sus filtros antes de consultar. Las descargas conservan el filtro de los resultados mostrados hasta la siguiente consulta.
 - Editar el texto de un filtro o pulsar su X no limpia los registros ni consulta por sí solo cuando la pantalla aplica filtros con Buscar. La limpieza pertenece al inicio de la consulta, conserva los filtros escritos y no al evento de edición del input.
 - Durante la consulta mostrar el indicador habitual del listado y ocultar conjuntamente paginador y cantidad de resultados. Al finalizar, mostrar el total de la respuesta actual o cero si falló.
 
 ### Carga inicial con skeleton
 
-Las pantallas nuevas o migradas de `System` pueden usar un skeleton ligero, el loader Swal compartido o ambos como modalidad visual durante `initParams`. El skeleton debe reproducir la estructura del estado que aparece inmediatamente después: filtros, pestañas, encabezados y formularios. En los listados, mostrar el mismo `Loader` compartido dentro de una única fila con `colspan` y el mismo espaciado que la tabla real durante la consulta. No simular filas de registros, paginadores ni cantidades: desaparecían al pasar al loader y provocaban un salto de altura. Mantener el breadcrumb visible cuando sea posible. El skeleton termina al resolver los parámetros, antes de solicitar el primer listado; tanto ese listado como búsquedas, paginación, cambios de pestaña y guardados posteriores usan sus indicadores y mensajes propios.
+Las pantallas nuevas o migradas de System y Guest usan un skeleton ligero y el loader Swal juntos durante `initParams`; Platform aplica el mismo criterio a su consulta inicial de configuración. El skeleton conserva filtros, pestañas, encabezados y formularios. Su listado queda en blanco: usar `br-list-initial-space` en una fila `br-table-state` con `colspan`, sin spinner, registros, paginación ni cantidades ficticias. El espacio usa `--br-list-state-height`, compartido con el loader real, para evitar saltos. Mantener el breadcrumb visible cuando sea posible. El skeleton termina al resolver los parámetros, antes del primer listado, que usa su indicador habitual. Una pantalla sin consulta de configuración, como el listado de tenants, usa directamente el loader de listado; no inventar una fase de red inicial.
 
-- Usar `createInitialLoad` de `resources/js/System/Helpers/InitialLoad.js`. Las opciones `skeleton` y `swal` son independientes y se eligen por pantalla, sin modificar su lógica de datos. Sin opciones se conserva solo Swal (`skeleton: false`, `swal: true`); si se omite `swal`, su valor es `!skeleton`, por compatibilidad. La forma existente `createInitialLoad({skeleton: true})` conserva solo skeleton.
+- Usar `createInitialLoad` de `resources/js/System/Helpers/InitialLoad.js`. Ambas opciones son `true` por defecto. Todas las pantallas usan `createInitialLoad({skeleton: true, swal: true})` o el inicializador compartido. El helper conserva las opciones explícitas de la tabla siguiente para consumidores técnicos; el estándar de las pantallas actuales es usar ambos indicadores.
 
 | Modo de carga inicial | Configuración explícita |
 | --- | --- |
@@ -197,7 +213,8 @@ Las pantallas nuevas o migradas de `System` pueden usar un skeleton ligero, el l
 | Solo loader Swal | `createInitialLoad({skeleton: false, swal: true})` |
 | Skeleton y Swal | `createInitialLoad({skeleton: true, swal: true})` |
 
-- Control de stock usa skeleton y Swal juntos exclusivamente durante `initParams`. Los demás submódulos de inventario conservan solo skeleton durante esa misma fase. Cada instancia configura su helper por separado; no compartir un ciclo de carga mutable entre pantallas.
+- Todos los submódulos usan skeleton y Swal juntos exclusivamente durante `initParams`. Cada instancia configura su helper por separado; no compartir un ciclo mutable entre pantallas.
+- Las pantallas sin un skeleton específico reutilizan `PageSkeleton` y `InitialPageMixin`. El mounted llama `await this.loadInitialParams(() => this.initParams(...))`; el inicializador libera `initialLoading`, cierra Swal en `finally` y espera a que el contenido esté montado antes de continuar con formularios o modales. Los listados y consultas dependientes se ejecutan después, nunca dentro de `initParams` ni en paralelo con él. Si la configuración es local, finalizarla antes de consultar registros; no inventar peticiones ni esperas mínimas.
 - Llamar `start()` antes de `initParams` y `finish()` en su `finally`, junto con `initialLoading = false`, antes de iniciar `list`. No incluir el primer listado en ese bloque ni ejecutarlo en paralelo con los parámetros. Liberar el estado también ante errores. Si una pantalla solo consulta configuración o datos de un formulario, esa consulta es su fase inicial equivalente; si la configuración es local, finalizarla antes de consultar registros. No agregar demoras artificiales.
 - Construir el skeleton en Vue y su CSS de pantalla o componente reutilizable. Compartir variantes cuando varias pantallas tengan la misma estructura. Usar alturas y tokens `--br-*` de los controles reales, un estado accesible (`role="status"` y texto legible para lectores de pantalla) y desactivar la animación con `prefers-reduced-motion`.
 - Envolver el skeleton y su rama de contenido en `InitialLoadTransition` de `Components/Generics`. El fundido simultáneo de opacidad comparte una celda de grid: las dos ramas no se apilan ni duplican la altura durante el relevo. Usar exclusivamente `--br-initial-load-duration` y `--br-initial-load-easing` de `00-tokens.css` (180 ms de base); no añadir tiempos por pantalla, desplazamientos, esperas mínimas ni retrasar peticiones para animar. La rama que sale queda inerte y oculta para lectores de pantalla; `prefers-reduced-motion` desactiva la transición. Las modales y otros elementos ajenos a la carga permanecen fuera del componente.

@@ -195,7 +195,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 .br-link {
   color: var(--br-primary);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   transition: var(--br-transition);
   border-radius: 0.25rem;
 }
@@ -424,7 +424,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   margin-top: 0.16rem;
   color: var(--br-danger) !important;
   font-size: var(--br-table-heading-font-size);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.25;
 }
 
@@ -507,7 +507,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   background: transparent;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-08125);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   cursor: pointer;
   transition: var(--br-transition);
 }
@@ -550,7 +550,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 
 .br-choice-option.is-selected span:last-child {
   color: var(--br-secondary);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-choice-option:focus-within {
@@ -582,7 +582,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   overflow: hidden;
   color: var(--br-text-muted);
   font-size: var(--br-ui-font-size);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -605,7 +605,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: calc(var(--br-app-control-radius) - 2px);
   color: var(--br-primary-active);
   font-size: var(--br-ui-font-size);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-control);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;

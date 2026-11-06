@@ -74,6 +74,6 @@ test("el paginador es compacto sin alterar globalmente los botones deshabilitado
     assert.match(paginationCss, /\.page-item\.disabled \.page-link\.br-pagination__link \{\s*opacity: 1;\s*pointer-events: none;\s*cursor: not-allowed;/);
     assert.match(paginationCss, /\.page-item:is\(\.disabled, \.active\) \{\s*pointer-events: none;/);
     assert.match(paginationCss, /\.br-pagination__list \{\s*gap: 0\.22rem;/);
-    assert.match(paginationCss, /\.page-link\.br-pagination__link \{[\s\S]*?margin-left: 0 !important;[\s\S]*?font-weight: 400;/);
-    assert.match(paginationCss, /\.page-item\.active \.page-link\.br-pagination__link \{[\s\S]*?font-weight: 400;/);
+    assert.match(paginationCss, /\.page-link\.br-pagination__link \{[\s\S]*?margin-left: 0 !important;[\s\S]*?font-weight: var\(--br-font-weight-body\);/);
+    assert.match(paginationCss, /\.page-item\.active \.page-link\.br-pagination__link \{[\s\S]*?font-weight: var\(--br-font-weight-body\);/);
 });

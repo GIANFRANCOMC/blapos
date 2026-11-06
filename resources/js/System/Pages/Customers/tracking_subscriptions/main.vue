@@ -2,192 +2,197 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Content -->
-    <div class="row align-items-start g-3 mb-3 mb-md-4">
-        <div class="col-lg-9 col-12">
-            <div class="row g-3">
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <div class="row align-items-start g-3 mb-3 mb-md-4">
+                <div class="col-lg-9 col-12">
+                    <div class="row g-3">
+                        <InputSlot
+                            hasDiv
+                            title="Sucursal"
+                            :titleClass="[config.forms.classes.title]"
+                            xl="12"
+                            lg="12">
+                            <template v-slot:input>
+                                <v-select
+                                    v-model="lists.entity.filters.branch"
+                                    :options="branches"
+                                    :class="config.forms.classes.select2"
+                                    :clearable="false"
+                                    :searchable="false"
+                                    placeholder="Seleccione una sucursal ..."/>
+                            </template>
+                        </InputSlot>
+                        <InputSlot
+                            hasDiv
+                            title="Cliente"
+                            :titleClass="[config.forms.classes.title]"
+                            xl="12"
+                            lg="12">
+                            <template v-slot:input>
+                                <v-select
+                                    v-model="lists.entity.filters.customer"
+                                    :options="customers"
+                                    :class="config.forms.classes.select2"
+                                    :clearable="true"
+                                    placeholder="Seleccione un cliente ..."/>
+                            </template>
+                        </InputSlot>
+                        <InputDate
+                            v-model="lists.entity.filters.start_date"
+                            @change="listEntity({})"
+                            hasDiv
+                            title="Desde"
+                            :titleClass="[config.forms.classes.title]"
+                            xl="6"
+                            lg="6"/>
+                        <InputDate
+                            v-model="lists.entity.filters.end_date"
+                            @change="listEntity({})"
+                            hasDiv
+                            title="Hasta"
+                            :titleClass="[config.forms.classes.title]"
+                            xl="6"
+                            lg="6"/>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-12">
+                    <div class="row g-1">
+                        <div class="col-xl-12">
+                            <label :class="[config.forms.classes.title]">Estado</label>
+                        </div>
+                        <div class="col-lg-12 col-xl-12">
+                            <div class="form-check">
+                                <label class="py-1 cursor-pointer">
+                                    <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <span class="fw-bold text-secondary">Todos los estados</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-xl-12">
+                            <div class="form-check">
+                                <label class="py-1 cursor-pointer">
+                                    <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <span class="fw-bold text-success">Vigente</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-xl-12">
+                            <div class="form-check">
+                                <label class="py-1 cursor-pointer">
+                                    <input :class="['form-check-input', lists.entity.filters.status == 'inactive' ? 'bg-primary border-primary' : '']" type="radio" value="inactive" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <span class="fw-bold text-primary">Vencida</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-xl-12">
+                            <div class="form-check">
+                                <label class="py-1 cursor-pointer">
+                                    <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <span class="fw-bold text-danger">Anulada</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <InputSlot
                     hasDiv
-                    title="Sucursal"
-                    :titleClass="[config.forms.classes.title]"
+                    :isInputGroup="false"
+                    :divInputClass="['d-flex flex-wrap justify-content-start gap-2 gap-md-3']"
                     xl="12"
                     lg="12">
                     <template v-slot:input>
-                        <v-select
-                            v-model="lists.entity.filters.branch"
-                            :options="branches"
-                            :class="config.forms.classes.select2"
-                            :clearable="false"
-                            :searchable="false"
-                            placeholder="Seleccione una sucursal ..."/>
+                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                            <span>Filtrar</span>
+                        </button>
+                        <button type="button" class="br-btn br-btn-action-create waves-effect" @click="createManualEntity">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            <span>Agregar membresía</span>
+                        </button>
                     </template>
                 </InputSlot>
-                <InputSlot
-                    hasDiv
-                    title="Cliente"
-                    :titleClass="[config.forms.classes.title]"
-                    xl="12"
-                    lg="12">
-                    <template v-slot:input>
-                        <v-select
-                            v-model="lists.entity.filters.customer"
-                            :options="customers"
-                            :class="config.forms.classes.select2"
-                            :clearable="true"
-                            placeholder="Seleccione un cliente ..."/>
-                    </template>
-                </InputSlot>
-                <InputDate
-                    v-model="lists.entity.filters.start_date"
-                    @change="listEntity({})"
-                    hasDiv
-                    title="Desde"
-                    :titleClass="[config.forms.classes.title]"
-                    xl="6"
-                    lg="6"/>
-                <InputDate
-                    v-model="lists.entity.filters.end_date"
-                    @change="listEntity({})"
-                    hasDiv
-                    title="Hasta"
-                    :titleClass="[config.forms.classes.title]"
-                    xl="6"
-                    lg="6"/>
             </div>
-        </div>
-        <div class="col-lg-3 col-12">
-            <div class="row g-1">
-                <div class="col-xl-12">
-                    <label :class="[config.forms.classes.title]">Estado</label>
-                </div>
-                <div class="col-lg-12 col-xl-12">
-                    <div class="form-check">
-                        <label class="py-1 cursor-pointer">
-                            <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                            <span class="fw-bold text-secondary">Todos los estados</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-lg-12 col-xl-12">
-                    <div class="form-check">
-                        <label class="py-1 cursor-pointer">
-                            <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                            <span class="fw-bold text-success">Vigente</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-lg-12 col-xl-12">
-                    <div class="form-check">
-                        <label class="py-1 cursor-pointer">
-                            <input :class="['form-check-input', lists.entity.filters.status == 'inactive' ? 'bg-primary border-primary' : '']" type="radio" value="inactive" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                            <span class="fw-bold text-primary">Vencida</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-lg-12 col-xl-12">
-                    <div class="form-check">
-                        <label class="py-1 cursor-pointer">
-                            <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                            <span class="fw-bold text-danger">Anulada</span>
-                        </label>
-                    </div>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="text-center align-middle">
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 10%;"></th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 20%;">SUCURSAL</th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">CLIENTE</th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">FECHA DE INICIO</th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">FECHA DE FINALIZACIÓN</th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0 bg-white">
+                        <template v-if="lists.entity.extras.loading">
+                            <tr class="br-table-state text-center">
+                                <td colspan="99" class="py-4">
+                                    <Loader/>
+                                </td>
+                            </tr>
+                        </template>
+                        <template v-else>
+                            <template v-if="lists.entity.records.total > 0">
+                                <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
+                                    <td>
+                                        <StatusBadge
+                                            :status="record.status"
+                                            :formatted-status="record.formatted_status"
+                                            :custom-variants="statusBadgeSubscriptionVariants"/>
+                                    </td>
+                                    <td class="text-start">
+                                        <span v-text="record.branch?.name" class="fw-bold d-block"></span>
+                                    </td>
+                                    <td class="text-start">
+                                        <span v-text="record.customer?.name" class="fw-bold d-block"></span>
+                                        <small v-text="record.customer?.document_number" class="d-block"></small>
+                                    </td>
+                                    <td>
+                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
+                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                    </td>
+                                    <td>
+                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
+                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                        <small
+                                            v-if="record.remaining_time_label"
+                                            :class="['d-block fw-semibold mt-1', remainingTimeClass(record)]"
+                                            v-text="record.remaining_time_label"></small>
+                                    </td>
+                                    <td>
+                                        <InputSlot
+                                            hasDiv
+                                            :isInputGroup="false"
+                                            :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-1']"
+                                            xl="12"
+                                            lg="12">
+                                            <template v-slot:input>
+                                                <button type="button" class="btn btn-sm btn-primary waves-effect" @click="modalActionsEntity({record})">
+                                                    <i class="fa fa-gear"></i>
+                                                    <span class="ms-2">Acciones</span>
+                                                </button>
+                                            </template>
+                                        </InputSlot>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template v-else>
+                                <tr class="br-table-state">
+                                    <td class="text-center" colspan="99">
+                                        <WithoutData type="image"/>
+                                    </td>
+                                </tr>
+                            </template>
+                        </template>
+                    </tbody>
+                </table>
             </div>
-        </div>
-        <InputSlot
-            hasDiv
-            :isInputGroup="false"
-            :divInputClass="['d-flex flex-wrap justify-content-start gap-2 gap-md-3']"
-            xl="12"
-            lg="12">
-            <template v-slot:input>
-                <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                    <span>Filtrar</span>
-                </button>
-                <button type="button" class="br-btn br-btn-action-create waves-effect" @click="createManualEntity">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                    <span>Agregar membresía</span>
-                </button>
-            </template>
-        </InputSlot>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr class="text-center align-middle">
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 10%;"></th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 20%;">SUCURSAL</th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">CLIENTE</th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">FECHA DE INICIO</th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">FECHA DE FINALIZACIÓN</th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0 bg-white">
-                <template v-if="lists.entity.extras.loading">
-                    <tr class="text-center">
-                        <td colspan="99" class="py-4">
-                            <Loader/>
-                        </td>
-                    </tr>
-                </template>
-                <template v-else>
-                    <template v-if="lists.entity.records.total > 0">
-                        <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
-                            <td>
-                                <StatusBadge
-                                    :status="record.status"
-                                    :formatted-status="record.formatted_status"
-                                    :custom-variants="statusBadgeSubscriptionVariants"/>
-                            </td>
-                            <td class="text-start">
-                                <span v-text="record.branch?.name" class="fw-bold d-block"></span>
-                            </td>
-                            <td class="text-start">
-                                <span v-text="record.customer?.name" class="fw-bold d-block"></span>
-                                <small v-text="record.customer?.document_number" class="d-block"></small>
-                            </td>
-                            <td>
-                                <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
-                            </td>
-                            <td>
-                                <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
-                                <small
-                                    v-if="record.remaining_time_label"
-                                    :class="['d-block fw-semibold mt-1', remainingTimeClass(record)]"
-                                    v-text="record.remaining_time_label"></small>
-                            </td>
-                            <td>
-                                <InputSlot
-                                    hasDiv
-                                    :isInputGroup="false"
-                                    :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-1']"
-                                    xl="12"
-                                    lg="12">
-                                    <template v-slot:input>
-                                        <button type="button" class="btn btn-sm btn-primary waves-effect" @click="modalActionsEntity({record})">
-                                            <i class="fa fa-gear"></i>
-                                            <span class="ms-2">Acciones</span>
-                                        </button>
-                                    </template>
-                                </InputSlot>
-                            </td>
-                        </tr>
-                    </template>
-                    <template v-else>
-                        <tr>
-                            <td class="text-center" colspan="99">
-                                <WithoutData type="image"/>
-                            </td>
-                        </tr>
-                    </template>
-                </template>
-            </tbody>
-        </table>
-    </div>
-    <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
+            <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms.entity.createUpdate.extras.modals.actions.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -258,6 +263,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
@@ -265,21 +271,14 @@ import * as Utils     from "@System/Helpers/Utils.js";
 import {STATUS_BADGE_CUSTOM_SUBSCRIPTION} from "@System/Helpers/ModuleConstants.js";
 
 export default {
+    mixins: [InitialPageMixin],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-customers", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        let initParams = await this.initParams({}),
-            initOthers = await this.initOthers({});
-
-        if(initParams && initOthers) {
-
-            Alerts.swals({show: false});
-            // this.listEntity({});
-
-        }
+        const initialized = await this.loadInitialParams(() => this.initParams({}));
+        if(initialized) await this.initOthers({});
 
     },
     data() {

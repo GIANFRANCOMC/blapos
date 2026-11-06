@@ -1,249 +1,254 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-cash">
-        <div class="br-cash__context">
-            <div class="br-cash__heading">
-                <p class="br-cash__eyebrow mb-1">Operación de caja</p>
-                <h1 class="br-cash__title mb-0">{{ activeViewMeta.label }}</h1>
-                <p class="br-cash__subtitle mb-0">{{ activeViewMeta.description }}</p>
-            </div>
-            <div class="br-cash__selector">
-                <label class="form-label">Caja de trabajo</label>
-                <v-select
-                    v-model="selectedRegister"
-                    :options="registerOptions"
-                    class="bg-white"
-                    :clearable="false"
-                    :searchable="false"
-                    append-to-body
-                    placeholder="Seleccione una caja"
-                    @option:selected="refreshAll"/>
-                <p class="br-operational-scope mt-2 mb-0">
-                    <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
-                    <span>{{ selectedRegister ? `${selectedRegister.name} · ${selectedRegister.branch?.name || 'Sucursal no definida'}` : 'Seleccione una caja para definir el alcance' }}</span>
-                </p>
-            </div>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-cash">
+                <div class="br-cash__context">
+                    <div class="br-cash__heading">
+                        <p class="br-cash__eyebrow mb-1">Operación de caja</p>
+                        <h1 class="br-cash__title mb-0">{{ activeViewMeta.label }}</h1>
+                        <p class="br-cash__subtitle mb-0">{{ activeViewMeta.description }}</p>
+                    </div>
+                    <div class="br-cash__selector">
+                        <label class="form-label">Caja de trabajo</label>
+                        <v-select
+                            v-model="selectedRegister"
+                            :options="registerOptions"
+                            class="bg-white"
+                            :clearable="false"
+                            :searchable="false"
+                            append-to-body
+                            placeholder="Seleccione una caja"
+                            @option:selected="refreshAll"/>
+                        <p class="br-operational-scope mt-2 mb-0">
+                            <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
+                            <span>{{ selectedRegister ? `${selectedRegister.name} · ${selectedRegister.branch?.name || 'Sucursal no definida'}` : 'Seleccione una caja para definir el alcance' }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <section class="br-filter-bar br-cash__toolbar">
+                    <div class="br-filter-bar__field">
+                        <label class="form-label">Búsqueda</label>
+                        <SearchInput
+                            v-model="filters.search"
+                            placeholder="Buscar caja, responsable o referencia"
+                            @search="refreshActiveView"/>
+                    </div>
+                    <div class="br-filter-bar__actions">
+                        <button type="button" class="br-btn br-btn-search" @click="refreshActiveView">
+                            <span>Buscar</span>
+                        </button>
+                        <button
+                            v-if="activeView === 'registers'"
+                            type="button"
+                            class="br-btn br-btn-action-create"
+                            data-bs-toggle="tooltip"
+                            title="Agregar caja a una sucursal"
+                            @click="openModal('register')">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            <span>Agregar caja</span>
+                        </button>
+                        <button
+                            v-if="activeView === 'movements'"
+                            type="button"
+                            class="br-btn br-btn-action-update"
+                            data-bs-toggle="tooltip"
+                            title="Registrar ingreso, salida o ajuste manual"
+                            :disabled="!currentSession"
+                            @click="openModal('movement')">
+                            <i class="fa-solid fa-right-left" aria-hidden="true"></i>
+                            <span>Registrar movimiento</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="br-btn br-btn-action-download"
+                            data-bs-toggle="tooltip"
+                            title="Descargar movimientos"
+                            @click="downloadMovements">
+                            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                            <span class="d-inline d-lg-none">Descargar</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section v-if="activeView === 'registers'" class="br-cash__panel">
+                    <Loader v-if="loading.registers"/>
+                    <div v-else-if="registers.length" class="table-responsive">
+                        <table class="table br-entity-table mb-0">
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Caja</th>
+                                    <th>Sucursal</th>
+                                    <th>Sesión actual</th>
+                                    <th class="text-end">Esperado</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="register in registers" :key="register.id">
+                                    <td>
+                                        <strong>{{ register.name }}</strong>
+                                        <span class="br-cash__muted d-block">{{ register.code }}</span>
+                                    </td>
+                                    <td>{{ register.branch?.name || 'Sin sucursal' }}</td>
+                                    <td>
+                                        <span v-if="register.is_open" class="br-status br-status-active">Abierta</span>
+                                        <span v-else class="br-status br-status-inactive">Sin apertura</span>
+                                    </td>
+                                    <td class="text-end fw-semibold">S/ {{ separatorNumber(register.current_amount) }}</td>
+                                    <td class="text-center">
+                                        <span :class="['br-status-label', register.status === 'active' ? 'br-status-active' : 'br-status-inactive']">
+                                            {{ register.status === 'active' ? 'Activa' : 'Inactiva' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button
+                                            v-if="register.is_open"
+                                            type="button"
+                                            class="br-icon-action br-icon-action-edit"
+                                            data-bs-toggle="tooltip"
+                                            title="Cerrar caja"
+                                            @click="openModal('close', register)">
+                                            <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            v-else
+                                            type="button"
+                                            class="br-icon-action br-icon-action-primary"
+                                            data-bs-toggle="tooltip"
+                                            title="Abrir caja"
+                                            @click="openModal('open', register)">
+                                            <i class="fa-solid fa-door-open" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <WithoutData v-else/>
+                </section>
+
+                <section v-if="activeView === 'sessions'" class="br-cash__panel">
+                    <Loader v-if="loading.sessions"/>
+                    <div v-else-if="sessions.data?.length" class="table-responsive">
+                        <table class="table br-entity-table mb-0">
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Caja</th>
+                                    <th>Apertura</th>
+                                    <th>Cierre</th>
+                                    <th class="text-end">Esperado</th>
+                                    <th class="text-end">Contado</th>
+                                    <th class="text-end">Diferencia</th>
+                                    <th class="text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="session in sessions.data" :key="session.id">
+                                    <td>
+                                        <strong>{{ session.register?.name }}</strong>
+                                        <span class="br-cash__muted d-block">{{ session.branch?.name }}</span>
+                                    </td>
+                                    <td>{{ formatDateTime(session.opened_at) }}</td>
+                                    <td>{{ session.closed_at ? formatDateTime(session.closed_at) : 'En curso' }}</td>
+                                    <td class="text-end">S/ {{ separatorNumber(session.expected_amount) }}</td>
+                                    <td class="text-end">S/ {{ separatorNumber(session.counted_amount) }}</td>
+                                    <td class="text-end" :class="differenceClass(session.difference_amount)">
+                                        S/ {{ separatorNumber(session.difference_amount) }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span :class="['br-status-label', session.status === 'open' ? 'br-status-active' : 'br-status-inactive']">
+                                            {{ session.status === 'open' ? 'Abierta' : 'Cerrada' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <WithoutData v-else/>
+                    <Paginator :links="sessions.links" :pagination="sessions" :loading="loading.sessions" @clickPage="getSessions"/>
+                </section>
+
+                <section v-if="activeView === 'summary'" class="br-cash__panel">
+                    <Loader v-if="loading.summary"/>
+                    <div v-else class="br-cash-summary">
+                        <article class="br-cash-summary__card">
+                            <span>Fondo inicial</span>
+                            <strong>S/ {{ separatorNumber(summary.totals.opening) }}</strong>
+                        </article>
+                        <article class="br-cash-summary__card">
+                            <span>Esperado</span>
+                            <strong>S/ {{ separatorNumber(summary.totals.expected) }}</strong>
+                        </article>
+                        <article class="br-cash-summary__card">
+                            <span>Contado</span>
+                            <strong>S/ {{ separatorNumber(summary.totals.counted) }}</strong>
+                        </article>
+                        <article class="br-cash-summary__card">
+                            <span>Diferencia</span>
+                            <strong :class="differenceClass(summary.totals.difference)">S/ {{ separatorNumber(summary.totals.difference) }}</strong>
+                        </article>
+                    </div>
+                    <div v-if="summary.payments.length" class="table-responsive mt-3">
+                        <table class="table br-entity-table mb-0">
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Método de pago</th>
+                                    <th class="text-end">Importe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="payment in summary.payments" :key="payment.payment_method_id || 'opening'">
+                                    <td>{{ payment.payment_method?.name || 'Efectivo / apertura' }}</td>
+                                    <td class="text-end fw-semibold">S/ {{ separatorNumber(payment.amount) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section v-if="activeView === 'movements'" class="br-cash__panel">
+                    <Loader v-if="loading.movements"/>
+                    <div v-else-if="movements.data?.length" class="table-responsive">
+                        <table class="table br-entity-table mb-0">
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Caja</th>
+                                    <th>Tipo</th>
+                                    <th>Método</th>
+                                    <th>Referencia</th>
+                                    <th class="text-end">Importe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="movement in movements.data" :key="movement.id">
+                                    <td>{{ formatDateTime(movement.occurred_at) }}</td>
+                                    <td>{{ movement.cash_session?.register?.name || '-' }}</td>
+                                    <td>{{ movementTypeLabel(movement.movement_type) }}</td>
+                                    <td>{{ movement.payment_method?.name || 'Efectivo / caja' }}</td>
+                                    <td>
+                                        <strong>{{ movement.reference || '-' }}</strong>
+                                        <span v-if="movement.user?.name" class="br-cash__muted d-block">{{ movement.user.name }}</span>
+                                    </td>
+                                    <td class="text-end fw-semibold">S/ {{ separatorNumber(movement.amount) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <WithoutData v-else/>
+                    <Paginator :links="movements.links" :pagination="movements" :loading="loading.movements" @clickPage="getMovements"/>
+                </section>
+            </section>
+
         </div>
-
-        <section class="br-filter-bar br-cash__toolbar">
-            <div class="br-filter-bar__field">
-                <label class="form-label">Búsqueda</label>
-                <SearchInput
-                    v-model="filters.search"
-                    placeholder="Buscar caja, responsable o referencia"
-                    @search="refreshActiveView"/>
-            </div>
-            <div class="br-filter-bar__actions">
-                <button type="button" class="br-btn br-btn-search" @click="refreshActiveView">
-                    <span>Buscar</span>
-                </button>
-                <button
-                    v-if="activeView === 'registers'"
-                    type="button"
-                    class="br-btn br-btn-action-create"
-                    data-bs-toggle="tooltip"
-                    title="Agregar caja a una sucursal"
-                    @click="openModal('register')">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                    <span>Agregar caja</span>
-                </button>
-                <button
-                    v-if="activeView === 'movements'"
-                    type="button"
-                    class="br-btn br-btn-action-update"
-                    data-bs-toggle="tooltip"
-                    title="Registrar ingreso, salida o ajuste manual"
-                    :disabled="!currentSession"
-                    @click="openModal('movement')">
-                    <i class="fa-solid fa-right-left" aria-hidden="true"></i>
-                    <span>Registrar movimiento</span>
-                </button>
-                <button
-                    type="button"
-                    class="br-btn br-btn-action-download"
-                    data-bs-toggle="tooltip"
-                    title="Descargar movimientos"
-                    @click="downloadMovements">
-                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                    <span class="d-inline d-lg-none">Descargar</span>
-                </button>
-            </div>
-        </section>
-
-        <section v-if="activeView === 'registers'" class="br-cash__panel">
-            <Loader v-if="loading.registers"/>
-            <div v-else-if="registers.length" class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Caja</th>
-                            <th>Sucursal</th>
-                            <th>Sesión actual</th>
-                            <th class="text-end">Esperado</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-center"><span class="visually-hidden">Acciones</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="register in registers" :key="register.id">
-                            <td>
-                                <strong>{{ register.name }}</strong>
-                                <span class="br-cash__muted d-block">{{ register.code }}</span>
-                            </td>
-                            <td>{{ register.branch?.name || 'Sin sucursal' }}</td>
-                            <td>
-                                <span v-if="register.is_open" class="br-status br-status-active">Abierta</span>
-                                <span v-else class="br-status br-status-inactive">Sin apertura</span>
-                            </td>
-                            <td class="text-end fw-semibold">S/ {{ separatorNumber(register.current_amount) }}</td>
-                            <td class="text-center">
-                                <span :class="['br-status-label', register.status === 'active' ? 'br-status-active' : 'br-status-inactive']">
-                                    {{ register.status === 'active' ? 'Activa' : 'Inactiva' }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <button
-                                    v-if="register.is_open"
-                                    type="button"
-                                    class="br-icon-action br-icon-action-edit"
-                                    data-bs-toggle="tooltip"
-                                    title="Cerrar caja"
-                                    @click="openModal('close', register)">
-                                    <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    v-else
-                                    type="button"
-                                    class="br-icon-action br-icon-action-primary"
-                                    data-bs-toggle="tooltip"
-                                    title="Abrir caja"
-                                    @click="openModal('open', register)">
-                                    <i class="fa-solid fa-door-open" aria-hidden="true"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <WithoutData v-else/>
-        </section>
-
-        <section v-if="activeView === 'sessions'" class="br-cash__panel">
-            <Loader v-if="loading.sessions"/>
-            <div v-else-if="sessions.data?.length" class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Caja</th>
-                            <th>Apertura</th>
-                            <th>Cierre</th>
-                            <th class="text-end">Esperado</th>
-                            <th class="text-end">Contado</th>
-                            <th class="text-end">Diferencia</th>
-                            <th class="text-center">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="session in sessions.data" :key="session.id">
-                            <td>
-                                <strong>{{ session.register?.name }}</strong>
-                                <span class="br-cash__muted d-block">{{ session.branch?.name }}</span>
-                            </td>
-                            <td>{{ formatDateTime(session.opened_at) }}</td>
-                            <td>{{ session.closed_at ? formatDateTime(session.closed_at) : 'En curso' }}</td>
-                            <td class="text-end">S/ {{ separatorNumber(session.expected_amount) }}</td>
-                            <td class="text-end">S/ {{ separatorNumber(session.counted_amount) }}</td>
-                            <td class="text-end" :class="differenceClass(session.difference_amount)">
-                                S/ {{ separatorNumber(session.difference_amount) }}
-                            </td>
-                            <td class="text-center">
-                                <span :class="['br-status-label', session.status === 'open' ? 'br-status-active' : 'br-status-inactive']">
-                                    {{ session.status === 'open' ? 'Abierta' : 'Cerrada' }}
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-            </div>
-            <WithoutData v-else/>
-            <Paginator :links="sessions.links" :pagination="sessions" :loading="loading.sessions" @clickPage="getSessions"/>
-        </section>
-
-        <section v-if="activeView === 'summary'" class="br-cash__panel">
-            <Loader v-if="loading.summary"/>
-            <div v-else class="br-cash-summary">
-                <article class="br-cash-summary__card">
-                    <span>Fondo inicial</span>
-                    <strong>S/ {{ separatorNumber(summary.totals.opening) }}</strong>
-                </article>
-                <article class="br-cash-summary__card">
-                    <span>Esperado</span>
-                    <strong>S/ {{ separatorNumber(summary.totals.expected) }}</strong>
-                </article>
-                <article class="br-cash-summary__card">
-                    <span>Contado</span>
-                    <strong>S/ {{ separatorNumber(summary.totals.counted) }}</strong>
-                </article>
-                <article class="br-cash-summary__card">
-                    <span>Diferencia</span>
-                    <strong :class="differenceClass(summary.totals.difference)">S/ {{ separatorNumber(summary.totals.difference) }}</strong>
-                </article>
-            </div>
-            <div v-if="summary.payments.length" class="table-responsive mt-3">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Método de pago</th>
-                            <th class="text-end">Importe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="payment in summary.payments" :key="payment.payment_method_id || 'opening'">
-                            <td>{{ payment.payment_method?.name || 'Efectivo / apertura' }}</td>
-                            <td class="text-end fw-semibold">S/ {{ separatorNumber(payment.amount) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section v-if="activeView === 'movements'" class="br-cash__panel">
-            <Loader v-if="loading.movements"/>
-            <div v-else-if="movements.data?.length" class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Caja</th>
-                            <th>Tipo</th>
-                            <th>Método</th>
-                            <th>Referencia</th>
-                            <th class="text-end">Importe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="movement in movements.data" :key="movement.id">
-                            <td>{{ formatDateTime(movement.occurred_at) }}</td>
-                            <td>{{ movement.cash_session?.register?.name || '-' }}</td>
-                            <td>{{ movementTypeLabel(movement.movement_type) }}</td>
-                            <td>{{ movement.payment_method?.name || 'Efectivo / caja' }}</td>
-                            <td>
-                                <strong>{{ movement.reference || '-' }}</strong>
-                                <span v-if="movement.user?.name" class="br-cash__muted d-block">{{ movement.user.name }}</span>
-                            </td>
-                            <td class="text-end fw-semibold">S/ {{ separatorNumber(movement.amount) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-            </div>
-            <WithoutData v-else/>
-            <Paginator :links="movements.links" :pagination="movements" :loading="loading.movements" @clickPage="getMovements"/>
-        </section>
-    </section>
-
+    </InitialLoadTransition>
     <div class="modal fade" id="cashRegisterModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content br-entity-modal">
@@ -307,7 +312,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="cashOpenModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content br-entity-modal">
@@ -353,7 +357,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="cashCloseModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content br-entity-modal">
@@ -468,7 +471,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="cashMovementModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content br-entity-modal">
@@ -535,6 +537,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
@@ -554,6 +557,7 @@ const VIEW_MENU_MAP = {
 };
 
 export default {
+    mixins: [InitialPageMixin],
     components: {SearchInput},
     props: {
         initialView: {
@@ -651,10 +655,11 @@ export default {
             return this.forms.close.inventory_counts.reduce((total, row) => total + this.inventoryRowDifference(row), 0);
         }
     },
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-cash", {addClass: "open"});
         Utils.navbarItem(this.activeMenuId(), {addClass: "active"});
-        this.initParams();
+        const initialized = await this.loadInitialParams(() => this.initParams());
+        if(initialized) await this.refreshAll();
     },
     methods: {
         activeMenuId() {
@@ -676,7 +681,7 @@ export default {
             this.options.movementTypes = data.movementTypes || [];
             this.selectedRegister = this.registerOptions[0] || null;
 
-            await this.refreshAll();
+            return true;
         },
         async refreshAll() {
             await this.getRegisters();
@@ -864,6 +869,7 @@ export default {
             this.hideModal("cashRegisterModal");
             Alerts.toastrs({type: "success", subtitle: result.data.msg});
             await this.initParams();
+            await this.refreshAll();
         },
         async submitOpen() {
             this.saving = true;

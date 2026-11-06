@@ -35,7 +35,7 @@
   width: 100%;
   justify-content: center;
   font-size: var(--br-font-size-09375);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   padding: 0.5rem 1rem;
   box-shadow: var(--br-shadow-sm);
 }
@@ -89,7 +89,7 @@
 .br-layout .br-memberships-table thead th.br-memberships-table__th--primary {
   background-color: var(--bs-secondary);
   color: var(--br-white);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-table-heading);
   text-wrap: nowrap;
   text-transform: uppercase;
   text-align: center;
@@ -99,7 +99,7 @@
 .br-layout .br-memberships-table thead th.br-memberships-table__th--meta {
   background-color: var(--bs-secondary);
   color: var(--br-white);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-table-heading);
   font-size: var(--br-font-size-0875);
   text-wrap: nowrap;
   text-transform: uppercase;
@@ -144,7 +144,7 @@
 
 .br-layout .br-memberships-table .br-memberships-table__time {
   font-size: var(--br-font-size-0875);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -173,7 +173,7 @@
  */
 .br-layout .br-sales-relative-pill {
   font-size: var(--br-font-size-0875);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   font-variant-numeric: tabular-nums;
   display: inline-block;
@@ -206,7 +206,7 @@
   gap: 0.32rem;
   padding: 0.24rem 0.48rem;
   font-size: var(--br-font-size-070) !important;
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.2;
   border-radius: var(--br-radius-sm);
   border: 0;
@@ -297,7 +297,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   max-width: 100%;
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   font-size: var(--br-font-size-0875);
   line-height: 1.25;
   text-transform: capitalize;
@@ -364,7 +364,7 @@ body.br-layout .br-table-footer-stripe > td {
 
 body.br-layout .br-table-footer-stripe__label {
   font-size: var(--br-table-footer-label-size);
-  font-weight: 820;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.04em;
   color: var(--br-white);
   font-variant-numeric: tabular-nums;
@@ -444,7 +444,7 @@ svg.br-table-detail-empty__img {
   display: block;
   margin-top: 0.42rem;
   color: var(--br-secondary);
-  font-weight: 760;
+  font-weight: var(--br-font-weight-heading);
   line-height: 1.2;
 }
 
@@ -454,7 +454,7 @@ svg.br-table-detail-empty__img {
   padding: 0 0.75rem;
   color: var(--br-text-muted);
   font-size: var(--br-ui-font-size);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.45;
   text-align: center;
   text-wrap: balance;
@@ -462,7 +462,7 @@ svg.br-table-detail-empty__img {
 
 .br-table-detail-empty__text .br-table-detail-empty__link {
   display: inline;
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   white-space: nowrap;
 }
 
@@ -497,7 +497,7 @@ svg.br-table-detail-empty__img {
   background: transparent;
   color: var(--br-primary);
   font-size: var(--br-ui-font-size);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
@@ -593,7 +593,7 @@ svg.br-table-detail-empty__img {
   gap: 0.32rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-074);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-sale-customer-history__summary strong {
@@ -615,7 +615,7 @@ svg.br-table-detail-empty__img {
   margin: 0 0 0.08rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-086);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-sale-customer-history__loader {
@@ -630,4 +630,3 @@ svg.br-table-detail-empty__img {
     grid-template-columns: 1fr;
   }
 }
-

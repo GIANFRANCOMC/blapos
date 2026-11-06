@@ -222,6 +222,7 @@
   --br-focus-ring-inset: inset 0 0 0 2px rgba(40, 153, 229, 0.38);
   --br-transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   --br-initial-load-duration: 180ms;
+  --br-list-state-height: 3.25rem;
   --br-initial-load-easing: cubic-bezier(0.2, 0, 0, 1);
 
   /**

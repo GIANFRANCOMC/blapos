@@ -4,13 +4,15 @@ import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("las filas sin registros conservan un fondo tenue y no reaccionan al hover", () => {
+test("las filas de carga y vacío no reaccionan al hover ni bloquean sus acciones", () => {
 
     const styles = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");
 
-    assert.match(styles, /tr:has\(\.br-empty-state\):hover\s*\{[\s\S]*?background-color: var\(--br-surface-soft\)/);
-    assert.match(styles, /tr:has\(\.br-empty-state\) > td\s*\{[\s\S]*?--bs-table-hover-bg: transparent/);
-    assert.match(styles, /tr:has\(\.br-empty-state\):hover > td:first-child\s*\{[\s\S]*?border-left-color: transparent/);
+    const states = read("resources/css/System/br-branding/10-tables-breadcrumb-filters.css");
+    assert.match(styles, /tr:not\(\.br-table-state\):not\(:has\(\.br-feedback-state, \.br-loader, \.br-list-initial-space\)\):hover/);
+    assert.match(states, /tr\.br-table-state:hover\s*\{[\s\S]*?background: transparent;[\s\S]*?cursor: default/);
+    assert.match(states, /tr\.br-table-state > td\s*\{[\s\S]*?--bs-table-hover-bg: transparent/);
+    assert.doesNotMatch(states.match(/tr\.br-table-state[\s\S]*$/)?.[0], /pointer-events: none/);
     assert.match(styles, /tr:has\(\.br-empty-state\) \.br-empty-state__custom-image\s*\{[\s\S]*?opacity: 0\.86/);
 
 });

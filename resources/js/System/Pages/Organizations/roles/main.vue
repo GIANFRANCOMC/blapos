@@ -48,7 +48,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-if="loading">
+                            <tr class="br-table-state" v-if="loading">
                                 <td colspan="5" class="py-4"><Loader/></td>
                             </tr>
                             <template v-else-if="records.total > 0">
@@ -76,7 +76,7 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr v-else>
+                            <tr class="br-table-state" v-else>
                                 <td colspan="5"><WithoutData type="image"/></td>
                             </tr>
                         </tbody>
@@ -292,7 +292,7 @@ import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import RolesSkeleton from "./RolesSkeleton.vue";
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     components: {InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},

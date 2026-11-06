@@ -21,7 +21,7 @@
   margin: 0 0 0.2rem;
   color: var(--br-primary-active);
   font-size: var(--br-font-size-065);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -30,7 +30,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-130);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-receivables__header p:last-child {
@@ -123,7 +123,7 @@
   margin: 0.08rem 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-092);
-  font-weight: 720;
+  font-weight: var(--br-font-weight-emphasis);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -185,7 +185,7 @@
 
 .br-receivables-table__pending {
   color: var(--br-secondary);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-receivables__muted {
@@ -232,7 +232,7 @@
   background: var(--br-warning-soft);
   color: var(--br-warning-hover);
   font-size: var(--br-font-size-062);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
   white-space: nowrap;
 }
 
@@ -333,7 +333,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-074);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-receivable-detail__section-title span {

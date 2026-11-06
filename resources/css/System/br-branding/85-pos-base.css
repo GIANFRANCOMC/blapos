@@ -66,7 +66,7 @@
 
 .br-pos-category strong {
   font-size: var(--br-font-size-082);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-category small {
@@ -183,7 +183,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-115);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-pos-ticket__header p {
@@ -203,7 +203,7 @@
   margin-bottom: 0.12rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-074);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-ticket__items {
@@ -267,7 +267,7 @@
 .br-pos-ticket__totals .is-total {
   color: var(--br-secondary);
   font-size: var(--br-font-size-100);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-ticket__pay {

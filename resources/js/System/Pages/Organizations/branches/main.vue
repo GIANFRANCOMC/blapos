@@ -119,7 +119,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="entityList.extras.loading">
+                        <tr class="br-table-state" v-if="entityList.extras.loading">
                             <td colspan="7" class="py-4"><Loader/></td>
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
@@ -168,7 +168,7 @@
                                 </td>
                             </tr>
                         </template>
-                        <tr v-else>
+                        <tr class="br-table-state" v-else>
                             <td colspan="7"><WithoutData class="br-entity-empty-state" type="image"/></td>
                         </tr>
                     </tbody>
@@ -469,7 +469,7 @@ const MODULE = {
     filterOptions: FILTER_OPTIONS
 };
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "BranchesMain",
@@ -566,7 +566,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                        if(value != null) urlObj.searchParams.set(key, value);
+                        else urlObj.searchParams.delete(key);
 
                     });
 
@@ -625,7 +626,6 @@ export default {
                     data: {per_page: 10},
                     showAlert: true
                 });
-
 
                 if(!Requests.valid({result: response})) return;
 

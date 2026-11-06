@@ -144,7 +144,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="loadingKardex">
+                                        <tr class="br-table-state" v-if="loadingKardex">
                                             <td colspan="6" class="py-4"><Loader/></td>
                                         </tr>
                                         <template v-else-if="kardexRecords.total > 0">
@@ -184,7 +184,7 @@
                                                 </td>
                                             </tr>
                                         </template>
-                                        <tr v-else>
+                                        <tr class="br-table-state" v-else>
                                             <td colspan="6" class="py-4">
                                                 <WithoutData
                                                     class="br-entity-empty-state"

@@ -16,21 +16,21 @@
 .br-cash__eyebrow {
   color: var(--br-primary);
   font-size: var(--br-font-size-072);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   text-transform: uppercase;
 }
 
 .br-cash__title {
   color: var(--br-secondary);
   font-size: var(--br-font-size-118);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-cash__subtitle {
   margin-top: 0.15rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-080);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-cash__selector {
@@ -45,7 +45,7 @@
   margin-bottom: 0.18rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-078);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-label);
 }
 
 .br-cash__tabs {
@@ -120,7 +120,7 @@
 .br-cash-close-summary span {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-078);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
 }
 
 .br-cash-summary__card strong,
@@ -156,7 +156,7 @@
   display: block;
   color: var(--br-secondary);
   font-size: var(--br-font-size-090);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-cash-inventory-count__header span,
@@ -164,7 +164,7 @@
 .br-cash-inventory-count__empty {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-078);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-cash-inventory-count__summary {

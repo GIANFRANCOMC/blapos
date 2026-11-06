@@ -122,7 +122,7 @@
   background: var(--br-success-hover);
   color: var(--br-white);
   font-size: var(--br-font-size-062);
-  font-weight: 900;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--br-success) 42%, var(--br-border)),
@@ -134,7 +134,7 @@
   width: 100%;
   color: currentColor;
   font-size: var(--br-font-size-082);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.1;
   letter-spacing: 0;
   text-align: center;
@@ -156,7 +156,7 @@
   background: var(--br-white);
   color: var(--br-secondary);
   font-size: var(--br-table-heading-font-size);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-value);
   line-height: 1;
   opacity: 1;
   box-shadow: 0 0.2rem 0.55rem color-mix(in srgb, var(--br-text) 16%, transparent);
@@ -224,7 +224,7 @@
   background: color-mix(in srgb, var(--br-primary-soft) 56%, var(--br-white));
   color: var(--br-secondary);
   font-size: var(--br-font-size-074);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-recipe-form .br-entity-form-section {
@@ -243,7 +243,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-095);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-recipe-section-toolbar p {
@@ -292,7 +292,7 @@
 .br-entity-primary {
   display: block;
   color: var(--br-secondary);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.25;
 }
 
@@ -300,7 +300,7 @@
 .br-customer-table .br-entity-table__name {
   color: var(--br-secondary);
   font-size: var(--br-table-value-font-size);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -348,7 +348,7 @@
   background: color-mix(in srgb, var(--br-danger-soft) 72%, var(--br-white));
   color: var(--br-danger-hover);
   font-size: var(--br-font-size-072);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-notification-attempts {
@@ -360,7 +360,7 @@
   background: color-mix(in srgb, var(--br-secondary-soft) 64%, var(--br-white));
   color: var(--br-secondary);
   font-size: var(--br-font-size-076);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-notification-detail {
@@ -383,7 +383,7 @@
   margin-bottom: 0.24rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-072);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-heading);
   text-transform: uppercase;
 }
 
@@ -433,7 +433,7 @@
   background: color-mix(in srgb, var(--br-primary-soft) 50%, var(--br-white));
   color: var(--br-text-muted);
   font-size: var(--br-font-size-078);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-reports__help i {
@@ -450,7 +450,7 @@
   padding: 1.75rem 1rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-084);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
   text-align: center;
 }
 
@@ -472,7 +472,7 @@
   background: color-mix(in srgb, var(--br-primary-soft) 34%, var(--br-white));
   color: var(--br-text-muted);
   font-size: var(--br-font-size-078);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-branch-series-audit__summary span {
@@ -514,7 +514,7 @@
   margin-top: 0.1rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-075);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-customer-optional-block__icon {
@@ -562,7 +562,7 @@
   overflow: hidden;
   color: var(--br-secondary);
   font-size: var(--br-font-size-100);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -571,7 +571,7 @@
 .br-customer-tracking-profile__period {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-074);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-customer-tracking-profile__meta {
@@ -636,7 +636,7 @@
   overflow: hidden;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-068);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -644,7 +644,7 @@
 .br-customer-tracking-summary__value {
   color: var(--br-secondary);
   font-size: var(--br-font-size-086);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-value);
   line-height: 1.1;
 }
 
@@ -671,7 +671,7 @@
   gap: 0.4rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-customer-tracking-memberships__title i {
@@ -693,13 +693,13 @@
   background: var(--br-white);
   color: var(--br-text-muted);
   font-size: var(--br-font-size-074);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-customer-tracking-memberships__empty {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-076);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-attendance-device-detail {
@@ -712,7 +712,7 @@
   background: color-mix(in srgb, var(--br-primary-soft) 68%, var(--br-white));
   color: var(--br-primary-active);
   font-size: var(--br-font-size-068);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-attendance-device-detail.is-warning {
@@ -732,7 +732,7 @@
   background: color-mix(in srgb, var(--br-primary-soft) 54%, var(--br-white));
   color: var(--br-primary-active);
   font-size: var(--br-font-size-074);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   text-decoration: none;
 }
 
@@ -767,13 +767,13 @@
 .br-book-complaint-history__item strong {
   color: var(--br-secondary);
   font-size: var(--br-font-size-074);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-book-complaint-history__item small {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-068);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-sensitive-credential-box,
@@ -790,7 +790,7 @@
 .br-credential-box small {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-068);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -801,7 +801,7 @@
   font-family: var(--br-font-sans);
   font-variant-numeric: tabular-nums;
   font-size: var(--br-font-size-080);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -815,13 +815,13 @@
 .br-attendance-metrics strong {
   color: var(--br-secondary);
   font-size: var(--br-font-size-082);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-attendance-metrics small {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-068);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-supplier-related {
@@ -845,13 +845,13 @@
   display: block;
   color: var(--br-secondary);
   font-size: var(--br-font-size-082);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-supplier-related__header small {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-070);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-supplier-related__row {
@@ -971,7 +971,7 @@
 .br-master-data .br-entity-tab__content strong {
   color: inherit;
   font-size: var(--br-font-size-068);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.15;
 }
 
@@ -979,7 +979,7 @@
   margin-top: 0.18rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-059);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.15;
 }
 
@@ -1016,7 +1016,7 @@
   margin: 0 0 0.16rem;
   color: var(--br-primary-active);
   font-size: var(--br-font-size-068);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -1026,7 +1026,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-105);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-master-data__header p:not(.br-master-data__eyebrow) {
@@ -1034,7 +1034,7 @@
   margin: 0.22rem 0 0;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-078);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.45;
 }
 
@@ -1110,7 +1110,7 @@
   flex-shrink: 0;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-072);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-master-data-search {
@@ -1174,19 +1174,19 @@
 .br-master-data-row__body strong {
   color: var(--br-secondary);
   font-size: var(--br-font-size-082);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-master-data-row__body span {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-072);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-master-data-row__body small {
   color: var(--br-primary-active);
   font-size: var(--br-font-size-068);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-master-data-row__actions {
@@ -1225,7 +1225,7 @@
   background: color-mix(in srgb, var(--br-primary-soft) 46%, var(--br-white));
   color: var(--br-secondary);
   font-size: var(--br-font-size-074);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-master-data-form__notice i {
@@ -1244,7 +1244,7 @@
   background: var(--br-white);
   color: var(--br-secondary);
   font-size: var(--br-font-size-076);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-master-data-help,
@@ -1252,7 +1252,7 @@
   display: block;
   margin-top: 0.18rem;
   font-size: var(--br-font-size-068);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.35;
 }
 
@@ -1278,7 +1278,7 @@
   display: block;
   color: var(--br-secondary);
   font-size: var(--br-font-size-072);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-operational-scope {
@@ -1292,7 +1292,7 @@
   background: color-mix(in srgb, var(--br-secondary-soft) 58%, var(--br-white));
   color: var(--br-secondary);
   font-size: var(--br-font-size-072);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-operational-scope i {

@@ -1,4 +1,7 @@
 <template>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
     <main class="br-guest-home">
         <section class="br-guest-hero">
             <div class="br-guest-container br-guest-hero__grid">
@@ -101,14 +104,18 @@
             </div>
         </section>
     </main>
+        </div>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Constants from "../../Helpers/Constants.js";
 import * as Requests from "../../Helpers/Requests.js";
 import * as Utils from "../../Helpers/Utils.js";
 
 export default {
+    mixins: [InitialPageMixin],
     data() {
         return {
             selectedCategory: "all",
@@ -126,7 +133,7 @@ export default {
         };
     },
     async mounted() {
-        await this.initParams();
+        await this.loadInitialParams(() => this.initParams());
     },
     methods: {
         async initParams() {

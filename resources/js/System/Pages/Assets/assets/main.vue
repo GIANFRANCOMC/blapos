@@ -2,73 +2,79 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Filters -->
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <FiltersSection
+                :filter-by-value="filterByValue"
+                @update:filterByValue="filterByValue = $event"
+                :filter-word-value="filterWordValue"
+                @update:filterWordValue="filterWordValue = $event"
+                :filter-by-options="filterByOptions"
+                :search-placeholder="searchPlaceholder"
+                :loading="entityList.extras.loading"
+                :filter-by-title="MODULE.texts.filters.filterBy"
+                :search-title="MODULE.texts.filters.search"
+                :search-button-text="MODULE.texts.actions.search"
+                :add-button-text="MODULE.texts.actions.add"
+                :show-add-button="true"
+                :title-class="[config.forms.classes.title]"
+                :select-class="config.forms.classes.select2"
+                @search="handleSearch"
+                @add="openModal()"/>
 
-    <!-- Records -->
-    <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="align-middle bg-secondary text-center">
-                <tr>
-                    <th class="text-white" style="width: 20%;">CÓDIGO INTERNO</th>
-                    <th class="text-white" style="width: 60%;" v-text="MODULE.config.pageTitleSingular"></th>
-                    <th class="text-white" style="width: 10%;">ESTADO</th>
-                    <th class="text-white" style="width: 10%;">ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0 bg-white">
-                <tr v-if="entityList.extras.loading">
-                    <td colspan="99">
-                        <Loader/>
-                    </td>
-                </tr>
-                <template v-else-if="entityList.records.total > 0">
-                    <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="text-center">
-                            <span v-text="record.internal_code" class="fw-semibold d-block"></span>
-                        </td>
-                        <td>
-                            <span v-text="record.name" class="fw-semibold d-block"></span>
-                            <small v-if="record.description" v-text="record.description" class="text-muted"></small>
-                        </td>
-                        <td class="text-center">
-                            <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
-                                <span v-text="MODULE.texts.actions.edit"></span>
-                            </button>
-                        </td>
-                    </tr>
-                </template>
-                <tr v-else>
-                    <td colspan="99">
-                        <WithoutData type="image"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <!-- Records -->
+            <div class="list-section mb-1 mb-md-1 table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="align-middle bg-secondary text-center">
+                        <tr>
+                            <th class="text-white" style="width: 20%;">CÓDIGO INTERNO</th>
+                            <th class="text-white" style="width: 60%;" v-text="MODULE.config.pageTitleSingular"></th>
+                            <th class="text-white" style="width: 10%;">ESTADO</th>
+                            <th class="text-white" style="width: 10%;">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0 bg-white">
+                        <tr class="br-table-state" v-if="entityList.extras.loading">
+                            <td colspan="99">
+                                <Loader/>
+                            </td>
+                        </tr>
+                        <template v-else-if="entityList.records.total > 0">
+                            <tr v-for="record in entityList.records.data" :key="record.id">
+                                <td class="text-center">
+                                    <span v-text="record.internal_code" class="fw-semibold d-block"></span>
+                                </td>
+                                <td>
+                                    <span v-text="record.name" class="fw-semibold d-block"></span>
+                                    <small v-if="record.description" v-text="record.description" class="text-muted"></small>
+                                </td>
+                                <td class="text-center">
+                                    <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
+                                        <span v-text="MODULE.texts.actions.edit"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr class="br-table-state" v-else>
+                            <td colspan="99">
+                                <WithoutData type="image"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <!-- Pagination -->
-    <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+            <!-- Pagination -->
+            <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
 
-    <!-- Modal: Create/Update -->
+            <!-- Modal: Create/Update -->
+
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -191,7 +197,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade br-entity-modal" id="assetCategoryQuickModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-modal="true">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content">
@@ -241,6 +246,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -333,7 +339,7 @@ const MODULE = {
 
 export default {
     name: "AssetsMain",
-    mixins: [InternalCodePrefixMixin],
+    mixins: [InitialPageMixin, InternalCodePrefixMixin],
     data() {
 
         const crudModule = initCrudModule({
@@ -365,15 +371,12 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
-
-        const initParams = await this.initParams();
+        const initParams = await this.loadInitialParams(() => this.initParams());
 
         this.isInitialized = true;
 
         if(initParams) {
 
-            Alerts.swals({show: false});
             this.listEntity({});
 
         }
@@ -423,7 +426,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                        if(value != null) urlObj.searchParams.set(key, value);
+                        else urlObj.searchParams.delete(key);
 
                     });
 

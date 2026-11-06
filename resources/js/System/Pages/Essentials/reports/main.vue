@@ -1,218 +1,224 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-reports">
-        <FiltersSection
-            class="br-reports__parameters"
-            :filter-by-value="forms.entity.createUpdate.data.report"
-            @update:filterByValue="changeReport"
-            :filter-word-value="quickSearch"
-            @update:filterWordValue="quickSearch = $event"
-            :filter-by-options="reports"
-            :search-placeholder="quickSearchPlaceholder"
-            :loading="isExporting"
-            filter-by-title="Reporte"
-            search-title="Búsqueda rápida"
-            :show-search-input="reportUsesQuickSearch"
-            :show-add-button="false"
-            :show-search-button="false"
-            :show-download-button="true"
-            :download-button-text="primaryActionLabel"
-            :download-button-tooltip="primaryActionTooltip"
-            :download-button-icon="primaryActionIcon"
-            :download-button-class="primaryActionClass"
-            :title-class="[config.forms.classes.title]"
-            :select-class="config.forms.classes.select2"
-            @download="exportReport({})">
-            <template #extraFilters>
-                <template v-if="selectedReportCode === 'customers'">
-                    <InputText v-model="forms.entity.createUpdate.data.customers.document_number" hasDiv title="Número de documento" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
-                </template>
-
-                <template v-else-if="selectedReportCode === 'users'">
-                    <InputText v-model="forms.entity.createUpdate.data.users.document_number" hasDiv title="Número de documento" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
-                </template>
-
-                <template v-else-if="selectedReportCode === 'items'">
-                    <InputText v-model="forms.entity.createUpdate.data.items.description" hasDiv title="Descripción" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
-                </template>
-
-                <template v-else-if="selectedReportCode === 'sales'">
-                    <InputSlot
-                        hasDiv
-                        title="Tipo"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.type"
-                        xl="3"
-                        lg="4">
-                        <template #input>
-                            <v-select
-                                v-model="forms.entity.createUpdate.data.sales.type"
-                                :options="salesType"
-                                :class="config.forms.classes.select2"
-                                :clearable="false"
-                                :searchable="false"
-                                append-to-body/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-reports">
+                <FiltersSection
+                    class="br-reports__parameters"
+                    :filter-by-value="forms.entity.createUpdate.data.report"
+                    @update:filterByValue="changeReport"
+                    :filter-word-value="quickSearch"
+                    @update:filterWordValue="quickSearch = $event"
+                    :filter-by-options="reports"
+                    :search-placeholder="quickSearchPlaceholder"
+                    :loading="isExporting"
+                    filter-by-title="Reporte"
+                    search-title="Búsqueda rápida"
+                    :show-search-input="reportUsesQuickSearch"
+                    :show-add-button="false"
+                    :show-search-button="false"
+                    :show-download-button="true"
+                    :download-button-text="primaryActionLabel"
+                    :download-button-tooltip="primaryActionTooltip"
+                    :download-button-icon="primaryActionIcon"
+                    :download-button-class="primaryActionClass"
+                    :title-class="[config.forms.classes.title]"
+                    :select-class="config.forms.classes.select2"
+                    @download="exportReport({})">
+                    <template #extraFilters>
+                        <template v-if="selectedReportCode === 'customers'">
+                            <InputText v-model="forms.entity.createUpdate.data.customers.document_number" hasDiv title="Número de documento" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
                         </template>
-                    </InputSlot>
 
-                    <InputMonth
-                        v-if="['by_month', 'range_months'].includes(forms.entity.createUpdate.data.sales.type?.code)"
-                        v-model="forms.entity.createUpdate.data.sales.start_month"
-                        hasDiv
-                        title="Mes de"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.start_month"
-                        xl="3"
-                        lg="4"/>
-                    <InputMonth
-                        v-if="forms.entity.createUpdate.data.sales.type?.code === 'range_months'"
-                        v-model="forms.entity.createUpdate.data.sales.end_month"
-                        hasDiv
-                        title="Mes al"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.end_month"
-                        xl="3"
-                        lg="4"/>
-
-                    <InputDate
-                        v-if="['by_date', 'range_dates'].includes(forms.entity.createUpdate.data.sales.type?.code)"
-                        v-model="forms.entity.createUpdate.data.sales.start_date"
-                        hasDiv
-                        title="Fecha del"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.start_date"
-                        xl="3"
-                        lg="4"/>
-                    <InputDate
-                        v-if="forms.entity.createUpdate.data.sales.type?.code === 'range_dates'"
-                        v-model="forms.entity.createUpdate.data.sales.end_date"
-                        hasDiv
-                        title="Fecha al"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.end_date"
-                        xl="3"
-                        lg="4"/>
-                </template>
-
-                <template v-else-if="selectedReportCode === 'settlements'">
-                    <InputSlot
-                        hasDiv
-                        title="Resumen"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.type"
-                        xl="3"
-                        lg="4">
-                        <template #input>
-                            <v-select
-                                v-model="forms.entity.createUpdate.data.settlements.type"
-                                :options="settlementType"
-                                :class="config.forms.classes.select2"
-                                :clearable="false"
-                                :searchable="false"
-                                append-to-body/>
+                        <template v-else-if="selectedReportCode === 'users'">
+                            <InputText v-model="forms.entity.createUpdate.data.users.document_number" hasDiv title="Número de documento" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
                         </template>
-                    </InputSlot>
 
-                    <InputSlot
-                        hasDiv
-                        title="Alcance"
-                        :titleClass="[config.forms.classes.title]"
-                        isRequired
-                        :textBottomInfo="forms.entity.createUpdate.errors?.scope"
-                        xl="3"
-                        lg="4">
-                        <template #input>
-                            <v-select
-                                v-model="forms.entity.createUpdate.data.settlements.scope"
-                                :options="settlementScope"
-                                :class="config.forms.classes.select2"
-                                :clearable="false"
-                                :searchable="false"
-                                append-to-body/>
+                        <template v-else-if="selectedReportCode === 'items'">
+                            <InputText v-model="forms.entity.createUpdate.data.items.description" hasDiv title="Descripción" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
                         </template>
-                    </InputSlot>
 
-                    <InputDate
-                        v-model="forms.entity.createUpdate.data.settlements.date_from"
-                        hasDiv
-                        title="Fecha desde"
-                        :titleClass="[config.forms.classes.title]"
-                        :textBottomInfo="forms.entity.createUpdate.errors?.date_from"
-                        xl="3"
-                        lg="4"/>
-                    <InputDate
-                        v-model="forms.entity.createUpdate.data.settlements.date_to"
-                        hasDiv
-                        title="Fecha hasta"
-                        :titleClass="[config.forms.classes.title]"
-                        :textBottomInfo="forms.entity.createUpdate.errors?.date_to"
-                        xl="3"
-                        lg="4"/>
-                </template>
+                        <template v-else-if="selectedReportCode === 'sales'">
+                            <InputSlot
+                                hasDiv
+                                title="Tipo"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.type"
+                                xl="3"
+                                lg="4">
+                                <template #input>
+                                    <v-select
+                                        v-model="forms.entity.createUpdate.data.sales.type"
+                                        :options="salesType"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="false"
+                                        :searchable="false"
+                                        append-to-body/>
+                                </template>
+                            </InputSlot>
 
-            </template>
-        </FiltersSection>
+                            <InputMonth
+                                v-if="['by_month', 'range_months'].includes(forms.entity.createUpdate.data.sales.type?.code)"
+                                v-model="forms.entity.createUpdate.data.sales.start_month"
+                                hasDiv
+                                title="Mes de"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.start_month"
+                                xl="3"
+                                lg="4"/>
+                            <InputMonth
+                                v-if="forms.entity.createUpdate.data.sales.type?.code === 'range_months'"
+                                v-model="forms.entity.createUpdate.data.sales.end_month"
+                                hasDiv
+                                title="Mes al"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.end_month"
+                                xl="3"
+                                lg="4"/>
 
-        <section class="br-reports__help">
-            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-            <span>{{ selectedReportHelp }}</span>
-        </section>
-
-        <section v-if="selectedReportCode === 'settlements'" class="br-entity-list br-reports__results">
-            <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Alcance</th>
-                            <th>Concepto</th>
-                            <th class="text-end">Documentos</th>
-                            <th class="text-end">Cantidad</th>
-                            <th class="text-end">Base</th>
-                            <th class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="settlements.loading">
-                            <td colspan="6" class="py-4"><Loader/></td>
-                        </tr>
-                        <template v-else-if="settlements.records.length">
-                            <tr v-for="(record, index) in settlements.records" :key="`${record.scope}-${record.name}-${index}`">
-                                <td>
-                                    <span class="br-status-label br-status-active">{{ scopeLabel(record.scope) }}</span>
-                                </td>
-                                <td>
-                                    <strong class="br-entity-primary">{{ record.name }}</strong>
-                                    <span v-if="record.calculation_type" class="br-entity-table__meta">
-                                        {{ settlementCalculationLabel(record) }}
-                                    </span>
-                                </td>
-                                <td class="text-end">{{ numberLabel(record.documents) }}</td>
-                                <td class="text-end">{{ settlementQuantity(record) }}</td>
-                                <td class="text-end">{{ amountLabel(record.base_amount) }}</td>
-                                <td class="text-end fw-bold">{{ amountLabel(record.amount) }}</td>
-                            </tr>
+                            <InputDate
+                                v-if="['by_date', 'range_dates'].includes(forms.entity.createUpdate.data.sales.type?.code)"
+                                v-model="forms.entity.createUpdate.data.sales.start_date"
+                                hasDiv
+                                title="Fecha del"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.start_date"
+                                xl="3"
+                                lg="4"/>
+                            <InputDate
+                                v-if="forms.entity.createUpdate.data.sales.type?.code === 'range_dates'"
+                                v-model="forms.entity.createUpdate.data.sales.end_date"
+                                hasDiv
+                                title="Fecha al"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.end_date"
+                                xl="3"
+                                lg="4"/>
                         </template>
-                        <tr v-else>
-                            <td colspan="6">
-                                <WithoutData v-if="settlements.hasConsulted" type="image"/>
-                                <span v-else class="br-reports__empty-hint">Consulta un resumen financiero para visualizar resultados.</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </section>
+
+                        <template v-else-if="selectedReportCode === 'settlements'">
+                            <InputSlot
+                                hasDiv
+                                title="Resumen"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.type"
+                                xl="3"
+                                lg="4">
+                                <template #input>
+                                    <v-select
+                                        v-model="forms.entity.createUpdate.data.settlements.type"
+                                        :options="settlementType"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="false"
+                                        :searchable="false"
+                                        append-to-body/>
+                                </template>
+                            </InputSlot>
+
+                            <InputSlot
+                                hasDiv
+                                title="Alcance"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                :textBottomInfo="forms.entity.createUpdate.errors?.scope"
+                                xl="3"
+                                lg="4">
+                                <template #input>
+                                    <v-select
+                                        v-model="forms.entity.createUpdate.data.settlements.scope"
+                                        :options="settlementScope"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="false"
+                                        :searchable="false"
+                                        append-to-body/>
+                                </template>
+                            </InputSlot>
+
+                            <InputDate
+                                v-model="forms.entity.createUpdate.data.settlements.date_from"
+                                hasDiv
+                                title="Fecha desde"
+                                :titleClass="[config.forms.classes.title]"
+                                :textBottomInfo="forms.entity.createUpdate.errors?.date_from"
+                                xl="3"
+                                lg="4"/>
+                            <InputDate
+                                v-model="forms.entity.createUpdate.data.settlements.date_to"
+                                hasDiv
+                                title="Fecha hasta"
+                                :titleClass="[config.forms.classes.title]"
+                                :textBottomInfo="forms.entity.createUpdate.errors?.date_to"
+                                xl="3"
+                                lg="4"/>
+                        </template>
+
+                    </template>
+                </FiltersSection>
+
+                <section class="br-reports__help">
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                    <span>{{ selectedReportHelp }}</span>
+                </section>
+
+                <section v-if="selectedReportCode === 'settlements'" class="br-entity-list br-reports__results">
+                    <div class="table-responsive">
+                        <table class="table br-entity-table mb-0">
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Alcance</th>
+                                    <th>Concepto</th>
+                                    <th class="text-end">Documentos</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Base</th>
+                                    <th class="text-end">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="br-table-state" v-if="settlements.loading">
+                                    <td colspan="6" class="py-4"><Loader/></td>
+                                </tr>
+                                <template v-else-if="settlements.records.length">
+                                    <tr v-for="(record, index) in settlements.records" :key="`${record.scope}-${record.name}-${index}`">
+                                        <td>
+                                            <span class="br-status-label br-status-active">{{ scopeLabel(record.scope) }}</span>
+                                        </td>
+                                        <td>
+                                            <strong class="br-entity-primary">{{ record.name }}</strong>
+                                            <span v-if="record.calculation_type" class="br-entity-table__meta">
+                                                {{ settlementCalculationLabel(record) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">{{ numberLabel(record.documents) }}</td>
+                                        <td class="text-end">{{ settlementQuantity(record) }}</td>
+                                        <td class="text-end">{{ amountLabel(record.base_amount) }}</td>
+                                        <td class="text-end fw-bold">{{ amountLabel(record.amount) }}</td>
+                                    </tr>
+                                </template>
+                                <tr class="br-table-state" v-else>
+                                    <td colspan="6">
+                                        <WithoutData v-if="settlements.hasConsulted" type="image"/>
+                                        <span v-else class="br-reports__empty-hint">Consulta un resumen financiero para visualizar resultados.</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
@@ -246,16 +252,12 @@ const SETTLEMENT_SCOPE = [
 ];
 
 export default {
+    mixins: [InitialPageMixin],
     mounted: async function() {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        let initParams = await this.initParams({}),
-            initOthers = await this.initOthers({});
-
-        if(initParams && initOthers) {
-            Alerts.swals({show: false});
-        }
+        const initialized = await this.loadInitialParams(() => this.initParams({}));
+        if(initialized) await this.initOthers({});
     },
     data() {
         return {
@@ -395,28 +397,29 @@ export default {
             this.isExporting = true;
             this.settlements.loading = true;
             this.settlements.hasConsulted = true;
+            this.settlements.records = [];
             Alerts.swals({type: "loading", message: "Consultando resumen financiero"});
 
-            const result = await Requests.get({
-                route: `${this.config.entity.routes.consult}/settlements`,
-                data: payload,
-                showAlert: true
-            });
+            let failureMessage = "";
+            try {
+                const result = await Requests.get({
+                    route: `${this.config.entity.routes.consult}/settlements`,
+                    data: payload,
+                    showAlert: true
+                });
 
-            Alerts.swals({show: false});
-            this.isExporting = false;
-            this.settlements.loading = false;
+                if(Requests.valid({result})) {
+                    this.settlements.records = result.data?.data || [];
+                    return;
+                }
 
-            if(Requests.valid({result})) {
-                this.settlements.records = result.data?.data || [];
-                return;
+                failureMessage = result?.data?.msg || "No se pudo consultar el resumen financiero.";
+            } finally {
+                Alerts.swals({show: false});
+                this.isExporting = false;
+                this.settlements.loading = false;
             }
-
-            this.settlements.records = [];
-            Alerts.generateAlert({
-                type: "error",
-                msgContent: result?.data?.msg || "No se pudo consultar el resumen financiero."
-            });
+            if(failureMessage) Alerts.generateAlert({type: "error", msgContent: failureMessage});
         },
         validateReport({report, payload}) {
             const result = {bool: true, errors: {}};

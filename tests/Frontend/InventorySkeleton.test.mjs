@@ -35,8 +35,8 @@ test("Control de stock combina skeleton y Swal solo durante initParams", () => {
     const css = read("resources/css/System/Pages/Warehouses/inventory/skeleton.css");
     const helper = read("resources/js/System/Helpers/InitialLoad.js");
 
-    assert.match(helper, /createInitialLoad\(\{skeleton = false, swal = !skeleton\} = \{\}\)/);
-    assert.match(state, /createInitialLoad\(\{skeleton: true, swal: this\.page === "stock"\}\)/);
+    assert.match(helper, /createInitialLoad\(\{skeleton = true, swal = true\} = \{\}\)/);
+    assert.match(state, /createInitialLoad\(\{skeleton: true, swal: true\}\)/);
     assert.match(state, /this\.initialLoad\.start\(\);[\s\S]*?await this\.initParams\(\);[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false;[\s\S]*?this\.initialLoad\.finish\(\);[\s\S]*?await this\.listCurrentView\(\{\}\);/);
     assert.doesNotMatch(state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts(")), /listStockAlerts/);
     assert.match(skeleton, /col-lg-5 col-xl-5/);

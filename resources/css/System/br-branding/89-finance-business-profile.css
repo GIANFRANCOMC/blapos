@@ -12,7 +12,7 @@
   margin-bottom: 0.2rem;
   color: var(--br-primary);
   font-size: var(--br-font-size-070);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.045em;
   text-transform: uppercase;
 }
@@ -21,7 +21,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-125);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-module-heading p {
@@ -82,7 +82,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-095);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-business-profile__industry p,
@@ -190,7 +190,7 @@
 .br-business-profile__module strong {
   color: var(--br-text);
   font-size: var(--br-font-size-078);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-business-profile__module small {

@@ -13,8 +13,8 @@ function factory(events) {
 
 test("la carga inicial admite solo skeleton, solo Swal o ambos y conserva los valores por defecto", () => {
     for(const [options, skeleton, swal] of [
-        [undefined, false, true],
-        [{skeleton: true}, true, false],
+        [undefined, true, true],
+        [{skeleton: true}, true, true],
         [{skeleton: true, swal: false}, true, false],
         [{skeleton: false, swal: true}, false, true],
         [{skeleton: true, swal: true}, true, true]
@@ -76,7 +76,7 @@ test("Control de stock termina skeleton y Swal al finalizar parámetros, antes d
     assert.deepEqual(events, [{type: "initParams"}, {show: false}]);
 });
 
-test("la carga inicial libera ambos indicadores al fallar y conserva solo skeleton en otros submódulos", async () => {
+test("la carga inicial libera ambos indicadores al fallar y usa ambos en todos los submódulos", async () => {
     for(const stage of ["initParams", "listCurrentView"]) {
         const events = [];
         const {context, mount} = inventory("stock", events);
@@ -91,5 +91,29 @@ test("la carga inicial libera ambos indicadores al fallar y conserva solo skelet
     context.listCurrentView = async () => {};
     await mount();
     assert.equal(context.skeletonEnabled, true);
-    assert.deepEqual(events, []);
+    assert.deepEqual(events, [{type: "initParams"}, {show: false}]);
+});
+
+test("el inicializador compartido cierra skeleton y Swal y monta el contenido antes de continuar", async () => {
+    for(const reject of [false, true]) {
+        const events = [];
+        const source = read("resources/js/System/Helpers/InitialPageMixin.js");
+        const component = new Function("InitialLoadTransition", "PageSkeleton", "createInitialLoad", source
+            .replace(/^import .*;\s*$/gm, "").replace("export default", "return"))({}, {}, factory(events));
+        let finish;
+        const params = new Promise((resolve, fail) => { finish = reject ? fail : resolve; });
+        const context = {initialLoading: true, async $nextTick() { events.push("mounted"); }};
+        const pending = component.methods.loadInitialParams.call(context, () => params);
+        assert.equal(context.initialLoading, true);
+        assert.deepEqual(events, [{type: "initParams"}]);
+        if(reject) {
+            finish(new Error("fallo de parámetros"));
+            await assert.rejects(pending, /fallo de parámetros/);
+        } else {
+            finish("configurada");
+            assert.equal(await pending, "configurada");
+        }
+        assert.equal(context.initialLoading, false);
+        assert.deepEqual(events, [{type: "initParams"}, {show: false}, "mounted"]);
+    }
 });

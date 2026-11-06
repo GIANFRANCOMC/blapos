@@ -2,261 +2,267 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Content -->
-    <div class="d-flex justify-content-end mb-2" v-if="!lists.entity.extras.loading">
-        <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
-            <i class="fa fa-check-circle"></i>
-            <span class="ms-1">Registrar asistencia</span>
-        </a>
-    </div>
-    <div class="row align-items-start g-2 g-md-4 mb-4 mb-md-4">
-        <div class="col-xl-9 col-lg-9 col-md-6 col-sm-12">
-            <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
-                    <div class="card-title mb-0">
-                        <span class="fw-semibold">Asistencias</span>
-                    </div>
-                    <div v-show="false">
-                        <button class="btn btn-xs btn-primary" @click="initChart('default')" type="button">
-                            <span>Refrescar</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="defaultChartId" class="chartjs" data-height="150"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
-            <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
-                    <div class="card-title mb-0">
-                        <span class="fw-semibold">Actividad</span>
-                    </div>
-                    <div v-show="false">
-                        <button class="btn btn-xs btn-primary" @click="initChart('doughnut')" type="button">
-                            <span>Refrescar</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="doughnutChartId" class="chartjs" data-height="150"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row align-items-start g-4 mb-3 mb-md-3">
-        <template v-if="forms.entity.createUpdate.config.viewFilters">
-            <div class="col-lg-9 col-12">
-                <div class="row g-3">
-                    <InputSlot
-                        hasDiv
-                        title="Sucursal"
-                        :titleClass="[config.forms.classes.title]"
-                        xl="12"
-                        lg="12">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="lists.entity.filters.branch"
-                                :options="branches"
-                                :class="config.forms.classes.select2"
-                                :clearable="false"
-                                :searchable="false"
-                                placeholder="Seleccione una sucursal ..."/>
-                        </template>
-                    </InputSlot>
-                    <InputSlot
-                        hasDiv
-                        title="Cliente"
-                        :titleClass="[config.forms.classes.title]"
-                        xl="12"
-                        lg="12">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="lists.entity.filters.customer"
-                                :options="customers"
-                                :class="config.forms.classes.select2"
-                                :clearable="true"
-                                placeholder="Seleccione un cliente ..."/>
-                        </template>
-                    </InputSlot>
-                    <InputDate
-                        v-model="lists.entity.filters.start_date"
-                        @change="listEntity({})"
-                        hasDiv
-                        title="Fecha de ingreso"
-                        :titleClass="[config.forms.classes.title]"
-                        xl="4"
-                        lg="4"/>
-                </div>
-            </div>
-            <div class="col-lg-3 col-12">
-                <div class="row g-1">
-                    <div class="col-xl-12">
-                        <label :class="[config.forms.classes.title]">Estado</label>
-                    </div>
-                    <div class="col-lg-12 col-xl-12">
-                        <div class="form-check">
-                            <label class="py-1 cursor-pointer">
-                                <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                                <span class="fw-bold text-secondary">Todos los estados</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-xl-12">
-                        <div class="form-check">
-                            <label class="py-1 cursor-pointer">
-                                <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                                <span class="fw-bold text-success">En curso</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-xl-12">
-                        <div class="form-check">
-                            <label class="py-1 cursor-pointer">
-                                <input :class="['form-check-input', lists.entity.filters.status == 'finalized' ? 'bg-primary border-primary' : '']" type="radio" value="finalized" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                                <span class="fw-bold text-primary">Concluida</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-xl-12">
-                        <div class="form-check">
-                            <label class="py-1 cursor-pointer">
-                                <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status" @change="listEntity({})"/>
-                                <span class="fw-bold text-danger">Anulada</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <InputSlot
-            hasDiv
-            :divClass="['mt-3']"
-            :isInputGroup="false"
-            :divInputClass="['d-flex flex-wrap justify-content-start align-items-center gap-2 gap-md-3']"
-            xl="12"
-            lg="12">
-            <template v-slot:input>
-                <template v-if="forms.entity.createUpdate.config.viewFilters">
-                    <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                        <span>Filtrar</span>
-                    </button>
-                </template>
-                <button type="button" class="btn btn-primary waves-effect" @click="selectModeEntity('manual', true)" :disabled="lists.entity.extras.loading">
-                    <i class="fa fa-check"></i>
-                    <span class="ms-2">Registrar asistencia</span>
-                </button>
-                <button type="button" class="btn btn-success waves-effect" @click="modalAutomaticEntity({type: 'generate'})" :disabled="lists.entity.extras.loading">
-                    <i class="fa fa-globe"></i>
-                    <span class="ms-2">Modo público</span>
-                </button>
-                <button type="button" class="br-btn br-btn-action-export waves-effect" @click="exportEntity" :disabled="lists.entity.extras.loading" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar asistencias">
-                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                    <span class="ms-2 d-inline d-md-none">Exportar</span>
-                </button>
-                <a href="javascript:void(0)" class="fw-bold ms-2" @click="forms.entity.createUpdate.config.viewFilters = !forms.entity.createUpdate.config.viewFilters;">
-                    <i :class="['fa', forms.entity.createUpdate.config.viewFilters ? 'fa-eye-slash' : 'fa-eye']"></i>
-                    <span class="ms-2" v-text="forms.entity.createUpdate.config.viewFilters ? 'Ocultar filtros' : 'Mostrar filtros'"></span>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <div class="d-flex justify-content-end mb-2" v-if="!lists.entity.extras.loading">
+                <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
+                    <i class="fa fa-check-circle"></i>
+                    <span class="ms-1">Registrar asistencia</span>
                 </a>
-            </template>
-        </InputSlot>
-    </div>
-    <div class="d-flex justify-content-end" v-if="lists.entity.records.total > 0">
-        <span class="colon-at-end">Sucursal</span>
-        <span v-text="lists.entity.records.data[0]?.branch?.name" class="ms-1 fw-bold"></span>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr class="text-center align-middle">
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;"></th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 45%;">CLIENTE</th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">INGRESO</th>
-                    <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">SALIDA</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0 bg-white">
-                <template v-if="lists.entity.extras.loading">
-                    <tr class="text-center">
-                        <td colspan="99" class="py-4">
-                            <Loader/>
-                        </td>
-                    </tr>
-                </template>
-                <template v-else>
-                    <template v-if="lists.entity.records.total > 0">
-                        <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
-                            <td :class="[{ 'br-status-surface--success': ['active'].includes(record.status), 'br-status-surface--primary': ['finalized'].includes(record.status), 'br-status-surface--danger': ['canceled'].includes(record.status), 'br-status-surface--warning': ['inactive'].includes(record.status) }]">
-                                <span class="d-block fw-bold small" v-text="record.formatted_status"></span>
-                                <InputSlot
-                                    v-if="['active', 'finalized'].includes(record?.status)"
-                                    :hasDiv="false"
-                                    :isInputGroup="false"
-                                    :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-2 mt-1']">
-                                    <template v-slot:input>
-                                        <button v-if="['active'].includes(record?.status)" type="button" class="btn btn-xs btn-warning waves-effect" @click="modalCreateUpdateEntity({record, type: 'finalized'})">
-                                            <i class="fa-solid fa-person-walking-arrow-right"></i>
-                                            <span class="ms-2">Concluir</span>
-                                        </button>
-                                        <button type="button" class="btn btn-xs btn-danger waves-effect" @click="modalCreateUpdateEntity({record, type: 'canceled'})">
-                                            <i class="fa fa-times"></i>
-                                            <span class="ms-2">Anular</span>
-                                        </button>
-                                        <button type="button" class="btn btn-xs btn-info waves-effect" @click="requestCorrectionEntity(record)">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                            <span class="ms-2">Corregir</span>
-                                        </button>
-                                    </template>
-                                </InputSlot>
-                            </td>
-                            <td class="text-start">
-                                <span v-text="record.customer?.name" class="fw-bold d-block"></span>
-                                <small v-text="record.customer?.document_number" class="d-block"></small>
-                                <small class="br-attendance-device-detail">
-                                    <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
-                                    <span v-text="getAttendanceDeviceLabel(record)"></span>
-                                </small>
-                                <small v-if="latestAttendanceCorrection(record)" class="br-attendance-device-detail is-warning">
-                                    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-                                    <span v-text="latestAttendanceCorrectionLabel(record)"></span>
-                                </small>
-                            </td>
-                            <td>
-                                <template v-if="isDefined({value: record.start_date})">
-                                    <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                    <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
+            </div>
+            <div class="row align-items-start g-2 g-md-4 mb-4 mb-md-4">
+                <div class="col-xl-9 col-lg-9 col-md-6 col-sm-12">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
+                            <div class="card-title mb-0">
+                                <span class="fw-semibold">Asistencias</span>
+                            </div>
+                            <div v-show="false">
+                                <button class="btn btn-xs btn-primary" @click="initChart('default')" type="button">
+                                    <span>Refrescar</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="defaultChartId" class="chartjs" data-height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
+                            <div class="card-title mb-0">
+                                <span class="fw-semibold">Actividad</span>
+                            </div>
+                            <div v-show="false">
+                                <button class="btn btn-xs btn-primary" @click="initChart('doughnut')" type="button">
+                                    <span>Refrescar</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="doughnutChartId" class="chartjs" data-height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row align-items-start g-4 mb-3 mb-md-3">
+                <template v-if="forms.entity.createUpdate.config.viewFilters">
+                    <div class="col-lg-9 col-12">
+                        <div class="row g-3">
+                            <InputSlot
+                                hasDiv
+                                title="Sucursal"
+                                :titleClass="[config.forms.classes.title]"
+                                xl="12"
+                                lg="12">
+                                <template v-slot:input>
+                                    <v-select
+                                        v-model="lists.entity.filters.branch"
+                                        :options="branches"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="false"
+                                        :searchable="false"
+                                        placeholder="Seleccione una sucursal ..."/>
                                 </template>
-                                <span v-else class="d-block fw-bold text-dark">Pendiente</span>
-                            </td>
-                            <td :class="[{ 'br-status-surface--secondary': ['active'].includes(record.status) }]">
-                                <template v-if="isDefined({value: record.end_date})">
-                                    <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                    <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
+                            </InputSlot>
+                            <InputSlot
+                                hasDiv
+                                title="Cliente"
+                                :titleClass="[config.forms.classes.title]"
+                                xl="12"
+                                lg="12">
+                                <template v-slot:input>
+                                    <v-select
+                                        v-model="lists.entity.filters.customer"
+                                        :options="customers"
+                                        :class="config.forms.classes.select2"
+                                        :clearable="true"
+                                        placeholder="Seleccione un cliente ..."/>
                                 </template>
-                                <span v-else class="d-block fw-bold text-dark">Pendiente</span>
-                            </td>
-                        </tr>
-                    </template>
-                    <template v-else>
-                        <tr>
-                            <td class="text-center" colspan="99">
-                                <WithoutData type="image"/>
-                            </td>
-                        </tr>
-                    </template>
+                            </InputSlot>
+                            <InputDate
+                                v-model="lists.entity.filters.start_date"
+                                @change="listEntity({})"
+                                hasDiv
+                                title="Fecha de ingreso"
+                                :titleClass="[config.forms.classes.title]"
+                                xl="4"
+                                lg="4"/>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-12">
+                        <div class="row g-1">
+                            <div class="col-xl-12">
+                                <label :class="[config.forms.classes.title]">Estado</label>
+                            </div>
+                            <div class="col-lg-12 col-xl-12">
+                                <div class="form-check">
+                                    <label class="py-1 cursor-pointer">
+                                        <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <span class="fw-bold text-secondary">Todos los estados</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-xl-12">
+                                <div class="form-check">
+                                    <label class="py-1 cursor-pointer">
+                                        <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <span class="fw-bold text-success">En curso</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-xl-12">
+                                <div class="form-check">
+                                    <label class="py-1 cursor-pointer">
+                                        <input :class="['form-check-input', lists.entity.filters.status == 'finalized' ? 'bg-primary border-primary' : '']" type="radio" value="finalized" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <span class="fw-bold text-primary">Concluida</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-xl-12">
+                                <div class="form-check">
+                                    <label class="py-1 cursor-pointer">
+                                        <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <span class="fw-bold text-danger">Anulada</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </template>
-            </tbody>
-        </table>
-    </div>
-    <div class="d-flex justify-content-end mt-2" v-if="!lists.entity.extras.loading">
-        <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
-            <i class="fa fa-check-circle"></i>
-            <span class="ms-1">Registrar asistencia</span>
-        </a>
-    </div>
-    <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
+                <InputSlot
+                    hasDiv
+                    :divClass="['mt-3']"
+                    :isInputGroup="false"
+                    :divInputClass="['d-flex flex-wrap justify-content-start align-items-center gap-2 gap-md-3']"
+                    xl="12"
+                    lg="12">
+                    <template v-slot:input>
+                        <template v-if="forms.entity.createUpdate.config.viewFilters">
+                            <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                                <span>Filtrar</span>
+                            </button>
+                        </template>
+                        <button type="button" class="btn btn-primary waves-effect" @click="selectModeEntity('manual', true)" :disabled="lists.entity.extras.loading">
+                            <i class="fa fa-check"></i>
+                            <span class="ms-2">Registrar asistencia</span>
+                        </button>
+                        <button type="button" class="btn btn-success waves-effect" @click="modalAutomaticEntity({type: 'generate'})" :disabled="lists.entity.extras.loading">
+                            <i class="fa fa-globe"></i>
+                            <span class="ms-2">Modo público</span>
+                        </button>
+                        <button type="button" class="br-btn br-btn-action-export waves-effect" @click="exportEntity" :disabled="lists.entity.extras.loading" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar asistencias">
+                            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                            <span class="ms-2 d-inline d-md-none">Exportar</span>
+                        </button>
+                        <a href="javascript:void(0)" class="fw-bold ms-2" @click="forms.entity.createUpdate.config.viewFilters = !forms.entity.createUpdate.config.viewFilters;">
+                            <i :class="['fa', forms.entity.createUpdate.config.viewFilters ? 'fa-eye-slash' : 'fa-eye']"></i>
+                            <span class="ms-2" v-text="forms.entity.createUpdate.config.viewFilters ? 'Ocultar filtros' : 'Mostrar filtros'"></span>
+                        </a>
+                    </template>
+                </InputSlot>
+            </div>
+            <div class="d-flex justify-content-end" v-if="lists.entity.records.total > 0">
+                <span class="colon-at-end">Sucursal</span>
+                <span v-text="lists.entity.records.data[0]?.branch?.name" class="ms-1 fw-bold"></span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="text-center align-middle">
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;"></th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 45%;">CLIENTE</th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">INGRESO</th>
+                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">SALIDA</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0 bg-white">
+                        <template v-if="lists.entity.extras.loading">
+                            <tr class="br-table-state text-center">
+                                <td colspan="99" class="py-4">
+                                    <Loader/>
+                                </td>
+                            </tr>
+                        </template>
+                        <template v-else>
+                            <template v-if="lists.entity.records.total > 0">
+                                <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
+                                    <td :class="[{ 'br-status-surface--success': ['active'].includes(record.status), 'br-status-surface--primary': ['finalized'].includes(record.status), 'br-status-surface--danger': ['canceled'].includes(record.status), 'br-status-surface--warning': ['inactive'].includes(record.status) }]">
+                                        <span class="d-block fw-bold small" v-text="record.formatted_status"></span>
+                                        <InputSlot
+                                            v-if="['active', 'finalized'].includes(record?.status)"
+                                            :hasDiv="false"
+                                            :isInputGroup="false"
+                                            :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-2 mt-1']">
+                                            <template v-slot:input>
+                                                <button v-if="['active'].includes(record?.status)" type="button" class="btn btn-xs btn-warning waves-effect" @click="modalCreateUpdateEntity({record, type: 'finalized'})">
+                                                    <i class="fa-solid fa-person-walking-arrow-right"></i>
+                                                    <span class="ms-2">Concluir</span>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn-danger waves-effect" @click="modalCreateUpdateEntity({record, type: 'canceled'})">
+                                                    <i class="fa fa-times"></i>
+                                                    <span class="ms-2">Anular</span>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn-info waves-effect" @click="requestCorrectionEntity(record)">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                    <span class="ms-2">Corregir</span>
+                                                </button>
+                                            </template>
+                                        </InputSlot>
+                                    </td>
+                                    <td class="text-start">
+                                        <span v-text="record.customer?.name" class="fw-bold d-block"></span>
+                                        <small v-text="record.customer?.document_number" class="d-block"></small>
+                                        <small class="br-attendance-device-detail">
+                                            <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+                                            <span v-text="getAttendanceDeviceLabel(record)"></span>
+                                        </small>
+                                        <small v-if="latestAttendanceCorrection(record)" class="br-attendance-device-detail is-warning">
+                                            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                                            <span v-text="latestAttendanceCorrectionLabel(record)"></span>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <template v-if="isDefined({value: record.start_date})">
+                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
+                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                        </template>
+                                        <span v-else class="d-block fw-bold text-dark">Pendiente</span>
+                                    </td>
+                                    <td :class="[{ 'br-status-surface--secondary': ['active'].includes(record.status) }]">
+                                        <template v-if="isDefined({value: record.end_date})">
+                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
+                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                        </template>
+                                        <span v-else class="d-block fw-bold text-dark">Pendiente</span>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template v-else>
+                                <tr class="br-table-state">
+                                    <td class="text-center" colspan="99">
+                                        <WithoutData type="image"/>
+                                    </td>
+                                </tr>
+                            </template>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-end mt-2" v-if="!lists.entity.extras.loading">
+                <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
+                    <i class="fa fa-check-circle"></i>
+                    <span class="ms-1">Registrar asistencia</span>
+                </a>
+            </div>
+            <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
-    <!-- Modals -->
+            <!-- Modals -->
+
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms.entity.createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -462,7 +468,7 @@
                                                 </template>
                                             </template>
                                             <template v-else>
-                                                <tr>
+                                                <tr class="br-table-state">
                                                     <td class="text-center" colspan="99">
                                                         <WithoutData type="text"/>
                                                     </td>
@@ -699,7 +705,7 @@
                                         </tr>
                                     </template>
                                     <template v-else>
-                                        <tr>
+                                        <tr class="br-table-state">
                                             <td class="text-center" colspan="99">
                                                 <WithoutData type="image"/>
                                             </td>
@@ -719,6 +725,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
@@ -728,6 +735,7 @@ let defaultChartInstance = null;
 let doughnutChartInstance = null;
 
 export default {
+    mixins: [InitialPageMixin],
     components: {
         //
     },
@@ -737,14 +745,12 @@ export default {
 
         Utils.navbarItem("menu-parent-customers", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        let initParams = await this.initParams({}),
+        let initParams = await this.loadInitialParams(() => this.initParams({})),
             initOthers = await this.initOthers({});
 
         if(initParams && initOthers) {
 
-            Alerts.swals({show: false});
             // this.listEntity({});
 
             $(`#${this.forms.entity.qrCamera.extras.modals.default.id}`)

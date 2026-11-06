@@ -54,8 +54,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td :colspan="headings.length" class="py-4"><Loader/></td>
+                        <tr class="br-table-state">
+                            <td :colspan="headings.length" class="py-4"><div class="br-list-initial-space" aria-hidden="true"></div></td>
                         </tr>
                     </tbody>
                     </table>
@@ -66,7 +66,6 @@
 </template>
 
 <script>
-import Loader from "@System/Components/Loader.vue";
 
 const headingsByPage = {
     stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock"],
@@ -85,7 +84,6 @@ const labelsByPage = {
 };
 
 export default {
-    components: {Loader},
     props: {page: {type: String, required: true}},
     computed: {
         headings() { return headingsByPage[this.page] || headingsByPage.stock; },

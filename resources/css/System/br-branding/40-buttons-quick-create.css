@@ -11,7 +11,7 @@
   background: transparent;
   color: var(--br-primary);
   font-size: var(--br-btn-font-size-sm);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.4;
   text-decoration: none;
   white-space: nowrap;
@@ -44,7 +44,7 @@
   min-height: var(--br-btn-height);
   padding: var(--br-btn-padding-y) var(--br-btn-padding-x);
   font-size: var(--br-btn-font-size);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-control);
   line-height: 1.4;
   border-radius: var(--br-radius);
   border: 1px solid transparent;
@@ -652,7 +652,7 @@
   color: var(--br-primary);
   font-family: inherit;
   font-size: var(--br-font-size-070);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   text-decoration: none;
   vertical-align: middle;
@@ -758,7 +758,7 @@
   margin: 0.8rem 0 0;
   color: var(--br-success-hover);
   font-size: var(--br-font-size-070);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-quick-create-modal {
@@ -790,7 +790,7 @@
   background: var(--br-surface-elevated) !important;
   color: var(--br-text-muted);
   font-size: var(--br-control-affix-font-size);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   letter-spacing: 0.04em;
 }
@@ -803,7 +803,7 @@
   background: var(--br-surface-elevated) !important;
   color: var(--br-text-muted) !important;
   font-size: var(--br-control-affix-font-size) !important;
-  font-weight: 600 !important;
+  font-weight: var(--br-font-weight-emphasis) !important;
   line-height: 1 !important;
   letter-spacing: 0.04em !important;
 }
@@ -831,14 +831,14 @@
 .br-feedback-state__title {
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   line-height: 1.25;
 }
 
 .br-feedback-state__description {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-070);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.35;
 }
 
@@ -912,7 +912,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 3.25rem;
+  min-height: var(--br-list-state-height);
   width: 100%;
 }
 
@@ -975,7 +975,7 @@
   margin: 0 0 0.3rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-098);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   line-height: 1.35;
   letter-spacing: 0;
 }
@@ -985,7 +985,7 @@
   margin: 0 auto;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-076);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.4;
 }
 

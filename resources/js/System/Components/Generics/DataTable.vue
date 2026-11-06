@@ -20,7 +20,7 @@
             </thead>
             <tbody class="table-border-bottom-0 bg-white">
                 <template v-if="loading">
-                    <tr class="text-center">
+                    <tr class="br-table-state text-center">
                         <td :colspan="columns.length + (showActions ? 1 : 0)" class="py-4">
                             <Loader/>
                         </td>
@@ -67,7 +67,7 @@
                         </tr>
                     </template>
                     <template v-else>
-                        <tr>
+                        <tr class="br-table-state">
                             <td :colspan="columns.length + (showActions ? 1 : 0)" class="text-center">
                                 <WithoutData type="image"/>
                             </td>
@@ -136,4 +136,3 @@ export default {
     }
 };
 </script>
-

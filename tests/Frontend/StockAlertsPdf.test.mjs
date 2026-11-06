@@ -29,9 +29,9 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.match(modal, /class="br-inventory__stock-current">\{\{ formatQuantity\(alert\.quantity, alert\) \}\}/);
     assert.match(page, /class="br-inventory__stock-current">\{\{ quantityWithUnit\(record\.stock_quantity, record\) \}\}/);
     assert.doesNotMatch(modal, /class="br-inventory__stock-current">\{\{ formatQuantity\(alert\.minimum_stock/);
-    assert.match(styles, /body\.br-layout \.br-inventory__stock-current \{[^}]*font-weight: 600;/);
+    assert.match(styles, /body\.br-layout \.br-inventory__stock-current \{[^}]*font-weight: var\(--br-font-weight-value\);/);
     assert.match(modal, /br-inventory-alerts__table-head[\s\S]*?<\/table>[\s\S]*?br-inventory-alerts__table-scroll[\s\S]*?<WithoutData/);
-    assert.match(modal, /<tr v-if="loading && !alerts\.data\?\.length">[\s\S]*?<WithoutData[\s\S]*?text="Preparando resultados"/);
+    assert.match(modal, /<tr class="br-table-state" v-if="loading && !alerts\.data\?\.length">[\s\S]*?<WithoutData[\s\S]*?text="Preparando resultados"/);
     assert.doesNotMatch(modal, /<Loader\s*\/>/);
     assert.match(modal, /<thead class="visually-hidden">[\s\S]*?scope="col"/);
     assert.match(modal, /<\/section>[\s\S]*?<Paginator[^>]*:pagination="alerts"[^>]*:loading="loading"/);
@@ -39,7 +39,7 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.equal((modal.match(/:disabled="loading \|\| downloading \|\| !alerts\.total"/g) || []).length, 3);
     assert.doesNotMatch(modal, /<template #footer>/);
     assert.match(modal, /@click="\$emit\('download', 'pdf'\)"[\s\S]*?@click="\$emit\('download', 'excel'\)"/);
-    assert.match(styles, /body\.br-layout \.br-inventory-alerts \.br-inventory-alerts__warehouse-name \{[\s\S]*?font-size: var\(--br-stock-quantity-font-size\) !important;[\s\S]*?font-weight: 600;/);
+    assert.match(styles, /body\.br-layout \.br-inventory-alerts \.br-inventory-alerts__warehouse-name \{[\s\S]*?font-size: var\(--br-stock-quantity-font-size\) !important;[\s\S]*?font-weight: var\(--br-font-weight-emphasis\);/);
     assert.match(styles, /\.br-inventory-alerts__table-head \{[\s\S]*?overflow-y: hidden;[\s\S]*?scrollbar-gutter: stable;[\s\S]*?background: var\(--br-table-thead-bg\);/);
     assert.match(styles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;[\s\S]*?scrollbar-gutter: stable;/);
     assert.match(styles, /\.br-inventory-alerts__toolbar \{[\s\S]*?display: flex;[\s\S]*?justify-content: space-between;/);
@@ -48,7 +48,7 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.match(styles, /\.br-inventory-alerts__table-head \.table > thead > tr > th \{[\s\S]*?background: var\(--br-table-thead-bg\) !important;/);
     assert.doesNotMatch(styles.slice(styles.indexOf('.br-inventory-alerts__summary {'), styles.indexOf('.br-inventory-alerts__location {')), /border:|background:/);
     assert.match(state, /this\.stockAlerts = Requests\.emptyPagination\(\);/);
-    assert.match(state, /searchStockAlerts\(value = this\.alertProductSearch\)[\s\S]*?appliedAlertProductSearch[\s\S]*?listStockAlerts\(\{\}\)/);
+    assert.match(state, /searchStockAlerts\(value = this\.alertProductSearch\)[\s\S]*?this\.alertProductSearch = String[\s\S]*?listStockAlerts\(\{\}\)/);
     assert.match(state, /async listStockAlerts[\s\S]*?Alerts\.loading\(\{message: "Consultando alertas de stock"\}\)[\s\S]*?Requests\.get[\s\S]*?Alerts\.close\(\)/);
     assert.match(state, /async downloadStockAlerts\(format\)[\s\S]*?!this\.stockAlerts\.total[\s\S]*?product_search: this\.appliedAlertProductSearch/);
 });

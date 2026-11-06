@@ -29,20 +29,20 @@
     flex: 0 1 auto;
     max-width: 55%;
     color: var(--br-secondary);
-    font-weight: 500;
+    font-weight: var(--br-font-weight-medium);
 }
 
 .br-warehouse-select__separator {
     flex: 0 0 auto;
     margin-inline: 0.3rem;
     color: var(--br-text-muted);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
 }
 
 .br-warehouse-select__name {
     flex: 1 1 auto;
     color: var(--br-text);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
 }
 
 .br-layout .br-warehouse-select .vs__dropdown-option,

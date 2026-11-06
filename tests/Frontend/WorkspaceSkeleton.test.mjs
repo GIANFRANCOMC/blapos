@@ -6,10 +6,10 @@ test("el skeleton inicial es optativo y conserva el Swal por defecto", () => {
     const helper = readFileSync(new URL("../../resources/js/System/Helpers/InitialLoad.js", import.meta.url), "utf8");
     const workspace = readFileSync(new URL("../../resources/js/System/Pages/Essentials/workspace/main.vue", import.meta.url), "utf8");
 
-    assert.match(helper, /createInitialLoad\(\{skeleton = false, swal = !skeleton\} = \{\}\)/);
+    assert.match(helper, /createInitialLoad\(\{skeleton = true, swal = true\} = \{\}\)/);
     assert.match(helper, /if\(swal\) Alerts\.swals\(\{type: "initParams"\}\)/);
     assert.match(helper, /if\(swal\) Alerts\.swals\(\{show: false\}\)/);
-    assert.match(workspace, /createInitialLoad\(\{skeleton: true\}\)/);
+    assert.match(workspace, /createInitialLoad\(\{skeleton: true, swal: true\}\)/);
     assert.match(workspace, /<WorkspaceSkeleton v-if="loading && skeletonEnabled"\/>/);
     assert.match(workspace, /initialLoad\.start\(\)[\s\S]*?try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?initialLoad\.finish\(\)/);
     assert.doesNotMatch(workspace, /<Loader\/>/);

@@ -2,82 +2,88 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Content -->
-    <div class="row align-items-end g-3 mb-3 mb-md-4">
-        <InputSlot
-            hasDiv
-            title="Sucursal"
-            :titleClass="[config.forms.classes.title]"
-            xl="6"
-            lg="7">
-            <template v-slot:input>
-                <v-select
-                    v-model="lists.entity.filters.branch"
-                    :options="branches"
-                    :class="config.forms.classes.select2"
-                    :clearable="false"
-                    :searchable="false"/>
-            </template>
-        </InputSlot>
-        <InputSlot
-            hasDiv
-            :isInputGroup="false"
-            :divInputClass="['d-flex flex-wrap justify-content-start gap-2 gap-md-3']"
-            xl="6"
-            lg="5">
-            <template v-slot:input>
-                <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                    <span>Buscar</span>
-                </button>
-            </template>
-        </InputSlot>
-    </div>
-    <div class="row g-3" v-if="isDefined({value: lists.entity.filters.branch?.code})">
-        <template v-if="!lists.entity.extras.loading">
-            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                <h5 class="fw-bold mb-2 text-uppercase ps-1">Activos disponibles</h5>
-                <div class="list-group" v-if="availableAssets.length > 0">
-                    <div v-for="record in availableAssets" :key="record.code" class="list-group-item bg-white">
-                        <div class="d-flex justify-content-between align-items-center gap-2 gap-md-3">
-                            <div>
-                                <span v-text="record.internal_code" class="fw-bold d-block"></span>
-                                <span v-text="record.name" class="d-block"></span>
-                                <span v-text="record.formatted_management_type" class="d-block text-primary fw-semibold"></span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-success" @click="assignAssetToBranch({record})" v-if="hasAssetToBranch(record)">Agregar</button>
-                        </div>
-                    </div>
-                </div>
-                <div v-else class="text-center">
-                    <WithoutData type="image"/>
-                </div>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <div class="row align-items-end g-3 mb-3 mb-md-4">
+                <InputSlot
+                    hasDiv
+                    title="Sucursal"
+                    :titleClass="[config.forms.classes.title]"
+                    xl="6"
+                    lg="7">
+                    <template v-slot:input>
+                        <v-select
+                            v-model="lists.entity.filters.branch"
+                            :options="branches"
+                            :class="config.forms.classes.select2"
+                            :clearable="false"
+                            :searchable="false"/>
+                    </template>
+                </InputSlot>
+                <InputSlot
+                    hasDiv
+                    :isInputGroup="false"
+                    :divInputClass="['d-flex flex-wrap justify-content-start gap-2 gap-md-3']"
+                    xl="6"
+                    lg="5">
+                    <template v-slot:input>
+                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                            <span>Buscar</span>
+                        </button>
+                    </template>
+                </InputSlot>
             </div>
-            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                <h5 class="fw-bold mb-2 text-uppercase ps-1">Activos asignados a la sucursal</h5>
-                <div class="list-group" v-if="lists.entity.records.total > 0">
-                    <div v-for="record in lists.entity.records.data" :key="record.id" class="list-group-item bg-white">
-                        <div class="d-flex justify-content-between align-items-center gap-2 gap-md-3">
-                            <div>
-                                <span v-text="record.asset?.internal_code" class="fw-bold d-block"></span>
-                                <span v-text="record.asset?.name" class="d-block mb-1"></span>
-                                <span v-text="record.asset?.formatted_management_type" class="d-block text-primary fw-semibold mb-1"></span>
-                                <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                            </div>
-                            <div class="d-flex justify-content-end align-items-center flex-wrap gap-2 gap-md-3">
-                                <button class="btn btn-sm btn-warning" @click="modalAssetInBranch({record})" v-if="['active', 'maintenance'].includes(record.status)">Editar</button>
-                                <button class="btn btn-sm btn-primary" @click="modalAssignToUser({record})" v-if="record.quantity > 0 && ['active', 'maintenance'].includes(record.status)">Gestionar asignación</button>
-                                <button class="btn btn-sm btn-danger" @click="unassignAssetFromBranch({record})" v-if="['active', 'maintenance'].includes(record.status)">Quitar</button>
+            <div class="row g-3" v-if="isDefined({value: lists.entity.filters.branch?.code})">
+                <template v-if="!lists.entity.extras.loading">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                        <h5 class="fw-bold mb-2 text-uppercase ps-1">Activos disponibles</h5>
+                        <div class="list-group" v-if="availableAssets.length > 0">
+                            <div v-for="record in availableAssets" :key="record.code" class="list-group-item bg-white">
+                                <div class="d-flex justify-content-between align-items-center gap-2 gap-md-3">
+                                    <div>
+                                        <span v-text="record.internal_code" class="fw-bold d-block"></span>
+                                        <span v-text="record.name" class="d-block"></span>
+                                        <span v-text="record.formatted_management_type" class="d-block text-primary fw-semibold"></span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success" @click="assignAssetToBranch({record})" v-if="hasAssetToBranch(record)">Agregar</button>
+                                </div>
                             </div>
                         </div>
+                        <div v-else class="text-center">
+                            <WithoutData type="image"/>
+                        </div>
                     </div>
-                </div>
-                <div v-else class="text-center">
-                    <WithoutData type="image"/>
-                </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                        <h5 class="fw-bold mb-2 text-uppercase ps-1">Activos asignados a la sucursal</h5>
+                        <div class="list-group" v-if="lists.entity.records.total > 0">
+                            <div v-for="record in lists.entity.records.data" :key="record.id" class="list-group-item bg-white">
+                                <div class="d-flex justify-content-between align-items-center gap-2 gap-md-3">
+                                    <div>
+                                        <span v-text="record.asset?.internal_code" class="fw-bold d-block"></span>
+                                        <span v-text="record.asset?.name" class="d-block mb-1"></span>
+                                        <span v-text="record.asset?.formatted_management_type" class="d-block text-primary fw-semibold mb-1"></span>
+                                        <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                    </div>
+                                    <div class="d-flex justify-content-end align-items-center flex-wrap gap-2 gap-md-3">
+                                        <button class="btn btn-sm btn-warning" @click="modalAssetInBranch({record})" v-if="['active', 'maintenance'].includes(record.status)">Editar</button>
+                                        <button class="btn btn-sm btn-primary" @click="modalAssignToUser({record})" v-if="record.quantity > 0 && ['active', 'maintenance'].includes(record.status)">Gestionar asignación</button>
+                                        <button class="btn btn-sm btn-danger" @click="unassignAssetFromBranch({record})" v-if="['active', 'maintenance'].includes(record.status)">Quitar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="text-center">
+                            <WithoutData type="image"/>
+                        </div>
+                    </div>
+                </template>
             </div>
-        </template>
-    </div>
 
-    <!-- Modals -->
+            <!-- Modals -->
+
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms.entity.assetInBranch.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -155,7 +161,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms.entity.assignToUser.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -289,7 +294,7 @@
                                         </tr>
                                     </template>
                                     <template v-else>
-                                        <tr>
+                                        <tr class="br-table-state">
                                             <td class="text-center" colspan="99">
                                                 <WithoutData type="text"/>
                                             </td>
@@ -319,6 +324,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
@@ -326,21 +332,14 @@ import * as Utils     from "@System/Helpers/Utils.js";
 import {STATUS_BADGE_CUSTOM_ASSET_MAINTENANCE_PRIMARY} from "@System/Helpers/ModuleConstants.js";
 
 export default {
+    mixins: [InitialPageMixin],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        let initParams = await this.initParams({}),
-            initOthers = await this.initOthers({});
-
-        if(initParams && initOthers) {
-
-            Alerts.swals({show: false});
-            // this.listEntity({});
-
-        }
+        const initialized = await this.loadInitialParams(() => this.initParams({}));
+        if(initialized) await this.initOthers({});
 
     },
     data() {

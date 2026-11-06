@@ -1,114 +1,120 @@
 <template>
-    <main :class="['br-home', {'br-home--compact': !showDescriptions}]">
-        <Breadcrumb :list="breadcrumbItems"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <main :class="['br-home', {'br-home--compact': !showDescriptions}]">
+                <Breadcrumb :list="breadcrumbItems"/>
 
-        <header class="br-home__header">
-            <div class="br-home__filters">
-                <div class="br-home-search">
-                    <i class="fa-solid fa-magnifying-glass br-home-search__icon" aria-hidden="true"></i>
-                    <input
-                        id="homeModuleSearch"
-                        v-model.trim="searchTerm"
-                        type="search"
-                        class="form-control br-home-search__input"
-                        :placeholder="page.filters.search.placeholder"
-                        :aria-label="page.filters.search.ariaLabel">
-                    <button
-                        v-if="searchTerm"
-                        type="button"
-                        class="br-home-search__clear"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        :title="page.filters.search.clearTooltip"
-                        :aria-label="page.filters.search.clearTooltip"
-                        @click="clearSearch">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
+                <header class="br-home__header">
+                    <div class="br-home__filters">
+                        <div class="br-home-search">
+                            <i class="fa-solid fa-magnifying-glass br-home-search__icon" aria-hidden="true"></i>
+                            <input
+                                id="homeModuleSearch"
+                                v-model.trim="searchTerm"
+                                type="search"
+                                class="form-control br-home-search__input"
+                                :placeholder="page.filters.search.placeholder"
+                                :aria-label="page.filters.search.ariaLabel">
+                            <button
+                                v-if="searchTerm"
+                                type="button"
+                                class="br-home-search__clear"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                :title="page.filters.search.clearTooltip"
+                                :aria-label="page.filters.search.clearTooltip"
+                                @click="clearSearch">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
 
-                <div class="form-check form-switch br-home__filter">
-                    <input
-                        id="toggleFavorites"
-                        class="form-check-input"
-                        type="checkbox"
-                        v-model="forms.entity.createUpdate.config.show_only_favorites"
-                        :disabled="isSaving"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="bottom"
-                        :title="page.filters.favorites.tooltip"
-                        @change="saveGlobalPreferences">
-                    <label for="toggleFavorites" class="form-check-label">
-                        {{ page.filters.favorites.label }}
-                    </label>
-                </div>
+                        <div class="form-check form-switch br-home__filter">
+                            <input
+                                id="toggleFavorites"
+                                class="form-check-input"
+                                type="checkbox"
+                                v-model="forms.entity.createUpdate.config.show_only_favorites"
+                                :disabled="isSaving"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"
+                                :title="page.filters.favorites.tooltip"
+                                @change="saveGlobalPreferences">
+                            <label for="toggleFavorites" class="form-check-label">
+                                {{ page.filters.favorites.label }}
+                            </label>
+                        </div>
 
-                <div class="form-check form-switch br-home__filter">
-                    <input
-                        id="toggleDescriptions"
-                        class="form-check-input"
-                        type="checkbox"
-                        v-model="forms.entity.createUpdate.config.show_descriptions"
-                        :disabled="isSaving"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="bottom"
-                        :title="page.filters.descriptions.tooltip"
-                        @change="saveGlobalPreferences">
-                    <label for="toggleDescriptions" class="form-check-label">
-                        {{ page.filters.descriptions.label }}
-                    </label>
-                </div>
-            </div>
-        </header>
-
-        <section
-            v-if="sections.length === 0"
-            class="br-home__empty">
-            <WithoutData type="image" :text="emptyStateText"/>
-        </section>
-
-        <section v-else class="br-home__grid" :aria-label="page.modulesAriaLabel">
-            <article v-for="section in sections" :key="section.id" class="br-home-section">
-                <header class="br-home-section__header">
-                    <i :class="[section.dom_icon, 'br-home-section__icon']" aria-hidden="true"></i>
-                    <h2 class="br-home-section__title">{{ section.dom_label }}</h2>
+                        <div class="form-check form-switch br-home__filter">
+                            <input
+                                id="toggleDescriptions"
+                                class="form-check-input"
+                                type="checkbox"
+                                v-model="forms.entity.createUpdate.config.show_descriptions"
+                                :disabled="isSaving"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"
+                                :title="page.filters.descriptions.tooltip"
+                                @change="saveGlobalPreferences">
+                            <label for="toggleDescriptions" class="form-check-label">
+                                {{ page.filters.descriptions.label }}
+                            </label>
+                        </div>
+                    </div>
                 </header>
 
-                <nav class="br-home-section__links" :aria-label="section.dom_label">
-                    <div
-                        class="br-home-access"
-                        v-for="subSection in section.sub_sections"
-                        :key="subSection.id">
-                        <a class="br-home-access__link" :href="subSection.dom_route_url">
-                            <span class="br-home-access__content">
-                                <span class="br-home-access__label">{{ subSection.dom_label }}</span>
-                                <span v-if="showDescriptions && subSection.description" class="br-home-access__description">
-                                    {{ subSection.description }}
-                                </span>
-                            </span>
-                        </a>
+                <section
+                    v-if="sections.length === 0"
+                    class="br-home__empty">
+                    <WithoutData type="image" :text="emptyStateText"/>
+                </section>
 
-                        <button
-                            :key="`${subSection.id}-${isFavorite(subSection) ? 'favorite' : 'available'}`"
-                            type="button"
-                            :class="['br-home-favorite', {'is-active': isFavorite(subSection)}]"
-                            :disabled="isSaving"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            :title="favoriteTooltip(subSection)"
-                            :aria-label="favoriteTooltip(subSection)"
-                            @click="changeFavorite(section, subSection, $event)">
-                            <i
-                                :class="isFavorite(subSection) ? 'fa-solid fa-star' : 'fa-regular fa-star'"
-                                aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </nav>
-            </article>
-        </section>
-    </main>
+                <section v-else class="br-home__grid" :aria-label="page.modulesAriaLabel">
+                    <article v-for="section in sections" :key="section.id" class="br-home-section">
+                        <header class="br-home-section__header">
+                            <i :class="[section.dom_icon, 'br-home-section__icon']" aria-hidden="true"></i>
+                            <h2 class="br-home-section__title">{{ section.dom_label }}</h2>
+                        </header>
+
+                        <nav class="br-home-section__links" :aria-label="section.dom_label">
+                            <div
+                                class="br-home-access"
+                                v-for="subSection in section.sub_sections"
+                                :key="subSection.id">
+                                <a class="br-home-access__link" :href="subSection.dom_route_url">
+                                    <span class="br-home-access__content">
+                                        <span class="br-home-access__label">{{ subSection.dom_label }}</span>
+                                        <span v-if="showDescriptions && subSection.description" class="br-home-access__description">
+                                            {{ subSection.description }}
+                                        </span>
+                                    </span>
+                                </a>
+
+                                <button
+                                    :key="`${subSection.id}-${isFavorite(subSection) ? 'favorite' : 'available'}`"
+                                    type="button"
+                                    :class="['br-home-favorite', {'is-active': isFavorite(subSection)}]"
+                                    :disabled="isSaving"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    :title="favoriteTooltip(subSection)"
+                                    :aria-label="favoriteTooltip(subSection)"
+                                    @click="changeFavorite(section, subSection, $event)">
+                                    <i
+                                        :class="isFavorite(subSection) ? 'fa-solid fa-star' : 'fa-regular fa-star'"
+                                        aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </nav>
+                    </article>
+                </section>
+            </main>
+        </div>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import {markRaw} from "vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -221,21 +227,15 @@ function createConfirmationContent(section, subSection, confirmation) {
 }
 
 export default {
+    mixins: [InitialPageMixin],
     async mounted() {
 
         Utils.navbarItem(this.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        const initParams = await this.initParams({});
+        await this.loadInitialParams(() => this.initParams({}));
 
         this.restoreGlobalPreferences();
         this.refreshTooltips();
-
-        if(initParams) {
-
-            Alerts.swals({show: false});
-
-        }
 
     },
     beforeUnmount() {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@babel/parser";
-import {emptyPagination} from "../../resources/js/System/Helpers/ListState.js";
+import {emptyPagination, currentQueryRoute} from "../../resources/js/System/Helpers/ListState.js";
 
 const root = "resources/js/System/Pages/";
 const read = file => readFileSync(new URL(`../../${file}`, import.meta.url), "utf8");
@@ -43,6 +43,9 @@ const lists = [
     ["Finance/cash_registers/main.vue", "getSummary", "summary.payments", "loading.summary", "array"],
     ["Finance/misc_expenses/main.vue", "loadExpenses", "expenses", "loading"],
     ["Operations/service_operations/main.vue", "getSessions", "sessions", "loading"],
+    ["Operations/service_operations/main.vue", "getBoard", "stations", "loading", "array"],
+    ["Operations/service_operations/main.vue", "getStations", "stations", "loading", "array"],
+    ["Essentials/reports/main.vue", "consultSettlements", "settlements.records", "settlements.loading", "array"],
     ["Organizations/branches/main.vue", "loadSeriesAudit", "seriesAudit.records", "seriesAudit.loading", "object"],
     ["Organizations/roles/main.vue", "listRoles", "records", "loading", "object"],
     ["Organizations/users/main.vue", "listAuthenticationEvents", "authenticationEvents.records", "authenticationEvents.loading", "object"],
@@ -65,7 +68,7 @@ function setAt(context, path, value) {
 }
 
 function contextFor(loadingPath) {
-    const routes = {list: "/list", sessions: "/list", deliveries: "/list", data: "/list"};
+    const routes = {list: "/list", sessions: "/list", deliveries: "/list", data: "/list", board: "/list", stations: "/list", consult: "/list"};
     const entityList = {filters: {filter_by: {code: "all"}, word: "producto"}, extras: {loading: false, route: "/list"}};
     const context = {
         entity: "entity", entityList, lists: {entity: entityList},
@@ -73,7 +76,7 @@ function contextFor(loadingPath) {
         sessionConfig: {routes}, movementConfig: {routes}, summaryConfig: {routes}, summary: {}, routeActions: {store: "/list", consult: "/list", seriesAudit: "/list"},
         filters: {word: "producto", warehouse: {code: 1}, productSearch: "producto"},
         eventsModal: {device: {id: 1}}, authenticationEvents: {user: {id: 1}, filters: {}}, seriesAudit: {gaps: [{id: 1}]},
-        selectedBranch: {id: 1}, selectedStatus: {code: ""}, sessionsRequestSequence: 0, requestVersion: 0,
+        selectedBranch: {id: 1}, selectedFloor: {id: 1}, selectedStatus: {code: ""}, sessionsRequestSequence: 0, requestVersion: 0, settlements: {},
         loadingStock: false, loadingAlerts: false,
         baseFilters: () => ({}), requestFilters: () => ({}), getListFilters: () => ({}), currentStockAdvancedFilters: () => ({}), currentReportFilters: () => ({}), resourceRoute: () => "/list",
         isDefined: value => value != null && (typeof value !== "object" || !("value" in value) || value.value != null),
@@ -91,6 +94,15 @@ test("el estado vacío no comparte filas ni enlaces entre tablas", () => {
     assert.deepEqual(second, {data: [], total: 0, links: [], current_page: 1, last_page: 1, from: null, to: null});
 });
 
+test("los filtros actuales sustituyen los incluidos en un enlace anterior, incluso al vaciarlos", () => {
+    const route = currentQueryRoute("/list?page=3&product_search=anterior&minimum_status=configured&filter[status]=active#table", {
+        product_search: "", minimum_status: null, filter: {status: ""}
+    });
+    assert.equal(route, "/list?page=3#table");
+    assert.equal(currentQueryRoute("/list?page=2&word=viejo", {word: "nuevo"}), "/list?page=2");
+    assert.equal(currentQueryRoute("/list", {word: "nuevo"}), "/list");
+});
+
 for(const [path, name, recordsPath, loadingPath, argType] of lists) {
     test(`${path}: ${name} limpia antes de buscar o paginar y permanece vacío si falla`, async () => {
         let request;
@@ -100,8 +112,8 @@ for(const [path, name, recordsPath, loadingPath, argType] of lists) {
             get: ({route}) => { calls++; assert.equal(typeof route, "string", "la ruta debe ser texto, incluso al paginar"); return request.promise; }
         };
         const run = method(root + path, name, {
-            Requests, Utils: {cloneJson: structuredClone}, Alerts: {tooltips: noop, loading: noop, close: noop},
-            MODULE: {config: {perPage: 10}}, CONFIG: {routes: {list: "/list"}}, window: {location: {origin: "https://example.test"}}
+            Requests, Utils: {cloneJson: structuredClone}, Alerts: {tooltips: noop, loading: noop, close: noop, swals: noop, generateAlert: noop},
+            MODULE: {config: {perPage: 10}}, CONFIG: {routes: {list: "/list"}}, STOCK_PAGE_SIZE: 10, window: {location: {origin: "https://example.test"}}
         });
         for(const [index, url] of [null, "/list?page=2"].entries()) {
             const context = contextFor(loadingPath);

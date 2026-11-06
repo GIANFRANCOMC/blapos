@@ -144,7 +144,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="loadingGuides">
+                                        <tr class="br-table-state" v-if="loadingGuides">
                                             <td colspan="6" class="py-4"><Loader/></td>
                                         </tr>
                                         <template v-else-if="guideRecords.total > 0">
@@ -179,7 +179,7 @@
                                                 </td>
                                             </tr>
                                         </template>
-                                        <tr v-else>
+                                        <tr class="br-table-state" v-else>
                                             <td colspan="6" class="py-4">
                                                 <WithoutData
                                                     class="br-entity-empty-state"

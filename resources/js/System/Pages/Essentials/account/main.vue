@@ -80,7 +80,7 @@ import AccountCompanyCard from "./AccountCompanyCard.vue";
 import AccountUserCard from "./AccountUserCard.vue";
 
 const emptyForm = () => ({email: "", phone_number: "", gender: "", birthdate: ""});
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     components: {InitialLoadTransition, AccountSkeleton, AccountCompanyCard, AccountUserCard},

@@ -32,7 +32,7 @@
     padding: 0.16rem 0.46rem;
     border-radius: var(--br-radius-sm);
     font-size: var(--br-table-heading-font-size);
-    font-weight: 650;
+    font-weight: var(--br-font-weight-emphasis);
     white-space: nowrap;
 }
 
@@ -131,7 +131,7 @@
     background: color-mix(in srgb, var(--br-primary-soft) 62%, var(--br-white));
     color: var(--br-secondary);
     font-size: var(--br-font-size-068);
-    font-weight: 700;
+    font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-tax-quantity {
@@ -139,7 +139,7 @@
     min-height: 2.1rem;
     color: var(--br-secondary);
     font-size: var(--br-font-size-078);
-    font-weight: 700;
+    font-weight: var(--br-font-weight-emphasis);
     text-align: center;
 }
 
@@ -155,7 +155,7 @@
     background: var(--br-secondary-soft);
     color: var(--br-secondary);
     font-size: var(--br-font-size-068);
-    font-weight: 700;
+    font-weight: var(--br-font-weight-emphasis);
     line-height: 1;
 }
 
@@ -218,7 +218,7 @@
     background: transparent;
     color: var(--br-primary);
     font-size: var(--br-font-size-072);
-    font-weight: 800;
+    font-weight: var(--br-font-weight-emphasis);
     line-height: 1;
 }
 
@@ -444,7 +444,7 @@
         margin-bottom: 0.28rem;
         color: var(--br-text-muted);
         font-size: var(--br-table-caption-font-size);
-        font-weight: 600;
+        font-weight: var(--br-font-weight-emphasis);
     }
 
     .br-entity-inventory__field .br-entity-inventory__mobile-label {

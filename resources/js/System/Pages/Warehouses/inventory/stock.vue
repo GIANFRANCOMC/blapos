@@ -202,7 +202,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-if="loadingStock">
+                                    <tr class="br-table-state" v-if="loadingStock">
                                         <td colspan="5" class="py-4"><Loader/></td>
                                     </tr>
                                     <template v-else-if="stockRecords.total > 0">
@@ -229,7 +229,7 @@
                                             <td :class="['br-inventory__situation', stockStatus(record).cellClass]">{{ stockStatus(record).label }}</td>
                                         </tr>
                                     </template>
-                                    <tr v-else>
+                                    <tr class="br-table-state" v-else>
                                         <td colspan="5" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
@@ -265,7 +265,6 @@
         @page="listStockAlerts"
         @retry="listStockAlerts({})"
         @search="searchStockAlerts"
-        @clear-filters="clearFilters({alerts: true})"
         @download="downloadStockAlerts"/>
     <FormModal
         modal-id="inventoryMovementModal"

@@ -2,69 +2,75 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Filters Section -->
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="false"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <FiltersSection
+                :filter-by-value="filterByValue"
+                @update:filterByValue="filterByValue = $event"
+                :filter-word-value="filterWordValue"
+                @update:filterWordValue="filterWordValue = $event"
+                :filter-by-options="filterByOptions"
+                :search-placeholder="searchPlaceholder"
+                :loading="entityList.extras.loading"
+                :filter-by-title="MODULE.texts.filters.filterBy"
+                :search-title="MODULE.texts.filters.search"
+                :search-button-text="MODULE.texts.actions.search"
+                :add-button-text="MODULE.texts.actions.add"
+                :show-add-button="false"
+                :title-class="[config.forms.classes.title]"
+                :select-class="config.forms.classes.select2"
+                @search="handleSearch"/>
 
-    <!-- List Section -->
-    <section class="list-section mb-3 mb-md-3">
-        <Loader v-if="entityList.extras.loading"/>
-        <WithoutData v-else-if="entityList.records.total === 0" type="image"/>
-        <div v-else-if="entityList.records.total > 0" class="row g-3 g-lg-4">
-            <div v-for="record in entityList.records.data" :key="record.id" class="col-12 col-md-6 col-xl-4">
-                <div class="card card-list-custom border-0 shadow-sm h-100">
-                    <div class="card-header">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
-                            <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
-                                <span class="text-muted small fw-semibold" v-text="legibleFormatDate({dateString: record.created_at, type: 'datetime'})"></span>
-                                <span class="fs-5 fw-bold text-dark text-truncate" v-text="getType(record)?.label"></span>
+            <!-- List Section -->
+            <section class="list-section mb-3 mb-md-3">
+                <Loader v-if="entityList.extras.loading"/>
+                <WithoutData v-else-if="entityList.records.total === 0" type="image"/>
+                <div v-else-if="entityList.records.total > 0" class="row g-3 g-lg-4">
+                    <div v-for="record in entityList.records.data" :key="record.id" class="col-12 col-md-6 col-xl-4">
+                        <div class="card card-list-custom border-0 shadow-sm h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-start justify-content-between gap-3">
+                                    <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
+                                        <span class="text-muted small fw-semibold" v-text="legibleFormatDate({dateString: record.created_at, type: 'datetime'})"></span>
+                                        <span class="fs-5 fw-bold text-dark text-truncate" v-text="getType(record)?.label"></span>
+                                    </div>
+                                    <StatusBadge
+                                        class="flex-shrink-none"
+                                        :status="record.status"
+                                        :formatted-status="record.formatted_status"
+                                        :custom-variants="bookComplaintsStatusBadgeVariants"/>
+                                </div>
                             </div>
-                            <StatusBadge
-                                class="flex-shrink-none"
-                                :status="record.status"
-                                :formatted-status="record.formatted_status"
-                                :custom-variants="bookComplaintsStatusBadgeVariants"/>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-column gap-2">
-                            <div v-for="field in getCardFields(record)" :key="field.key" class="d-flex align-items-center gap-2">
-                                <i :class="[field.icon, 'icon-fixed-width']"></i>
-                                <span v-if="field.value" class="text-truncate flex-grow-1 small flex-min-w-0" v-text="field.value"></span>
-                                <span v-else class="text-muted small" v-text="field.placeholder"></span>
+                            <div class="card-body">
+                                <div class="d-flex flex-column gap-2">
+                                    <div v-for="field in getCardFields(record)" :key="field.key" class="d-flex align-items-center gap-2">
+                                        <i :class="[field.icon, 'icon-fixed-width']"></i>
+                                        <span v-if="field.value" class="text-truncate flex-grow-1 small flex-min-w-0" v-text="field.value"></span>
+                                        <span v-else class="text-muted small" v-text="field.placeholder"></span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 pt-3 border-top">
-                            <button type="button" class="btn btn-sm btn-primary waves-effect" @click="openModal(record)">
-                                <i class="fa-solid fa-screwdriver-wrench"></i>
-                                <span class="ms-2" v-text="MODULE.texts.actions.manage"></span>
-                            </button>
+                            <div class="card-footer">
+                                <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 pt-3 border-top">
+                                    <button type="button" class="btn btn-sm btn-primary waves-effect" @click="openModal(record)">
+                                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                                        <span class="ms-2" v-text="MODULE.texts.actions.manage"></span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Pagination -->
+            <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+
+            <!-- Modal: Create/Update -->
+
         </div>
-    </section>
-
-    <!-- Pagination -->
-    <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
-
-    <!-- Modal: Create/Update -->
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -294,6 +300,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -445,6 +452,7 @@ const MODULE = {
 };
 
 export default {
+    mixins: [InitialPageMixin],
     name: "BookComplaintsMain",
     data() {
 
@@ -467,15 +475,12 @@ export default {
         Utils.navbarItem("menu-parent-customers", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
-
-        const initParams = await this.initParams();
+        const initParams = await this.loadInitialParams(() => this.initParams());
 
         this.isInitialized = true;
 
         if(initParams) {
 
-            Alerts.swals({show: false});
             this.listEntity({});
 
         }
@@ -517,7 +522,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                        if(value != null) urlObj.searchParams.set(key, value);
+                        else urlObj.searchParams.delete(key);
 
                     });
 

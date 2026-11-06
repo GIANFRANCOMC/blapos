@@ -143,7 +143,7 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   ) !important;
   box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--br-white) 4%, transparent) !important;
   color: var(--br-white) !important;
-  font-weight: 600 !important;
+  font-weight: var(--br-font-weight-heading) !important;
 }
 
 .br-layout .br-menu-brand.menu-vertical .menu-inner > .menu-item.active > .menu-link:not(.menu-toggle) {
@@ -216,7 +216,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
 .br-layout .br-menu-brand .menu-header-text {
   color: color-mix(in srgb, var(--br-white) 62%, transparent) !important;
   letter-spacing: 0.1em;
-  font-weight: 600;
+  font-weight: var(--br-font-weight-heading);
   font-size: var(--br-ui-font-size) !important;
 }
 
@@ -279,7 +279,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   justify-content: center;
   color: inherit;
   font-size: var(--br-font-size-072);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   letter-spacing: 0.015em;
 }
@@ -297,7 +297,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   margin: 0;
   width: 100%;
   font-size: var(--br-font-size-0875);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.35;
   letter-spacing: -0.02em;
   color: color-mix(in srgb, var(--br-sidebar-text-soft) 88%, transparent) !important;
@@ -310,7 +310,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   margin: 0;
   width: 100%;
   font-size: var(--br-font-size-086);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.15;
   color: var(--br-white) !important;
   overflow: hidden;
@@ -324,7 +324,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   padding: 0;
   max-width: 100%;
   font-size: var(--br-font-size-052);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--br-primary-muted) 92%, transparent) !important;
@@ -354,7 +354,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
 }
 
 .br-sidebar-profile-role-name {
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   font-size: inherit;
   letter-spacing: inherit;
 }
@@ -433,7 +433,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   box-shadow: none !important;
   color: inherit !important;
   flex: 0 0 auto !important;
-  font-weight: 600;
+  font-weight: var(--br-font-weight-heading);
   font-size: var(--br-btn-font-size-sm);
   letter-spacing: 0.01em;
   text-decoration: none !important;
@@ -498,7 +498,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: var(--br-font-weight-heading);
   font-size: var(--br-btn-font-size-sm);
   letter-spacing: 0.01em;
   line-height: 1.2;
@@ -592,7 +592,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
 .br-menu-brand .br-menu-category .divider-text {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-065);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.08em;
 }
 
@@ -600,7 +600,7 @@ html:not(.layout-menu-collapsed) .br-layout .br-menu-brand .menu-inner .menu-ite
   padding: 0.65rem 1rem 0.25rem 3.05rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-065);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.04em;
   line-height: 1;
   text-transform: uppercase;
@@ -797,7 +797,7 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   margin-left: 0 !important;
   padding: 0.3rem 0.52rem;
   line-height: 1.25;
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   font-size: var(--br-btn-font-size-sm);
   transition: var(--br-transition);
   box-shadow: none;
@@ -805,7 +805,7 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 .br-layout .br-pagination .br-pagination__item--boundary .br-pagination__link {
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-layout .br-pagination .page-item:not(.active):not(.disabled) .page-link.br-pagination__link:hover {
@@ -846,7 +846,7 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   background: var(--br-table-thead-bg) !important;
   background-color: var(--br-table-thead-bg) !important;
   color: var(--br-table-thead-text) !important;
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   box-shadow: none;
 }
 
@@ -1093,7 +1093,7 @@ body.br-layout .form-check-input:disabled {
   box-sizing: border-box;
   padding: 0 1.75rem;
   font-size: var(--br-font-size-075);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
@@ -1152,7 +1152,7 @@ body.br-layout .form-check-input:disabled {
   border-radius: 0.4rem;
   text-decoration: none;
   font-size: var(--br-font-size-08125);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   color: var(--br-secondary) !important;
   line-height: 1.3;
   /* Solo animar el desplazamiento: el degradado y el color no se interpolan (evita pestañeo) */
@@ -1394,7 +1394,7 @@ body.br-layout .form-check-input:disabled {
 .br-layout .br-fab-favorites__close i {
   color: var(--br-white);
   font-size: var(--br-font-size-062);
-  font-weight: 900;
+  font-weight: var(--br-font-weight-icon);
   line-height: 1;
 }
 
@@ -1514,7 +1514,7 @@ body.br-layout .form-check-input:disabled {
   padding: 0.25rem 0.625rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-075);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.25;
 }
 
@@ -1557,7 +1557,7 @@ body.br-layout .form-check-input:disabled {
 .br-layout .br-navbar-favorites .br-fab-favorites__item-label {
   color: inherit;
   font-size: var(--br-font-size-08125);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.25;
 }
 
@@ -1566,7 +1566,7 @@ body.br-layout .form-check-input:disabled {
   overflow: hidden;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-06875);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.3;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -1658,7 +1658,7 @@ body.br-layout .form-check-input:disabled {
 .br-navbar-favorites__label {
   color: inherit;
   font-size: var(--br-font-size-08125);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
 }
 
@@ -1672,7 +1672,7 @@ body.br-layout .form-check-input:disabled {
   border-radius: 50rem;
   background: var(--br-secondary-soft);
   font-size: var(--br-font-size-060);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-value);
   line-height: 1;
 }
 

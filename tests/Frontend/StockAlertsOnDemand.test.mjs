@@ -79,11 +79,13 @@ test("Stock mínimo conserva el filtro aplicado en búsqueda, paginación y desc
         request.search();
         assert.equal(request.requests[0].data.product_search, "tuerca");
         assert.equal(request.requests[0].data.minimum_status, minimum);
+        assert.equal(request.requests[0].data.per_page, 10);
         request.respond({bool: true, data: {total: 10, data: [{id: 1}]}});
         await request.pending;
 
         const page = request.run({url: "/alerts?page=2"});
         assert.equal(request.requests[1].data.minimum_status, minimum);
+        assert.equal(request.requests[1].data.per_page, 10);
         assert.equal(request.requests[1].data.product_search, "tuerca");
         request.respond({bool: true, data: {total: 10, data: [{id: 2}]}});
         await page;
@@ -101,21 +103,23 @@ test("Stock mínimo conserva el filtro aplicado en búsqueda, paginación y desc
 test("Ver alertas mantiene cerrada la modal durante la consulta y la abre con los resultados", async () => {
     const request = alertsRequest();
     const pending = request.run({showModal: true});
-    assert.deepEqual(request.events, ["loading", "request"]);
+    await Promise.resolve();
+    assert.deepEqual(request.events, ["loading", "render", "request"]);
     assert.equal(request.context.loadingAlerts, true);
     await request.run({showModal: true});
-    assert.deepEqual(request.events, ["loading", "request"]);
+    assert.deepEqual(request.events, ["loading", "render", "request"]);
     const data = {total: 1, data: [{id: 10}], links: []};
     request.respond({bool: true, data});
     await pending;
     assert.equal(request.context.stockAlerts, data);
-    assert.deepEqual(request.events, ["loading", "request", "close", "render", "modal"]);
+    assert.deepEqual(request.events, ["loading", "render", "request", "close", "render", "modal"]);
 });
 
 test("una respuesta vacía o fallida abre la modal después del loader con su estado correspondiente", async () => {
     for(const result of [{bool: true, data: {total: 0, data: []}}, {bool: false, data: {msg: "Error de consulta"}}, null]) {
         const request = alertsRequest();
         const pending = request.run({showModal: true});
+        await Promise.resolve();
         assert.equal(request.events.includes("modal"), false);
         result ? request.respond(result) : request.reject();
         await pending;
@@ -129,6 +133,7 @@ test("una respuesta de un contexto anterior no abre la modal de alertas", async 
     for(const change of [context => { context.requestVersion++; }, context => { context.filters.warehouse = {code: 2}; }]) {
         const request = alertsRequest();
         const pending = request.run({showModal: true});
+        await Promise.resolve();
         change(request.context);
         request.respond({bool: true, data: {total: 1, data: [{id: 10}]}});
         await pending;
@@ -145,6 +150,39 @@ test("buscar y paginar alertas actualiza los datos sin solicitar otra apertura",
         await pending;
         assert.deepEqual(request.events, ["loading", "request", "close"]);
     }
+});
+
+test("cada apertura de alertas restablece los filtros antes de consultar y limpia las filas anteriores", async () => {
+    const request = alertsRequest();
+    for(let opening = 0; opening < 2; opening++) {
+        request.context.alertProductSearch = "filtro anterior";
+        request.context.alertMinimumStatus = {code: "configured"};
+        request.context.appliedAlertProductSearch = "búsqueda anterior";
+        request.context.appliedAlertMinimumStatus = "unconfigured";
+        request.context.stockAlerts = {data: [{id: 88}], total: 10};
+        const pending = request.run({showModal: true});
+        assert.deepEqual(request.context.stockAlerts.data, []);
+        await Promise.resolve();
+        assert.equal(request.context.alertProductSearch, "");
+        assert.equal(request.context.alertMinimumStatus.code, "");
+        assert.equal(request.requests.at(-1).data.product_search, "");
+        assert.equal(request.requests.at(-1).data.minimum_status, "");
+        request.respond({bool: true, data: {data: [{id: opening}], total: 1}});
+        await pending;
+    }
+});
+
+test("paginar o reintentar usa los filtros visibles actuales y no la última búsqueda guardada", async () => {
+    const request = alertsRequest();
+    request.context.appliedAlertProductSearch = "anterior";
+    request.context.appliedAlertMinimumStatus = "configured";
+    request.context.alertProductSearch = " actual ";
+    request.context.alertMinimumStatus = {code: "unconfigured"};
+    const pending = request.run({url: "/alerts?page=2&product_search=anterior"});
+    assert.equal(request.requests[0].data.product_search, "actual");
+    assert.equal(request.requests[0].data.minimum_status, "unconfigured");
+    request.respond({bool: true, data: {data: [], total: 0}});
+    await pending;
 });
 
 test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas", () => {

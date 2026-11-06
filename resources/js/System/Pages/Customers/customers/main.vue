@@ -1,146 +1,151 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-entity">
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :show-download-button="true"
-        :show-import-button="true"
-        :group-secondary-actions="true"
-        import-button-text="Cargar masivamente"
-        download-button-text="Descargar Excel"
-        :downloading="isExporting"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()"
-        @import="openImportModal"
-        @download="downloadRecords"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <main class="br-entity">
+            <FiltersSection
+                :filter-by-value="filterByValue"
+                @update:filterByValue="filterByValue = $event"
+                :filter-word-value="filterWordValue"
+                @update:filterWordValue="filterWordValue = $event"
+                :filter-by-options="filterByOptions"
+                :search-placeholder="searchPlaceholder"
+                :loading="entityList.extras.loading"
+                :filter-by-title="MODULE.texts.filters.filterBy"
+                :search-title="MODULE.texts.filters.search"
+                :search-button-text="MODULE.texts.actions.search"
+                :add-button-text="MODULE.texts.actions.add"
+                :show-add-button="true"
+                :show-download-button="true"
+                :show-import-button="true"
+                :group-secondary-actions="true"
+                import-button-text="Cargar masivamente"
+                download-button-text="Descargar Excel"
+                :downloading="isExporting"
+                :title-class="[config.forms.classes.title]"
+                :select-class="config.forms.classes.select2"
+                @search="handleSearch"
+                @add="openModal()"
+                @import="openImportModal"
+                @download="downloadRecords"/>
 
-    <CatalogReferenceImportModal
-        ref="customerImportModal"
-        modal-id="customerImportModal"
-        resource="clientes"
-        template-file-name="plantilla_clientes.xlsx"
-        intro="Usa dni o ruc y conserva el documento como texto. Si hay errores, no se guarda ninguna fila."
-        help="Excel o CSV · máximo 500 filas · género: male/female/other · fecha: AAAA-MM-DD."
-        :import-route="routeActions.import"
-        @imported="listEntity({})"/>
+            <CatalogReferenceImportModal
+                ref="customerImportModal"
+                modal-id="customerImportModal"
+                resource="clientes"
+                template-file-name="plantilla_clientes.xlsx"
+                intro="Usa dni o ruc y conserva el documento como texto. Si hay errores, no se guarda ninguna fila."
+                help="Excel o CSV · máximo 500 filas · género: male/female/other · fecha: AAAA-MM-DD."
+                :import-route="routeActions.import"
+                @imported="listEntity({})"/>
 
-    <section class="br-entity-list" aria-label="Listado de clientes">
-        <div class="table-responsive">
-            <table class="table br-entity-table br-entity-table--directory br-customer-table mb-0">
-                <colgroup>
-                    <col style="width: 19%;">
-                    <col style="width: 23%;">
-                    <col style="width: 25%;">
-                    <col style="width: 19%;">
-                    <col style="width: 8%;">
-                    <col style="width: 6%;">
-                </colgroup>
-                <thead class="br-table-header-surface">
-                    <tr>
-                        <th>Identificación</th>
-                        <th>Cliente</th>
-                        <th>Contacto</th>
-                        <th>Datos adicionales</th>
-                        <th class="text-center">Estado</th>
-                        <th><span class="visually-hidden">Acciones</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="entityList.extras.loading">
-                        <td colspan="6" class="py-4"><Loader/></td>
-                    </tr>
-                    <template v-else-if="entityList.records.total > 0">
-                        <tr v-for="record in entityList.records.data" :key="record.id">
-                            <td class="br-entity-table__identification-cell">
-                                <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                    <div class="br-entity-identifier">
-                                        <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                        <span class="br-entity-identifier__value">
-                                            <span class="br-entity-code" v-text="record.document_number || '—'"></span>
-                                            <span v-if="record.document_number" class="br-entity-identifier__actions">
-                                                <CopyButton :value="record.document_number" label="Número de documento"/>
+            <section class="br-entity-list" aria-label="Listado de clientes">
+                <div class="table-responsive">
+                    <table class="table br-entity-table br-entity-table--directory br-customer-table mb-0">
+                        <colgroup>
+                            <col style="width: 19%;">
+                            <col style="width: 23%;">
+                            <col style="width: 25%;">
+                            <col style="width: 19%;">
+                            <col style="width: 8%;">
+                            <col style="width: 6%;">
+                        </colgroup>
+                        <thead class="br-table-header-surface">
+                            <tr>
+                                <th>Identificación</th>
+                                <th>Cliente</th>
+                                <th>Contacto</th>
+                                <th>Datos adicionales</th>
+                                <th class="text-center">Estado</th>
+                                <th><span class="visually-hidden">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="br-table-state" v-if="entityList.extras.loading">
+                                <td colspan="6" class="py-4"><Loader/></td>
+                            </tr>
+                            <template v-else-if="entityList.records.total > 0">
+                                <tr v-for="record in entityList.records.data" :key="record.id">
+                                    <td class="br-entity-table__identification-cell">
+                                        <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                            <div class="br-entity-identifier">
+                                                <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
+                                                <span class="br-entity-identifier__value">
+                                                    <span class="br-entity-code" v-text="record.document_number || '—'"></span>
+                                                    <span v-if="record.document_number" class="br-entity-identifier__actions">
+                                                        <CopyButton :value="record.document_number" label="Número de documento"/>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="br-entity-table__name" v-text="record.name"></span></td>
+                                    <td>
+                                        <div class="br-customer-table__stack">
+                                            <span v-if="record.email" class="br-customer-table__value">
+                                                <span v-text="record.email"></span>
+                                                <CopyButton :value="record.email" label="Correo electrónico"/>
                                             </span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="br-entity-table__name" v-text="record.name"></span></td>
-                            <td>
-                                <div class="br-customer-table__stack">
-                                    <span v-if="record.email" class="br-customer-table__value">
-                                        <span v-text="record.email"></span>
-                                        <CopyButton :value="record.email" label="Correo electrónico"/>
-                                    </span>
-                                    <span v-if="record.phone_number" class="br-customer-table__value">
-                                        <span v-text="record.phone_number"></span>
-                                        <CopyButton :value="record.phone_number" label="Celular"/>
-                                    </span>
-                                    <span v-if="!record.email && !record.phone_number" class="br-customer-table__muted">Sin datos de contacto</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="br-entity-offering-details">
-                                    <span v-if="record.formatted_gender"><strong class="colon-at-end">Género</strong> {{ record.formatted_gender }}</span>
-                                    <span v-if="record.birthdate"><strong class="colon-at-end">Nacimiento</strong> {{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
-                                    <span v-if="getEmergencyContactLabel(record)"><strong class="colon-at-end">Emergencia</strong> {{ getEmergencyContactLabel(record) }}</span>
-                                    <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="br-customer-table__muted">Sin datos adicionales</span>
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                            </td>
-                            <td class="text-center">
-                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                    <li>
-                                        <button type="button" class="dropdown-item" @click="openModal(record)">
-                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                            <span v-text="MODULE.texts.actions.edit"></span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item" @click="openCarnetModal(record)">
-                                            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
-                                            <span v-text="MODULE.texts.actions.carnet"></span>
-                                        </button>
-                                    </li>
-                                    <li v-if="canRegisterCustomerFingerprint">
-                                        <button type="button" class="dropdown-item" @click="openRegisterBiometricModal(record)">
-                                            <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
-                                            <span v-text="MODULE.texts.actions.registerBiometric"></span>
-                                        </button>
-                                    </li>
-                                </TableActionsDropdown>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr v-else>
-                        <td colspan="6" class="py-4">
-                            <WithoutData class="br-entity-empty-state" type="image"/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                            <span v-if="record.phone_number" class="br-customer-table__value">
+                                                <span v-text="record.phone_number"></span>
+                                                <CopyButton :value="record.phone_number" label="Celular"/>
+                                            </span>
+                                            <span v-if="!record.email && !record.phone_number" class="br-customer-table__muted">Sin datos de contacto</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="br-entity-offering-details">
+                                            <span v-if="record.formatted_gender"><strong class="colon-at-end">Género</strong> {{ record.formatted_gender }}</span>
+                                            <span v-if="record.birthdate"><strong class="colon-at-end">Nacimiento</strong> {{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
+                                            <span v-if="getEmergencyContactLabel(record)"><strong class="colon-at-end">Emergencia</strong> {{ getEmergencyContactLabel(record) }}</span>
+                                            <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="br-customer-table__muted">Sin datos adicionales</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                                            <li>
+                                                <button type="button" class="dropdown-item" @click="openModal(record)">
+                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                    <span v-text="MODULE.texts.actions.edit"></span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="dropdown-item" @click="openCarnetModal(record)">
+                                                    <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                                                    <span v-text="MODULE.texts.actions.carnet"></span>
+                                                </button>
+                                            </li>
+                                            <li v-if="canRegisterCustomerFingerprint">
+                                                <button type="button" class="dropdown-item" @click="openRegisterBiometricModal(record)">
+                                                    <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+                                                    <span v-text="MODULE.texts.actions.registerBiometric"></span>
+                                                </button>
+                                            </li>
+                                        </TableActionsDropdown>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr class="br-table-state" v-else>
+                                <td colspan="6" class="py-4">
+                                    <WithoutData class="br-entity-empty-state" type="image"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pagination -->
+            <Paginator aria-label="Paginación de clientes" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+            </main>
+
         </div>
-    </section>
-
-    <!-- Pagination -->
-    <Paginator aria-label="Paginación de clientes" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
-    </main>
-
+    </InitialLoadTransition>
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="isUpdate ? 'EDITAR CLIENTE' : 'AGREGAR CLIENTE'"
@@ -339,7 +344,6 @@
             </form>
         </template>
     </FormModal>
-
     <FormModal :modal-id="forms[entity].carnet.extras.modals.default.id" title="CARNET DEL CLIENTE" :show-submit="false">
         <template #body>
             <div class="br-entity-form-section">
@@ -347,7 +351,6 @@
             </div>
         </template>
     </FormModal>
-
     <FormModal
         :modal-id="forms[entity].registerBiometric.extras.modals.default.id"
         title="REGISTRAR HUELLA BIOMÉTRICA"
@@ -419,6 +422,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -582,6 +586,7 @@ const MODULE = {
 };
 
 export default {
+    mixins: [InitialPageMixin],
     name: "CustomersMain",
     components: {CatalogFormTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
@@ -651,15 +656,12 @@ export default {
         Utils.navbarItem("menu-parent-customers", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
-
-        const initParams = await this.initParams();
+        const initParams = await this.loadInitialParams(() => this.initParams());
 
         this.isInitialized = true;
 
         if(initParams) {
 
-            Alerts.swals({show: false});
             this.listEntity({});
 
         }
@@ -711,7 +713,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                        if(value != null) urlObj.searchParams.set(key, value);
+                        else urlObj.searchParams.delete(key);
 
                     });
 

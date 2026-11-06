@@ -35,8 +35,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td :colspan="columns.length" class="py-4"><Loader/></td>
+                        <tr class="br-table-state">
+                            <td :colspan="columns.length" class="py-4"><div class="br-list-initial-space" aria-hidden="true"></div></td>
                         </tr>
                     </tbody>
                 </table>
@@ -46,7 +46,6 @@
 </template>
 
 <script>
-import Loader from "@System/Components/Loader.vue";
 
 const COMMON_IDENTITY = {title: "Identificación"};
 const COMMON_STATUS = {title: "Estado", align: "text-center"};
@@ -104,7 +103,6 @@ const COLUMNS = {
 };
 
 export default {
-    components: {Loader},
     name: "CatalogListSkeleton",
     props: {
         kind: {type: String, required: true, validator: value => Object.prototype.hasOwnProperty.call(COLUMNS, value)},

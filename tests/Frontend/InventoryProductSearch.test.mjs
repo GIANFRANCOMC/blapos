@@ -74,6 +74,7 @@ test("Buscar aplica el texto actual y reemplaza los registros al recibir la resp
     assert.notEqual(context.stockRecords, previous);
     assert.equal(requests.length, 1);
     assert.equal(requests[0].data.product_search, "producto");
+    assert.equal(requests[0].data.per_page, 10);
     const result = {total: 1, data: [{id: 22}], links: []};
     respond({bool: true, data: result});
     await pending;
@@ -119,35 +120,5 @@ test("Limpiar filtros restablece todos los campos juntos y conserva el almacén 
         assert.equal(context.resettingFilters, false);
     } finally {
         stops.forEach(stop => stop());
-    }
-});
-
-test("Limpiar filtros de alertas solo cambia los campos pendientes y Buscar los aplica juntos", async () => {
-    const component = inventoryComponent();
-    let queries = 0;
-    const context = reactive({
-        alertProductSearch: "producto", alertMinimumStatus: {code: "configured"},
-        appliedAlertProductSearch: "producto", appliedAlertMinimumStatus: "configured",
-        stockAlerts: {data: [{id: 20}], total: 1}, loadingAlerts: false,
-        resettingFilters: false, $nextTick: nextTick,
-        listStockAlerts() { queries++; }
-    });
-    context.searchStockAlerts = component.methods.searchStockAlerts.bind(context);
-    const stop = watch(() => context.alertMinimumStatus, component.watch.alertMinimumStatus.bind(context));
-    const {stockAlerts} = context;
-    try {
-        await component.methods.clearFilters.call(context, {alerts: true});
-        assert.equal(context.alertProductSearch, "");
-        assert.equal(context.alertMinimumStatus.code, "");
-        assert.equal(context.appliedAlertProductSearch, "producto");
-        assert.equal(context.appliedAlertMinimumStatus, "configured");
-        assert.equal(context.stockAlerts, stockAlerts);
-        assert.equal(queries, 0);
-        context.searchStockAlerts();
-        assert.equal(context.appliedAlertProductSearch, "");
-        assert.equal(context.appliedAlertMinimumStatus, "");
-        assert.equal(queries, 1);
-    } finally {
-        stop();
     }
 });

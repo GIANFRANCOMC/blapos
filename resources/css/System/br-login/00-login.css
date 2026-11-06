@@ -83,7 +83,7 @@ body:has(.br-auth-login-page) {
 .br-auth-login-eyebrow {
   margin: 0;
   font-size: var(--br-font-size-09375);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--br-primary) !important;
@@ -92,14 +92,14 @@ body:has(.br-auth-login-page) {
 .br-auth-login-title {
   margin: 0;
   font-size: var(--br-font-size-fluid-login);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
 .br-auth-login-sub {
   font-size: var(--br-font-size-0875);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   color: var(--br-text-muted) !important;
 }
 
@@ -111,7 +111,7 @@ body:has(.br-auth-login-page) {
  * [br-auth] Formulario (Bootstrap dentro de la página) + .br-link
  * ------------------------------------------------------------------------- */
 .br-auth-login-page a.br-link {
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-auth-login-page a.br-link:visited {
@@ -252,7 +252,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 }
 
 .br-auth-login-page .br-auth-help-footer .br-support-contact__question {
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: -0.015em;
   color: var(--br-white) !important;
 }
@@ -295,7 +295,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-access-denied__title {
   margin: 0 0 0.5rem;
   font-size: var(--br-font-size-10625);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: -0.02em;
   line-height: 1.3;
   color: var(--br-danger) !important;
@@ -303,12 +303,12 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 
 .br-auth-access-denied__strong-danger {
   color: var(--br-danger) !important;
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-auth-access-denied__strong-success {
   color: var(--br-success) !important;
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-auth-access-denied__text {
@@ -356,7 +356,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-support-box .br-auth-support-title {
   margin: 0 0 0.25rem;
   font-size: var(--br-font-size-100);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: -0.02em;
   color: var(--br-secondary) !important;
 }
@@ -364,7 +364,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-support-box .br-auth-support-lead {
   margin: 0 0 0.75rem;
   font-size: var(--br-font-size-08125);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.45;
   color: var(--br-text-muted) !important;
 }
@@ -378,13 +378,13 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-support-line-label {
   display: block;
   font-size: var(--br-font-size-08125);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   color: var(--br-secondary) !important;
   line-height: 1.35;
 }
 
 .br-auth-support-line .br-link {
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   word-break: break-word;
 }
 
@@ -433,7 +433,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-support-bar__kicker {
   margin: 0 0 0.75rem;
   font-size: var(--br-font-size-09375);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--br-auth-white-strong) !important;
@@ -467,7 +467,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-support-bar__label {
   display: block;
   font-size: var(--br-font-size-075);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   color: var(--br-auth-white-muted) !important;
 }
 
@@ -476,11 +476,11 @@ body:has(.br-auth-login-page) .btn-primary:focus {
   display: inline-block;
   margin-right: 0.35em;
   opacity: 0.5;
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-auth-support-bar--transparent .br-link {
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   word-break: break-word;
 }
 
@@ -488,7 +488,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-contact-us-kicker {
   margin: 0 0 0.35rem;
   font-size: var(--br-font-size-06875);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--br-primary) !important;
@@ -504,7 +504,7 @@ body:has(.br-auth-login-page) .btn-primary:focus {
 .br-auth-support-lite-label {
   margin: 0;
   font-size: var(--br-font-size-08125);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.4;
   color: var(--br-text-muted) !important;
   text-align: center;

@@ -2,562 +2,568 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Content -->
-    <div class="br-sale-create-grid">
-        <div class="br-sale-create-main">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row g-2 mb-2">
-                        <InputSlot
-                            hasDiv
-                            :title="MODULE.texts.form.branch"
-                            :titleClass="[config.forms.classes.title]"
-                            isRequired
-                            hasTextBottom
-                            :textBottomInfo="forms[entity].createUpdate.errors?.branch_id"
-                            xl="4"
-                            lg="4">
-                            <template v-slot:input>
-                                <v-select
-                                    v-model="forms[entity].createUpdate.data.branch"
-                                    :options="branches"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :searchable="false"
-                                    placeholder="Seleccione"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            hasDiv
-                            :title="MODULE.texts.form.serie"
-                            :titleClass="[config.forms.classes.title]"
-                            isRequired
-                            hasTextBottom
-                            :textBottomInfo="forms[entity].createUpdate.errors?.serie_id"
-                            xl="4"
-                            lg="4">
-                            <template v-slot:input>
-                                <v-select
-                                    v-model="forms[entity].createUpdate.data.serie"
-                                    :options="series"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :searchable="false"
-                                    placeholder="Seleccione">
-                                    <template #selected-option="option">
-                                        <span class="br-document-serie-option">
-                                            <strong v-text="option.label"></strong>
-                                            <small v-text="option.description"></small>
-                                        </span>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <div class="br-sale-create-grid">
+                <div class="br-sale-create-main">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-2 mb-2">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.branch"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.branch_id"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:input>
+                                        <v-select
+                                            v-model="forms[entity].createUpdate.data.branch"
+                                            :options="branches"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"
+                                            placeholder="Seleccione"/>
                                     </template>
-                                    <template #option="option">
-                                        <span class="br-document-serie-option">
-                                            <strong v-text="option.label"></strong>
-                                            <small v-text="option.description"></small>
-                                        </span>
+                                </InputSlot>
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.serie"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.serie_id"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:input>
+                                        <v-select
+                                            v-model="forms[entity].createUpdate.data.serie"
+                                            :options="series"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"
+                                            placeholder="Seleccione">
+                                            <template #selected-option="option">
+                                                <span class="br-document-serie-option">
+                                                    <strong v-text="option.label"></strong>
+                                                    <small v-text="option.description"></small>
+                                                </span>
+                                            </template>
+                                            <template #option="option">
+                                                <span class="br-document-serie-option">
+                                                    <strong v-text="option.label"></strong>
+                                                    <small v-text="option.description"></small>
+                                                </span>
+                                            </template>
+                                        </v-select>
                                     </template>
-                                </v-select>
-                            </template>
-                        </InputSlot>
-                        <div v-if="saleConfigurationIssue" class="col-12">
-                            <div class="alert alert-warning d-flex align-items-start gap-2 px-3 py-2 mb-0" role="alert">
-                                <i class="fa-solid fa-triangle-exclamation mt-1" aria-hidden="true"></i>
-                                <div>
-                                    <strong class="d-block" v-text="saleConfigurationIssue.title"></strong>
-                                    <span v-text="saleConfigurationIssue.message"></span>
+                                </InputSlot>
+                                <div v-if="saleConfigurationIssue" class="col-12">
+                                    <div class="alert alert-warning d-flex align-items-start gap-2 px-3 py-2 mb-0" role="alert">
+                                        <i class="fa-solid fa-triangle-exclamation mt-1" aria-hidden="true"></i>
+                                        <div>
+                                            <strong class="d-block" v-text="saleConfigurationIssue.title"></strong>
+                                            <span v-text="saleConfigurationIssue.message"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <InputDate
+                                    v-model="forms[entity].createUpdate.data.issue_date"
+                                    hasDiv
+                                    :title="MODULE.texts.form.issueDate"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    disabled
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.issue_date"
+                                    xl="4"
+                                    lg="4"/>
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.holder"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.holder_id"
+                                    xl="8"
+                                    lg="8">
+                                    <template v-slot:default>
+                                        <AddCustomer
+                                            v-if="!hasQuotationApplied"
+                                            :options="customerOptions"
+                                            @postAction="addCustomerPostAction"/>
+                                    </template>
+                                    <template v-slot:defaultAppend>
+                                        <a
+                                            href="javascript:void(0)"
+                                            class="br-link br-quick-create-trigger br-quick-create-trigger--link br-sale-customer-history-trigger ms-2"
+                                            :aria-disabled="!forms[entity].createUpdate.data.holder"
+                                            :title="MODULE.texts.actions.viewCustomerHistory"
+                                            @click.prevent="forms[entity].createUpdate.data.holder && viewCustomerHistory()">
+                                            <span v-text="MODULE.texts.actions.viewCustomerHistory"></span>
+                                        </a>
+                                    </template>
+                                    <template v-slot:input>
+                                        <v-select
+                                            v-model="forms[entity].createUpdate.data.holder"
+                                            :options="holders"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :disabled="hasQuotationApplied"
+                                            :searchable="true"
+                                            :filterable="false"
+                                            :loading="commercialSelection.customers.loading"
+                                            @open="openCommercialOptions('customers')"
+                                            @search="searchCommercialOptions('customers', $event)"
+                                            placeholder="Seleccione">
+                                            <template #selected-option="option">
+                                                <span class="br-document-holder-option">
+                                                    <strong v-text="holderDocumentTypeLabel(option)"></strong>
+                                                    <span v-text="holderDocumentDescription(option)"></span>
+                                                </span>
+                                            </template>
+                                            <template #option="option">
+                                                <span class="br-document-holder-option">
+                                                    <strong v-text="holderDocumentTypeLabel(option)"></strong>
+                                                    <span v-text="holderDocumentDescription(option)"></span>
+                                                </span>
+                                            </template>
+                                            <template #list-footer>
+                                                <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                                </li>
+                                            </template>
+                                            <template #no-options>Sin clientes para esta búsqueda.</template>
+                                        </v-select>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div class="br-sale-detail-toolbar">
+                                <label
+                                    class="form-label br-sale-detail-toolbar__counter"
+                                    v-text="`Detalle de la venta · ${forms[entity].createUpdate.data.details.length} ${forms[entity].createUpdate.data.details.length === 1 ? 'ítem' : 'ítems'}`">
+                                </label>
+                                <div class="br-sale-detail-toolbar__actions">
+                                    <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="modalAddDetail({})">
+                                        <span v-text="MODULE.texts.actions.addDetail"></span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="br-btn br-btn-sm br-sale-detail-toolbar__clear waves-effect"
+                                        :disabled="forms[entity].createUpdate.data.details.length <= 0"
+                                        @click="clearDetails">
+                                        <span>Limpiar</span>
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                        <InputDate
-                            v-model="forms[entity].createUpdate.data.issue_date"
-                            hasDiv
-                            :title="MODULE.texts.form.issueDate"
-                            :titleClass="[config.forms.classes.title]"
-                            isRequired
-                            disabled
-                            hasTextBottom
-                            :textBottomInfo="forms[entity].createUpdate.errors?.issue_date"
-                            xl="4"
-                            lg="4"/>
-                        <InputSlot
-                            hasDiv
-                            :title="MODULE.texts.form.holder"
-                            :titleClass="[config.forms.classes.title]"
-                            isRequired
-                            hasTextBottom
-                            :textBottomInfo="forms[entity].createUpdate.errors?.holder_id"
-                            xl="8"
-                            lg="8">
-                            <template v-slot:default>
-                                <AddCustomer
-                                    v-if="!hasQuotationApplied"
-                                    :options="customerOptions"
-                                    @postAction="addCustomerPostAction"/>
-                            </template>
-                            <template v-slot:defaultAppend>
-                                <a
-                                    href="javascript:void(0)"
-                                    class="br-link br-quick-create-trigger br-quick-create-trigger--link br-sale-customer-history-trigger ms-2"
-                                    :aria-disabled="!forms[entity].createUpdate.data.holder"
-                                    :title="MODULE.texts.actions.viewCustomerHistory"
-                                    @click.prevent="forms[entity].createUpdate.data.holder && viewCustomerHistory()">
-                                    <span v-text="MODULE.texts.actions.viewCustomerHistory"></span>
-                                </a>
-                            </template>
-                            <template v-slot:input>
-                                <v-select
-                                    v-model="forms[entity].createUpdate.data.holder"
-                                    :options="holders"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :disabled="hasQuotationApplied"
-                                    :searchable="true"
-                                    :filterable="false"
-                                    :loading="commercialSelection.customers.loading"
-                                    @open="openCommercialOptions('customers')"
-                                    @search="searchCommercialOptions('customers', $event)"
-                                    placeholder="Seleccione">
-                                    <template #selected-option="option">
-                                        <span class="br-document-holder-option">
-                                            <strong v-text="holderDocumentTypeLabel(option)"></strong>
-                                            <span v-text="holderDocumentDescription(option)"></span>
-                                        </span>
-                                    </template>
-                                    <template #option="option">
-                                        <span class="br-document-holder-option">
-                                            <strong v-text="holderDocumentTypeLabel(option)"></strong>
-                                            <span v-text="holderDocumentDescription(option)"></span>
-                                        </span>
-                                    </template>
-                                    <template #list-footer>
-                                        <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
-                                        </li>
-                                    </template>
-                                    <template #no-options>Sin clientes para esta búsqueda.</template>
-                                </v-select>
-                            </template>
-                        </InputSlot>
-                    </div>
-                    <div class="br-sale-detail-toolbar">
-                        <label
-                            class="form-label br-sale-detail-toolbar__counter"
-                            v-text="`Detalle de la venta · ${forms[entity].createUpdate.data.details.length} ${forms[entity].createUpdate.data.details.length === 1 ? 'ítem' : 'ítems'}`">
-                        </label>
-                        <div class="br-sale-detail-toolbar__actions">
-                            <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="modalAddDetail({})">
-                                <span v-text="MODULE.texts.actions.addDetail"></span>
-                            </button>
-                            <button
-                                type="button"
-                                class="br-btn br-btn-sm br-sale-detail-toolbar__clear waves-effect"
-                                :disabled="forms[entity].createUpdate.data.details.length <= 0"
-                                @click="clearDetails">
-                                <span>Limpiar</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="br-sale-detail-table-shell">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead class="text-center">
-                                    <tr>
-                                        <th style="width: 5%;">#</th>
-                                        <th class="min-w-150px" style="width: 18%;">ÍTEM</th>
-                                        <th class="min-w-120px text-end" style="width: 11%;">CANTIDAD</th>
-                                        <th class="min-w-170px text-center" style="width: 18%;">PRECIO UNITARIO</th>
-                                        <th class="min-w-130px text-end br-sale-detail-calc-head" style="width: 14%;">SUBTOTAL</th>
-                                        <th class="min-w-110px text-end br-sale-detail-calc-head" style="width: 10%;">IGV</th>
-                                        <th class="min-w-120px text-end pe-3 br-sale-detail-calc-head br-sale-detail-calc-head--total" style="width: 12%;">TOTAL</th>
-                                        <th style="width: 4%;" aria-label="Acciones"></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-border-bottom-0 bg-white">
-                                    <template v-if="(forms[entity].createUpdate.data.details).length > 0">
-                                        <template v-for="(record, keyRecord) in forms[entity].createUpdate.data.details" :key="record.id">
+                            <div class="br-sale-detail-table-shell">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead class="text-center">
                                             <tr>
-                                                <td class="text-center fw-bold" :rowspan="isSubscription(record?.type) && record?.extras?.showDetail ? 2 : 1">
-                                                    <span v-text="keyRecord + 1"></span>
-                                                </td>
-                                                <td class="text-start">
-                                                    <div class="br-sale-detail-item-cell">
-                                                        <span class="text-break" v-text="record.name"></span>
-                                                        <span
-                                                            class="br-sale-detail-igv-label"
-                                                            :class="detailTaxInclusionInfo(record).className"
-                                                            data-bs-toggle="tooltip"
-                                                            data-bs-placement="top"
-                                                            :title="detailTaxInclusionInfo(record).title"
-                                                            v-text="detailTaxInclusionInfo(record).label">
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">
-                                                    <InputNumber
-                                                        v-model="record.quantity"
-                                                        @change="calculateDuration({mode: 'record', record})"
-                                                        :decimals="getItemDecimals({mode: 'result', record})"/>
-                                                </td>
-                                                <td class="text-end align-middle">
-                                                    <div class="br-sale-detail-price-cell">
-                                                        <InputNumber v-model="record.price">
-                                                            <template v-slot:inputGroupPrepend v-if="isDefined({value: record?.currency})">
-                                                                <span class="input-group-text br-currency-prefix" v-text="record?.currency?.sign"></span>
-                                                            </template>
-                                                        </InputNumber>
-                                                    </div>
-                                                </td>
-                                                <td class="text-end align-middle br-sale-detail-calc-cell">
-                                                    <span class="br-amount-inline">
-                                                        <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
-                                                        <span class="br-amount-inline__amount" v-text="separatorNumber(detailLineBaseTotal(record))"></span>
-                                                    </span>
-                                                </td>
-                                                <td class="text-end align-middle br-sale-detail-calc-cell">
-                                                    <span v-if="detailIgvInfo(record).isAmount" class="br-amount-inline br-sale-detail-tax-amount">
-                                                        <span class="br-amount-inline__sign" v-text="detailIgvInfo(record).sign"></span>
-                                                        <span class="br-amount-inline__amount" v-text="detailIgvInfo(record).amount"></span>
-                                                    </span>
-                                                    <span
-                                                        v-else
-                                                        class="br-sale-detail-tax"
-                                                        :class="detailIgvInfo(record).className"
-                                                        v-text="detailIgvInfo(record).label">
-                                                    </span>
-                                                </td>
-                                                <td class="text-end align-middle pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total" :title="MODULE.texts.form.total">
-                                                    <span class="br-amount-inline">
-                                                        <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
-                                                        <span class="br-amount-inline__amount" v-text="separatorNumber(detailFinalTotal(record))"></span>
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <div
-                                                        class="br-sale-detail-actions-tooltip"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="left"
-                                                        title="Acciones del ítem">
-                                                        <div class="dropdown br-sale-detail-actions">
-                                                        <button
-                                                            class="br-sale-detail-actions__trigger waves-effect"
-                                                            type="button"
-                                                            data-bs-toggle="dropdown"
-                                                            data-bs-boundary="viewport"
-                                                            aria-expanded="false"
-                                                            aria-label="Acciones del ítem"
-                                                            @click="hideDetailActionsTooltip">
-                                                            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end br-sale-detail-actions__menu">
-                                                            <li>
-                                                                <button type="button" class="dropdown-item" @click="modalEditDetail({record, keyRecord})">
-                                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                                    <span>Editar</span>
-                                                                </button>
-                                                            </li>
-                                                            <li v-if="!isSubscription(record?.type)">
-                                                                <button type="button" class="dropdown-item" @click="duplicateDetail({record, keyRecord})">
-                                                                    <i class="fa-solid fa-copy" aria-hidden="true"></i>
-                                                                    <span>Duplicar</span>
-                                                                </button>
-                                                            </li>
-                                                            <li v-else>
-                                                                <button type="button" class="dropdown-item" @click="viewDetail({record, keyRecord})">
-                                                                    <i :class="record?.extras?.showDetail ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" aria-hidden="true"></i>
-                                                                    <span v-text="record?.extras?.showDetail ? 'Ocultar detalle' : 'Ver detalle'"></span>
-                                                                </button>
-                                                            </li>
-                                                            <li><hr class="dropdown-divider"></li>
-                                                            <li>
-                                                                <button type="button" class="dropdown-item br-sale-detail-actions__delete" @click="deleteDetail({record, keyRecord})">
-                                                                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                                                                    <span>Eliminar</span>
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                        </div>
-                                                    </div>
-                                                </td>
+                                                <th style="width: 5%;">#</th>
+                                                <th class="min-w-150px" style="width: 18%;">ÍTEM</th>
+                                                <th class="min-w-120px text-end" style="width: 11%;">CANTIDAD</th>
+                                                <th class="min-w-170px text-center" style="width: 18%;">PRECIO UNITARIO</th>
+                                                <th class="min-w-130px text-end br-sale-detail-calc-head" style="width: 14%;">SUBTOTAL</th>
+                                                <th class="min-w-110px text-end br-sale-detail-calc-head" style="width: 10%;">IGV</th>
+                                                <th class="min-w-120px text-end pe-3 br-sale-detail-calc-head br-sale-detail-calc-head--total" style="width: 12%;">TOTAL</th>
+                                                <th style="width: 4%;" aria-label="Acciones"></th>
                                             </tr>
-                                            <template v-if="record?.extras?.showDetail">
-                                                <template v-if="isSubscription(record?.type)">
-                                                    <tr class="br-sale-detail-membership-row">
-                                                        <td colspan="7">
-                                                            <div class="br-sale-detail-membership">
-                                                                <div class="br-sale-detail-membership__heading">
-                                                                    <strong class="colon-at-end" v-text="MODULE.texts.form.detailRowMembershipLabel"></strong>
-                                                                    <small>Vigencia aplicada al detalle</small>
-                                                                </div>
-                                                                <div class="br-sale-detail-membership__fields">
-                                                                    <div class="br-sale-detail-membership__timeline">
-                                                                        <div class="br-sale-detail-membership__date">
-                                                                            <span class="colon-at-end">Inicio</span>
-                                                                            <strong v-text="formatSaleDetailDateTime(record.extras.start_date)"></strong>
-                                                                        </div>
-                                                                        <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i>
-                                                                        <div class="br-sale-detail-membership__date">
-                                                                            <span class="colon-at-end">Fin</span>
-                                                                            <strong v-text="formatSaleDetailDateTime(record.extras.end_date)"></strong>
-                                                                        </div>
-                                                                    </div>
+                                        </thead>
+                                        <tbody class="table-border-bottom-0 bg-white">
+                                            <template v-if="(forms[entity].createUpdate.data.details).length > 0">
+                                                <template v-for="(record, keyRecord) in forms[entity].createUpdate.data.details" :key="record.id">
+                                                    <tr>
+                                                        <td class="text-center fw-bold" :rowspan="isSubscription(record?.type) && record?.extras?.showDetail ? 2 : 1">
+                                                            <span v-text="keyRecord + 1"></span>
+                                                        </td>
+                                                        <td class="text-start">
+                                                            <div class="br-sale-detail-item-cell">
+                                                                <span class="text-break" v-text="record.name"></span>
+                                                                <span
+                                                                    class="br-sale-detail-igv-label"
+                                                                    :class="detailTaxInclusionInfo(record).className"
+                                                                    data-bs-toggle="tooltip"
+                                                                    data-bs-placement="top"
+                                                                    :title="detailTaxInclusionInfo(record).title"
+                                                                    v-text="detailTaxInclusionInfo(record).label">
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <InputNumber
+                                                                v-model="record.quantity"
+                                                                @change="calculateDuration({mode: 'record', record})"
+                                                                :decimals="getItemDecimals({mode: 'result', record})"/>
+                                                        </td>
+                                                        <td class="text-end align-middle">
+                                                            <div class="br-sale-detail-price-cell">
+                                                                <InputNumber v-model="record.price">
+                                                                    <template v-slot:inputGroupPrepend v-if="isDefined({value: record?.currency})">
+                                                                        <span class="input-group-text br-currency-prefix" v-text="record?.currency?.sign"></span>
+                                                                    </template>
+                                                                </InputNumber>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                            <span class="br-amount-inline">
+                                                                <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
+                                                                <span class="br-amount-inline__amount" v-text="separatorNumber(detailLineBaseTotal(record))"></span>
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                            <span v-if="detailIgvInfo(record).isAmount" class="br-amount-inline br-sale-detail-tax-amount">
+                                                                <span class="br-amount-inline__sign" v-text="detailIgvInfo(record).sign"></span>
+                                                                <span class="br-amount-inline__amount" v-text="detailIgvInfo(record).amount"></span>
+                                                            </span>
+                                                            <span
+                                                                v-else
+                                                                class="br-sale-detail-tax"
+                                                                :class="detailIgvInfo(record).className"
+                                                                v-text="detailIgvInfo(record).label">
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-end align-middle pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total" :title="MODULE.texts.form.total">
+                                                            <span class="br-amount-inline">
+                                                                <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
+                                                                <span class="br-amount-inline__amount" v-text="separatorNumber(detailFinalTotal(record))"></span>
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div
+                                                                class="br-sale-detail-actions-tooltip"
+                                                                data-bs-toggle="tooltip"
+                                                                data-bs-placement="left"
+                                                                title="Acciones del ítem">
+                                                                <div class="dropdown br-sale-detail-actions">
+                                                                <button
+                                                                    class="br-sale-detail-actions__trigger waves-effect"
+                                                                    type="button"
+                                                                    data-bs-toggle="dropdown"
+                                                                    data-bs-boundary="viewport"
+                                                                    aria-expanded="false"
+                                                                    aria-label="Acciones del ítem"
+                                                                    @click="hideDetailActionsTooltip">
+                                                                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end br-sale-detail-actions__menu">
+                                                                    <li>
+                                                                        <button type="button" class="dropdown-item" @click="modalEditDetail({record, keyRecord})">
+                                                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                                            <span>Editar</span>
+                                                                        </button>
+                                                                    </li>
+                                                                    <li v-if="!isSubscription(record?.type)">
+                                                                        <button type="button" class="dropdown-item" @click="duplicateDetail({record, keyRecord})">
+                                                                            <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                                                                            <span>Duplicar</span>
+                                                                        </button>
+                                                                    </li>
+                                                                    <li v-else>
+                                                                        <button type="button" class="dropdown-item" @click="viewDetail({record, keyRecord})">
+                                                                            <i :class="record?.extras?.showDetail ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" aria-hidden="true"></i>
+                                                                            <span v-text="record?.extras?.showDetail ? 'Ocultar detalle' : 'Ver detalle'"></span>
+                                                                        </button>
+                                                                    </li>
+                                                                    <li><hr class="dropdown-divider"></li>
+                                                                    <li>
+                                                                        <button type="button" class="dropdown-item br-sale-detail-actions__delete" @click="deleteDetail({record, keyRecord})">
+                                                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                                                            <span>Eliminar</span>
+                                                                        </button>
+                                                                    </li>
+                                                                </ul>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                     </tr>
+                                                    <template v-if="record?.extras?.showDetail">
+                                                        <template v-if="isSubscription(record?.type)">
+                                                            <tr class="br-sale-detail-membership-row">
+                                                                <td colspan="7">
+                                                                    <div class="br-sale-detail-membership">
+                                                                        <div class="br-sale-detail-membership__heading">
+                                                                            <strong class="colon-at-end" v-text="MODULE.texts.form.detailRowMembershipLabel"></strong>
+                                                                            <small>Vigencia aplicada al detalle</small>
+                                                                        </div>
+                                                                        <div class="br-sale-detail-membership__fields">
+                                                                            <div class="br-sale-detail-membership__timeline">
+                                                                                <div class="br-sale-detail-membership__date">
+                                                                                    <span class="colon-at-end">Inicio</span>
+                                                                                    <strong v-text="formatSaleDetailDateTime(record.extras.start_date)"></strong>
+                                                                                </div>
+                                                                                <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i>
+                                                                                <div class="br-sale-detail-membership__date">
+                                                                                    <span class="colon-at-end">Fin</span>
+                                                                                    <strong v-text="formatSaleDetailDateTime(record.extras.end_date)"></strong>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </template>
+                                                    </template>
                                                 </template>
+                                                <tr class="br-table-footer-stripe br-sale-detail-total-row">
+                                                    <td colspan="4" class="text-start align-middle ps-3 br-table-footer-stripe__label">
+                                                        <span v-text="MODULE.texts.form.footerTotalLabel"></span>
+                                                    </td>
+                                                    <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                        <span class="br-amount-inline br-amount-inline--emphasis">
+                                                            <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                                            <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailSubtotalTotal)"></span>
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                        <span class="br-amount-inline br-amount-inline--emphasis">
+                                                            <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                                            <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailIgvTotal)"></span>
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end align-middle pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total">
+                                                        <span class="br-amount-inline br-amount-inline--emphasis">
+                                                            <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                                            <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailFinalTotal)"></span>
+                                                        </span>
+                                                    </td>
+                                                    <td class="align-middle"></td>
+                                                </tr>
                                             </template>
-                                        </template>
-                                        <tr class="br-table-footer-stripe br-sale-detail-total-row">
-                                            <td colspan="4" class="text-start align-middle ps-3 br-table-footer-stripe__label">
-                                                <span v-text="MODULE.texts.form.footerTotalLabel"></span>
-                                            </td>
-                                            <td class="text-end align-middle br-sale-detail-calc-cell">
-                                                <span class="br-amount-inline br-amount-inline--emphasis">
-                                                    <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
-                                                    <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailSubtotalTotal)"></span>
-                                                </span>
-                                            </td>
-                                            <td class="text-end align-middle br-sale-detail-calc-cell">
-                                                <span class="br-amount-inline br-amount-inline--emphasis">
-                                                    <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
-                                                    <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailIgvTotal)"></span>
-                                                </span>
-                                            </td>
-                                            <td class="text-end align-middle pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total">
-                                                <span class="br-amount-inline br-amount-inline--emphasis">
-                                                    <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
-                                                    <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailFinalTotal)"></span>
-                                                </span>
-                                            </td>
-                                            <td class="align-middle"></td>
-                                        </tr>
-                                    </template>
-                                    <template v-else>
-                                        <tr>
-                                            <td class="pt-1 pb-0 border-0" colspan="99">
-                                                <div class="br-table-detail-empty">
-                                                    <div class="br-table-detail-empty__top">
-                                                        <div class="br-table-detail-empty__body">
-                                                            <img
-                                                                class="br-table-detail-empty__img"
-                                                                :src="saleDetailEmptyImageUrl"
-                                                                alt=""
-                                                                width="100"
-                                                                height="84"
-                                                                loading="lazy"
-                                                                decoding="async"/>
-                                                            <strong class="br-table-detail-empty__title" v-text="MODULE.texts.emptySaleDetailTitle"></strong>
-                                                            <p class="br-table-detail-empty__text">
-                                                                <span v-text="MODULE.texts.emptySaleDetailPrefix"></span>
-                                                                <a href="javascript:void(0)" class="br-link br-table-detail-empty__link" @click.prevent="modalAddDetail({})" v-text="MODULE.texts.actions.addDetail"></a>
-                                                                <span v-text="MODULE.texts.emptySaleDetailSuffix"></span>
-                                                            </p>
+                                            <template v-else>
+                                                <tr>
+                                                    <td class="pt-1 pb-0 border-0" colspan="99">
+                                                        <div class="br-table-detail-empty">
+                                                            <div class="br-table-detail-empty__top">
+                                                                <div class="br-table-detail-empty__body">
+                                                                    <img
+                                                                        class="br-table-detail-empty__img"
+                                                                        :src="saleDetailEmptyImageUrl"
+                                                                        alt=""
+                                                                        width="100"
+                                                                        height="84"
+                                                                        loading="lazy"
+                                                                        decoding="async"/>
+                                                                    <strong class="br-table-detail-empty__title" v-text="MODULE.texts.emptySaleDetailTitle"></strong>
+                                                                    <p class="br-table-detail-empty__text">
+                                                                        <span v-text="MODULE.texts.emptySaleDetailPrefix"></span>
+                                                                        <a href="javascript:void(0)" class="br-link br-table-detail-empty__link" @click.prevent="modalAddDetail({})" v-text="MODULE.texts.actions.addDetail"></a>
+                                                                        <span v-text="MODULE.texts.emptySaleDetailSuffix"></span>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- <small :class="config.forms.errors.styles.default" v-html="isDefined({value: forms[entity].createUpdate.errors?.details}) ? forms[entity].createUpdate.errors?.details : ''"></small> -->
+                            </div>
                         </div>
-                        <!-- <small :class="config.forms.errors.styles.default" v-html="isDefined({value: forms[entity].createUpdate.errors?.details}) ? forms[entity].createUpdate.errors?.details : ''"></small> -->
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="br-sale-create-side">
-            <div class="br-document-settlement br-sale-settlement bg-white">
-                <div class="br-document-settlement__group-header">
-                    <h3 class="br-document-settlement__group-title">Información</h3>
-                    <button type="button" class="br-sale-section-edit" @click="openInformationSectionModal">
-                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                        <span>Editar</span>
-                    </button>
-                </div>
-                <div class="br-document-settlement__field br-document-settlement__field--inline">
-                    <label class="form-label colon-at-end">Vendedor</label>
-                    <span v-if="forms[entity].createUpdate.data.seller" class="br-document-delivery-summary__value" v-text="sellerLabel"></span>
-                    <span v-else class="br-document-settlement__field-value--empty">Sin vendedor</span>
-                    <small v-if="forms[entity].createUpdate.errors?.seller" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.seller"></small>
-                </div>
-                <div class="br-document-settlement__field br-document-settlement__field--inline">
-                    <label class="form-label colon-at-end">Cotización</label>
-                    <span
-                        v-if="hasQuotationApplied"
-                        class="br-document-delivery-summary__value"
-                        :title="quotationSummaryLabel"
-                        v-text="forms[entity].createUpdate.data.quotation?.data?.reference || 'Cotización aplicada'">
-                    </span>
-                    <span v-else class="br-document-settlement__field-value--empty">Sin cotización</span>
-                </div>
-                <div class="br-document-settlement__field br-document-settlement__field--inline">
-                    <label class="form-label colon-at-end">Observaciones</label>
-                    <span
-                        v-if="observationHasContent"
-                        class="br-document-delivery-summary__value"
-                        v-text="observationDisplayPreview">
-                    </span>
-                    <span v-else class="br-document-settlement__field-value--empty">Sin observaciones</span>
-                    <p
-                        v-if="forms[entity].createUpdate.errors?.observation?.length"
-                        class="small mb-0 mt-2"
-                        :class="config.forms.errors.styles.default"
-                        v-html="observationErrorsDisplay"></p>
-                </div>
-                <div class="br-document-settlement__group-header">
-                    <h3 class="br-document-settlement__group-title">Entrega</h3>
-                    <button type="button" class="br-sale-section-edit" @click="openDeliverySectionModal">
-                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                        <span>Editar</span>
-                    </button>
-                </div>
-                <div class="br-document-settlement__field br-document-settlement__field--inline">
-                    <label class="form-label colon-at-end">Entrega</label>
-                    <span class="br-document-delivery-summary__value" v-text="deliverySummaryLabel"></span>
-                    <small v-if="forms[entity].createUpdate.errors?.delivery_method" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.delivery_method"></small>
-                    <small v-if="forms[entity].createUpdate.errors?.delivery_status" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.delivery_status"></small>
-                </div>
-                <div class="br-document-settlement__field br-document-settlement__field--inline">
-                    <label class="form-label colon-at-end">Almacén</label>
-                    <span v-if="forms[entity].createUpdate.data.warehouse" class="br-document-delivery-summary__value" v-text="warehouseLabel"></span>
-                    <span v-else class="br-document-settlement__field-value--empty">Sin almacén</span>
-                    <small v-if="forms[entity].createUpdate.errors?.warehouse" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.warehouse"></small>
-                </div>
-                <div class="br-document-settlement__group-header">
-                    <h3 class="br-document-settlement__group-title">Pago</h3>
-                    <button
-                        v-if="canChangeTaxes || canChangePaymentMethods"
-                        type="button"
-                        class="br-sale-section-edit"
-                        @click="openPaymentSectionModal">
-                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                        <span>Editar</span>
-                    </button>
-                </div>
-                <div
-                    class="br-document-settlement__field"
-                    :class="{'br-document-settlement__field--inline': !saleOptionalTaxSummary.length}">
-                    <label class="form-label" :class="{'colon-at-end': !saleOptionalTaxSummary.length}">Impuestos extras</label>
-                    <span v-if="!saleOptionalTaxSummary.length" class="br-document-settlement__field-value--empty">Sin impuestos extras</span>
-                    <div v-if="saleOptionalTaxSummary.length" class="br-document-tax-summary">
-                            <div
-                                v-for="tax in saleOptionalTaxSummary"
-                                :key="tax.key"
-                                class="br-document-tax-summary__row">
-                                <span>
-                                    <strong class="br-document-delivery-summary__value" v-text="tax.name"></strong>
-                                    <small v-if="tax.description" v-text="tax.description"></small>
-                                </span>
-                                <b class="br-document-delivery-summary__value br-amount-inline__amount">
-                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                                    {{ separatorNumber(tax.amount) }}
-                                </b>
-                            </div>
-                    </div>
-                </div>
-                <div
-                    class="br-document-settlement__field"
-                    :class="{'br-document-settlement__field--inline': !salePaymentSummary.length}">
-                    <label class="form-label" :class="{'colon-at-end': !salePaymentSummary.length}">Métodos de pago</label>
-                    <span v-if="!salePaymentSummary.length" class="br-document-settlement__field-value--empty">Sin métodos de pago</span>
-                    <div v-if="salePaymentSummary.length" class="br-document-payment-summary">
-                            <div
-                                v-for="payment in salePaymentSummary"
-                                :key="payment.key"
-                                class="br-document-payment-summary__row">
-                                <span>
-                                    <strong class="br-document-delivery-summary__value br-document-payment-summary__method">
-                                        <img
-                                            v-if="payment.imageUrl"
-                                            :src="payment.imageUrl"
-                                            alt=""
-                                            class="br-payment-select-option__image br-document-payment-summary__image">
-                                        <span v-text="payment.label"></span>
-                                    </strong>
-                                    <small v-if="payment.reference" v-text="payment.reference"></small>
-                                </span>
-                                <b class="br-document-delivery-summary__value br-document-payment-summary__amount br-amount-inline__amount">
-                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                                    {{ separatorNumber(payment.amount) }}
-                                </b>
-                            </div>
-                    </div>
-                </div>
-                <div class="br-document-settlement__group-header">
-                    <h3 class="br-document-settlement__group-title">Resumen</h3>
-                </div>
-                <div class="br-document-settlement__summary-section">
-                    <div class="br-document-settlement__summary">
-                        <span class="br-document-settlement__summary-label">Subtotal</span>
-                        <strong class="br-document-settlement__summary-value br-amount-inline__amount">
-                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                            {{ separatorNumber(saleDetailSubtotalTotal) }}
-                        </strong>
-                        <span class="br-document-settlement__summary-label">IGV</span>
-                        <strong class="br-document-settlement__summary-value br-amount-inline__amount">
-                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                            {{ separatorNumber(saleDetailIgvTotal) }}
-                        </strong>
-                        <span class="br-document-settlement__summary-label">Impuestos extras</span>
-                        <strong class="br-document-settlement__summary-value br-amount-inline__amount">
-                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                            {{ separatorNumber(saleExtraTaxTotal) }}
-                        </strong>
-                        <template v-if="saleUsesInstallments">
-                            <span class="br-document-settlement__summary-label">Recargo por cuotas</span>
-                            <strong class="br-document-settlement__summary-value br-amount-inline__amount">
-                                {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                                {{ separatorNumber(saleInstallmentExtraAmount) }}
-                            </strong>
-                        </template>
-                        <div class="br-document-settlement__summary-divider" aria-hidden="true"></div>
-                        <span class="br-document-settlement__summary-label br-document-settlement__summary-label--total">Total a pagar</span>
-                        <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--total br-amount-inline__amount">
-                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                            {{ separatorNumber(total) }}
-                        </strong>
-                        <span class="br-document-settlement__summary-label">Pagado</span>
-                        <strong class="br-document-settlement__summary-value br-amount-inline__amount">
-                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                            {{ separatorNumber(salePaidTotal) }}
-                        </strong>
-                        <div
-                            v-if="(forms[entity].createUpdate.data.details || []).length > 0"
-                            class="br-document-settlement__summary-status"
-                            :class="salePaymentStatusInfo.className">
-                            <span>
-                                <i :class="['fa-solid', salePaymentStatusInfo.icon]" aria-hidden="true"></i>
-                                <span v-text="salePaymentStatusInfo.label"></span>
+                <div class="br-sale-create-side">
+                    <div class="br-document-settlement br-sale-settlement bg-white">
+                        <div class="br-document-settlement__group-header">
+                            <h3 class="br-document-settlement__group-title">Información</h3>
+                            <button type="button" class="br-sale-section-edit" @click="openInformationSectionModal">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                <span>Editar</span>
+                            </button>
+                        </div>
+                        <div class="br-document-settlement__field br-document-settlement__field--inline">
+                            <label class="form-label colon-at-end">Vendedor</label>
+                            <span v-if="forms[entity].createUpdate.data.seller" class="br-document-delivery-summary__value" v-text="sellerLabel"></span>
+                            <span v-else class="br-document-settlement__field-value--empty">Sin vendedor</span>
+                            <small v-if="forms[entity].createUpdate.errors?.seller" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.seller"></small>
+                        </div>
+                        <div class="br-document-settlement__field br-document-settlement__field--inline">
+                            <label class="form-label colon-at-end">Cotización</label>
+                            <span
+                                v-if="hasQuotationApplied"
+                                class="br-document-delivery-summary__value"
+                                :title="quotationSummaryLabel"
+                                v-text="forms[entity].createUpdate.data.quotation?.data?.reference || 'Cotización aplicada'">
                             </span>
-                            <strong v-if="salePaymentStatusInfo.amount !== null" class="br-amount-inline__amount">
-                                {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
-                                {{ separatorNumber(salePaymentStatusInfo.amount) }}
-                            </strong>
+                            <span v-else class="br-document-settlement__field-value--empty">Sin cotización</span>
+                        </div>
+                        <div class="br-document-settlement__field br-document-settlement__field--inline">
+                            <label class="form-label colon-at-end">Observaciones</label>
+                            <span
+                                v-if="observationHasContent"
+                                class="br-document-delivery-summary__value"
+                                v-text="observationDisplayPreview">
+                            </span>
+                            <span v-else class="br-document-settlement__field-value--empty">Sin observaciones</span>
+                            <p
+                                v-if="forms[entity].createUpdate.errors?.observation?.length"
+                                class="small mb-0 mt-2"
+                                :class="config.forms.errors.styles.default"
+                                v-html="observationErrorsDisplay"></p>
+                        </div>
+                        <div class="br-document-settlement__group-header">
+                            <h3 class="br-document-settlement__group-title">Entrega</h3>
+                            <button type="button" class="br-sale-section-edit" @click="openDeliverySectionModal">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                <span>Editar</span>
+                            </button>
+                        </div>
+                        <div class="br-document-settlement__field br-document-settlement__field--inline">
+                            <label class="form-label colon-at-end">Entrega</label>
+                            <span class="br-document-delivery-summary__value" v-text="deliverySummaryLabel"></span>
+                            <small v-if="forms[entity].createUpdate.errors?.delivery_method" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.delivery_method"></small>
+                            <small v-if="forms[entity].createUpdate.errors?.delivery_status" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.delivery_status"></small>
+                        </div>
+                        <div class="br-document-settlement__field br-document-settlement__field--inline">
+                            <label class="form-label colon-at-end">Almacén</label>
+                            <span v-if="forms[entity].createUpdate.data.warehouse" class="br-document-delivery-summary__value" v-text="warehouseLabel"></span>
+                            <span v-else class="br-document-settlement__field-value--empty">Sin almacén</span>
+                            <small v-if="forms[entity].createUpdate.errors?.warehouse" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.warehouse"></small>
+                        </div>
+                        <div class="br-document-settlement__group-header">
+                            <h3 class="br-document-settlement__group-title">Pago</h3>
+                            <button
+                                v-if="canChangeTaxes || canChangePaymentMethods"
+                                type="button"
+                                class="br-sale-section-edit"
+                                @click="openPaymentSectionModal">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                <span>Editar</span>
+                            </button>
+                        </div>
+                        <div
+                            class="br-document-settlement__field"
+                            :class="{'br-document-settlement__field--inline': !saleOptionalTaxSummary.length}">
+                            <label class="form-label" :class="{'colon-at-end': !saleOptionalTaxSummary.length}">Impuestos extras</label>
+                            <span v-if="!saleOptionalTaxSummary.length" class="br-document-settlement__field-value--empty">Sin impuestos extras</span>
+                            <div v-if="saleOptionalTaxSummary.length" class="br-document-tax-summary">
+                                    <div
+                                        v-for="tax in saleOptionalTaxSummary"
+                                        :key="tax.key"
+                                        class="br-document-tax-summary__row">
+                                        <span>
+                                            <strong class="br-document-delivery-summary__value" v-text="tax.name"></strong>
+                                            <small v-if="tax.description" v-text="tax.description"></small>
+                                        </span>
+                                        <b class="br-document-delivery-summary__value br-amount-inline__amount">
+                                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                            {{ separatorNumber(tax.amount) }}
+                                        </b>
+                                    </div>
+                            </div>
+                        </div>
+                        <div
+                            class="br-document-settlement__field"
+                            :class="{'br-document-settlement__field--inline': !salePaymentSummary.length}">
+                            <label class="form-label" :class="{'colon-at-end': !salePaymentSummary.length}">Métodos de pago</label>
+                            <span v-if="!salePaymentSummary.length" class="br-document-settlement__field-value--empty">Sin métodos de pago</span>
+                            <div v-if="salePaymentSummary.length" class="br-document-payment-summary">
+                                    <div
+                                        v-for="payment in salePaymentSummary"
+                                        :key="payment.key"
+                                        class="br-document-payment-summary__row">
+                                        <span>
+                                            <strong class="br-document-delivery-summary__value br-document-payment-summary__method">
+                                                <img
+                                                    v-if="payment.imageUrl"
+                                                    :src="payment.imageUrl"
+                                                    alt=""
+                                                    class="br-payment-select-option__image br-document-payment-summary__image">
+                                                <span v-text="payment.label"></span>
+                                            </strong>
+                                            <small v-if="payment.reference" v-text="payment.reference"></small>
+                                        </span>
+                                        <b class="br-document-delivery-summary__value br-document-payment-summary__amount br-amount-inline__amount">
+                                            {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                            {{ separatorNumber(payment.amount) }}
+                                        </b>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="br-document-settlement__group-header">
+                            <h3 class="br-document-settlement__group-title">Resumen</h3>
+                        </div>
+                        <div class="br-document-settlement__summary-section">
+                            <div class="br-document-settlement__summary">
+                                <span class="br-document-settlement__summary-label">Subtotal</span>
+                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                    {{ separatorNumber(saleDetailSubtotalTotal) }}
+                                </strong>
+                                <span class="br-document-settlement__summary-label">IGV</span>
+                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                    {{ separatorNumber(saleDetailIgvTotal) }}
+                                </strong>
+                                <span class="br-document-settlement__summary-label">Impuestos extras</span>
+                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                    {{ separatorNumber(saleExtraTaxTotal) }}
+                                </strong>
+                                <template v-if="saleUsesInstallments">
+                                    <span class="br-document-settlement__summary-label">Recargo por cuotas</span>
+                                    <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                        {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                        {{ separatorNumber(saleInstallmentExtraAmount) }}
+                                    </strong>
+                                </template>
+                                <div class="br-document-settlement__summary-divider" aria-hidden="true"></div>
+                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--total">Total a pagar</span>
+                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--total br-amount-inline__amount">
+                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                    {{ separatorNumber(total) }}
+                                </strong>
+                                <span class="br-document-settlement__summary-label">Pagado</span>
+                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                    {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                    {{ separatorNumber(salePaidTotal) }}
+                                </strong>
+                                <div
+                                    v-if="(forms[entity].createUpdate.data.details || []).length > 0"
+                                    class="br-document-settlement__summary-status"
+                                    :class="salePaymentStatusInfo.className">
+                                    <span>
+                                        <i :class="['fa-solid', salePaymentStatusInfo.icon]" aria-hidden="true"></i>
+                                        <span v-text="salePaymentStatusInfo.label"></span>
+                                    </span>
+                                    <strong v-if="salePaymentStatusInfo.amount !== null" class="br-amount-inline__amount">
+                                        {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
+                                        {{ separatorNumber(salePaymentStatusInfo.amount) }}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="br-document-settlement__submit-section">
+                            <span
+                                class="br-sale-submit-tooltip"
+                                :data-bs-toggle="!saleHasDetails ? 'tooltip' : null"
+                                data-bs-placement="top"
+                                :tabindex="!saleHasDetails ? 0 : null"
+                                :title="!saleHasDetails ? 'Agrega al menos un ítem para continuar' : null">
+                                <button
+                                    type="button"
+                                    class="br-btn br-btn-success br-sale-sidebar-actions__cta waves-effect"
+                                    :disabled="Boolean(saleSubmitBlocker)"
+                                    @click="createUpdateEntity()">
+                                    <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
+                                    <span v-text="MODULE.texts.actions.generateSale"></span>
+                                </button>
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div class="br-document-settlement__submit-section">
-                    <span
-                        class="br-sale-submit-tooltip"
-                        :data-bs-toggle="!saleHasDetails ? 'tooltip' : null"
-                        data-bs-placement="top"
-                        :tabindex="!saleHasDetails ? 0 : null"
-                        :title="!saleHasDetails ? 'Agrega al menos un ítem para continuar' : null">
-                        <button
-                            type="button"
-                            class="br-btn br-btn-success br-sale-sidebar-actions__cta waves-effect"
-                            :disabled="Boolean(saleSubmitBlocker)"
-                            @click="createUpdateEntity()">
-                            <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
-                            <span v-text="MODULE.texts.actions.generateSale"></span>
-                        </button>
-                    </span>
-                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Modals -->
+            <!-- Modals -->
+
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.branch.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -596,7 +602,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.warehouse.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -635,7 +640,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.delivery.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -721,7 +725,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.quotation.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -761,7 +764,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.seller.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -800,7 +802,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.taxes.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -858,7 +859,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.payments.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -1102,7 +1102,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.details.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -1410,7 +1409,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.observations.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -1484,7 +1482,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.subscriptions.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content br-entity-modal br-modal-shell">
@@ -1610,7 +1607,6 @@
             </div>
         </div>
     </div>
-
     <PrintSale :modalId="forms[entity].createUpdate.extras.modals.finished.id" :data="forms[entity].createUpdate.extras.modals.finished.data">
         <template v-slot:messageAppend>
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center mb-2">
@@ -1670,6 +1666,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts         from "@System/Helpers/Alerts.js";
 import * as Constants      from "@System/Helpers/Constants.js";
 import { initCrudModule }  from "@System/Helpers/ModuleFactory.js";
@@ -1755,7 +1752,7 @@ const MODULE = {
 };
 
 export default {
-    mixins: [commercialSelection],
+    mixins: [InitialPageMixin, commercialSelection],
     name: "SalesMain",
     data() {
 
@@ -1894,9 +1891,8 @@ export default {
 
         Utils.navbarItem(MODULE.config.parentMenuId, {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        const initParams = await this.initParams({});
+        const initParams = await this.loadInitialParams(() => this.initParams({}));
         const initOthers = await this.initOthers({});
 
         if(initParams && initOthers) {
@@ -1916,8 +1912,6 @@ export default {
                 window.sessionStorage.removeItem("br_sale_pending_quotation_id");
 
             }
-
-            Alerts.swals({show: false});
 
         }
 

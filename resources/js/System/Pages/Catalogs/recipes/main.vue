@@ -1,102 +1,107 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <FiltersSection
-        :filter-by-value="filterBy"
-        @update:filterByValue="filterBy = $event"
-        :filter-word-value="word"
-        @update:filterWordValue="word = $event"
-        :filter-by-options="filterOptions"
-        search-placeholder="Buscar platillo, código o nota"
-        :loading="loading"
-        filter-by-title="Filtrar por"
-        search-title="Búsqueda"
-        search-button-text="Buscar"
-        add-button-text="Agregar receta"
-        :show-add-button="true"
-        @search="listRecipes"
-        @add="openModal()"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <FiltersSection
+                :filter-by-value="filterBy"
+                @update:filterByValue="filterBy = $event"
+                :filter-word-value="word"
+                @update:filterWordValue="word = $event"
+                :filter-by-options="filterOptions"
+                search-placeholder="Buscar platillo, código o nota"
+                :loading="loading"
+                filter-by-title="Filtrar por"
+                search-title="Búsqueda"
+                search-button-text="Buscar"
+                add-button-text="Agregar receta"
+                :show-add-button="true"
+                @search="listRecipes"
+                @add="openModal()"/>
 
-    <div class="list-section mb-2 table-responsive">
-        <table class="table table-hover br-entity-table br-entity-table--directory mb-0">
-            <thead class="br-table-header-surface">
-                <tr>
-                    <th style="width: 23%;">Identificación</th>
-                    <th style="width: 25%;">Platillo</th>
-                    <th style="width: 20%;">Fórmula</th>
-                    <th style="width: 16%;">Operación</th>
-                    <th class="text-center" style="width: 8%;">Estado</th>
-                    <th class="text-center" style="width: 8%;">
-                        <span class="visually-hidden">Acciones</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="loading">
-                    <td colspan="6"><Loader/></td>
-                </tr>
-                <template v-else-if="records.total > 0">
-                    <tr v-for="record in records.data" :key="record.id">
-                        <td class="br-entity-table__identification-cell">
-                            <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                <div class="br-entity-identifier">
-                                    <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                    <span class="br-entity-identifier__value">
-                                        <span class="br-entity-code" v-text="record.item?.internal_code || '—'"></span>
-                                        <span v-if="record.item?.internal_code" class="br-entity-identifier__actions">
-                                            <CopyButton :value="record.item.internal_code" label="Código interno"/>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div v-if="record.item?.barcode" class="br-entity-identifier">
-                                    <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
-                                    <span class="br-entity-identifier__value">
-                                        <span class="br-entity-barcode" v-text="record.item.barcode"></span>
-                                        <span class="br-entity-identifier__actions">
-                                            <CopyButton :value="record.item.barcode" label="Código de barras"/>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <strong class="d-block">{{ record.item?.name }}</strong>
-                        </td>
-                        <td>
-                            <span class="br-recipe-pill">{{ record.components_count }} insumos</span>
-                            <span class="br-recipe-pill">{{ record.toppings_count }} extras</span>
-                            <span class="br-recipe-pill">{{ record.options_count }} sabores</span>
-                        </td>
-                        <td>
-                            <small class="text-muted d-block">Rendimiento</small>
-                            <strong>{{ record.yield_quantity }}</strong>
-                            <small class="text-muted ms-2">Merma {{ record.waste_percentage }}%</small>
-                        </td>
-                        <td class="text-center">
-                            <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                        </td>
-                        <td class="text-center">
-                            <button
-                                type="button"
-                                class="br-icon-action br-icon-action-edit"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Editar receta"
-                                @click="openModal(record)">
-                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </template>
-                <tr v-else>
-                    <td colspan="6"><WithoutData type="image"/></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <div class="list-section mb-2 table-responsive">
+                <table class="table table-hover br-entity-table br-entity-table--directory mb-0">
+                    <thead class="br-table-header-surface">
+                        <tr>
+                            <th style="width: 23%;">Identificación</th>
+                            <th style="width: 25%;">Platillo</th>
+                            <th style="width: 20%;">Fórmula</th>
+                            <th style="width: 16%;">Operación</th>
+                            <th class="text-center" style="width: 8%;">Estado</th>
+                            <th class="text-center" style="width: 8%;">
+                                <span class="visually-hidden">Acciones</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="br-table-state" v-if="loading">
+                            <td colspan="6"><Loader/></td>
+                        </tr>
+                        <template v-else-if="records.total > 0">
+                            <tr v-for="record in records.data" :key="record.id">
+                                <td class="br-entity-table__identification-cell">
+                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                        <div class="br-entity-identifier">
+                                            <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
+                                            <span class="br-entity-identifier__value">
+                                                <span class="br-entity-code" v-text="record.item?.internal_code || '—'"></span>
+                                                <span v-if="record.item?.internal_code" class="br-entity-identifier__actions">
+                                                    <CopyButton :value="record.item.internal_code" label="Código interno"/>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div v-if="record.item?.barcode" class="br-entity-identifier">
+                                            <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
+                                            <span class="br-entity-identifier__value">
+                                                <span class="br-entity-barcode" v-text="record.item.barcode"></span>
+                                                <span class="br-entity-identifier__actions">
+                                                    <CopyButton :value="record.item.barcode" label="Código de barras"/>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong class="d-block">{{ record.item?.name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="br-recipe-pill">{{ record.components_count }} insumos</span>
+                                    <span class="br-recipe-pill">{{ record.toppings_count }} extras</span>
+                                    <span class="br-recipe-pill">{{ record.options_count }} sabores</span>
+                                </td>
+                                <td>
+                                    <small class="text-muted d-block">Rendimiento</small>
+                                    <strong>{{ record.yield_quantity }}</strong>
+                                    <small class="text-muted ms-2">Merma {{ record.waste_percentage }}%</small>
+                                </td>
+                                <td class="text-center">
+                                    <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                </td>
+                                <td class="text-center">
+                                    <button
+                                        type="button"
+                                        class="br-icon-action br-icon-action-edit"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Editar receta"
+                                        @click="openModal(record)">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr class="br-table-state" v-else>
+                            <td colspan="6"><WithoutData type="image"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listRecipes"/>
+            <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listRecipes"/>
 
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" id="recipeModal" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content br-entity-modal">
@@ -321,6 +326,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import CopyButton from "@System/Components/CopyButton.vue";
@@ -345,6 +351,7 @@ const emptyForm = () => ({
 const uid = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default {
+    mixins: [InitialPageMixin],
     components: {CopyButton},
     data() {
         return {
@@ -383,8 +390,8 @@ export default {
             return this.currencies?.[0]?.sign || "S/";
         }
     },
-    mounted() {
-        this.initParams();
+    async mounted() {
+        await this.loadInitialParams(() => this.initParams());
         this.listRecipes();
     },
     methods: {

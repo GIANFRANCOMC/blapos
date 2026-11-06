@@ -14,6 +14,8 @@ import InventorySkeleton from "./InventorySkeleton.vue";
 import StockAlertsModal from "./StockAlertsModal.vue";
 import StockDifference from "./StockDifference.vue";
 
+const STOCK_PAGE_SIZE = 10;
+
 const VIEWS = [
     {code: "stock", title: "Control de stock"},
     {code: "kardex", title: "Kardex"},
@@ -130,7 +132,7 @@ export default {
         }
     },
     data() {
-        const initialLoad = createInitialLoad({skeleton: true, swal: this.page === "stock"});
+        const initialLoad = createInitialLoad({skeleton: true, swal: true});
         return {
             initialLoad,
             activeView: this.page,
@@ -234,6 +236,7 @@ export default {
                     route: url || Requests.config({entity: "stocks_management", type: "list"}),
                     data: {
                         warehouse_id: warehouseId,
+                        per_page: STOCK_PAGE_SIZE,
                         product_search: productSearch,
                         situation,
                         ...this.currentStockAdvancedFilters()
@@ -258,10 +261,24 @@ export default {
             Alerts.loading({message: "Consultando alertas de stock"});
 
             try {
+                if(showModal) {
+                    this.resettingFilters = true;
+                    try {
+                        this.alertProductSearch = "";
+                        this.alertMinimumStatus = STOCK_MINIMUM_OPTIONS[0];
+                        await this.$nextTick();
+                    } finally {
+                        this.resettingFilters = false;
+                    }
+                }
+
+                this.appliedAlertProductSearch = String(this.alertProductSearch ?? "").trim();
+                this.appliedAlertMinimumStatus = this.alertMinimumStatus?.code || "";
                 const result = await Requests.get({
                     route: url || Requests.config({entity: "stocks_management", type: "alerts"}),
                     data: {
                         warehouse_id: warehouseId,
+                        per_page: STOCK_PAGE_SIZE,
                         status: "open",
                         product_search: this.appliedAlertProductSearch,
                         minimum_status: this.appliedAlertMinimumStatus
@@ -294,9 +311,8 @@ export default {
         searchStockAlerts(value = this.alertProductSearch) {
             if(this.loadingAlerts) return;
 
-            this.appliedAlertProductSearch = String(value ?? "").trim();
-            this.appliedAlertMinimumStatus = this.alertMinimumStatus?.code || "";
-            this.listStockAlerts({});
+            this.alertProductSearch = String(value ?? "").trim();
+            return this.listStockAlerts({});
         },
         async downloadStockAlerts(format) {
             const warehouseId = this.filters.warehouse?.code;
@@ -396,18 +412,13 @@ export default {
         clearProductSearch() {
             this.scannedProductId = null;
         },
-        async clearFilters({alerts = false} = {}) {
-            if(this.resettingFilters || (alerts ? this.loadingAlerts : this.isCurrentViewLoading)) return;
+        async clearFilters() {
+            if(this.resettingFilters || this.isCurrentViewLoading) return;
 
             this.resettingFilters = true;
             try {
-                if(alerts) {
-                    this.alertProductSearch = "";
-                    this.alertMinimumStatus = STOCK_MINIMUM_OPTIONS[0];
-                } else {
-                    Object.assign(this.filters, createInventoryFilters(this.filters.warehouse));
-                    this.scannedProductId = null;
-                }
+                Object.assign(this.filters, createInventoryFilters(this.filters.warehouse));
+                this.scannedProductId = null;
                 // Los watchers se procesan antes de habilitar de nuevo los cambios automáticos.
                 await this.$nextTick();
             } finally {

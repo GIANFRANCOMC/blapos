@@ -181,7 +181,7 @@ import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import MasterDataSkeleton from "./MasterDataSkeleton.vue";
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 const OPTION = {
     statuses: [{code: "active", label: "Activo"}, {code: "inactive", label: "Inactivo"}],

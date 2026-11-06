@@ -16,7 +16,7 @@ body.br-layout .table > thead > tr > th.bg-secondary {
   background-color: transparent !important;
   color: var(--br-table-thead-text) !important;
   font-size: var(--br-table-heading-font-size) !important;
-  font-weight: 600;
+  font-weight: var(--br-font-weight-table-heading);
   line-height: 1.12;
   letter-spacing: 0.012em;
   border-bottom-color: color-mix(in srgb, var(--br-white) 10%, transparent) !important;
@@ -73,7 +73,7 @@ body.br-layout .table.table-sm > thead > tr > th {
   align-items: center;
   min-width: 0;
   color: var(--br-text-muted);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
 }
 
 .br-breadcrumb__item span {
@@ -86,7 +86,7 @@ body.br-layout .table.table-sm > thead > tr > th {
 
 .br-breadcrumb__item.is-current {
   color: var(--br-primary-active);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-breadcrumb__separator {
@@ -118,7 +118,7 @@ body.br-layout .table.table-sm > thead > tr > th {
   margin-bottom: 0.3rem;
   color: var(--br-text-muted);
   font-size: var(--br-ui-font-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--br-font-weight-label) !important;
   line-height: 1.25;
 }
 
@@ -126,7 +126,7 @@ body.br-layout .form-label {
   margin-bottom: 1px;
   color: color-mix(in srgb, var(--br-secondary) 72%, var(--br-text-muted));
   font-size: var(--br-ui-font-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--br-font-weight-label) !important;
   line-height: 1.2;
   letter-spacing: 0;
 }
@@ -157,7 +157,7 @@ body.br-layout .form-label {
   box-shadow: 0 0.2rem 0.55rem color-mix(in srgb, var(--br-secondary) 16%, transparent);
   color: var(--br-on-secondary);
   font-size: var(--bs-tooltip-font-size);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.25;
   letter-spacing: 0;
   text-align: center;
@@ -343,7 +343,7 @@ body.br-layout .form-label {
   background: color-mix(in srgb, var(--br-secondary-soft) 72%, var(--br-surface-elevated));
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.25;
 }
 
@@ -404,7 +404,7 @@ body.br-layout .form-label {
   color: currentColor;
   font-family: var(--br-font-sans);
   font-size: var(--br-font-size-095);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   transform: translateY(0.05rem);
 }
@@ -438,7 +438,7 @@ body.br-layout .form-label {
   min-height: 1.75rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-072);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.35;
   text-align: center;
 }
@@ -470,7 +470,7 @@ body > .vs__dropdown-menu .vs__no-options:not(:has(.br-select-empty))::after {
   content: "No hay opciones disponibles.";
   color: var(--br-text-muted);
   font-size: var(--br-font-size-072);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.35;
 }
 
@@ -574,4 +574,25 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
   .br-filter-bar__actions .br-btn-action-export:last-child {
     grid-column: 1 / -1;
   }
+}
+.br-list-initial-space {
+  display: block;
+  min-height: var(--br-list-state-height);
+}
+
+.table > tbody > tr.br-table-state,
+.table > tbody > tr.br-table-state:hover {
+  background: transparent;
+  box-shadow: none;
+  transition: none;
+  cursor: default;
+}
+
+.table > tbody > tr.br-table-state > td {
+  --bs-table-accent-bg: transparent;
+  --bs-table-hover-bg: transparent;
+  --bs-table-bg-state: transparent;
+  --bs-table-bg-type: transparent;
+  background-color: transparent;
+  box-shadow: none;
 }

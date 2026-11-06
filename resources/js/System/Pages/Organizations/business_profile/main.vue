@@ -1,74 +1,80 @@
 <template>
     <Breadcrumb :list="[{title: 'Administración'}, {title: 'Rubro y módulos', active: true}]"/>
 
-    <section class="br-business-profile">
-        <header class="br-module-heading">
-            <div>
-                <h1>Rubro y módulos</h1>
-                <p>Parte de una configuración sugerida y ajusta las funciones que estarán disponibles para la empresa.</p>
-            </div>
-        </header>
-
-        <section class="br-business-profile__industry">
-            <div>
-                <h2>Configuración base por rubro</h2>
-                <p>Aplicar un rubro reemplaza la selección actual por su conjunto recomendado.</p>
-            </div>
-            <div class="br-business-profile__industry-action">
-                <label class="br-business-profile__industry-field">
-                    <span class="form-label colon-at-end">Rubro</span>
-                    <select v-model="selectedIndustryId" class="form-select" :disabled="loading || saving">
-                        <option :value="null">Selecciona un rubro</option>
-                        <option v-for="industry in industries" :key="industry.id" :value="industry.id">{{ industry.name }}</option>
-                    </select>
-                </label>
-                <button type="button" class="br-btn br-btn-action-update" :disabled="loading || !selectedIndustryId || saving" @click="applyIndustry">
-                    <span>Aplicar rubro</span>
-                </button>
-            </div>
-        </section>
-
-        <section class="br-business-profile__modules">
-            <header>
-                <div>
-                    <h2>Personalización por empresa</h2>
-                    <p>{{ enabledIds.length }} de {{ modules.length }} funciones activas.</p>
-                </div>
-                <div class="br-business-profile__bulk">
-                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading || saving" @click="selectAll">Activar todas</button>
-                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading || saving" @click="clearOptional">Limpiar opcionales</button>
-                </div>
-            </header>
-
-            <div v-if="loading" class="br-loading-state"><Loader/></div>
-            <WithoutData v-else-if="modules.length === 0" type="image" text="Sin módulos disponibles" description="No hay funciones configuradas para esta empresa."/>
-            <div v-else class="br-business-profile__groups">
-                <article v-for="group in moduleGroups" :key="group.id" class="br-business-profile__group">
-                    <div class="br-business-profile__group-head">
-                        <strong>{{ group.label }}</strong>
-                        <span>{{ selectedInGroup(group) }}/{{ group.modules.length }}</span>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-business-profile">
+                <header class="br-module-heading">
+                    <div>
+                        <h1>Rubro y módulos</h1>
+                        <p>Parte de una configuración sugerida y ajusta las funciones que estarán disponibles para la empresa.</p>
                     </div>
-                    <label v-for="module in group.modules" :key="module.id" class="br-business-profile__module">
-                        <span>
-                            <strong>{{ module.dom_label }}</strong>
-                            <small>{{ module.description || "Función del sistema" }}</small>
-                        </span>
-                        <input v-model="enabledIds" type="checkbox" class="form-check-input" :value="module.id" :disabled="isProtected(module)">
-                    </label>
-                </article>
-            </div>
+                </header>
 
-            <footer>
-                <span>Mi espacio y Mi cuenta permanecen activos.</span>
-                <button type="button" class="br-btn br-btn-primary" :disabled="loading || modules.length === 0 || saving" @click="saveModules">
-                    <span>{{ saving ? 'Guardando...' : 'Guardar módulos' }}</span>
-                </button>
-            </footer>
-        </section>
-    </section>
+                <section class="br-business-profile__industry">
+                    <div>
+                        <h2>Configuración base por rubro</h2>
+                        <p>Aplicar un rubro reemplaza la selección actual por su conjunto recomendado.</p>
+                    </div>
+                    <div class="br-business-profile__industry-action">
+                        <label class="br-business-profile__industry-field">
+                            <span class="form-label colon-at-end">Rubro</span>
+                            <select v-model="selectedIndustryId" class="form-select" :disabled="loading || saving">
+                                <option :value="null">Selecciona un rubro</option>
+                                <option v-for="industry in industries" :key="industry.id" :value="industry.id">{{ industry.name }}</option>
+                            </select>
+                        </label>
+                        <button type="button" class="br-btn br-btn-action-update" :disabled="loading || !selectedIndustryId || saving" @click="applyIndustry">
+                            <span>Aplicar rubro</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="br-business-profile__modules">
+                    <header>
+                        <div>
+                            <h2>Personalización por empresa</h2>
+                            <p>{{ enabledIds.length }} de {{ modules.length }} funciones activas.</p>
+                        </div>
+                        <div class="br-business-profile__bulk">
+                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading || saving" @click="selectAll">Activar todas</button>
+                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading || saving" @click="clearOptional">Limpiar opcionales</button>
+                        </div>
+                    </header>
+
+                    <div v-if="loading" class="br-loading-state"><Loader/></div>
+                    <WithoutData v-else-if="modules.length === 0" type="image" text="Sin módulos disponibles" description="No hay funciones configuradas para esta empresa."/>
+                    <div v-else class="br-business-profile__groups">
+                        <article v-for="group in moduleGroups" :key="group.id" class="br-business-profile__group">
+                            <div class="br-business-profile__group-head">
+                                <strong>{{ group.label }}</strong>
+                                <span>{{ selectedInGroup(group) }}/{{ group.modules.length }}</span>
+                            </div>
+                            <label v-for="module in group.modules" :key="module.id" class="br-business-profile__module">
+                                <span>
+                                    <strong>{{ module.dom_label }}</strong>
+                                    <small>{{ module.description || "Función del sistema" }}</small>
+                                </span>
+                                <input v-model="enabledIds" type="checkbox" class="form-check-input" :value="module.id" :disabled="isProtected(module)">
+                            </label>
+                        </article>
+                    </div>
+
+                    <footer>
+                        <span>Mi espacio y Mi cuenta permanecen activos.</span>
+                        <button type="button" class="br-btn br-btn-primary" :disabled="loading || modules.length === 0 || saving" @click="saveModules">
+                            <span>{{ saving ? 'Guardando...' : 'Guardar módulos' }}</span>
+                        </button>
+                    </footer>
+                </section>
+            </section>
+        </div>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
@@ -76,6 +82,7 @@ import * as Utils from "@System/Helpers/Utils.js";
 const PROTECTED_ROUTES = ["workspace.index", "account.index"];
 
 export default {
+    mixins: [InitialPageMixin],
     data() {
         return {
             routes: Requests.config({entity: "business_profile"}).routes,
@@ -98,10 +105,10 @@ export default {
             return Array.from(groups.values());
         }
     },
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-business-profile", {addClass: "active"});
-        this.load();
+        await this.loadInitialParams(() => this.load());
     },
     methods: {
         async load() {

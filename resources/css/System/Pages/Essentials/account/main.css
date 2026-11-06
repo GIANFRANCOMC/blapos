@@ -28,7 +28,7 @@
 .br-account-page__intro h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: -0.035em;
 }
 
@@ -93,7 +93,7 @@
 .br-account-page__panel-head h2 {
   margin: 0;
   color: var(--br-secondary);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-account-page__panel-head p {
@@ -117,7 +117,7 @@
   display: inline-block;
   margin-bottom: 0.16rem;
   color: var(--br-secondary);
-  font-weight: 650;
+  font-weight: var(--br-font-weight-label);
 }
 
 .br-account-page__field .input-group {

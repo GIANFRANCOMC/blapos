@@ -2,7 +2,34 @@
  * Conservar los pasos existentes; los componentes pueden usar aliases por función.
  * --br-font-scale amplía los tamaños absolutos sin modificar cada componente.
  */
+b,
+strong {
+  font-weight: var(--br-font-weight-emphasis);
+}
+
+.fw-bold,
+.fw-bolder,
+.fw-semibold {
+  font-weight: var(--br-font-weight-emphasis) !important;
+}
+
+.fw-medium { font-weight: var(--br-font-weight-medium) !important; }
+.fw-normal,
+.fw-light,
+.fw-lighter { font-weight: var(--br-font-weight-body) !important; }
+
 :root {
+  --br-font-weight-regular: 400;
+  --br-font-weight-medium: 500;
+  --br-font-weight-semibold: 600;
+  --br-font-weight-body: var(--br-font-weight-regular);
+  --br-font-weight-label: var(--br-font-weight-medium);
+  --br-font-weight-control: var(--br-font-weight-medium);
+  --br-font-weight-heading: var(--br-font-weight-semibold);
+  --br-font-weight-table-heading: var(--br-font-weight-medium);
+  --br-font-weight-value: var(--br-font-weight-medium);
+  --br-font-weight-emphasis: var(--br-font-weight-semibold);
+  --br-font-weight-icon: 900;
   --br-font-scale: 1;
   --br-font-size-003: calc(0.03rem * var(--br-font-scale));
   --br-font-size-0035: calc(0.035rem * var(--br-font-scale));

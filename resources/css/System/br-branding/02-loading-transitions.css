@@ -1,4 +1,39 @@
 /* Skeleton y contenido comparten el espacio durante el fundido, sin duplicar la altura. */
+.br-page-skeleton {
+  display: grid;
+  gap: var(--br-grid-gap-3);
+  pointer-events: none;
+}
+
+.br-page-skeleton__filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: var(--br-grid-gap-3);
+  align-items: end;
+}
+
+.br-page-skeleton__field {
+  display: grid;
+  gap: var(--br-grid-gap-2);
+}
+
+.br-page-skeleton__label,
+.br-page-skeleton__control,
+.br-page-skeleton__button {
+  display: block;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-primary-soft);
+}
+
+.br-page-skeleton__label { width: 5rem; height: .6rem; }
+.br-page-skeleton__control { height: var(--br-control-height); border: 1px solid var(--br-border); background: var(--br-white); }
+.br-page-skeleton__button { width: 5rem; height: var(--br-control-height); }
+.br-page-skeleton__surface { min-height: calc(var(--br-list-state-height) + 3rem); }
+
+@media (max-width: 767.98px) {
+  .br-page-skeleton__filters { grid-template-columns: minmax(0, 1fr); }
+}
+
 .br-initial-load {
   display: grid;
   gap: inherit;

@@ -124,7 +124,7 @@ export default {
     font-variant-numeric: tabular-nums;
     background-color: #000;
     color: #0f0;
-    font-weight: bold;
+    font-weight: var(--br-font-weight-emphasis);
     padding: 4px 14px;
     border-radius: 6px;
     display: inline-flex;

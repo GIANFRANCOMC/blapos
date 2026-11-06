@@ -2,90 +2,96 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Content -->
-    <div class="row align-items-end g-3 mb-3 mb-md-2">
-        <InputSlot
-            hasDiv
-            :isInputGroup="false"
-            :divInputClass="['d-flex flex-wrap justify-content-center align-items-end gap-2 gap-md-3 mb-2']"
-            xl="12"
-            lg="12">
-            <template v-slot:input>
-                <template v-if="isDefined({value: customerCurrent?.customer})">
-                    <button type="button" class="br-btn br-btn-sm br-btn-search waves-effect" @click="modalCreateUpdateEntity({})">
-                        <span>Buscar</span>
-                    </button>
-                    <button type="button" class="btn btn-info-1 btn-sm waves-effect" @click="getTrackingCustomers({refresh: true})">
-                        <i class="fa fa-sync"></i>
-                        <span class="ms-2">Refrescar expediente</span>
-                    </button>
-                </template>
-                <template v-else>
-                    <button type="button" class="btn btn-primary btn-sm waves-effect" @click="modalCreateUpdateEntity({})">
-                        <i class="fa fa-hand-pointer"></i>
-                        <span class="ms-2">Seleccione un cliente</span>
-                    </button>
-                </template>
-            </template>
-        </InputSlot>
-    </div>
-    <div class="row g-3">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ps-1 ps-md-3 pe-0 pe-md-3" v-if="isDefined({value: customerCurrent?.customer})">
-            <Timeline :data="customerCurrent ?? {}">
-                <template v-slot:statisticsPrepend>
-                    <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12">
-                        <div class="br-customer-tracking-profile">
-                            <span class="br-customer-tracking-profile__avatar">
-                                <i class="fa-solid fa-user" aria-hidden="true"></i>
-                            </span>
-                            <div class="flex-grow-1 flex-min-w-0">
-                                <span class="br-customer-tracking-profile__name" v-text="customerCurrent?.customer?.name ?? ''"></span>
-                                <span class="br-customer-tracking-profile__meta">
-                                    <strong v-text="customerCurrent?.customer?.identity_document_type?.name ?? ''"></strong>
-                                    <span v-text="customerCurrent?.customer?.document_number ?? ''"></span>
-                                </span>
-                                <span class="br-customer-tracking-profile__period" v-text="periodTypeCurrent"></span>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <div class="row align-items-end g-3 mb-3 mb-md-2">
+                <InputSlot
+                    hasDiv
+                    :isInputGroup="false"
+                    :divInputClass="['d-flex flex-wrap justify-content-center align-items-end gap-2 gap-md-3 mb-2']"
+                    xl="12"
+                    lg="12">
+                    <template v-slot:input>
+                        <template v-if="isDefined({value: customerCurrent?.customer})">
+                            <button type="button" class="br-btn br-btn-sm br-btn-search waves-effect" @click="modalCreateUpdateEntity({})">
+                                <span>Buscar</span>
+                            </button>
+                            <button type="button" class="btn btn-info-1 btn-sm waves-effect" @click="getTrackingCustomers({refresh: true})">
+                                <i class="fa fa-sync"></i>
+                                <span class="ms-2">Refrescar expediente</span>
+                            </button>
+                        </template>
+                        <template v-else>
+                            <button type="button" class="btn btn-primary btn-sm waves-effect" @click="modalCreateUpdateEntity({})">
+                                <i class="fa fa-hand-pointer"></i>
+                                <span class="ms-2">Seleccione un cliente</span>
+                            </button>
+                        </template>
+                    </template>
+                </InputSlot>
+            </div>
+            <div class="row g-3">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ps-1 ps-md-3 pe-0 pe-md-3" v-if="isDefined({value: customerCurrent?.customer})">
+                    <Timeline :data="customerCurrent ?? {}">
+                        <template v-slot:statisticsPrepend>
+                            <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12">
+                                <div class="br-customer-tracking-profile">
+                                    <span class="br-customer-tracking-profile__avatar">
+                                        <i class="fa-solid fa-user" aria-hidden="true"></i>
+                                    </span>
+                                    <div class="flex-grow-1 flex-min-w-0">
+                                        <span class="br-customer-tracking-profile__name" v-text="customerCurrent?.customer?.name ?? ''"></span>
+                                        <span class="br-customer-tracking-profile__meta">
+                                            <strong v-text="customerCurrent?.customer?.identity_document_type?.name ?? ''"></strong>
+                                            <span v-text="customerCurrent?.customer?.document_number ?? ''"></span>
+                                        </span>
+                                        <span class="br-customer-tracking-profile__period" v-text="periodTypeCurrent"></span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12">
-                        <div class="br-customer-tracking-summary">
-                            <article v-for="item in trackingSummaryCards" :key="item.key" class="br-customer-tracking-summary__item">
-                                <span :class="['br-customer-tracking-summary__icon', item.tone]">
-                                    <i :class="item.icon" aria-hidden="true"></i>
-                                </span>
-                                <span class="br-customer-tracking-summary__label" v-text="item.label"></span>
-                                <strong class="br-customer-tracking-summary__value" v-text="item.value"></strong>
-                            </article>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="br-customer-tracking-memberships" v-if="(customerCurrent?.extras?.options?.information ?? []).some(e => ['sales', 'subscriptions', 'attendances'].includes(e))">
-                            <span class="br-customer-tracking-memberships__title">
-                                <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
-                                Membresía vigente hasta
-                            </span>
-                            <template v-if="(customerCurrent?.functions?.subscription_end_dates ?? []).length > 0">
-                                <ul class="br-customer-tracking-memberships__list">
-                                    <li v-for="(record, indexRecord) in (customerCurrent?.functions?.subscription_end_dates ?? [])" :key="indexRecord">
-                                        <strong v-text="record?.branch?.name"></strong>
-                                        <span v-text="legibleFormatDate({dateString: record?.max_end_date})"></span>
-                                    </li>
-                                </ul>
-                            </template>
-                            <template v-else>
-                                <span class="br-customer-tracking-memberships__empty">Sin membresías vigentes en el periodo.</span>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-            </Timeline>
-        </div>
-        <div v-else class="text-center">
-            <WithoutData type="image"/>
-        </div>
-    </div>
+                            <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12">
+                                <div class="br-customer-tracking-summary">
+                                    <article v-for="item in trackingSummaryCards" :key="item.key" class="br-customer-tracking-summary__item">
+                                        <span :class="['br-customer-tracking-summary__icon', item.tone]">
+                                            <i :class="item.icon" aria-hidden="true"></i>
+                                        </span>
+                                        <span class="br-customer-tracking-summary__label" v-text="item.label"></span>
+                                        <strong class="br-customer-tracking-summary__value" v-text="item.value"></strong>
+                                    </article>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="br-customer-tracking-memberships" v-if="(customerCurrent?.extras?.options?.information ?? []).some(e => ['sales', 'subscriptions', 'attendances'].includes(e))">
+                                    <span class="br-customer-tracking-memberships__title">
+                                        <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+                                        Membresía vigente hasta
+                                    </span>
+                                    <template v-if="(customerCurrent?.functions?.subscription_end_dates ?? []).length > 0">
+                                        <ul class="br-customer-tracking-memberships__list">
+                                            <li v-for="(record, indexRecord) in (customerCurrent?.functions?.subscription_end_dates ?? [])" :key="indexRecord">
+                                                <strong v-text="record?.branch?.name"></strong>
+                                                <span v-text="legibleFormatDate({dateString: record?.max_end_date})"></span>
+                                            </li>
+                                        </ul>
+                                    </template>
+                                    <template v-else>
+                                        <span class="br-customer-tracking-memberships__empty">Sin membresías vigentes en el periodo.</span>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </Timeline>
+                </div>
+                <div v-else class="text-center">
+                    <WithoutData type="image"/>
+                </div>
+            </div>
 
-    <!-- Modals -->
+            <!-- Modals -->
+
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms.entity.createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -189,12 +195,14 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 
 export default {
+    mixins: [InitialPageMixin],
     components: {
         //
     },
@@ -202,17 +210,9 @@ export default {
 
         Utils.navbarItem("menu-parent-customers", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        let initParams = await this.initParams({}),
-            initOthers = await this.initOthers({});
-
-        if(initParams && initOthers) {
-
-            Alerts.swals({show: false});
-            // this.listEntity({});
-
-        }
+        const initialized = await this.loadInitialParams(() => this.initParams({}));
+        if(initialized) await this.initOthers({});
 
     },
     data() {

@@ -1,394 +1,400 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <template v-if="isListPage">
-        <section class="br-filter-bar br-sales-list__filters">
-            <div class="row align-items-end g-2">
-                <SearchInput
-                    v-model="filters.word"
-                    hasDiv
-                    title="Búsqueda"
-                    :titleClass="[config.forms.classes.title]"
-                    placeholder="Buscar por cotización o cliente"
-                    xl="5"
-                    lg="6"
-                    @search="listQuotations({})"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <template v-if="isListPage">
+                <section class="br-filter-bar br-sales-list__filters">
+                    <div class="row align-items-end g-2">
+                        <SearchInput
+                            v-model="filters.word"
+                            hasDiv
+                            title="Búsqueda"
+                            :titleClass="[config.forms.classes.title]"
+                            placeholder="Buscar por cotización o cliente"
+                            xl="5"
+                            lg="6"
+                            @search="listQuotations({})"/>
 
-                <InputSlot
-                    hasDiv
-                    title="Estado"
-                    :titleClass="[config.forms.classes.title]"
-                    xl="3"
-                    lg="6">
-                    <template #input>
-                        <v-select
-                            v-model="filters.status"
-                            :options="statusOptions"
-                            :class="config.forms.classes.select2"
-                            :clearable="true"
-                            :searchable="false"
-                            placeholder="Todos"/>
-                    </template>
-                </InputSlot>
+                        <InputSlot
+                            hasDiv
+                            title="Estado"
+                            :titleClass="[config.forms.classes.title]"
+                            xl="3"
+                            lg="6">
+                            <template #input>
+                                <v-select
+                                    v-model="filters.status"
+                                    :options="statusOptions"
+                                    :class="config.forms.classes.select2"
+                                    :clearable="true"
+                                    :searchable="false"
+                                    placeholder="Todos"/>
+                            </template>
+                        </InputSlot>
 
-                <InputSlot
-                    hasDiv
-                    :isInputGroup="false"
-                    :divInputClass="['br-filter-bar__actions']"
-                    xl="4"
-                    lg="12">
-                    <template #input>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-search"
-                            :disabled="loading.list"
-                            @click="listQuotations({})">
-                            <span>Buscar</span>
-                        </button>
-                        <a :href="createUrl" class="br-btn br-btn-sm br-btn-primary">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Nueva cotización</span>
-                        </a>
-                    </template>
-                </InputSlot>
-            </div>
-        </section>
-
-        <section class="table-responsive br-entity-table-wrap">
-            <table class="table br-entity-table mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 18%;">Cotización</th>
-                        <th style="width: 26%;">Cliente</th>
-                        <th style="width: 16%;">Sucursal</th>
-                        <th style="width: 14%;">Vigencia</th>
-                        <th class="text-end" style="width: 12%;">Total</th>
-                        <th style="width: 8%;">Estado</th>
-                        <th class="text-center" style="width: 6%;">
-                            <span class="visually-hidden">Acciones</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="loading.list">
-                        <td colspan="7" class="text-center py-4">
-                            <Loader/>
-                        </td>
-                    </tr>
-                    <template v-else-if="records.total > 0">
-                        <tr v-for="record in records.data" :key="record.id">
-                            <td>
-                                <strong class="br-entity-primary" v-text="record.reference"></strong>
-                                <span class="br-entity-table__meta" v-text="legibleFormatDate(record.issue_date)"></span>
-                            </td>
-                            <td>
-                                <strong class="br-entity-primary" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
-                                <span class="br-entity-table__meta" v-text="record.holder?.document_number || 'Sin documento'"></span>
-                            </td>
-                            <td>
-                                <span v-text="record.branch?.name || 'Sin sucursal'"></span>
-                            </td>
-                            <td>
-                                <span v-text="record.valid_until ? legibleFormatDate(record.valid_until) : 'Sin vencimiento'"></span>
-                            </td>
-                            <td class="text-end">
-                                <span class="br-amount-inline">
-                                    <span class="br-amount-inline__sign" v-text="record.currency?.sign || 'S/'"></span>
-                                    <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
-                                </span>
-                            </td>
-                            <td>
-                                <span
-                                    class="br-status-label"
-                                    :class="statusClass(record.status)"
-                                    v-text="statusLabel(record.status)">
-                                </span>
-                            </td>
-                            <td>
-                                <div class="br-table-actions">
-                                    <a
-                                        :href="saleUrl"
-                                        class="br-icon-action br-icon-action-edit"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Usar en venta"
-                                        aria-label="Usar cotización en venta"
-                                        @click="persistQuotationForSale(record)">
-                                        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
-                                    </a>
-                                    <button
-                                        v-if="canCancel(record)"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-danger"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Anular cotización"
-                                        aria-label="Anular cotización"
-                                        @click="cancelQuotation(record)">
-                                        <i class="fa-solid fa-ban" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr v-else>
-                        <td colspan="7" class="text-center py-4">
-                            <WithoutData type="image"/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <Paginator :links="records.links" :pagination="records" :loading="loading.list" @clickPage="listQuotations"/>
-    </template>
-
-    <template v-else>
-        <div class="row g-4">
-            <div class="col-lg-9 col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row g-2 mb-2">
-                            <InputSlot
-                                hasDiv
-                                title="Sucursal"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="4"
-                                lg="4">
-                                <template #input>
-                                    <v-select
-                                        v-model="form.branch"
-                                        :options="branchOptions"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="branchOptions.length > 6"
-                                        placeholder="Seleccione"/>
-                                </template>
-                            </InputSlot>
-
-                            <InputDate
-                                v-model="form.issue_date"
-                                hasDiv
-                                title="Fecha de emisión"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                xl="4"
-                                lg="4"/>
-
-                            <InputDate
-                                v-model="form.valid_until"
-                                hasDiv
-                                title="Válida hasta"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="4"
-                                lg="4"/>
-
-                            <InputSlot
-                                hasDiv
-                                title="Cliente"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                xl="12"
-                                lg="12">
-                                <template #default>
-                                    <AddCustomer :options="customerQuickCreateOptions" @postAction="addCustomerPostAction"/>
-                                </template>
-                                <template #input>
-                                    <v-select
-                                        v-model="form.holder"
-                                        :options="holderOptions"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="true"
-                                        :filterable="false"
-                                        :loading="commercialSelection.customers.loading"
-                                        @open="openCommercialOptions('customers')"
-                                        @search="searchCommercialOptions('customers', $event)"
-                                        placeholder="Seleccione cliente">
-                                        <template #list-footer>
-                                            <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                                <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
-                                            </li>
-                                        </template>
-                                        <template #no-options>Sin clientes para esta búsqueda.</template>
-                                    </v-select>
-                                </template>
-                            </InputSlot>
-
-                            <InputTextArea
-                                v-model="form.observation"
-                                hasDiv
-                                title="Observaciones"
-                                :titleClass="[config.forms.classes.title]"
-                                placeholder="Condiciones comerciales, alcance o notas para el cliente"
-                                xl="12"
-                                lg="12"/>
-                        </div>
-
-                        <section class="br-quotation-builder mt-2">
-                            <div class="br-quotation-builder__head">
-                                <strong>Detalle</strong>
-                                <button type="button" class="br-btn br-btn-sm br-btn-primary" @click="addDetail">
-                                    <span>Agregar ítem</span>
+                        <InputSlot
+                            hasDiv
+                            :isInputGroup="false"
+                            :divInputClass="['br-filter-bar__actions']"
+                            xl="4"
+                            lg="12">
+                            <template #input>
+                                <button
+                                    type="button"
+                                    class="br-btn br-btn-sm br-btn-search"
+                                    :disabled="loading.list"
+                                    @click="listQuotations({})">
+                                    <span>Buscar</span>
                                 </button>
-                            </div>
-
-                            <div class="table-responsive br-entity-table-wrap">
-                                <table class="table br-entity-table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Ítem</th>
-                                            <th class="text-end" style="width: 14%;">Cantidad</th>
-                                            <th class="text-center" style="width: 18%;">Precio</th>
-                                            <th class="text-end" style="width: 16%;">Total</th>
-                                            <th class="text-center" style="width: 7%;">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(detail, index) in form.details" :key="detail.uid">
-                                            <td>
-                                                <v-select
-                                                    v-model="detail.item"
-                                                    :options="itemOptions"
-                                                    :class="config.forms.classes.select2"
-                                                    :clearable="false"
-                                                    :searchable="true"
-                                                    :filterable="false"
-                                                    :loading="commercialSelection.items.loading"
-                                                    @open="openCommercialOptions('items')"
-                                                    @search="searchCommercialOptions('items', $event)"
-                                                    append-to-body
-                                                    placeholder="Seleccione ítem"
-                                                    @option:selected="syncDetailItem(detail)">
-                                                    <template #list-footer>
-                                                        <li v-if="commercialSelection.items.hasMore" class="px-2 py-1">
-                                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('items')">Cargar más ítems</button>
-                                                        </li>
-                                                    </template>
-                                                    <template #no-options>Sin ítems para esta búsqueda.</template>
-                                                </v-select>
-                                            </td>
-                                            <td>
-                                                <InputNumber
-                                                    v-model="detail.quantity"
-                                                    :title="''"
-                                                    :titleClass="[]"
-                                                    :minValue="0"
-                                                    @change="syncDetailTotal(detail)"/>
-                                            </td>
-                                            <td>
-                                                <InputNumber
-                                                    v-model="detail.price"
-                                                    :title="''"
-                                                    :titleClass="[]"
-                                                    :minValue="0"
-                                                    @change="syncDetailTotal(detail)">
-                                                    <template #inputGroupPrepend>
-                                                        <span class="input-group-text br-currency-prefix" v-text="currencySign"></span>
-                                                    </template>
-                                                </InputNumber>
-                                            </td>
-                                            <td class="text-end">
-                                                <strong v-text="`${currencySign} ${separatorNumber(lineTotal(detail))}`"></strong>
-                                            </td>
-                                            <td class="text-center">
-                                                <button
-                                                    type="button"
-                                                    class="br-icon-action br-icon-action-danger"
-                                                    title="Quitar"
-                                                    aria-label="Quitar ítem"
-                                                    @click="removeDetail(index)">
-                                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="form.details.length === 0">
-                                            <td colspan="5" class="text-center py-4">
-                                                <WithoutData type="image"/>
-                                                <p class="br-document-settlement__empty mt-2 mb-0">
-                                                    Aún no hay ítems en la cotización. Usa Agregar ítem para empezar.
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
+                                <a :href="createUrl" class="br-btn br-btn-sm br-btn-primary">
+                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                    <span>Nueva cotización</span>
+                                </a>
+                            </template>
+                        </InputSlot>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <div class="col-lg-3 col-12">
-                <div class="br-document-settlement br-sale-settlement bg-white mb-2 mb-md-3">
-                    <article class="br-document-settlement__section">
-                        <header class="br-document-settlement__section-head">
-                            <label class="form-label colon-at-end">Impuestos extras</label>
-                        </header>
-                        <div v-if="optionalTaxes.length" class="br-document-settlement__taxes">
-                            <label
-                                v-for="tax in optionalTaxes"
-                                :key="tax.id"
-                                class="br-entity-switch br-document-settlement__tax-option">
-                                <input
-                                    v-model="form.selected_taxes"
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    :value="tax.id"
-                                    @change="syncSelectedTaxQuantity(tax)"/>
-                                <span>
-                                    <strong v-text="tax.name"></strong>
-                                    <small v-text="taxLabel(tax)"></small>
-                                </span>
-                                <InputNumber
-                                    v-if="isFixedTax(tax) && form.selected_taxes.includes(tax.id)"
-                                    v-model="form.selected_tax_quantities[tax.id]"
-                                    :title="''"
-                                    :titleClass="[]"
-                                    :decimals="0"
-                                    :minValue="taxQuantityMinimum(tax)"
-                                    :maxValue="taxQuantityMaximum(tax)"
-                                    @change="normalizeSelectedTaxQuantity(tax.id)">
-                                    <template #inputGroupPrepend>
-                                        <span class="input-group-text br-tax-quantity__label">Veces</span>
-                                    </template>
-                                </InputNumber>
-                            </label>
+                <section class="table-responsive br-entity-table-wrap">
+                    <table class="table br-entity-table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 18%;">Cotización</th>
+                                <th style="width: 26%;">Cliente</th>
+                                <th style="width: 16%;">Sucursal</th>
+                                <th style="width: 14%;">Vigencia</th>
+                                <th class="text-end" style="width: 12%;">Total</th>
+                                <th style="width: 8%;">Estado</th>
+                                <th class="text-center" style="width: 6%;">
+                                    <span class="visually-hidden">Acciones</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="br-table-state" v-if="loading.list">
+                                <td colspan="7" class="text-center py-4">
+                                    <Loader/>
+                                </td>
+                            </tr>
+                            <template v-else-if="records.total > 0">
+                                <tr v-for="record in records.data" :key="record.id">
+                                    <td>
+                                        <strong class="br-entity-primary" v-text="record.reference"></strong>
+                                        <span class="br-entity-table__meta" v-text="legibleFormatDate(record.issue_date)"></span>
+                                    </td>
+                                    <td>
+                                        <strong class="br-entity-primary" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
+                                        <span class="br-entity-table__meta" v-text="record.holder?.document_number || 'Sin documento'"></span>
+                                    </td>
+                                    <td>
+                                        <span v-text="record.branch?.name || 'Sin sucursal'"></span>
+                                    </td>
+                                    <td>
+                                        <span v-text="record.valid_until ? legibleFormatDate(record.valid_until) : 'Sin vencimiento'"></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="br-amount-inline">
+                                            <span class="br-amount-inline__sign" v-text="record.currency?.sign || 'S/'"></span>
+                                            <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="br-status-label"
+                                            :class="statusClass(record.status)"
+                                            v-text="statusLabel(record.status)">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="br-table-actions">
+                                            <a
+                                                :href="saleUrl"
+                                                class="br-icon-action br-icon-action-edit"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Usar en venta"
+                                                aria-label="Usar cotización en venta"
+                                                @click="persistQuotationForSale(record)">
+                                                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                                            </a>
+                                            <button
+                                                v-if="canCancel(record)"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-danger"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Anular cotización"
+                                                aria-label="Anular cotización"
+                                                @click="cancelQuotation(record)">
+                                                <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr class="br-table-state" v-else>
+                                <td colspan="7" class="text-center py-4">
+                                    <WithoutData type="image"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <Paginator :links="records.links" :pagination="records" :loading="loading.list" @clickPage="listQuotations"/>
+            </template>
+
+            <template v-else>
+                <div class="row g-4">
+                    <div class="col-lg-9 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row g-2 mb-2">
+                                    <InputSlot
+                                        hasDiv
+                                        title="Sucursal"
+                                        :titleClass="[config.forms.classes.title]"
+                                        xl="4"
+                                        lg="4">
+                                        <template #input>
+                                            <v-select
+                                                v-model="form.branch"
+                                                :options="branchOptions"
+                                                :class="config.forms.classes.select2"
+                                                :clearable="false"
+                                                :searchable="branchOptions.length > 6"
+                                                placeholder="Seleccione"/>
+                                        </template>
+                                    </InputSlot>
+
+                                    <InputDate
+                                        v-model="form.issue_date"
+                                        hasDiv
+                                        title="Fecha de emisión"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        xl="4"
+                                        lg="4"/>
+
+                                    <InputDate
+                                        v-model="form.valid_until"
+                                        hasDiv
+                                        title="Válida hasta"
+                                        :titleClass="[config.forms.classes.title]"
+                                        xl="4"
+                                        lg="4"/>
+
+                                    <InputSlot
+                                        hasDiv
+                                        title="Cliente"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        xl="12"
+                                        lg="12">
+                                        <template #default>
+                                            <AddCustomer :options="customerQuickCreateOptions" @postAction="addCustomerPostAction"/>
+                                        </template>
+                                        <template #input>
+                                            <v-select
+                                                v-model="form.holder"
+                                                :options="holderOptions"
+                                                :class="config.forms.classes.select2"
+                                                :clearable="false"
+                                                :searchable="true"
+                                                :filterable="false"
+                                                :loading="commercialSelection.customers.loading"
+                                                @open="openCommercialOptions('customers')"
+                                                @search="searchCommercialOptions('customers', $event)"
+                                                placeholder="Seleccione cliente">
+                                                <template #list-footer>
+                                                    <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                                    </li>
+                                                </template>
+                                                <template #no-options>Sin clientes para esta búsqueda.</template>
+                                            </v-select>
+                                        </template>
+                                    </InputSlot>
+
+                                    <InputTextArea
+                                        v-model="form.observation"
+                                        hasDiv
+                                        title="Observaciones"
+                                        :titleClass="[config.forms.classes.title]"
+                                        placeholder="Condiciones comerciales, alcance o notas para el cliente"
+                                        xl="12"
+                                        lg="12"/>
+                                </div>
+
+                                <section class="br-quotation-builder mt-2">
+                                    <div class="br-quotation-builder__head">
+                                        <strong>Detalle</strong>
+                                        <button type="button" class="br-btn br-btn-sm br-btn-primary" @click="addDetail">
+                                            <span>Agregar ítem</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="table-responsive br-entity-table-wrap">
+                                        <table class="table br-entity-table mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Ítem</th>
+                                                    <th class="text-end" style="width: 14%;">Cantidad</th>
+                                                    <th class="text-center" style="width: 18%;">Precio</th>
+                                                    <th class="text-end" style="width: 16%;">Total</th>
+                                                    <th class="text-center" style="width: 7%;">Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(detail, index) in form.details" :key="detail.uid">
+                                                    <td>
+                                                        <v-select
+                                                            v-model="detail.item"
+                                                            :options="itemOptions"
+                                                            :class="config.forms.classes.select2"
+                                                            :clearable="false"
+                                                            :searchable="true"
+                                                            :filterable="false"
+                                                            :loading="commercialSelection.items.loading"
+                                                            @open="openCommercialOptions('items')"
+                                                            @search="searchCommercialOptions('items', $event)"
+                                                            append-to-body
+                                                            placeholder="Seleccione ítem"
+                                                            @option:selected="syncDetailItem(detail)">
+                                                            <template #list-footer>
+                                                                <li v-if="commercialSelection.items.hasMore" class="px-2 py-1">
+                                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('items')">Cargar más ítems</button>
+                                                                </li>
+                                                            </template>
+                                                            <template #no-options>Sin ítems para esta búsqueda.</template>
+                                                        </v-select>
+                                                    </td>
+                                                    <td>
+                                                        <InputNumber
+                                                            v-model="detail.quantity"
+                                                            :title="''"
+                                                            :titleClass="[]"
+                                                            :minValue="0"
+                                                            @change="syncDetailTotal(detail)"/>
+                                                    </td>
+                                                    <td>
+                                                        <InputNumber
+                                                            v-model="detail.price"
+                                                            :title="''"
+                                                            :titleClass="[]"
+                                                            :minValue="0"
+                                                            @change="syncDetailTotal(detail)">
+                                                            <template #inputGroupPrepend>
+                                                                <span class="input-group-text br-currency-prefix" v-text="currencySign"></span>
+                                                            </template>
+                                                        </InputNumber>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <strong v-text="`${currencySign} ${separatorNumber(lineTotal(detail))}`"></strong>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button
+                                                            type="button"
+                                                            class="br-icon-action br-icon-action-danger"
+                                                            title="Quitar"
+                                                            aria-label="Quitar ítem"
+                                                            @click="removeDetail(index)">
+                                                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr class="br-table-state" v-if="form.details.length === 0">
+                                                    <td colspan="5" class="text-center py-4">
+                                                        <WithoutData type="image"/>
+                                                        <p class="br-document-settlement__empty mt-2 mb-0">
+                                                            Aún no hay ítems en la cotización. Usa Agregar ítem para empezar.
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
-                        <p v-else class="br-document-settlement__empty mb-0">Sin impuestos extras configurados.</p>
-                    </article>
-                </div>
+                    </div>
 
-                <div class="br-document-summary-card mb-2 mb-md-3">
-                    <h3 class="br-document-summary-card__title">Resumen</h3>
-                    <div class="br-document-settlement__summary">
-                        <span class="br-document-settlement__summary-label br-document-settlement__summary-label--primary">Subtotal</span>
-                        <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(subtotal)}`"></strong>
-                        <span class="br-document-settlement__summary-label br-document-settlement__summary-label--primary">IGV</span>
-                        <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(taxTotal)}`"></strong>
-                        <span class="br-document-settlement__summary-label br-document-settlement__summary-label--total">Total</span>
-                        <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--total" v-text="`${currencySign} ${separatorNumber(total)}`"></strong>
+                    <div class="col-lg-3 col-12">
+                        <div class="br-document-settlement br-sale-settlement bg-white mb-2 mb-md-3">
+                            <article class="br-document-settlement__section">
+                                <header class="br-document-settlement__section-head">
+                                    <label class="form-label colon-at-end">Impuestos extras</label>
+                                </header>
+                                <div v-if="optionalTaxes.length" class="br-document-settlement__taxes">
+                                    <label
+                                        v-for="tax in optionalTaxes"
+                                        :key="tax.id"
+                                        class="br-entity-switch br-document-settlement__tax-option">
+                                        <input
+                                            v-model="form.selected_taxes"
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            :value="tax.id"
+                                            @change="syncSelectedTaxQuantity(tax)"/>
+                                        <span>
+                                            <strong v-text="tax.name"></strong>
+                                            <small v-text="taxLabel(tax)"></small>
+                                        </span>
+                                        <InputNumber
+                                            v-if="isFixedTax(tax) && form.selected_taxes.includes(tax.id)"
+                                            v-model="form.selected_tax_quantities[tax.id]"
+                                            :title="''"
+                                            :titleClass="[]"
+                                            :decimals="0"
+                                            :minValue="taxQuantityMinimum(tax)"
+                                            :maxValue="taxQuantityMaximum(tax)"
+                                            @change="normalizeSelectedTaxQuantity(tax.id)">
+                                            <template #inputGroupPrepend>
+                                                <span class="input-group-text br-tax-quantity__label">Veces</span>
+                                            </template>
+                                        </InputNumber>
+                                    </label>
+                                </div>
+                                <p v-else class="br-document-settlement__empty mb-0">Sin impuestos extras configurados.</p>
+                            </article>
+                        </div>
+
+                        <div class="br-document-summary-card mb-2 mb-md-3">
+                            <h3 class="br-document-summary-card__title">Resumen</h3>
+                            <div class="br-document-settlement__summary">
+                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--primary">Subtotal</span>
+                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(subtotal)}`"></strong>
+                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--primary">IGV</span>
+                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(taxTotal)}`"></strong>
+                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--total">Total</span>
+                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--total" v-text="`${currencySign} ${separatorNumber(total)}`"></strong>
+                            </div>
+                        </div>
+
+                        <div class="br-sale-sidebar-actions br-sale-sidebar-actions--inline">
+                            <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="addDetail">
+                                <span>Agregar ítem</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="br-btn br-btn-success br-sale-sidebar-actions__cta waves-effect"
+                                :disabled="!canSubmit || loading.store"
+                                @click="storeQuotation">
+                                <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+                                <span v-text="loading.store ? 'Guardando cotización' : 'Guardar cotización'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="br-sale-sidebar-actions br-sale-sidebar-actions--inline">
-                    <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="addDetail">
-                        <span>Agregar ítem</span>
-                    </button>
-                    <button
-                        type="button"
-                        class="br-btn br-btn-success br-sale-sidebar-actions__cta waves-effect"
-                        :disabled="!canSubmit || loading.store"
-                        @click="storeQuotation">
-                        <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
-                        <span v-text="loading.store ? 'Guardando cotización' : 'Guardar cotización'"></span>
-                    </button>
-                </div>
-            </div>
+            </template>
         </div>
-    </template>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import { generalConfig } from "../../../Helpers/Constants.js";
 import * as Alerts from "../../../Helpers/Alerts.js";
 import * as Requests from "../../../Helpers/Requests.js";
@@ -403,7 +409,7 @@ const MODULE = {
 
 export default {
     components: {SearchInput},
-    mixins: [commercialSelection],
+    mixins: [InitialPageMixin, commercialSelection],
     name: "SalesQuotationsMain",
     data() {
         return {
@@ -549,10 +555,14 @@ export default {
             return customerOptions;
         }
     },
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
         Utils.navbarItem(this.isCreatePage ? "menu-quotations-create" : "menu-quotations-list", {});
-        this.initParams();
+        const initialized = await this.loadInitialParams(() => this.initParams());
+        if(initialized) {
+            if(this.isListPage) await this.listQuotations({});
+            else if(this.form.details.length === 0) this.addDetail();
+        }
     },
     methods: {
         defaultForm() {
@@ -573,7 +583,6 @@ export default {
         },
         async initParams() {
             this.loading.init = true;
-            Alerts.swals({type: "loading", message: "Preparando cotizaciones"});
 
             const response = await Requests.get({
                 route: this.config.routes.initParams,
@@ -586,15 +595,10 @@ export default {
                 this.form.branch = this.branchOptions[0] || null;
                 this.form.currency = this.currencyOptions[0] || null;
 
-                if(this.isListPage) {
-                    await this.listQuotations({});
-                }else if(this.form.details.length === 0) {
-                    this.addDetail();
-                }
             }
 
-            Alerts.swals({show: false});
             this.loading.init = false;
+            return Requests.valid({result: response});
         },
         async listQuotations({url = null} = {}) {
             this.loading.list = true;

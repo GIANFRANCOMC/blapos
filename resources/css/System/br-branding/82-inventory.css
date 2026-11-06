@@ -43,7 +43,7 @@
     background: var(--br-primary-soft);
     color: var(--br-primary-active);
     font-size: var(--br-font-size-065);
-    font-weight: 700;
+    font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-inventory__alerts-button .fa-bell {
@@ -117,7 +117,7 @@ body.br-layout .br-inventory__table--single-warehouse > thead > tr > th:nth-chil
 
 body.br-layout .br-inventory__stock-current {
     color: var(--br-secondary);
-    font-weight: 600;
+    font-weight: var(--br-font-weight-value);
     font-variant-numeric: tabular-nums;
 }
 
@@ -127,7 +127,7 @@ body.br-layout .br-inventory__difference {
 }
 
 body.br-layout .br-inventory__difference {
-    font-weight: 600;
+    font-weight: var(--br-font-weight-emphasis);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
@@ -146,7 +146,7 @@ body.br-layout .br-inventory__table > tbody > tr > td.br-inventory__situation {
     background-color: var(--br-situation-bg) !important;
     box-shadow: none !important;
     color: var(--br-situation-text) !important;
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
     text-align: center;
 }
 
@@ -200,7 +200,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__warehouse-name {
     overflow: hidden;
     color: var(--br-secondary);
     font-size: var(--br-stock-quantity-font-size) !important;
-    font-weight: 600;
+    font-weight: var(--br-font-weight-emphasis);
     line-height: 1.35;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -320,7 +320,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 .br-inventory__product-identifiers small {
     color: var(--br-text-muted);
     font-size: var(--br-product-code-label-font-size);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
 }
 
 .br-inventory__product-identifiers > span > span {
@@ -328,12 +328,12 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     font-family: var(--br-font-sans);
     font-variant-numeric: tabular-nums;
     font-size: var(--br-product-code-font-size);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
 }
 
 .br-inventory__product-name {
     color: var(--br-secondary);
-    font-weight: 500;
+    font-weight: var(--br-font-weight-medium);
 }
 
 .br-inventory__product-code,
@@ -405,7 +405,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 .br-inventory-operation__option-group {
     display: block;
     font-size: var(--br-table-heading-font-size);
-    font-weight: 700;
+    font-weight: var(--br-font-weight-emphasis);
     letter-spacing: 0.035em;
     text-transform: uppercase;
 }
@@ -440,7 +440,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 .br-inventory-operation__warehouse-info .br-inventory-operation__effect {
     color: var(--br-text-muted);
     font-size: var(--br-font-size-072);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
     line-height: 1.3;
     white-space: normal;
 }
@@ -449,7 +449,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     flex: 0 0 auto;
     color: var(--br-secondary);
     font-size: var(--br-font-size-072);
-    font-weight: 500;
+    font-weight: var(--br-font-weight-medium);
 }
 
 .br-inventory-operation__effect small {
@@ -457,7 +457,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     overflow: hidden;
     color: var(--br-text-muted);
     font-size: var(--br-font-size-068);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-body);
     text-overflow: ellipsis;
 }
 
@@ -490,7 +490,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 
 .br-inventory-operation__file-status {
     color: var(--br-primary-active);
-    font-weight: 600;
+    font-weight: var(--br-font-weight-emphasis);
 }
 
 @media (max-width: 575.98px) {
@@ -527,7 +527,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 .br-inventory-operation__cost-heading small {
     color: var(--br-table-thead-text);
     font-size: var(--br-font-size-062);
-    font-weight: 400;
+    font-weight: var(--br-font-weight-heading);
     opacity: 0.78;
 }
 
@@ -610,7 +610,7 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
     background: transparent;
     color: var(--br-primary-active);
     font-size: var(--br-font-size-078);
-    font-weight: 650;
+    font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-import-products__template:hover {

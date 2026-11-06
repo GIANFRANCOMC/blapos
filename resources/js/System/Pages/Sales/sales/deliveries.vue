@@ -1,187 +1,192 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-filter-bar br-sales-list__filters">
-        <div class="row align-items-end g-2">
-            <InputSlot hasDiv title="Sucursal" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                <template #input>
-                    <v-select
-                        v-model="filters.branch"
-                        :options="branches"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        :searchable="branches.length > 6"
-                        append-to-body
-                        placeholder="Todas las sucursales"/>
-                </template>
-            </InputSlot>
-
-            <InputSlot hasDiv title="Almacén" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                <template #input>
-                    <v-select
-                        v-model="filters.warehouse"
-                        :options="warehouses"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        :searchable="warehouses.length > 6"
-                        append-to-body
-                        placeholder="Todos los almacenes"/>
-                </template>
-            </InputSlot>
-
-            <InputSlot hasDiv title="Cliente" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                <template #input>
-                    <v-select
-                        v-model="filters.holder"
-                        :options="holders"
-                        :filterable="false"
-                        :loading="commercialSelection.customers.loading"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        append-to-body
-                        placeholder="Todos los clientes"
-                        @open="openCommercialOptions('customers')"
-                        @search="searchCommercialOptions('customers', $event)">
-                        <template #selected-option="{ label }">
-                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-filter-bar br-sales-list__filters">
+                <div class="row align-items-end g-2">
+                    <InputSlot hasDiv title="Sucursal" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                        <template #input>
+                            <v-select
+                                v-model="filters.branch"
+                                :options="branches"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                :searchable="branches.length > 6"
+                                append-to-body
+                                placeholder="Todas las sucursales"/>
                         </template>
-                        <template #list-footer>
-                            <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
-                            </li>
+                    </InputSlot>
+
+                    <InputSlot hasDiv title="Almacén" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                        <template #input>
+                            <v-select
+                                v-model="filters.warehouse"
+                                :options="warehouses"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                :searchable="warehouses.length > 6"
+                                append-to-body
+                                placeholder="Todos los almacenes"/>
                         </template>
-                        <template #no-options>Sin clientes para esta búsqueda.</template>
-                    </v-select>
-                </template>
-            </InputSlot>
+                    </InputSlot>
 
-            <InputSlot hasDiv title="Estado de entrega" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                <template #input>
-                    <v-select
-                        v-model="filters.deliveryStatus"
-                        :options="deliveryStatuses"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        :searchable="false"
-                        append-to-body
-                        placeholder="Todos"/>
-                </template>
-            </InputSlot>
+                    <InputSlot hasDiv title="Cliente" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                        <template #input>
+                            <v-select
+                                v-model="filters.holder"
+                                :options="holders"
+                                :filterable="false"
+                                :loading="commercialSelection.customers.loading"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                append-to-body
+                                placeholder="Todos los clientes"
+                                @open="openCommercialOptions('customers')"
+                                @search="searchCommercialOptions('customers', $event)">
+                                <template #selected-option="{ label }">
+                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                </template>
+                                <template #list-footer>
+                                    <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                    </li>
+                                </template>
+                                <template #no-options>Sin clientes para esta búsqueda.</template>
+                            </v-select>
+                        </template>
+                    </InputSlot>
 
-            <SearchInput
-                v-model="filters.search"
-                @search="listDeliveries({})"
-                hasDiv
-                title="Búsqueda"
-                :titleClass="[config.forms.classes.title]"
-                placeholder="Documento, cliente, producto o código"
-                xl="7"
-                lg="7"/>
+                    <InputSlot hasDiv title="Estado de entrega" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                        <template #input>
+                            <v-select
+                                v-model="filters.deliveryStatus"
+                                :options="deliveryStatuses"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                :searchable="false"
+                                append-to-body
+                                placeholder="Todos"/>
+                        </template>
+                    </InputSlot>
 
-            <InputSlot
-                hasDiv
-                :isInputGroup="false"
-                :divInputClass="['br-filter-bar__actions']"
-                xl="5"
-                lg="5">
-                <template #input>
-                    <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({})">
-                        <span>Buscar</span>
-                    </button>
-                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @click="clearFilters">
-                        <i class="fa-solid fa-eraser" aria-hidden="true"></i>
-                        <span>Limpiar</span>
-                    </button>
-                </template>
-            </InputSlot>
-        </div>
-    </section>
+                    <SearchInput
+                        v-model="filters.search"
+                        @search="listDeliveries({})"
+                        hasDiv
+                        title="Búsqueda"
+                        :titleClass="[config.forms.classes.title]"
+                        placeholder="Documento, cliente, producto o código"
+                        xl="7"
+                        lg="7"/>
 
-    <div class="table-responsive br-entity-table-wrap">
-        <table class="table br-entity-table mb-0">
-            <thead>
-                <tr>
-                    <th style="width: 16%;">Venta</th>
-                    <th style="width: 20%;">Cliente</th>
-                    <th style="width: 18%;">Almacén</th>
-                    <th style="width: 24%;">Pendiente</th>
-                    <th style="width: 12%;">Estado</th>
-                    <th class="text-center" style="width: 10%;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="loading">
-                    <td colspan="6" class="text-center py-4"><Loader/></td>
-                </tr>
-                <template v-else-if="records.total > 0">
-                    <tr v-for="record in records.data" :key="record.id">
-                        <td>
-                            <strong class="br-entity-primary" v-text="saleLabel(record)"></strong>
-                            <span class="br-entity-table__meta" v-text="record.sale_header?.formatted_issue_date || ''"></span>
-                        </td>
-                        <td>
-                            <strong class="br-entity-primary" v-text="record.sale_header?.holder?.name || 'Cliente no identificado'"></strong>
-                            <span class="br-entity-table__meta" v-text="record.sale_header?.holder?.document_number || 'Sin documento'"></span>
-                        </td>
-                        <td>
-                            <strong class="br-entity-primary" v-text="record.warehouse?.name || 'Por definir'"></strong>
-                            <span class="br-entity-table__meta" v-text="record.warehouse?.branch?.name || record.sale_header?.serie?.branch?.name || ''"></span>
-                        </td>
-                        <td>
-                            <div class="br-sale-delivery-progress">
-                                <span>
-                                    <strong>{{ separatorNumber(record.pending_quantity) }}</strong>
-                                    pendiente de {{ separatorNumber(record.total_quantity) }}
-                                </span>
-                                <div class="br-sale-delivery-progress__bar" aria-hidden="true">
-                                    <span :style="{width: `${deliveryPercent(record)}%`}"></span>
-                                </div>
-                            </div>
-                            <div class="br-sale-delivery-products">
-                                <span
-                                    v-for="item in pendingItems(record).slice(0, 3)"
-                                    :key="item.id"
-                                    class="br-sale-delivery-products__item">
-                                    {{ item.sale_body?.name || item.item?.name }}:
-                                    <strong>{{ separatorNumber(item.quantity_pending) }}</strong>
-                                </span>
-                                <span v-if="pendingItems(record).length > 3" class="br-sale-delivery-products__item is-muted">
-                                    +{{ pendingItems(record).length - 3 }} más
-                                </span>
-                            </div>
-                        </td>
-                        <td>
-                            <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                            <span v-if="record.events?.length" class="br-entity-table__meta mt-1">
-                                {{ record.events.length }} movimiento{{ record.events.length === 1 ? "" : "s" }}
-                            </span>
-                            <span v-if="record.last_delivered_at" class="br-entity-table__meta">
-                                Última entrega: {{ legibleDate(record.last_delivered_at) }}
-                            </span>
-                        </td>
-                        <td class="text-center">
-                            <button
-                                type="button"
-                                class="br-icon-action br-icon-action-primary"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Registrar entrega"
-                                :aria-label="`Registrar entrega de ${saleLabel(record)}`"
-                                @click="openDeliveryModal(record)">
-                                <i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i>
+                    <InputSlot
+                        hasDiv
+                        :isInputGroup="false"
+                        :divInputClass="['br-filter-bar__actions']"
+                        xl="5"
+                        lg="5">
+                        <template #input>
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({})">
+                                <span>Buscar</span>
                             </button>
-                        </td>
-                    </tr>
-                </template>
-                <tr v-else>
-                    <td colspan="6" class="text-center"><WithoutData type="image"/></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @click="clearFilters">
+                                <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                                <span>Limpiar</span>
+                            </button>
+                        </template>
+                    </InputSlot>
+                </div>
+            </section>
 
-    <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listDeliveries"/>
+            <div class="table-responsive br-entity-table-wrap">
+                <table class="table br-entity-table mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 16%;">Venta</th>
+                            <th style="width: 20%;">Cliente</th>
+                            <th style="width: 18%;">Almacén</th>
+                            <th style="width: 24%;">Pendiente</th>
+                            <th style="width: 12%;">Estado</th>
+                            <th class="text-center" style="width: 10%;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="br-table-state" v-if="loading">
+                            <td colspan="6" class="text-center py-4"><Loader/></td>
+                        </tr>
+                        <template v-else-if="records.total > 0">
+                            <tr v-for="record in records.data" :key="record.id">
+                                <td>
+                                    <strong class="br-entity-primary" v-text="saleLabel(record)"></strong>
+                                    <span class="br-entity-table__meta" v-text="record.sale_header?.formatted_issue_date || ''"></span>
+                                </td>
+                                <td>
+                                    <strong class="br-entity-primary" v-text="record.sale_header?.holder?.name || 'Cliente no identificado'"></strong>
+                                    <span class="br-entity-table__meta" v-text="record.sale_header?.holder?.document_number || 'Sin documento'"></span>
+                                </td>
+                                <td>
+                                    <strong class="br-entity-primary" v-text="record.warehouse?.name || 'Por definir'"></strong>
+                                    <span class="br-entity-table__meta" v-text="record.warehouse?.branch?.name || record.sale_header?.serie?.branch?.name || ''"></span>
+                                </td>
+                                <td>
+                                    <div class="br-sale-delivery-progress">
+                                        <span>
+                                            <strong>{{ separatorNumber(record.pending_quantity) }}</strong>
+                                            pendiente de {{ separatorNumber(record.total_quantity) }}
+                                        </span>
+                                        <div class="br-sale-delivery-progress__bar" aria-hidden="true">
+                                            <span :style="{width: `${deliveryPercent(record)}%`}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="br-sale-delivery-products">
+                                        <span
+                                            v-for="item in pendingItems(record).slice(0, 3)"
+                                            :key="item.id"
+                                            class="br-sale-delivery-products__item">
+                                            {{ item.sale_body?.name || item.item?.name }}:
+                                            <strong>{{ separatorNumber(item.quantity_pending) }}</strong>
+                                        </span>
+                                        <span v-if="pendingItems(record).length > 3" class="br-sale-delivery-products__item is-muted">
+                                            +{{ pendingItems(record).length - 3 }} más
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                    <span v-if="record.events?.length" class="br-entity-table__meta mt-1">
+                                        {{ record.events.length }} movimiento{{ record.events.length === 1 ? "" : "s" }}
+                                    </span>
+                                    <span v-if="record.last_delivered_at" class="br-entity-table__meta">
+                                        Última entrega: {{ legibleDate(record.last_delivered_at) }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button
+                                        type="button"
+                                        class="br-icon-action br-icon-action-primary"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Registrar entrega"
+                                        :aria-label="`Registrar entrega de ${saleLabel(record)}`"
+                                        @click="openDeliveryModal(record)">
+                                        <i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr class="br-table-state" v-else>
+                            <td colspan="6" class="text-center"><WithoutData type="image"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
+            <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listDeliveries"/>
+
+        </div>
+    </InitialLoadTransition>
     <div
         :id="modal.id"
         class="modal fade br-entity-modal"
@@ -289,6 +294,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
@@ -299,16 +305,15 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     components: {SearchInput},
-    mixins: [commercialSelection],
+    mixins: [InitialPageMixin, commercialSelection],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        const ready = await this.initParams();
+        const ready = await this.loadInitialParams(() => this.initParams());
         if(ready) {
-            Alerts.swals({show: false});
+
             await this.listDeliveries({});
         }
 
@@ -399,7 +404,8 @@ export default {
             if(url) {
                 const urlObj = new URL(url, window.location.origin);
                 Object.entries(filterJson).forEach(([key, value]) => {
-                    if(this.isDefined({value}) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                    if(value != null) urlObj.searchParams.set(key, value);
+                    else urlObj.searchParams.delete(key);
                 });
                 requestUrl = `${urlObj.pathname}${urlObj.search}`;
                 requestData = {};

@@ -67,7 +67,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-if="entityList.extras.loading">
+                            <tr class="br-table-state" v-if="entityList.extras.loading">
                                 <td colspan="6" class="py-4">
                                     <Loader/>
                                 </td>
@@ -182,7 +182,7 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr v-else>
+                            <tr class="br-table-state" v-else>
                                 <td colspan="6" class="py-4">
                                     <WithoutData
                                         class="br-entity-empty-state"
@@ -217,7 +217,7 @@ import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormCon
 import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
 import ProductsSkeleton from "./ProductsSkeleton.vue";
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 const MODULE_CONFIG = {
     entity: "products",
@@ -342,7 +342,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObject.searchParams.has(key)) urlObject.searchParams.set(key, value);
+                        if(value != null) urlObject.searchParams.set(key, value);
+                        else urlObject.searchParams.delete(key);
 
                     });
 

@@ -1,94 +1,99 @@
 <template>
     <Breadcrumb :list="[{title: 'Caja'}, {title: 'Gastos varios', active: true}]"/>
 
-    <section class="br-misc-expenses">
-        <header class="br-module-heading">
-            <div>
-                <span class="br-module-heading__eyebrow">Control operativo</span>
-                <h1>Gastos varios</h1>
-                <p>Registra egresos no asociados a compras y conserva su responsable y trazabilidad de caja.</p>
-            </div>
-            <button type="button" class="br-btn br-btn-action-create" @click="openCreate">
-                <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                <span>Registrar gasto</span>
-            </button>
-        </header>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-misc-expenses">
+                <header class="br-module-heading">
+                    <div>
+                        <span class="br-module-heading__eyebrow">Control operativo</span>
+                        <h1>Gastos varios</h1>
+                        <p>Registra egresos no asociados a compras y conserva su responsable y trazabilidad de caja.</p>
+                    </div>
+                    <button type="button" class="br-btn br-btn-action-create" @click="openCreate">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        <span>Registrar gasto</span>
+                    </button>
+                </header>
 
-        <section class="br-filter-bar">
-            <div class="br-filter-bar__field">
-                <label class="form-label">Búsqueda</label>
-                <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia" @search="loadExpenses()"/>
-            </div>
-            <div class="br-filter-bar__field">
-                <label class="form-label">Estado</label>
-                <select v-model="filters.status" class="form-select" @change="loadExpenses()">
-                    <option value="">Todos</option>
-                    <option value="active">Activo</option>
-                    <option value="canceled">Anulado</option>
-                </select>
-            </div>
-            <div class="br-filter-bar__field">
-                <label class="form-label">Sucursal</label>
-                <select v-model="filters.branch_id" class="form-select" @change="loadExpenses()">
-                    <option value="">Todas</option>
-                    <option v-for="branch in options.branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
-                </select>
-            </div>
-            <div class="br-filter-bar__actions">
-                <button type="button" class="br-btn br-btn-search" @click="loadExpenses()">
-                    <span>Buscar</span>
-                </button>
-            </div>
-        </section>
+                <section class="br-filter-bar">
+                    <div class="br-filter-bar__field">
+                        <label class="form-label">Búsqueda</label>
+                        <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia" @search="loadExpenses()"/>
+                    </div>
+                    <div class="br-filter-bar__field">
+                        <label class="form-label">Estado</label>
+                        <select v-model="filters.status" class="form-select" @change="loadExpenses()">
+                            <option value="">Todos</option>
+                            <option value="active">Activo</option>
+                            <option value="canceled">Anulado</option>
+                        </select>
+                    </div>
+                    <div class="br-filter-bar__field">
+                        <label class="form-label">Sucursal</label>
+                        <select v-model="filters.branch_id" class="form-select" @change="loadExpenses()">
+                            <option value="">Todas</option>
+                            <option v-for="branch in options.branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
+                        </select>
+                    </div>
+                    <div class="br-filter-bar__actions">
+                        <button type="button" class="br-btn br-btn-search" @click="loadExpenses()">
+                            <span>Buscar</span>
+                        </button>
+                    </div>
+                </section>
 
-        <section class="br-entity-panel">
-            <div v-if="loading" class="br-loading-state">Cargando gastos...</div>
-            <div v-else-if="expenses.data?.length" class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Concepto</th>
-                            <th>Sucursal / caja</th>
-                            <th>Responsable</th>
-                            <th class="text-end">Importe</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-center"><span class="visually-hidden">Acciones</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="expense in expenses.data" :key="expense.id">
-                            <td>{{ formatDate(expense.expense_date) }}</td>
-                            <td>
-                                <strong>{{ expense.concept }}</strong>
-                                <small class="d-block text-muted">{{ expense.category?.name || expense.reference || 'Sin categoría' }}</small>
-                            </td>
-                            <td>
-                                {{ expense.branch?.name || "Sin sucursal" }}
-                                <small v-if="expense.cash_session_id" class="d-block text-muted">Vinculado a caja</small>
-                            </td>
-                            <td>{{ expense.responsible_user?.name || "Sin responsable" }}</td>
-                            <td class="text-end br-amount-inline__amount">{{ money(expense) }}</td>
-                            <td class="text-center">
-                                <span :class="['br-status-label', expense.status === 'active' ? 'br-status-label--success' : 'br-status-label--danger']">
-                                    {{ expense.status === "active" ? "Activo" : "Anulado" }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <button v-if="expense.status === 'active'" type="button" class="br-icon-action br-icon-action-danger" title="Anular gasto" @click="cancelExpense(expense)">
-                                    <i class="fa-solid fa-ban" aria-hidden="true"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <section class="br-entity-panel">
+                    <div v-if="loading" class="br-loading-state">Cargando gastos...</div>
+                    <div v-else-if="expenses.data?.length" class="table-responsive">
+                        <table class="table br-entity-table mb-0">
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Concepto</th>
+                                    <th>Sucursal / caja</th>
+                                    <th>Responsable</th>
+                                    <th class="text-end">Importe</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="expense in expenses.data" :key="expense.id">
+                                    <td>{{ formatDate(expense.expense_date) }}</td>
+                                    <td>
+                                        <strong>{{ expense.concept }}</strong>
+                                        <small class="d-block text-muted">{{ expense.category?.name || expense.reference || 'Sin categoría' }}</small>
+                                    </td>
+                                    <td>
+                                        {{ expense.branch?.name || "Sin sucursal" }}
+                                        <small v-if="expense.cash_session_id" class="d-block text-muted">Vinculado a caja</small>
+                                    </td>
+                                    <td>{{ expense.responsible_user?.name || "Sin responsable" }}</td>
+                                    <td class="text-end br-amount-inline__amount">{{ money(expense) }}</td>
+                                    <td class="text-center">
+                                        <span :class="['br-status-label', expense.status === 'active' ? 'br-status-label--success' : 'br-status-label--danger']">
+                                            {{ expense.status === "active" ? "Activo" : "Anulado" }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button v-if="expense.status === 'active'" type="button" class="br-icon-action br-icon-action-danger" title="Anular gasto" @click="cancelExpense(expense)">
+                                            <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-            </div>
-            <WithoutData v-else/>
-            <Paginator :links="expenses.links || []" :pagination="expenses" :loading="loading" @clickPage="loadExpenses($event.url)"/>
-        </section>
-    </section>
+                    </div>
+                    <WithoutData v-else/>
+                    <Paginator :links="expenses.links || []" :pagination="expenses" :loading="loading" @clickPage="loadExpenses($event.url)"/>
+                </section>
+            </section>
 
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" id="miscExpenseModal" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content br-entity-modal">
@@ -176,12 +181,14 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    mixins: [InitialPageMixin],
     components: {SearchInput},
     data() {
         return {
@@ -195,15 +202,17 @@ export default {
             saving: false
         };
     },
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-cash", {addClass: "open"});
         Utils.navbarItem("menu-misc-expenses", {addClass: "active"});
-        this.initialize();
+        const initialized = await this.loadInitialParams(() => this.initialize());
+        if(initialized) await this.loadExpenses();
     },
     methods: {
         async initialize() {
-            const [params] = await Promise.all([Requests.get({route: this.routes.initParams}), this.loadExpenses()]);
+            const params = await Requests.get({route: this.routes.initParams});
             if(params.bool) this.options = {...this.options, ...(params.data.data || {})};
+            return params.bool;
         },
         async loadExpenses(url = null) {
             this.loading = true;

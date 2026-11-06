@@ -2,111 +2,117 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <!-- Filters -->
-    <FiltersSection
-        :filter-by-value="filterByValue"
-        @update:filterByValue="filterByValue = $event"
-        :filter-word-value="filterWordValue"
-        @update:filterWordValue="filterWordValue = $event"
-        :filter-by-options="filterByOptions"
-        :search-placeholder="searchPlaceholder"
-        :loading="entityList.extras.loading"
-        :filter-by-title="MODULE.texts.filters.filterBy"
-        :search-title="MODULE.texts.filters.search"
-        :search-button-text="MODULE.texts.actions.search"
-        :add-button-text="MODULE.texts.actions.add"
-        :show-add-button="true"
-        :title-class="[config.forms.classes.title]"
-        :select-class="config.forms.classes.select2"
-        @search="handleSearch"
-        @add="openModal()"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <FiltersSection
+                :filter-by-value="filterByValue"
+                @update:filterByValue="filterByValue = $event"
+                :filter-word-value="filterWordValue"
+                @update:filterWordValue="filterWordValue = $event"
+                :filter-by-options="filterByOptions"
+                :search-placeholder="searchPlaceholder"
+                :loading="entityList.extras.loading"
+                :filter-by-title="MODULE.texts.filters.filterBy"
+                :search-title="MODULE.texts.filters.search"
+                :search-button-text="MODULE.texts.actions.search"
+                :add-button-text="MODULE.texts.actions.add"
+                :show-add-button="true"
+                :title-class="[config.forms.classes.title]"
+                :select-class="config.forms.classes.select2"
+                @search="handleSearch"
+                @add="openModal()"/>
 
-    <!-- Records -->
-    <div class="list-section mb-1 mb-md-1 table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="align-middle bg-secondary text-center">
-                <tr>
-                    <th class="text-white" style="width: 20%;">NOMBRE</th>
-                    <th class="text-white" style="width: 20%;">MARCA / MODELO</th>
-                    <th class="text-white" style="width: 15%;">IP / PUERTO</th>
-                    <th class="text-white" style="width: 15%;">SUCURSAL</th>
-                    <th class="text-white" style="width: 15%;">ÚLTIMO CONTACTO</th>
-                    <th class="text-white" style="width: 10%;">ESTADO</th>
-                    <th class="text-white" style="width: 15%;">ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0 bg-white">
-                <tr v-if="entityList.extras.loading">
-                    <td colspan="99">
-                        <Loader/>
-                    </td>
-                </tr>
-                <template v-else-if="entityList.records.total > 0">
-                    <tr v-for="record in entityList.records.data" :key="record.id">
-                        <td class="text-center">
-                            <span v-text="record.name" class="fw-semibold d-block"></span>
-                            <small v-if="record.serial_number" v-text="`Serie: ${record.serial_number}`" class="text-muted"></small>
-                        </td>
-                        <td class="text-center">
-                            <span v-text="record.brand_name" class="fw-semibold d-block"></span>
-                            <small v-text="record.model_name" class="text-muted"></small>
-                        </td>
-                        <td class="text-center">
-                            <span v-text="record.ip_address" class="fw-semibold d-block"></span>
-                            <small v-text="`Puerto: ${record.port}`" class="text-muted"></small>
-                        </td>
-                        <td class="text-center">
-                            <span v-text="record.branch?.name"></span>
-                        </td>
-                        <td class="text-center">
-                            <span class="fw-semibold d-block">{{ formatDateTime(record.last_seen_at) }}</span>
-                            <small v-if="record.failed_events_count || record.pending_events_count" class="text-danger">
-                                {{ record.failed_events_count || 0 }} fallidos / {{ record.pending_events_count || 0 }} pendientes
-                            </small>
-                            <small v-else class="text-muted">Sin alertas</small>
-                        </td>
-                        <td class="text-center">
-                            <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                        </td>
-                        <td class="text-center">
-                            <div class="br-table-actions justify-content-center">
-                                <button
-                                    type="button"
-                                    class="br-icon-action br-icon-action-info"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Ver eventos"
-                                    @click="openEvents(record)">
-                                    <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="br-icon-action br-icon-action-primary"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Rotar credenciales"
-                                    @click="rotateCredentials(record)">
-                                    <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
-                                </button>
-                                <button type="button" class="br-icon-action br-icon-action-edit" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.actions.edit" @click="openModal(record)">
-                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </template>
-                <tr v-else>
-                    <td colspan="99">
-                        <WithoutData type="image"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <!-- Records -->
+            <div class="list-section mb-1 mb-md-1 table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="align-middle bg-secondary text-center">
+                        <tr>
+                            <th class="text-white" style="width: 20%;">NOMBRE</th>
+                            <th class="text-white" style="width: 20%;">MARCA / MODELO</th>
+                            <th class="text-white" style="width: 15%;">IP / PUERTO</th>
+                            <th class="text-white" style="width: 15%;">SUCURSAL</th>
+                            <th class="text-white" style="width: 15%;">ÚLTIMO CONTACTO</th>
+                            <th class="text-white" style="width: 10%;">ESTADO</th>
+                            <th class="text-white" style="width: 15%;">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0 bg-white">
+                        <tr class="br-table-state" v-if="entityList.extras.loading">
+                            <td colspan="99">
+                                <Loader/>
+                            </td>
+                        </tr>
+                        <template v-else-if="entityList.records.total > 0">
+                            <tr v-for="record in entityList.records.data" :key="record.id">
+                                <td class="text-center">
+                                    <span v-text="record.name" class="fw-semibold d-block"></span>
+                                    <small v-if="record.serial_number" v-text="`Serie: ${record.serial_number}`" class="text-muted"></small>
+                                </td>
+                                <td class="text-center">
+                                    <span v-text="record.brand_name" class="fw-semibold d-block"></span>
+                                    <small v-text="record.model_name" class="text-muted"></small>
+                                </td>
+                                <td class="text-center">
+                                    <span v-text="record.ip_address" class="fw-semibold d-block"></span>
+                                    <small v-text="`Puerto: ${record.port}`" class="text-muted"></small>
+                                </td>
+                                <td class="text-center">
+                                    <span v-text="record.branch?.name"></span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-semibold d-block">{{ formatDateTime(record.last_seen_at) }}</span>
+                                    <small v-if="record.failed_events_count || record.pending_events_count" class="text-danger">
+                                        {{ record.failed_events_count || 0 }} fallidos / {{ record.pending_events_count || 0 }} pendientes
+                                    </small>
+                                    <small v-else class="text-muted">Sin alertas</small>
+                                </td>
+                                <td class="text-center">
+                                    <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
+                                </td>
+                                <td class="text-center">
+                                    <div class="br-table-actions justify-content-center">
+                                        <button
+                                            type="button"
+                                            class="br-icon-action br-icon-action-info"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Ver eventos"
+                                            @click="openEvents(record)">
+                                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="br-icon-action br-icon-action-primary"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Rotar credenciales"
+                                            @click="rotateCredentials(record)">
+                                            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="br-icon-action br-icon-action-edit" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.actions.edit" @click="openModal(record)">
+                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr class="br-table-state" v-else>
+                            <td colspan="99">
+                                <WithoutData type="image"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <!-- Pagination -->
-    <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+            <!-- Pagination -->
+            <Paginator :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
 
-    <!-- Modal: Create/Update -->
+            <!-- Modal: Create/Update -->
+
+        </div>
+    </InitialLoadTransition>
     <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -282,7 +288,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade br-entity-modal br-modal-standard" :id="secretModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -312,7 +317,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade br-entity-modal br-modal-standard" :id="eventsModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
@@ -340,7 +344,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-if="eventsModal.loading">
+                                <tr class="br-table-state" v-if="eventsModal.loading">
                                     <td colspan="6" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="eventsModal.records.total > 0">
@@ -353,7 +357,7 @@
                                         <td>{{ event.last_error || "-" }}</td>
                                     </tr>
                                 </template>
-                                <tr v-else>
+                                <tr class="br-table-state" v-else>
                                     <td colspan="6"><WithoutData type="image"/></td>
                                 </tr>
                             </tbody>
@@ -370,6 +374,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -486,6 +491,7 @@ const MODULE = {
 };
 
 export default {
+    mixins: [InitialPageMixin],
     name: "BiometricDevicesMain",
     data() {
 
@@ -522,15 +528,12 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        Alerts.swals({type: "initParams"});
-
-        const initParams = await this.initParams();
+        const initParams = await this.loadInitialParams(() => this.initParams());
 
         this.isInitialized = true;
 
         if(initParams) {
 
-            Alerts.swals({show: false});
             this.listEntity({});
 
         }
@@ -581,7 +584,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                        if(value != null) urlObj.searchParams.set(key, value);
+                        else urlObj.searchParams.delete(key);
 
                     });
 

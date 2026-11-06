@@ -1,125 +1,130 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <main class="br-entity">
-        <section class="br-filter-bar">
-            <div class="row align-items-end g-2">
-                <SearchInput
-                    v-model="word"
-                    hasDiv
-                    title="Búsqueda"
-                    :titleClass="[config.forms.classes.title]"
-                    placeholder="Nombre, documento o contacto"
-                    xl="8"
-                    lg="8"
-                    @search="listSuppliers({})"/>
-                <div class="form-group col-xl-4 col-lg-4">
-                    <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listSuppliers({})">
-                            <span>Buscar</span>
-                        </button>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create"
-                            data-bs-toggle="modal"
-                            data-bs-target="#supplierModal"
-                            @click="prepareSupplier">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar proveedor</span>
-                        </button>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <main class="br-entity">
+                <section class="br-filter-bar">
+                    <div class="row align-items-end g-2">
+                        <SearchInput
+                            v-model="word"
+                            hasDiv
+                            title="Búsqueda"
+                            :titleClass="[config.forms.classes.title]"
+                            placeholder="Nombre, documento o contacto"
+                            xl="8"
+                            lg="8"
+                            @search="listSuppliers({})"/>
+                        <div class="form-group col-xl-4 col-lg-4">
+                            <div class="br-filter-bar__actions">
+                                <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listSuppliers({})">
+                                    <span>Buscar</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="br-btn br-btn-sm br-btn-action-open-create"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#supplierModal"
+                                    @click="prepareSupplier">
+                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                    <span>Agregar proveedor</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
+                </section>
 
-        <section class="br-entity-list">
-            <div class="table-responsive">
-                <table class="table br-entity-table br-entity-table--directory mb-0">
-                    <colgroup>
-                        <col style="width: 20%;">
-                        <col style="width: 17%;">
-                        <col style="width: 11%;">
-                        <col style="width: 16%;">
-                        <col style="width: 12%;">
-                        <col style="width: 12%;">
-                        <col style="width: 7%;">
-                        <col style="width: 5%;">
-                    </colgroup>
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th>Identificación</th>
-                            <th>Proveedor</th>
-                            <th>Contacto</th>
-                            <th>Comunicación</th>
-                            <th>Condiciones</th>
-                            <th>Desempeño</th>
-                            <th>Estado</th>
-                            <th class="text-center"><span class="visually-hidden">Acciones</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="loading"><td colspan="8" class="py-4"><Loader/></td></tr>
-                        <template v-else-if="records.total > 0">
-                            <tr v-for="supplier in records.data" :key="supplier.id">
-                                <td class="br-entity-table__identification-cell">
-                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                        <div class="br-entity-identifier">
-                                            <span class="br-entity-identifier__label colon-at-end" v-text="supplier.document_type || 'Documento'"></span>
-                                            <span class="br-entity-identifier__value">
-                                                <span class="br-entity-code" v-text="supplier.document_number || '—'"></span>
+                <section class="br-entity-list">
+                    <div class="table-responsive">
+                        <table class="table br-entity-table br-entity-table--directory mb-0">
+                            <colgroup>
+                                <col style="width: 20%;">
+                                <col style="width: 17%;">
+                                <col style="width: 11%;">
+                                <col style="width: 16%;">
+                                <col style="width: 12%;">
+                                <col style="width: 12%;">
+                                <col style="width: 7%;">
+                                <col style="width: 5%;">
+                            </colgroup>
+                            <thead class="br-table-header-surface">
+                                <tr>
+                                    <th>Identificación</th>
+                                    <th>Proveedor</th>
+                                    <th>Contacto</th>
+                                    <th>Comunicación</th>
+                                    <th>Condiciones</th>
+                                    <th>Desempeño</th>
+                                    <th>Estado</th>
+                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="br-table-state" v-if="loading"><td colspan="8" class="py-4"><Loader/></td></tr>
+                                <template v-else-if="records.total > 0">
+                                    <tr v-for="supplier in records.data" :key="supplier.id">
+                                        <td class="br-entity-table__identification-cell">
+                                            <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                                <div class="br-entity-identifier">
+                                                    <span class="br-entity-identifier__label colon-at-end" v-text="supplier.document_type || 'Documento'"></span>
+                                                    <span class="br-entity-identifier__value">
+                                                        <span class="br-entity-code" v-text="supplier.document_number || '—'"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>{{ supplier.name }}</strong>
+                                            <span class="br-purchases__meta">{{ supplier.address }}</span>
+                                        </td>
+                                        <td>{{ supplier.contact_name || "Sin contacto" }}</td>
+                                        <td>
+                                            <span>{{ supplier.telephone }}</span>
+                                            <span class="br-purchases__meta">{{ supplier.email }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ supplier.payment_term_days || 0 }} días</strong>
+                                            <span class="br-purchases__meta">
+                                                Crédito: S/ {{ separatorNumber(supplier.credit_limit || 0) }}
                                             </span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <strong>{{ supplier.name }}</strong>
-                                    <span class="br-purchases__meta">{{ supplier.address }}</span>
-                                </td>
-                                <td>{{ supplier.contact_name || "Sin contacto" }}</td>
-                                <td>
-                                    <span>{{ supplier.telephone }}</span>
-                                    <span class="br-purchases__meta">{{ supplier.email }}</span>
-                                </td>
-                                <td>
-                                    <strong>{{ supplier.payment_term_days || 0 }} días</strong>
-                                    <span class="br-purchases__meta">
-                                        Crédito: S/ {{ separatorNumber(supplier.credit_limit || 0) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <strong>{{ supplier.purchases_count || 0 }} compra{{ Number(supplier.purchases_count || 0) === 1 ? "" : "s" }}</strong>
-                                    <span class="br-purchases__meta">
-                                        Total: S/ {{ separatorNumber(supplier.purchased_total || 0) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span :class="['br-status-label', `br-status-${supplier.status}`]">
-                                        {{ supplier.status === "active" ? "Activo" : "Inactivo" }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-edit"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#supplierModal"
-                                        title="Editar proveedor"
-                                        :aria-label="`Editar proveedor ${supplier.name}`"
-                                        @click="prepareSupplier(supplier)">
-                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </template>
-                        <tr v-else><td colspan="8"><WithoutData type="image"/></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                                        </td>
+                                        <td>
+                                            <strong>{{ supplier.purchases_count || 0 }} compra{{ Number(supplier.purchases_count || 0) === 1 ? "" : "s" }}</strong>
+                                            <span class="br-purchases__meta">
+                                                Total: S/ {{ separatorNumber(supplier.purchased_total || 0) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span :class="['br-status-label', `br-status-${supplier.status}`]">
+                                                {{ supplier.status === "active" ? "Activo" : "Inactivo" }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button
+                                                type="button"
+                                                class="br-icon-action br-icon-action-edit"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#supplierModal"
+                                                title="Editar proveedor"
+                                                :aria-label="`Editar proveedor ${supplier.name}`"
+                                                @click="prepareSupplier(supplier)">
+                                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr class="br-table-state" v-else><td colspan="8"><WithoutData type="image"/></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-        <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listSuppliers"/>
-    </main>
+                <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listSuppliers"/>
+            </main>
 
+        </div>
+    </InitialLoadTransition>
     <div id="supplierModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -221,6 +226,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -228,10 +234,12 @@ import * as Utils from "@System/Helpers/Utils.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    mixins: [InitialPageMixin],
     components: {SearchInput},
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-purchases", {addClass: "open"});
         Utils.navbarItem("menu-purchases-suppliers", {});
+        await this.loadInitialParams(() => {});
         this.listSuppliers({});
     },
     data() {

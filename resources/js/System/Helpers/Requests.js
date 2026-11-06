@@ -2,6 +2,7 @@ import axios from "axios";
 import * as Alerts from "./Alerts.js";
 import * as Utils from "./Utils.js";
 import { requestRoute, generalConfig, applyGeneralConfig } from "./Constants.js";
+import {currentQueryRoute} from "./ListState.js";
 
 const DEFAULT_GET_TIMEOUT_MS = 20000;
 
@@ -31,7 +32,7 @@ export function get({route = "", data = {}, showAlert = false}) {
 
 	return new Promise((resolve, reject) => {
 
-        let requestUrl    = route,
+        let requestUrl    = currentQueryRoute(route, data),
             requestConfig = {timeout: DEFAULT_GET_TIMEOUT_MS};
 
         let params = {...data};

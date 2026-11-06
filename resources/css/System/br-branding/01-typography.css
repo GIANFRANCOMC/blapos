@@ -18,7 +18,7 @@ body,
 input,
 select,
 textarea {
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
 }
 
 body {
@@ -33,7 +33,7 @@ h5,
 h6,
 .modal-title,
 .card-title {
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
 }
 
 button,
@@ -41,5 +41,5 @@ button,
 .br-btn,
 .form-label,
 .form-check-label {
-  font-weight: 500;
+  font-weight: var(--br-font-weight-label);
 }

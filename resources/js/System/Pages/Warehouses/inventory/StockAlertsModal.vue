@@ -42,14 +42,6 @@
                             @update:model-value="$emit('update:minimumStatus', $event)"/>
                     </div>
                     <button type="submit" class="br-btn br-btn-search" :disabled="loading || !warehouse?.code">Buscar</button>
-                    <a
-                        href="#"
-                        role="button"
-                        class="br-filter-clear"
-                        :aria-disabled="loading || !warehouse?.code"
-                        :tabindex="loading || !warehouse?.code ? -1 : 0"
-                        @click.prevent="clearFilters"
-                        @keydown.space.prevent="clearFilters">Limpiar filtros</a>
                     <div class="dropdown br-inventory-alerts__actions">
                         <button
                             type="button"
@@ -108,7 +100,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-if="loading && !alerts.data?.length">
+                                    <tr class="br-table-state" v-if="loading && !alerts.data?.length">
                                         <td colspan="5" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
@@ -144,7 +136,7 @@
                                             <td class="text-center">{{ formatDate(alert.detected_at) }}</td>
                                         </tr>
                                     </template>
-                                    <tr v-else>
+                                    <tr class="br-table-state" v-else>
                                         <td colspan="5" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
@@ -175,7 +167,7 @@ import {quantityWithUnit} from "@System/Helpers/NumberUtils.js";
 export default {
     name: "StockAlertsModal",
     components: {FormModal, SearchInput, WithoutData, StockDifference},
-    emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "clear-filters"],
+    emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search"],
     props: {
         alerts: {type: Object, required: true},
         warehouse: {type: Object, default: null},
@@ -189,10 +181,6 @@ export default {
         error: {type: String, default: ""}
     },
     methods: {
-        clearFilters() {
-            if(this.loading || !this.warehouse?.code) return;
-            this.$emit("clear-filters");
-        },
         formatQuantity(value, alert) {
             return quantityWithUnit(value, alert.warehouse_item?.item?.measurement_unit);
         },

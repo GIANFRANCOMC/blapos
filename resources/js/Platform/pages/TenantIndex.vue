@@ -33,7 +33,7 @@
                 <button class="platform-icon-button" type="button" title="Actualizar" :disabled="loading" @click="loadTenants(meta.current_page)"><i class="fa-solid fa-rotate"></i></button>
             </div>
 
-            <div v-if="loading" class="platform-table-skeleton"><span v-for="index in 5" :key="index"></span></div>
+            <Loader v-if="loading" label="Cargando clientes"/>
             <div v-else-if="tenants.length" class="table-responsive">
                 <table class="table platform-table align-middle mb-0">
                     <thead><tr><th>Cliente</th><th>Dominio</th><th>Base de datos</th><th>Estado</th><th class="text-end">Acción</th></tr></thead>
@@ -96,10 +96,12 @@
 
 <script>
 import api, {errorMessage} from "../api";
+import Loader from "@System/Components/Loader.vue";
 
 const emptyForm = () => ({slug: "", commercial_name: "", legal_name: "", document_number: "", admin_name: "", admin_email: "", admin_password: "", admin_password_confirmation: ""});
 
 export default {
+    components: {Loader},
     name: "TenantIndex",
     props: {apiBase: {type: String, required: true}},
     emits: ["open", "notify"],

@@ -1,224 +1,229 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-filter-bar br-sales-list__filters">
-        <div class="row align-items-end g-2">
-            <InputSlot hasDiv title="Sucursal" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                <template #input>
-                    <v-select
-                        v-model="lists.entity.filters.branch"
-                        :options="branches"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        :searchable="branches.length > 6"
-                        append-to-body
-                        placeholder="Todas las sucursales">
-                        <template #selected-option="{ label }">
-                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
-                        </template>
-                    </v-select>
-                </template>
-            </InputSlot>
-
-            <InputSlot hasDiv title="Serie" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                <template #input>
-                    <v-select
-                        v-model="lists.entity.filters.serie"
-                        :options="series"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        :searchable="false"
-                        append-to-body
-                        placeholder="Todas las series">
-                        <template #option="{ data }">
-                            <span v-text="`${data?.legible_serie} - ${documentTypeLabel(data?.document_type)}`" class="d-block fw-bold"></span>
-                            <small v-text="data?.branch?.name" class="d-block"></small>
-                        </template>
-                        <template #selected-option="{ label }">
-                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
-                        </template>
-                    </v-select>
-                </template>
-            </InputSlot>
-
-            <SearchInput
-                v-model="lists.entity.filters.sequential"
-                @search="listEntity({})"
-                hasDiv
-                title="Secuencia"
-                :titleClass="[config.forms.classes.title]"
-                xl="2"
-                lg="4"/>
-
-            <InputDate
-                v-model="lists.entity.filters.start_date"
-                @enterKeyPressed="listEntity({})"
-                hasDiv
-                title="Desde"
-                :titleClass="[config.forms.classes.title]"
-                :max="maxIssueDate"
-                xl="2"
-                lg="6"/>
-
-            <InputDate
-                v-model="lists.entity.filters.end_date"
-                @enterKeyPressed="listEntity({})"
-                hasDiv
-                title="Hasta"
-                :titleClass="[config.forms.classes.title]"
-                :max="maxIssueDate"
-                xl="2"
-                lg="6"/>
-
-            <InputSlot hasDiv title="Cliente" :titleClass="[config.forms.classes.title]" xl="4" lg="6">
-                <template #input>
-                    <v-select
-                        v-model="lists.entity.filters.holder"
-                        :options="holders"
-                        :filterable="false"
-                        :loading="commercialSelection.customers.loading"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        append-to-body
-                        placeholder="Todos los clientes"
-                        @open="openCommercialOptions('customers')"
-                        @search="searchCommercialOptions('customers', $event)">
-                        <template #option="{ label }">
-                            <span v-text="truncate({value: label, length: 50})" class="d-block"></span>
-                        </template>
-                        <template #selected-option="{ label }">
-                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
-                        </template>
-                        <template #list-footer>
-                            <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
-                            </li>
-                        </template>
-                        <template #no-options>Sin clientes para esta búsqueda.</template>
-                    </v-select>
-                </template>
-            </InputSlot>
-
-            <InputSlot hasDiv title="Estado" :titleClass="[config.forms.classes.title]" xl="3" lg="6">
-                <template #input>
-                    <v-select
-                        v-model="lists.entity.filters.status"
-                        :options="statuses"
-                        :class="config.forms.classes.select2"
-                        :clearable="true"
-                        :searchable="false"
-                        append-to-body
-                        placeholder="Todos los estados"/>
-                </template>
-            </InputSlot>
-
-            <InputSlot
-                hasDiv
-                :isInputGroup="false"
-                :divInputClass="['br-filter-bar__actions']"
-                xl="5"
-                lg="6">
-                <template #input>
-                    <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({})" :disabled="lists.entity.extras.loading">
-                        <span>Buscar</span>
-                    </button>
-                    <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="clearFilters" :disabled="lists.entity.extras.loading">
-                        <i class="fa-solid fa-eraser" aria-hidden="true"></i>
-                        <span>Limpiar</span>
-                    </button>
-                </template>
-            </InputSlot>
-        </div>
-    </section>
-
-    <div class="table-responsive br-entity-table-wrap">
-        <table class="table br-entity-table mb-0">
-            <thead>
-                <tr>
-                    <th style="width: 18%;">Documento</th>
-                    <th style="width: 22%;">Cliente</th>
-                    <th style="width: 16%;">Sucursal</th>
-                    <th style="width: 14%;">Emisión</th>
-                    <th class="text-end" style="width: 12%;">Total</th>
-                    <th style="width: 10%;">Estado</th>
-                    <th class="text-center" style="width: 8%;"><span class="visually-hidden">Acciones</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="lists.entity.extras.loading" class="text-center">
-                    <td colspan="7" class="py-4">
-                        <Loader/>
-                    </td>
-                </tr>
-                <template v-else-if="lists.entity.records.total > 0">
-                    <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
-                        <td class="text-start">
-                            <strong class="br-entity-primary" v-text="record.serie_sequential"></strong>
-                            <span class="br-entity-table__meta" v-text="record.serie?.document_type?.name"></span>
-                        </td>
-                        <td class="text-start">
-                            <strong class="br-entity-primary" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
-                            <span class="br-entity-table__meta" v-text="record.holder?.document_number || 'Sin documento'"></span>
-                        </td>
-                        <td class="text-start">
-                            <strong class="br-entity-primary" v-text="record.serie?.branch?.name || 'Sin sucursal'"></strong>
-                            <span class="br-entity-table__meta" v-text="record.serie?.legible_serie || record.serie?.serie"></span>
-                        </td>
-                        <td>
-                            <span v-text="legibleFormatDate({dateString: record.issue_date, type: 'weekday_date', separator: '/'})" class="d-block fw-semibold"></span>
-                            <span
-                                :class="['br-sales-relative-pill', { 'br-sales-relative-pill--today': record.diff_days_issue_date === 0 }]"
-                                v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
-                        </td>
-                        <td class="text-end align-middle pe-3" title="Total">
-                            <span class="br-amount-inline">
-                                <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
-                                <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
-                            </span>
-                        </td>
-                        <td>
-                            <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                        </td>
-                        <td>
-                            <InputSlot hasDiv :isInputGroup="false" :divInputClass="['br-table-actions']" xl="12" lg="12">
-                                <template #input>
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-info"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Ver acciones"
-                                        :aria-label="`Ver acciones de ${record.serie_sequential}`"
-                                        @click="modalActionsEntity({record})">
-                                        <i class="fa-solid fa-gear" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        v-if="record.status === 'active'"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-danger"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Anular venta"
-                                        :aria-label="`Anular venta ${record.serie_sequential}`"
-                                        @click="cancelRecord({record})">
-                                        <i class="fa-solid fa-rectangle-xmark" aria-hidden="true"></i>
-                                    </button>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-filter-bar br-sales-list__filters">
+                <div class="row align-items-end g-2">
+                    <InputSlot hasDiv title="Sucursal" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                        <template #input>
+                            <v-select
+                                v-model="lists.entity.filters.branch"
+                                :options="branches"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                :searchable="branches.length > 6"
+                                append-to-body
+                                placeholder="Todas las sucursales">
+                                <template #selected-option="{ label }">
+                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
                                 </template>
-                            </InputSlot>
-                        </td>
-                    </tr>
-                </template>
-                <tr v-else>
-                    <td class="text-center" colspan="7">
-                        <WithoutData type="image"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                            </v-select>
+                        </template>
+                    </InputSlot>
 
-    <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
+                    <InputSlot hasDiv title="Serie" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                        <template #input>
+                            <v-select
+                                v-model="lists.entity.filters.serie"
+                                :options="series"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                :searchable="false"
+                                append-to-body
+                                placeholder="Todas las series">
+                                <template #option="{ data }">
+                                    <span v-text="`${data?.legible_serie} - ${documentTypeLabel(data?.document_type)}`" class="d-block fw-bold"></span>
+                                    <small v-text="data?.branch?.name" class="d-block"></small>
+                                </template>
+                                <template #selected-option="{ label }">
+                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                </template>
+                            </v-select>
+                        </template>
+                    </InputSlot>
 
+                    <SearchInput
+                        v-model="lists.entity.filters.sequential"
+                        @search="listEntity({})"
+                        hasDiv
+                        title="Secuencia"
+                        :titleClass="[config.forms.classes.title]"
+                        xl="2"
+                        lg="4"/>
+
+                    <InputDate
+                        v-model="lists.entity.filters.start_date"
+                        @enterKeyPressed="listEntity({})"
+                        hasDiv
+                        title="Desde"
+                        :titleClass="[config.forms.classes.title]"
+                        :max="maxIssueDate"
+                        xl="2"
+                        lg="6"/>
+
+                    <InputDate
+                        v-model="lists.entity.filters.end_date"
+                        @enterKeyPressed="listEntity({})"
+                        hasDiv
+                        title="Hasta"
+                        :titleClass="[config.forms.classes.title]"
+                        :max="maxIssueDate"
+                        xl="2"
+                        lg="6"/>
+
+                    <InputSlot hasDiv title="Cliente" :titleClass="[config.forms.classes.title]" xl="4" lg="6">
+                        <template #input>
+                            <v-select
+                                v-model="lists.entity.filters.holder"
+                                :options="holders"
+                                :filterable="false"
+                                :loading="commercialSelection.customers.loading"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                append-to-body
+                                placeholder="Todos los clientes"
+                                @open="openCommercialOptions('customers')"
+                                @search="searchCommercialOptions('customers', $event)">
+                                <template #option="{ label }">
+                                    <span v-text="truncate({value: label, length: 50})" class="d-block"></span>
+                                </template>
+                                <template #selected-option="{ label }">
+                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                </template>
+                                <template #list-footer>
+                                    <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
+                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                    </li>
+                                </template>
+                                <template #no-options>Sin clientes para esta búsqueda.</template>
+                            </v-select>
+                        </template>
+                    </InputSlot>
+
+                    <InputSlot hasDiv title="Estado" :titleClass="[config.forms.classes.title]" xl="3" lg="6">
+                        <template #input>
+                            <v-select
+                                v-model="lists.entity.filters.status"
+                                :options="statuses"
+                                :class="config.forms.classes.select2"
+                                :clearable="true"
+                                :searchable="false"
+                                append-to-body
+                                placeholder="Todos los estados"/>
+                        </template>
+                    </InputSlot>
+
+                    <InputSlot
+                        hasDiv
+                        :isInputGroup="false"
+                        :divInputClass="['br-filter-bar__actions']"
+                        xl="5"
+                        lg="6">
+                        <template #input>
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                                <span>Buscar</span>
+                            </button>
+                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="clearFilters" :disabled="lists.entity.extras.loading">
+                                <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                                <span>Limpiar</span>
+                            </button>
+                        </template>
+                    </InputSlot>
+                </div>
+            </section>
+
+            <div class="table-responsive br-entity-table-wrap">
+                <table class="table br-entity-table mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Documento</th>
+                            <th style="width: 22%;">Cliente</th>
+                            <th style="width: 16%;">Sucursal</th>
+                            <th style="width: 14%;">Emisión</th>
+                            <th class="text-end" style="width: 12%;">Total</th>
+                            <th style="width: 10%;">Estado</th>
+                            <th class="text-center" style="width: 8%;"><span class="visually-hidden">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="lists.entity.extras.loading" class="br-table-state text-center">
+                            <td colspan="7" class="py-4">
+                                <Loader/>
+                            </td>
+                        </tr>
+                        <template v-else-if="lists.entity.records.total > 0">
+                            <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
+                                <td class="text-start">
+                                    <strong class="br-entity-primary" v-text="record.serie_sequential"></strong>
+                                    <span class="br-entity-table__meta" v-text="record.serie?.document_type?.name"></span>
+                                </td>
+                                <td class="text-start">
+                                    <strong class="br-entity-primary" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
+                                    <span class="br-entity-table__meta" v-text="record.holder?.document_number || 'Sin documento'"></span>
+                                </td>
+                                <td class="text-start">
+                                    <strong class="br-entity-primary" v-text="record.serie?.branch?.name || 'Sin sucursal'"></strong>
+                                    <span class="br-entity-table__meta" v-text="record.serie?.legible_serie || record.serie?.serie"></span>
+                                </td>
+                                <td>
+                                    <span v-text="legibleFormatDate({dateString: record.issue_date, type: 'weekday_date', separator: '/'})" class="d-block fw-semibold"></span>
+                                    <span
+                                        :class="['br-sales-relative-pill', { 'br-sales-relative-pill--today': record.diff_days_issue_date === 0 }]"
+                                        v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
+                                </td>
+                                <td class="text-end align-middle pe-3" title="Total">
+                                    <span class="br-amount-inline">
+                                        <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
+                                        <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                </td>
+                                <td>
+                                    <InputSlot hasDiv :isInputGroup="false" :divInputClass="['br-table-actions']" xl="12" lg="12">
+                                        <template #input>
+                                            <button
+                                                type="button"
+                                                class="br-icon-action br-icon-action-info"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Ver acciones"
+                                                :aria-label="`Ver acciones de ${record.serie_sequential}`"
+                                                @click="modalActionsEntity({record})">
+                                                <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                                            </button>
+                                            <button
+                                                v-if="record.status === 'active'"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-danger"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Anular venta"
+                                                :aria-label="`Anular venta ${record.serie_sequential}`"
+                                                @click="cancelRecord({record})">
+                                                <i class="fa-solid fa-rectangle-xmark" aria-hidden="true"></i>
+                                            </button>
+                                        </template>
+                                    </InputSlot>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr class="br-table-state" v-else>
+                            <td class="text-center" colspan="7">
+                                <WithoutData type="image"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
+
+        </div>
+    </InitialLoadTransition>
     <PrintSale :modalId="forms.entity.createUpdate.extras.modals.actions.id" :data="forms.entity.createUpdate.extras.modals.actions.data">
         <template v-slot:extraGroupAppend>
             <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
@@ -258,6 +263,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
@@ -279,19 +285,17 @@ const MODULE = {
 
 export default {
     components: {SearchInput},
-    mixins: [commercialSelection],
+    mixins: [InitialPageMixin, commercialSelection],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        let initParams = await this.initParams({}),
+        let initParams = await this.loadInitialParams(() => this.initParams({})),
             initOthers = await this.initOthers({});
 
         if(initParams && initOthers) {
 
-            Alerts.swals({show: false});
             await this.listEntity({});
 
         }
@@ -395,7 +399,8 @@ export default {
             if(url) {
                 const urlObj = new URL(url, window.location.origin);
                 Object.entries(filterJson).forEach(([key, value]) => {
-                    if(this.isDefined({value}) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                    if(value != null) urlObj.searchParams.set(key, value);
+                    else urlObj.searchParams.delete(key);
                 });
                 requestUrl = `${urlObj.pathname}${urlObj.search}`;
                 requestData = {};

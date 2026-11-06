@@ -1,135 +1,140 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-entity-page br-tracking-notifications">
-        <section class="br-filter-bar">
-            <div class="row align-items-end g-2">
-                <InputSlot
-                    hasDiv
-                    title="Estado"
-                    :titleClass="[config.forms.classes.title]"
-                    xl="3"
-                    lg="3">
-                    <template #input>
-                        <v-select
-                            v-model="lists.entity.filters.status"
-                            :options="statusOptions"
-                            :class="config.forms.classes.select2"
-                            :clearable="false"
-                            :searchable="false"
-                            append-to-body/>
-                    </template>
-                </InputSlot>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-entity-page br-tracking-notifications">
+                <section class="br-filter-bar">
+                    <div class="row align-items-end g-2">
+                        <InputSlot
+                            hasDiv
+                            title="Estado"
+                            :titleClass="[config.forms.classes.title]"
+                            xl="3"
+                            lg="3">
+                            <template #input>
+                                <v-select
+                                    v-model="lists.entity.filters.status"
+                                    :options="statusOptions"
+                                    :class="config.forms.classes.select2"
+                                    :clearable="false"
+                                    :searchable="false"
+                                    append-to-body/>
+                            </template>
+                        </InputSlot>
 
-                <InputSlot
-                    hasDiv
-                    :isInputGroup="false"
-                    :divInputClass="['br-filter-bar__actions']"
-                    xl="9"
-                    lg="9">
-                    <template #input>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-search"
-                            :disabled="lists.entity.extras.loading"
-                            @click="listEntity({})">
-                            <span>Buscar</span>
-                        </button>
-                    </template>
-                </InputSlot>
-            </div>
-        </section>
+                        <InputSlot
+                            hasDiv
+                            :isInputGroup="false"
+                            :divInputClass="['br-filter-bar__actions']"
+                            xl="9"
+                            lg="9">
+                            <template #input>
+                                <button
+                                    type="button"
+                                    class="br-btn br-btn-sm br-btn-search"
+                                    :disabled="lists.entity.extras.loading"
+                                    @click="listEntity({})">
+                                    <span>Buscar</span>
+                                </button>
+                            </template>
+                        </InputSlot>
+                    </div>
+                </section>
 
-        <div class="table-responsive br-entity-table-wrap">
-            <table class="table br-entity-table mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 26%;">Destinatario</th>
-                        <th style="width: 27%;">Mensaje</th>
-                        <th style="width: 16%;">Intentos</th>
-                        <th style="width: 16%;">Estado</th>
-                        <th class="text-center" style="width: 15%;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="lists.entity.extras.loading">
-                        <td colspan="5" class="text-center py-4">
-                            <Loader/>
-                        </td>
-                    </tr>
-                    <template v-else-if="lists.entity.records.total > 0">
-                        <tr v-for="record in lists.entity.records.data" :key="record.id">
-                            <td>
-                                <strong class="br-entity-primary">{{ customerName(record) }}</strong>
-                                <span class="br-entity-table__meta">
-                                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-                                    {{ record.to || "Sin correo" }}
-                                </span>
-                                <span v-if="customerPhone(record)" class="br-entity-table__meta">
-                                    <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                                    {{ customerPhone(record) }}
-                                </span>
-                            </td>
-                            <td>
-                                <strong class="br-entity-primary">{{ record.subject || "Sin asunto" }}</strong>
-                                <span class="br-entity-table__meta">
-                                    Creada {{ formatDate(record.created_at) }}
-                                </span>
-                                <span v-if="record.last_error" class="br-notification-error">
-                                    {{ record.last_error }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="br-notification-attempts">
-                                    {{ record.attempts || 0 }} / {{ record.max_attempts || 0 }}
-                                </span>
-                                <span v-if="record.next_attempt_at" class="br-entity-table__meta">
-                                    Próximo {{ formatDate(record.next_attempt_at) }}
-                                </span>
-                            </td>
-                            <td>
-                                <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                            </td>
-                            <td class="text-center">
-                                <div class="br-table-actions">
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-info"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Ver detalle"
-                                        :aria-label="`Ver detalle de ${record.subject || 'notificación'}`"
-                                        @click="openDetail(record)">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        v-if="canRetry(record)"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-retry"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Reintentar"
-                                        :aria-label="`Reintentar ${record.subject || 'notificación'}`"
-                                        :disabled="retryingId === record.id"
-                                        @click="retryNotification(record)">
-                                        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr v-else>
-                        <td colspan="5">
-                            <WithoutData type="image"/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                <div class="table-responsive br-entity-table-wrap">
+                    <table class="table br-entity-table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 26%;">Destinatario</th>
+                                <th style="width: 27%;">Mensaje</th>
+                                <th style="width: 16%;">Intentos</th>
+                                <th style="width: 16%;">Estado</th>
+                                <th class="text-center" style="width: 15%;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="br-table-state" v-if="lists.entity.extras.loading">
+                                <td colspan="5" class="text-center py-4">
+                                    <Loader/>
+                                </td>
+                            </tr>
+                            <template v-else-if="lists.entity.records.total > 0">
+                                <tr v-for="record in lists.entity.records.data" :key="record.id">
+                                    <td>
+                                        <strong class="br-entity-primary">{{ customerName(record) }}</strong>
+                                        <span class="br-entity-table__meta">
+                                            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                                            {{ record.to || "Sin correo" }}
+                                        </span>
+                                        <span v-if="customerPhone(record)" class="br-entity-table__meta">
+                                            <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                                            {{ customerPhone(record) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong class="br-entity-primary">{{ record.subject || "Sin asunto" }}</strong>
+                                        <span class="br-entity-table__meta">
+                                            Creada {{ formatDate(record.created_at) }}
+                                        </span>
+                                        <span v-if="record.last_error" class="br-notification-error">
+                                            {{ record.last_error }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="br-notification-attempts">
+                                            {{ record.attempts || 0 }} / {{ record.max_attempts || 0 }}
+                                        </span>
+                                        <span v-if="record.next_attempt_at" class="br-entity-table__meta">
+                                            Próximo {{ formatDate(record.next_attempt_at) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="br-table-actions">
+                                            <button
+                                                type="button"
+                                                class="br-icon-action br-icon-action-info"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Ver detalle"
+                                                :aria-label="`Ver detalle de ${record.subject || 'notificación'}`"
+                                                @click="openDetail(record)">
+                                                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                            </button>
+                                            <button
+                                                v-if="canRetry(record)"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-retry"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Reintentar"
+                                                :aria-label="`Reintentar ${record.subject || 'notificación'}`"
+                                                :disabled="retryingId === record.id"
+                                                @click="retryNotification(record)">
+                                                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr class="br-table-state" v-else>
+                                <td colspan="5">
+                                    <WithoutData type="image"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
+            </section>
+
         </div>
-
-        <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
-    </section>
-
+    </InitialLoadTransition>
     <div class="modal fade" :id="detailModalId" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content br-entity-modal">
@@ -176,6 +181,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -189,16 +195,16 @@ const STATUS_OPTIONS = [
 ];
 
 export default {
+    mixins: [InitialPageMixin],
     name: "TrackingNotificationsMain",
     mounted: async function() {
         Utils.navbarItem("menu-parent-customers", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        Alerts.swals({type: "initParams"});
 
-        const initParams = await this.initParams({});
+        const initParams = await this.loadInitialParams(() => this.initParams({}));
 
         if(initParams) {
-            Alerts.swals({show: false});
+
             this.listEntity({});
         }
     },
@@ -250,7 +256,8 @@ export default {
             if(url) {
                 const urlObj = new URL(url, window.location.origin);
                 Object.entries(filterData).forEach(([key, value]) => {
-                    if(value && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                    if(value != null) urlObj.searchParams.set(key, value);
+                    else urlObj.searchParams.delete(key);
                 });
                 route = `${urlObj.pathname}${urlObj.search}`;
                 data = {};

@@ -442,8 +442,8 @@ test("the shared work-warehouse selector shows branch and warehouse on every pag
     assert.match(warehouseSelect, /br-warehouse-select__separator" aria-hidden="true">-<\/span>[\s\S]*?br-warehouse-select__name/);
     assert.match(component, /branchName: record\.branch\?\.name \|\| ""[\s\S]*?warehouseName: record\.name[\s\S]*?displayLabel: record\.branch\?\.name \? `\$\{record\.branch\.name\} - \$\{record\.name\}` : record\.name/);
     assert.match(component, /label: record\.branch\?\.name \? `\$\{record\.branch\.name\} \/ \$\{record\.name\}` : record\.name/);
-    assert.match(warehouseCss, /\.br-warehouse-select__branch \{[\s\S]*?font-weight: 500;/);
-    assert.match(warehouseCss, /\.br-warehouse-select__name \{[\s\S]*?font-weight: 400;/);
+    assert.match(warehouseCss, /\.br-warehouse-select__branch \{[\s\S]*?font-weight: var\(--br-font-weight-medium\);/);
+    assert.match(warehouseCss, /\.br-warehouse-select__name \{[\s\S]*?font-weight: var\(--br-font-weight-body\);/);
     assert.match(references, /function stockWarehouses\(\): Collection \{[\s\S]*?->with\("branch"\)/);
 
 });

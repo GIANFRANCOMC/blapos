@@ -40,7 +40,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   margin: 0 0 0.45rem;
   color: var(--br-primary-active);
   font-size: var(--br-font-size-072);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -52,7 +52,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-attendance h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0;
 }
 
@@ -90,7 +90,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border: 1px solid transparent;
   border-radius: 0.55rem;
   font-size: var(--br-font-size-088);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
   text-decoration: none;
   cursor: pointer;
   transition: var(--br-transition);
@@ -163,7 +163,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   background: var(--br-white);
   color: var(--br-text-muted);
   font-size: var(--br-font-size-076);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-catalog-count strong {
@@ -188,7 +188,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   background: var(--br-white);
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
   cursor: pointer;
 }
 
@@ -253,7 +253,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   background: var(--br-secondary-soft);
   color: var(--br-secondary);
   font-size: var(--br-font-size-068);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-item__type.is-product {
@@ -275,7 +275,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   margin: 0.9rem 0 0.35rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-102);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-guest-item p {
@@ -303,7 +303,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   gap: 0.35rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-076);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-item__link {
@@ -351,7 +351,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   gap: 0.55rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-082);
-  font-weight: 750;
+  font-weight: var(--br-font-weight-emphasis);
   text-decoration: none;
 }
 
@@ -382,7 +382,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   background: var(--br-white);
   color: var(--br-secondary);
   font-size: var(--br-font-size-080);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-control);
   cursor: pointer;
 }
 
@@ -415,7 +415,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-076);
-  font-weight: 800;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-field .form-control,
@@ -444,7 +444,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-help {
   min-height: 1rem;
   font-size: var(--br-font-size-068);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-help {
@@ -501,7 +501,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   background: var(--br-neutral-panel);
   color: var(--br-secondary);
   font-size: var(--br-font-size-068);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-card__footer {
@@ -517,7 +517,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-card__footer span {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-074);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-status-search {
@@ -544,7 +544,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   background: var(--br-white);
   color: var(--br-primary-active);
   font-size: var(--br-font-size-070);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-result strong,
@@ -595,7 +595,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   display: block;
   color: var(--br-secondary);
   font-size: var(--br-font-size-084);
-  font-weight: 850;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-attendance__branch span,
@@ -603,7 +603,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-scanner-state span {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-073);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-guest-attendance__scanner {

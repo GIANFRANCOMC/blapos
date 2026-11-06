@@ -58,7 +58,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-if="entityList.extras.loading">
+                    <tr class="br-table-state" v-if="entityList.extras.loading">
                         <td colspan="6" class="py-4">
                             <Loader/>
                         </td>
@@ -106,7 +106,7 @@
                             </td>
                         </tr>
                     </template>
-                    <tr v-else>
+                    <tr class="br-table-state" v-else>
                         <td colspan="6" class="py-4">
                             <WithoutData class="br-entity-empty-state" type="image"/>
                         </td>
@@ -612,7 +612,7 @@ const MODULE = {
     filterOptions: FILTER_OPTIONS
 };
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "ServicesMain",
@@ -705,7 +705,8 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObj.searchParams.has(key)) urlObj.searchParams.set(key, value);
+                        if(value != null) urlObj.searchParams.set(key, value);
+                        else urlObj.searchParams.delete(key);
 
                     });
 

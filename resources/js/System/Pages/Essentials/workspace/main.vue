@@ -81,7 +81,7 @@ import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransi
 import * as Requests from "@System/Helpers/Requests.js";
 import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     components: {InitialLoadTransition},

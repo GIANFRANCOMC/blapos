@@ -23,7 +23,7 @@
   gap: 0.6rem;
   color: var(--br-secondary);
   font-size: var(--br-font-size-084);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.025em;
 }
 
@@ -45,7 +45,7 @@
   margin-bottom: 1rem;
   color: var(--br-primary-active);
   font-size: var(--br-font-size-072);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -54,7 +54,7 @@
   margin: 0;
   color: var(--br-secondary);
   font-size: var(--br-font-size-fluid-error);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   line-height: 1.18;
 }
 
@@ -63,7 +63,7 @@
   margin: 0.9rem 0 0;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-095);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.6;
 }
 
@@ -89,7 +89,7 @@
   background: var(--br-primary);
   color: var(--br-on-primary);
   font-size: var(--br-font-size-085);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   text-decoration: none;
   transition: background-color 0.16s ease;
 }
@@ -116,11 +116,11 @@
 
 .br-error-support .br-support-contact__question {
   color: var(--br-secondary);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-error-support .br-link {
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 @media (max-width: 575.98px) {

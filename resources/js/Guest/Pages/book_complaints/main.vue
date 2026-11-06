@@ -1,4 +1,7 @@
 <template>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
     <main class="br-guest-section">
         <div class="br-guest-container">
             <header class="br-guest-public-header">
@@ -129,9 +132,12 @@
             </section>
         </div>
     </main>
+        </div>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "../../Helpers/Alerts.js";
 import * as Constants from "../../Helpers/Constants.js";
 import * as Requests from "../../Helpers/Requests.js";
@@ -152,6 +158,7 @@ const emptyBookComplaintForm = () => ({
 });
 
 export default {
+    mixins: [InitialPageMixin],
     data() {
         return {
             mode: "form",
@@ -174,9 +181,8 @@ export default {
         };
     },
     async mounted() {
-        Alerts.swals({type: "initParams"});
-        await this.initParams();
-        Alerts.swals({show: false});
+
+        await this.loadInitialParams(() => this.initParams());
         this.renderCaptcha();
     },
     methods: {

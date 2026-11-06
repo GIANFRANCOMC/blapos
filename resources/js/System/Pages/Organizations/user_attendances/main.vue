@@ -1,191 +1,198 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-entity-list">
-        <div class="br-filter-bar mb-3">
-            <div class="row g-2 align-items-end w-100">
-                <div class="col-xl-3 col-md-6">
-                    <label class="form-label">Sucursal</label>
-                    <v-select v-model="filters.branch" :options="branchOptions" :clearable="false"/>
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-entity-list">
+                <div class="br-filter-bar mb-3">
+                    <div class="row g-2 align-items-end w-100">
+                        <div class="col-xl-3 col-md-6">
+                            <label class="form-label">Sucursal</label>
+                            <v-select v-model="filters.branch" :options="branchOptions" :clearable="false"/>
+                        </div>
+                        <div class="col-xl-4 col-md-6">
+                            <label class="form-label">Colaborador</label>
+                            <v-select v-model="filters.user" :options="userOptions" :clearable="false" searchable/>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <label class="form-label">Semana</label>
+                            <input v-model="filters.weekStart" type="date" class="form-control">
+                        </div>
+                        <div class="col-xl-2 col-md-6 d-flex gap-2">
+                            <button type="button" class="br-btn br-btn-search flex-grow-1" @click="refresh">
+                                <span>Consultar</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="br-btn br-btn-action-export"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Exportar nómina"
+                                @click="exportPayroll">
+                                <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                                <span class="d-xl-none">Exportar</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xl-4 col-md-6">
-                    <label class="form-label">Colaborador</label>
-                    <v-select v-model="filters.user" :options="userOptions" :clearable="false" searchable/>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="br-home-section h-100 p-3">
+                            <small class="text-muted">Horas de la semana</small>
+                            <strong class="d-block fs-4 text-secondary">{{ summary.total_hours || 0 }} h</strong>
+                            <span class="text-muted">{{ summary.week_start || '-' }} al {{ summary.week_end || '-' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="br-home-section h-100 p-3">
+                            <small class="text-muted">Estado actual</small>
+                            <strong class="d-block fs-5" :class="activeAttendance ? 'text-success' : 'text-secondary'">
+                                {{ activeAttendance ? 'Jornada en curso' : 'Sin jornada abierta' }}
+                            </strong>
+                            <span class="text-muted">{{ activeAttendance?.branch?.name || 'Selecciona una sede para operar' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="br-home-section h-100 p-3 d-flex align-items-center justify-content-end gap-2">
+                            <button
+                                type="button"
+                                class="br-btn br-btn-success"
+                                :disabled="saving || !canOperate || Boolean(activeAttendance)"
+                                @click="checkIn">
+                                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                                <span>Registrar ingreso</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="br-btn br-btn-danger"
+                                :disabled="saving || !activeAttendance"
+                                @click="checkOut">
+                                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                                <span>Registrar salida</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
-                    <label class="form-label">Semana</label>
-                    <input v-model="filters.weekStart" type="date" class="form-control">
-                </div>
-                <div class="col-xl-2 col-md-6 d-flex gap-2">
-                    <button type="button" class="br-btn br-btn-search flex-grow-1" @click="refresh">
-                        <span>Consultar</span>
-                    </button>
-                    <button
-                        type="button"
-                        class="br-btn br-btn-action-export"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Exportar nómina"
-                        @click="exportPayroll">
-                        <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                        <span class="d-xl-none">Exportar</span>
-                    </button>
-                </div>
-            </div>
+
+                <Loader v-if="loading"/>
+                <template v-else>
+                    <div class="table-responsive">
+                        <table class="table br-entity-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Colaborador</th>
+                                    <th>Sucursal</th>
+                                    <th>Ingreso</th>
+                                    <th>Salida</th>
+                                    <th class="text-end">Tiempo</th>
+                                    <th class="text-end">Ordinarias / Extra</th>
+                                    <th>Pausas y correcciones</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="record in records.data" :key="record.id">
+                                    <td><strong>{{ record.user?.name }}</strong></td>
+                                    <td>{{ record.branch?.name }}</td>
+                                    <td>{{ formatDateTime(record.checked_in_at) }}</td>
+                                    <td>{{ formatDateTime(record.checked_out_at) }}</td>
+                                    <td class="text-end fw-semibold">{{ formatMinutes(record.worked_minutes) }}</td>
+                                    <td class="text-end">
+                                        <div class="br-attendance-metrics">
+                                            <strong>{{ formatMinutes(record.ordinary_minutes) }}</strong>
+                                            <small>Extra: {{ formatMinutes(record.overtime_minutes) }}</small>
+                                            <small v-if="record.late_minutes" class="text-danger">Tardanza: {{ formatMinutes(record.late_minutes) }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="br-entity-table__meta d-block">
+                                            Pausas: {{ formatMinutes(record.break_minutes) }}
+                                        </span>
+                                        <span v-if="activeBreak(record)" class="br-status-label br-status-label--warning">Pausa en curso</span>
+                                        <span v-if="pendingCorrection(record)" class="br-status-label br-status-inactive">Corrección pendiente</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="br-status-label" :class="statusClass(record.status)">
+                                            {{ statusLabel(record.status) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="br-table-actions">
+                                            <button
+                                                v-if="record.status === 'active' && !activeBreak(record)"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-info"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Iniciar pausa"
+                                                @click="startBreak(record)">
+                                                <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
+                                            </button>
+                                            <button
+                                                v-if="record.status === 'active' && activeBreak(record)"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-primary"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Finalizar pausa"
+                                                @click="endBreak(record)">
+                                                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="br-icon-action br-icon-action-edit"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Solicitar corrección"
+                                                @click="requestCorrection(record)">
+                                                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                                            </button>
+                                            <button
+                                                v-if="pendingCorrection(record)"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-primary"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Aprobar corrección"
+                                                @click="reviewCorrection(record, true)">
+                                                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                                            </button>
+                                            <button
+                                                v-if="pendingCorrection(record)"
+                                                type="button"
+                                                class="br-icon-action br-icon-action-danger"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Rechazar corrección"
+                                                @click="reviewCorrection(record, false)">
+                                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <WithoutData v-if="!records.data.length"/>
+
+                </template>
+                <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="getRecords"/>
+            </section>
         </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-md-4">
-                <div class="br-home-section h-100 p-3">
-                    <small class="text-muted">Horas de la semana</small>
-                    <strong class="d-block fs-4 text-secondary">{{ summary.total_hours || 0 }} h</strong>
-                    <span class="text-muted">{{ summary.week_start || '-' }} al {{ summary.week_end || '-' }}</span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="br-home-section h-100 p-3">
-                    <small class="text-muted">Estado actual</small>
-                    <strong class="d-block fs-5" :class="activeAttendance ? 'text-success' : 'text-secondary'">
-                        {{ activeAttendance ? 'Jornada en curso' : 'Sin jornada abierta' }}
-                    </strong>
-                    <span class="text-muted">{{ activeAttendance?.branch?.name || 'Selecciona una sede para operar' }}</span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="br-home-section h-100 p-3 d-flex align-items-center justify-content-end gap-2">
-                    <button
-                        type="button"
-                        class="br-btn br-btn-success"
-                        :disabled="saving || !canOperate || Boolean(activeAttendance)"
-                        @click="checkIn">
-                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                        <span>Registrar ingreso</span>
-                    </button>
-                    <button
-                        type="button"
-                        class="br-btn br-btn-danger"
-                        :disabled="saving || !activeAttendance"
-                        @click="checkOut">
-                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-                        <span>Registrar salida</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <Loader v-if="loading"/>
-        <template v-else>
-            <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
-                    <thead>
-                        <tr>
-                            <th>Colaborador</th>
-                            <th>Sucursal</th>
-                            <th>Ingreso</th>
-                            <th>Salida</th>
-                            <th class="text-end">Tiempo</th>
-                            <th class="text-end">Ordinarias / Extra</th>
-                            <th>Pausas y correcciones</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="record in records.data" :key="record.id">
-                            <td><strong>{{ record.user?.name }}</strong></td>
-                            <td>{{ record.branch?.name }}</td>
-                            <td>{{ formatDateTime(record.checked_in_at) }}</td>
-                            <td>{{ formatDateTime(record.checked_out_at) }}</td>
-                            <td class="text-end fw-semibold">{{ formatMinutes(record.worked_minutes) }}</td>
-                            <td class="text-end">
-                                <div class="br-attendance-metrics">
-                                    <strong>{{ formatMinutes(record.ordinary_minutes) }}</strong>
-                                    <small>Extra: {{ formatMinutes(record.overtime_minutes) }}</small>
-                                    <small v-if="record.late_minutes" class="text-danger">Tardanza: {{ formatMinutes(record.late_minutes) }}</small>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="br-entity-table__meta d-block">
-                                    Pausas: {{ formatMinutes(record.break_minutes) }}
-                                </span>
-                                <span v-if="activeBreak(record)" class="br-status-label br-status-label--warning">Pausa en curso</span>
-                                <span v-if="pendingCorrection(record)" class="br-status-label br-status-inactive">Corrección pendiente</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="br-status-label" :class="statusClass(record.status)">
-                                    {{ statusLabel(record.status) }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <div class="br-table-actions">
-                                    <button
-                                        v-if="record.status === 'active' && !activeBreak(record)"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-info"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Iniciar pausa"
-                                        @click="startBreak(record)">
-                                        <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        v-if="record.status === 'active' && activeBreak(record)"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-primary"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Finalizar pausa"
-                                        @click="endBreak(record)">
-                                        <i class="fa-solid fa-play" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="br-icon-action br-icon-action-edit"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Solicitar corrección"
-                                        @click="requestCorrection(record)">
-                                        <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        v-if="pendingCorrection(record)"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-primary"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Aprobar corrección"
-                                        @click="reviewCorrection(record, true)">
-                                        <i class="fa-solid fa-check" aria-hidden="true"></i>
-                                    </button>
-                                    <button
-                                        v-if="pendingCorrection(record)"
-                                        type="button"
-                                        class="br-icon-action br-icon-action-danger"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Rechazar corrección"
-                                        @click="reviewCorrection(record, false)">
-                                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <WithoutData v-if="!records.data.length"/>
-
-        </template>
-        <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="getRecords"/>
-    </section>
+    </InitialLoadTransition>
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
 export default {
+    mixins: [InitialPageMixin],
     data() {
         return {
             config: Requests.config({entity: "user_attendances"}),
@@ -214,10 +221,11 @@ export default {
             return Boolean(this.filters.branch && this.filters.user);
         }
     },
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-user-attendances", {addClass: "active"});
-        this.initParams();
+        const initialized = await this.loadInitialParams(() => this.initParams());
+        if(initialized) await this.refresh();
     },
     methods: {
         currentMonday() {
@@ -235,7 +243,7 @@ export default {
             this.options = result.data.config;
             this.filters.branch = this.branchOptions[0] || null;
             this.filters.user = this.userOptions[0] || null;
-            await this.refresh();
+            return true;
         },
         async refresh() {
             await Promise.all([this.getRecords(), this.getSummary()]);

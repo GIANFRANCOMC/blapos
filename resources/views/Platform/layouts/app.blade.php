@@ -14,6 +14,7 @@
     @include("shared.font-inter")
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/core.css') }}">
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/fontawesome.css') }}">
+    <link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/sweetalert2/sweetalert2.css') }}">
     @vite('resources/css/Platform/app.css')
     @vite('resources/js/Shared/disabled-controls.js')
 </head>
@@ -26,6 +27,7 @@
     </main>
 </div>
 <script src="{{ asset('System/assets/vendor/js/bootstrap.js') }}"></script>
+<script src="{{ asset('System/assets/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
 @stack('scripts')
 </body>
 </html>

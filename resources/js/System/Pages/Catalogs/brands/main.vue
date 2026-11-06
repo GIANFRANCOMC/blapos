@@ -61,7 +61,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-if="entityList.extras.loading">
+                            <tr class="br-table-state" v-if="entityList.extras.loading">
                                 <td colspan="6" class="py-4"><Loader/></td>
                             </tr>
                             <template v-else-if="entityList.records.total > 0">
@@ -120,7 +120,7 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr v-else>
+                            <tr class="br-table-state" v-else>
                                 <td colspan="6" class="py-4">
                                     <WithoutData class="br-entity-empty-state" type="image"/>
                                 </td>
@@ -310,7 +310,7 @@ const MODULE = {
     ]
 };
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "BrandsMain",
@@ -407,10 +407,12 @@ export default {
 
                     Object.entries(filterData).forEach(([key, value]) => {
 
-                        if(this.isDefined(value) && !urlObject.searchParams.has(key)) {
+                        if(value != null) {
 
                             urlObject.searchParams.set(key, value);
 
+                        } else {
+                            urlObject.searchParams.delete(key);
                         }
 
                     });

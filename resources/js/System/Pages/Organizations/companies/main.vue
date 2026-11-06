@@ -399,7 +399,7 @@ const MODULE = {
     brandingItems: BRANDING_ITEMS
 };
 
-const initialLoad = createInitialLoad({skeleton: true});
+const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "CompaniesMain",

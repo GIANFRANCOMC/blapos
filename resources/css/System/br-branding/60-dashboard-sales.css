@@ -180,7 +180,7 @@
 .br-layout .br-dashboard-date__eyebrow {
   margin: 0;
   font-size: var(--br-font-size-06875);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--br-text-muted);
@@ -189,7 +189,7 @@
 .br-layout .br-dashboard-date__value {
   margin: 0 0 0.35rem;
   font-size: var(--br-font-size-fluid-dashboard-date);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-value);
   line-height: 1.25;
   color: var(--br-secondary);
 }
@@ -210,7 +210,7 @@
   margin-top: 0;
   margin-bottom: 0;
   font-size: var(--br-font-size-075);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
 }
 
 .br-layout .br-dashboard-date--split .br-dashboard-date__value {
@@ -235,7 +235,7 @@
   min-height: var(--br-control-height);
   padding: var(--br-control-padding-y) 0.75rem;
   font-size: var(--br-font-size-100);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   color: var(--br-text);
   background-color: var(--br-surface-elevated);
   border: 1px solid var(--br-border-strong);
@@ -323,7 +323,7 @@
 .br-layout .br-dashboard-kpi__label {
   margin: 0 0 0.25rem;
   font-size: var(--br-font-size-070);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--br-text-muted);
@@ -333,7 +333,7 @@
 .br-layout .br-dashboard-kpi__value {
   margin: 0;
   font-size: var(--br-font-size-135);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-value);
   line-height: 1.25;
   color: var(--br-text);
   font-variant-numeric: tabular-nums;
@@ -376,7 +376,7 @@
   display: inline-block;
   margin: 0;
   font-size: var(--br-font-size-100);
-  font-weight: 700;
+  font-weight: var(--br-font-weight-heading);
   line-height: 1.35;
   color: var(--br-secondary);
   letter-spacing: 0.08em;
@@ -387,7 +387,7 @@
 .br-dashboard .br-dashboard-chart-section__subtitle {
   margin: 0.35rem 0 0;
   font-size: var(--br-font-size-075);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--br-text-muted);
@@ -476,7 +476,7 @@
 
 .br-dashboard .br-dashboard-chart-empty-overlay__text {
   font-size: var(--br-font-size-fluid-dashboard-empty);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   letter-spacing: 0.12em;
   color: var(--br-danger);
   text-transform: uppercase;
@@ -519,7 +519,7 @@
 .br-sale-cancel-hint__label {
   display: inline;
   font-size: var(--br-sale-cancel-hint-label-size);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   color: var(--br-on-warning);
   margin-inline-end: 0.28em;
 }
@@ -529,12 +529,12 @@
   font-size: var(--br-sale-cancel-hint-font-size);
   line-height: var(--br-sale-cancel-hint-line-height);
   color: var(--br-secondary);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-sale-cancel-hint__term {
   color: var(--br-secondary);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
   font-style: normal;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--br-border-strong) 65%, transparent);
@@ -543,7 +543,7 @@
 
 .br-sale-cancel-hint__risk {
   color: var(--br-danger);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 /* --- [br-layout] Navbar compacto con usuario --- */
@@ -737,7 +737,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   padding: 0.32rem 0.35rem 0.15rem;
   color: var(--br-text-muted);
   font-size: var(--br-font-size-064);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -794,7 +794,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 
 .br-navbar-search__item-copy strong {
   font-size: var(--br-font-size-073);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
 }
 
 .br-navbar-search__item-copy small {
@@ -914,7 +914,7 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
   color: var(--br-on-secondary);
   background: color-mix(in srgb, var(--br-secondary) 76%, var(--br-primary));
   font-size: var(--br-font-size-078);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
 }
 
 .br-navbar-user__identity {
@@ -937,14 +937,14 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
 .br-navbar-user__name {
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
   line-height: 1.1;
 }
 
 .br-navbar-user__company {
   color: var(--br-text-muted);
   font-size: var(--br-font-size-063);
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.15;
 }
 
@@ -1006,7 +1006,7 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
 .br-navbar-user__summary-copy strong {
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-navbar-user__summary-copy small {
@@ -1029,7 +1029,7 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
   border-radius: 0.25rem;
   background: transparent !important;
   font-size: var(--br-font-size-074) !important;
-  font-weight: 400;
+  font-weight: var(--br-font-weight-body);
   line-height: 1.2;
   text-align: left;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -1149,7 +1149,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   background: var(--br-danger);
   color: var(--br-white);
   font-size: var(--br-font-size-058);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-value);
   line-height: 1;
 }
 
@@ -1190,7 +1190,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
 .br-navbar-announcements__head strong {
   color: var(--br-secondary);
   font-size: var(--br-font-size-078);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-navbar-announcements__head span,
@@ -1272,7 +1272,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   white-space: nowrap;
   color: var(--br-secondary);
   font-size: var(--br-font-size-072);
-  font-weight: 500;
+  font-weight: var(--br-font-weight-medium);
 }
 
 .br-navbar-announcement time {
@@ -1350,7 +1350,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   color: var(--br-white);
   background: var(--br-danger);
   font-size: var(--br-font-size-058);
-  font-weight: 600;
+  font-weight: var(--br-font-weight-value);
   box-shadow: none;
 }
 

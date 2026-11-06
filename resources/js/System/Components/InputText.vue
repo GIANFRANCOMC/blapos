@@ -211,7 +211,7 @@ export default {
 
 .character-counter-warning .br-character-counter__content {
     color: var(--br-warning-hover, #d97706);
-    font-weight: 650;
+    font-weight: var(--br-font-weight-emphasis);
 }
 
 .counter-number {

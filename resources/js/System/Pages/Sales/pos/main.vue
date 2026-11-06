@@ -1,213 +1,218 @@
 ﻿<template>
     <Breadcrumb :list="breadcrumbTitles"/>
 
-    <section class="br-pos">
-        <main class="br-pos__catalog">
+    <InitialLoadTransition>
+        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <div v-else class="br-page-content">
+            <section class="br-pos">
+                <main class="br-pos__catalog">
 
-            <Loader v-if="loading"/>
-            <template v-else>
-                <nav class="br-pos-categories" aria-label="Categorías">
-                    <button
-                        type="button"
-                        class="br-pos-category"
-                        :class="{'is-active': selectedCategoryId === null}"
-                        @click="selectedCategoryId = null">
-                        <span>
-                            <strong>Todos</strong>
-                        </span>
-                        <small class="br-pos-category__count">{{ items.length }}</small>
-                    </button>
-                    <button
-                        v-for="category in visibleCategories"
-                        :key="category.id"
-                        type="button"
-                        class="br-pos-category"
-                        :class="{'is-active': selectedCategoryId === category.id}"
-                        @click="selectedCategoryId = category.id">
-                        <span>
-                            <strong>{{ category.name }}</strong>
-                        </span>
-                        <small class="br-pos-category__count">{{ countByCategory(category.id) }}</small>
-                    </button>
-                </nav>
-                <div class="br-pos-search">
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    <SearchInput
-                        v-model.trim="search"
-                        placeholder="Buscar producto, código o marca"
-                        aria-label="Buscar producto"/>
-                </div>
-
-                <section class="br-pos-products" aria-label="Productos">
-                    <article
-                        v-for="item in filteredItems"
-                        :key="item.id"
-                        class="br-pos-product"
-                        :style="itemCardStyle(item)">
-                        <div class="br-pos-product__body">
-                            <span class="br-pos-product__image" :style="itemImageStyle(item)" aria-hidden="true">
-                                <i :class="itemIcon(item)"></i>
-                            </span>
-                            <span class="br-pos-product__info">
-                                <strong>{{ item.name }}</strong>
-                                <small v-if="item.description" class="br-pos-product__description">
-                                    {{ item.description || 'Producto disponible' }}
-                                </small>
-                                <span class="br-pos-product__meta">
-                                    <span v-if="item.brand?.name" class="br-pos-product__meta-row is-brand">
-                                        <b>Marca</b>
-                                        <em>{{ item.brand.name }}</em>
-                                    </span>
-                                    <span v-if="item.internal_code" class="br-pos-product__meta-row is-internal">
-                                        <b>Int.</b>
-                                        <em>{{ item.internal_code }}</em>
-                                    </span>
-                                    <span v-if="item.barcode" class="br-pos-product__meta-row is-barcode">
-                                        <b>Bar.</b>
-                                        <em>{{ item.barcode }}</em>
-                                    </span>
+                    <Loader v-if="loading"/>
+                    <template v-else>
+                        <nav class="br-pos-categories" aria-label="Categorías">
+                            <button
+                                type="button"
+                                class="br-pos-category"
+                                :class="{'is-active': selectedCategoryId === null}"
+                                @click="selectedCategoryId = null">
+                                <span>
+                                    <strong>Todos</strong>
                                 </span>
-                            </span>
+                                <small class="br-pos-category__count">{{ items.length }}</small>
+                            </button>
+                            <button
+                                v-for="category in visibleCategories"
+                                :key="category.id"
+                                type="button"
+                                class="br-pos-category"
+                                :class="{'is-active': selectedCategoryId === category.id}"
+                                @click="selectedCategoryId = category.id">
+                                <span>
+                                    <strong>{{ category.name }}</strong>
+                                </span>
+                                <small class="br-pos-category__count">{{ countByCategory(category.id) }}</small>
+                            </button>
+                        </nav>
+                        <div class="br-pos-search">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <SearchInput
+                                v-model.trim="search"
+                                placeholder="Buscar producto, código o marca"
+                                aria-label="Buscar producto"/>
                         </div>
-                        <footer class="br-pos-product__footer">
-                            <strong>{{ currencySign(item) }} {{ separatorNumber(item.price) }}</strong>
-                            <div class="br-pos-product__actions">
-                                <button
-                                    type="button"
-                                    class="br-pos-detail"
-                                    data-bs-toggle="tooltip"
-                                    title="Ver detalle"
-                                    @click="openItemDetail(item)"
-                                    aria-label="Ver detalle del catálogo">
-                                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    v-if="quantityInCart(item.id)"
-                                    type="button"
-                                    class="br-pos-remove br-btn-danger"
-                                    @click="decreaseItem(item.id)"
-                                    aria-label="Quitar del detalle">
-                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
-                                </button>
-                                <button type="button" class="br-pos-add" @click="addItem(item)" aria-label="Agregar al detalle">
-                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                    <span v-if="quantityInCart(item.id)">{{ quantityInCart(item.id) }}</span>
-                                </button>
+
+                        <section class="br-pos-products" aria-label="Productos">
+                            <article
+                                v-for="item in filteredItems"
+                                :key="item.id"
+                                class="br-pos-product"
+                                :style="itemCardStyle(item)">
+                                <div class="br-pos-product__body">
+                                    <span class="br-pos-product__image" :style="itemImageStyle(item)" aria-hidden="true">
+                                        <i :class="itemIcon(item)"></i>
+                                    </span>
+                                    <span class="br-pos-product__info">
+                                        <strong>{{ item.name }}</strong>
+                                        <small v-if="item.description" class="br-pos-product__description">
+                                            {{ item.description || 'Producto disponible' }}
+                                        </small>
+                                        <span class="br-pos-product__meta">
+                                            <span v-if="item.brand?.name" class="br-pos-product__meta-row is-brand">
+                                                <b>Marca</b>
+                                                <em>{{ item.brand.name }}</em>
+                                            </span>
+                                            <span v-if="item.internal_code" class="br-pos-product__meta-row is-internal">
+                                                <b>Int.</b>
+                                                <em>{{ item.internal_code }}</em>
+                                            </span>
+                                            <span v-if="item.barcode" class="br-pos-product__meta-row is-barcode">
+                                                <b>Bar.</b>
+                                                <em>{{ item.barcode }}</em>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <footer class="br-pos-product__footer">
+                                    <strong>{{ currencySign(item) }} {{ separatorNumber(item.price) }}</strong>
+                                    <div class="br-pos-product__actions">
+                                        <button
+                                            type="button"
+                                            class="br-pos-detail"
+                                            data-bs-toggle="tooltip"
+                                            title="Ver detalle"
+                                            @click="openItemDetail(item)"
+                                            aria-label="Ver detalle del catálogo">
+                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            v-if="quantityInCart(item.id)"
+                                            type="button"
+                                            class="br-pos-remove br-btn-danger"
+                                            @click="decreaseItem(item.id)"
+                                            aria-label="Quitar del detalle">
+                                            <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="br-pos-add" @click="addItem(item)" aria-label="Agregar al detalle">
+                                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                            <span v-if="quantityInCart(item.id)">{{ quantityInCart(item.id) }}</span>
+                                        </button>
+                                    </div>
+                                </footer>
+                            </article>
+                        </section>
+                        <WithoutData v-if="!filteredItems.length"/>
+                    </template>
+                </main>
+
+                <aside class="br-pos-ticket" aria-label="Resumen de venta">
+                    <section class="br-pos-ticket__config">
+                        <div v-if="!hasOpenCashSessions" class="br-pos-alert br-pos-alert--danger mb-0">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            <span>Abre una caja para registrar ventas POS.</span>
+                        </div>
+                        <div v-else-if="hasSingleCashSession" class="br-pos-cash-static">
+                            <span>Caja activa</span>
+                            <strong>{{ selectedCashSession?.register?.name || 'Caja' }}</strong>
+                            <small>{{ selectedCashSession?.branch?.name || 'Sucursal no definida' }}</small>
+                        </div>
+                        <label v-else>
+                            <span>Caja</span>
+                            <v-select
+                                v-model="selectedCashSession"
+                                :options="cashSessionOptions"
+                                class="bg-white"
+                                :clearable="true"
+                                :searchable="false"
+                                placeholder="Seleccione caja abierta"
+                                @option:selected="syncFromCashSession"/>
+                        </label>
+                        <label v-if="hasOpenCashSessions && showWarehouseInput">
+                            <span>Almacén</span>
+                            <v-select
+                                v-model="selectedWarehouse"
+                                :options="warehouseOptions"
+                                class="bg-white"
+                                :clearable="false"
+                                :searchable="false"
+                                placeholder="Seleccione almacén"/>
+                        </label>
+                        <div v-if="posConfigurationIssue" class="br-pos-alert br-pos-alert--danger mb-0">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            <span>{{ posConfigurationIssue }}</span>
+                        </div>
+                        <p v-if="hasOpenCashSessions" class="br-operational-scope mb-0">
+                            <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
+                            <span>{{ activePosScopeLabel }}</span>
+                        </p>
+                    </section>
+
+                    <section class="br-pos-ticket__items">
+                        <article v-for="line in cart" :key="line.item.id" class="br-pos-ticket-item">
+                            <div>
+                                <strong>{{ line.item.name }}</strong>
+                                <small><b>{{ line.quantity }}</b> x <b>{{ currencySign(line.item) }} {{ separatorNumber(line.price) }}</b></small>
                             </div>
-                        </footer>
-                    </article>
-                </section>
-                <WithoutData v-if="!filteredItems.length"/>
-            </template>
-        </main>
+                            <div class="br-pos-ticket-item__side">
+                                <strong>{{ currencySign(line.item) }} {{ separatorNumber(lineTotal(line)) }}</strong>
+                                <div class="br-pos-ticket-item__qty">
+                                    <button type="button" class="is-danger br-btn-danger" @click="decreaseItem(line.item.id)">-</button>
+                                    <span>{{ line.quantity }}</span>
+                                    <button type="button" @click="addItem(line.item)">+</button>
+                                </div>
+                            </div>
+                        </article>
+                    </section>
 
-        <aside class="br-pos-ticket" aria-label="Resumen de venta">
-            <section class="br-pos-ticket__config">
-                <div v-if="!hasOpenCashSessions" class="br-pos-alert br-pos-alert--danger mb-0">
-                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-                    <span>Abre una caja para registrar ventas POS.</span>
-                </div>
-                <div v-else-if="hasSingleCashSession" class="br-pos-cash-static">
-                    <span>Caja activa</span>
-                    <strong>{{ selectedCashSession?.register?.name || 'Caja' }}</strong>
-                    <small>{{ selectedCashSession?.branch?.name || 'Sucursal no definida' }}</small>
-                </div>
-                <label v-else>
-                    <span>Caja</span>
-                    <v-select
-                        v-model="selectedCashSession"
-                        :options="cashSessionOptions"
-                        class="bg-white"
-                        :clearable="true"
-                        :searchable="false"
-                        placeholder="Seleccione caja abierta"
-                        @option:selected="syncFromCashSession"/>
-                </label>
-                <label v-if="hasOpenCashSessions && showWarehouseInput">
-                    <span>Almacén</span>
-                    <v-select
-                        v-model="selectedWarehouse"
-                        :options="warehouseOptions"
-                        class="bg-white"
-                        :clearable="false"
-                        :searchable="false"
-                        placeholder="Seleccione almacén"/>
-                </label>
-                <div v-if="posConfigurationIssue" class="br-pos-alert br-pos-alert--danger mb-0">
-                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-                    <span>{{ posConfigurationIssue }}</span>
-                </div>
-                <p v-if="hasOpenCashSessions" class="br-operational-scope mb-0">
-                    <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
-                    <span>{{ activePosScopeLabel }}</span>
-                </p>
-            </section>
+                    <section v-if="hasOpenCashSessions" class="br-pos-ticket__checkout" aria-label="Cierre de venta">
+                        <section class="br-pos-total-box" aria-label="Total de venta">
+                            <div class="br-pos-ticket__totals">
+                                <div>
+                                    <span>Subtotal</span>
+                                    <strong>S/ {{ separatorNumber(subtotal) }}</strong>
+                                </div>
+                                <div v-for="tax in taxSummary" :key="tax.tax_id">
+                                    <span>{{ tax.label }}</span>
+                                    <strong>S/ {{ separatorNumber(tax.amount) }}</strong>
+                                </div>
+                                <div v-if="!taxSummary.length">
+                                    <span>IGV</span>
+                                    <strong>S/ 0.00</strong>
+                                </div>
+                            </div>
 
-            <section class="br-pos-ticket__items">
-                <article v-for="line in cart" :key="line.item.id" class="br-pos-ticket-item">
-                    <div>
-                        <strong>{{ line.item.name }}</strong>
-                        <small><b>{{ line.quantity }}</b> x <b>{{ currencySign(line.item) }} {{ separatorNumber(line.price) }}</b></small>
-                    </div>
-                    <div class="br-pos-ticket-item__side">
-                        <strong>{{ currencySign(line.item) }} {{ separatorNumber(lineTotal(line)) }}</strong>
-                        <div class="br-pos-ticket-item__qty">
-                            <button type="button" class="is-danger br-btn-danger" @click="decreaseItem(line.item.id)">-</button>
-                            <span>{{ line.quantity }}</span>
-                            <button type="button" @click="addItem(line.item)">+</button>
-                        </div>
-                    </div>
-                </article>
-            </section>
+                            <header class="br-pos-ticket__header">
+                                <div>
+                                    <p>Total</p>
+                                    <h2>S/ {{ separatorNumber(total) }}</h2>
+                                    <span>{{ totalQuantity }} ?tems agregados</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="br-icon-action br-btn-danger"
+                                    data-bs-toggle="tooltip"
+                                    title="Limpiar venta"
+                                    :disabled="!cart.length"
+                                    @click="clearCart">
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                </button>
+                            </header>
+                        </section>
 
-            <section v-if="hasOpenCashSessions" class="br-pos-ticket__checkout" aria-label="Cierre de venta">
-                <section class="br-pos-total-box" aria-label="Total de venta">
-                    <div class="br-pos-ticket__totals">
-                        <div>
-                            <span>Subtotal</span>
-                            <strong>S/ {{ separatorNumber(subtotal) }}</strong>
-                        </div>
-                        <div v-for="tax in taxSummary" :key="tax.tax_id">
-                            <span>{{ tax.label }}</span>
-                            <strong>S/ {{ separatorNumber(tax.amount) }}</strong>
-                        </div>
-                        <div v-if="!taxSummary.length">
-                            <span>IGV</span>
-                            <strong>S/ 0.00</strong>
-                        </div>
-                    </div>
-
-                    <header class="br-pos-ticket__header">
-                        <div>
-                            <p>Total</p>
-                            <h2>S/ {{ separatorNumber(total) }}</h2>
-                            <span>{{ totalQuantity }} ?tems agregados</span>
-                        </div>
                         <button
                             type="button"
-                            class="br-icon-action br-btn-danger"
-                            data-bs-toggle="tooltip"
-                            title="Limpiar venta"
-                            :disabled="!cart.length"
-                            @click="clearCart">
-                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                            class="br-btn br-btn-success br-pos-ticket__pay"
+                            :disabled="saving || !cart.length || Boolean(posConfigurationIssue)"
+                            :title="posConfigurationIssue || 'Revisar venta'"
+                            @click="openSaleConfirmation">
+                            <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
+                            <span>Revisar venta</span>
                         </button>
-                    </header>
-                </section>
-
-                <button
-                    type="button"
-                    class="br-btn br-btn-success br-pos-ticket__pay"
-                    :disabled="saving || !cart.length || Boolean(posConfigurationIssue)"
-                    :title="posConfigurationIssue || 'Revisar venta'"
-                    @click="openSaleConfirmation">
-                    <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
-                    <span>Revisar venta</span>
-                </button>
+                    </section>
+                </aside>
             </section>
-        </aside>
-    </section>
 
+        </div>
+    </InitialLoadTransition>
     <div
         class="modal fade br-entity-modal br-pos-detail-modal"
         id="brPosItemDetailModal"
@@ -282,7 +287,6 @@
             </div>
         </div>
     </div>
-
     <div
         class="modal fade br-entity-modal br-pos-sale-modal"
         id="brPosSaleConfirmationModal"
@@ -509,6 +513,7 @@
 </template>
 
 <script>
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
@@ -520,6 +525,7 @@ import WithoutData from "@System/Components/WithoutData.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
+    mixins: [InitialPageMixin],
     components: {
         SearchInput,
         AddCustomer,
@@ -742,10 +748,11 @@ export default {
             this.syncDefaultPaymentAmount();
         }
     },
-    mounted() {
+    async mounted() {
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
         Utils.navbarItem("menu-sales-pos", {addClass: "active"});
-        this.initParams();
+        const initialized = await this.loadInitialParams(() => this.initParams());
+        if(initialized) await this.preloadServiceSession();
     },
     methods: {
         taxLabel(tax = {}) {
@@ -882,7 +889,7 @@ export default {
             this.syncFromCashSession();
             this.resetPayments();
             Alerts.tooltips({});
-            await this.preloadServiceSession();
+            return true;
         },
         async preloadServiceSession() {
             const sessionId = Number(new URLSearchParams(window.location.search).get("service_session_id") || 0);
