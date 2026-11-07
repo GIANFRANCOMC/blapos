@@ -11,7 +11,7 @@
   background: transparent;
   color: var(--br-primary);
   font-size: var(--br-btn-font-size-sm);
-  font-weight: var(--br-font-weight-body);
+  font-weight: var(--br-font-weight-control);
   line-height: 1.4;
   text-decoration: none;
   white-space: nowrap;

@@ -13,6 +13,9 @@ import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
 import InventorySkeleton from "./InventorySkeleton.vue";
 import StockAlertsModal from "./StockAlertsModal.vue";
 import StockDifference from "./StockDifference.vue";
+import StockItemEditor from "./StockItemEditor.vue";
+import StockTraceabilityModal from "./StockTraceabilityModal.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 const STOCK_PAGE_SIZE = 10;
 
@@ -101,7 +104,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {InitialLoadTransition, FormModal, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal, StockDifference},
+    components: {InitialLoadTransition, FormModal, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
     props: {
         page: {
             type: String,
@@ -131,6 +134,10 @@ export default {
             this.warehouseSearchEnabled = true;
         }
     },
+    beforeUnmount() {
+        this.traceabilityRequest += 1;
+        if(this.loadingTraceability) Alerts.close();
+    },
     data() {
         const initialLoad = createInitialLoad({skeleton: true, swal: true});
         return {
@@ -141,6 +148,13 @@ export default {
             loadingStock: false,
             loadingKardex: false,
             loadingAlerts: false,
+            canUpdateStock: false,
+            loadingTraceability: false,
+            traceabilityProduct: null,
+            traceabilityWarehouse: null,
+            traceabilityRecords: {data: [], total: 0, links: []},
+            traceabilityError: "",
+            traceabilityRequest: 0,
             downloadingAlerts: false,
             stockAlertsError: "",
             alertProductSearch: "",
@@ -217,6 +231,7 @@ export default {
             this.options.products = result.data?.config?.products?.records || [];
             this.options.stockCategories = result.data?.config?.stock_categories?.records || [];
             this.options.stockBrands = result.data?.config?.stock_brands?.records || [];
+            this.canUpdateStock = Boolean(result.data?.config?.can_update_stock);
             return Requests.valid({result});
         },
         async listStock({url = null} = {}) {
@@ -307,6 +322,59 @@ export default {
 
                 Alerts.modals({id: "inventoryStockAlertsModal"});
             }
+        },
+        openTraceability(record) {
+            if(!record?.id || !this.filters.warehouse?.code || this.loadingStock || this.loadingAlerts || this.loadingTraceability) return;
+            this.traceabilityProduct = {...record};
+            this.traceabilityWarehouse = {...this.filters.warehouse};
+            return this.listTraceability({showModal: true});
+        },
+        async listTraceability({url = null, showModal = false} = {}) {
+            const warehouseId = this.traceabilityWarehouse?.code;
+            const itemId = this.traceabilityProduct?.id;
+            if(!warehouseId || !itemId || this.loadingTraceability) return;
+            const sequence = ++this.traceabilityRequest;
+            this.loadingTraceability = true;
+            this.traceabilityRecords = Requests.emptyPagination();
+            this.traceabilityError = "";
+            Alerts.loading({message: "Consultando trazabilidad del producto"});
+            try {
+                const result = await Requests.get({
+                    route: url || Requests.config({entity: "stocks_management", type: "traceability"}),
+                    data: {warehouse_id: warehouseId, item_id: itemId, per_page: STOCK_PAGE_SIZE}
+                });
+                if(sequence !== this.traceabilityRequest || Number(warehouseId) !== Number(this.filters.warehouse?.code)) return;
+                if(result?.bool) this.traceabilityRecords = result.data;
+                else this.traceabilityError = result?.data?.msg || "No fue posible cargar la trazabilidad.";
+            } catch {
+                if(sequence === this.traceabilityRequest) this.traceabilityError = "No fue posible cargar la trazabilidad.";
+            } finally {
+                if(sequence === this.traceabilityRequest) {
+                    this.loadingTraceability = false;
+                    Alerts.close();
+                }
+            }
+            if(showModal && sequence === this.traceabilityRequest) {
+                await this.$nextTick();
+                if(sequence !== this.traceabilityRequest || Number(warehouseId) !== Number(this.filters.warehouse?.code)) return;
+                Alerts.modals({id: "inventoryStockTraceabilityModal"});
+            }
+        },
+        editStock(record, fromAlerts = false) {
+            if(!this.canUpdateStock || this.loadingStock || this.loadingAlerts || this.loadingTraceability) return;
+            const product = fromAlerts ? {
+                ...record.warehouse_item?.item,
+                stock_quantity: record.quantity,
+                minimum_stock: record.minimum_stock
+            } : record;
+            return this.$refs.stockEditor?.open({record: product, warehouse: this.filters.warehouse, fromAlerts});
+        },
+        async refreshEditedStock({warehouseId, fromAlerts}) {
+            if(Number(warehouseId) !== Number(this.filters.warehouse?.code)) return false;
+            await this.listStock({});
+            if(Number(warehouseId) !== Number(this.filters.warehouse?.code)) return false;
+            if(fromAlerts) await this.listStockAlerts({});
+            return true;
         },
         searchStockAlerts(value = this.alertProductSearch) {
             if(this.loadingAlerts) return;
@@ -442,7 +510,14 @@ export default {
         invalidateListing() {
             if(this.resettingFilters) return;
             this.requestVersion += 1;
-            if(this.loadingAlerts) Alerts.close();
+            if(this.loadingAlerts || this.loadingTraceability) Alerts.close();
+            if(this.traceabilityProduct) Alerts.modals({type: "hide", id: "inventoryStockTraceabilityModal"});
+            this.traceabilityRequest = (this.traceabilityRequest || 0) + 1;
+            this.loadingTraceability = false;
+            this.traceabilityProduct = null;
+            this.traceabilityWarehouse = null;
+            this.traceabilityRecords = {data: [], total: 0, links: []};
+            this.traceabilityError = "";
             this.loadingStock = false;
             this.loadingKardex = false;
             this.loadingAlerts = false;
@@ -900,6 +975,7 @@ export default {
                 commercial_catalog_seeder: "Stock inicial de demostración",
                 manual: "Operación manual",
                 sale: "Venta",
+                sale_delivery: "Despacho de venta",
                 sale_cancellation: "Devolución automática por anulación",
                 purchase: "Compra",
                 purchase_cancellation: "Anulación de compra",
@@ -907,7 +983,9 @@ export default {
                 transfer_in: "Traslado recibido",
                 customer_return: "Devolución de cliente",
                 supplier_return: "Devolución a proveedor",
-                physical_count: "Toma física"
+                physical_count: "Toma física",
+                recipe_sale: "Venta de receta",
+                recipe_waste: "Merma de receta"
             }[origin] || origin;
         },
         formatDate(value) {

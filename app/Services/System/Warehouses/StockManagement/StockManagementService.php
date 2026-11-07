@@ -440,6 +440,29 @@ class StockManagementService {
 
     }
 
+    public static function getProductTraceability(int $warehouseId, int $itemId, int $perPage) {
+
+        return InventoryMovementService::getKardexQuery(["warehouse_id" => $warehouseId, "item_id" => $itemId])
+            ->setEagerLoads([])
+            ->with("user:id,name")
+            ->select(["id", "warehouse_id", "item_id", "user_id", "movement_type", "origin_type", "quantity_before", "quantity_change", "quantity_after", "reason", "created_at", "metadata"])
+            ->orderByDesc("id")
+            ->paginate($perPage)
+            ->through(static fn($movement): array => [
+                "id" => $movement->id,
+                "created_at" => $movement->created_at?->toJSON(),
+                "user" => $movement->user ? ["name" => $movement->user->name] : null,
+                "movement_type" => $movement->movement_type,
+                "origin_type" => $movement->origin_type,
+                "quantity_before" => (float) $movement->quantity_before,
+                "quantity_change" => (float) $movement->quantity_change,
+                "quantity_after" => (float) $movement->quantity_after,
+                "reason" => $movement->reason,
+                "reference" => $movement->reference,
+            ]);
+
+    }
+
     public static function getKardex(array $filters, int $perPage) {
 
         return InventoryMovementService::getPaginatedKardex($filters, $perPage);

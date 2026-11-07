@@ -47,10 +47,11 @@
                             <col class="br-inventory__col-minimum">
                             <col class="br-inventory__col-difference">
                             <col class="br-inventory__col-status">
+                            <col class="br-entity-table__col-actions">
                         </colgroup>
                         <thead class="br-table-header-surface">
                             <tr>
-                                <th v-for="heading in headings" :key="heading">{{ heading }}</th>
+                                <th v-for="heading in headings" :key="heading">{{ heading }}<span v-if="!heading" class="visually-hidden">Acciones</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,7 +69,7 @@
 <script>
 
 const headingsByPage = {
-    stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock"],
+    stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock", ""],
     transfers: ["Fecha", "Producto", "Almacén de origen", "Almacén de destino", "Movimiento", "Cantidad", "Referencia"],
     guides: ["Fecha y número", "Almacén", "Tipo", "Detalle", "Referencia", "Estado"],
     kardex: ["Fecha y responsable", "Producto", "Movimiento", "Variación", "Saldo", "Motivo y origen"],

@@ -191,6 +191,7 @@
                                     <col class="br-inventory__col-minimum">
                                     <col class="br-inventory__col-difference">
                                     <col class="br-inventory__col-status">
+                                    <col class="br-entity-table__col-actions">
                                 </colgroup>
                                 <thead class="br-table-header-surface">
                                     <tr>
@@ -199,11 +200,12 @@
                                         <th>Stock mínimo</th>
                                         <th>Diferencia</th>
                                         <th>Estado del stock</th>
+                                        <th><span class="visually-hidden">Acciones</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr class="br-table-state" v-if="loadingStock">
-                                        <td colspan="5" class="py-4"><Loader/></td>
+                                        <td colspan="6" class="py-4"><Loader/></td>
                                     </tr>
                                     <template v-else-if="stockRecords.total > 0">
                                         <tr
@@ -227,10 +229,26 @@
                                             <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
                                             <td class="text-end"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></td>
                                             <td :class="['br-inventory__situation', stockStatus(record).cellClass]">{{ stockStatus(record).label }}</td>
+                                            <td class="text-center">
+                                                <TableActionsDropdown :label="`Acciones de ${record.name}`" :disabled="loadingStock || loadingAlerts || loadingTraceability">
+                                                    <li v-if="canUpdateStock">
+                                                        <button type="button" class="dropdown-item" @click="editStock(record)">
+                                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                            <span>Modificar stock</span>
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button type="button" class="dropdown-item" @click="openTraceability(record)">
+                                                            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                                                            <span>Ver trazabilidad</span>
+                                                        </button>
+                                                    </li>
+                                                </TableActionsDropdown>
+                                            </td>
                                         </tr>
                                     </template>
                                     <tr class="br-table-state" v-else>
-                                        <td colspan="5" class="py-4">
+                                        <td colspan="6" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
                                                 type="image"/>
@@ -261,11 +279,23 @@
         :has-search="Boolean(appliedAlertProductSearch || appliedAlertMinimumStatus)"
         :downloading="downloadingAlerts"
         :loading="loadingAlerts"
+        :can-edit="canUpdateStock"
         :error="stockAlertsError"
         @page="listStockAlerts"
         @retry="listStockAlerts({})"
         @search="searchStockAlerts"
+        @edit="editStock($event, true)"
         @download="downloadStockAlerts"/>
+    <StockItemEditor ref="stockEditor" :refresh="refreshEditedStock"/>
+    <StockTraceabilityModal
+        :product="traceabilityProduct"
+        :warehouse="traceabilityWarehouse"
+        :records="traceabilityRecords"
+        :loading="loadingTraceability"
+        :error="traceabilityError"
+        :formatters="{formatDate, movementTypeLabel, signedQuantity, quantityWithUnit, originLabel}"
+        @page="listTraceability"
+        @retry="listTraceability({})"/>
     <FormModal
         modal-id="inventoryMovementModal"
         title="REGISTRAR OPERACIÓN"

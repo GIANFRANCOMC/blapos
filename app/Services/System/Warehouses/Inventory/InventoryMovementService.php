@@ -199,6 +199,77 @@ final class InventoryMovementService {
 
     }
 
+    /** Ajuste individual atómico; conserva kardex, valorización y alertas. */
+    public static function updateStockLevels(array $data): WarehouseItem {
+
+        return DB::transaction(function() use ($data): WarehouseItem {
+
+            $warehouseId = (int) $data["warehouse_id"];
+            $itemId = (int) $data["item_id"];
+            self::assertWarehouseAndItemExistInTenant($warehouseId, $itemId);
+
+            WarehouseItem::query()->insertOrIgnore([
+                "warehouse_id" => $warehouseId,
+                "item_id" => $itemId,
+                "quantity" => 0,
+                "minimum_stock" => 0,
+                "average_cost" => 0,
+                "inventory_value" => 0,
+                "status" => "active",
+                "created_at" => now(),
+                "created_by" => $data["user_id"] ?? null,
+            ]);
+            $stock = WarehouseItem::query()->where("warehouse_id", $warehouseId)
+                ->where("item_id", $itemId)->lockForUpdate()->firstOrFail();
+            $before = Utilities::round((float) $stock->quantity);
+            $minimumBefore = Utilities::round((float) $stock->minimum_stock);
+            $quantity = Utilities::round((float) $data["quantity"]);
+            $minimum = Utilities::round((float) $data["minimum_stock"]);
+
+            if($before !== Utilities::round((float) $data["expected_quantity"])
+                || $minimumBefore !== Utilities::round((float) $data["expected_minimum_stock"])) {
+
+                throw new DomainException("El inventario cambió mientras editabas. Revisa los valores actualizados y guarda nuevamente.", 409);
+
+            }
+
+            if(($quantity < 0 && $quantity !== $before) || $minimum < 0 || !is_finite($quantity) || !is_finite($minimum)) {
+
+                throw new DomainException("El stock actual y el mínimo deben ser números mayores o iguales a cero.");
+
+            }
+
+            if($minimum !== $minimumBefore || $stock->status !== "active") {
+
+                $stock->update(["minimum_stock" => $minimum, "status" => "active", "updated_by" => $data["user_id"] ?? null, "updated_at" => now()]);
+
+            }
+
+            if($quantity !== $before) {
+
+                self::apply([
+                    "warehouse_id" => $warehouseId,
+                    "item_id" => $itemId,
+                    "user_id" => $data["user_id"] ?? null,
+                    "movement_type" => self::TYPE_CORRECTION,
+                    "origin_type" => self::ORIGIN_PHYSICAL_COUNT,
+                    "resulting_balance" => $quantity,
+                    "reason" => trim((string) ($data["reason"] ?? "")) ?: "Ajuste individual desde Control de stock.",
+                    "metadata" => ["source" => "stock_editor", "minimum_stock_before" => $minimumBefore, "minimum_stock_after" => $minimum],
+                ]);
+
+            } else {
+
+                self::syncMinimumStockAlert($stock->fresh(), $data["user_id"] ?? null);
+
+            }
+
+            return $stock->fresh();
+
+        });
+
+    }
+
     public static function transfer(array $data): array {
 
         return DB::transaction(function() use ($data) {

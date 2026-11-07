@@ -58,6 +58,15 @@ final class InventoryPaginationTest extends TestCase {
         $this->assertSame(10, $summaryDefault["per_page"]);
         $this->assertCount(10, $summaryDefault["data"]);
 
+        DB::table("warehouse_items")->where("warehouse_id", $warehouseId)->update(["quantity" => 0]);
+        $alertsDefault = $controller->alerts(Request::create("/inventory/alerts", "GET", [
+            "warehouse_id" => $warehouseId,
+            "status" => "open",
+        ]));
+        $this->assertSame(10, $alertsDefault->perPage());
+        $this->assertCount(10, $alertsDefault->items());
+        $this->assertSame(35, $alertsDefault->total());
+
     }
 
 }

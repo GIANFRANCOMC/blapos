@@ -6,13 +6,14 @@ namespace App\Http\Controllers\System\Warehouses;
 
 use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryReportExport, StockAlertsExport};
 use App\Http\Controllers\System\Base\{BaseController};
-use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest};
+use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest, UpdateStockLevelsRequest};
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
-use App\Models\System\Warehouses\{Warehouse};
+use App\Models\System\Warehouses\{Warehouse, WarehouseItem};
+use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{Company};
 use App\Services\System\Organizations\{AccessScopeService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
-use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
+use App\Services\System\Warehouses\Inventory\{InventoryGuideService, InventoryMovementService};
 use App\Services\System\Warehouses\StockManagement\{StockAlertsPdfRenderer, StockManagementConfigService, StockManagementService};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
 use Illuminate\Http\{JsonResponse, Request, Response};
@@ -57,7 +58,10 @@ class StockManagementController extends BaseController {
 
         }
 
-        return StockManagementConfigService::getInitParams($page, $this->getUserId());
+        $params = StockManagementConfigService::getInitParams($page, $this->getUserId());
+        $params->config->can_update_stock = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.operations.store", "POST");
+
+        return $params;
 
     }
 
@@ -164,6 +168,30 @@ class StockManagementController extends BaseController {
 
     }
 
+    public function traceability(Request $request) {
+
+        abort_unless(RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.stock.index"), 403);
+        $filters = $request->validate([
+            "warehouse_id" => ["required", "integer", "min:1"],
+            "item_id" => ["required", "integer", "min:1"],
+        ]);
+        $warehouseId = (int) $filters["warehouse_id"];
+        if(!StockManagementService::validateWarehouse($warehouseId)
+            || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
+
+            abort(404, "El almacén seleccionado no está disponible.");
+
+        }
+        abort_unless(Item::query()->whereKey((int) $filters["item_id"])->where("type", "product")->exists(), 404);
+
+        return StockManagementService::getProductTraceability(
+            $warehouseId,
+            (int) $filters["item_id"],
+            $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE)
+        );
+
+    }
+
     public function alerts(Request $request) {
 
         $filters = $request->validate([
@@ -182,8 +210,36 @@ class StockManagementController extends BaseController {
 
         return StockManagementService::getStockAlerts(
             $filters,
-            $this->inventoryPerPage($request)
+            $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE)
         );
+
+    }
+
+    public function updateStockLevels(UpdateStockLevelsRequest $request): JsonResponse {
+
+        $data = $request->validated();
+        $warehouse = $this->authorizedOperationWarehouse((int) $data["warehouse_id"]);
+
+        try {
+
+            $stock = InventoryMovementService::updateStockLevels($data + ["user_id" => $this->getUserId()]);
+
+            return response()->json(["bool" => true, "msg" => "Stock actualizado correctamente.", "data" => [
+                "item_id" => (int) $stock->item_id,
+                "quantity" => (float) $stock->quantity,
+                "minimum_stock" => (float) $stock->minimum_stock,
+            ]]);
+
+        } catch(\DomainException $exception) {
+
+            $current = WarehouseItem::query()->where("warehouse_id", $warehouse->id)->where("item_id", $data["item_id"])->first();
+
+            return response()->json(["bool" => false, "msg" => $exception->getMessage(), "data" => [
+                "quantity" => (float) ($current?->quantity ?? 0),
+                "minimum_stock" => (float) ($current?->minimum_stock ?? 0),
+            ]], $exception->getCode() === 409 ? 409 : 422);
+
+        }
 
     }
 

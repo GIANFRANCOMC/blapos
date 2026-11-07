@@ -84,8 +84,8 @@ test("inventory labels and paginated listings stay consistent across views", () 
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
     assert.match(controller, /private const DEFAULT_STOCK_PER_PAGE = 10;/);
     assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, \$default\)\)\);/);
-    assert.equal((controller.match(/this->inventoryPerPage\(\$request, self::DEFAULT_STOCK_PER_PAGE\)/g) || []).length, 2);
-    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 3);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request, self::DEFAULT_STOCK_PER_PAGE\)/g) || []).length, 4);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 2);
     assert.match(service, /getPaginatedConsolidatedStock\([\s\S]*?->paginate\(\$perPage\)/);
     assert.match(service, /getConsolidatedStock\([\s\S]*?->get\(\)/);
 
@@ -264,7 +264,7 @@ test("operation and transfer dialogs choose their own warehouses without changin
 
 });
 
-test("stock lists only the selected warehouse and shows five table columns", () => {
+test("stock lists only the selected warehouse and shows six table columns including actions", () => {
 
     const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
@@ -272,7 +272,7 @@ test("stock lists only the selected warehouse and shows five table columns", () 
 
     assert.match(stock, /<table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">/);
     assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
-    assert.equal((stock.match(/colspan="5"/g) || []).length, 2);
+    assert.equal((stock.match(/colspan="6"/g) || []).length, 2);
     assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th>Estado del stock<\/th>/);
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
     assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);

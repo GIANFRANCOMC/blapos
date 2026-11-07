@@ -223,6 +223,7 @@
   --br-transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   --br-initial-load-duration: 180ms;
   --br-list-state-height: 3.25rem;
+  --br-inventory-modal-table-height: min(24rem, max(8rem, calc(100dvh - 22rem)));
   --br-initial-load-easing: cubic-bezier(0.2, 0, 0, 1);
 
   /**

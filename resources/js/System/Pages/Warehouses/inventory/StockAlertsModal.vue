@@ -75,7 +75,7 @@
                     <div class="br-inventory-alerts__table-group">
                         <div class="br-inventory-alerts__table-head">
                             <table class="table br-entity-table br-inventory-table-headings br-inventory-alerts__table mb-0" aria-hidden="true">
-                                <colgroup><col><col><col><col><col></colgroup>
+                                <colgroup><col><col><col><col><col><col></colgroup>
                                 <thead class="br-table-header-surface">
                                     <tr>
                                         <th>Producto</th>
@@ -83,13 +83,14 @@
                                         <th>Stock mínimo</th>
                                         <th>Diferencia</th>
                                         <th>Detectada</th>
+                                        <th><span class="visually-hidden">Acciones</span></th>
                                     </tr>
                                 </thead>
                             </table>
                         </div>
                         <div class="br-inventory-alerts__table-scroll">
                             <table class="table br-entity-table br-inventory-table-headings br-inventory-alerts__table mb-0" aria-label="Listado de alertas de stock">
-                                <colgroup><col><col><col><col><col></colgroup>
+                                <colgroup><col><col><col><col><col><col></colgroup>
                                 <thead class="visually-hidden">
                                     <tr>
                                         <th scope="col">Producto</th>
@@ -97,11 +98,12 @@
                                         <th scope="col">Stock mínimo</th>
                                         <th scope="col">Diferencia</th>
                                         <th scope="col">Detectada</th>
+                                        <th scope="col"><span class="visually-hidden">Acciones</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr class="br-table-state" v-if="loading && !alerts.data?.length">
-                                        <td colspan="5" class="py-4">
+                                        <td colspan="6" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
                                                 type="image"
@@ -109,8 +111,8 @@
                                                 description="El listado aparecerá al terminar la consulta."/>
                                         </td>
                                     </tr>
-                                    <tr v-else-if="error && !alerts.data?.length">
-                                        <td colspan="5" class="py-4 text-center">
+                                    <tr class="br-table-state" v-else-if="error && !alerts.data?.length">
+                                        <td colspan="6" class="py-4 text-center">
                                             <span class="text-danger">{{ error }}</span>
                                             <button type="button" class="br-btn br-btn-sm br-btn-cancel ms-2" @click="$emit('retry')">Reintentar</button>
                                         </td>
@@ -134,10 +136,20 @@
                                             <td class="text-end">{{ formatQuantity(alert.minimum_stock, alert) }}</td>
                                             <td class="text-end"><StockDifference :current="alert.quantity" :minimum="alert.minimum_stock" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
                                             <td class="text-center">{{ formatDate(alert.detected_at) }}</td>
+                                            <td class="text-center">
+                                                <TableActionsDropdown v-if="canEdit" :label="`Acciones de ${alert.warehouse_item?.item?.name || 'producto'}`" :disabled="loading">
+                                                    <li>
+                                                        <button type="button" class="dropdown-item" @click="$emit('edit', alert)">
+                                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                            <span>Modificar stock</span>
+                                                        </button>
+                                                    </li>
+                                                </TableActionsDropdown>
+                                            </td>
                                         </tr>
                                     </template>
                                     <tr class="br-table-state" v-else>
-                                        <td colspan="5" class="py-4">
+                                        <td colspan="6" class="py-4">
                                             <WithoutData
                                                 class="br-entity-empty-state"
                                                 type="image"
@@ -163,11 +175,12 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StockDifference from "./StockDifference.vue";
 import {quantityWithUnit} from "@System/Helpers/NumberUtils.js";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 export default {
     name: "StockAlertsModal",
-    components: {FormModal, SearchInput, WithoutData, StockDifference},
-    emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search"],
+    components: {FormModal, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
+    emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "edit"],
     props: {
         alerts: {type: Object, required: true},
         warehouse: {type: Object, default: null},
@@ -178,6 +191,7 @@ export default {
         hasSearch: {type: Boolean, default: false},
         downloading: {type: Boolean, default: false},
         loading: {type: Boolean, default: false},
+        canEdit: {type: Boolean, default: false},
         error: {type: String, default: ""}
     },
     methods: {

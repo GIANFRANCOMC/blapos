@@ -16,7 +16,7 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
     assert.equal(errors.length, 0);
     assert.match(page, /<th>Diferencia<\/th>[\s\S]*?<StockDifference :current="record\.stock_quantity" :minimum="record\.minimum_stock"/);
     assert.match(modal, /<th>Diferencia<\/th>[\s\S]*?<th scope="col">Diferencia<\/th>[\s\S]*?<StockDifference :current="alert\.quantity" :minimum="alert\.minimum_stock"/);
-    assert.match(skeleton, /stock: \["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock"\]/);
+    assert.match(skeleton, /stock: \["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock", ""\]/);
     assert.match(styles, /\.br-inventory__difference\.is-positive \{ color: var\(--br-success-hover\); \}/);
     assert.match(styles, /\.br-inventory__difference\.is-negative \{ color: var\(--br-danger-strong\); \}/);
     assert.match(styles, /body\.br-layout \.br-inventory__stock-current,\s*body\.br-layout \.br-inventory__difference \{\s*font-size: var\(--br-stock-quantity-font-size\) !important;\s*\}/);

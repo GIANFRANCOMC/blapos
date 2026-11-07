@@ -10,6 +10,7 @@ Route::get("/initParams", [StockManagementController::class, "initParams"])->nam
 Route::get("/list", [StockManagementController::class, "list"])->name("$entity.list");
 Route::get("/summary", [StockManagementController::class, "summary"])->name("$entity.summary");
 Route::get("/movements", [StockManagementController::class, "movements"])->name("$entity.movements");
+Route::get("/traceability", [StockManagementController::class, "traceability"])->name("$entity.traceability");
 Route::get("/alerts", [StockManagementController::class, "alerts"])->name("$entity.alerts");
 Route::get("/alerts/export", [StockManagementController::class, "exportAlerts"])->name("$entity.alerts.export");
 Route::get("/operations/template", [StockManagementController::class, "operationTemplate"])->name("$entity.operations.template");
@@ -18,5 +19,6 @@ Route::get("/guides", [StockManagementController::class, "guides"])->name("$enti
 Route::post("/guides", [StockManagementController::class, "storeGuide"])->name("$entity.guides.store");
 Route::post("/movements", [StockManagementController::class, "storeMovement"])->name("$entity.movements.store");
 Route::post("/operations", [StockManagementController::class, "storeOperations"])->name("$entity.operations.store");
+Route::post("/stock-levels", [StockManagementController::class, "updateStockLevels"])->name("$entity.levels.update");
 Route::post("/transfers", [StockManagementController::class, "storeTransfer"])->name("$entity.transfers.store");
 Route::get("/export", [StockManagementController::class, "export"])->name("$entity.export");

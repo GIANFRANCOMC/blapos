@@ -355,6 +355,8 @@ const ENTITY_SPECIAL_ROUTES = {
         saleShareLink: "sale/share-link"
     },
     stocks_management: {
+        traceability: "traceability",
+        stockLevels: "stock-levels",
         summary: "summary",
         alerts: "alerts",
         alertsExport: "alerts/export",
