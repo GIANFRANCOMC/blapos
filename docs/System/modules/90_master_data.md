@@ -32,7 +32,7 @@ Agrupa entidades técnicas de soporte usadas por múltiples módulos.
 - La inactivación usa confirmación accesible con descripción del alcance operativo y del impacto esperado.
 - Los `vue-select` de esta pantalla muestran `Sin opciones disponibles` para evitar textos residuales de librería.
 - Los métodos de pago permiten imagen referencial; el backend guarda el archivo bajo storage del tenant.
-- La configuración inicial local usa `createInitialLoad({skeleton: true, swal: true})` con pestañas y formulario, dejando el listado en blanco mediante `br-list-initial-space`. Termina antes de consultar registros; no hay una petición `initParams` en esta pantalla. El primer listado y los cambios de recurso usan su loader habitual y vacían el arreglo antes de consultar.
+- El skeleton conserva pestañas y formulario y muestra el `Loader` en el área de registros mientras carga el primer recurso. Los cambios de recurso posteriores usan el mismo loader dentro del listado y vacían el arreglo antes de consultar.
 
 ## Estado de mejoras
 

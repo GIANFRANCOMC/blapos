@@ -203,22 +203,14 @@ Criterios prácticos:
 
 ### Carga inicial con skeleton
 
-Las pantallas nuevas o migradas de System y Guest usan un skeleton ligero y el loader Swal juntos durante `initParams`; Platform aplica el mismo criterio a su consulta inicial de configuración. El skeleton conserva filtros, pestañas, encabezados y formularios. Su listado queda en blanco: usar `br-list-initial-space` en una fila `br-table-state` con `colspan`, sin spinner, registros, paginación ni cantidades ficticias. El espacio usa `--br-list-state-height`, compartido con el loader real, para evitar saltos. Mantener el breadcrumb visible cuando sea posible. El skeleton termina al resolver los parámetros, antes del primer listado, que usa su indicador habitual. Una pantalla sin consulta de configuración, como el listado de tenants, usa directamente el loader de listado; no inventar una fase de red inicial.
+System, Guest y Platform muestran un skeleton durante la carga inicial. El skeleton conserva el espacio de filtros, pestañas, encabezados y formularios. En los listados, usa el mismo `Loader` de la tabla real en una fila `br-table-state`, con el `colspan` correspondiente. El estado inicial muestra solo esa fila de carga y mantiene ocultos el contador y la paginación. Mantener el breadcrumb visible cuando sea posible.
 
-- Usar `createInitialLoad` de `resources/js/System/Helpers/InitialLoad.js`. Ambas opciones son `true` por defecto. Todas las pantallas usan `createInitialLoad({skeleton: true, swal: true})` o el inicializador compartido. El helper conserva las opciones explícitas de la tabla siguiente para consumidores técnicos; el estándar de las pantallas actuales es usar ambos indicadores.
-
-| Modo de carga inicial | Configuración explícita |
-| --- | --- |
-| Solo skeleton | `createInitialLoad({skeleton: true, swal: false})` |
-| Solo loader Swal | `createInitialLoad({skeleton: false, swal: true})` |
-| Skeleton y Swal | `createInitialLoad({skeleton: true, swal: true})` |
-
-- Todos los submódulos usan skeleton y Swal juntos exclusivamente durante `initParams`. Cada instancia configura su helper por separado; no compartir un ciclo mutable entre pantallas.
-- Las pantallas sin un skeleton específico reutilizan `PageSkeleton` y `InitialPageMixin`. El mounted llama `await this.loadInitialParams(() => this.initParams(...))`; el inicializador libera `initialLoading`, cierra Swal en `finally` y espera a que el contenido esté montado antes de continuar con formularios o modales. Los listados y consultas dependientes se ejecutan después, nunca dentro de `initParams` ni en paralelo con él. Si la configuración es local, finalizarla antes de consultar registros; no inventar peticiones ni esperas mínimas.
-- Llamar `start()` antes de `initParams` y `finish()` en su `finally`, junto con `initialLoading = false`, antes de iniciar `list`. No incluir el primer listado en ese bloque ni ejecutarlo en paralelo con los parámetros. Liberar el estado también ante errores. Si una pantalla solo consulta configuración o datos de un formulario, esa consulta es su fase inicial equivalente; si la configuración es local, finalizarla antes de consultar registros. No agregar demoras artificiales.
+- Las pantallas genéricas reutilizan `InitialPageMixin` y `PageSkeleton`. Pasar `table` a `PageSkeleton` cuando la vista presenta una tabla. Las pantallas con skeleton propio reutilizan `Loader` en su fila de carga.
+- Ejecutar `await this.loadInitialParams(() => this.initParams(...))` o liberar `initialLoading` en el `finally` de la consulta inicial. El listado dependiente comienza después de los parámetros y presenta su loader habitual. Las pantallas cuyo primer dato remoto es un listado, como tenants y proveedores, mantienen el skeleton durante esa primera consulta. Las búsquedas y la paginación posteriores usan el estado de carga del listado.
+- `initParams` muestra su avance dentro de la página. Reservar Swal para confirmaciones, errores, guardados y exportaciones.
 - Construir el skeleton en Vue y su CSS de pantalla o componente reutilizable. Compartir variantes cuando varias pantallas tengan la misma estructura. Usar alturas y tokens `--br-*` de los controles reales, un estado accesible (`role="status"` y texto legible para lectores de pantalla) y desactivar la animación con `prefers-reduced-motion`.
 - Envolver el skeleton y su rama de contenido en `InitialLoadTransition` de `Components/Generics`. El fundido simultáneo de opacidad comparte una celda de grid: las dos ramas no se apilan ni duplican la altura durante el relevo. Usar exclusivamente `--br-initial-load-duration` y `--br-initial-load-easing` de `00-tokens.css` (180 ms de base); no añadir tiempos por pantalla, desplazamientos, esperas mínimas ni retrasar peticiones para animar. La rama que sale queda inerte y oculta para lectores de pantalla; `prefers-reduced-motion` desactiva la transición. Las modales y otros elementos ajenos a la carga permanecen fuera del componente.
-- No sustituir por skeleton los Swal de confirmación, error, operaciones de guardado o exportación. Los indicadores de consultas posteriores son independientes del modo inicial. En todo listado, activar `loading` antes de solicitar datos y liberarlo en `finally`, también ante errores; el paginador y el contador deben permanecer ocultos mientras ese estado esté activo.
+- En todo listado, activar `loading` antes de solicitar datos y liberarlo en `finally`, también ante errores. Mantener ocultos el paginador y el contador mientras ese estado esté activo.
 
 ## Formularios
 

@@ -80,9 +80,8 @@ test("Mi cuenta comparte la escala compacta de Mi empresa y muestra un skeleton 
     const skeletonStyles = readFileSync(new URL("../../resources/css/System/Pages/Essentials/account/skeleton.css", import.meta.url), "utf8");
     const entry = readFileSync(new URL("../../resources/js/System/Pages/Essentials/account/main.js", import.meta.url), "utf8");
 
-    assert.match(page, /createInitialLoad\(\{skeleton: true, swal: true\}\)/);
-    assert.match(page, /<AccountSkeleton v-if="loading && skeletonEnabled"\/>/);
-    assert.match(page, /initialLoad\.start\(\)[\s\S]*?try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?initialLoad\.finish\(\)/);
+    assert.match(page, /<AccountSkeleton v-if="loading"\/>/);
+    assert.match(page, /try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?this\.loading = false/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando tu cuenta"/);
     assert.match(skeleton, /br-account-page__panel-head[\s\S]*?br-account-page__fields[\s\S]*?v-for="index in 4"[\s\S]*?br-account-page__actions/);
     assert.match(skeleton, /br-account-page__aside[\s\S]*?br-account-page__user-card/);

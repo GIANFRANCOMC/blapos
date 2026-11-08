@@ -2,17 +2,12 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
-test("el skeleton inicial es optativo y conserva el Swal por defecto", () => {
-    const helper = readFileSync(new URL("../../resources/js/System/Helpers/InitialLoad.js", import.meta.url), "utf8");
+test("Workspace usa el skeleton durante su primera consulta", () => {
     const workspace = readFileSync(new URL("../../resources/js/System/Pages/Essentials/workspace/main.vue", import.meta.url), "utf8");
 
-    assert.match(helper, /createInitialLoad\(\{skeleton = true, swal = true\} = \{\}\)/);
-    assert.match(helper, /if\(swal\) Alerts\.swals\(\{type: "initParams"\}\)/);
-    assert.match(helper, /if\(swal\) Alerts\.swals\(\{show: false\}\)/);
-    assert.match(workspace, /createInitialLoad\(\{skeleton: true, swal: true\}\)/);
-    assert.match(workspace, /<WorkspaceSkeleton v-if="loading && skeletonEnabled"\/>/);
-    assert.match(workspace, /initialLoad\.start\(\)[\s\S]*?try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?initialLoad\.finish\(\)/);
-    assert.doesNotMatch(workspace, /<Loader\/>/);
+    assert.match(workspace, /<WorkspaceSkeleton v-if="loading"\/>/);
+    assert.match(workspace, /try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?this\.loading = false/);
+    assert.doesNotMatch(workspace, /type: "initParams"/);
 });
 
 test("el skeleton conserva las proporciones del workspace y respeta movimiento reducido", () => {

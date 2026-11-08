@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <CompanySettingsSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <CompanySettingsSkeleton v-if="initialLoading"/>
 
         <main v-else class="br-company-settings br-entity-modal--tabbed">
             <section class="br-company-settings__panel" aria-label="Datos de la empresa">
@@ -293,7 +293,6 @@ import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
 import CompanySettingsSkeleton from "./CompanySettingsSkeleton.vue";
 
@@ -399,7 +398,6 @@ const MODULE = {
     brandingItems: BRANDING_ITEMS
 };
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "CompaniesMain",
@@ -420,7 +418,6 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
-            skeletonEnabled: initialLoad.skeleton,
             initialLoading: true,
             activeTabId: "general",
             selectedImageFiles: {}
@@ -432,14 +429,12 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        initialLoad.start();
         let initialized;
 
         try {
             initialized = await this.initParams();
             this.isInitialized = true;
         } finally {
-            initialLoad.finish();
             this.initialLoading = false;
         }
 

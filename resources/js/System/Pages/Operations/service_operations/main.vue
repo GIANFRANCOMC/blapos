@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" :table="!isRestaurant"/>
         <div v-else class="br-page-content">
             <main class="br-service-page" :class="{'br-service-page--sessions br-entity': !isRestaurant}">
                 <div class="br-service-toolbar" :class="{'br-service-toolbar--sessions br-filter-bar': !isRestaurant}">

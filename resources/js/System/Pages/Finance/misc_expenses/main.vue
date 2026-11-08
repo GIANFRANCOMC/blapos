@@ -2,7 +2,7 @@
     <Breadcrumb :list="[{title: 'Caja'}, {title: 'Gastos varios', active: true}]"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="br-page-content">
             <section class="br-misc-expenses">
                 <header class="br-module-heading">

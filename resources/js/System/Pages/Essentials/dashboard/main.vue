@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading"/>
         <div v-else class="br-page-content">
             <div class="br-dashboard">
                 <div class="row mb-4 align-items-start br-dashboard__split">

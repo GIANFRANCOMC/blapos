@@ -1,6 +1,6 @@
 <template>
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading"/>
         <div v-else class="br-page-content">
     <main class="br-guest-section">
         <div class="br-guest-container">

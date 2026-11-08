@@ -13,9 +13,8 @@ test("Mi empresa conserva pestañas, formulario y botón durante la carga inicia
 
     assert.equal(parse(page, {filename: "companies/main.vue"}).errors.length, 0);
     assert.equal(parse(skeleton, {filename: "CompanySettingsSkeleton.vue"}).errors.length, 0);
-    assert.match(page, /<CompanySettingsSkeleton v-if="initialLoading && skeletonEnabled"\/>[\s\S]*?<main v-else class="br-company-settings br-entity-modal--tabbed">/);
-    assert.match(page, /createInitialLoad\(\{skeleton: true, swal: true\}\)/);
-    assert.match(page, /initialLoad\.start\(\)[\s\S]*?await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?initialLoad\.finish\(\);[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.initOthers\(\)/);
+    assert.match(page, /<CompanySettingsSkeleton v-if="initialLoading"\/>[\s\S]*?<main v-else class="br-company-settings br-entity-modal--tabbed">/);
+    assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.initOthers\(\)/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando empresa"/);
     assert.match(skeleton, /v-for="index in 3"[\s\S]*?v-for="index in 6"[\s\S]*?br-company-settings__footer/);
     assert.match(styles, /height: var\(--br-control-height\)/);
@@ -32,9 +31,8 @@ test("Sucursales y Usuarios muestran su tabla esqueleto hasta terminar initParam
         const entry = read(`resources/js/System/Pages/Organizations/${route}/main.js`);
 
         assert.equal(parse(page, {filename: `${route}/main.vue`}).errors.length, 0, route);
-        assert.ok(page.includes(`<CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="${route}" label="${label}"/>`), route);
-        assert.match(page, /createInitialLoad\(\{skeleton: true, swal: true\}\)/, route);
-        assert.match(page, /initialLoad\.start\(\)[\s\S]*?await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?initialLoad\.finish\(\);[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
+        assert.ok(page.includes(`<CatalogListSkeleton v-if="initialLoading" kind="${route}" label="${label}"/>`), route);
+        assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
         assert.match(page, /this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{\}\)\)/, route);
         assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
@@ -43,5 +41,5 @@ test("Sucursales y Usuarios muestran su tabla esqueleto hasta terminar initParam
     }
 
     assert.match(skeleton, /br-entity-table--directory/);
-    assert.match(skeleton, /:colspan="columns.length" class="py-4"><div class="br-list-initial-space"/);
+    assert.match(skeleton, /:colspan="columns.length" class="py-4"><Loader\/>/);
 });

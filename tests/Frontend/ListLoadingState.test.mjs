@@ -197,8 +197,7 @@ for(const path of ["Catalogs/brands", "Catalogs/categories", "Catalogs/products"
         const started = deferred();
         const events = [];
         const run = method(root + path + "/main.vue", "mounted", {
-            Utils: {navbarItem: noop}, Alerts: {tooltips: noop},
-            initialLoad: {start: () => events.push("start"), finish: () => events.push("finish")},
+            Utils: {navbarItem: noop}, Alerts: {tooltips: noop, swals: options => events.push(options)},
             document: {getElementById: () => null}
         });
         const load = () => { started.resolve(); return list.promise; };
@@ -209,11 +208,11 @@ for(const path of ["Catalogs/brands", "Catalogs/categories", "Catalogs/products"
         };
         const pending = run.call(context);
         assert.equal(context.initialLoading, true);
-        assert.deepEqual(events, ["start"]);
+        assert.deepEqual(events, []);
         params.resolve(true);
         await started.promise;
         assert.equal(context.initialLoading, false);
-        assert.deepEqual(events, ["start", "finish"]);
+        assert.deepEqual(events, []);
         list.resolve();
         await pending;
     });

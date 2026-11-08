@@ -95,7 +95,7 @@ button, .btn { font-weight: var(--br-font-weight-control); }
 .platform-table th { padding: .7rem 1rem; color: var(--platform-muted); background: #fbfcfe; border-bottom-color: var(--platform-border); font-size: var(--br-font-size-064); font-weight: var(--br-font-weight-table-heading); text-transform: uppercase; letter-spacing: .035em; }
 .platform-table td { padding: .8rem 1rem; border-bottom-color: #eef1f5; color: #344054; font-size: var(--br-font-size-076); }
 .platform-table tbody tr { transition: background-color .14s ease; }
-.platform-table tbody tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader, .br-list-initial-space)):hover { background: #f8fbfe; }
+.platform-table tbody tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader)):hover { background: #f8fbfe; }
 .platform-table code { color: #475467; background: #f3f5f8; padding: .2rem .4rem; border-radius: 5px; font-size: var(--br-font-size-068); }
 .platform-table a { color: var(--platform-primary); text-decoration: none; }
 .platform-tenant-name { border: 0; background: none; display: inline-flex; align-items: center; gap: .55rem; color: #1d2939; padding: 0; }

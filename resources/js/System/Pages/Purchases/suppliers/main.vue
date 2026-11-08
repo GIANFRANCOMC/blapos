@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="br-page-content">
             <main class="br-entity">
                 <section class="br-filter-bar">
@@ -239,8 +239,7 @@ export default {
     async mounted() {
         Utils.navbarItem("menu-parent-purchases", {addClass: "open"});
         Utils.navbarItem("menu-purchases-suppliers", {});
-        await this.loadInitialParams(() => {});
-        this.listSuppliers({});
+        await this.loadInitialParams(() => this.listSuppliers({}));
     },
     data() {
         return {

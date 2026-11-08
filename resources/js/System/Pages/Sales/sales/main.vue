@@ -3,7 +3,7 @@
 
     <!-- Content -->
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading"/>
         <div v-else class="br-page-content">
             <div class="br-sale-create-grid">
                 <div class="br-sale-create-main">

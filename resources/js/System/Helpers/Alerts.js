@@ -98,7 +98,6 @@ function resolveSwalLoadingTitle({type, title, entity}) {
         save: "Guardando",
         search: "Buscando",
         consult: "Consultando informaci\u00f3n",
-        initParams: "Preparando informaci\u00f3n",
         default: "Cargando"
     };
     const actionTitle = actionTitles[type] ?? actionTitles.default;
@@ -128,9 +127,6 @@ export function swals({
                 message = "Consultando información.";
                 break;
 
-            case "initParams":
-                message = "";
-                break;
         }
 
         message = resolveSwalLoadingTitle({type, title, entity});

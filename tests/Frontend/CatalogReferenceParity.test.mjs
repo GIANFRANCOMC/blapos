@@ -89,7 +89,7 @@ test("categorías y marcas presentan el uso por tipo y el skeleton mantiene sus 
 
     const skeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
     assert.match(skeleton, /title: "En uso"/);
-    assert.match(skeleton, /:colspan="columns.length" class="py-4"><div class="br-list-initial-space"/);
+    assert.match(skeleton, /:colspan="columns.length" class="py-4"><Loader\/>/);
 
 });
 

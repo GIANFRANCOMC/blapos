@@ -1642,7 +1642,7 @@ body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
     padding-left: 1.15rem;
 }
 
-.br-entity-table tbody tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader, .br-list-initial-space)):hover {
+.br-entity-table tbody tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader)):hover {
     background: var(--br-surface-subtle);
 }
 

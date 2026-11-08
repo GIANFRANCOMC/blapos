@@ -3,7 +3,7 @@
 
     <!-- Content -->
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading"/>
         <div v-else class="br-page-content">
             <div class="row align-items-end g-3 mb-3 mb-md-4">
                 <InputSlot

@@ -5,8 +5,7 @@
         </div>
 
         <InitialLoadTransition>
-            <AccountSkeleton v-if="loading && skeletonEnabled"/>
-            <div v-else-if="loading" class="br-account-page__loading" aria-hidden="true"></div>
+            <AccountSkeleton v-if="loading"/>
             <div v-else-if="loadError" class="br-account-page__load-error" role="alert">
                 <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
                 <span>{{ loadError }}</span>
@@ -74,13 +73,11 @@
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import AccountSkeleton from "./AccountSkeleton.vue";
 import AccountCompanyCard from "./AccountCompanyCard.vue";
 import AccountUserCard from "./AccountUserCard.vue";
 
 const emptyForm = () => ({email: "", phone_number: "", gender: "", birthdate: ""});
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     components: {InitialLoadTransition, AccountSkeleton, AccountCompanyCard, AccountUserCard},
@@ -90,7 +87,6 @@ export default {
             company: {},
             form: emptyForm(),
             errors: {},
-            skeletonEnabled: initialLoad.skeleton,
             loading: true,
             saving: false,
             confirming: false,
@@ -118,7 +114,6 @@ export default {
         async loadAccount() {
             this.loading = true;
             this.loadError = "";
-            initialLoad.start();
 
             try {
                 const result = await Requests.get({route: document.getElementById("app").dataset.endpoint});
@@ -134,7 +129,6 @@ export default {
             } catch(error) {
                 this.loadError = "No fue posible cargar los datos de tu cuenta.";
             } finally {
-                initialLoad.finish();
                 this.loading = false;
             }
         },

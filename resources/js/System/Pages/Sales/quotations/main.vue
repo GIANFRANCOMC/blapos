@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" :table="isListPage"/>
         <div v-else class="br-page-content">
             <template v-if="isListPage">
                 <section class="br-filter-bar br-sales-list__filters">

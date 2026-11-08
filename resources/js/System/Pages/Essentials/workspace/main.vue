@@ -1,7 +1,7 @@
 <template>
     <main class="br-workspace" aria-labelledby="workspace-popular-title">
         <InitialLoadTransition>
-            <WorkspaceSkeleton v-if="loading && skeletonEnabled"/>
+            <WorkspaceSkeleton v-if="loading"/>
             <div v-else class="br-workspace__content">
                 <nav v-if="breadcrumb.section && breadcrumb.page" class="br-breadcrumb br-workspace__breadcrumb" aria-label="Ubicación actual">
                     <ol class="br-breadcrumb__list">
@@ -13,12 +13,11 @@
                     </ol>
                 </nav>
 
-                <div v-if="loading && !skeletonEnabled" class="br-workspace__loading" aria-hidden="true"></div>
-                <div v-else-if="!loading && loadError" class="br-workspace__empty" role="alert">
+                <div v-if="loadError" class="br-workspace__empty" role="alert">
                     {{ loadError }}
                     <button type="button" class="br-btn br-btn-outline-secondary" @click="loadWorkspace">Reintentar</button>
                 </div>
-                <template v-else-if="!loading">
+                <template v-else>
                     <div class="br-workspace__layout">
                         <div class="br-workspace__main">
                             <section class="br-workspace__section" aria-labelledby="workspace-popular-title">
@@ -79,9 +78,7 @@
 <script>
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Requests from "@System/Helpers/Requests.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     components: {InitialLoadTransition},
@@ -92,7 +89,6 @@ export default {
             breadcrumb: {section: "", page: ""},
             company: {},
             support: {email: "", phone: "", phone_href: ""},
-            skeletonEnabled: initialLoad.skeleton,
             loading: true,
             loadError: ""
         };
@@ -104,7 +100,6 @@ export default {
         async loadWorkspace() {
             this.loading = true;
             this.loadError = "";
-            initialLoad.start();
 
             try {
                 const result = await Requests.get({route: document.getElementById("app").dataset.endpoint});
@@ -122,7 +117,6 @@ export default {
             } catch(error) {
                 this.loadError = "No fue posible cargar tu espacio.";
             } finally {
-                initialLoad.finish();
                 this.loading = false;
             }
         }

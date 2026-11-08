@@ -868,7 +868,7 @@ body > .vs__dropdown-menu,
   transition: background-color 0.14s ease, box-shadow 0.14s ease;
 }
 
-.br-layout .table tbody tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader, .br-list-initial-space)):hover {
+.br-layout .table tbody tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader)):hover {
   background-color: var(--br-app-row-hover);
 }
 
@@ -880,7 +880,7 @@ body > .vs__dropdown-menu,
   border-left: 1px solid transparent;
 }
 
-.br-layout .table > tbody > tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader, .br-list-initial-space)):hover > td:first-child {
+.br-layout .table > tbody > tr:not(.br-table-state):not(:has(.br-feedback-state, .br-loader)):hover > td:first-child {
   border-left-color: color-mix(in srgb, var(--br-primary) 42%, transparent);
 }
 

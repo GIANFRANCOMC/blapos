@@ -47,7 +47,7 @@
                     </thead>
                     <tbody>
                         <tr class="br-table-state">
-                            <td colspan="6" class="py-4"><div class="br-list-initial-space" aria-hidden="true"></div></td>
+                            <td colspan="6" class="py-4"><Loader/></td>
                         </tr>
                     </tbody>
                 </table>
@@ -55,3 +55,9 @@
         </section>
     </main>
 </template>
+
+<script>
+import Loader from "@System/Components/Loader.vue";
+
+export default {components: {Loader}};
+</script>

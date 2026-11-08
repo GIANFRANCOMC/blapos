@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="br-page-content">
             <section class="br-receivables">
                 <header class="br-receivables__header">
@@ -275,8 +275,7 @@ export default {
     async mounted() {
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
         Utils.navbarItem("menu-sales-accounts-receivable", {addClass: "active"});
-        await this.loadInitialParams(() => {});
-        this.loadAccounts();
+        await this.loadInitialParams(() => this.loadAccounts());
     },
     methods: {
         async loadAccounts(pageUrl = null) {

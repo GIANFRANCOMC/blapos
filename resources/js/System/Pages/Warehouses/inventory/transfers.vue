@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <InventorySkeleton v-if="initialLoading && skeletonEnabled" :page="page"/>
+        <InventorySkeleton v-if="initialLoading" :page="page"/>
 
         <section v-else class="br-inventory">
             <div class="row align-items-end g-3 br-inventory__context">

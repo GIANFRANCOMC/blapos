@@ -216,12 +216,6 @@ body.br-layout #app .br-account-page__field .input-group > .input-group-text i {
   margin-left: auto;
 }
 
-.br-account-page__loading {
-  display: grid;
-  place-items: center;
-  min-height: 11rem;
-}
-
 body.br-layout .br-account-page__intro h1 { font-size: var(--br-font-size-fluid-workspace) !important; line-height: 1.15; }
 body.br-layout .br-account-page__intro p { font-size: var(--br-font-size-082) !important; line-height: 1.4; }
 body.br-layout .br-account-page__user-avatar { font-size: var(--br-font-size-100) !important; }

@@ -3,7 +3,7 @@
 
     <!-- Content -->
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="br-page-content">
             <div class="row align-items-start g-3 mb-3 mb-md-4">
                 <div class="col-lg-9 col-12">

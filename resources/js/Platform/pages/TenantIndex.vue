@@ -1,58 +1,63 @@
 <template>
     <section>
-        <div class="platform-heading">
-            <div>
-                <span class="platform-eyebrow">Administración central</span>
-                <h1 class="platform-title">Clientes tenant</h1>
-                <p class="platform-subtitle">Controla el acceso, estado y configuración de cada organización.</p>
-            </div>
-            <button class="btn platform-btn-primary platform-action-button text-white" type="button" @click="openCreateModal">
-                <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Nuevo cliente</span>
-            </button>
-        </div>
-
-        <div class="platform-kpi-grid">
-            <button v-for="card in countCards" :key="card.code" :class="['platform-card', 'platform-kpi', {'is-selected': filters.status === card.filter}]" type="button" @click="selectStatus(card.filter)">
-                <span :class="['platform-kpi__icon', `is-${card.code}`]"><i :class="card.icon"></i></span>
-                <span><strong class="platform-kpi__value">{{ card.value }}</strong><small class="platform-kpi__label">{{ card.label }}</small></span>
-            </button>
-        </div>
-
-        <div class="platform-card">
-            <div class="platform-toolbar">
-                <div class="platform-search">
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    <input v-model="filters.search" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente" @input="scheduleSearch">
-                    <button v-if="filters.search" type="button" class="platform-search__clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @click="filters.search = ''; scheduleSearch()">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        <InitialLoadTransition>
+            <PageSkeleton v-if="initialLoading" table/>
+            <div v-else>
+                <div class="platform-heading">
+                    <div>
+                        <span class="platform-eyebrow">Administración central</span>
+                        <h1 class="platform-title">Clientes tenant</h1>
+                        <p class="platform-subtitle">Controla el acceso, estado y configuración de cada organización.</p>
+                    </div>
+                    <button class="btn platform-btn-primary platform-action-button text-white" type="button" @click="openCreateModal">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Nuevo cliente</span>
                     </button>
                 </div>
-                <select v-model="filters.status" class="form-select platform-filter" @change="loadTenants(1)">
-                    <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="maintenance">Mantenimiento</option><option value="provisioning">En preparación</option><option value="provisioning_failed">Preparación fallida</option>
-                </select>
-                <button class="platform-icon-button" type="button" title="Actualizar" :disabled="loading" @click="loadTenants(meta.current_page)"><i class="fa-solid fa-rotate"></i></button>
-            </div>
 
-            <Loader v-if="loading" label="Cargando clientes"/>
-            <div v-else-if="tenants.length" class="table-responsive">
-                <table class="table platform-table align-middle mb-0">
-                    <thead><tr><th>Cliente</th><th>Dominio</th><th>Base de datos</th><th>Estado</th><th class="text-end">Acción</th></tr></thead>
-                    <tbody><tr v-for="tenant in tenants" :key="tenant.id">
-                        <td><button class="platform-tenant-name" type="button" @click="$emit('open', tenant)"><span>{{ tenant.slug.charAt(0).toUpperCase() }}</span><strong>{{ tenant.slug }}</strong></button></td>
-                        <td><a v-if="tenant.url" :href="tenant.url" target="_blank" rel="noopener noreferrer">{{ tenant.domain }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a><span v-else class="text-muted">Sin dominio</span></td>
-                        <td><code>{{ tenant.database_name }}</code></td>
-                        <td>
-                            <span :class="['platform-status', `platform-status--${tenant.status}`]">{{ statusLabel(tenant.status) }}</span>
-                            <small v-if="tenant.status === 'provisioning' && tenant.status_reason" class="platform-provisioning-stage">{{ tenant.status_reason }}</small>
-                        </td>
-                        <td class="text-end"><button class="btn btn-sm platform-manage-button" type="button" :aria-label="`Configurar ${tenant.slug}`" @click="$emit('open', tenant)"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Configurar</span><i class="fa-solid fa-chevron-right platform-manage-button__arrow" aria-hidden="true"></i></button></td>
-                    </tr></tbody>
-                </table>
-            </div>
-            <div v-else class="platform-empty"><i class="fa-regular fa-building"></i><strong>No encontramos clientes</strong><span>Ajusta los filtros o crea el primer tenant.</span></div>
+                <div class="platform-kpi-grid">
+                    <button v-for="card in countCards" :key="card.code" :class="['platform-card', 'platform-kpi', {'is-selected': filters.status === card.filter}]" type="button" @click="selectStatus(card.filter)">
+                        <span :class="['platform-kpi__icon', `is-${card.code}`]"><i :class="card.icon"></i></span>
+                        <span><strong class="platform-kpi__value">{{ card.value }}</strong><small class="platform-kpi__label">{{ card.label }}</small></span>
+                    </button>
+                </div>
 
-            <div v-if="!loading && meta.last_page > 1" class="platform-pagination"><span>{{ meta.total }} clientes</span><div><button type="button" :disabled="meta.current_page <= 1" @click="loadTenants(meta.current_page - 1)"><i class="fa-solid fa-chevron-left"></i></button><span>{{ meta.current_page }} / {{ meta.last_page }}</span><button type="button" :disabled="meta.current_page >= meta.last_page" @click="loadTenants(meta.current_page + 1)"><i class="fa-solid fa-chevron-right"></i></button></div></div>
-        </div>
+                <div class="platform-card">
+                    <div class="platform-toolbar">
+                        <div class="platform-search">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <input v-model="filters.search" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente" @input="scheduleSearch">
+                            <button v-if="filters.search" type="button" class="platform-search__clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @click="filters.search = ''; scheduleSearch()">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <select v-model="filters.status" class="form-select platform-filter" @change="loadTenants(1)">
+                            <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="maintenance">Mantenimiento</option><option value="provisioning">En preparación</option><option value="provisioning_failed">Preparación fallida</option>
+                        </select>
+                        <button class="platform-icon-button" type="button" title="Actualizar" :disabled="loading" @click="loadTenants(meta.current_page)"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+
+                    <Loader v-if="loading" label="Cargando clientes"/>
+                    <div v-else-if="tenants.length" class="table-responsive">
+                        <table class="table platform-table align-middle mb-0">
+                            <thead><tr><th>Cliente</th><th>Dominio</th><th>Base de datos</th><th>Estado</th><th class="text-end">Acción</th></tr></thead>
+                            <tbody><tr v-for="tenant in tenants" :key="tenant.id">
+                                <td><button class="platform-tenant-name" type="button" @click="$emit('open', tenant)"><span>{{ tenant.slug.charAt(0).toUpperCase() }}</span><strong>{{ tenant.slug }}</strong></button></td>
+                                <td><a v-if="tenant.url" :href="tenant.url" target="_blank" rel="noopener noreferrer">{{ tenant.domain }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a><span v-else class="text-muted">Sin dominio</span></td>
+                                <td><code>{{ tenant.database_name }}</code></td>
+                                <td>
+                                    <span :class="['platform-status', `platform-status--${tenant.status}`]">{{ statusLabel(tenant.status) }}</span>
+                                    <small v-if="tenant.status === 'provisioning' && tenant.status_reason" class="platform-provisioning-stage">{{ tenant.status_reason }}</small>
+                                </td>
+                                <td class="text-end"><button class="btn btn-sm platform-manage-button" type="button" :aria-label="`Configurar ${tenant.slug}`" @click="$emit('open', tenant)"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Configurar</span><i class="fa-solid fa-chevron-right platform-manage-button__arrow" aria-hidden="true"></i></button></td>
+                            </tr></tbody>
+                        </table>
+                    </div>
+                    <div v-else class="platform-empty"><i class="fa-regular fa-building"></i><strong>No encontramos clientes</strong><span>Ajusta los filtros o crea el primer tenant.</span></div>
+
+                    <div v-if="!loading && meta.last_page > 1" class="platform-pagination"><span>{{ meta.total }} clientes</span><div><button type="button" :disabled="meta.current_page <= 1" @click="loadTenants(meta.current_page - 1)"><i class="fa-solid fa-chevron-left"></i></button><span>{{ meta.current_page }} / {{ meta.last_page }}</span><button type="button" :disabled="meta.current_page >= meta.last_page" @click="loadTenants(meta.current_page + 1)"><i class="fa-solid fa-chevron-right"></i></button></div></div>
+                </div>
+            </div>
+        </InitialLoadTransition>
 
         <div v-if="showCreate" class="platform-modal" role="dialog" aria-modal="true" aria-labelledby="createTenantTitle" @mousedown.self="closeCreateModal">
             <form class="platform-modal__dialog" @submit.prevent="createTenant">
@@ -97,10 +102,12 @@
 <script>
 import api, {errorMessage} from "../api";
 import Loader from "@System/Components/Loader.vue";
+import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 
 const emptyForm = () => ({slug: "", commercial_name: "", legal_name: "", document_number: "", admin_name: "", admin_email: "", admin_password: "", admin_password_confirmation: ""});
 
 export default {
+    mixins: [InitialPageMixin],
     components: {Loader},
     name: "TenantIndex",
     props: {apiBase: {type: String, required: true}},
@@ -118,7 +125,7 @@ export default {
             ];
         }
     },
-    mounted() { this.loadTenants(); },
+    async mounted() { await this.loadInitialParams(() => this.loadTenants()); },
     beforeUnmount() { window.clearTimeout(this.searchTimer); window.clearInterval(this.creatingTimer); window.clearInterval(this.creatingStatusTimer); window.removeEventListener("beforeunload", this.preventUnload); document.body.classList.remove("platform-modal-open"); },
     methods: {
         async loadTenants(page = 1) {

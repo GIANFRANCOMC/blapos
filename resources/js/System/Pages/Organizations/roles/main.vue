@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <RolesSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <RolesSkeleton v-if="initialLoading"/>
 
         <main v-else class="br-entity br-roles">
             <section class="br-filter-bar">
@@ -286,25 +286,21 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import RolesSkeleton from "./RolesSkeleton.vue";
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     components: {InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
     async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-roles", {});
-        initialLoad.start();
 
         try {
             await this.initParams();
         } finally {
-            initialLoad.finish();
             this.initialLoading = false;
         }
 
@@ -313,7 +309,6 @@ export default {
     data() {
         return {
             loading: false,
-            skeletonEnabled: initialLoad.skeleton,
             initialLoading: true,
             saving: false,
             editingId: null,

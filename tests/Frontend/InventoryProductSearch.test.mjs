@@ -10,7 +10,7 @@ function inventoryComponent(requests = {}) {
     const dependencies = {};
     for(const match of source.matchAll(/^import (.+) from ".*";$/gm)) {
         const name = match[1].replace("* as ", "").replace(/[{}\s]/g, "");
-        dependencies[name] = name === "createInitialLoad" ? () => ({}) : {};
+        dependencies[name] = {};
     }
     dependencies.Requests = {emptyPagination, ...requests};
     return new Function(...Object.keys(dependencies), source

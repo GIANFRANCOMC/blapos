@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" :table="activeMode !== 'new'"/>
         <div v-else class="br-page-content">
             <main class="br-entity br-purchases">
                 <section v-if="activeMode === 'new'" class="br-purchases__workspace">

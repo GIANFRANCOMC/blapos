@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <ProductsSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <ProductsSkeleton v-if="initialLoading"/>
 
         <main v-else class="br-entity">
             <FiltersSection
@@ -207,7 +207,6 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import BarcodeDownloadButton from "@System/Components/BarcodeDownloadButton.vue";
 import ProductImportModal from "@System/Components/Catalogs/Products/ProductImportModal.vue";
 import ProductInventoryModal from "@System/Components/Catalogs/Products/ProductInventoryModal.vue";
@@ -217,7 +216,6 @@ import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormCon
 import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
 import ProductsSkeleton from "./ProductsSkeleton.vue";
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 const MODULE_CONFIG = {
     entity: "products",
@@ -272,7 +270,6 @@ export default {
             ...crudModule,
             MODULE,
             isExporting: false,
-            skeletonEnabled: initialLoad.skeleton,
             initialLoading: true
         };
 
@@ -282,13 +279,11 @@ export default {
         Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        initialLoad.start();
         let initialized;
 
         try {
             initialized = await this.initParams();
         } finally {
-            initialLoad.finish();
             this.initialLoading = false;
         }
 

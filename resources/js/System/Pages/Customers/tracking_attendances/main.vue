@@ -3,7 +3,7 @@
 
     <!-- Content -->
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="br-page-content">
             <div class="d-flex justify-content-end mb-2" v-if="!lists.entity.extras.loading">
                 <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">

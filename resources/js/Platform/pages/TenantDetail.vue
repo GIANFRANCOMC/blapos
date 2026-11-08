@@ -100,7 +100,6 @@
 <script>
 import api, {errorMessage} from "../api";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 
 const emptyAnnouncement = () => ({title: "", message: "", severity: "info", starts_at: "", ends_at: "", dismissible: true});
 
@@ -131,8 +130,6 @@ export default {
     beforeUnmount() { document.body.classList.remove("platform-modal-open"); },
     methods: {
         async loadTenant() {
-            const initialLoad = createInitialLoad({skeleton: true, swal: true});
-            initialLoad.start();
             this.loading = true;
             try {
                 const {data} = await api.get(this.endpoint);
@@ -142,7 +139,7 @@ export default {
                 this.statusForm = this.tenant.status;
                 this.enabledModuleIds = this.modules.filter(module => module.company_status === "active").map(module => Number(module.id));
             } catch(error) { this.$emit("notify", {type: "danger", message: errorMessage(error, "No fue posible cargar el cliente.")}); }
-            finally { this.loading = false; initialLoad.finish(); }
+            finally { this.loading = false; }
         },
         isEnabled(id) { return this.enabledModuleIds.includes(Number(id)); },
         uniqueModules(modules) { return [...new Map(modules.map(module => [Number(module.id), module])).values()]; },

@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="categories" label="categorías"/>
+        <CatalogListSkeleton v-if="initialLoading" kind="categories" label="categorías"/>
 
         <main v-else class="br-entity">
         <FiltersSection
@@ -201,7 +201,6 @@ import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
@@ -288,7 +287,6 @@ const MODULE = {
     filterOptions: FILTER_OPTIONS
 };
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "CategoriesMain",
@@ -312,7 +310,6 @@ export default {
             isInitialized: false,
             isSaving: false,
             isExporting: false,
-            skeletonEnabled: initialLoad.skeleton,
             initialLoading: true
         };
 
@@ -322,14 +319,12 @@ export default {
         Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        initialLoad.start();
         let initialized;
 
         try {
             initialized = await this.initParams();
             this.isInitialized = true;
         } finally {
-            initialLoad.finish();
             this.initialLoading = false;
         }
 

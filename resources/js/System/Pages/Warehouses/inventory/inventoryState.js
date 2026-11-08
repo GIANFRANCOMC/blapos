@@ -4,7 +4,6 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
@@ -115,14 +114,12 @@ export default {
     async mounted() {
         Utils.navbarItem("menu-parent-items", {addClass: "open"});
         Utils.navbarItem(this.activeMenuId(), {});
-        this.initialLoad.start();
         try {
             let initialized;
             try {
                 initialized = await this.initParams();
             } finally {
                 this.initialLoading = false;
-                this.initialLoad.finish();
             }
 
             if(initialized && this.realWarehouses.length) {
@@ -139,12 +136,9 @@ export default {
         if(this.loadingTraceability) Alerts.close();
     },
     data() {
-        const initialLoad = createInitialLoad({skeleton: true, swal: true});
         return {
-            initialLoad,
             activeView: this.page,
             initialLoading: true,
-            skeletonEnabled: initialLoad.skeleton,
             loadingStock: false,
             loadingKardex: false,
             loadingAlerts: false,

@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <MasterDataSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <MasterDataSkeleton v-if="initialLoading"/>
 
         <section v-else class="br-master-data">
             <CatalogFormTabs
@@ -176,12 +176,10 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import MasterDataSkeleton from "./MasterDataSkeleton.vue";
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 const OPTION = {
     statuses: [{code: "active", label: "Activo"}, {code: "inactive", label: "Inactivo"}],
@@ -353,7 +351,6 @@ export default {
             originalRecord: null,
             errors: {},
             loading: false,
-            skeletonEnabled: initialLoad.skeleton,
             initialLoading: true,
             saving: false,
             searchTerm: "",
@@ -373,16 +370,14 @@ export default {
     async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
-        initialLoad.start();
 
         try {
             this.startCreate();
+            await this.loadRecords();
         } finally {
-            initialLoad.finish();
             this.initialLoading = false;
         }
 
-        await this.loadRecords();
         this.$nextTick(() => Alerts.tooltips({time: 250}));
     },
     computed: {

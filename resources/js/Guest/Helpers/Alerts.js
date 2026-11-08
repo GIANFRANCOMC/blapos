@@ -15,9 +15,6 @@ export function swals({show = true, type = "default", timeout = 0}) {
                 message = "Consultando información.";
                 break;
 
-            case "initParams":
-                message = "";
-                break;
 
             case "externalConsult":
                 message = "Consultando.";

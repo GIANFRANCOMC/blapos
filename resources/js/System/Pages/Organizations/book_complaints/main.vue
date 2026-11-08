@@ -3,7 +3,7 @@
 
     <!-- Filters Section -->
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading"/>
         <div v-else class="br-page-content">
             <FiltersSection
                 :filter-by-value="filterByValue"

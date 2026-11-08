@@ -2,7 +2,7 @@
     <Breadcrumb :list="[{title: 'Administración'}, {title: 'Rubro y módulos', active: true}]"/>
 
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading && skeletonEnabled"/>
+        <PageSkeleton v-if="initialLoading"/>
         <div v-else class="br-page-content">
             <section class="br-business-profile">
                 <header class="br-module-heading">

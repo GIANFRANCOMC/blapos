@@ -6,8 +6,8 @@
 import * as Requests from "./Requests.js";
 import * as Constants from "./Constants.js";
 import * as Utils from "./Utils.js";
-import * as Alerts from "./Alerts.js";
 import { CrudMixin } from "./CrudMixin.js";
+import InitialPageMixin from "./InitialPageMixin.js";
 import { FILTER_BY_OPTIONS, TEXT, CSS_CLASSES } from "./ModuleConstants.js";
 
 /**
@@ -187,7 +187,7 @@ export function initVueModule(config = {}) {
     const moduleConfig = createModuleConfig(config);
 
     return {
-        mixins: [CrudMixin],
+        mixins: [CrudMixin, InitialPageMixin],
         data() {
             return moduleConfig;
         },
@@ -199,21 +199,11 @@ export function initVueModule(config = {}) {
             }
 
             Utils.navbarItem(menuId || moduleConfig.config.entity.page.menu.id, {});
-            Alerts.swals({ type: "initParams" });
+            const initParams = await this.loadInitialParams(() => this.initParams({}));
+            const initOthers = await this.initOthers({});
 
-            try {
-
-                const initParams = await this.initParams({});
-                const initOthers = await this.initOthers({});
-
-                if (initParams && initOthers && config.autoLoadList !== false) {
-                    this.listEntity({});
-                }
-
-            } finally {
-
-                Alerts.swals({ show: false });
-
+            if (initParams && initOthers && config.autoLoadList !== false) {
+                await this.listEntity({});
             }
         },
         computed: {

@@ -575,11 +575,6 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
     grid-column: 1 / -1;
   }
 }
-.br-list-initial-space {
-  display: block;
-  min-height: var(--br-list-state-height);
-}
-
 .table > tbody > tr.br-table-state,
 .table > tbody > tr.br-table-state:hover {
   background: transparent;

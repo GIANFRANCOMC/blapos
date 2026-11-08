@@ -2,7 +2,7 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading && skeletonEnabled" kind="users" label="colaboradores"/>
+        <CatalogListSkeleton v-if="initialLoading" kind="users" label="colaboradores"/>
         <template v-else>
         <!-- Filters -->
         <FiltersSection
@@ -594,7 +594,6 @@ import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {createInitialLoad} from "@System/Helpers/InitialLoad.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
@@ -751,7 +750,6 @@ const MODULE = {
     filterOptions: FILTER_OPTIONS
 };
 
-const initialLoad = createInitialLoad({skeleton: true, swal: true});
 
 export default {
     name: "UsersMain",
@@ -774,7 +772,6 @@ export default {
             isInitialized: false,
             isSaving: false,
             isExporting: false,
-            skeletonEnabled: initialLoad.skeleton,
             initialLoading: true,
             activeFormTab: COLLABORATOR_FORM_TABS[0].id,
             authenticationEvents: {
@@ -807,13 +804,11 @@ export default {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
-        initialLoad.start();
         let initialized;
 
         try {
             initialized = await this.initParams();
         } finally {
-            initialLoad.finish();
             this.initialLoading = false;
             this.isInitialized = true;
         }

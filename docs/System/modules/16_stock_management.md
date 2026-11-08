@@ -23,8 +23,7 @@ El módulo separa dos conceptos:
 - Entradas frontend: `resources/js/System/Pages/Warehouses/inventory/`
 - Presentación: `stock.vue`, `transfers.vue`, `guides.vue`, `kardex.vue` y `valued-kardex.vue`, cada una con su entrada `.js` y una página fija; no hay tabs ni cambio de submódulo dentro de la vista.
 - Estado y operaciones reutilizadas: `inventoryState.js`; montaje y registro de componentes: `mount.js`.
-- Carga inicial: `InventorySkeleton.vue` y `resources/css/System/Pages/Warehouses/inventory/skeleton.css`. Cada instancia usa `createInitialLoad({skeleton: true, swal: true})`: todos los submódulos muestran skeleton y Swal hasta el `finally` de `initParams`, también ante errores. El primer listado comienza después y usa su loader habitual.
-- El skeleton conserva filtros, acciones y encabezados; su cuerpo usa una fila `br-table-state` con `br-list-initial-space` y `colspan` según la vista, en blanco y sin spinner, registros ni pie ficticios. `InitialLoadTransition` realiza el fundido sobre el mismo espacio y respeta movimiento reducido, sin demorar consultas.
+- `InventorySkeleton.vue` conserva filtros, acciones y encabezados durante `initParams`. Su cuerpo usa el `Loader` habitual en una fila `br-table-state` con el `colspan` de la vista. Al terminar los parámetros, `InitialLoadTransition` funde el skeleton con el contenido. El primer listado usa su propio estado de carga y el fundido respeta la preferencia de movimiento reducido.
 - Selector reutilizable de almacenes: `resources/js/System/Components/Generics/WarehouseSelect.vue` y `resources/css/System/br-branding/12-warehouse-select.css`.
 - Estilos reutilizables: bloque `br-inventory` de `resources/css/System/br-branding/82-inventory.css`
 

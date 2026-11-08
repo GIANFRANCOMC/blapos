@@ -26,7 +26,7 @@
                     <div class="br-master-data__records-head">
                         <span class="br-master-skeleton__search"><span class="br-master-skeleton__line br-master-skeleton__search-value"></span></span>
                     </div>
-                    <div class="br-list-initial-space" aria-hidden="true"></div>
+                    <Loader/>
                 </section>
 
                 <section class="br-master-data-form">
@@ -47,3 +47,9 @@
         </main>
     </section>
 </template>
+
+<script>
+import Loader from "@System/Components/Loader.vue";
+
+export default {components: {Loader}};
+</script>
