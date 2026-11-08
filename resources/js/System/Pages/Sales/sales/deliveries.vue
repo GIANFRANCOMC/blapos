@@ -239,8 +239,7 @@
                             <tbody>
                                 <tr v-for="item in form.items" :key="item.sale_delivery_item_id">
                                     <td>
-                                        <strong class="br-entity-primary" v-text="item.name"></strong>
-                                        <span class="br-entity-table__meta" v-text="item.code"></span>
+                                        <ProductIdentity :product="item.product"/>
                                     </td>
                                     <td class="text-end">
                                         <strong v-text="separatorNumber(item.pending_quantity)"></strong>
@@ -301,10 +300,11 @@ import * as DateUtils from "@System/Helpers/DateUtils.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import commercialSelection from "../commercialSelection.js";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
-    components: {SearchInput},
+    components: {ProductIdentity, SearchInput},
     mixins: [InitialPageMixin, commercialSelection],
     mounted: async function() {
 
@@ -436,11 +436,7 @@ export default {
                 warehouse,
                 items: this.pendingItems(record).map(item => ({
                     sale_delivery_item_id: item.id,
-                    name: item.sale_body?.name || item.item?.name || "Producto",
-                    code: [
-                        item.item?.internal_code ? `Cód. interno ${item.item.internal_code}` : null,
-                        item.item?.barcode ? `Cód. barras ${item.item.barcode}` : null
-                    ].filter(Boolean).join(" · "),
+                    product: {...item.item, name: item.sale_body?.name || item.item?.name},
                     pending_quantity: Number(item.quantity_pending ?? 0),
                     quantity: Number(item.quantity_pending ?? 0)
                 }))

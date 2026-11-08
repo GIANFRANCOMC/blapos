@@ -76,14 +76,9 @@
                             @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
                             <span>Buscar</span>
                         </button>
-                        <a
-                            href="#"
-                            role="button"
-                            class="br-filter-clear"
-                            :aria-disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            :tabindex="isCurrentViewLoading || !filters.warehouse?.code ? -1 : 0"
-                            @click.prevent="clearFilters()"
-                            @keydown.space.prevent="clearFilters()">Limpiar filtros</a>
+                        <ClearFiltersButton
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            @clear="clearFilters"/>
                         <button
                             v-if="activeView === 'stock'"
                             type="button"
@@ -329,8 +324,7 @@
                                                     <span class="br-inventory__meta">{{ movement.user?.name || "Proceso del sistema" }}</span>
                                                 </td>
                                                 <td>
-                                                    <strong>{{ movement.item?.name }}</strong>
-                                                    <span class="br-inventory__meta">{{ movement.item?.internal_code }}</span>
+                                                    <ProductIdentity :product="movement.item"/>
                                                 </td>
                                                 <td>
                                                     <strong>{{ movement.transfer_source_warehouse?.name || "No disponible" }}</strong>
@@ -349,7 +343,7 @@
                                                         {{ originLabel(movement.origin_type) }}
                                                     </span>
                                                 </td>
-                                                <td class="text-end fw-semibold">{{ signedQuantity(movement.quantity_change, movement.item) }}</td>
+                                                <td class="text-end br-inventory__difference">{{ signedQuantity(movement.quantity_change, movement.item) }}</td>
                                                 <td>
                                                     <strong>{{ movement.metadata?.reference || movement.reference || "-" }}</strong>
                                                     <span class="br-inventory__meta">{{ movement.reason }}</span>

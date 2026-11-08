@@ -90,7 +90,7 @@ test("Mi cuenta comparte la escala compacta de Mi empresa y muestra un skeleton 
     assert.doesNotMatch(skeleton, /CompanyCardSkeleton|br-account-page__company-summary/);
     assert.doesNotMatch(skeleton, /br-account-page__panel-icon/);
     assert.doesNotMatch(skeleton, /br-account-skeleton__footer-hint/);
-    assert.match(styles, /height: var\(--br-control-height\);[\s\S]*?min-height: var\(--br-control-height\);/);
+    assert.match(styles, /height: calc\(var\(--br-control-height\) - 2px\);/);
     assert.match(skeletonStyles, /height: var\(--br-control-height\)/);
     assert.match(skeletonStyles, /height: var\(--br-btn-height\)/);
     assert.match(skeletonStyles, /@media \(prefers-reduced-motion: reduce\)/);

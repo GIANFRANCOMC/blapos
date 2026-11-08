@@ -76,14 +76,9 @@
                             @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
                             <span>Buscar</span>
                         </button>
-                        <a
-                            href="#"
-                            role="button"
-                            class="br-filter-clear"
-                            :aria-disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            :tabindex="isCurrentViewLoading || !filters.warehouse?.code ? -1 : 0"
-                            @click.prevent="clearFilters()"
-                            @keydown.space.prevent="clearFilters()">Limpiar filtros</a>
+                        <ClearFiltersButton
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            @clear="clearFilters"/>
                         <button
                             v-if="activeView === 'stock'"
                             type="button"
@@ -132,15 +127,15 @@
                     <div class="br-inventory__kardex">
                         <section class="br-entity-list" aria-label="Kardex valorizado">
                             <div class="table-responsive">
-                                <table class="table br-entity-table br-inventory-table-headings br-inventory__kardex-table mb-0">
+                                <table class="table br-entity-table br-inventory-table-headings br-inventory__kardex-table br-inventory__kardex-table--valued mb-0">
                                     <thead class="br-table-header-surface">
                                         <tr>
-                                            <th>Fecha y producto</th>
-                                            <th>Movimiento</th>
-                                            <th>Variación</th>
-                                            <th>Costo unitario</th>
-                                            <th>Valor movimiento</th>
-                                            <th>Valor resultante</th>
+                                            <th scope="col">Producto</th>
+                                            <th scope="col">Movimiento</th>
+                                            <th scope="col">Variación</th>
+                                            <th scope="col">Costo unitario</th>
+                                            <th scope="col">Valor movimiento</th>
+                                            <th scope="col">Valor resultante</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -150,31 +145,25 @@
                                         <template v-else-if="kardexRecords.total > 0">
                                             <tr v-for="movement in kardexRecords.data" :key="`valued-${movement.id}`">
                                                 <td>
-                                                    <strong>{{ formatDate(movement.created_at) }}</strong>
-                                                    <span class="br-inventory__meta">
-                                                        {{ movement.item?.name }} · {{ movement.item?.internal_code }}
-                                                    </span>
+                                                    <ProductIdentity :product="movement.item"/>
                                                 </td>
                                                 <td>
-                                                    <span :class="['br-inventory-movement', `is-${movement.movement_type}`]">
-                                                        {{ movementTypeLabel(movement.movement_type) }}
-                                                    </span>
-                                                    <span class="br-inventory__meta">{{ originLabel(movement.origin_type) }}</span>
+                                                    <KardexMovementDetails
+                                                        :movement="movement"
+                                                        :date-label="formatDate(movement.created_at)"
+                                                        :type-label="movementTypeLabel(movement.movement_type)"
+                                                        :origin-label="originLabel(movement.origin_type)"/>
                                                 </td>
-                                                <td class="text-end fw-semibold">{{ signedQuantity(movement.quantity_change, movement.item) }}</td>
+                                                <td class="text-end">
+                                                    <StockDifference :current="movement.quantity_change" :unit="movement.item?.measurement_unit || movement.item"/>
+                                                </td>
                                                 <td class="text-end">{{ currencyNumber(movement.unit_cost, 4) }}</td>
-                                                <td
-                                                    :class="[
-                                                        'text-end fw-semibold',
-                                                        Number(movement.value_change) >= 0 ? 'text-success' : 'text-danger'
-                                                    ]">
+                                                <td :class="['text-end br-amount-inline__amount', Number(movement.value_change) >= 0 ? 'text-success' : 'text-danger']">
                                                     {{ signedCurrency(movement.value_change) }}
                                                 </td>
                                                 <td class="text-end">
-                                                    <strong>{{ currencyNumber(movement.value_after) }}</strong>
-                                                    <span class="br-inventory__meta">
-                                                        Antes: {{ currencyNumber(movement.value_before) }}
-                                                    </span>
+                                                    <span class="br-amount-inline__amount">{{ currencyNumber(movement.value_after) }}</span>
+                                                    <span class="br-inventory__meta">Antes: {{ currencyNumber(movement.value_before) }}</span>
                                                 </td>
                                             </tr>
                                         </template>

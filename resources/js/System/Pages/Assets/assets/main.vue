@@ -26,7 +26,7 @@
             <!-- Records -->
             <div class="list-section mb-1 mb-md-1 table-responsive">
                 <table class="table table-hover mb-0">
-                    <thead class="align-middle bg-secondary text-center">
+                    <thead class="bg-secondary text-center">
                         <tr>
                             <th class="text-white" style="width: 20%;">CÓDIGO INTERNO</th>
                             <th class="text-white" style="width: 60%;" v-text="MODULE.config.pageTitleSingular"></th>
@@ -43,10 +43,10 @@
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
                                 <td class="text-center">
-                                    <span v-text="record.internal_code" class="fw-semibold d-block"></span>
+                                    <span v-text="record.internal_code" class="fw-medium d-block"></span>
                                 </td>
                                 <td>
-                                    <span v-text="record.name" class="fw-semibold d-block"></span>
+                                    <span v-text="record.name" class="fw-medium d-block"></span>
                                     <small v-if="record.description" v-text="record.description" class="text-muted"></small>
                                 </td>
                                 <td class="text-center">

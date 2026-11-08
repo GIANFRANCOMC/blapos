@@ -381,7 +381,7 @@
                                 xl="4"
                                 lg="4"/>
                             <div v-show="activeFormTab === 'configuration'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label class="form-label fw-bold fs-6" v-text="MODULE.texts.form.capacityControl"></label>
+                                <label class="form-label" v-text="MODULE.texts.form.capacityControl"></label>
                                 <label class="br-entity-switch br-entity-switch--field" for="subscription_capacity_control_enabled">
                                     <input
                                         id="subscription_capacity_control_enabled"

@@ -131,23 +131,13 @@
 .br-layout .br-dashboard__kpis--split .br-dashboard-kpi__icon {
   width: 1.75rem;
   height: 1.75rem;
-  font-size: var(--br-font-size-08125);
+  font-size: var(--br-font-size-082);
   border-radius: var(--br-radius-sm);
 }
 
 .br-layout .br-dashboard__kpis--split .br-dashboard-kpi__label {
-  font-size: var(--br-font-size-0625);
+  font-size: var(--br-ui-font-size);
   margin-bottom: 0.15rem;
-}
-
-.br-layout .br-dashboard__kpis--split .br-dashboard-kpi__value {
-  font-size: var(--br-font-size-fluid-navbar-brand);
-}
-
-@media (min-width: 576px) and (max-width: 991.98px) {
-  .br-layout .br-dashboard__kpis--split .br-dashboard-kpi__value {
-    font-size: var(--br-font-size-fluid-navbar-title);
-  }
 }
 
 .br-layout .br-dashboard-date {
@@ -179,8 +169,8 @@
 
 .br-layout .br-dashboard-date__eyebrow {
   margin: 0;
-  font-size: var(--br-font-size-06875);
-  font-weight: var(--br-font-weight-medium);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--br-text-muted);
@@ -188,7 +178,7 @@
 
 .br-layout .br-dashboard-date__value {
   margin: 0 0 0.35rem;
-  font-size: var(--br-font-size-fluid-dashboard-date);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-value);
   line-height: 1.25;
   color: var(--br-secondary);
@@ -209,12 +199,12 @@
 .br-layout .br-dashboard-date--split .br-dashboard-date__eyebrow {
   margin-top: 0;
   margin-bottom: 0;
-  font-size: var(--br-font-size-075);
-  font-weight: var(--br-font-weight-medium);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-layout .br-dashboard-date--split .br-dashboard-date__value {
-  font-size: var(--br-font-size-fluid-dashboard-chart);
+  font-size: var(--br-table-value-font-size);
   margin-bottom: 0.25rem;
 }
 
@@ -232,10 +222,6 @@
 }
 
 .br-layout .br-dashboard-date--split .br-dashboard-date__input-wrap .form-control {
-  min-height: var(--br-control-height);
-  padding: var(--br-control-padding-y) 0.75rem;
-  font-size: var(--br-font-size-100);
-  font-weight: var(--br-font-weight-emphasis);
   color: var(--br-text);
   background-color: var(--br-surface-elevated);
   border: 1px solid var(--br-border-strong);
@@ -312,7 +298,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--br-radius);
-  font-size: var(--br-font-size-110);
+  font-size: var(--br-font-size-090);
 }
 
 .br-layout .br-dashboard-kpi__body {
@@ -322,8 +308,8 @@
 
 .br-layout .br-dashboard-kpi__label {
   margin: 0 0 0.25rem;
-  font-size: var(--br-font-size-070);
-  font-weight: var(--br-font-weight-medium);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--br-text-muted);
@@ -332,7 +318,7 @@
 
 .br-layout .br-dashboard-kpi__value {
   margin: 0;
-  font-size: var(--br-font-size-135);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-value);
   line-height: 1.25;
   color: var(--br-text);
@@ -375,7 +361,7 @@
 .br-dashboard .br-dashboard-chart-section__title {
   display: inline-block;
   margin: 0;
-  font-size: var(--br-font-size-100);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
   line-height: 1.35;
   color: var(--br-secondary);
@@ -386,8 +372,8 @@
 /* Matches "Consulta actual" (.br-dashboard-date__eyebrow in split pane) */
 .br-dashboard .br-dashboard-chart-section__subtitle {
   margin: 0.35rem 0 0;
-  font-size: var(--br-font-size-075);
-  font-weight: var(--br-font-weight-heading);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--br-text-muted);
@@ -432,7 +418,7 @@
 .br-dashboard .br-dashboard-chart-scroll-hint {
   margin: 0.25rem 0 0;
   line-height: 1.35;
-  font-size: var(--br-font-size-0875);
+  font-size: var(--br-ui-font-size);
   color: var(--br-text-muted);
 }
 
@@ -475,7 +461,7 @@
 }
 
 .br-dashboard .br-dashboard-chart-empty-overlay__text {
-  font-size: var(--br-font-size-fluid-dashboard-empty);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-body);
   letter-spacing: 0.12em;
   color: var(--br-danger);
@@ -496,9 +482,7 @@
 .br-sale-cancel-hint {
   --br-sale-cancel-hint-pad-y: clamp(0.65rem, 2vw, 1rem);
   --br-sale-cancel-hint-pad-x: clamp(0.75rem, 2.5vw, 1.125rem);
-  --br-sale-cancel-hint-font-size: var(--br-font-size-fluid-sale-hint);
   --br-sale-cancel-hint-line-height: 1.55;
-  --br-sale-cancel-hint-label-size: var(--br-font-size-fluid-sale-hint-label);
   --br-sale-cancel-hint-accent: clamp(3px, 0.5vw, 4px);
 
   display: block;
@@ -518,15 +502,13 @@
 
 .br-sale-cancel-hint__label {
   display: inline;
-  font-size: var(--br-sale-cancel-hint-label-size);
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-label);
   color: var(--br-on-warning);
   margin-inline-end: 0.28em;
 }
 
 .br-sale-cancel-hint__body {
   margin: 0;
-  font-size: var(--br-sale-cancel-hint-font-size);
   line-height: var(--br-sale-cancel-hint-line-height);
   color: var(--br-secondary);
   font-weight: var(--br-font-weight-body);
@@ -675,7 +657,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 
 .br-navbar-search__field > i {
   flex: 0 0 auto;
-  font-size: var(--br-font-size-085);
+  font-size: var(--br-font-size-082);
 }
 
 .br-navbar-search__field input {
@@ -688,7 +670,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   color: var(--br-secondary);
   background: transparent;
   font: inherit;
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-navbar-search__field input::placeholder {
@@ -707,7 +689,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   color: var(--br-text-muted);
   background: var(--br-primary-soft);
   font: inherit;
-  font-size: var(--br-font-size-062);
+  font-size: var(--br-table-caption-font-size);
   line-height: 1;
 }
 
@@ -736,7 +718,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   margin: 0.1rem 0.25rem 0.15rem;
   padding: 0.32rem 0.35rem 0.15rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-064);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -771,7 +753,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   border-radius: 50%;
   color: var(--br-primary);
   background: var(--br-primary-soft);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-font-size-0705);
   text-align: center;
 }
 
@@ -793,13 +775,13 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 }
 
 .br-navbar-search__item-copy strong {
-  font-size: var(--br-font-size-073);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-medium);
 }
 
 .br-navbar-search__item-copy small {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-063);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-navbar-search__item-arrow {
@@ -818,7 +800,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
   margin: 0;
   padding: 0.8rem 0.55rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-navbar-icon-btn {
@@ -854,7 +836,7 @@ html.layout-menu-collapsed body.br-layout .br-layout-navbar.navbar-detached {
 }
 
 .br-navbar-icon-btn i {
-  font-size: var(--br-font-size-108);
+  font-size: var(--br-font-size-090);
   line-height: 1;
   transition: var(--br-transition);
 }
@@ -913,7 +895,7 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
   border-radius: 999px;
   color: var(--br-on-secondary);
   background: color-mix(in srgb, var(--br-secondary) 76%, var(--br-primary));
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-font-size-080);
   font-weight: var(--br-font-weight-medium);
 }
 
@@ -936,14 +918,14 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
 
 .br-navbar-user__name {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-medium);
   line-height: 1.1;
 }
 
 .br-navbar-user__company {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-063);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-body);
   line-height: 1.15;
 }
@@ -951,7 +933,7 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
 .br-navbar-user__chevron {
   flex: 0 0 auto;
   color: var(--br-secondary-muted);
-  font-size: var(--br-font-size-062);
+  font-size: var(--br-font-size-061);
   transition: transform 0.16s ease;
 }
 
@@ -1005,13 +987,13 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
 
 .br-navbar-user__summary-copy strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-navbar-user__summary-copy small {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-navbar-user__menu .dropdown-item {
@@ -1028,8 +1010,6 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
   border: 0;
   border-radius: 0.25rem;
   background: transparent !important;
-  font-size: var(--br-font-size-074) !important;
-  font-weight: var(--br-font-weight-body);
   line-height: 1.2;
   text-align: left;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -1072,22 +1052,18 @@ body.br-layout .br-navbar-user__toggle:is(:hover, :focus, :active, [aria-expande
 /* La escala global de 70-visual-density aplica !important a span/strong/small.
    Este menú conserva su jerarquía tipográfica propia sin afectar otros dropdowns. */
 body.br-layout .br-navbar-user__avatar {
-  font-size: var(--br-font-size-078) !important;
   line-height: 1 !important;
 }
 
 body.br-layout .br-navbar-user__summary-copy strong {
-  font-size: var(--br-font-size-078) !important;
   line-height: 1.2 !important;
 }
 
 body.br-layout .br-navbar-user__summary-copy small {
-  font-size: var(--br-font-size-068) !important;
   line-height: 1.2 !important;
 }
 
 body.br-layout .br-navbar-user__menu .dropdown-item > span {
-  font-size: var(--br-font-size-074) !important;
   line-height: 1.2 !important;
 }
 
@@ -1123,7 +1099,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
 }
 
 .br-navbar-announcements__toggle > i {
-  font-size: var(--br-font-size-103);
+  font-size: var(--br-font-size-090);
 }
 
 .br-navbar-announcements__label {
@@ -1148,7 +1124,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   border-radius: 999px;
   background: var(--br-danger);
   color: var(--br-white);
-  font-size: var(--br-font-size-058);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-value);
   line-height: 1;
 }
@@ -1189,19 +1165,19 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
 
 .br-navbar-announcements__head strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-078);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-table-value-font-size);
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-navbar-announcements__head span,
 .br-navbar-announcement p {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-069);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-navbar-announcements__total {
   color: var(--br-primary);
-  font-size: var(--br-font-size-067);
+  font-size: var(--br-ui-font-size);
   white-space: nowrap;
 }
 
@@ -1235,7 +1211,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   border-radius: 50%;
   background: var(--br-primary-soft);
   color: var(--br-primary);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-font-size-0705);
 }
 
 .br-navbar-announcement--success .br-navbar-announcement__icon {
@@ -1271,14 +1247,14 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-medium);
 }
 
 .br-navbar-announcement time {
   flex: 0 0 auto;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-061);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-navbar-announcement p {
@@ -1296,7 +1272,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   gap: 0.48rem;
   min-height: 5rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-layout .br-navbar-favorites .br-fab-favorites__panel {
@@ -1332,7 +1308,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
 
 .br-layout .br-navbar-favorites .br-fab-favorites__btn.br-navbar-favorites__btn i {
   color: inherit !important;
-  font-size: var(--br-font-size-103);
+  font-size: var(--br-font-size-090);
 }
 
 .br-navbar-favorites__label {
@@ -1349,7 +1325,7 @@ body.br-layout .br-navbar-user__menu .dropdown-item > span {
   border: 2px solid var(--br-white);
   color: var(--br-white);
   background: var(--br-danger);
-  font-size: var(--br-font-size-058);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-value);
   box-shadow: none;
 }

@@ -17,6 +17,8 @@ function files(directory) {
 
 test("los estilos propios consumen tamaños reutilizables en CSS y componentes Vue", () => {
     const sources = [...files("resources/css"), ...files("resources/js")];
+    const steps = new Set();
+    postcss.parse(read(sharedPath)).walkDecls(/^--br-font-size-/, declaration => steps.add(declaration.prop));
     for(const file of sources) {
         if(![".css", ".vue"].includes(path.extname(file)) || file === sharedPath) continue;
         const source = read(file);
@@ -27,21 +29,24 @@ test("los estilos propios consumen tamaños reutilizables en CSS y componentes V
             postcss.parse(style).walkDecls("font-size", declaration => {
                 assert.ok(/^(?:inherit|0|var\(|calc\(var\()/.test(declaration.value), `${file}: ${declaration.toString()}`);
                 assert.doesNotMatch(declaration.value, /\d(?:rem|em|px|vw)\b/, file);
+                for(const [step] of declaration.value.matchAll(/--br-font-size-\d+|--br-font-size-fluid-[\w-]+/g)) {
+                    assert.ok(steps.has(step), `${file}: ${step} debe existir en la escala compartida`);
+                }
             });
         }
     }
 });
 
-test("la escala compartida amplía tamaños absolutos y fluidos una sola vez", () => {
+test("la escala compartida conserva solo los pasos de Control de stock", () => {
     const css = postcss.parse(read(sharedPath));
     const definitions = new Map();
     css.walkDecls(declaration => definitions.set(declaration.prop, declaration.value));
     assert.equal(definitions.get("--br-font-scale"), "1");
+    const steps = [...definitions.keys()].filter(name => name.startsWith("--br-font-size-"));
+    assert.deepEqual(steps, ["061", "066", "067", "068", "0705", "074", "080", "082", "090", "200"].map(step => "--br-font-size-" + step));
     for(const [name, value] of definitions) {
         if(/^--br-font-size-\d+$/.test(name)) {
             assert.match(value, /^calc\([\d.]+rem \* var\(--br-font-scale\)\)$/, name);
-        } else if(name.startsWith("--br-font-size-fluid-")) {
-            assert.match(value, /^calc\(clamp\(.+\) \* var\(--br-font-scale\)\)$/, name);
         } else if(name.startsWith("--br-icon-size-")) {
             assert.match(value, /^[\d.]+em$/, name);
         }
@@ -50,6 +55,8 @@ test("la escala compartida amplía tamaños absolutos y fluidos una sola vez", (
     const platform = read("resources/css/Platform/app.css");
     assert.equal(bundle.split("--br-font-scale: 1;").length - 1, 1);
     assert.match(platform, /@import "\.\.\/Shared\/typography-tokens\.css"/);
+    assert.match(platform, /@import "\.\.\/System\/br-branding\/01-typography\.css"/);
+    assert.doesNotMatch(bundle, /span, small, strong, b, em, label, a, li/);
     assert.ok(bundle.indexOf("--br-font-scale: 1;") < bundle.indexOf("--br-ui-font-size:"));
 });
 
@@ -73,4 +80,9 @@ test("los roles globales tienen un único origen y stock comparte el mismo tama�
     });
     assert.ok(sharedRule);
     assert.equal(sharedRule.nodes.find(d => d.prop === "font-size").value, "var(--br-stock-quantity-font-size)");
+    for(const file of ["StockDifference.vue", "StockTraceabilityModal.vue"]) {
+        const view = read("resources/js/System/Pages/Warehouses/inventory/" + file);
+        assert.match(view, /br-inventory__difference/);
+        assert.doesNotMatch(view, /fw-(?:bold|semibold)/);
+    }
 });

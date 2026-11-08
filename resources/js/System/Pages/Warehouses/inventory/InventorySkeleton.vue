@@ -40,7 +40,14 @@
         <div class="br-inventory__workspace" aria-hidden="true">
             <section class="br-inventory__content br-entity-list">
                 <div class="table-responsive">
-                    <table :class="['table', 'br-entity-table', 'br-inventory-table-headings', 'br-inventory__table', 'mb-0', {'br-inventory__table--single-warehouse': page === 'stock'}]">
+                    <table
+                        class="table br-entity-table br-inventory-table-headings mb-0"
+                        :class="{
+                            'br-inventory__table': !isKardex,
+                            'br-inventory__table--single-warehouse': page === 'stock',
+                            'br-inventory__kardex-table': isKardex,
+                            'br-inventory__kardex-table--valued': page === 'valued'
+                        }">
                         <colgroup v-if="page === 'stock'">
                             <col class="br-inventory__col-product">
                             <col class="br-inventory__col-current">
@@ -51,7 +58,11 @@
                         </colgroup>
                         <thead class="br-table-header-surface">
                             <tr>
-                                <th v-for="heading in headings" :key="heading">{{ heading }}<span v-if="!heading" class="visually-hidden">Acciones</span></th>
+                                <th v-for="heading in headings" :key="heading">
+                                    <template v-if="heading === 'Estado del stock'">Estado del<br>stock</template>
+                                    <template v-else-if="heading">{{ heading }}</template>
+                                    <span v-else class="visually-hidden">Acciones</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,12 +80,13 @@
 <script>
 import Loader from "@System/Components/Loader.vue";
 
+const kardexHeadings = ["Producto", "Movimiento", "Variación"];
 const headingsByPage = {
     stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock", ""],
     transfers: ["Fecha", "Producto", "Almacén de origen", "Almacén de destino", "Movimiento", "Cantidad", "Referencia"],
     guides: ["Fecha y número", "Almacén", "Tipo", "Detalle", "Referencia", "Estado"],
-    kardex: ["Fecha y responsable", "Producto", "Movimiento", "Variación", "Saldo", "Motivo y origen"],
-    valued: ["Fecha y producto", "Movimiento", "Variación", "Costo unitario", "Valor movimiento", "Valor resultante"]
+    kardex: [...kardexHeadings, "Saldo"],
+    valued: [...kardexHeadings, "Costo unitario", "Valor movimiento", "Valor resultante"]
 };
 
 const labelsByPage = {
@@ -91,6 +103,7 @@ export default {
     computed: {
         headings() { return headingsByPage[this.page] || headingsByPage.stock; },
         viewLabel() { return labelsByPage[this.page] || labelsByPage.stock; },
+        isKardex() { return this.page === "kardex" || this.page === "valued"; },
         isReport() { return ["guides", "kardex", "valued"].includes(this.page); }
     }
 };

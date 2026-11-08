@@ -26,7 +26,7 @@
             <!-- Records -->
             <div class="list-section mb-1 mb-md-1 table-responsive">
                 <table class="table table-hover mb-0">
-                    <thead class="align-middle bg-secondary text-center">
+                    <thead class="bg-secondary text-center">
                         <tr>
                             <th class="text-white" style="width: 20%;">NOMBRE</th>
                             <th class="text-white" style="width: 20%;">MARCA / MODELO</th>
@@ -46,22 +46,22 @@
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
                                 <td class="text-center">
-                                    <span v-text="record.name" class="fw-semibold d-block"></span>
+                                    <span v-text="record.name" class="fw-medium d-block"></span>
                                     <small v-if="record.serial_number" v-text="`Serie: ${record.serial_number}`" class="text-muted"></small>
                                 </td>
                                 <td class="text-center">
-                                    <span v-text="record.brand_name" class="fw-semibold d-block"></span>
+                                    <span v-text="record.brand_name" class="fw-medium d-block"></span>
                                     <small v-text="record.model_name" class="text-muted"></small>
                                 </td>
                                 <td class="text-center">
-                                    <span v-text="record.ip_address" class="fw-semibold d-block"></span>
+                                    <span v-text="record.ip_address" class="fw-medium d-block"></span>
                                     <small v-text="`Puerto: ${record.port}`" class="text-muted"></small>
                                 </td>
                                 <td class="text-center">
                                     <span v-text="record.branch?.name"></span>
                                 </td>
                                 <td class="text-center">
-                                    <span class="fw-semibold d-block">{{ formatDateTime(record.last_seen_at) }}</span>
+                                    <span class="fw-medium d-block">{{ formatDateTime(record.last_seen_at) }}</span>
                                     <small v-if="record.failed_events_count || record.pending_events_count" class="text-danger">
                                         {{ record.failed_events_count || 0 }} fallidos / {{ record.pending_events_count || 0 }} pendientes
                                     </small>

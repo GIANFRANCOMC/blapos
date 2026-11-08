@@ -171,7 +171,7 @@
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead>
-                        <tr class="text-center align-middle">
+                        <tr class="text-center">
                             <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;"></th>
                             <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 45%;">CLIENTE</th>
                             <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">INGRESO</th>
@@ -190,7 +190,7 @@
                             <template v-if="lists.entity.records.total > 0">
                                 <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
                                     <td :class="[{ 'br-status-surface--success': ['active'].includes(record.status), 'br-status-surface--primary': ['finalized'].includes(record.status), 'br-status-surface--danger': ['canceled'].includes(record.status), 'br-status-surface--warning': ['inactive'].includes(record.status) }]">
-                                        <span class="d-block fw-bold small" v-text="record.formatted_status"></span>
+                                        <span class="d-block fw-medium small" v-text="record.formatted_status"></span>
                                         <InputSlot
                                             v-if="['active', 'finalized'].includes(record?.status)"
                                             :hasDiv="false"
@@ -213,7 +213,7 @@
                                         </InputSlot>
                                     </td>
                                     <td class="text-start">
-                                        <span v-text="record.customer?.name" class="fw-bold d-block"></span>
+                                        <span v-text="record.customer?.name" class="fw-medium d-block"></span>
                                         <small v-text="record.customer?.document_number" class="d-block"></small>
                                         <small class="br-attendance-device-detail">
                                             <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
@@ -226,17 +226,17 @@
                                     </td>
                                     <td>
                                         <template v-if="isDefined({value: record.start_date})">
-                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-medium"></span>
+                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-medium"></span>
                                         </template>
-                                        <span v-else class="d-block fw-bold text-dark">Pendiente</span>
+                                        <span v-else class="d-block fw-medium text-dark">Pendiente</span>
                                     </td>
                                     <td :class="[{ 'br-status-surface--secondary': ['active'].includes(record.status) }]">
                                         <template v-if="isDefined({value: record.end_date})">
-                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-medium"></span>
+                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-medium"></span>
                                         </template>
-                                        <span v-else class="d-block fw-bold text-dark">Pendiente</span>
+                                        <span v-else class="d-block fw-medium text-dark">Pendiente</span>
                                     </td>
                                 </tr>
                             </template>
@@ -446,7 +446,7 @@
                                 <div class="table-responsive w-100">
                                     <table class="table table-sm table-hover">
                                         <thead>
-                                            <tr class="text-center align-middle">
+                                            <tr class="text-center">
                                                 <th class="bg-secondary text-white fw-semibold" style="width: 10%;">#</th>
                                                 <th class="bg-secondary text-white fw-semibold" style="width: 75%;">CLIENTE</th>
                                                 <th class="bg-secondary text-white fw-semibold" style="width: 15%;"></th>
@@ -672,7 +672,7 @@
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
-                                    <tr class="text-center align-middle">
+                                    <tr class="text-center">
                                         <th class="bg-secondary text-white fw-semibold" style="width: 10%;">#</th>
                                         <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 20%;">SUCURSAL</th>
                                         <th class="bg-secondary text-white fw-semibold min-w-150pxs" style="width: 30%;">DIRECCIÓN</th>
@@ -684,7 +684,7 @@
                                         <tr v-for="(record, indexRecord) in forms.entity.automatic.extras.modals.default.config.branches" :key="record.code" class="text-center">
                                             <td v-text="indexRecord + 1"></td>
                                             <td class="text-start">
-                                                <span v-text="record.label" class="fw-bold d-block"></span>
+                                                <span v-text="record.label" class="fw-medium d-block"></span>
                                             </td>
                                             <td v-text="isDefined({value: record.data?.address}) ? record.data?.address : 'N/A'" class="text-start"></td>
                                             <td>

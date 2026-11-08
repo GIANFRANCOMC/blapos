@@ -120,17 +120,7 @@
                                     <template v-else-if="alerts.data?.length">
                                         <tr v-for="alert in alerts.data" :key="alert.id">
                                             <td>
-                                                <strong class="br-inventory__product-name">{{ alert.warehouse_item?.item?.name || 'Producto sin nombre' }}</strong>
-                                                <span class="br-inventory__product-identifiers">
-                                                    <span>
-                                                        <small class="colon-at-end">Cód. interno</small>
-                                                        <span>{{ alert.warehouse_item?.item?.internal_code || '—' }}</span>
-                                                    </span>
-                                                    <span v-if="alert.warehouse_item?.item?.barcode">
-                                                        <small class="colon-at-end">Cód. barras</small>
-                                                        <span>{{ alert.warehouse_item.item.barcode }}</span>
-                                                    </span>
-                                                </span>
+                                                <ProductIdentity :product="alert.warehouse_item?.item"/>
                                             </td>
                                             <td class="text-end"><span class="br-inventory__stock-current">{{ formatQuantity(alert.quantity, alert) }}</span></td>
                                             <td class="text-end">{{ formatQuantity(alert.minimum_stock, alert) }}</td>
@@ -171,6 +161,7 @@
 
 <script>
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StockDifference from "./StockDifference.vue";
@@ -179,7 +170,7 @@ import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdo
 
 export default {
     name: "StockAlertsModal",
-    components: {FormModal, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
+    components: {FormModal, ProductIdentity, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
     emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "edit"],
     props: {
         alerts: {type: Object, required: true},

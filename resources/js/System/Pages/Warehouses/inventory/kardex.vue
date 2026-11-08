@@ -76,14 +76,9 @@
                             @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
                             <span>Buscar</span>
                         </button>
-                        <a
-                            href="#"
-                            role="button"
-                            class="br-filter-clear"
-                            :aria-disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            :tabindex="isCurrentViewLoading || !filters.warehouse?.code ? -1 : 0"
-                            @click.prevent="clearFilters()"
-                            @keydown.space.prevent="clearFilters()">Limpiar filtros</a>
+                        <ClearFiltersButton
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            @clear="clearFilters"/>
                         <button
                             v-if="activeView === 'stock'"
                             type="button"
@@ -135,57 +130,39 @@
                                 <table class="table br-entity-table br-inventory-table-headings br-inventory__kardex-table mb-0">
                                     <thead class="br-table-header-surface">
                                         <tr>
-                                            <th>Fecha y responsable</th>
-                                            <th>Producto</th>
-                                            <th>Movimiento</th>
-                                            <th>Variación</th>
-                                            <th>Saldo</th>
-                                            <th>Motivo y origen</th>
+                                            <th scope="col">Producto</th>
+                                            <th scope="col">Movimiento</th>
+                                            <th scope="col">Variación</th>
+                                            <th scope="col">Saldo</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr class="br-table-state" v-if="loadingKardex">
-                                            <td colspan="6" class="py-4"><Loader/></td>
+                                            <td colspan="4" class="py-4"><Loader/></td>
                                         </tr>
                                         <template v-else-if="kardexRecords.total > 0">
                                             <tr v-for="movement in kardexRecords.data" :key="movement.id">
                                                 <td>
-                                                    <strong>{{ formatDate(movement.created_at) }}</strong>
-                                                    <span class="br-inventory__meta">{{ movement.user?.name || "Proceso del sistema" }}</span>
+                                                    <ProductIdentity :product="movement.item"/>
                                                 </td>
                                                 <td>
-                                                    <strong>{{ movement.item?.name }}</strong>
-                                                    <span class="br-inventory__meta">{{ movement.item?.internal_code }}</span>
-                                                </td>
-                                                <td>
-                                                    <span :class="['br-inventory-movement', `is-${movement.movement_type}`]">
-                                                        {{ movementTypeLabel(movement.movement_type) }}
-                                                    </span>
-                                                </td>
-                                                <td
-                                                    :class="[
-                                                        'text-end fw-semibold',
-                                                        Number(movement.quantity_change) > 0 ? 'text-success' : 'text-danger'
-                                                    ]">
-                                                    {{ signedQuantity(movement.quantity_change, movement.item) }}
+                                                    <KardexMovementDetails
+                                                        :movement="movement"
+                                                        :date-label="formatDate(movement.created_at)"
+                                                        :type-label="movementTypeLabel(movement.movement_type)"
+                                                        :origin-label="originLabel(movement.origin_type)"/>
                                                 </td>
                                                 <td class="text-end">
-                                                    <strong>{{ quantityWithUnit(movement.quantity_after, movement.item) }}</strong>
-                                                    <span class="br-inventory__meta">
-                                                        Antes: {{ quantityWithUnit(movement.quantity_before, movement.item) }}
-                                                    </span>
+                                                    <StockDifference :current="movement.quantity_change" :unit="movement.item?.measurement_unit || movement.item"/>
                                                 </td>
-                                                <td>
-                                                    <strong>{{ movement.reason }}</strong>
-                                                    <span class="br-inventory__meta">
-                                                        {{ originLabel(movement.origin_type) }}
-                                                        <template v-if="movement.reference"> · {{ movement.reference }}</template>
-                                                    </span>
+                                                <td class="text-end">
+                                                    <span class="br-inventory__stock-current">{{ quantityWithUnit(movement.quantity_after, movement.item) }}</span>
+                                                    <span class="br-inventory__meta">Antes: {{ quantityWithUnit(movement.quantity_before, movement.item) }}</span>
                                                 </td>
                                             </tr>
                                         </template>
                                         <tr class="br-table-state" v-else>
-                                            <td colspan="6" class="py-4">
+                                            <td colspan="4" class="py-4">
                                                 <WithoutData
                                                     class="br-entity-empty-state"
                                                     type="image"/>

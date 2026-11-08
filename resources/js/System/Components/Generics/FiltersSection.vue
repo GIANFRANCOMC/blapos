@@ -279,7 +279,7 @@ export default {
         selectClass: {
             type: String,
             required: false,
-            default: "form-select form-select-sm"
+            default: "form-select"
         }
     },
     methods: {

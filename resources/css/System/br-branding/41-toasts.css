@@ -50,7 +50,7 @@
   gap: 0.38rem;
   margin: 0 0 0.12rem !important;
   color: var(--br-toast-heading);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-heading);
   line-height: 1.3;
 }
@@ -59,7 +59,7 @@
   content: var(--br-toast-icon);
   flex: none;
   font-family: "Font Awesome 6 Free";
-  font-size: var(--br-font-size-076);
+  font-size: var(--br-font-size-074);
   font-weight: var(--br-font-weight-icon);
   line-height: 1;
 }
@@ -67,7 +67,7 @@
 #toast-container .toast-message {
   margin: 0 !important;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-075);
+  font-size: var(--br-ui-font-size);
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
@@ -88,7 +88,7 @@
   border-radius: var(--br-radius-sm);
   background: transparent;
   color: var(--br-text-muted) !important;
-  font-size: var(--br-font-size-110);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-control);
   line-height: 1;
   opacity: 1;

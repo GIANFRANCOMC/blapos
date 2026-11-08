@@ -39,7 +39,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-eyebrow {
   margin: 0 0 0.45rem;
   color: var(--br-primary-active);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -52,13 +52,12 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-attendance h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-weight: var(--br-font-weight-heading);
+  font-size: var(--br-table-value-font-size);
   letter-spacing: 0;
 }
 
 .br-guest-hero h1 {
   max-width: 48rem;
-  font-size: var(--br-font-size-fluid-guest-hero);
   line-height: 1.03;
 }
 
@@ -69,7 +68,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   max-width: 42rem;
   margin: 0.8rem 0 0;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-100);
+  font-size: var(--br-table-caption-font-size);
   line-height: 1.65;
 }
 
@@ -89,7 +88,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   padding: 0.65rem 0.95rem;
   border: 1px solid transparent;
   border-radius: 0.55rem;
-  font-size: var(--br-font-size-088);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   text-decoration: none;
   cursor: pointer;
@@ -162,7 +161,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.55rem;
   background: var(--br-white);
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-076);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -187,7 +186,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.5rem;
   background: var(--br-white);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   cursor: pointer;
 }
@@ -199,7 +198,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   height: 1.35rem;
   border-radius: 999px;
   background: var(--br-neutral-panel);
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-guest-category.is-active {
@@ -252,7 +251,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.4rem;
   background: var(--br-secondary-soft);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -274,7 +273,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-item h3 {
   margin: 0.9rem 0 0.35rem;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-102);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
 }
 
@@ -282,7 +281,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   flex: 1;
   margin: 0;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-ui-font-size);
   line-height: 1.45;
 }
 
@@ -294,7 +293,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-item__footer strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-100);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-guest-item__hidden-price {
@@ -302,7 +301,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   align-items: center;
   gap: 0.35rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-076);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -350,7 +349,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   align-items: center;
   gap: 0.55rem;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   text-decoration: none;
 }
@@ -381,7 +380,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.5rem;
   background: var(--br-white);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-080);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-control);
   cursor: pointer;
 }
@@ -414,8 +413,8 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-field label {
   margin: 0;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-076);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-label);
 }
 
 .br-guest-field .form-control,
@@ -443,7 +442,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-error,
 .br-guest-help {
   min-height: 1rem;
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -475,12 +474,12 @@ input.input-number-no-range::-webkit-inner-spin-button {
 }
 
 .br-guest-type strong {
-  font-size: var(--br-font-size-090);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-guest-type small {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-table-caption-font-size);
   line-height: 1.35;
 }
 
@@ -500,7 +499,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 0.35rem;
   background: var(--br-neutral-panel);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -516,7 +515,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-card__footer span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -543,7 +542,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
   border-radius: 999px;
   background: var(--br-white);
   color: var(--br-primary-active);
-  font-size: var(--br-font-size-070);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -594,7 +593,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-scanner-state strong {
   display: block;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-084);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -602,7 +601,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 .br-guest-attendance__expires span,
 .br-guest-scanner-state span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-073);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -613,7 +612,7 @@ input.input-number-no-range::-webkit-inner-spin-button {
 
 .br-guest-scanner-state i {
   color: var(--br-primary);
-  font-size: var(--br-font-size-125);
+  font-size: var(--br-font-size-090);
 }
 
 .br-guest-scanner-state.is-success {

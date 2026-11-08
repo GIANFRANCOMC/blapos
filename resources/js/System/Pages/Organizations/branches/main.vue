@@ -77,7 +77,7 @@
                             <td>
                                 <strong class="br-entity-primary">{{ record.serie_code }}{{ record.serie_number }}</strong>
                             </td>
-                            <td class="text-end fw-bold">{{ record.sequential }}</td>
+                            <td class="text-end fw-medium">{{ record.sequential }}</td>
                             <td>
                                 <span :class="['br-status-label', record.action === 'issued' ? 'br-status-active' : 'br-status-inactive']">
                                     {{ seriesActionLabel(record.action) }}

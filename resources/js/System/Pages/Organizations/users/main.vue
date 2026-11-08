@@ -556,7 +556,7 @@
                     <p v-if="passwordModal.user" class="br-entity-table__meta mb-3" v-text="passwordModal.user.name"></p>
                     <div class="row g-3">
                         <div class="form-group col-12">
-                            <label class="form-label fw-semibold">Nueva contraseña</label>
+                            <label class="form-label">Nueva contraseña</label>
                             <label class="text-danger ms-1 fw-bold">*</label>
                             <div class="input-group">
                                 <input
@@ -569,7 +569,7 @@
                             <small class="text-danger">{{ errorMessage(passwordModal.errors?.password) }}</small>
                         </div>
                         <div class="form-group col-12">
-                            <label class="form-label fw-semibold">Confirmar contraseña</label>
+                            <label class="form-label">Confirmar contraseña</label>
                             <label class="text-danger ms-1 fw-bold">*</label>
                             <div class="input-group">
                                 <input

@@ -4,12 +4,15 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
 import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
 import InventorySkeleton from "./InventorySkeleton.vue";
+import KardexMovementDetails from "./KardexMovementDetails.vue";
 import StockAlertsModal from "./StockAlertsModal.vue";
 import StockDifference from "./StockDifference.vue";
 import StockItemEditor from "./StockItemEditor.vue";
@@ -103,7 +106,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {InitialLoadTransition, FormModal, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
+    components: {InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
     props: {
         page: {
             type: String,

@@ -22,13 +22,13 @@
 .br-inventory-skeleton__button { width: 5.2rem; height: var(--br-control-height, 2.5rem); }
 .br-inventory-skeleton__button--create { width: 9.5rem; }
 .br-inventory-skeleton__button--stock-create { margin-left: auto; }
-.br-inventory-skeleton__clear { width: 5.2rem; height: .65rem; align-self: flex-end; margin-bottom: var(--br-btn-padding-y); }
+.br-inventory-skeleton__clear { width: var(--br-control-height); height: var(--br-control-height); align-self: flex-end; }
 
 @keyframes br-inventory-skeleton-pulse { 50% { opacity: .55; } }
 
 @media (max-width: 991.98px) {
     .br-inventory-skeleton__actions { justify-content: flex-start; }
-    .br-inventory-skeleton .br-entity-table { min-width: 45rem; }
+    .br-inventory-skeleton .br-inventory__table:not(.br-inventory__table--single-warehouse) { min-width: 45rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

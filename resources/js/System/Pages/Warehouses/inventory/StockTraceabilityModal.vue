@@ -2,12 +2,14 @@
     <FormModal
         modal-id="inventoryStockTraceabilityModal"
         title="TRAZABILIDAD DEL PRODUCTO"
-        :subtitle="product?.name || ''"
         modal-size="modal-xl"
         :show-submit="false"
         :close-disabled="loading"
         :keyboard="false"
         close-button-text="Cerrar">
+        <template #header>
+            <ProductIdentity v-if="product" class="mt-1" :product="product"/>
+        </template>
         <template #body>
             <p class="br-operational-scope mb-3">
                 <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
@@ -40,9 +42,9 @@
                                         <span class="br-inventory__meta">{{ movement.user?.name || 'Proceso del sistema' }}</span>
                                     </td>
                                     <td><span :class="['br-inventory-movement', `is-${movement.movement_type}`]">{{ formatters.movementTypeLabel(movement.movement_type) }}</span></td>
-                                    <td :class="['text-end text-nowrap', Number(movement.quantity_change) > 0 ? 'text-success' : Number(movement.quantity_change) < 0 ? 'text-danger' : 'text-muted']">{{ formatters.signedQuantity(movement.quantity_change, product) }}</td>
+                                    <td :class="['text-end br-inventory__difference', Number(movement.quantity_change) > 0 ? 'text-success' : Number(movement.quantity_change) < 0 ? 'text-danger' : 'text-muted']">{{ formatters.signedQuantity(movement.quantity_change, product) }}</td>
                                     <td class="text-end text-nowrap">
-                                        <span>{{ formatters.quantityWithUnit(movement.quantity_after, product) }}</span>
+                                        <span class="br-inventory__stock-current">{{ formatters.quantityWithUnit(movement.quantity_after, product) }}</span>
                                         <span class="br-inventory__meta">Antes: {{ formatters.quantityWithUnit(movement.quantity_before, product) }}</span>
                                     </td>
                                     <td>
@@ -63,12 +65,13 @@
 
 <script>
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import Loader from "@System/Components/Loader.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import Paginator from "@System/Components/Paginator.vue";
 
 export default {
-    components: {FormModal, Loader, WithoutData, Paginator},
+    components: {FormModal, Loader, WithoutData, Paginator, ProductIdentity},
     emits: ["page", "retry"],
     props: {
         product: {type: Object, default: null}, warehouse: {type: Object, default: null},

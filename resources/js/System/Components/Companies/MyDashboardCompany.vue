@@ -4,14 +4,14 @@
             <div id="MyDashboardCompany" ref="MyDashboardCompany" class="card carnet-card-entity mx-auto shadow-sm border border-light" style="min-width: 330px;" :style="{ backgroundImage: backgroundImage }">
                 <!-- <img :src="getAsset(config.essential.ownerApp?.assets.img.logomark, {type: 'none', back: 1})" class="carnet-watermark-entity img-fluid" width="45px" height="45px"/> -->
                 <div class="card-header d-flex align-items-center justify-content-start carnet-header-entity pb-0 pt-2">
-                    <span class="text-white fw-semibold fs-6 text-uppercase">Ir a la plataforma de gestión</span>
+                    <span class="text-white fw-semibold text-uppercase">Ir a la plataforma de gestión</span>
                 </div>
                 <div class="card-body d-flex flex-column align-items-center py-3" v-if="isDefined({value: config.essential.ownerApp?.assets.img.logomark})">
                     <div class="carnet-qr-entity flex-shrink-0 p-2 bg-white rounded-4 shadow-sm">
                         <img :src="qrImage" alt="QR" class="img-fluid" style="width: 150px; height: 150px;"/>
                     </div>
                     <div class="mt-3 text-center text-dark text-shadow-dark-1">
-                        <span class="fs-5 fw-bold">
+                        <span class="fw-bold">
                             <!-- <i class="fa fa-warehouse"></i> -->
                             <span class="ms-2" v-text="config.essential.ownerApp?.commercial_name ?? ''"></span>
                         </span>

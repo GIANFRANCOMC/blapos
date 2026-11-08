@@ -14,9 +14,7 @@ test("precio principal e inventario comparten la escala tipográfica de tablas",
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
 
     assert.match(tokens, /--br-table-value-font-size: var\(--br-font-size-082\)/);
-    assert.match(branding, /\.br-entity-price-row\.is-sale strong \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
-    assert.match(branding, /\.br-entity-stock \{[\s\S]*?font-size: var\(--br-table-value-font-size\)/);
-    assert.doesNotMatch(branding.match(/\.br-entity-stock \{[^}]*\}/)?.[0], /font-weight/);
+    assert.match(branding, /\.br-entity-stock,\s*\.br-entity-price-row\.is-sale strong \{[^}]*font-size: var\(--br-table-value-font-size\);[^}]*font-weight: var\(--br-font-weight-value\);/);
 
 });
 
@@ -36,9 +34,12 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain \{\s*grid-template-columns: max-content minmax\(0, 1fr\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier \{\s*display: contents/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?font-size: var\(--br-font-size-067\)/);
+    assert.match(branding, /\.br-entity-identifier__label \{[^}]*font-size: var\(--br-product-code-label-font-size\)/);
+    assert.doesNotMatch(branding.match(/\.br-entity-identifiers--plain \.br-entity-identifier__label \{[^}]*\}/)?.[0], /font-size/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__value \{\s*display: flex;\s*align-items: baseline/);
-    assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[\s\S]*?font-size: var\(--br-font-size-076\)/);
+    assert.match(branding, /\.br-entity-code \{[^}]*font-size: var\(--br-product-code-font-size\)/);
+    assert.match(branding, /\.br-entity-barcode \{[^}]*font-size: var\(--br-product-code-font-size\)/);
+    assert.doesNotMatch(branding.match(/\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[^}]*\}/)?.[0], /font-size/);
     assert.match(copyStyles, /\.br-copy-button \{[^}]*width: 1\.25rem;[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--br-primary-active\)/);
     assert.match(copyStyles, /\.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
     assert.match(copyStyles, /\.br-copy-button:is\(:hover, :focus-visible\) i \{\s*filter: brightness\(0\.78\)/);

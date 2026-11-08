@@ -32,7 +32,7 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
     border-radius: var(--br-radius, .5rem) var(--br-radius, .5rem) 0 0;
     background: var(--br-neutral-panel);
     color: var(--br-secondary);
-    font-size: var(--br-font-size-fluid-confirmation) !important;
+    font-size: var(--br-table-value-font-size) !important;
     font-weight: var(--br-font-weight-heading);
     line-height: 1.28;
 }
@@ -40,7 +40,7 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
 body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .swal2-html-container {
     margin: .9rem 0 0 !important;
     color: var(--br-text);
-    font-size: calc(var(--br-font-size-label) + var(--br-font-size-0075)) !important;
+    font-size: var(--br-table-value-font-size) !important;
     line-height: 1.5;
 }
 
@@ -89,8 +89,6 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
     min-height: var(--br-control-height, 2.5rem);
     margin: 0 !important;
     border-radius: var(--br-radius-sm, .25rem) !important;
-    font-size: var(--br-font-size-08125) !important;
-    font-weight: var(--br-font-weight-emphasis) !important;
     text-transform: none !important;
 }
 
@@ -121,7 +119,7 @@ body.br-layout .swal2-popup:has(.swal2-cancel[style*="display: inline-block"]) .
     margin: 0;
     background: transparent !important;
     color: var(--br-secondary);
-    font-size: var(--br-font-size-150) !important;
+    font-size: var(--br-font-size-200) !important;
     font-weight: var(--br-font-weight-emphasis);
     line-height: 1;
 }

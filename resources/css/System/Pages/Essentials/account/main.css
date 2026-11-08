@@ -28,7 +28,6 @@
 .br-account-page__intro h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-weight: var(--br-font-weight-heading);
   letter-spacing: -0.035em;
 }
 
@@ -93,7 +92,6 @@
 .br-account-page__panel-head h2 {
   margin: 0;
   color: var(--br-secondary);
-  font-weight: var(--br-font-weight-heading);
 }
 
 .br-account-page__panel-head p {
@@ -117,7 +115,6 @@
   display: inline-block;
   margin-bottom: 0.16rem;
   color: var(--br-secondary);
-  font-weight: var(--br-font-weight-label);
 }
 
 .br-account-page__field .input-group {
@@ -139,6 +136,8 @@
 
 .br-account-page__field .input-group-text {
   width: 2rem;
+  height: auto;
+  min-height: 0;
   padding: 0;
   justify-content: center;
   border: 0;
@@ -149,9 +148,8 @@
 .br-account-page__field .form-control,
 .br-account-page__field .form-select {
   min-width: 0;
-  height: var(--br-control-height);
-  min-height: var(--br-control-height);
-  padding: var(--br-control-padding-y) var(--br-control-padding-x);
+  height: calc(var(--br-control-height) - 2px);
+  min-height: 0;
   border: 0;
   background-color: transparent;
   box-shadow: none;
@@ -179,7 +177,7 @@ body.br-layout #app .br-account-page__field .input-group > .input-group-text {
 }
 
 body.br-layout #app .br-account-page__field .input-group > .input-group-text i {
-  font-size: var(--br-font-size-085);
+  font-size: var(--br-font-size-082);
 }
 
 .br-account-page__field .br-form-error {
@@ -216,14 +214,11 @@ body.br-layout #app .br-account-page__field .input-group > .input-group-text i {
   margin-left: auto;
 }
 
-body.br-layout .br-account-page__intro h1 { font-size: var(--br-font-size-fluid-workspace) !important; line-height: 1.15; }
-body.br-layout .br-account-page__intro p { font-size: var(--br-font-size-082) !important; line-height: 1.4; }
-body.br-layout .br-account-page__user-avatar { font-size: var(--br-font-size-100) !important; }
-body.br-layout .br-account-page__panel-head h2 { font-size: var(--br-font-size-095) !important; }
-body.br-layout .br-account-page__panel-head p { font-size: var(--br-font-size-076) !important; }
-body.br-layout .br-account-page__field .form-label { font-size: var(--br-font-size-label) !important; }
-body.br-layout .br-account-page__field .form-control,
-body.br-layout .br-account-page__field .form-select { font-size: var(--br-font-size-ui) !important; }
+body.br-layout .br-account-page__intro h1 { font-size: var(--br-table-value-font-size) !important; line-height: 1.15; }
+body.br-layout .br-account-page__intro p { font-size: var(--br-ui-font-size) !important; line-height: 1.4; }
+body.br-layout .br-account-page__user-avatar { font-size: var(--br-font-size-090) !important; }
+body.br-layout .br-account-page__panel-head h2 { font-size: var(--br-table-value-font-size) !important; }
+body.br-layout .br-account-page__panel-head p { font-size: var(--br-ui-font-size) !important; }
 @media (max-width: 900px) {
   .br-account-page__layout { grid-template-columns: 1fr; }
 }

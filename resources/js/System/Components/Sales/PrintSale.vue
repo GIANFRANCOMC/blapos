@@ -22,7 +22,7 @@
                                     type="button"
                                     class="br-btn br-btn-sm br-btn-secondary waves-effect p-3 rounded mb-1 d-inline-flex align-items-center justify-content-center"
                                     @click="exportpp({type: 'a4'})">
-                                    <i class="fa fa-print fs-3" aria-hidden="true"></i>
+                                    <i class="fa fa-print" aria-hidden="true"></i>
                                 </button>
                                 <span class="d-block fw-semibold">A4</span>
                             </div>
@@ -33,7 +33,7 @@
                                     type="button"
                                     class="br-btn br-btn-sm br-btn-secondary waves-effect p-3 rounded mb-1 d-inline-flex align-items-center justify-content-center"
                                     @click="exportpp({type: 'mm80'})">
-                                    <i class="fa-solid fa-note-sticky fs-3" aria-hidden="true"></i>
+                                    <i class="fa-solid fa-note-sticky" aria-hidden="true"></i>
                                 </button>
                                 <span class="d-block fw-semibold">80MM</span>
                             </div>

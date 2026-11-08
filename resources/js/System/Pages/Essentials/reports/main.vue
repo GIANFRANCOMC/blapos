@@ -199,7 +199,7 @@
                                         <td class="text-end">{{ numberLabel(record.documents) }}</td>
                                         <td class="text-end">{{ settlementQuantity(record) }}</td>
                                         <td class="text-end">{{ amountLabel(record.base_amount) }}</td>
-                                        <td class="text-end fw-bold">{{ amountLabel(record.amount) }}</td>
+                                        <td class="text-end fw-medium">{{ amountLabel(record.amount) }}</td>
                                     </tr>
                                 </template>
                                 <tr class="br-table-state" v-else>

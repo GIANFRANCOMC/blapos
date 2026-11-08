@@ -19,7 +19,6 @@
   width: 3.35rem;
   height: 3.35rem;
   border-radius: 0.72rem;
-  font-size: var(--br-font-size-096);
 }
 
 .br-pos-field-label {
@@ -31,7 +30,7 @@
 
 .br-pos-field-label > span:first-child {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-label);
 }
 
@@ -39,7 +38,7 @@
   gap: 0.25rem;
   margin: 0 !important;
   color: var(--br-primary);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-label);
   line-height: 1;
   text-decoration: none;
@@ -93,7 +92,7 @@
 .br-pos-payments-summary span {
   overflow: hidden;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -101,7 +100,7 @@
 
 .br-pos-payments-summary strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-pos-payments-editor {
@@ -172,7 +171,7 @@
   margin-bottom: 0.85rem;
   padding: 0.75rem 0.9rem;
   border-radius: 0.9rem;
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -222,7 +221,7 @@
   border-radius: 999px;
   background: var(--br-secondary);
   color: var(--br-on-secondary);
-  font-size: var(--br-font-size-062);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -267,12 +266,12 @@
 }
 
 .br-pos-ticket__header h2 {
-  font-size: var(--br-font-size-165);
+  font-size: var(--br-table-value-font-size);
   line-height: 1.1;
 }
 
 .br-pos-ticket__header p {
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   opacity: 0.78;
   text-transform: uppercase;
@@ -281,7 +280,7 @@
 .br-pos-ticket__header span {
   display: block;
   margin-top: 0.15rem;
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   opacity: 0.82;
 }
 
@@ -309,8 +308,8 @@
   border: 0;
   background: transparent;
   color: var(--br-primary);
-  font-size: var(--br-font-size-076);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-control);
 }
 
 .br-pos-payment {
@@ -321,7 +320,6 @@
 }
 
 .br-pos-payment .form-control {
-  height: var(--br-control-height);
   text-align: right;
 }
 
@@ -345,7 +343,7 @@
 .br-pos-payments__difference {
   margin: 0;
   color: var(--br-danger);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -376,7 +374,7 @@
   border-radius: 999px;
   background: var(--br-white);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-control);
 }
 
@@ -411,8 +409,7 @@
 }
 
 .br-pos-product__footer strong {
-  font-size: var(--br-font-size-100);
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-value);
 }
 
 .br-pos-cash-static {
@@ -426,19 +423,19 @@
 
 .br-pos-cash-static span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   text-transform: uppercase;
 }
 
 .br-pos-cash-static strong {
-  font-size: var(--br-font-size-092);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-cash-static small {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-pos-categories + .br-pos-search {
@@ -447,12 +444,12 @@
 
 .br-pos-ticket-item small {
   color: color-mix(in srgb, var(--br-secondary) 72%, var(--br-text-muted));
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-pos-ticket-item small b {
   color: var(--br-secondary);
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-pos-ticket-item__qty button {
@@ -497,7 +494,7 @@
   width: 3rem;
   height: 3rem;
   border-radius: 0.68rem;
-  font-size: var(--br-font-size-086);
+  font-size: var(--br-font-size-082);
 }
 
 .br-pos-product__footer {
@@ -505,7 +502,7 @@
 }
 
 .br-pos-product__footer strong {
-  font-size: var(--br-font-size-090);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-pos-add,
@@ -513,7 +510,7 @@
 .br-pos-detail {
   width: 1.72rem;
   height: 1.72rem;
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-font-size-0705);
 }
 
 .br-pos-detail {
@@ -560,13 +557,13 @@
 
 .br-pos-detail-modal__hero strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-090);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-detail-modal__hero span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -586,14 +583,14 @@
 
 .br-pos-detail-modal__list dt {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-073);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-detail-modal__list dd {
   margin: 0;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-080);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -613,7 +610,7 @@
 
 .br-pos-cash-static small {
   color: color-mix(in srgb, var(--br-on-warning) 72%, var(--br-text-muted));
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-pos-product__description {
@@ -640,7 +637,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-pos-sale-summary strong {
@@ -680,13 +677,13 @@
 
 .br-pos-sale-payments header strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-088);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-sale-payments header small {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-pos-category {
@@ -751,7 +748,7 @@
   border-radius: 999px;
   background: var(--br-white);
   color: var(--br-success-hover);
-  font-size: var(--br-font-size-058);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   box-shadow: 0 0.2rem 0.5rem color-mix(in srgb, var(--br-text) 16%, transparent);
@@ -766,7 +763,7 @@
 
 .br-pos-category strong {
   color: currentColor;
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   line-height: 1.1;
 }
@@ -811,21 +808,21 @@
 
 .br-pos-sale-static-field > span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-070);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   text-transform: uppercase;
 }
 
 .br-pos-sale-static-field strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-084);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-pos-sale-static-field small {
   color: var(--br-danger);
-  font-size: var(--br-font-size-072);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-pos-product__meta {
@@ -851,17 +848,17 @@
 
 .br-pos-product__meta-row b {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-058);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-product-code-label-font-size);
+  font-weight: var(--br-font-weight-body);
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .br-pos-product__meta-row em {
   color: var(--br-secondary);
-  font-size: var(--br-table-heading-font-size);
+  font-size: var(--br-product-code-font-size);
   font-style: normal;
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-body);
   line-height: 1.1;
 }
 
@@ -870,7 +867,7 @@
 }
 
 .br-pos-product__meta-row.is-brand em {
-  font-weight: var(--br-font-weight-heading);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-pos-detail {
@@ -948,7 +945,6 @@
   border: 1px solid color-mix(in srgb, var(--br-success) 30%, var(--br-white));
   background: var(--br-white);
   color: var(--br-success-hover);
-  font-size: var(--br-font-size-058);
   box-shadow: 0 0.2rem 0.5rem color-mix(in srgb, var(--br-text) 16%, transparent);
 }
 
@@ -957,10 +953,6 @@
   width: 100%;
   min-width: 0;
   text-align: center;
-}
-
-.br-pos .br-pos-category strong {
-  font-size: var(--br-font-size-074);
 }
 
 .br-pos .br-pos-category .br-pos-category__count {
@@ -1034,10 +1026,6 @@
 .br-pos .br-pos-category:nth-child(3n + 2):hover,
 .br-pos .br-pos-category:nth-child(3n + 2).is-active {
   border-color: var(--br-neutral-800);
-}
-
-.br-pos .br-pos-category strong {
-  font-size: var(--br-font-size-079);
 }
 
 .br-pos .br-pos-category.is-active::before {

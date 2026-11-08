@@ -101,19 +101,22 @@
   /* Tipografía operativa única: mismo tamaño que el menú lateral. */
   --br-ui-font-size: var(--br-font-size-0705);
   --br-ui-line-height: 1.25;
-  --br-control-affix-font-size: calc(var(--br-ui-font-size) - var(--br-font-size-0035));
+  --br-control-affix-font-size: var(--br-font-size-067);
   --br-table-value-font-size: var(--br-font-size-082);
-  --br-table-secondary-font-size: var(--br-font-size-070);
   --br-table-caption-font-size: var(--br-font-size-068);
-  --br-font-size-page: var(--br-ui-font-size);
   --br-font-size-ui: var(--br-ui-font-size);
   --br-font-size-label: var(--br-ui-font-size);
   --br-font-size-table: var(--br-ui-font-size);
-  --br-font-size-table-head: var(--br-ui-font-size);
-  --br-font-size-title-sm: var(--br-ui-font-size);
-  --br-placeholder-font-size: var(--br-font-size-074);
   --br-btn-font-size: var(--br-ui-font-size);
-  --br-btn-font-size-sm: var(--br-ui-font-size);
+
+  --br-btn-height: 2rem;
+  --br-btn-height-sm: 1.78rem;
+  --br-btn-height-xs: 1.52rem;
+  --br-btn-padding-x: 0.72rem;
+  --br-btn-padding-y: 0.34rem;
+  --br-control-height: var(--br-btn-height);
+  --br-control-padding-x: 0.68rem;
+  --br-control-padding-y: 0.28rem;
 
   --br-table-heading-font-size: var(--br-font-size-066);
   --br-stock-quantity-font-size: var(--br-font-size-080);
@@ -243,21 +246,9 @@
    * Reutilizable en ventas, compras, cotizaciones, etc.
    */
   --br-amount-inline-lh: 1.35;
-  --br-amount-sign-size: var(--br-font-size-08125);
-  --br-amount-sign-weight: 600;
   --br-amount-sign-gap: 0.28rem;
-  --br-amount-value-size: var(--br-font-size-09375);
-  --br-amount-value-weight: 700;
-  --br-amount-em-sign-size: var(--br-font-size-0875);
-  --br-amount-em-value-size: var(--br-font-size-1125);
-  --br-amount-sign-size-sm: var(--br-font-size-075);
-  --br-amount-value-size-sm: var(--br-font-size-0875);
-  --br-amount-em-value-size-sm: var(--br-font-size-100);
   --br-amount-sign-gap-sm: 0.2rem;
-  --br-table-footer-label-size: var(--br-font-size-100);
-  --br-table-footer-label-weight: 700;
   --br-table-footer-label-tracking: 0.02em;
-  --br-table-footer-label-size-sm: var(--br-font-size-09375);
   --br-table-footer-cell-pad-y: 0.7rem;
   --br-table-footer-stripe-fallback: var(--br-primary-soft);
   --br-table-footer-stripe: color-mix(in srgb, var(--br-primary-soft) 56%, var(--br-primary-muted));
@@ -266,7 +257,6 @@
    * Celda rótulo de fila expandida (p. ej. membresía) — acento secundario, sin borde.
    */
   --br-table-expand-label-size: 0.6875rem;
-  --br-table-expand-label-weight: 700;
   --br-table-expand-label-tracking: 0.08em;
   --br-table-expand-label-bg-fallback: #f2f2f6;
   --br-table-expand-label-bg: color-mix(in srgb, var(--br-secondary-soft) 38%, white);
@@ -276,8 +266,6 @@
    */
   --br-memberships-stack-gap: 0.5rem;
   --br-memberships-stack-max-w: 18rem;
-  --br-memberships-date-size: var(--br-font-size-100);
-  --br-memberships-date-weight: 700;
   /* Pills gris claro (antes estilo label secundario en tabla) */
   --br-memberships-time-pill-bg: var(--br-secondary-soft);
   --br-memberships-time-pill-fg: var(--br-text-muted);

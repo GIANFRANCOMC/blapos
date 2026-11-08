@@ -37,7 +37,7 @@
             <div class="d-flex justify-content-start align-items-center w-100 mb-1">
                 <div class="divider">
                     <div class="divider-text">
-                        <span class="ms-2 fw-bold fs-6 colon-at-end text-primary">Detalle</span>
+                        <span class="ms-2 fw-bold colon-at-end text-primary">Detalle</span>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                                     </div>
                                 </div>
                                 <div class="ms-auto" v-if="isDefined({value: item?.data?.total})">
-                                    <div class="d-block w-100 fs-4 fw-bold">
+                                    <div class="d-block w-100 fw-bold">
                                         <span v-text="item?.icon"></span>
                                         <span v-text="item?.data?.currency?.sign+' '+item?.data?.total" class="ms-2"></span>
                                     </div>
@@ -114,7 +114,7 @@
                                     </div>
                                 </div>
                                 <div class="ms-auto" v-if="isDefined({value: item?.data?.formatted_duration})">
-                                    <div class="d-block w-100 fs-4 fw-bold">
+                                    <div class="d-block w-100 fw-bold">
                                         <span v-text="item?.icon"></span>
                                         <span v-text="item?.data?.formatted_duration" class="ms-2"></span>
                                     </div>
@@ -153,7 +153,7 @@
                                     </div>
                                 </div>
                                 <div class="ms-auto" v-if="isDefined({value: item?.data?.end_date})">
-                                    <div class="d-block w-100 fs-4 fw-bold">
+                                    <div class="d-block w-100 fw-bold">
                                         <span v-text="item?.icon"></span>
                                         <span v-text="item?.data?.worked_hours" class="ms-2"></span>
                                         <span v-text="item?.data?.worked_hours == 1 ? 'hora trabajada' : 'horas trabajadas'" class="ms-2"></span>

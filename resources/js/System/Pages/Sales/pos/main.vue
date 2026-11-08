@@ -52,22 +52,14 @@
                                         <i :class="itemIcon(item)"></i>
                                     </span>
                                     <span class="br-pos-product__info">
-                                        <strong>{{ item.name }}</strong>
+                                        <ProductIdentity :product="item"/>
                                         <small v-if="item.description" class="br-pos-product__description">
                                             {{ item.description || 'Producto disponible' }}
                                         </small>
-                                        <span class="br-pos-product__meta">
-                                            <span v-if="item.brand?.name" class="br-pos-product__meta-row is-brand">
+                                        <span v-if="item.brand?.name" class="br-pos-product__meta">
+                                            <span class="br-pos-product__meta-row is-brand">
                                                 <b>Marca</b>
                                                 <em>{{ item.brand.name }}</em>
-                                            </span>
-                                            <span v-if="item.internal_code" class="br-pos-product__meta-row is-internal">
-                                                <b>Int.</b>
-                                                <em>{{ item.internal_code }}</em>
-                                            </span>
-                                            <span v-if="item.barcode" class="br-pos-product__meta-row is-barcode">
-                                                <b>Bar.</b>
-                                                <em>{{ item.barcode }}</em>
                                             </span>
                                         </span>
                                     </span>
@@ -149,7 +141,7 @@
                     <section class="br-pos-ticket__items">
                         <article v-for="line in cart" :key="line.item.id" class="br-pos-ticket-item">
                             <div>
-                                <strong>{{ line.item.name }}</strong>
+                                <ProductIdentity :product="line.item"/>
                                 <small><b>{{ line.quantity }}</b> x <b>{{ currencySign(line.item) }} {{ separatorNumber(line.price) }}</b></small>
                             </div>
                             <div class="br-pos-ticket-item__side">
@@ -227,8 +219,9 @@
                     <div>
                         <p class="br-entity-modal__eyebrow mb-1">Catálogo comercial</p>
                         <h2 id="brPosItemDetailModalTitle" class="modal-title br-entity-modal__title">
-                            {{ selectedItemDetail?.name || 'Detalle' }}
+                            Detalle del catálogo
                         </h2>
+                        <ProductIdentity v-if="selectedItemDetail" class="mt-1" :product="selectedItemDetail"/>
                     </div>
                     <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -258,14 +251,6 @@
                         <div>
                             <dt>Categorías</dt>
                             <dd>{{ formattedItemCategories(selectedItemDetail) }}</dd>
-                        </div>
-                        <div>
-                            <dt>Código interno</dt>
-                            <dd>{{ selectedItemDetail?.internal_code || 'No registrado' }}</dd>
-                        </div>
-                        <div>
-                            <dt>Código de barras</dt>
-                            <dd>{{ selectedItemDetail?.barcode || 'No registrado' }}</dd>
                         </div>
                         <div>
                             <dt>IGV exonerado</dt>
@@ -522,11 +507,13 @@ import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
 import Loader from "@System/Components/Loader.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
     components: {
+        ProductIdentity,
         SearchInput,
         AddCustomer,
         Breadcrumb,

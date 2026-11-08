@@ -77,16 +77,16 @@
                         </div>
                         <div class="collapse navbar-collapse landing-nav-menu" id="navbarMenu">
                             <button class="navbar-toggler border-0 position-absolute end-0 top-0 text-white-custom" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                                <i class="fa fa-times fs-3"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                             <ul class="navbar-nav me-auto d-flex gap-4 mx-3 mx-md-5 px-0 px-md-4">
                                 <li class="nav-item">
-                                    <a class="fw-semibold fs-6 text-white-custom a-primary-custom" href="{{ url($company->slug.'/home') }}">
+                                    <a class="fw-semibold text-white-custom a-primary-custom" href="{{ url($company->slug.'/home') }}">
                                         <span class="text-uppercase">Inicio</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="fw-semibold fs-6 text-white-custom a-primary-custom" href="{{ url($company->slug.'/book_complaints') }}">
+                                    <a class="fw-semibold text-white-custom a-primary-custom" href="{{ url($company->slug.'/book_complaints') }}">
                                         <span class="text-uppercase">Libro de reclamaciones</span>
                                     </a>
                                 </li>

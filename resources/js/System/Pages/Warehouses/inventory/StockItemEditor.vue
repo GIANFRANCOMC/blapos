@@ -2,13 +2,15 @@
     <FormModal
         modal-id="inventoryStockEditorModal"
         title="EDITAR STOCK"
-        :subtitle="record?.name || ''"
         modal-size="modal-lg"
         :keyboard="false"
         :close-disabled="busy"
         :submit-disabled="busy || !changed"
         submit-button-text="Guardar cambios"
         @submit="save">
+        <template #header>
+            <ProductIdentity v-if="record" class="mt-1" :product="record"/>
+        </template>
         <template #body>
             <p class="br-operational-scope mb-3">
                 <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
@@ -61,11 +63,12 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
 import InputText from "@System/Components/InputText.vue";
 
 export default {
-    components: {FormModal, InputNumber, InputText},
+    components: {FormModal, InputNumber, InputText, ProductIdentity},
     props: {refresh: {type: Function, required: true}},
     data() {
         return {

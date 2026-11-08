@@ -212,7 +212,7 @@
                         <div class="table-responsive">
                             <table class="table table-sm table-hover">
                                 <thead>
-                                    <tr class="text-center align-middle">
+                                    <tr class="text-center">
                                         <th class="bg-secondary text-white fw-semibold" style="width: 10%;">#</th>
                                         <th class="bg-secondary text-white fw-semibold" style="width: 40%;">COLABORADOR<br/>ASIGNADO</th>
                                         <th class="bg-secondary text-white fw-semibold" style="width: 20%;">CANTIDAD</th>
@@ -226,7 +226,7 @@
                                             <template v-if="isNumber({value: record.id})">
                                                 <tr class="text-center">
                                                     <td v-text="keyRecord + 1"></td>
-                                                    <td v-text="record?.user?.name" class="text-start fw-bold"></td>
+                                                    <td v-text="record?.user?.name" class="text-start fw-medium"></td>
                                                     <td class="text-start">
                                                         <span v-text="record?.quantity" class="ps-2"></span>
                                                     </td>
@@ -276,17 +276,17 @@
                                                 </tr>
                                             </template>
                                         </template>
-                                        <tr class="fs-5">
-                                            <td colspan="2" class="fw-bold text-end">TOTAL :</td>
-                                            <td colspan="3" class="fw-bold text-start">
+                                        <tr class="">
+                                            <td colspan="2" class="fw-medium text-end">TOTAL :</td>
+                                            <td colspan="3" class="fw-medium text-start">
                                                 <span class="text-break">
                                                     <span v-text="separatorNumber(assignmentsSum)" class="ms-2"></span>
                                                 </span>
                                             </td>
                                         </tr>
-                                        <tr class="fs-5">
-                                            <td colspan="2" class="fw-bold text-end text-secondary">PENDIENTE :</td>
-                                            <td colspan="3" class="fw-bold text-start text-secondary">
+                                        <tr class="">
+                                            <td colspan="2" class="fw-medium text-end text-secondary">PENDIENTE :</td>
+                                            <td colspan="3" class="fw-medium text-start text-secondary">
                                                 <span class="text-break">
                                                     <span v-text="separatorNumber(assignmentsPending)" class="ms-2"></span>
                                                 </span>

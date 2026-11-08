@@ -11,8 +11,8 @@
   display: block;
   margin-bottom: 0.2rem;
   color: var(--br-primary);
-  font-size: var(--br-font-size-070);
-  font-weight: var(--br-font-weight-heading);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
   letter-spacing: 0.045em;
   text-transform: uppercase;
 }
@@ -20,14 +20,14 @@
 .br-module-heading h1 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-125);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
 }
 
 .br-module-heading p {
   margin: 0.25rem 0 0;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-misc-expenses .br-filter-bar {
@@ -50,7 +50,7 @@
   place-items: center;
   border-radius: var(--br-radius-md);
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-business-profile {
@@ -81,7 +81,7 @@
 .br-business-profile h2 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-095);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
 }
 
@@ -89,7 +89,7 @@
 .br-business-profile__modules > header p {
   margin: 0.2rem 0 0;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-business-profile__industry-action,
@@ -129,7 +129,7 @@
 .br-business-profile__modules > footer {
   border-top: 1px solid var(--br-border);
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-076);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-business-profile__groups {
@@ -154,12 +154,12 @@
   padding: 0.65rem 0.75rem;
   border-bottom: 1px solid var(--br-border);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-business-profile__group-head span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-070);
+  font-size: var(--br-ui-font-size);
   font-variant-numeric: tabular-nums;
 }
 
@@ -189,7 +189,7 @@
 
 .br-business-profile__module strong {
   color: var(--br-text);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
@@ -197,7 +197,7 @@
   margin-top: 0.12rem;
   overflow: hidden;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-069);
+  font-size: var(--br-table-caption-font-size);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

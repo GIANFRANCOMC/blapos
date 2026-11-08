@@ -178,7 +178,7 @@
                                             <template v-if="(forms[entity].createUpdate.data.details).length > 0">
                                                 <template v-for="(record, keyRecord) in forms[entity].createUpdate.data.details" :key="record.id">
                                                     <tr>
-                                                        <td class="text-center fw-bold" :rowspan="isSubscription(record?.type) && record?.extras?.showDetail ? 2 : 1">
+                                                        <td class="text-center fw-medium" :rowspan="isSubscription(record?.type) && record?.extras?.showDetail ? 2 : 1">
                                                             <span v-text="keyRecord + 1"></span>
                                                         </td>
                                                         <td class="text-start">
@@ -200,7 +200,7 @@
                                                                 @change="calculateDuration({mode: 'record', record})"
                                                                 :decimals="getItemDecimals({mode: 'result', record})"/>
                                                         </td>
-                                                        <td class="text-end align-middle">
+                                                        <td class="text-end">
                                                             <div class="br-sale-detail-price-cell">
                                                                 <InputNumber v-model="record.price">
                                                                     <template v-slot:inputGroupPrepend v-if="isDefined({value: record?.currency})">
@@ -209,13 +209,13 @@
                                                                 </InputNumber>
                                                             </div>
                                                         </td>
-                                                        <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                        <td class="text-end br-sale-detail-calc-cell">
                                                             <span class="br-amount-inline">
                                                                 <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
                                                                 <span class="br-amount-inline__amount" v-text="separatorNumber(detailLineBaseTotal(record))"></span>
                                                             </span>
                                                         </td>
-                                                        <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                        <td class="text-end br-sale-detail-calc-cell">
                                                             <span v-if="detailIgvInfo(record).isAmount" class="br-amount-inline br-sale-detail-tax-amount">
                                                                 <span class="br-amount-inline__sign" v-text="detailIgvInfo(record).sign"></span>
                                                                 <span class="br-amount-inline__amount" v-text="detailIgvInfo(record).amount"></span>
@@ -227,7 +227,7 @@
                                                                 v-text="detailIgvInfo(record).label">
                                                             </span>
                                                         </td>
-                                                        <td class="text-end align-middle pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total" :title="MODULE.texts.form.total">
+                                                        <td class="text-end pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total" :title="MODULE.texts.form.total">
                                                             <span class="br-amount-inline">
                                                                 <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
                                                                 <span class="br-amount-inline__amount" v-text="separatorNumber(detailFinalTotal(record))"></span>
@@ -310,28 +310,28 @@
                                                     </template>
                                                 </template>
                                                 <tr class="br-table-footer-stripe br-sale-detail-total-row">
-                                                    <td colspan="4" class="text-start align-middle ps-3 br-table-footer-stripe__label">
+                                                    <td colspan="4" class="text-start ps-3 br-table-footer-stripe__label">
                                                         <span v-text="MODULE.texts.form.footerTotalLabel"></span>
                                                     </td>
-                                                    <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                    <td class="text-end br-sale-detail-calc-cell">
                                                         <span class="br-amount-inline br-amount-inline--emphasis">
                                                             <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
                                                             <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailSubtotalTotal)"></span>
                                                         </span>
                                                     </td>
-                                                    <td class="text-end align-middle br-sale-detail-calc-cell">
+                                                    <td class="text-end br-sale-detail-calc-cell">
                                                         <span class="br-amount-inline br-amount-inline--emphasis">
                                                             <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
                                                             <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailIgvTotal)"></span>
                                                         </span>
                                                     </td>
-                                                    <td class="text-end align-middle pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total">
+                                                    <td class="text-end pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total">
                                                         <span class="br-amount-inline br-amount-inline--emphasis">
                                                             <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
                                                             <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailFinalTotal)"></span>
                                                         </span>
                                                     </td>
-                                                    <td class="align-middle"></td>
+                                                    <td></td>
                                                 </tr>
                                             </template>
                                             <template v-else>
@@ -1558,7 +1558,7 @@
                                                         <span v-text="record?.serie?.legible_serie ?? record?.serie?.serie ?? 'Venta'"></span>
                                                         <small v-if="record?.status" class="d-block text-muted text-capitalize" v-text="record.status"></small>
                                                     </td>
-                                                    <td class="text-end fw-semibold" v-text="`S/ ${separatorNumber(record.total ?? 0)}`"></td>
+                                                    <td class="text-end fw-medium" v-text="`S/ ${separatorNumber(record.total ?? 0)}`"></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -1612,14 +1612,14 @@
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center mb-2">
                 <template v-if="forms[entity].createUpdate.extras.modals.finished.data?.extras?.bool">
                     <div class="alert alert-success">
-                        <i class="fa fa-check-circle text-success fs-4"></i>
-                        <span class="fw-semibold fs-5 ms-2" v-text="forms[entity].createUpdate.extras.modals.finished.data?.extras?.msg"></span>
+                        <i class="fa fa-check-circle text-success"></i>
+                        <span class="fw-semibold ms-2" v-text="forms[entity].createUpdate.extras.modals.finished.data?.extras?.msg"></span>
                     </div>
                 </template>
                 <template v-else>
                     <div class="alert alert-danger">
-                        <i class="fa fa-check-circle text-danger fs-4"></i>
-                        <span class="fw-semibold fs-5 ms-2" v-text="forms[entity].createUpdate.extras.modals.finished.data?.extras?.msg"></span>
+                        <i class="fa fa-check-circle text-danger"></i>
+                        <span class="fw-semibold ms-2" v-text="forms[entity].createUpdate.extras.modals.finished.data?.extras?.msg"></span>
                     </div>
                 </template>
             </div>
@@ -1631,7 +1631,7 @@
                         type="button"
                         class="br-btn br-btn-sm br-btn-success waves-effect p-3 rounded mb-1 d-inline-flex align-items-center justify-content-center"
                         data-bs-dismiss="modal">
-                        <i class="fa-solid fa-cash-register fs-3" aria-hidden="true"></i>
+                        <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
                     </button>
                     <span class="d-block fw-semibold" v-text="MODULE.texts.actions.newSale"></span>
                 </div>
@@ -1643,7 +1643,7 @@
                     v-model="forms[entity].createUpdate.extras.modals.finished.data.whatsapp">
                     <template v-slot:inputGroupAppend>
                         <button class="btn btn-success waves-effect" type="button" @click="sendWhatsapp({data: forms[entity].createUpdate.extras.modals.finished.data})" :disabled="!isDefined({value: forms[entity].createUpdate.extras.modals.finished.data.whatsapp})">
-                            <i class="fa-brands fa-whatsapp fs-5" aria-hidden="true"></i>
+                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                             <span class="d-none d-sm-inline ms-sm-2" v-text="MODULE.texts.actions.send"></span>
                         </button>
                     </template>

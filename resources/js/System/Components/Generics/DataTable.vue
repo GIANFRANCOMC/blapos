@@ -2,7 +2,7 @@
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead>
-                <tr class="text-center align-middle">
+                <tr class="text-center">
                     <th
                         v-for="column in columns"
                         :key="column.key"

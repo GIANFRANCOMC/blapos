@@ -47,6 +47,7 @@ test("Home mantiene la búsqueda compacta y los filtros alineados en móvil", ()
     assert.equal(value(".br-home__filters", "grid-template-columns"), "repeat(2, minmax(0, 1fr))");
     assert.equal(value(".br-home-search", "grid-column"), "1 / -1");
     assert.equal(value(".br-home-search", "flex"), "none");
-    assert.equal(value(".br-layout .br-home__filter .form-check-label", "font-size"), "var(--br-font-size-075)");
+    assert.equal(value(".br-layout .br-home__filter .form-check-label", "min-width"), "0");
+    assert.equal(value(".br-layout .br-home__filter .form-check-label", "font-size"), undefined);
 
 });

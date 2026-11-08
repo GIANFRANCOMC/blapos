@@ -24,7 +24,7 @@
                     <form method="POST" action="{{ route('login') }}" class="mt-3 mt-md-4">
                         @csrf
                         <div class="mb-3">
-                            <label for="email" class="form-label colon-at-end fw-semibold">Correo electrónico</label>
+                            <label for="email" class="form-label colon-at-end">Correo electrónico</label>
                             <input type="text" class="form-control" id="email" name="email" placeholder="Ingrese el correo electrónico" :value="old('email')" required autofocus autocomplete="username"/>
                             @if($errors->get("email"))
                                 @foreach((array) $errors->get("email") as $message)
@@ -33,7 +33,7 @@
                             @endif
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label colon-at-end fw-semibold">Contraseña</label>
+                            <label for="password" class="form-label colon-at-end">Contraseña</label>
                             <div class="br-auth-password-field position-relative">
                                 <input type="password" class="form-control br-auth-password-input" id="password" name="password" placeholder="•••••••" required autocomplete="current-password"/>
                                 <button type="button" class="br-auth-password-toggle" id="br-auth-password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">

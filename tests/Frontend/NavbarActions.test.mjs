@@ -6,7 +6,7 @@ test("el navbar presenta favoritos, avisos y usuario autenticado sin alterar sus
 
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/60-dashboard-sales.css", import.meta.url), "utf8");
-    const typography = readFileSync(new URL("../../resources/css/System/br-branding/70-visual-density-brand-refresh.css", import.meta.url), "utf8");
+    const typography = readFileSync(new URL("../../resources/css/System/br-branding/01-typography.css", import.meta.url), "utf8");
     const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
 
     assert.match(layout, /@if\(\$favoritesEnabled\)[\s\S]*?id="brFabFavoritesToggle"/);
@@ -32,10 +32,10 @@ test("el navbar presenta favoritos, avisos y usuario autenticado sin alterar sus
     assert.match(layout, /@if\(\$favoritesEnabled\)[\s\S]*?<span>Preferencias<\/span>/);
     assert.match(styles, /\.br-navbar-user__menu \.dropdown-item\s*\{[^}]*justify-content: flex-start;[^}]*padding: 0\.35rem 0\.72rem !important;[^}]*background: transparent !important;/);
     assert.match(styles, /\.br-navbar-user__menu \.dropdown-item > span\s*\{[^}]*text-align: left;/);
-    assert.match(typography, /body\.br-layout :where\([\s\S]*?span, small, strong[\s\S]*?font-size: var\(--br-ui-font-size\) !important;/);
-    assert.match(styles, /body\.br-layout \.br-navbar-user__summary-copy strong\s*\{[^}]*font-size: var\(--br-font-size-078\) !important;/);
-    assert.match(styles, /body\.br-layout \.br-navbar-user__summary-copy small\s*\{[^}]*font-size: var\(--br-font-size-068\) !important;/);
-    assert.match(styles, /body\.br-layout \.br-navbar-user__menu \.dropdown-item > span\s*\{[^}]*font-size: var\(--br-font-size-074\) !important;/);
+    assert.match(typography, /\.dropdown-item,[^}]*font-size: var\(--br-font-size-ui\);/);
+    assert.match(styles, /\.br-navbar-user__summary-copy strong\s*\{[^}]*font-size: var\(--br-ui-font-size\);/);
+    assert.match(styles, /\.br-navbar-user__summary-copy small\s*\{[^}]*font-size: var\(--br-table-caption-font-size\);/);
+    assert.doesNotMatch(styles.match(/\.br-navbar-user__menu \.dropdown-item > span\s*\{[^}]*\}/)?.[0], /font-size/);
     assert.match(styles, /body\.br-layout \.br-navbar-user__toggle:is\([^)]*\)\s*\{[^}]*box-shadow: none !important;/);
     assert.match(styles, /\.br-navbar-user__toggle:focus-visible \.br-navbar-user__avatar\s*\{[^}]*box-shadow: 0 0 0 2px/);
     assert.match(styles, /\.br-navbar-user__menu\s*\{[^}]*overflow: hidden;/);

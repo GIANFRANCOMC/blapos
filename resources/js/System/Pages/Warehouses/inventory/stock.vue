@@ -120,14 +120,9 @@
                             <span>Más filtros</span>
                             <span v-if="activeStockFilterCount" class="br-inventory__filter-count">{{ activeStockFilterCount }}</span>
                         </button>
-                        <a
-                            href="#"
-                            role="button"
-                            class="br-filter-clear"
-                            :aria-disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            :tabindex="isCurrentViewLoading || !filters.warehouse?.code ? -1 : 0"
-                            @click.prevent="clearFilters()"
-                            @keydown.space.prevent="clearFilters()">Limpiar filtros</a>
+                        <ClearFiltersButton
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            @clear="clearFilters"/>
                         <button
                             v-if="activeView === 'transfers'"
                             type="button"
@@ -199,7 +194,7 @@
                                         <th>Stock actual</th>
                                         <th>Stock mínimo</th>
                                         <th>Diferencia</th>
-                                        <th>Estado del stock</th>
+                                        <th>Estado del<br>stock</th>
                                         <th><span class="visually-hidden">Acciones</span></th>
                                     </tr>
                                 </thead>
@@ -213,17 +208,7 @@
                                             :key="record.id"
                                             :class="{ 'br-inventory__scanned-row': scannedProductId === Number(record.id) }">
                                             <td>
-                                                <strong class="br-inventory__product-name">{{ record.name }}</strong>
-                                                <span class="br-inventory__product-identifiers">
-                                                    <span>
-                                                        <small class="colon-at-end">Cód. interno</small>
-                                                        <span>{{ record.internal_code }}</span>
-                                                    </span>
-                                                    <span v-if="record.barcode">
-                                                        <small class="colon-at-end">Cód. barras</small>
-                                                        <span>{{ record.barcode }}</span>
-                                                    </span>
-                                                </span>
+                                                <ProductIdentity :product="record"/>
                                             </td>
                                             <td class="text-end"><span class="br-inventory__stock-current">{{ quantityWithUnit(record.stock_quantity, record) }}</span></td>
                                             <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>

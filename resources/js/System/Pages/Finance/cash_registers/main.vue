@@ -99,7 +99,7 @@
                                         <span v-if="register.is_open" class="br-status br-status-active">Abierta</span>
                                         <span v-else class="br-status br-status-inactive">Sin apertura</span>
                                     </td>
-                                    <td class="text-end fw-semibold">S/ {{ separatorNumber(register.current_amount) }}</td>
+                                    <td class="text-end fw-medium">S/ {{ separatorNumber(register.current_amount) }}</td>
                                     <td class="text-center">
                                         <span :class="['br-status-label', register.status === 'active' ? 'br-status-active' : 'br-status-inactive']">
                                             {{ register.status === 'active' ? 'Activa' : 'Inactiva' }}
@@ -205,7 +205,7 @@
                             <tbody>
                                 <tr v-for="payment in summary.payments" :key="payment.payment_method_id || 'opening'">
                                     <td>{{ payment.payment_method?.name || 'Efectivo / apertura' }}</td>
-                                    <td class="text-end fw-semibold">S/ {{ separatorNumber(payment.amount) }}</td>
+                                    <td class="text-end fw-medium">S/ {{ separatorNumber(payment.amount) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -236,7 +236,7 @@
                                         <strong>{{ movement.reference || '-' }}</strong>
                                         <span v-if="movement.user?.name" class="br-cash__muted d-block">{{ movement.user.name }}</span>
                                     </td>
-                                    <td class="text-end fw-semibold">S/ {{ separatorNumber(movement.amount) }}</td>
+                                    <td class="text-end fw-medium">S/ {{ separatorNumber(movement.amount) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -429,7 +429,7 @@
                                             <span>{{ row.warehouse_name }}</span>
                                             <span class="br-cash__muted d-block">{{ row.branch_name }}</span>
                                         </td>
-                                        <td class="text-end fw-semibold">{{ separatorNumber(row.system_quantity) }}</td>
+                                        <td class="text-end fw-medium">{{ separatorNumber(row.system_quantity) }}</td>
                                         <td class="text-end">
                                             <InputNumber
                                                 v-model="row.counted_quantity"
@@ -438,7 +438,7 @@
                                                 :inputClass="['form-control', {'is-invalid': row.counted_quantity === '' || row.counted_quantity === null}]"
                                                 :minValue="0"/>
                                         </td>
-                                        <td class="text-end fw-semibold" :class="differenceClass(inventoryRowDifference(row))">
+                                        <td class="text-end fw-medium" :class="differenceClass(inventoryRowDifference(row))">
                                             {{ separatorNumber(inventoryRowDifference(row)) }}
                                         </td>
                                         <td>

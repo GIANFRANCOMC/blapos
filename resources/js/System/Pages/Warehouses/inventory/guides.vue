@@ -76,14 +76,9 @@
                             @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
                             <span>Buscar</span>
                         </button>
-                        <a
-                            href="#"
-                            role="button"
-                            class="br-filter-clear"
-                            :aria-disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            :tabindex="isCurrentViewLoading || !filters.warehouse?.code ? -1 : 0"
-                            @click.prevent="clearFilters()"
-                            @keydown.space.prevent="clearFilters()">Limpiar filtros</a>
+                        <ClearFiltersButton
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            @clear="clearFilters"/>
                         <button
                             v-if="activeView === 'stock'"
                             type="button"
@@ -132,7 +127,7 @@
                     <div  class="br-inventory__kardex">
                         <section class="br-entity-list" aria-label="Guías de inventario">
                             <div class="table-responsive">
-                                <table class="table br-entity-table br-inventory-table-headings br-inventory__kardex-table mb-0">
+                                <table class="table br-entity-table br-inventory-table-headings br-inventory__guides-table mb-0">
                                     <thead class="br-table-header-surface">
                                         <tr>
                                             <th>Fecha y número</th>
@@ -164,9 +159,10 @@
                                                 </td>
                                                 <td>
                                                     <strong>{{ (guide.items || []).length }} producto{{ (guide.items || []).length === 1 ? "" : "s" }}</strong>
-                                                    <span class="br-inventory__meta">
-                                                        {{ (guide.items || []).slice(0, 2).map(item => `${item.item?.name}: ${quantityWithUnit(item.quantity, item.item)}`).join(", ") }}
-                                                    </span>
+                                                    <div v-for="line in (guide.items || []).slice(0, 2)" :key="line.id" class="mt-2">
+                                                        <ProductIdentity :product="line.item"/>
+                                                        <span class="br-inventory__meta">Cantidad: {{ quantityWithUnit(line.quantity, line.item) }}</span>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <strong>{{ guide.reference || "-" }}</strong>

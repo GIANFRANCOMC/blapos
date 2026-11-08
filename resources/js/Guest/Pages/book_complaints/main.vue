@@ -260,7 +260,7 @@ export default {
                 Alerts.generateAlert({
                     type: "success",
                     headerTitle: "Solicitud registrada",
-                    msgContent: `<p class="mb-2">Guarda este código para consultar el estado:</p><strong class="fs-4">${result.data.tracking_code}</strong>`
+                    msgContent: `<p class="mb-2">Guarda este código para consultar el estado:</p><strong class="">${result.data.tracking_code}</strong>`
                 });
                 this.trackingCode = result.data.tracking_code;
                 this.form = this.emptyForm();

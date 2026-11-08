@@ -264,7 +264,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: 50%;
   background: transparent;
   color: var(--br-text-placeholder);
-  font-size: var(--br-font-size-075);
+  font-size: var(--br-table-caption-font-size);
   vertical-align: middle;
   place-items: center;
 }
@@ -324,7 +324,6 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: 0 var(--br-radius-sm) var(--br-radius-sm) 0;
   background: var(--br-surface-elevated);
   color: var(--br-secondary);
-  font-size: var(--br-font-size-078);
   transition: var(--br-transition);
 }
 
@@ -506,7 +505,7 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   border-radius: var(--br-radius-sm);
   background: transparent;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-08125);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-medium);
   cursor: pointer;
   transition: var(--br-transition);

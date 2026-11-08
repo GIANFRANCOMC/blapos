@@ -15,22 +15,22 @@
 
 .br-cash__eyebrow {
   color: var(--br-primary);
-  font-size: var(--br-font-size-072);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
   text-transform: uppercase;
 }
 
 .br-cash__title {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-118);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
 }
 
 .br-cash__subtitle {
   margin-top: 0.15rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-080);
-  font-weight: var(--br-font-weight-heading);
+  font-size: var(--br-table-caption-font-size);
+  font-weight: var(--br-font-weight-body);
 }
 
 .br-cash__selector {
@@ -44,8 +44,6 @@
 .br-cash .form-label {
   margin-bottom: 0.18rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
-  font-weight: var(--br-font-weight-label);
 }
 
 .br-cash__tabs {
@@ -83,10 +81,6 @@
   overflow: hidden;
 }
 
-.br-cash__panel .br-entity-table td {
-  vertical-align: middle;
-}
-
 .br-cash__panel .br-icon-action {
   width: 2rem;
   height: 2rem;
@@ -95,7 +89,7 @@
 
 .br-cash__muted {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-076);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-cash-summary {
@@ -119,14 +113,14 @@
 .br-cash-summary__card span,
 .br-cash-close-summary span {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-medium);
 }
 
 .br-cash-summary__card strong,
 .br-cash-close-summary strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-100);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-cash-close-summary {
@@ -155,15 +149,15 @@
 .br-cash-inventory-count__header strong {
   display: block;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-090);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-table-value-font-size);
+  font-weight: var(--br-font-weight-heading);
 }
 
 .br-cash-inventory-count__header span,
 .br-cash-inventory-count__summary span,
 .br-cash-inventory-count__empty {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-body);
 }
 
@@ -175,7 +169,7 @@
 }
 
 .br-cash-inventory-count__summary strong {
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-cash-inventory-count .table-responsive {
@@ -183,10 +177,6 @@
   border-radius: 0;
   background: var(--br-white);
   overflow: auto;
-}
-
-.br-cash-inventory-count .br-entity-table td {
-  vertical-align: middle;
 }
 
 .br-cash-inventory-count .input-group {

@@ -104,7 +104,7 @@
                         <div class="row g-3">
                             <template v-for="field in activeFields" :key="field.key">
                                 <div :class="field.wrapperClass || 'form-group col-xl-6 col-lg-6 col-md-12 col-sm-12'">
-                                    <label class="form-label fw-semibold">{{ field.label }}<span v-if="field.required" class="text-danger ms-1">*</span></label>
+                                    <label class="form-label">{{ field.label }}<span v-if="field.required" class="text-danger ms-1">*</span></label>
 
                                     <template v-if="field.type === 'select'">
                                         <v-select

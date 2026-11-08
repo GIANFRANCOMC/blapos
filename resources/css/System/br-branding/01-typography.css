@@ -14,15 +14,15 @@ textarea,
   font-family: var(--br-font-sans);
 }
 
-body,
-input,
-select,
-textarea {
-  font-weight: var(--br-font-weight-body);
-}
-
 body {
   color: var(--br-text);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-body);
+  line-height: var(--br-ui-line-height);
+}
+
+body :where(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
 }
 
 h1,
@@ -36,10 +36,64 @@ h6,
   font-weight: var(--br-font-weight-heading);
 }
 
+body :where(small, .small) {
+  font-size: var(--br-table-caption-font-size);
+}
+
+.dropdown-menu,
+.dropdown-item,
+.alert,
+.page-link {
+  font-size: var(--br-font-size-ui);
+  font-weight: var(--br-font-weight-body);
+}
+
 button,
 .btn,
-.br-btn,
+.br-btn {
+  font-size: var(--br-btn-font-size);
+  font-weight: var(--br-font-weight-control);
+}
+
 .form-label,
 .form-check-label {
+  font-size: var(--br-font-size-label);
   font-weight: var(--br-font-weight-label);
+}
+
+.modal-title,
+.card-title,
+.card-subtitle {
+  font-size: var(--br-ui-font-size);
+}
+
+.badge,
+.br-badge,
+.br-status-label,
+.br-inventory-status,
+.br-inventory-movement,
+.br-entity-inventory-status,
+.br-purchase-status,
+.br-receivables-status,
+.platform-status {
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-body);
+}
+
+.table {
+  font-size: var(--br-font-size-table);
+  font-weight: var(--br-font-weight-body);
+}
+
+body table :is(th, td) {
+  vertical-align: middle;
+}
+
+:where(.table tbody) :is(strong, b) {
+  font-weight: var(--br-font-weight-value);
+}
+
+body .table > thead > tr > th {
+  font-size: var(--br-table-heading-font-size);
+  font-weight: var(--br-font-weight-table-heading);
 }

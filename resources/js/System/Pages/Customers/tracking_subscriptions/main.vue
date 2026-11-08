@@ -116,7 +116,7 @@
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead>
-                        <tr class="text-center align-middle">
+                        <tr class="text-center">
                             <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 10%;"></th>
                             <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 20%;">SUCURSAL</th>
                             <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">CLIENTE</th>
@@ -143,22 +143,22 @@
                                             :custom-variants="statusBadgeSubscriptionVariants"/>
                                     </td>
                                     <td class="text-start">
-                                        <span v-text="record.branch?.name" class="fw-bold d-block"></span>
+                                        <span v-text="record.branch?.name" class="fw-medium d-block"></span>
                                     </td>
                                     <td class="text-start">
-                                        <span v-text="record.customer?.name" class="fw-bold d-block"></span>
+                                        <span v-text="record.customer?.name" class="fw-medium d-block"></span>
                                         <small v-text="record.customer?.document_number" class="d-block"></small>
                                     </td>
                                     <td>
-                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-medium"></span>
+                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-medium"></span>
                                     </td>
                                     <td>
-                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
-                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
+                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-medium"></span>
+                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-medium"></span>
                                         <small
                                             v-if="record.remaining_time_label"
-                                            :class="['d-block fw-semibold mt-1', remainingTimeClass(record)]"
+                                            :class="['d-block fw-medium mt-1', remainingTimeClass(record)]"
                                             v-text="record.remaining_time_label"></small>
                                     </td>
                                     <td>
@@ -239,7 +239,7 @@
                         <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mt-4">
                             <div class="text-center cursor-pointer p-1" @click="renewEntity({})">
                                 <div class="badge bg-primary p-3 rounded mb-1">
-                                    <i class="fa-solid fa-rotate-right fs-3"></i>
+                                    <i class="fa-solid fa-rotate-right"></i>
                                 </div>
                                 <span class="d-block fw-semibold text-primary">Renovar membresía</span>
                             </div>
@@ -247,7 +247,7 @@
                         <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mt-4">
                             <div class="text-center cursor-pointer p-1" @click="cancelEntity({})">
                                 <div class="badge bg-danger p-3 rounded mb-1">
-                                    <i class="fa-solid fa-rectangle-xmark fs-3"></i>
+                                    <i class="fa-solid fa-rectangle-xmark"></i>
                                 </div>
                                 <span class="d-block fw-semibold text-danger">Anular membresía</span>
                             </div>

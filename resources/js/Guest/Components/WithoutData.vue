@@ -2,7 +2,7 @@
     <template v-if="['image'].includes(type)">
         <img :src="image" class="fluid-image" width="23%"/>
         <h5>
-            <span class="fs-5 fw-bold px-5" v-text="text"></span>
+            <span class="fw-bold px-5" v-text="text"></span>
         </h5>
     </template>
     <template v-else-if="['text'].includes(type)">

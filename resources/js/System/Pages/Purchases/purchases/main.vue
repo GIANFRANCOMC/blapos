@@ -61,7 +61,7 @@
                                                 <tbody class="table-border-bottom-0 bg-white">
                                                     <template v-if="purchaseForm.items?.length">
                                                         <tr v-for="(detail, index) in purchaseForm.items" :key="detail.key">
-                                                            <td class="text-center fw-bold">
+                                                            <td class="text-center fw-medium">
                                                                 <span>{{ index + 1 }}</span>
                                                             </td>
                                                             <td class="text-start">
@@ -77,7 +77,7 @@
                                                                     </template>
                                                                 </InputNumber>
                                                             </td>
-                                                            <td class="text-end align-middle pe-3">
+                                                            <td class="text-end pe-3">
                                                                 <span class="br-amount-inline">
                                                                     <span class="br-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
                                                                     <span class="br-amount-inline__amount">{{ separatorNumber(lineTotal(detail)) }}</span>
@@ -90,16 +90,16 @@
                                                             </td>
                                                         </tr>
                                                         <tr class="br-table-footer-stripe">
-                                                            <td colspan="4" class="text-end align-middle br-table-footer-stripe__label">
+                                                            <td colspan="4" class="text-end br-table-footer-stripe__label">
                                                                 <span class="text-uppercase">Importe total:</span>
                                                             </td>
-                                                            <td class="text-end align-middle pe-3">
+                                                            <td class="text-end pe-3">
                                                                 <span class="br-amount-inline br-amount-inline--emphasis">
                                                                     <span class="br-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
                                                                     <span class="br-amount-inline__amount">{{ separatorNumber(purchaseSubtotal) }}</span>
                                                                 </span>
                                                             </td>
-                                                            <td class="align-middle"></td>
+                                                            <td></td>
                                                         </tr>
                                                     </template>
                                                     <tr class="br-table-state" v-else>
@@ -455,8 +455,8 @@
                         <div class="br-purchases__receipt-items">
                             <div v-for="detail in receiptForm.items" :key="detail.purchaseItemId" class="br-purchases__receipt-row">
                                 <div>
-                                    <strong>{{ detail.name }}</strong>
-                                    <span>Pendiente: {{ separatorNumber(detail.remaining) }}</span>
+                                    <ProductIdentity :product="detail.product"/>
+                                    <span class="br-purchases__receipt-pending">Pendiente: {{ separatorNumber(detail.remaining) }}</span>
                                 </div>
                                 <InputNumber v-model="detail.quantity" title="Cantidad recibida" :titleClass="[config.forms.classes.title]" :hasNegative="false"/>
                             </div>
@@ -488,11 +488,12 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchInput},
+    components: {ProductIdentity, SearchInput},
     async mounted() {
         this.activeMode = this.initialModeFromPath();
         Utils.navbarItem("menu-parent-purchases", {addClass: "open"});
@@ -880,7 +881,7 @@ export default {
                     .filter(item => Number(item.remaining_quantity) > 0)
                     .map(item => ({
                         purchaseItemId: item.id,
-                        name: item.name,
+                        product: {...item.item, name: item.name || item.item?.name},
                         remaining: Number(item.remaining_quantity),
                         quantity: Number(item.remaining_quantity)
                     }))

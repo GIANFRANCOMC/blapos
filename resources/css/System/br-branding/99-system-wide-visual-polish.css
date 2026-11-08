@@ -5,7 +5,6 @@
  * Colores: sólo tokens `--br-*`.
  * ------------------------------------------------------------------------- */
 body.br-layout {
-  --br-ui-line-height: 1.25;
   --br-sidebar-width: var(--br-navigation-width, 17.5rem);
   --br-sidebar-collapsed-width: var(--br-navigation-rail-width, 4.25rem);
   --br-sidebar-profile-top-padding: 0.82rem;
@@ -29,21 +28,6 @@ html.layout-menu-collapsed body.br-layout {
 body.br-layout ::selection {
   background: color-mix(in srgb, var(--br-primary) 24%, transparent);
   color: var(--br-secondary);
-}
-
-body.br-layout ::placeholder {
-  color: color-mix(in srgb, var(--br-text-placeholder) 86%, var(--br-white));
-  font-size: var(--br-placeholder-font-size) !important;
-  font-style: normal;
-  font-weight: var(--br-font-weight-body);
-  opacity: 1;
-}
-
-body.br-layout .select2-selection__placeholder {
-  color: color-mix(in srgb, var(--br-text-placeholder) 86%, var(--br-white));
-  font-size: var(--br-placeholder-font-size) !important;
-  font-style: normal;
-  font-weight: var(--br-font-weight-body);
 }
 
 /* -------------------------------------------------------------------------
@@ -141,7 +125,7 @@ body.br-layout .select2-selection__placeholder {
   min-width: 0.74rem;
   height: 0.74rem;
   margin-right: 0.38rem;
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-table-caption-font-size);
   line-height: 1;
   transform: translateY(0);
 }
@@ -153,7 +137,7 @@ body.br-layout .select2-selection__placeholder {
   min-width: 0.64rem;
   height: 0.64rem;
   margin-right: 0.42rem;
-  font-size: var(--br-font-size-056);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-layout .br-menu-brand .menu-toggle::after {
@@ -165,7 +149,7 @@ body.br-layout .select2-selection__placeholder {
   border: 0;
   color: color-mix(in srgb, var(--br-white) 72%, transparent);
   font-family: "Font Awesome 6 Free";
-  font-size: var(--br-font-size-062);
+  font-size: var(--br-font-size-061);
   font-weight: var(--br-font-weight-icon);
   line-height: 1;
   -webkit-font-smoothing: antialiased;
@@ -253,7 +237,7 @@ body.br-layout .select2-selection__placeholder {
 
 .br-layout .br-menu-brand .menu-header-text,
 .br-layout .br-menu-brand .menu-header-text.divider-text {
-  font-size: var(--br-font-size-056);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-heading);
   letter-spacing: 0.065em;
 }
@@ -265,7 +249,7 @@ body.br-layout .select2-selection__placeholder {
 .br-layout .br-menu-brand .br-menu-group > .br-menu-group__toggle {
   min-height: 1.6rem !important;
   color: color-mix(in srgb, var(--br-white) 76%, transparent) !important;
-  font-size: var(--br-font-size-064) !important;
+  font-size: var(--br-table-caption-font-size) !important;
   font-weight: var(--br-font-weight-heading) !important;
   letter-spacing: 0.015em;
   margin: 0.08rem 0.32rem !important;
@@ -283,7 +267,7 @@ body.br-layout .select2-selection__placeholder {
 .br-layout .br-menu-brand .br-menu-group > .br-menu-group__items .menu-link {
   min-height: 1.42rem !important;
   padding-left: 0.72rem !important;
-  font-size: var(--br-font-size-068) !important;
+  font-size: var(--br-table-caption-font-size) !important;
   font-weight: var(--br-font-weight-heading) !important;
   color: color-mix(in srgb, var(--br-white) 68%, transparent) !important;
 }
@@ -355,14 +339,14 @@ body.br-layout .select2-selection__placeholder {
 }
 
 .br-sidebar-profile-user {
-  font-size: var(--br-font-size-080);
+  font-size: var(--br-ui-font-size);
   line-height: 1.18;
   letter-spacing: 0;
 }
 
 .br-sidebar-profile-role {
   margin-top: 0.06rem;
-  font-size: var(--br-font-size-049);
+  font-size: var(--br-table-caption-font-size);
   line-height: 1.2;
   letter-spacing: 0.075em;
 }
@@ -467,7 +451,7 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   opacity: 1 !important;
   width: auto !important;
   color: color-mix(in srgb, var(--br-white) 62%, transparent) !important;
-  font-size: var(--br-font-size-056) !important;
+  font-size: var(--br-table-caption-font-size) !important;
   font-weight: var(--br-font-weight-heading) !important;
   letter-spacing: 0.05em !important;
   line-height: 1 !important;
@@ -692,7 +676,6 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 .br-layout .select2-container--default .select2-selection--multiple {
   border-width: 1px;
   border-color: color-mix(in srgb, var(--br-border) 92%, var(--br-white));
-  border-radius: var(--br-app-control-radius);
   box-shadow: 0 1px 0 color-mix(in srgb, var(--br-secondary) 3%, transparent);
 }
 
@@ -740,8 +723,6 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 
 .br-layout .input-group-text {
   color: var(--br-text-muted);
-  font-size: var(--br-control-affix-font-size);
-  font-weight: var(--br-font-weight-body);
 }
 
 .br-layout .character-counter {
@@ -776,7 +757,6 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 
 .br-layout .form-check-label {
   color: var(--br-text);
-  font-size: var(--br-ui-font-size);
   line-height: 1.25;
 }
 
@@ -786,22 +766,12 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 }
 
 /* Vue-select, select2 y tags/chips */
-.br-layout .v-select .vs__selected,
-.br-layout .select2-container--default .select2-selection__rendered {
-  color: var(--br-text);
-  font-size: var(--br-ui-font-size);
-  line-height: 1.25;
-}
-
 .br-layout .v-select.vs--multiple .vs__selected,
 .br-layout .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  margin: 0.12rem 0.14rem;
   border: 1px solid color-mix(in srgb, var(--br-primary) 20%, var(--br-border));
   border-radius: 999px;
   background: color-mix(in srgb, var(--br-primary-soft) 78%, var(--br-white));
   color: var(--br-secondary);
-  font-size: var(--br-ui-font-size);
-  font-weight: var(--br-font-weight-medium);
 }
 
 .br-layout .v-select .vs__dropdown-menu,
@@ -895,7 +865,6 @@ body > .vs__dropdown-menu,
 .br-entity-table__meta,
 .br-entity-table__attribute,
 .br-pos-product__description,
-.br-pos-product__codes,
 .br-pos-product__meta {
   color: var(--br-text-muted);
 }
@@ -964,7 +933,6 @@ body > .vs__dropdown-menu,
 .br-layout .alert {
   padding: 0.62rem 0.78rem;
   border-radius: var(--br-radius);
-  font-size: var(--br-ui-font-size);
   line-height: 1.35;
 }
 
@@ -1173,7 +1141,7 @@ body > .vs__dropdown-menu,
 
 .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tab__content strong {
   color: inherit !important;
-  font-size: var(--br-font-size-067);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.045em;
   line-height: 1.2;
@@ -1181,7 +1149,7 @@ body > .vs__dropdown-menu,
 
 .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tab__error {
   margin-left: 0;
-  font-size: var(--br-font-size-070);
+  font-size: var(--br-table-caption-font-size);
 }
 
 @media (max-width: 767.98px) {
@@ -1320,7 +1288,7 @@ body > .vs__dropdown-menu,
   align-items: center;
   gap: 0.38rem;
   color: var(--br-secondary) !important;
-  font-size: var(--br-font-size-064);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-emphasis);
   letter-spacing: 0.01em;
 }
@@ -1328,7 +1296,7 @@ body > .vs__dropdown-menu,
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tab__content small {
   margin: 0;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-056);
+  font-size: var(--br-table-caption-font-size);
   font-weight: var(--br-font-weight-body);
   line-height: 1.15;
 }
@@ -1361,7 +1329,7 @@ body > .vs__dropdown-menu,
     border-radius: 50%;
     background: var(--br-white);
     color: var(--br-primary-active);
-    font-size: var(--br-font-size-062);
+    font-size: var(--br-table-caption-font-size);
     place-items: center;
   }
 
@@ -1439,7 +1407,7 @@ body > .vs__dropdown-menu,
   border-radius: var(--br-radius-sm);
   background: var(--br-white);
   color: var(--br-primary-active);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   text-decoration: none;
   place-items: center;
 }
@@ -1458,7 +1426,7 @@ body > .vs__dropdown-menu,
   gap: 0.5rem 1rem;
   margin-bottom: 0.75rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-company-settings__brand-grid {
@@ -1504,7 +1472,7 @@ body > .vs__dropdown-menu,
 .br-company-settings__brand-details p {
   margin: 0 0 0.55rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-ui-font-size);
   line-height: 1.4;
 }
 
@@ -1525,7 +1493,7 @@ body > .vs__dropdown-menu,
   min-width: 0;
   overflow: hidden;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-069);
+  font-size: var(--br-table-caption-font-size);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

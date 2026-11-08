@@ -100,7 +100,7 @@
                                                     :title="MODULE.texts.date.inputTitle"
                                                     isRequired
                                                     :max="dashboardConsultDateMax"
-                                                    :titleClass="['form-label', 'colon-at-end', 'fw-semibold', 'small', 'mb-1']"
+                                                    :titleClass="['form-label', 'colon-at-end', 'mb-1']"
                                                     :divClass="['mb-0', 'br-dashboard-date__input-wrap']"/>
                                             </div>
                                             <div class="d-flex flex-column gap-1 flex-shrink-0 align-self-end">

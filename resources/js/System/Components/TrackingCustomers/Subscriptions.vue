@@ -2,7 +2,7 @@
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
-                <tr class="text-center align-middle">
+                <tr class="text-center">
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 10%;"></th>
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 40%;">SUCURSAL</th>
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">FECHA DE INICIO</th>
@@ -19,19 +19,19 @@
                                 :custom-variants="statusBadgeSubscriptionVariants"/>
                         </td>
                         <td class="text-start">
-                            <span v-text="record.branch?.name" class="fw-bold d-block"></span>
+                            <span v-text="record.branch?.name" class="fw-medium d-block"></span>
                             <span v-text="record.branch?.address" class="d-block"></span>
                         </td>
                         <td>
-                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-semibold"></span>
-                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-semibold"></span>
+                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-medium"></span>
+                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-medium"></span>
                         </td>
                         <td>
-                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-semibold"></span>
-                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-semibold"></span>
+                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-medium"></span>
+                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-medium"></span>
                             <small
                                 v-if="record.remaining_time_label"
-                                :class="['d-block fw-semibold mt-1', remainingTimeClass(record)]"
+                                :class="['d-block fw-medium mt-1', remainingTimeClass(record)]"
                                 v-text="record.remaining_time_label"></small>
                         </td>
                     </tr>

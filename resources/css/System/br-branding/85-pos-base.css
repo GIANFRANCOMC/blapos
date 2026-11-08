@@ -24,7 +24,6 @@
 }
 
 .br-pos-search .form-control {
-  height: var(--br-control-height);
   padding-left: 2.25rem;
   border-color: var(--br-border);
   background: var(--br-white);
@@ -64,14 +63,9 @@
   white-space: nowrap;
 }
 
-.br-pos-category strong {
-  font-size: var(--br-font-size-082);
-  font-weight: var(--br-font-weight-emphasis);
-}
-
 .br-pos-category small {
   color: currentColor;
-  font-size: var(--br-font-size-068);
+  font-size: var(--br-table-caption-font-size);
   opacity: 0.7;
 }
 
@@ -114,31 +108,22 @@
   border-radius: 0.85rem;
   background: linear-gradient(135deg, var(--br-primary-soft), var(--br-white));
   color: var(--br-primary-active);
-  font-size: var(--br-font-size-125);
 }
 
 .br-pos-product__info {
   min-width: 0;
 }
 
-.br-pos-product__info strong,
-.br-pos-product__info small,
-.br-pos-product__codes span {
+.br-pos-product__info > .br-pos-product__description {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.br-pos-product__info strong {
-  color: var(--br-secondary);
-  font-size: var(--br-font-size-092);
-}
-
-.br-pos-product__info small,
-.br-pos-product__codes {
+.br-pos-product__description {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-pos-product__footer {
@@ -153,7 +138,6 @@
 
 .br-pos-product__footer strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-095);
 }
 
 .br-pos-ticket {
@@ -182,14 +166,12 @@
 .br-pos-ticket__header h2 {
   margin: 0;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-115);
   font-weight: var(--br-font-weight-heading);
 }
 
 .br-pos-ticket__header p {
   margin: 0;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-075);
 }
 
 .br-pos-ticket__config {
@@ -202,8 +184,8 @@
   display: block;
   margin-bottom: 0.12rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-label);
 }
 
 .br-pos-ticket__items {
@@ -234,13 +216,13 @@
 
 .br-pos-ticket-item strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-082);
+  font-size: var(--br-table-value-font-size);
 }
 
 .br-pos-ticket-item small,
 .br-pos-ticket__empty {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-pos-ticket__totals {
@@ -257,7 +239,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-078);
+  font-size: var(--br-ui-font-size);
 }
 
 .br-pos-ticket__totals strong {
@@ -266,8 +248,8 @@
 
 .br-pos-ticket__totals .is-total {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-100);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-table-value-font-size);
+  font-weight: var(--br-font-weight-value);
 }
 
 .br-pos-ticket__pay {

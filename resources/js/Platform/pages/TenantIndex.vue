@@ -25,7 +25,7 @@
                     <div class="platform-toolbar">
                         <div class="platform-search">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <input v-model="filters.search" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente" @input="scheduleSearch">
+                            <input v-model="filters.search" class="form-control" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente" @input="scheduleSearch">
                             <button v-if="filters.search" type="button" class="platform-search__clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @click="filters.search = ''; scheduleSearch()">
                                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                             </button>
@@ -38,7 +38,7 @@
 
                     <Loader v-if="loading" label="Cargando clientes"/>
                     <div v-else-if="tenants.length" class="table-responsive">
-                        <table class="table platform-table align-middle mb-0">
+                        <table class="table platform-table mb-0">
                             <thead><tr><th>Cliente</th><th>Dominio</th><th>Base de datos</th><th>Estado</th><th class="text-end">Acción</th></tr></thead>
                             <tbody><tr v-for="tenant in tenants" :key="tenant.id">
                                 <td><button class="platform-tenant-name" type="button" @click="$emit('open', tenant)"><span>{{ tenant.slug.charAt(0).toUpperCase() }}</span><strong>{{ tenant.slug }}</strong></button></td>

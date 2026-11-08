@@ -34,8 +34,8 @@
 .br-sale-sidebar-actions__cta {
   width: 100%;
   justify-content: center;
-  font-size: var(--br-font-size-09375);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-control);
   padding: 0.5rem 1rem;
   box-shadow: var(--br-shadow-sm);
 }
@@ -89,28 +89,22 @@
 .br-layout .br-memberships-table thead th.br-memberships-table__th--primary {
   background-color: var(--bs-secondary);
   color: var(--br-white);
-  font-weight: var(--br-font-weight-table-heading);
   text-wrap: nowrap;
   text-transform: uppercase;
   text-align: center;
-  vertical-align: middle;
 }
 
 .br-layout .br-memberships-table thead th.br-memberships-table__th--meta {
   background-color: var(--bs-secondary);
   color: var(--br-white);
-  font-weight: var(--br-font-weight-table-heading);
-  font-size: var(--br-font-size-0875);
   text-wrap: nowrap;
   text-transform: uppercase;
   text-align: center;
-  vertical-align: middle;
   border-left: 1px solid color-mix(in srgb, var(--br-white) 25%, transparent);
 }
 
 .br-layout .br-memberships-table tbody td.br-memberships-table__td {
   padding: 1rem 0.75rem;
-  vertical-align: middle;
 }
 
 .br-layout .br-memberships-table tbody td.br-memberships-table__td--meta {
@@ -134,8 +128,8 @@
 }
 
 .br-layout .br-memberships-table .br-memberships-table__date {
-  font-size: var(--br-memberships-date-size);
-  font-weight: var(--br-memberships-date-weight);
+  font-size: var(--br-table-value-font-size);
+  font-weight: var(--br-font-weight-value);
   line-height: 1.25;
   color: var(--bs-body-color);
   padding-inline: 0.25rem;
@@ -143,7 +137,7 @@
 }
 
 .br-layout .br-memberships-table .br-memberships-table__time {
-  font-size: var(--br-font-size-0875);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -172,7 +166,7 @@
  * Variante --today: acento éxito solo cuando la emisión es el día actual.
  */
 .br-layout .br-sales-relative-pill {
-  font-size: var(--br-font-size-0875);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -205,8 +199,6 @@
   justify-content: center;
   gap: 0.32rem;
   padding: 0.24rem 0.48rem;
-  font-size: var(--br-font-size-070) !important;
-  font-weight: var(--br-font-weight-emphasis);
   line-height: 1.2;
   border-radius: var(--br-radius-sm);
   border: 0;
@@ -298,7 +290,7 @@
   gap: 0.5rem;
   max-width: 100%;
   font-weight: var(--br-font-weight-emphasis);
-  font-size: var(--br-font-size-0875);
+  font-size: var(--br-ui-font-size);
   line-height: 1.25;
   text-transform: capitalize;
   color: var(--br-memberships-origin-fg) !important;
@@ -306,7 +298,7 @@
 
 .br-layout .br-memberships-table .br-memberships-table__origin-icon {
   flex-shrink: 0;
-  font-size: var(--br-font-size-100);
+  font-size: var(--br-font-size-090);
   line-height: 1;
   color: var(--br-memberships-origin-icon) !important;
 }
@@ -318,7 +310,7 @@
 .br-layout .br-memberships-table .br-memberships-table__empty {
   display: block;
   text-align: center;
-  font-size: var(--br-font-size-0875);
+  font-size: var(--br-table-caption-font-size);
   color: var(--bs-secondary-color);
 }
 
@@ -332,39 +324,34 @@
 }
 
 .br-amount-inline__sign {
-  font-size: var(--br-amount-sign-size);
-  font-weight: var(--br-amount-sign-weight);
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-label);
   color: var(--br-text-muted);
   margin-right: var(--br-amount-sign-gap);
 }
 
 .br-amount-inline__amount {
-  font-size: var(--br-amount-value-size);
-  font-weight: var(--br-amount-value-weight);
+  font-size: var(--br-table-value-font-size);
+  font-weight: var(--br-font-weight-value);
   color: var(--br-secondary);
   font-variant-numeric: tabular-nums;
 }
 
 /* Énfasis: pie de tabla / total general (misma estructura, mayor escala) */
 .br-amount-inline--emphasis .br-amount-inline__sign {
-  font-size: var(--br-amount-em-sign-size);
-}
-
-.br-amount-inline--emphasis .br-amount-inline__amount {
-  font-size: var(--br-amount-em-value-size);
+  font-size: var(--br-table-value-font-size);
 }
 
 /* Franja inferior del detalle (!important ante .table / .bg-white del tbody) */
 body.br-layout .br-table-footer-stripe > td {
   padding-top: 0.76rem;
   padding-bottom: 0.76rem;
-  vertical-align: middle;
   background-color: var(--br-table-thead-bg) !important;
 }
 
 body.br-layout .br-table-footer-stripe__label {
-  font-size: var(--br-table-footer-label-size);
-  font-weight: var(--br-font-weight-emphasis);
+  font-size: var(--br-font-size-label);
+  font-weight: var(--br-font-weight-label);
   letter-spacing: 0.04em;
   color: var(--br-white);
   font-variant-numeric: tabular-nums;
@@ -377,20 +364,7 @@ body.br-layout .br-table-footer-stripe .br-amount-inline__amount {
 
 @media (max-width: 575.98px) {
   .br-amount-inline__sign {
-    font-size: var(--br-amount-sign-size-sm);
     margin-right: var(--br-amount-sign-gap-sm);
-  }
-
-  .br-amount-inline__amount {
-    font-size: var(--br-amount-value-size-sm);
-  }
-
-  .br-amount-inline--emphasis .br-amount-inline__amount {
-    font-size: var(--br-amount-em-value-size-sm);
-  }
-
-  body.br-layout .br-table-footer-stripe__label {
-    font-size: var(--br-table-footer-label-size-sm);
   }
 }
 
@@ -454,7 +428,7 @@ svg.br-table-detail-empty__img {
   padding: 0 0.75rem;
   color: var(--br-text-muted);
   font-size: var(--br-ui-font-size);
-  font-weight: var(--br-font-weight-medium);
+  font-weight: var(--br-font-weight-body);
   line-height: 1.45;
   text-align: center;
   text-wrap: balance;
@@ -462,7 +436,7 @@ svg.br-table-detail-empty__img {
 
 .br-table-detail-empty__text .br-table-detail-empty__link {
   display: inline;
-  font-weight: var(--br-font-weight-emphasis);
+  font-weight: var(--br-font-weight-control);
   white-space: nowrap;
 }
 
@@ -563,7 +537,7 @@ svg.br-table-detail-empty__img {
 .br-sale-customer-history__identity small,
 .br-sale-customer-history__panel header small {
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-072);
+  font-size: var(--br-table-caption-font-size);
 }
 
 .br-sale-customer-history__summary {
@@ -592,13 +566,13 @@ svg.br-table-detail-empty__img {
   align-items: center;
   gap: 0.32rem;
   color: var(--br-text-muted);
-  font-size: var(--br-font-size-074);
+  font-size: var(--br-ui-font-size);
   font-weight: var(--br-font-weight-emphasis);
 }
 
 .br-sale-customer-history__summary strong {
   color: var(--br-secondary);
-  font-size: var(--br-font-size-100);
+  font-size: var(--br-table-value-font-size);
   line-height: 1.1;
 }
 
@@ -614,7 +588,7 @@ svg.br-table-detail-empty__img {
 .br-sale-customer-history__panel h6 {
   margin: 0 0 0.08rem;
   color: var(--br-secondary);
-  font-size: var(--br-font-size-086);
+  font-size: var(--br-table-value-font-size);
   font-weight: var(--br-font-weight-heading);
 }
 

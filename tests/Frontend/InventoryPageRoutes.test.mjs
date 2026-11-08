@@ -149,7 +149,9 @@ test("stock operation modal uses the standard primary action and a compact produ
     assert.match(modalCss, /\.modal-footer\.br-entity-modal__footer > \.br-entity-modal__footer-actions \{[\s\S]*?margin-left: auto;/);
     assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?display: flex;[\s\S]*?align-items: center;[\s\S]*?min-height: var\(--br-control-height\);[\s\S]*?white-space: nowrap;/);
     assert.match(inventoryCss, /\.br-inventory-operation__items-header \{[\s\S]*?align-items: flex-end;/);
-    assert.match(inventoryCss, /\.br-inventory-operation__table tbody td \{[\s\S]*?vertical-align: middle;/);
+    const tableStyles = read("resources/css/System/br-branding/01-typography.css");
+    assert.match(tableStyles, /body table :is\(th, td\) \{\s*vertical-align: middle;/);
+    assert.doesNotMatch(inventoryCss, /vertical-align:\s*(?:top|bottom|middle)/);
     assert.match(modal, /<table[\s\S]*?br-inventory-operation__table[\s\S]*?<thead class="br-table-header-surface">[\s\S]*?Producto[\s\S]*?operationAmountLabel[\s\S]*?Costo unitario/);
     assert.match(modal, /Costo unitario\s*<small>Opcional<\/small>[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?title="Si se omite, se conserva el costo promedio actual\."/);
     assert.match(modal, /<tr v-for="\(item, index\) in movementForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.amount"/);
@@ -273,7 +275,7 @@ test("stock lists only the selected warehouse and shows six table columns includ
     assert.match(stock, /<table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">/);
     assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
     assert.equal((stock.match(/colspan="6"/g) || []).length, 2);
-    assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th>Estado del stock<\/th>/);
+    assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th>Estado del<br>stock<\/th>/);
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
     assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
@@ -345,7 +347,7 @@ test("stock gives more width to its filters and moves actions to a full row", ()
     assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?contextActionColumns[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>/);
     assert.match(stockFilters, /<span>Buscar<\/span>[\s\S]*?<span>Más filtros<\/span>[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Ver alertas<\/span>[\s\S]*?<span>Acciones<\/span>/);
     assert.doesNotMatch(component, /br-inventory__alerts-action/);
-    assert.match(component, /<strong class="br-inventory__product-name">\{\{ record\.name \}\}<\/strong>/);
+    assert.match(component, /<ProductIdentity :product="record"\/>/);
     assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
     assert.match(component, /isReportView\(\) \{[\s\S]*?"kardex", "valued", "guides"/);
     assert.match(component, /if\(this\.isReportView\) return "col-12 col-md-6 col-lg-3 col-xl-3";/);

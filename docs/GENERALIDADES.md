@@ -101,36 +101,29 @@ Jerarquía de peso: títulos y totales `600–700`, etiquetas y botones `500`, t
 
 Todo valor visual nuevo debe pertenecer al sistema compartido antes de usarse en una pantalla: tipografía, colores, pesos, espaciado, altura de controles, radios, bordes, sombras y transiciones. Primero elegir un token existente según la función del elemento; si falta, añadirlo al catálogo central y documentar su propósito. No duplicar valores ni crear clases por módulo para representar el mismo rol visual.
 
-La escala tipográfica está en `resources/css/Shared/typography-tokens.css`, compartida por System, Guest y Platform. Conserva los tamaños actuales en pasos reutilizables `--br-font-size-*` y los tamaños fluidos en `--br-font-size-fluid-*`. Los aliases de System/Guest se definen en `br-branding/00-tokens.css`; los parciales y componentes Vue usan `var(...)`, nunca un tamaño literal. `inherit` y `0` siguen siendo válidos para herencia o técnicas de ocultación.
+Control de stock es la referencia tipográfica para System, Guest y Platform. Los pasos de la escala y los pesos se definen en `resources/css/Shared/typography-tokens.css`. Los roles viven en `br-branding/00-tokens.css` y la tipografía de controles, etiquetas, botones y tablas se aplica desde `br-branding/01-typography.css`.
 
 ### Tamaños estándar según el rol
 
-La interfaz debe usar pocos tamaños y repetirlos de forma consistente. Centralizar un valor en una variable no basta: no se debe crear un tamaño para cada pantalla, etiqueta o diferencia visual pequeña. El catálogo numérico conserva medidas heredadas por compatibilidad; su existencia no las convierte en opciones recomendadas para componentes nuevos. Elegir el alias del rol, no un paso numérico por preferencia estética.
+El catálogo contiene solo los tamaños de Control de stock. Al migrar una pantalla, elegir el tamaño existente más cercano que cumpla la misma función. Si el componente ya lo hereda, retirar la declaración local. Usar la misma escala en escritorio y móvil.
 
 | Rol de interfaz | Tamaño estándar existente | Uso |
 | --- | --- | --- |
 | Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales; los aliases de inputs, labels y botones parten de este tamaño. |
 | Ayuda o descripción breve | `--br-table-caption-font-size` | Contexto subordinado al dato principal; no reducirlo por pantalla. |
-| Dato secundario | `--br-table-secondary-font-size` | Desgloses comparables de un mismo nivel. |
+| Dato secundario | `--br-ui-font-size` | Desgloses comparables y valores secundarios. |
 | Dato principal destacado | `--br-table-value-font-size` | Precios y métricas que requieren mayor jerarquía. |
 | Encabezado de tabla | `--br-table-heading-font-size` | Cabeceras de listados y tablas compartidas. |
-| Cantidad de stock | `--br-stock-quantity-font-size` | Stock actual y Diferencia; ambos mantienen siempre el mismo tamaño. |
-| Título de página, sección o modal | Componente compartido correspondiente | Reutilizar su jerarquía y tamaño existentes; no crear un título local con otra medida. |
+| Cantidad de stock | `--br-stock-quantity-font-size` | Stock actual, Diferencia, Variación y Saldo. |
+| Títulos de página, diálogo y sección | `--br-table-value-font-size` | Los títulos destacados comparten este paso. Los títulos de modales compactas heredan el tamaño operativo. |
 
-Elementos con el mismo rol usan el mismo alias en todos los módulos. La jerarquía adicional se resuelve primero con estructura, espaciado, color y peso moderado; no con variaciones mínimas como un tamaño nuevo para cada código, contador o etiqueta. Los aliases específicos heredados, incluidos los códigos de inventario, se mantienen mientras su componente los necesite; al migrar un componente se busca consolidarlos en los roles estándar, no propagar esas excepciones.
+Los elementos del mismo rol comparten tamaño y peso. Al reutilizar un control, etiqueta o tabla, retirar del CSS de la pantalla las declaraciones de tipografía que ya aporta el estilo común. Los textos internos heredan el tamaño y el peso de su contenedor. Las ayudas y los datos destacados usan su alias de rol. Los códigos internos y de barras comparten los tamaños de etiquetas y valores de Control de stock.
 
-Antes de introducir un tamaño o alias nuevo:
-
-1. Identificar el rol y comprobar si lo cubren el componente compartido o los aliases de la tabla anterior.
-2. Reutilizar el alias existente. Si hace falta un nombre semántico adicional, referenciar un tamaño ya disponible; un alias nuevo no justifica una medida nueva.
-3. Solo si ningún rol existente cubre una necesidad funcional o de legibilidad verificable, documentar el motivo, el componente compartido que lo consumirá y por qué no sirve la escala actual. Una preferencia estética local o una diferencia mínima no son justificación.
-4. Definir la excepción una sola vez en el origen central y comprobar sus consumidores y el comportamiento responsive. No añadir tamaños sueltos, duplicados ni ajustes mediante `calc()` para separarse del estándar.
-
-En revisión, rechazar tamaños nuevos sin justificación, el uso de pasos numéricos para eludir un rol existente y excepciones duplicadas entre módulos. El objetivo es consolidar la escala y mantener pocas medidas reconocibles.
-
-Para ampliar toda la tipografía, cambiar `--br-font-scale` de `1` a `1.1` (10 % más). El factor se aplica una sola vez a los tamaños absolutos y fluidos; los iconos en `em` siguen a su texto. Para cambiar solo un rol, modificar su alias en `00-tokens.css` para todos sus consumidores, siguiendo los criterios anteriores. No redefinir los aliases globales en `body`, capas de pulido o componentes porque impediría configurarlos desde su origen.
+Para ampliar toda la tipografía, cambiar `--br-font-scale` de `1` a `1.1` (10 % más). Los iconos en `em` siguen el tamaño de su texto. Para cambiar un rol, apuntar su alias en `00-tokens.css` a otro paso existente para todos sus consumidores.
 
 Stock actual y Diferencia comparten `--br-stock-quantity-font-size` (`0.8rem` de base), conservando sus colores y peso. Los encabezados de tablas usan `--br-table-heading-font-size`; las etiquetas y valores de los códigos de inventario usan `--br-product-code-label-font-size` y `--br-product-code-font-size`. Usar `colon-at-end` en Cód. interno y Cód. barras en lugar de escribir dos puntos manuales.
+
+Reutilizar `ProductIdentity` al presentar un producto con su nombre e identificadores en el mismo bloque. Pasar el objeto con `name`, `internal_code` y `barcode`. El componente conserva la presentación de Control de stock y muestra el código de barras cuando está disponible.
 
 Modificar la regla fuente del componente y eliminar declaraciones redundantes antes de aumentar la especificidad. No resolver conflictos entre estilos propios añadiendo clases o `!important`. Las excepciones de librerías y los ajustes responsive deben consumir los mismos tokens. Los tamaños de documentos exportados, correos y dibujos de canvas se definen según su formato de salida, fuera de la escala de interfaz.
 
@@ -152,13 +145,15 @@ Modificar el alias global para ajustar un rol; no redefinirlo en módulos ni cap
 
 ### Convención tipográfica de tablas
 
+Todas las celdas de cabecera, cuerpo y pie se centran verticalmente mediante la regla compartida de `01-typography.css`. Los módulos definen la alineación horizontal según el contenido de cada columna.
+
 Los aliases compartidos se declaran en `resources/css/System/br-branding/00-tokens.css`, referencian la escala de `Shared/typography-tokens.css` y se aplican desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
 
 | Rol | Token | Tamaño base |
 | --- | --- | --- |
 | Texto operativo y celdas comunes | `--br-ui-font-size` / `--br-font-size-table` | `0.705rem` |
 | Dato principal (precio de venta, inventario u otro valor destacado) | `--br-table-value-font-size` | `0.82rem` |
-| Dato secundario (precio mínimo/máximo u otro desglose) | `--br-table-secondary-font-size` | `0.7rem` |
+| Dato secundario (precio mínimo/máximo u otro desglose) | `--br-ui-font-size` | `0.705rem` |
 | Etiqueta breve de un dato compuesto | `--br-table-caption-font-size` | `0.68rem` |
 | Cantidades comparables de inventario: Stock actual y Diferencia | `--br-stock-quantity-font-size` | `0.8rem` |
 | Encabezado de tabla | `--br-table-heading-font-size` | `0.66rem` |
@@ -180,7 +175,7 @@ Criterios prácticos:
 - Preferir tooltips para aclaraciones breves, no alertas visuales invasivas.
 - Usar labels sutiles, no grandes ni demasiado oscuros.
 - Los botones deben diferenciar intención: buscar, crear, editar, importar, descargar, cancelar, confirmar y peligro.
-- Ofrecer «Limpiar filtros» en barras con varios campos mediante la clase compartida `br-filter-clear` de `br-branding/40-buttons-quick-create.css`. Tiene apariencia de enlace sin subrayado, peso medio mediante `--br-font-weight-control`, el tamaño tipográfico existente de acciones pequeñas y alineación al extremo inferior de la fila. Se puede usar en un botón nativo o en `<a href="#" role="button">`; en enlaces, prevenir la navegación, admitir Espacio además de Enter y reflejar el bloqueo con `aria-disabled` y `tabindex`. No añadir estilos locales para repetir esta apariencia. Restablecer los campos juntos y conservar el contexto operativo (por ejemplo, el almacén); en filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
+- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón muestra una escoba y comparte los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
 - Los icon buttons requieren `aria-label` y tooltip.
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
@@ -218,12 +213,16 @@ Todos los formularios deben reutilizar componentes y patrones existentes:
 
 - `InputText` para texto.
 - `InputNumber` para numéricos y dinero.
+- `InputDate`, `InputMonth` e `InputDatetime` para fechas, meses y fecha con hora.
+- `InputSelect` y `InputSelect2` para selección nativa y Select2.
 - `InputSlot` cuando el input necesita prefijos, sufijos, acciones, moneda o contadores.
 - `vue-select` con estilos globales y `SelectNoOptions` para mensajes vacíos en español.
 - `CopyButton` para copiar valores puntuales.
 - `BarcodeDownloadButton` para códigos de barras descargables.
 
 Los controles compuestos se tratan como una sola unidad visual. El hover, foco, disabled y error deben bordear el conjunto completo: input, prefijo, contador, botón lateral o selector.
+
+System, Guest y Platform comparten las métricas de `03-form-controls.css`. Los campos de una línea usan `--br-control-height`, `--br-font-size-ui` y peso regular. El placeholder, la búsqueda y el valor seleccionado usan el mismo tamaño. Los textos e iconos se centran verticalmente y los valores arrancan con el mismo padding. Las áreas de texto y las selecciones múltiples pueden crecer según su contenido.
 
 Errores de campo:
 
@@ -294,7 +293,7 @@ En todos los submódulos, activos o no, las confirmaciones siguen el mismo patr�
 Los mensajes de éxito, advertencia, información, error y pregunta usan `Alerts.showMessage` (texto plano) o `Alerts.generateAlert` (detalle tabular) y la clase visual `br-swal-alert--message`. Este patrón se aplica a todos los mensajes de un solo botón, no a las confirmaciones ni al loader.
 
 - Ancho predeterminado compacto de `25rem`; si el contenido requiere más espacio, pasar `width` en píxeles (por ejemplo, `width: 520`). El modal nunca debe exceder el viewport. No ampliar todos los mensajes por una excepción.
-- El texto visible, esté en `title` o en el cuerpo HTML, usa la misma escala tipográfica que el cuerpo de una confirmación: `calc(var(--br-font-size-label) + 0.075rem)`. Mantener esa equivalencia para éxito, advertencia, información, error y pregunta; la jerarquía se expresa con peso y espaciado, no con tamaños dispares.
+- El texto visible, esté en `title` o en el cuerpo HTML, usa la misma escala tipográfica que el cuerpo de una confirmación mediante `--br-table-value-font-size`. Mantener esa equivalencia para éxito, advertencia, información, error y pregunta. La jerarquía se expresa con peso y espaciado.
 - Icono circular compacto, centrado y proporcionado al símbolo, con color semántico: verde para éxito, ámbar para advertencia, azul para información o pregunta y rojo para error. El éxito usa una marca SVG completa; no mezclar el círculo reducido con los trazos internos nativos de SweetAlert. Usar el icono común de `br-swal-alert--message`.
 - La entrada del icono es breve y sin saltos de layout; en éxito, la marca se dibuja tras aparecer el círculo. Desactivar toda esa animación con `prefers-reduced-motion: reduce`, dejando el icono completo visible de inmediato.
 - Título o mensaje breve y concreto; el cuerpo añade información útil y no repite el título. Mostrar una única respuesta principal (`Entendido`) y evitar duplicar el mismo resultado con un aviso en la página o un toastr.

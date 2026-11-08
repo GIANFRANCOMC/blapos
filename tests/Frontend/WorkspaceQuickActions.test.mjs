@@ -27,9 +27,9 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     assert.ok(records.every(line => /"dom_icon" => "fa-(?:solid|regular) fa-[a-z-]+"/.test(line)));
     assert.match(styles, /\.br-workspace__link-icon\s*\{[^}]*border-radius: 50%;/);
     assert.match(styles, /\.br-workspace__links\s*\{[^}]*grid-auto-rows: minmax\(5rem, 1fr\);/);
-    assert.match(styles, /\.br-workspace__link-icon i\s*\{[^}]*font-size: var\(--br-font-size-155\);/);
-    assert.match(styles, /\.br-workspace__support-icon\s*\{[^}]*font-size: var\(--br-font-size-230\);/);
-    assert.match(styles, /#workspace-popular-title\s*\{[^}]*font-size: var\(--br-font-size-fluid-workspace\) !important;/);
+    assert.match(styles, /\.br-workspace__link-icon i\s*\{[^}]*font-size: var\(--br-font-size-200\);/);
+    assert.match(styles, /\.br-workspace__support-icon\s*\{[^}]*font-size: var\(--br-font-size-200\);/);
+    assert.match(styles, /#workspace-popular-title\s*\{[^}]*font-size: var\(--br-table-value-font-size\) !important;/);
     assert.doesNotMatch(styles, /\.br-workspace__section-eyebrow\s*\{/);
 
 });

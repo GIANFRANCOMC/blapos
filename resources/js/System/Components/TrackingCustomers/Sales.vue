@@ -2,7 +2,7 @@
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
-                <tr class="text-center align-middle">
+                <tr class="text-center">
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">DOCUMENTO</th>
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">FECHA DE EMISIÓN</th>
                     <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">TOTAL</th>
@@ -13,7 +13,7 @@
                 <template v-if="data.length > 0">
                     <tr v-for="record in data" :key="record.id" class="text-center">
                         <td class="text-start">
-                            <span v-text="record.serie_sequential" class="fw-bold d-block"></span>
+                            <span v-text="record.serie_sequential" class="fw-medium d-block"></span>
                             <small v-text="record.serie?.document_type?.name" class="d-block"></small>
                         </td>
                         <td>
@@ -21,15 +21,15 @@
                             <span
                                 :class="[
                                     'br-status-label',
-                                    'fw-semibold',
+                                    'fw-medium',
                                     'mt-1',
                                     { 'br-status-label--success': record.diff_days_issue_date === 0, 'br-status-label--warning': record.diff_days_issue_date !== 0 }
                                 ]"
                                 v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
                         </td>
                         <td>
-                            <span v-text="record.currency?.sign ?? ''" class="fw-semibold"></span>
-                            <span v-text="separatorNumber(record.total)" class="fw-semibold ms-1"></span>
+                            <span v-text="record.currency?.sign ?? ''" class="fw-medium"></span>
+                            <span v-text="separatorNumber(record.total)" class="fw-medium ms-1"></span>
                         </td>
                         <td>
                             <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>

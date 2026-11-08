@@ -33,7 +33,7 @@
                                 <div class="d-flex align-items-start justify-content-between gap-3">
                                     <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
                                         <span class="text-muted small fw-semibold" v-text="legibleFormatDate({dateString: record.created_at, type: 'datetime'})"></span>
-                                        <span class="fs-5 fw-bold text-dark text-truncate" v-text="getType(record)?.label"></span>
+                                        <span class="fw-bold text-dark text-truncate" v-text="getType(record)?.label"></span>
                                     </div>
                                     <StatusBadge
                                         class="flex-shrink-none"
@@ -92,7 +92,7 @@
                                         <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
                                             <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
                                                 <span class="text-muted small fw-semibold">Cliente</span>
-                                                <span class="fs-5 fw-bold text-dark text-truncate" v-text="forms[entity].createUpdate.data.name || MODULE.texts.card.notSpecified"></span>
+                                                <span class="fw-bold text-dark text-truncate" v-text="forms[entity].createUpdate.data.name || MODULE.texts.card.notSpecified"></span>
                                             </div>
                                         </div>
                                         <div class="text-start mb-1">
@@ -127,7 +127,7 @@
                                         <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
                                             <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
                                                 <span class="text-muted small fw-semibold" v-text="legibleFormatDate({dateString: forms[entity].createUpdate.data.created_at, type: 'datetime'})"></span>
-                                                <span class="fs-5 fw-bold text-dark text-truncate" v-text="getType(forms[entity].createUpdate.data)?.label"></span>
+                                                <span class="fw-bold text-dark text-truncate" v-text="getType(forms[entity].createUpdate.data)?.label"></span>
                                             </div>
                                             <StatusBadge
                                                 class="flex-shrink-none"

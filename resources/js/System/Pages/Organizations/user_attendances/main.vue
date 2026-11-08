@@ -41,14 +41,14 @@
                     <div class="col-md-4">
                         <div class="br-home-section h-100 p-3">
                             <small class="text-muted">Horas de la semana</small>
-                            <strong class="d-block fs-4 text-secondary">{{ summary.total_hours || 0 }} h</strong>
+                            <strong class="d-block text-secondary">{{ summary.total_hours || 0 }} h</strong>
                             <span class="text-muted">{{ summary.week_start || '-' }} al {{ summary.week_end || '-' }}</span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="br-home-section h-100 p-3">
                             <small class="text-muted">Estado actual</small>
-                            <strong class="d-block fs-5" :class="activeAttendance ? 'text-success' : 'text-secondary'">
+                            <strong class="d-block" :class="activeAttendance ? 'text-success' : 'text-secondary'">
                                 {{ activeAttendance ? 'Jornada en curso' : 'Sin jornada abierta' }}
                             </strong>
                             <span class="text-muted">{{ activeAttendance?.branch?.name || 'Selecciona una sede para operar' }}</span>
@@ -99,7 +99,7 @@
                                     <td>{{ record.branch?.name }}</td>
                                     <td>{{ formatDateTime(record.checked_in_at) }}</td>
                                     <td>{{ formatDateTime(record.checked_out_at) }}</td>
-                                    <td class="text-end fw-semibold">{{ formatMinutes(record.worked_minutes) }}</td>
+                                    <td class="text-end fw-medium">{{ formatMinutes(record.worked_minutes) }}</td>
                                     <td class="text-end">
                                         <div class="br-attendance-metrics">
                                             <strong>{{ formatMinutes(record.ordinary_minutes) }}</strong>

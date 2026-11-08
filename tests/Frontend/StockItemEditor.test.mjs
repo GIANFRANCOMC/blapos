@@ -20,8 +20,8 @@ function editor({result, confirmed = true} = {}) {
         async post(request) { requests.push(request); return result ?? {bool: true, data: {bool: true, data: {quantity: 9, minimum_stock: 2}}}; }
     };
     const document = {getElementById: () => ({classList: {contains: () => true}, addEventListener: (event, handler) => { hidden = handler; }})};
-    const component = new Function("Alerts", "Requests", "FormModal", "InputNumber", "InputText", "document", descriptor.script.content
-        .replace(/^import .*;\s*$/gm, "").replace("export default", "return"))(Alerts, Requests, {}, {}, {}, document);
+    const component = new Function("Alerts", "Requests", "FormModal", "InputNumber", "InputText", "ProductIdentity", "document", descriptor.script.content
+        .replace(/^import .*;\s*$/gm, "").replace("export default", "return"))(Alerts, Requests, {}, {}, {}, {}, document);
     const context = {
         ...component.data(),
         record: {id: 7, name: "Perno"}, warehouse: {code: 2, label: "Almacén central"},

@@ -168,12 +168,12 @@
                                     <span class="br-entity-table__meta" v-text="record.serie?.legible_serie || record.serie?.serie"></span>
                                 </td>
                                 <td>
-                                    <span v-text="legibleFormatDate({dateString: record.issue_date, type: 'weekday_date', separator: '/'})" class="d-block fw-semibold"></span>
+                                    <span v-text="legibleFormatDate({dateString: record.issue_date, type: 'weekday_date', separator: '/'})" class="d-block fw-medium"></span>
                                     <span
                                         :class="['br-sales-relative-pill', { 'br-sales-relative-pill--today': record.diff_days_issue_date === 0 }]"
                                         v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
                                 </td>
-                                <td class="text-end align-middle pe-3" title="Total">
+                                <td class="text-end pe-3" title="Total">
                                     <span class="br-amount-inline">
                                         <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
                                         <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
@@ -229,7 +229,7 @@
             <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
                 <div class="text-center cursor-pointer p-1" @click="cancelEntity({})">
                     <div class="badge bg-danger p-3 rounded mb-1">
-                        <i class="fa-solid fa-rectangle-xmark fs-3"></i>
+                        <i class="fa-solid fa-rectangle-xmark"></i>
                     </div>
                     <span class="d-block fw-semibold text-danger">Anular venta</span>
                 </div>
@@ -241,7 +241,7 @@
                     v-model="forms.entity.createUpdate.extras.modals.actions.data.whatsapp">
                     <template v-slot:inputGroupAppend>
                         <button class="btn btn-success waves-effect" type="button" @click="sendWhatsapp({data: forms.entity.createUpdate.extras.modals.actions.data})" :disabled="!isDefined({value: forms.entity.createUpdate.extras.modals.actions.data.whatsapp})">
-                            <i class="fa-brands fa-whatsapp fs-5" aria-hidden="true"></i>
+                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                             <span class="d-none d-sm-inline ms-sm-2" v-text="MODULE.texts.actions.send"></span>
                         </button>
                     </template>

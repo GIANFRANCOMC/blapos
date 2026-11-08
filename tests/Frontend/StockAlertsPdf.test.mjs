@@ -24,7 +24,7 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.match(modal, /<label for="inventoryAlertProduct"[^>]*>Producto<\/label>[\s\S]*?<SearchInput[\s\S]*?@search="\$emit\('search'\)"/);
     assert.match(modal, /placeholder="Buscar o escanear producto"/);
     assert.doesNotMatch(modal, /br-inventory-alerts__location-icon|br-inventory-alerts__eyebrow|br-btn br-btn-sm br-btn-danger/);
-    assert.match(modal, /Cód\. interno[\s\S]*?internal_code[\s\S]*?Cód\. barras[\s\S]*?barcode/);
+    assert.match(modal, /<ProductIdentity :product="alert\.warehouse_item\?\.item"\/>/);
     assert.match(modal, /quantityWithUnit\(value, alert\.warehouse_item\?\.item\?\.measurement_unit\)/);
     assert.match(modal, /class="br-inventory__stock-current">\{\{ formatQuantity\(alert\.quantity, alert\) \}\}/);
     assert.match(page, /class="br-inventory__stock-current">\{\{ quantityWithUnit\(record\.stock_quantity, record\) \}\}/);
@@ -39,7 +39,7 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.equal((modal.match(/:disabled="loading \|\| downloading \|\| !alerts\.total"/g) || []).length, 3);
     assert.doesNotMatch(modal, /<template #footer>/);
     assert.match(modal, /@click="\$emit\('download', 'pdf'\)"[\s\S]*?@click="\$emit\('download', 'excel'\)"/);
-    assert.match(styles, /body\.br-layout \.br-inventory-alerts \.br-inventory-alerts__warehouse-name \{[\s\S]*?font-size: var\(--br-stock-quantity-font-size\) !important;[\s\S]*?font-weight: var\(--br-font-weight-emphasis\);/);
+    assert.match(styles, /body\.br-layout \.br-inventory-alerts \.br-inventory-alerts__warehouse-name \{[^}]*font-size: var\(--br-stock-quantity-font-size\);[^}]*font-weight: var\(--br-font-weight-emphasis\);/);
     assert.match(styles, /\.br-inventory-alerts__table-head \{[\s\S]*?overflow-y: hidden;[\s\S]*?scrollbar-gutter: stable;[\s\S]*?background: var\(--br-table-thead-bg\);/);
     assert.match(styles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;[\s\S]*?scrollbar-gutter: stable;/);
     assert.match(styles, /\.br-inventory-alerts__toolbar \{[\s\S]*?display: flex;[\s\S]*?justify-content: space-between;/);
