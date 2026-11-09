@@ -14,11 +14,10 @@
                             :titleClass="[config.forms.classes.title]"
                             placeholder="Nombre, documento o contacto"
                             xl="8"
-                            lg="8"
-                            @search="listSuppliers({})"/>
+                            lg="8"/>
                         <div class="form-group col-xl-4 col-lg-4">
                             <div class="br-filter-bar__actions">
-                                <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listSuppliers({})">
+                                <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listSuppliers({applyFilters: true})">
                                     <span>Buscar</span>
                                 </button>
                                 <button
@@ -244,6 +243,7 @@ export default {
     data() {
         return {
             word: "",
+            appliedWord: "",
             loading: false,
             saving: false,
             editingId: null,
@@ -259,14 +259,15 @@ export default {
         };
     },
     methods: {
-        async listSuppliers({url = null} = {}) {
+        async listSuppliers({url = null, applyFilters = false} = {}) {
+            if(applyFilters) this.appliedWord = this.word;
             this.loading = true;
 
             try {
                 this.records = Requests.emptyPagination();
                 const result = await Requests.get({
                     route: url || this.config.entity.routes.list,
-                    data: {word: this.word}
+                    data: {word: this.appliedWord}
                 });
                 this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
             } finally {

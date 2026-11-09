@@ -2019,12 +2019,6 @@ progress {
     -webkit-overflow-scrolling: touch;
   }
 }
-.form-label {
-  margin-bottom: 0.25rem;
-  font-size: 0.8125rem;
-  color: #5d596c;
-}
-
 .col-form-label {
   padding-top: calc(0.422rem + var(--bs-border-width));
   padding-bottom: calc(0.422rem + var(--bs-border-width));
@@ -9459,7 +9453,6 @@ button:focus-visible {
   top: 1px;
 }
 
-.form-label,
 .col-form-label {
   text-transform: inherit;
   letter-spacing: inherit;

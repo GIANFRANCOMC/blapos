@@ -25,15 +25,15 @@
                     <div class="platform-toolbar">
                         <div class="platform-search">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <input v-model="filters.search" class="form-control" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente" @input="scheduleSearch">
-                            <button v-if="filters.search" type="button" class="platform-search__clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @click="filters.search = ''; scheduleSearch()">
+                            <input v-model="filters.search" class="form-control" type="text" placeholder="Buscar por cliente, dominio o base de datos" aria-label="Buscar cliente">
+                            <button v-if="filters.search" type="button" class="platform-search__clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @click="filters.search = ''">
                                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                             </button>
                         </div>
-                        <select v-model="filters.status" class="form-select platform-filter" @change="loadTenants(1)">
+                        <select v-model="filters.status" class="form-select platform-filter">
                             <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="maintenance">Mantenimiento</option><option value="provisioning">En preparación</option><option value="provisioning_failed">Preparación fallida</option>
                         </select>
-                        <button class="platform-icon-button" type="button" title="Actualizar" :disabled="loading" @click="loadTenants(meta.current_page)"><i class="fa-solid fa-rotate"></i></button>
+                        <button class="btn platform-btn-primary platform-action-button text-white" type="button" :disabled="loading" @click="searchTenants">Buscar</button>
                     </div>
 
                     <Loader v-if="loading" label="Cargando clientes"/>
@@ -113,7 +113,7 @@ export default {
     props: {apiBase: {type: String, required: true}},
     emits: ["open", "notify"],
     data() {
-        return {tenants: [], counts: {total: 0, active: 0, inactive: 0, suspended: 0, provisioning: 0, provisioning_failed: 0, maintenance: 0}, meta: {current_page: 1, last_page: 1, total: 0}, filters: {search: "", status: ""}, loading: true, creating: false, creatingSeconds: 0, creatingStage: "Iniciando el entorno aislado.", creatingTimer: null, creatingStatusTimer: null, creatingStatusPending: false, showCreate: false, form: emptyForm(), searchTimer: null};
+        return {tenants: [], counts: {total: 0, active: 0, inactive: 0, suspended: 0, provisioning: 0, provisioning_failed: 0, maintenance: 0}, meta: {current_page: 1, last_page: 1, total: 0}, filters: {search: "", status: ""}, appliedFilters: {search: "", status: ""}, loading: true, creating: false, creatingSeconds: 0, creatingStage: "Iniciando el entorno aislado.", creatingTimer: null, creatingStatusTimer: null, creatingStatusPending: false, showCreate: false, form: emptyForm()};
     },
     computed: {
         countCards() {
@@ -126,20 +126,24 @@ export default {
         }
     },
     async mounted() { await this.loadInitialParams(() => this.loadTenants()); },
-    beforeUnmount() { window.clearTimeout(this.searchTimer); window.clearInterval(this.creatingTimer); window.clearInterval(this.creatingStatusTimer); window.removeEventListener("beforeunload", this.preventUnload); document.body.classList.remove("platform-modal-open"); },
+    beforeUnmount() { window.clearInterval(this.creatingTimer); window.clearInterval(this.creatingStatusTimer); window.removeEventListener("beforeunload", this.preventUnload); document.body.classList.remove("platform-modal-open"); },
     methods: {
         async loadTenants(page = 1) {
             this.loading = true;
             this.tenants = [];
             this.meta = {current_page: 1, last_page: 1, total: 0};
             try {
-                const {data} = await api.get(this.apiBase, {params: {...this.filters, page, per_page: 20}});
+                const {data} = await api.get(this.apiBase, {params: {...this.appliedFilters, page, per_page: 20}});
                 this.tenants = data.data || []; this.counts = data.counts || this.counts; this.meta = data.meta || this.meta;
             } catch(error) { this.$emit("notify", {type: "danger", message: errorMessage(error, "No fue posible cargar los clientes.")}); }
             finally { this.loading = false; }
         },
-        scheduleSearch() { window.clearTimeout(this.searchTimer); this.searchTimer = window.setTimeout(() => this.loadTenants(1), 320); },
-        selectStatus(status) { this.filters.status = this.filters.status === status && status !== "" ? "" : status; this.loadTenants(1); },
+        searchTenants() {
+            if(this.loading) return;
+            this.appliedFilters = {...this.filters};
+            return this.loadTenants(1);
+        },
+        selectStatus(status) { this.filters.status = this.filters.status === status && status !== "" ? "" : status; },
         statusLabel(status) { return {active: "Activo", inactive: "Inactivo", suspended: "Suspendido", provisioning: "En preparación", provisioning_failed: "Preparación fallida", maintenance: "Mantenimiento"}[status] || status; },
         openCreateModal() { this.showCreate = true; document.body.classList.add("platform-modal-open"); },
         closeCreateModal() { if(this.creating) return; this.showCreate = false; document.body.classList.remove("platform-modal-open"); },

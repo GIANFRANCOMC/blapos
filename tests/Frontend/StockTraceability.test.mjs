@@ -19,7 +19,8 @@ function traceability() {
     };
     const component = new Function(...Object.keys(dependencies), source.replace(/^import .*;\s*$/gm, "").replace("export default", "return"))(...Object.values(dependencies));
     const context = {
-        filters: {warehouse: {code: 2, label: "Central"}}, canUpdateStock: false,
+        filters: {warehouse: {code: 3, label: "Pendiente"}},
+        appliedFilters: {warehouse: {code: 2, label: "Central"}}, canUpdateStock: false,
         loadingTraceability: false, traceabilityRequest: 0, requestVersion: 0,
         traceabilityRecords: {data: [{id: 99}], total: 1, links: [{url: "?page=2"}]},
         async $nextTick() { events.push("render"); }
@@ -73,7 +74,7 @@ test("si falla la consulta queda vacía, libera la carga y ofrece el estado de e
 test("cambiar de almacén descarta una respuesta pendiente y evita abrir información del contexto anterior", async () => {
     const {context, respond, events} = traceability();
     const pending = context.openTraceability({id: 7});
-    context.filters.warehouse = {code: 3};
+    context.appliedFilters.warehouse = {code: 3};
     context.invalidateListing();
     respond({bool: true, data: {data: [{id: 1}], total: 1}});
     await pending;

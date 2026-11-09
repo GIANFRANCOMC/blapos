@@ -465,15 +465,33 @@ class StockManagementService {
 
     public static function getKardex(array $filters, int $perPage) {
 
-        return InventoryMovementService::getPaginatedKardex($filters, $perPage);
+        return InventoryMovementService::getPaginatedKardex($filters, $perPage, self::kardexStockItems($filters));
 
     }
 
     public static function getKardexReport(array $filters): Collection {
 
-        return InventoryMovementService::getKardexQuery($filters)
+        return InventoryMovementService::getKardexQuery($filters, self::kardexStockItems($filters))
             ->orderByDesc("id")
             ->get();
+
+    }
+
+    private static function kardexStockItems(array $filters): ?Builder {
+
+        $stockKeys = ["situation", "category_id", "brand_id", "minimum_status", "inactive_days"];
+
+        if(array_filter(array_intersect_key($filters, array_flip($stockKeys))) === []) {
+            return null;
+        }
+
+        $warehouseId = isset($filters["warehouse_id"]) ? (int) $filters["warehouse_id"] : null;
+        $allowedWarehouseIds = $filters["allowed_warehouse_ids"] ?? null;
+        $items = Item::query()->select("items.id")->where("type", "product");
+
+        self::applySituationFilter($items, (string) ($filters["situation"] ?? ""), $warehouseId, $allowedWarehouseIds);
+
+        return self::applyStockFilters($items, $filters, $warehouseId, $allowedWarehouseIds);
 
     }
 

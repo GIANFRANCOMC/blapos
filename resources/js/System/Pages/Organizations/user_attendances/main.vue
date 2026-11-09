@@ -20,7 +20,7 @@
                             <input v-model="filters.weekStart" type="date" class="form-control">
                         </div>
                         <div class="col-xl-2 col-md-6 d-flex gap-2">
-                            <button type="button" class="br-btn br-btn-search flex-grow-1" @click="refresh">
+                            <button type="button" class="br-btn br-btn-search flex-grow-1" @click="searchAttendance" :disabled="loading">
                                 <span>Consultar</span>
                             </button>
                             <button
@@ -198,6 +198,7 @@ export default {
             config: Requests.config({entity: "user_attendances"}),
             options: {branches: [], users: [], statuses: []},
             filters: {branch: null, user: null, weekStart: this.currentMonday()},
+            appliedFilters: {branch: null, user: null, weekStart: ""},
             records: {data: [], links: []},
             summary: {},
             loading: false,
@@ -215,17 +216,17 @@ export default {
             return this.options.users.map(record => ({...record, label: record.name}));
         },
         activeAttendance() {
-            return this.records.data.find(record => record.status === "active" && record.user_id === this.filters.user?.id) || null;
+            return this.records.data.find(record => record.status === "active" && record.user_id === this.appliedFilters.user?.id) || null;
         },
         canOperate() {
-            return Boolean(this.filters.branch && this.filters.user);
+            return Boolean(this.appliedFilters.branch && this.appliedFilters.user);
         }
     },
     async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-user-attendances", {addClass: "active"});
         const initialized = await this.loadInitialParams(() => this.initParams());
-        if(initialized) await this.refresh();
+        if(initialized) await this.searchAttendance();
     },
     methods: {
         currentMonday() {
@@ -248,6 +249,11 @@ export default {
         async refresh() {
             await Promise.all([this.getRecords(), this.getSummary()]);
         },
+        searchAttendance() {
+            if(this.loading) return;
+            this.appliedFilters = {...this.filters};
+            return this.refresh();
+        },
         async getRecords(url = null) {
             url = typeof url === "object" ? url?.url : url;
             this.loading = true;
@@ -257,9 +263,9 @@ export default {
                 const result = await Requests.get({
                     route: url || this.config.routes.list,
                     data: {
-                        branch_id: this.filters.branch?.id,
-                        user_id: this.filters.user?.id,
-                        date_from: this.filters.weekStart
+                        branch_id: this.appliedFilters.branch?.id,
+                        user_id: this.appliedFilters.user?.id,
+                        date_from: this.appliedFilters.weekStart
                     }
                 });
                 if(Requests.valid({result})) this.records = result.data.data;
@@ -269,13 +275,13 @@ export default {
         },
         async getSummary() {
             this.summary = {};
-            if(!this.filters.user) return;
+            if(!this.appliedFilters.user) return;
             const result = await Requests.get({
                 route: this.config.routes.weekly,
                 data: {
-                    user_id: this.filters.user.id,
-                    branch_id: this.filters.branch?.id,
-                    week_start: this.filters.weekStart
+                    user_id: this.appliedFilters.user.id,
+                    branch_id: this.appliedFilters.branch?.id,
+                    week_start: this.appliedFilters.weekStart
                 }
             });
             if(Requests.valid({result})) this.summary = result.data.summary;
@@ -286,7 +292,7 @@ export default {
             Alerts.loading?.({message: "Registrando ingreso"});
             const result = await Requests.post({
                 route: this.config.routes.checkIn,
-                data: {branch_id: this.filters.branch.id, user_id: this.filters.user.id}
+                data: {branch_id: this.appliedFilters.branch.id, user_id: this.appliedFilters.user.id}
             });
             this.finishAction(result);
         },
@@ -296,7 +302,7 @@ export default {
             Alerts.loading?.({message: "Registrando salida"});
             const result = await Requests.patch({
                 route: this.config.routes.checkOut,
-                data: {branch_id: this.activeAttendance.branch_id, user_id: this.filters.user.id}
+                data: {branch_id: this.activeAttendance.branch_id, user_id: this.appliedFilters.user.id}
             });
             this.finishAction(result);
         },
@@ -437,9 +443,9 @@ export default {
         },
         exportPayroll() {
             const url = new URL(this.config.routes.export, window.location.origin);
-            url.searchParams.set("branch_id", this.filters.branch?.id || "");
-            url.searchParams.set("user_id", this.filters.user?.id || "");
-            url.searchParams.set("date_from", this.filters.weekStart || "");
+            url.searchParams.set("branch_id", this.appliedFilters.branch?.id || "");
+            url.searchParams.set("user_id", this.appliedFilters.user?.id || "");
+            url.searchParams.set("date_from", this.appliedFilters.weekStart || "");
             window.location.href = `${url.pathname}${url.search}`;
         },
         async finishAction(result) {

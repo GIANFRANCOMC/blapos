@@ -1,16 +1,34 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+import {parse} from "@vue/compiler-sfc";
+import {compile, createSSRApp, h} from "vue";
+import {renderToString} from "vue/server-renderer";
 
 globalThis.window ??= {location: {protocol: "http:", hostname: "localhost"}};
 
-const {quantityWithUnit} = await import("../../resources/js/System/Helpers/NumberUtils.js");
+const {normalizeNumber, quantityParts, quantityWithUnit} = await import("../../resources/js/System/Helpers/NumberUtils.js");
 
 test("las cantidades muestran la abreviatura registrada sin inventar unidades", () => {
     assert.equal(quantityWithUnit(19, {abbreviation: "UND"}, 0), "19 UND");
     assert.equal(quantityWithUnit(1, {unitAbbreviation: "UND"}, 0), "1 UND");
     assert.equal(quantityWithUnit(2, {plural_name: "UNIDADES"}, 0), "2");
     assert.equal(quantityWithUnit(2, null, 0), "2");
+});
+
+test("QuantityValue conserva la cantidad y separa la abreviatura para su estilo", async () => {
+    const source = readFileSync(new URL("../../resources/js/System/Components/Generics/QuantityValue.vue", import.meta.url), "utf8");
+    const {descriptor, errors} = parse(source);
+    assert.deepEqual(errors, []);
+    const script = descriptor.script.content.replace(/^import .*;\s*$/m, "").replace("export default", "return");
+    const component = {
+        ...new Function("normalizeNumber", "quantityParts", script)(normalizeNumber, quantityParts),
+        render: compile(descriptor.template.content)
+    };
+    const render = props => renderToString(createSSRApp({render: () => h(component, props)}));
+    const withUnit = await render({value: 201654, unit: {abbreviation: "UND"}, signed: true});
+    assert.match(withUnit, /\+201,654\.000<small class="br-quantity-value__unit"> UND<\/small>/);
+    assert.doesNotMatch(await render({value: -1, unit: null}), /<small/);
 });
 
 test("inventario conserva la abreviatura desde la consulta hasta las vistas y exportaciones", () => {

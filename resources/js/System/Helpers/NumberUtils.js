@@ -67,15 +67,18 @@ export function separatorNumber(value, decimals = null) {
 
 }
 
+export function quantityParts(value, measurementUnit = null, decimals = null) {
+
+    return {
+        amount: separatorNumber(value, decimals),
+        abbreviation: measurementUnit?.abbreviation || measurementUnit?.unitAbbreviation || ""
+    };
+}
+
 export function quantityWithUnit(value, measurementUnit = null, decimals = null) {
 
-    const number = normalizeNumber(value);
-    const abbreviation = measurementUnit?.abbreviation || measurementUnit?.unitAbbreviation;
-
-    if(abbreviation) return `${separatorNumber(number, decimals)} ${abbreviation}`;
-
-    return separatorNumber(number, decimals);
-
+    const {amount, abbreviation} = quantityParts(value, measurementUnit, decimals);
+    return abbreviation ? `${amount} ${abbreviation}` : amount;
 }
 
 /**

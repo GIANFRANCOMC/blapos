@@ -34,12 +34,12 @@
                         <span class="form-label">Búsqueda</span>
                         <span class="br-receivables__search-control">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <SearchInput v-model.trim="filters.search" placeholder="Proveedor o documento de compra" @search="loadAccounts()"/>
+                            <SearchInput v-model.trim="filters.search" placeholder="Proveedor o documento de compra"/>
                         </span>
                     </label>
                     <label class="br-filter-bar__field">
                         <span class="form-label">Estado</span>
-                        <select v-model="filters.status" class="form-select" @change="loadAccounts()">
+                        <select v-model="filters.status" class="form-select">
                             <option value="">Todos</option>
                             <option value="pending">Pendientes</option>
                             <option value="partial">Pago parcial</option>
@@ -57,7 +57,7 @@
                         <input v-model="filters.date_to" type="date" class="form-control">
                     </label>
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-search" @click="loadAccounts()">
+                        <button type="button" class="br-btn br-btn-search" @click="searchAccounts" :disabled="loading.list">
                             <span>Buscar</span>
                         </button>
                         <button type="button" class="br-btn br-btn-cancel" :disabled="!hasFilters" @click="clearFilters">
@@ -168,6 +168,7 @@ export default {
             summary: {accounts: 0, overdue_accounts: 0, amounts: []},
             selectedAccount: null,
             filters: {search: "", status: "", date_from: "", date_to: ""},
+            appliedFilters: null,
             loading: {list: false, detail: false},
             metrics: [
                 {key: "total", label: "Total financiado", description: "Capital más recargos", icon: "fa-solid fa-file-invoice-dollar", tone: "primary"},
@@ -191,14 +192,20 @@ export default {
         await this.loadInitialParams(() => this.loadAccounts());
     },
     methods: {
+        searchAccounts() {
+            if(this.loading.list) return;
+            this.appliedFilters = {...this.filters};
+            return this.loadAccounts();
+        },
         async loadAccounts(pageUrl = null) {
+            this.appliedFilters ??= {...this.filters};
             pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.list = true;
 
             try {
                 this.accounts = Requests.emptyPagination();
                 this.summary = {accounts: 0, overdue_accounts: 0, amounts: []};
-                const result = await Requests.get({route: pageUrl || this.config.routes.list, data: this.filters, showAlert: true});
+                const result = await Requests.get({route: pageUrl || this.config.routes.list, data: this.appliedFilters, showAlert: true});
 
                 if(!Requests.valid({result})) return;
 
@@ -218,7 +225,7 @@ export default {
         },
         clearFilters() {
             this.filters = {search: "", status: "", date_from: "", date_to: ""};
-            this.loadAccounts();
+            return Alerts.showFiltersCleared();
         },
         summaryAmount(key) {
             if(!this.summary.amounts?.length) return "S/ 0.000";

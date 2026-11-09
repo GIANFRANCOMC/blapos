@@ -7,6 +7,7 @@ namespace App\Services\System\Warehouses\Inventory;
 use App\Helpers\System\{Utilities};
 use App\Mail\{InventoryStockAlertMail};
 use App\Models\System\Catalogs\{Item};
+use App\Models\System\Organizations\{User};
 use App\Models\System\Warehouses\{InventoryMovement, InventoryStockAlert, Warehouse, WarehouseItem};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
@@ -14,7 +15,7 @@ use DomainException;
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB, Log, Mail};
-use Illuminate\Support\{Str};
+use Illuminate\Support\{Collection, Str};
 use Throwable;
 
 final class InventoryMovementService {
@@ -381,12 +382,13 @@ final class InventoryMovementService {
 
     public static function getPaginatedKardex(
         array $filters = [],
-        int $perPage = 15
+        ?int $perPage = null,
+        ?Builder $stockItems = null
     ): LengthAwarePaginator {
 
-        $page = self::getKardexQuery($filters)
+        $page = self::getKardexQuery($filters, $stockItems)
             ->orderByDesc("id")
-            ->paginate($perPage);
+            ->paginate($perPage ?? Utilities::$per_page_default);
 
         $originTypes = $filters["origin_types"] ?? [];
         $transferOrigins = [self::ORIGIN_TRANSFER_OUT, self::ORIGIN_TRANSFER_IN];
@@ -452,8 +454,17 @@ final class InventoryMovementService {
 
     }
 
+    public static function getKardexUsers(array $warehouseIds): Collection {
+
+        $authors = InventoryMovement::query()->select("user_id")->whereIn("warehouse_id", $warehouseIds);
+
+        return User::query()->whereIn("id", $authors)->orderBy("name")->toBase()->get(["id", "name"]);
+
+    }
+
     public static function getKardexQuery(
-        array $filters = []
+        array $filters = [],
+        ?Builder $stockItems = null
     ): Builder {
 
         $query = InventoryMovement::query()
@@ -463,6 +474,10 @@ final class InventoryMovementService {
                 "item.measurementUnit:id,abbreviation",
                 "user:id,name",
             ]);
+
+        if($stockItems !== null) {
+            $query->whereIn("inventory_movements.item_id", $stockItems);
+        }
 
         if(array_key_exists("allowed_warehouse_ids", $filters) && $filters["allowed_warehouse_ids"] !== null) {
 
@@ -486,6 +501,10 @@ final class InventoryMovementService {
 
             $query->where("movement_type", $filters["movement_type"]);
 
+        }
+
+        if(!empty($filters["user_id"])) {
+            $query->where("user_id", (int) $filters["user_id"]);
         }
 
         if(!empty($filters["origin_types"]) && is_array($filters["origin_types"])) {

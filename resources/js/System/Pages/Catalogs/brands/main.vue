@@ -26,7 +26,7 @@
                 :downloading="isExporting"
                 :title-class="[config.forms.classes.title]"
                 :select-class="config.forms.classes.select2"
-                @search="listEntity({})"
+                @search="handleSearch"
                 @add="openModal()"
                 @import="openImportModal"
                 @download="downloadRecords"/>
@@ -377,10 +377,14 @@ export default {
             return Requests.valid({result: response});
 
         },
+        handleSearch() {
+            this.entityList.appliedFilters = {...this.entityList.filters};
+            return this.listEntity({});
+        },
         async listEntity(params = null) {
 
             const emptyRecords = {total: 0, data: [], links: []};
-            const filters = Utils.cloneJson(this.entityList.filters);
+            const filters = (this.entityList.appliedFilters ??= {...this.entityList.filters});
             const filterData = {
                 per_page: MODULE.perPage,
                 filter_by: filters.filter_by?.code,
@@ -457,8 +461,8 @@ export default {
                 await Requests.download({
                     route: this.routeActions.export,
                     data: {
-                        filter_by: this.entityList.filters.filter_by?.code,
-                        word: this.entityList.filters.word
+                        filter_by: this.entityList.appliedFilters?.filter_by?.code,
+                        word: this.entityList.appliedFilters?.word || ""
                     },
                     fileName: "marcas.xlsx",
                     showAlert: true

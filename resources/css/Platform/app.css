@@ -79,7 +79,6 @@ body.platform-body { margin: 0; background: radial-gradient(circle at 88% 0%, #e
 .platform-create { margin-bottom: 18px; animation: platform-enter .2s ease; }
 .platform-form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; margin-top: 18px; }
 .platform-help { color: var(--platform-muted); font-size: var(--br-ui-font-size); }
-.form-label { color: #344054; }
 .platform-required { color: #d92d20; margin-left: .12rem; font-weight: var(--br-font-weight-emphasis); }
 .form-control, .form-select, .input-group-text { border-color: #d8e0ea; }
 .form-control:focus, .form-select:focus { border-color: #75b5df; box-shadow: 0 0 0 .18rem rgba(11, 99, 169, .1); }

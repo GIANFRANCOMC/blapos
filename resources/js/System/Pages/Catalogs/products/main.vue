@@ -142,9 +142,7 @@
                                     </td>
                                     <td>
                                         <span class="br-entity-stock-row">
-                                            <span class="br-entity-stock">
-                                                {{ quantityWithUnit(stockSummary(record).total, record.measurement_unit) }}
-                                            </span>
+                                            <QuantityValue class="br-entity-stock" :value="stockSummary(record).total" :unit="record.measurement_unit"/>
                                             <button
                                                 type="button"
                                                 :class="['br-entity-stock-trigger', {'is-alert': stockSummary(record).alerts > 0}]"
@@ -210,6 +208,7 @@ import * as Utils from "@System/Helpers/Utils.js";
 import BarcodeDownloadButton from "@System/Components/BarcodeDownloadButton.vue";
 import ProductImportModal from "@System/Components/Catalogs/Products/ProductImportModal.vue";
 import ProductInventoryModal from "@System/Components/Catalogs/Products/ProductInventoryModal.vue";
+import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import AddProduct from "@System/Components/Catalogs/Products/AddProduct.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
@@ -251,6 +250,7 @@ export default {
         BarcodeDownloadButton,
         ProductImportModal,
         ProductInventoryModal,
+        QuantityValue,
         AddProduct,
         TableActionsDropdown,
         ProductsSkeleton
@@ -371,13 +371,12 @@ export default {
 
         },
         handleSearch() {
-
-            this.listEntity({});
-
+            this.entityList.appliedFilters = {...this.entityList.filters};
+            return this.listEntity({});
         },
         getListFilters({includePagination = false} = {}) {
 
-            const filters = Utils.cloneJson(this.entityList.filters);
+            const filters = (this.entityList.appliedFilters ??= {...this.entityList.filters});
             const filterData = {
                 filter_by: filters.filter_by?.code,
                 word: filters.word
@@ -466,11 +465,6 @@ export default {
         separatorNumber(value) {
 
             return Utils.separatorNumber(value);
-
-        },
-        quantityWithUnit(value, unit) {
-
-            return Utils.quantityWithUnit(value, unit);
 
         }
     },

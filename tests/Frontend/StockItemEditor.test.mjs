@@ -106,7 +106,7 @@ function inventoryMethods() {
 test("editar desde alertas identifica el producto y el almacén, y respeta el permiso de operar", async () => {
     const methods = inventoryMethods();
     const calls = [];
-    const context = {canUpdateStock: false, filters: {warehouse: {code: 2}}, $refs: {stockEditor: {open: data => calls.push(data)}}};
+    const context = {canUpdateStock: false, filters: {warehouse: {code: 3}}, appliedFilters: {warehouse: {code: 2}}, $refs: {stockEditor: {open: data => calls.push(data)}}};
     const alert = {id: 100, quantity: 3, minimum_stock: 4, warehouse_item: {item: {id: 7, name: "Perno"}}};
     methods.editStock.call(context, alert, true);
     assert.equal(calls.length, 0);
@@ -118,10 +118,10 @@ test("editar desde alertas identifica el producto y el almacén, y respeta el pe
 test("el refresco consulta primero stock y luego alertas, y descarta el regreso si cambió el almacén", async () => {
     const methods = inventoryMethods();
     const events = [];
-    const context = {filters: {warehouse: {code: 2}}, async listStock() { events.push("stock"); }, async listStockAlerts() { events.push("alerts"); }};
+    const context = {appliedFilters: {warehouse: {code: 2}}, async listStock() { events.push("stock"); }, async listStockAlerts() { events.push("alerts"); }};
     assert.equal(await methods.refreshEditedStock.call(context, {warehouseId: 2, fromAlerts: true}), true);
     assert.deepEqual(events, ["stock", "alerts"]);
-    context.listStock = async () => { context.filters.warehouse = {code: 3}; };
+    context.listStock = async () => { context.appliedFilters.warehouse = {code: 3}; };
     assert.equal(await methods.refreshEditedStock.call(context, {warehouseId: 2, fromAlerts: true}), false);
     assert.deepEqual(events, ["stock", "alerts"]);
 });

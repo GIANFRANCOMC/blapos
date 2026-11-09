@@ -253,6 +253,12 @@ export function showMessage({title = "", text = "", type = "info", width = null}
 
 }
 
+export function showFiltersCleared() {
+
+    return showMessage({type: "success", title: "Se limpiaron los filtros correctamente."});
+
+}
+
 /** Confirma una descarga antes de iniciar la petición y mostrar el loader. */
 export function confirmDownload({resource = "el archivo", format = "Excel"} = {}) {
 

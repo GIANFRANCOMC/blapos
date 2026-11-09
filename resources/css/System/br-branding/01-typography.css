@@ -55,7 +55,20 @@ button,
   font-weight: var(--br-font-weight-control);
 }
 
-.form-label,
+.form-label {
+  margin-bottom: 0.16rem;
+  color: color-mix(in srgb, var(--br-secondary) 64%, var(--br-text-muted));
+  font-size: var(--br-font-size-label);
+  font-weight: var(--br-font-weight-label);
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-transform: inherit;
+}
+
+:where(.dark-style) .form-label {
+  color: var(--bs-heading-color);
+}
+
 .form-check-label {
   font-size: var(--br-font-size-label);
   font-weight: var(--br-font-weight-label);

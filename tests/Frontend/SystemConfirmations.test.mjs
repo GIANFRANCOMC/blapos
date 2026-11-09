@@ -123,6 +123,7 @@ test("todos los mensajes de estado usan iconos completos y ancho ampliable sin a
     }
     assert.match(alerts, /function setMessageWidth\(popup, width\)[\s\S]*?Number\.isFinite\(width\)[\s\S]*?--br-swal-alert-width/);
     assert.match(alerts, /export function showMessage\(\{[^}]*width = null\} = \{\}\)[\s\S]*?willOpen: popup => setMessageWidth\(popup, width\)/);
+    assert.match(alerts, /export function showFiltersCleared\(\) \{\s*return showMessage\(\{type: "success", title: "Se limpiaron los filtros correctamente\."\}\);\s*\}/);
     assert.match(alerts, /export function generateAlert\(\{[^}]*width = null\} = \{\}\)[\s\S]*?willOpen\s*: popup => setMessageWidth\(popup, width\)/);
     assert.match(alerts, /popup: `br-swal-alert br-swal-alert--message br-swal-alert--\$\{type\}`/);
     assert.match(alerts, /const SUCCESS_MESSAGE_ICON = '<svg[^']*viewBox="2 5 20 16"[^']*pathLength="1"[^']*<\/svg>'/);

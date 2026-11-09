@@ -37,8 +37,11 @@ test("Control de stock usa el loader dentro del skeleton durante initParams", ()
     assert.match(state, /try \{[\s\S]*?await this\.initParams\(\);[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false;[\s\S]*?await this\.listCurrentView\(\{\}\);/);
     assert.doesNotMatch(state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts(")), /listStockAlerts/);
     assert.match(skeleton, /br-table-state[\s\S]*?<Loader\/>/);
-    assert.match(skeleton, /col-lg-5 col-xl-5/);
-    assert.match(skeleton, /br-inventory-skeleton__actions[\s\S]*?br-inventory-skeleton__button--create[\s\S]*?v-if="page === 'stock'" class="br-inventory-skeleton__line br-inventory-skeleton__button"/);
+    assert.match(skeleton, /class="col-12 col-md-6 col-lg-3 col-xl-3"/);
+    assert.match(skeleton, /page === 'guides' \? 'col-lg-2' : 'col-lg-3'/);
+    assert.match(skeleton, /v-if="hasStockFilters" class="col-12 col-md-6 col-lg-2 col-xl-2"/);
+    assert.match(skeleton, /<template v-if="page === 'stock'">\s*<div v-for="field in 2" :key="field" class="col-12 col-sm-6 col-lg-2"[\s\S]*?<template v-if="hasStockFilters">\s*<div v-for="field in 2" :key="field" class="col-12 col-sm-6 col-lg-3"/);
+    assert.match(skeleton, /v-if="page === 'stock'" class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">\s*<div class="br-inventory-skeleton__actions gap-2">\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__clear"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button"><\/span>\s*<\/div>\s*<div class="br-inventory-skeleton__actions gap-2 ms-auto">\s*<span class="vr align-self-center"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button br-inventory-skeleton__button--create"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button"/);
     assert.doesNotMatch(skeleton, /br-inventory__alerts-action/);
     assert.match(skeleton, /role="status" aria-live="polite"/);
     assert.match(skeleton, /headingsByPage = \{[\s\S]*?stock:[\s\S]*?transfers:[\s\S]*?guides:[\s\S]*?kardex:[\s\S]*?valued:/);

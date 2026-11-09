@@ -16,8 +16,8 @@ test("Estado del stock filtra el control de stock antes de paginar en ambos ámb
     assert.match(state, /\{code: "", label: "Todos los estados"\}/);
     assert.match(state, /STOCK_SITUATIONS = \[[\s\S]*?"empty"[\s\S]*?"low"[\s\S]*?"healthy"/);
     assert.match(state, /product_search: productSearch,\s*situation/);
-    assert.match(state, /"filters\.stockSituation"\(\)[\s\S]*?invalidateListing\(\)[\s\S]*?listStock\(\{\}\)/);
-    assert.match(state, /if\(this\.activeView === "stock"\) \{\s*filters\.situation = this\.filters\.stockSituation\?\.code \|\| "";/);
+    assert.doesNotMatch(state, /"filters\.stockSituation"\(\)|refreshStockAdvancedFilters/);
+    assert.match(state, /if\(this\.activeView === "stock"\) \{\s*filters\.situation = applied\.stockSituation\?\.code \|\| "";/);
     assert.match(controller, /getPaginatedList\([\s\S]*?input\("situation", ""\)/);
     assert.match(controller, /getPaginatedConsolidatedStock\([\s\S]*?input\("situation", ""\)/);
     assert.match(service, /applySituationFilter\(self::stockQuery\([\s\S]*?->paginate\(\$perPage\)/);
@@ -27,5 +27,5 @@ test("Estado del stock filtra el control de stock antes de paginar en ambos ámb
     assert.match(service, /"healthy" => \$query->whereRaw\("\{\$stock\} > 0 AND \{\$stock\} > \{\$minimum\}"\)/);
     assert.match(exportClass, /getConsolidatedStock\([\s\S]*?"situation"[\s\S]*?getStockReport\([\s\S]*?"situation"/);
     assert.match(exportClass, /"Estado del stock"/);
-    assert.match(skeleton, /v-if="page === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3"/);
+    assert.match(skeleton, /v-if="hasStockFilters" class="col-12 col-md-6 col-lg-2 col-xl-2"/);
 });

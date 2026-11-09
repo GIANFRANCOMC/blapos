@@ -17,7 +17,7 @@
                 search-button-text="Buscar"
                 add-button-text="Agregar receta"
                 :show-add-button="true"
-                @search="listRecipes"
+                @search="searchRecipes"
                 @add="openModal()"/>
 
             <div class="list-section mb-2 table-responsive">
@@ -358,6 +358,7 @@ export default {
             breadcrumbTitles: [{title: "Catálogo e inventario"}, {title: "Recetas y platillos"}],
             filterBy: "all",
             word: "",
+            appliedFilters: {filter_by: "all", word: ""},
             records: {data: [], links: [], total: 0},
             loading: false,
             saving: false,
@@ -405,6 +406,10 @@ export default {
             this.statuses = config.statuses || [];
             this.form.status = this.statuses.find(status => status.code === "active") || this.form.status;
         },
+        searchRecipes() {
+            this.appliedFilters = {filter_by: this.filterBy, word: this.word};
+            return this.listRecipes();
+        },
         async listRecipes(page = "") {
             page = typeof page === "object" ? page?.url : page;
             this.loading = true;
@@ -413,10 +418,7 @@ export default {
                 this.records = Requests.emptyPagination();
                 const response = await Requests.get({
                     route: page || CONFIG.routes.list,
-                    data: {
-                        filter_by: this.filterBy,
-                        word: this.word
-                    },
+                    data: this.appliedFilters,
                     showAlert: true
                 });
                 this.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();

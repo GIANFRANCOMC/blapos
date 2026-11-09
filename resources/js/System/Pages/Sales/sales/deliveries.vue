@@ -73,7 +73,6 @@
 
                     <SearchInput
                         v-model="filters.search"
-                        @search="listDeliveries({})"
                         hasDiv
                         title="Búsqueda"
                         :titleClass="[config.forms.classes.title]"
@@ -88,7 +87,7 @@
                         xl="5"
                         lg="5">
                         <template #input>
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({})">
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({applyFilters: true})">
                                 <span>Buscar</span>
                             </button>
                             <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @click="clearFilters">
@@ -329,6 +328,7 @@ export default {
                 links: []
             },
             filters: this.defaultFilters(),
+            appliedFilters: null,
             options: {},
             modal: {
                 id: Utils.uuid(),
@@ -387,15 +387,18 @@ export default {
 
         },
         requestFilters() {
+            const filters = this.appliedFilters;
             return {
-                branch_id: this.filters.branch?.code,
-                warehouse_id: this.filters.warehouse?.code,
-                holder_id: this.filters.holder?.code,
-                delivery_status: this.filters.deliveryStatus?.code,
-                search: this.filters.search
+                branch_id: filters.branch?.code,
+                warehouse_id: filters.warehouse?.code,
+                holder_id: filters.holder?.code,
+                delivery_status: filters.deliveryStatus?.code,
+                search: filters.search
             };
         },
-        async listDeliveries({url = null}) {
+        async listDeliveries({url = null, applyFilters = false}) {
+
+            if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
 
             const filterJson = this.requestFilters();
             let requestUrl = url || this.config.entity.routes.deliveries;
@@ -423,7 +426,7 @@ export default {
         },
         clearFilters() {
             this.filters = this.defaultFilters();
-            this.listDeliveries({});
+            return Alerts.showFiltersCleared();
         },
         openDeliveryModal(record) {
 

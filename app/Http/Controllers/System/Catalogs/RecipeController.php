@@ -146,7 +146,7 @@ class RecipeController extends BaseController {
             "bool" => true,
             "data" => RecipeWasteService::list(
                 $request->only(["recipe_dish_id", "warehouse_id", "item_id", "date_from", "date_to"]),
-                $this->getPerPage($request),
+                $this->getPerPage($request, Utilities::$per_page_default),
                 CompanyReferenceDataService::forUser($this->getUserId())
                     ->allowedWarehouseIds()
             ),

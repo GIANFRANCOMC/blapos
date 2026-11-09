@@ -20,11 +20,11 @@
                 <section class="br-filter-bar">
                     <div class="br-filter-bar__field">
                         <label class="form-label">Búsqueda</label>
-                        <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia" @search="loadExpenses()"/>
+                        <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia"/>
                     </div>
                     <div class="br-filter-bar__field">
                         <label class="form-label">Estado</label>
-                        <select v-model="filters.status" class="form-select" @change="loadExpenses()">
+                        <select v-model="filters.status" class="form-select">
                             <option value="">Todos</option>
                             <option value="active">Activo</option>
                             <option value="canceled">Anulado</option>
@@ -32,13 +32,13 @@
                     </div>
                     <div class="br-filter-bar__field">
                         <label class="form-label">Sucursal</label>
-                        <select v-model="filters.branch_id" class="form-select" @change="loadExpenses()">
+                        <select v-model="filters.branch_id" class="form-select">
                             <option value="">Todas</option>
                             <option v-for="branch in options.branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
                         </select>
                     </div>
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-search" @click="loadExpenses()">
+                        <button type="button" class="br-btn br-btn-search" @click="searchExpenses" :disabled="loading">
                             <span>Buscar</span>
                         </button>
                     </div>
@@ -195,6 +195,7 @@ export default {
             routes: Requests.config({entity: "misc_expenses"}).routes,
             expenses: {data: [], links: []},
             filters: {word: "", status: "", branch_id: ""},
+            appliedFilters: null,
             options: {branches: [], cashSessions: [], paymentMethods: [], currencies: [], categories: [], users: []},
             form: {},
             errors: {},
@@ -214,12 +215,18 @@ export default {
             if(params.bool) this.options = {...this.options, ...(params.data.data || {})};
             return params.bool;
         },
+        searchExpenses() {
+            if(this.loading) return;
+            this.appliedFilters = {...this.filters};
+            return this.loadExpenses();
+        },
         async loadExpenses(url = null) {
+            this.appliedFilters ??= {...this.filters};
             this.loading = true;
 
             try {
                 this.expenses = Requests.emptyPagination();
-                const result = await Requests.get({route: url || this.routes.list, data: this.filters});
+                const result = await Requests.get({route: url || this.routes.list, data: this.appliedFilters});
                 if(result.bool) this.expenses = result.data;
             } finally {
                 this.loading = false;

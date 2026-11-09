@@ -14,8 +14,7 @@
                             :titleClass="[config.forms.classes.title]"
                             placeholder="Buscar por cotización o cliente"
                             xl="5"
-                            lg="6"
-                            @search="listQuotations({})"/>
+                            lg="6"/>
 
                         <InputSlot
                             hasDiv
@@ -45,7 +44,7 @@
                                     type="button"
                                     class="br-btn br-btn-sm br-btn-search"
                                     :disabled="loading.list"
-                                    @click="listQuotations({})">
+                                    @click="listQuotations({applyFilters: true})">
                                     <span>Buscar</span>
                                 </button>
                                 <a :href="createUrl" class="br-btn br-btn-sm br-btn-primary">
@@ -425,6 +424,7 @@ export default {
                 list: false,
                 store: false
             },
+            appliedFilters: null,
             filters: {
                 word: "",
                 status: null
@@ -600,7 +600,8 @@ export default {
             this.loading.init = false;
             return Requests.valid({result: response});
         },
-        async listQuotations({url = null} = {}) {
+        async listQuotations({url = null, applyFilters = false} = {}) {
+            if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
             this.loading.list = true;
 
             try {
@@ -609,8 +610,8 @@ export default {
                 const response = await Requests.get({
                     route: url || this.config.routes.list,
                     data: {
-                        word: this.filters.word,
-                        status: this.filters.status?.code
+                        word: this.appliedFilters.word,
+                        status: this.appliedFilters.status?.code
                     },
                     showAlert: true
                 });

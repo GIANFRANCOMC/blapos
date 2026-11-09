@@ -17,7 +17,7 @@ function alertsRequest() {
         dependencies[name] = {};
     }
     const context = {
-        filters: {warehouse: {code: 1}},
+        appliedFilters: {warehouse: {code: 1}},
         requestVersion: 1,
         loadingStock: false,
         loadingAlerts: false,
@@ -104,15 +104,15 @@ test("Ver alertas mantiene cerrada la modal durante la consulta y la abre con lo
     const request = alertsRequest();
     const pending = request.run({showModal: true});
     await Promise.resolve();
-    assert.deepEqual(request.events, ["loading", "render", "request"]);
+    assert.deepEqual(request.events, ["loading", "request"]);
     assert.equal(request.context.loadingAlerts, true);
     await request.run({showModal: true});
-    assert.deepEqual(request.events, ["loading", "render", "request"]);
+    assert.deepEqual(request.events, ["loading", "request"]);
     const data = {total: 1, data: [{id: 10}], links: []};
     request.respond({bool: true, data});
     await pending;
     assert.equal(request.context.stockAlerts, data);
-    assert.deepEqual(request.events, ["loading", "render", "request", "close", "render", "modal"]);
+    assert.deepEqual(request.events, ["loading", "request", "close", "render", "modal"]);
 });
 
 test("una respuesta vacía o fallida abre la modal después del loader con su estado correspondiente", async () => {
@@ -130,7 +130,7 @@ test("una respuesta vacía o fallida abre la modal después del loader con su es
 });
 
 test("una respuesta de un contexto anterior no abre la modal de alertas", async () => {
-    for(const change of [context => { context.requestVersion++; }, context => { context.filters.warehouse = {code: 2}; }]) {
+    for(const change of [context => { context.requestVersion++; }, context => { context.appliedFilters.warehouse = {code: 2}; }]) {
         const request = alertsRequest();
         const pending = request.run({showModal: true});
         await Promise.resolve();
@@ -172,17 +172,22 @@ test("cada apertura de alertas restablece los filtros antes de consultar y limpi
     }
 });
 
-test("paginar o reintentar usa los filtros visibles actuales y no la última búsqueda guardada", async () => {
+test("paginar alertas conserva los filtros aplicados hasta pulsar Buscar", async () => {
     const request = alertsRequest();
     request.context.appliedAlertProductSearch = "anterior";
     request.context.appliedAlertMinimumStatus = "configured";
     request.context.alertProductSearch = " actual ";
     request.context.alertMinimumStatus = {code: "unconfigured"};
     const pending = request.run({url: "/alerts?page=2&product_search=anterior"});
-    assert.equal(request.requests[0].data.product_search, "actual");
-    assert.equal(request.requests[0].data.minimum_status, "unconfigured");
+    assert.equal(request.requests[0].data.product_search, "anterior");
+    assert.equal(request.requests[0].data.minimum_status, "configured");
     request.respond({bool: true, data: {data: [], total: 0}});
     await pending;
+    request.search();
+    assert.equal(request.requests[1].data.product_search, "actual");
+    assert.equal(request.requests[1].data.minimum_status, "unconfigured");
+    request.respond({bool: true, data: {data: [], total: 0}});
+    await request.pending;
 });
 
 test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas", () => {

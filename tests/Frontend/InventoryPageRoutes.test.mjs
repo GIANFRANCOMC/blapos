@@ -11,12 +11,13 @@ const readInventory = () => ["stock", "transfers", "guides", "kardex", "valued-k
     .concat(read(`${inventoryPath}inventoryState.js`))
     .join("\n");
 
-test("changing the work warehouse reloads the current inventory page", () => {
+test("inventory applies work warehouse changes only on search", () => {
 
     const component = readInventory();
 
-    assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];[\s\S]*?await this\.listCurrentView\(\{\}\);[\s\S]*?this\.warehouseSearchEnabled = true;/);
-    assert.match(component, /"filters\.warehouse"\(warehouse, previous\) \{[\s\S]*?this\.invalidateListing\(\);[\s\S]*?if\(this\.warehouseSearchEnabled && warehouse\?\.code\) \{\s*this\.listCurrentView\(\{\}\);/);
+    assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];\s*this\.appliedFilters = \{\.\.\.this\.filters\};\s*await this\.listCurrentView\(\{\}\);/);
+    assert.match(component, /searchCurrentView\(\) \{[\s\S]*?this\.invalidateListing\(\);\s*this\.appliedFilters = \{\.\.\.this\.filters\};/);
+    assert.doesNotMatch(component, /"filters\.warehouse"\(/);
     assert.match(component, /listCurrentView\(\{url = null\} = \{\}\) \{[\s\S]*?this\.listStock\(\{url\}\)[\s\S]*?this\.listKardex\(\{url\}\)[\s\S]*?this\.listGuides\(\{url\}\)/);
 
 });
@@ -82,10 +83,8 @@ test("inventory labels and paginated listings stay consistent across views", () 
     assert.match(component, /<th>Fecha y número<\/th>[\s\S]*?<strong>\{\{ formatSimpleDate\(guide\.issue_date\) \}\}<\/strong>[\s\S]*?<span class="br-inventory__meta">\{\{ guide\.number \}\}<\/span>/);
     assert.match(component, /this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
-    assert.match(controller, /private const DEFAULT_STOCK_PER_PAGE = 10;/);
-    assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, \$default\)\)\);/);
-    assert.equal((controller.match(/this->inventoryPerPage\(\$request, self::DEFAULT_STOCK_PER_PAGE\)/g) || []).length, 4);
-    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 2);
+    assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, Utilities::\$per_page_default\)\)\);/);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 6);
     assert.match(service, /getPaginatedConsolidatedStock\([\s\S]*?->paginate\(\$perPage\)/);
     assert.match(service, /getConsolidatedStock\([\s\S]*?->get\(\)/);
 
@@ -181,7 +180,7 @@ test("stock places warehouse, search and actions in order", () => {
     );
 
     assert.doesNotMatch(component, /br-inventory__page-heading|br-operational-scope/);
-    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<span>Buscar<\/span>[\s\S]*?Registrar traslado[\s\S]*?Registrar operación[\s\S]*?Ver alertas[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel/);
+    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<span>Buscar<\/span>[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel[\s\S]*?Registrar traslado[\s\S]*?Registrar operación[\s\S]*?Ver alertas/);
     assert.doesNotMatch(context, /inputGroupPrepend|br-inventory-search__prefix|fa-barcode/);
     assert.match(inventoryCss, /\.br-layout \.br-inventory__context > \.form-group \{\s*margin-bottom: 0 !important;/);
     assert.doesNotMatch(component, /br-inventory__toolbar/);
@@ -279,7 +278,7 @@ test("stock lists only the selected warehouse and shows six table columns includ
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
     assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
-    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \{\s*min-width: 52rem;/);
+    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse,\s*\.br-inventory__kardex-table \{\s*min-width: 52rem;/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \.br-inventory__col-status \{ width: 13%; \}/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse > thead > tr > th:nth-child\(n\+2\):nth-child\(-n\+4\) \{\s*text-align: right !important;/);
     assert.match(inventoryCss, /td\.br-inventory__situation \{[^}]*text-align: center;/);
@@ -327,52 +326,45 @@ test("inventory filters remain outside the white table surface", () => {
     assert.doesNotMatch(cardCss + polishCss, /\.br-inventory__content|\.br-inventory__panel/);
     assert.match(inventoryCss, /\.br-inventory__context \{[\s\S]*?padding: 0\.15rem 0 0\.25rem;/);
     assert.doesNotMatch(component, /br-inventory__kardex-filters/);
-    assert.match(component, /'br-filter-bar__actions', 'br-inventory__context-actions'/);
+    assert.match(component, /br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2/);
     assert.doesNotMatch(inventoryCss, /br-inventory__context-actions--report/);
-    assert.match(inventoryCss, /\.br-inventory__context-actions--stock \{\s*justify-content: flex-start;/);
     assert.match(inventoryCss, /\.br-inventory-transfer \{[\s\S]*?background: transparent;/);
 
 });
 
-test("stock gives more width to its filters and moves actions to a full row", () => {
+test("stock matches the Kardex filter widths and groups all toolbar actions", () => {
 
     const component = readInventory();
     const stockFilters = component.slice(
         component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
         component.indexOf('<div class="br-inventory__workspace">')
     );
-    assert.match(stockFilters, /col-lg-4 col-xl-4 br-inventory__warehouse/);
-    assert.match(stockFilters, /:xl="activeView === 'stock' \? 5 : 3"\s+:lg="activeView === 'stock' \? 5 : 3"/);
-    assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3"[\s\S]*?for="stockSituation"/);
-    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?contextActionColumns[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>/);
-    assert.match(stockFilters, /<span>Buscar<\/span>[\s\S]*?<span>Más filtros<\/span>[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Ver alertas<\/span>[\s\S]*?<span>Acciones<\/span>/);
+    assert.match(stockFilters, /col-lg-3 col-xl-3 br-inventory__warehouse/);
+    assert.match(stockFilters, /xl="3"\s+lg="3"\s+md="6"/);
+    assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-2 col-xl-2"\s*>\s*<label for="stockSituation"/);
+    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>[\s\S]*?class="vr align-self-center"[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Ver alertas<\/span>/);
     assert.doesNotMatch(component, /br-inventory__alerts-action/);
     assert.match(component, /<ProductIdentity :product="record"\/>/);
     assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
     assert.match(component, /isReportView\(\) \{[\s\S]*?"kardex", "valued", "guides"/);
     assert.match(component, /if\(this\.isReportView\) return "col-12 col-md-6 col-lg-3 col-xl-3";/);
-    assert.match(component, /if\(this\.activeView === "stock"\) return "col-12";/);
     assert.match(component, /if\(this\.activeView === "transfers"\) return "col-12 col-lg-6 col-xl-6";/);
-    assert.equal((stockFilters.match(/class="col-12 col-md-6 col-lg-2 col-xl-2"/g) || []).length, 4);
 
 });
 
-test("inventory loads the first real warehouse and searches again when it changes", () => {
+test("inventory loads the first warehouse and waits for Buscar to apply filters", () => {
 
     const component = readInventory();
     const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
     const watcher = component.slice(component.indexOf('watch: {'));
     const mounted = component.slice(component.indexOf('async mounted() {'), component.indexOf('    data() {'));
 
-    assert.match(component, /@click="activeView === 'stock' \? handleProductSearch\(\) : searchCurrentView\(\)"/);
+    assert.equal((component.match(/@click="searchCurrentView"/g) || []).length, 5);
     assert.equal((component.match(/<span>Buscar<\/span>/g) || []).length, 5);
-    assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*await this\.\$nextTick\(\);\s*await this\.listCurrentView\(\{\}\);/);
-    assert.match(mounted, /this\.warehouseSearchEnabled = true;/);
-    assert.match(watcher, /"filters\.warehouse"\(warehouse, previous\) \{[\s\S]*?this\.invalidateListing\(\);[\s\S]*?this\.listCurrentView\(\{\}\);/);
-    assert.match(component, /@clear="clearProductSearch"/);
-    assert.match(component, /clearProductSearch\(\) \{\s*this\.scannedProductId = null;/);
+    assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*this\.appliedFilters = \{\.\.\.this\.filters\};\s*await this\.listCurrentView\(\{\}\);/);
+    assert.doesNotMatch(watcher, /"filters\.|alertMinimumStatus\(\)|this\.invalidateListing\(\)/);
     assert.match(component, /focusProductSearch\(\) \{[\s\S]*?this\.\$refs\.productSearch\?\.focus\(\);/);
-    assert.match(component, /product_search: this\.filters\.productSearch[\s\S]*?if\(this\.activeView === "transfers"\) \{\s*filters\.origin_types = \["transfer_out", "transfer_in"\];/);
+    assert.match(component, /product_search: applied\.productSearch[\s\S]*?if\(this\.activeView === "transfers"\) \{\s*filters\.origin_types = \["transfer_out", "transfer_in"\];/);
     assert.match(movementService, /\$productSearch = trim\(\(string\) \(\$filters\["product_search"\] \?\? ""\)\);[\s\S]*?whereHas\("item"/);
     assert.match(component, /if\(requestVersion !== this\.requestVersion\) return;/);
 
@@ -393,12 +385,12 @@ test("inventory blocks filters and actions while searching", () => {
     assert.match(toolbar, /id="inventoryDateFrom"[^>]*:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /id="inventoryDateTo"[^>]*:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create waves-effect"[\s\S]*?:disabled="isCurrentViewLoading"/);
-    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create br-inventory__operation-button"[\s\S]*?:disabled="isCurrentViewLoading"/);
+    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create"\s*:disabled="isCurrentViewLoading"[\s\S]*?@click="prepareMovement\(\)"/);
     assert.match(toolbar, /class="br-btn br-btn-sm br-btn-actions"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /class="dropdown-item" :disabled="isCurrentViewLoading \|\| exporting/);
     assert.match(component, /isCurrentViewLoading\(\) \{\s*if\(this\.activeView === "stock"\) return this\.loadingStock;/);
-    assert.match(component, /async handleProductSearch\(\) \{\s*if\(this\.isCurrentViewLoading\) return;/);
-    assert.match(component, /async exportCurrentView\(\) \{\s*if\(!this\.filters\.warehouse\?\.code \|\| this\.exporting \|\| this\.isCurrentViewLoading\) return;/);
+    assert.match(component, /searchCurrentView\(\) \{\s*if\(!this\.filters\.warehouse\?\.code \|\| this\.isCurrentViewLoading\) return Promise\.resolve\(\);/);
+    assert.match(component, /async exportCurrentView\(\) \{\s*if\(!this\.appliedFilters\.warehouse\?\.code \|\| this\.exporting \|\| this\.isCurrentViewLoading\) return;/);
 
 });
 

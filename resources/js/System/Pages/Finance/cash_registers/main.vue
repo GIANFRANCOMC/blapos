@@ -14,14 +14,13 @@
                     <div class="br-cash__selector">
                         <label class="form-label">Caja de trabajo</label>
                         <v-select
-                            v-model="selectedRegister"
+                            v-model="registerFilter"
                             :options="registerOptions"
                             class="bg-white"
                             :clearable="false"
                             :searchable="false"
                             append-to-body
-                            placeholder="Seleccione una caja"
-                            @option:selected="refreshAll"/>
+                            placeholder="Seleccione una caja"/>
                         <p class="br-operational-scope mt-2 mb-0">
                             <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
                             <span>{{ selectedRegister ? `${selectedRegister.name} · ${selectedRegister.branch?.name || 'Sucursal no definida'}` : 'Seleccione una caja para definir el alcance' }}</span>
@@ -34,11 +33,10 @@
                         <label class="form-label">Búsqueda</label>
                         <SearchInput
                             v-model="filters.search"
-                            placeholder="Buscar caja, responsable o referencia"
-                            @search="refreshActiveView"/>
+                            placeholder="Buscar caja, responsable o referencia"/>
                     </div>
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-search" @click="refreshActiveView">
+                        <button type="button" class="br-btn br-btn-search" @click="searchActiveView">
                             <span>Buscar</span>
                         </button>
                         <button
@@ -577,8 +575,10 @@ export default {
             movements: {data: [], links: []},
             summary: {sessions: [], payments: [], totals: {opening: 0, expected: 0, counted: 0, difference: 0}},
             selectedRegister: null,
+            registerFilter: null,
             activeView: this.initialView,
             filters: {search: ""},
+            appliedSearch: "",
             options: {
                 registers: [],
                 branches: [],
@@ -680,6 +680,7 @@ export default {
             this.options.statuses = data.statuses || [];
             this.options.movementTypes = data.movementTypes || [];
             this.selectedRegister = this.registerOptions[0] || null;
+            this.registerFilter = this.selectedRegister;
 
             return true;
         },
@@ -687,6 +688,11 @@ export default {
             await this.getRegisters();
             await this.refreshActiveView();
             Alerts.tooltips({});
+        },
+        searchActiveView() {
+            this.selectedRegister = this.registerFilter;
+            this.appliedSearch = this.filters.search;
+            return this.refreshActiveView();
         },
         async refreshActiveView(pageUrl = null) {
             if(this.activeView === "sessions") return this.getSessions(pageUrl);
@@ -699,7 +705,7 @@ export default {
             return {
                 filter: {
                     cash_register_id: this.selectedRegister?.id || null,
-                    search: this.filters.search || null
+                    search: this.appliedSearch || null
                 }
             };
         },
@@ -768,7 +774,10 @@ export default {
             }
         },
         openModal(type, register = null) {
-            if(register) this.selectedRegister = this.registerOptions.find(item => item.id === register.id) || register;
+            if(register) {
+                this.selectedRegister = this.registerOptions.find(item => item.id === register.id) || register;
+                this.registerFilter = this.selectedRegister;
+            }
             this.errors = {};
 
             if(type === "register") {

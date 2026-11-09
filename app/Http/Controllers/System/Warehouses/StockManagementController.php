@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\System\Warehouses;
 
 use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryReportExport, StockAlertsExport};
+use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest, UpdateStockLevelsRequest};
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
@@ -24,7 +25,7 @@ use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 class StockManagementController extends BaseController {
 
     private const MAX_LIST_PER_PAGE = 30;
-    private const DEFAULT_STOCK_PER_PAGE = 10;
+    private const KARDEX_VIEWS = ["kardex", "valued"];
 
     /**
      * Translation namespace for stock management module
@@ -61,6 +62,11 @@ class StockManagementController extends BaseController {
         $params = StockManagementConfigService::getInitParams($page, $this->getUserId());
         $params->config->can_update_stock = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.operations.store", "POST");
 
+        if(in_array($page, self::KARDEX_VIEWS, true)) {
+            $warehouseIds = $params->config->warehouses->records->pluck("id")->all();
+            $params->config->movement_users = InventoryMovementService::getKardexUsers($warehouseIds);
+        }
+
         return $params;
 
     }
@@ -73,7 +79,7 @@ class StockManagementController extends BaseController {
     public function list(Request $request) {
 
         $warehouseId = intval($request->input("warehouse_id"));
-        $perPage = $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE);
+        $perPage = $this->inventoryPerPage($request);
 
         if(
             !StockManagementService::validateWarehouse($warehouseId)
@@ -109,7 +115,7 @@ class StockManagementController extends BaseController {
             "data" => StockManagementService::getPaginatedConsolidatedStock(
                 (string) $request->input("product_search", ""),
                 $allowedWarehouseIds,
-                $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE),
+                $this->inventoryPerPage($request),
                 (string) $request->input("situation", ""),
                 $this->stockFilters($request)
             ),
@@ -159,6 +165,10 @@ class StockManagementController extends BaseController {
 
             return response()->json(["data" => [], "total" => 0]);
 
+        }else{
+
+            $filters = array_merge($filters, $this->kardexFilters($request));
+
         }
 
         return StockManagementService::getKardex(
@@ -187,7 +197,7 @@ class StockManagementController extends BaseController {
         return StockManagementService::getProductTraceability(
             $warehouseId,
             (int) $filters["item_id"],
-            $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE)
+            $this->inventoryPerPage($request)
         );
 
     }
@@ -210,7 +220,7 @@ class StockManagementController extends BaseController {
 
         return StockManagementService::getStockAlerts(
             $filters,
-            $this->inventoryPerPage($request, self::DEFAULT_STOCK_PER_PAGE)
+            $this->inventoryPerPage($request)
         );
 
     }
@@ -403,6 +413,16 @@ class StockManagementController extends BaseController {
 
     }
 
+    private function kardexFilters(Request $request): array {
+
+        return array_merge(
+            $request->only("situation"),
+            $this->stockFilters($request),
+            $request->validate(["user_id" => ["nullable", "integer", "min:1"]])
+        );
+
+    }
+
     public function previewOperation(PreviewInventoryOperationRequest $request): JsonResponse {
 
         $warehouse = $this->authorizedOperationWarehouse((int) $request->validated("warehouse_id"));
@@ -474,13 +494,14 @@ class StockManagementController extends BaseController {
             "movement_type",
             "origin_types",
             "product_search",
-            "situation",
             "guide_type",
             "date_from",
             "date_to",
         ]);
         if($view === "stock") {
-            $filters = array_merge($filters, $this->stockFilters($request));
+            $filters = array_merge($filters, $request->only("situation"), $this->stockFilters($request));
+        }elseif(in_array($view, self::KARDEX_VIEWS, true)) {
+            $filters = array_merge($filters, $this->kardexFilters($request));
         }
         $filters["allowed_warehouse_ids"] = AccessScopeService::allowedIds(
             $this->getAuthUser(),
@@ -595,9 +616,9 @@ class StockManagementController extends BaseController {
 
     }
 
-    private function inventoryPerPage(Request $request, int $default = self::MAX_LIST_PER_PAGE): int {
+    private function inventoryPerPage(Request $request): int {
 
-        return min(self::MAX_LIST_PER_PAGE, max(1, $this->getPerPage($request, $default)));
+        return min(self::MAX_LIST_PER_PAGE, max(1, $this->getPerPage($request, Utilities::$per_page_default)));
 
     }
 

@@ -15,7 +15,7 @@ test("control de stock muestra el total filtrado a la derecha del paginador", ()
     const skeleton = read("resources/js/System/Pages/Warehouses/inventory/InventorySkeleton.vue");
     const styles = read("resources/css/System/br-branding/81-core-roles-entities.css");
 
-    assert.match(page, /<Paginator\s+v-if="filters\.warehouse\?\.code"[\s\S]*?:pagination="currentRecords"[\s\S]*?:loading="isCurrentViewLoading"/);
+    assert.match(page, /<Paginator\s+v-if="appliedFilters\.warehouse\?\.code"[\s\S]*?:pagination="currentRecords"[\s\S]*?:loading="isCurrentViewLoading"/);
     assert.match(paginator, /<ListResultCount :pagination="pagination" :loading="loading"\/>/);
     assert.match(count, /Resultado:[\s\S]*?formatNumber\(total\)[\s\S]*?total === 1 \? singular : plural/);
     assert.doesNotMatch(count, /Mostrando|pagination\.from|pagination\.to/);

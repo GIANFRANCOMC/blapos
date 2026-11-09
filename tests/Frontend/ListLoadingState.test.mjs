@@ -69,12 +69,13 @@ function setAt(context, path, value) {
 
 function contextFor(loadingPath) {
     const routes = {list: "/list", sessions: "/list", deliveries: "/list", data: "/list", board: "/list", stations: "/list", consult: "/list"};
-    const entityList = {filters: {filter_by: {code: "all"}, word: "producto"}, extras: {loading: false, route: "/list"}};
+    const entityList = {filters: {filter_by: {code: "all"}, word: "producto", branch: {code: 1}}, extras: {loading: false, route: "/list"}};
     const context = {
         entity: "entity", entityList, lists: {entity: entityList},
         MODULE: {config: {perPage: 10}}, config: {routes, entity: {routes}}, routes,
         sessionConfig: {routes}, movementConfig: {routes}, summaryConfig: {routes}, summary: {}, routeActions: {store: "/list", consult: "/list", seriesAudit: "/list"},
         filters: {word: "producto", warehouse: {code: 1}, productSearch: "producto"},
+        appliedFilters: {word: "producto", warehouse: {code: 1}, productSearch: "producto"},
         eventsModal: {device: {id: 1}}, authenticationEvents: {user: {id: 1}, filters: {}}, seriesAudit: {gaps: [{id: 1}]},
         selectedBranch: {id: 1}, selectedFloor: {id: 1}, selectedStatus: {code: ""}, sessionsRequestSequence: 0, requestVersion: 0, settlements: {},
         loadingStock: false, loadingAlerts: false,

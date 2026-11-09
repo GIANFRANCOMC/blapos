@@ -20,13 +20,14 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
     assert.match(styles, /\.br-inventory__difference\.is-positive \{ color: var\(--br-success-hover\); \}/);
     assert.match(styles, /\.br-inventory__difference\.is-negative \{ color: var\(--br-danger-strong\); \}/);
     assert.match(styles, /body\.br-layout \.br-inventory__stock-current,\s*body\.br-layout \.br-inventory__difference \{\s*font-size: var\(--br-stock-quantity-font-size\);\s*\}/);
+    assert.match(descriptor.template.content, /<QuantityValue[^>]*:value="difference" :unit="unit" signed/);
 
     const script = descriptor.script.content
-        .replace(/^import .*;\s*$/m, "")
+        .replace(/^import .*;\s*$/gm, "")
         .replace("export default", "return");
-    const component = new Function("normalizeNumber", "quantityWithUnit", "resolveDecimals", script)(
+    const component = new Function("QuantityValue", "normalizeNumber", "resolveDecimals", script)(
+        {},
         value => Number(value || 0),
-        (value, unit) => `${value.toFixed(3)} ${unit.abbreviation}`,
         () => 3
     );
     const present = (current, minimum) => {
@@ -34,12 +35,12 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
         Object.defineProperty(instance, "difference", {get: () => component.computed.difference.call(instance)});
         return {
             tone: component.computed.tone.call(instance),
-            label: component.computed.label.call(instance)
+            value: instance.difference
         };
     };
 
-    assert.deepEqual(present(19, 9), {tone: "is-positive", label: "+10.000 UND"});
-    assert.deepEqual(present(1, 9), {tone: "is-negative", label: "-8.000 UND"});
-    assert.deepEqual(present(9, 9), {tone: "is-neutral", label: "0.000 UND"});
-    assert.deepEqual(present(0, 0.0004), {tone: "is-neutral", label: "0.000 UND"});
+    assert.deepEqual(present(19, 9), {tone: "is-positive", value: 10});
+    assert.deepEqual(present(1, 9), {tone: "is-negative", value: -8});
+    assert.deepEqual(present(9, 9), {tone: "is-neutral", value: 0});
+    assert.deepEqual(present(0, 0.0004), {tone: "is-neutral", value: 0});
 });

@@ -28,13 +28,13 @@
                     xl="6"
                     lg="5">
                     <template v-slot:input>
-                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
                             <span>Buscar</span>
                         </button>
                     </template>
                 </InputSlot>
             </div>
-            <div class="row g-3" v-if="isDefined({value: lists.entity.filters.branch?.code})">
+            <div class="row g-3" v-if="isDefined({value: lists.entity.appliedFilters?.branch?.code})">
                 <template v-if="!lists.entity.extras.loading">
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                         <h5 class="fw-bold mb-2 text-uppercase ps-1">Activos disponibles</h5>
@@ -339,7 +339,10 @@ export default {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         const initialized = await this.loadInitialParams(() => this.initParams({}));
-        if(initialized) await this.initOthers({});
+        if(initialized) {
+            await this.initOthers({});
+            if(this.lists.entity.filters.branch?.code) await this.listEntity({});
+        }
 
     },
     data() {
@@ -350,6 +353,7 @@ export default {
                         loading: false,
                         route: Requests.config({entity: "assets_management", type: "list"})
                     },
+                    appliedFilters: null,
                     filters: {
                         branch: null
                     },
@@ -437,10 +441,14 @@ export default {
 
         },
         // Entity forms
-        async listEntity({url = null}) {
+        async listEntity({url = null, applyFilters = false}) {
+            if(applyFilters || !this.lists.entity.appliedFilters) {
+                this.lists.entity.appliedFilters = {...this.lists.entity.filters};
+            }
 
-            let filters = Utils.cloneJson(this.lists.entity.filters);
-            const filterJson = {branch_id: filters?.branch?.code};
+            const filters = this.lists.entity.appliedFilters;
+            if(!filters.branch?.code) return;
+            const filterJson = {branch_id: filters.branch.code};
 
             this.lists.entity.extras.loading = true;
 
@@ -515,7 +523,7 @@ export default {
                     Alerts.swals({});
                     el.formErrors({functionName, type: "clear"});
 
-                    let form = Utils.cloneJson({branch_id: el.lists.entity.filters.branch?.code, branch_assets: [{asset_id: record.id, quantity: result.value.quantity}]});
+                    let form = Utils.cloneJson({branch_id: el.lists.entity.appliedFilters?.branch?.code, branch_assets: [{asset_id: record.id, quantity: result.value.quantity}]});
 
                     const validateForm = el.validateForm({functionName, form, extras: {type: "descriptive"}});
 
@@ -587,7 +595,7 @@ export default {
                     Alerts.swals({});
                     el.formErrors({functionName, type: "clear"});
 
-                    let form = Utils.cloneJson({branch_id: el.lists.entity.filters.branch?.code, branch_assets: [{id: record.id, asset_id: record.asset_id}]});
+                    let form = Utils.cloneJson({branch_id: el.lists.entity.appliedFilters?.branch?.code, branch_assets: [{id: record.id, asset_id: record.asset_id}]});
 
                     const validateForm = el.validateForm({functionName, form, extras: {type: "descriptive"}});
 
@@ -1299,24 +1307,6 @@ export default {
         },
         statusBadgeAssetMaintenancePrimary() {
             return STATUS_BADGE_CUSTOM_ASSET_MAINTENANCE_PRIMARY;
-        }
-    },
-    watch: {
-        "lists.entity.filters.branch": function(newValue, oldValue) {
-
-            if(this.isDefined({value: this.lists.entity.filters.branch?.code})) {
-
-                this.listEntity({});
-
-            }else {
-
-                this.lists.entity.records = {
-                    total: 0,
-                    data: []
-                };
-
-            }
-
         }
     }
 };

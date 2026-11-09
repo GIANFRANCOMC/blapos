@@ -55,7 +55,7 @@ test("Control de stock termina el skeleton al finalizar parámetros sin abrir Sw
     resolveList();
     await pending;
     assert.equal(context.initialLoading, false);
-    assert.equal(context.warehouseSearchEnabled, true);
+    assert.equal(context.appliedFilters.warehouse, context.realWarehouses[0]);
     assert.deepEqual(events, []);
 });
 

@@ -84,7 +84,6 @@
                             </InputSlot>
                             <InputDate
                                 v-model="lists.entity.filters.start_date"
-                                @change="listEntity({})"
                                 hasDiv
                                 title="Fecha de ingreso"
                                 :titleClass="[config.forms.classes.title]"
@@ -100,7 +99,7 @@
                             <div class="col-lg-12 col-xl-12">
                                 <div class="form-check">
                                     <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status"/>
                                         <span class="fw-bold text-secondary">Todos los estados</span>
                                     </label>
                                 </div>
@@ -108,7 +107,7 @@
                             <div class="col-lg-12 col-xl-12">
                                 <div class="form-check">
                                     <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status"/>
                                         <span class="fw-bold text-success">En curso</span>
                                     </label>
                                 </div>
@@ -116,7 +115,7 @@
                             <div class="col-lg-12 col-xl-12">
                                 <div class="form-check">
                                     <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == 'finalized' ? 'bg-primary border-primary' : '']" type="radio" value="finalized" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <input :class="['form-check-input', lists.entity.filters.status == 'finalized' ? 'bg-primary border-primary' : '']" type="radio" value="finalized" v-model="lists.entity.filters.status"/>
                                         <span class="fw-bold text-primary">Concluida</span>
                                     </label>
                                 </div>
@@ -124,7 +123,7 @@
                             <div class="col-lg-12 col-xl-12">
                                 <div class="form-check">
                                     <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                        <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status"/>
                                         <span class="fw-bold text-danger">Anulada</span>
                                     </label>
                                 </div>
@@ -141,7 +140,7 @@
                     lg="12">
                     <template v-slot:input>
                         <template v-if="forms.entity.createUpdate.config.viewFilters">
-                            <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                            <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
                                 <span>Filtrar</span>
                             </button>
                         </template>
@@ -751,7 +750,7 @@ export default {
 
         if(initParams && initOthers) {
 
-            // this.listEntity({});
+            await this.listEntity({});
 
             $(`#${this.forms.entity.qrCamera.extras.modals.default.id}`)
             .on("shown.bs.modal", () => {
@@ -776,6 +775,7 @@ export default {
                         loading: false,
                         route: Requests.config({entity: "tracking_attendances", type: "list"})
                     },
+                    appliedFilters: null,
                     filters: {
                         branch: null,
                         customer: null,
@@ -1247,9 +1247,12 @@ export default {
         // ============================================
         // Entity List Methods
         // ============================================
-        async listEntity({url = null}) {
+        async listEntity({url = null, applyFilters = false}) {
+            if(applyFilters || !this.lists.entity.appliedFilters) {
+                this.lists.entity.appliedFilters = {...this.lists.entity.filters};
+            }
 
-            const filters = Utils.cloneJson(this.lists.entity.filters);
+            const filters = this.lists.entity.appliedFilters;
             const filterJson = {
                 branch_id:   filters?.branch?.code,
                 customer_id: filters?.customer?.code,
@@ -1281,7 +1284,7 @@ export default {
         },
         async exportEntity() {
 
-            const filters = Utils.cloneJson(this.lists.entity.filters);
+            const filters = this.lists.entity.appliedFilters;
             const params = {};
 
             if(this.isDefined({value: filters?.branch?.code})) params.branch_id = filters.branch.code;
@@ -2463,18 +2466,6 @@ export default {
                 {code: "carnet", label: "Carnet", tooltip: "Carnet generado por el sistema con código QR.", icon: "fa fa-id-badge", color: "primary"},
                 {code: "document_number", label: "Documento", tooltip: "Escanea o escribe el número de documento del cliente.", icon: "fa fa-id-card", color: "info"}
             ];
-
-        }
-    },
-    watch: {
-        "lists.entity.filters.branch": function(newValue, oldValue) {
-
-            this.listEntity({});
-
-        },
-        "lists.entity.filters.customer": function(newValue, oldValue) {
-
-            this.listEntity({});
 
         }
     }

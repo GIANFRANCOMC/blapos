@@ -681,7 +681,7 @@ export default {
 
             const entityList   = this.lists[this.entity];
             const emptyRecords = {total: 0, data: [], links: []};
-            const filters      = Utils.cloneJson(entityList.filters);
+            const filters      = (entityList.appliedFilters ??= {...entityList.filters});
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
@@ -729,13 +729,12 @@ export default {
 
         },
         handleSearch() {
-
-            this.listEntity({});
-
+            this.entityList.appliedFilters = {...this.entityList.filters};
+            return this.listEntity({});
         },
         getListFilters() {
 
-            const filters = this.entityList.filters;
+            const filters = this.entityList.appliedFilters;
 
             return {filter_by: filters.filter_by?.code, word: filters.word};
 

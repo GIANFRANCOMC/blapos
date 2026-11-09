@@ -28,9 +28,7 @@
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     xl="3"
                     lg="3"
-                    md="6"
-                    @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
-                    @clear="clearProductSearch"/>
+                    md="6"/>
 
                 <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
                     <label for="movementType" class="form-label">Movimiento</label>
@@ -73,7 +71,7 @@
                             type="button"
                             class="br-btn br-btn-sm br-btn-search"
                             :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                            @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
+                            @click="searchCurrentView">
                             <span>Buscar</span>
                         </button>
                         <ClearFiltersButton
@@ -112,7 +110,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
                             <li>
-                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !filters.warehouse?.code" @click="exportCurrentView">
+                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
                                     <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
                                     <span>Descargar Excel</span>
                                 </button>
@@ -343,7 +341,7 @@
                                                         {{ originLabel(movement.origin_type) }}
                                                     </span>
                                                 </td>
-                                                <td class="text-end br-inventory__difference">{{ signedQuantity(movement.quantity_change, movement.item) }}</td>
+                                                <td class="text-end br-inventory__difference"><QuantityValue :value="movement.quantity_change" :unit="movement.item?.measurement_unit || movement.item" signed/></td>
                                                 <td>
                                                     <strong>{{ movement.metadata?.reference || movement.reference || "-" }}</strong>
                                                     <span class="br-inventory__meta">{{ movement.reason }}</span>

@@ -18,10 +18,8 @@
 }
 
 .br-inventory-skeleton__actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: var(--br-grid-gap-2); }
-.br-inventory-skeleton__actions--stock { justify-content: flex-start; }
 .br-inventory-skeleton__button { width: 5.2rem; height: var(--br-control-height, 2.5rem); }
 .br-inventory-skeleton__button--create { width: 9.5rem; }
-.br-inventory-skeleton__button--stock-create { margin-left: auto; }
 .br-inventory-skeleton__clear { width: var(--br-control-height); height: var(--br-control-height); align-self: flex-end; }
 
 @keyframes br-inventory-skeleton-pulse { 50% { opacity: .55; } }

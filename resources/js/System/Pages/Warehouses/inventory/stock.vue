@@ -6,7 +6,7 @@
 
         <section v-else class="br-inventory">
             <div class="row align-items-end g-3 br-inventory__context">
-                <div :class="activeView === 'stock' ? 'col-12 col-md-6 col-lg-4 col-xl-4 br-inventory__warehouse' : 'col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse'">
+                <div class="col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse">
                     <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
                     <WarehouseSelect
                         id="inventoryWarehouse"
@@ -26,13 +26,11 @@
                     placeholder="Buscar o escanear producto"
                     :inputClass="['form-control']"
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                    :xl="activeView === 'stock' ? 5 : 3"
-                    :lg="activeView === 'stock' ? 5 : 3"
-                    md="6"
-                    @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
-                    @clear="clearProductSearch"/>
+                    xl="3"
+                    lg="3"
+                    md="6"/>
 
-                <div v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-3 col-xl-3">
+                <div v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-2 col-xl-2">
                     <label for="stockSituation" class="form-label">Estado del stock</label>
                     <v-select
                         id="stockSituation"
@@ -44,26 +42,18 @@
                         :searchable="false"/>
                 </div>
 
-                <div v-show="activeView === 'stock' && stockAdvancedOpen" id="stockAdvancedFilters" class="col-12 br-inventory__advanced-filters">
-                    <div class="row g-3">
-                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                            <label for="stockCategory" class="form-label">Categoría</label>
-                            <v-select id="stockCategory" v-model="filters.stockCategory" :options="stockCategories" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las categorías"/>
-                        </div>
-                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                            <label for="stockBrand" class="form-label">Marca</label>
-                            <v-select id="stockBrand" v-model="filters.stockBrand" :options="stockBrands" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" placeholder="Todas las marcas"/>
-                        </div>
-                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                            <label for="stockMinimumStatus" class="form-label">Stock mínimo</label>
-                            <v-select id="stockMinimumStatus" v-model="filters.stockMinimumStatus" :options="stockMinimumOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
-                        </div>
-                        <div class="col-12 col-sm-6 col-lg-6 col-xl-3">
-                            <label for="stockInactiveDays" class="form-label">Último movimiento</label>
-                            <v-select id="stockInactiveDays" v-model="filters.stockInactiveDays" :options="stockInactivityOptions" :class="config.forms.classes.select2" :disabled="isCurrentViewLoading || !filters.warehouse?.code" :clearable="false" :searchable="false"/>
-                        </div>
-                    </div>
-                </div>
+                <StockAdvancedFilters
+                    v-if="activeView === 'stock'"
+                    v-model:category="filters.stockCategory"
+                    v-model:brand="filters.stockBrand"
+                    v-model:minimum-status="filters.stockMinimumStatus"
+                    v-model:inactive-days="filters.stockInactiveDays"
+                    :categories="stockCategories"
+                    :brands="stockBrands"
+                    :minimum-options="stockMinimumOptions"
+                    :inactivity-options="stockInactivityOptions"
+                    :select-class="config.forms.classes.select2"
+                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"/>
 
                 <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
                     <label for="movementType" class="form-label">Movimiento</label>
@@ -100,29 +90,38 @@
                     </div>
                 </template>
 
-                <div :class="contextActionColumns">
-                    <div :class="['br-filter-bar__actions', 'br-inventory__context-actions', {'br-inventory__context-actions--stock': activeView === 'stock'}]">
+                <div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">
+                    <div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">
                         <button
                             type="button"
                             class="br-btn br-btn-sm br-btn-search"
                             :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                            @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
+                            @click="searchCurrentView">
                             <span>Buscar</span>
-                        </button>
-                        <button
-                            v-if="activeView === 'stock'"
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-outline-secondary br-inventory__advanced-toggle"
-                            :aria-expanded="stockAdvancedOpen"
-                            aria-controls="stockAdvancedFilters"
-                            @click="stockAdvancedOpen = !stockAdvancedOpen">
-                            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                            <span>Más filtros</span>
-                            <span v-if="activeStockFilterCount" class="br-inventory__filter-count">{{ activeStockFilterCount }}</span>
                         </button>
                         <ClearFiltersButton
                             :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                             @clear="clearFilters"/>
+                        <button
+                            type="button"
+                            class="br-btn br-btn-sm br-btn-actions"
+                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <span>Acciones</span>
+                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                            <li>
+                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
+                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                                    <span>Descargar Excel</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div v-if="['stock', 'transfers'].includes(activeView)" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
+                        <span v-if="activeView === 'stock'" class="vr align-self-center" aria-hidden="true"></span>
                         <button
                             v-if="activeView === 'transfers'"
                             type="button"
@@ -137,7 +136,7 @@
                         <button
                             v-if="activeView === 'stock'"
                             type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create br-inventory__operation-button"
+                            class="br-btn br-btn-sm br-btn-action-open-create"
                             :disabled="isCurrentViewLoading"
                             data-bs-toggle="modal"
                             data-bs-target="#inventoryMovementModal"
@@ -154,23 +153,6 @@
                             <i class="fa-solid fa-bell fa-shake" aria-hidden="true"></i>
                             <span>Ver alertas</span>
                         </button>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-actions"
-                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <span>Acciones</span>
-                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
-                            <li>
-                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !filters.warehouse?.code" @click="exportCurrentView">
-                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                    <span>Descargar Excel</span>
-                                </button>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -210,8 +192,8 @@
                                             <td>
                                                 <ProductIdentity :product="record"/>
                                             </td>
-                                            <td class="text-end"><span class="br-inventory__stock-current">{{ quantityWithUnit(record.stock_quantity, record) }}</span></td>
-                                            <td class="text-end">{{ quantityWithUnit(record.minimum_stock, record) }}</td>
+                                            <td class="text-end"><QuantityValue class="br-inventory__stock-current" :value="record.stock_quantity" :unit="record.measurement_unit || record"/></td>
+                                            <td class="text-end"><QuantityValue :value="record.minimum_stock" :unit="record.measurement_unit || record"/></td>
                                             <td class="text-end"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></td>
                                             <td :class="['br-inventory__situation', stockStatus(record).cellClass]">{{ stockStatus(record).label }}</td>
                                             <td class="text-center">
@@ -246,7 +228,7 @@
                 </section>
 
                 <Paginator
-                    v-if="filters.warehouse?.code"
+                    v-if="appliedFilters.warehouse?.code"
                     :links="currentRecords.links"
                     :pagination="currentRecords"
                     :loading="isCurrentViewLoading"
@@ -256,7 +238,7 @@
     </InitialLoadTransition>
     <StockAlertsModal
         :alerts="stockAlerts"
-        :warehouse="filters.warehouse"
+        :warehouse="appliedFilters.warehouse"
         v-model:product-search="alertProductSearch"
         v-model:minimum-status="alertMinimumStatus"
         :minimum-options="stockMinimumOptions"
@@ -278,7 +260,7 @@
         :records="traceabilityRecords"
         :loading="loadingTraceability"
         :error="traceabilityError"
-        :formatters="{formatDate, movementTypeLabel, signedQuantity, quantityWithUnit, originLabel}"
+        :formatters="{formatDate, movementTypeLabel, originLabel}"
         @page="listTraceability"
         @retry="listTraceability({})"/>
     <FormModal
@@ -431,7 +413,7 @@
                                             <small
                                                 v-if="item.currentStock !== null"
                                                 class="br-inventory-operation__current-stock">
-                                                Stock actual: {{ quantityWithUnit(item.currentStock, item.product) }}
+                                                Stock actual: <QuantityValue :value="item.currentStock" :unit="item.product?.measurement_unit || item.product"/>
                                             </small>
                                             <small v-if="movementItemError(index, 'item_id')" class="text-danger">
                                                 {{ movementItemError(index, "item_id") }}

@@ -26,6 +26,8 @@ final class StockManagementConfigService extends BaseConfigService {
 
     protected static function buildConfig(string $page, ?int $userId = null): stdClass {
 
+        $hasStockFilters = in_array($page, ["stock", "kardex", "valued"], true);
+
         return self::data([
             "warehouses" => self::data([
                 "records" => CompanyReferenceDataService::forUser($userId)->stockWarehouses(),
@@ -42,12 +44,12 @@ final class StockManagementConfigService extends BaseConfigService {
                     : [],
             ]),
             "stock_categories" => self::data([
-                "records" => $page === "stock"
+                "records" => $hasStockFilters
                     ? Category::query()->active()->orderBy("name")->get(["id", "name"])
                     : [],
             ]),
             "stock_brands" => self::data([
-                "records" => $page === "stock"
+                "records" => $hasStockFilters
                     ? Brand::query()->active()->orderBy("name")->get(["id", "name"])
                     : [],
             ]),

@@ -14,11 +14,10 @@
                         :titleClass="[config.forms.classes.title]"
                         placeholder="Buscar perfil de acceso"
                         xl="8"
-                        lg="8"
-                        @search="listRoles({})"/>
+                        lg="8"/>
                     <div class="form-group col-xl-4 col-lg-4">
                         <div class="br-filter-bar__actions">
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({})">
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({applyFilters: true})">
                                 <span>Buscar</span>
                             </button>
                             <button
@@ -313,6 +312,7 @@ export default {
             saving: false,
             editingId: null,
             records: {total: 0, data: []},
+            appliedFilters: null,
             filters: {word: ""},
             options: {
                 sections: [],
@@ -368,14 +368,15 @@ export default {
             this.options.cashRegisters = result.data?.config?.cashRegisters || [];
             this.options.warehouses = result.data?.config?.warehouses || [];
         },
-        async listRoles({url = null} = {}) {
+        async listRoles({url = null, applyFilters = false} = {}) {
+            if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
             this.loading = true;
 
             try {
                 this.records = Requests.emptyPagination();
                 const result = await Requests.get({
                     route: url || this.config.entity.routes.list,
-                    data: {word: this.filters.word}
+                    data: {word: this.appliedFilters.word}
                 });
                 this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
             } finally {

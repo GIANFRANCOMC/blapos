@@ -46,6 +46,17 @@ function setCustomNavigationCollapsed(collapsed) {
     Waves.attach("[class*='btn-outline-']");
     Waves.attach("[class*='btn-label-']");
     Waves.attach('.pagination .page-item .page-link');
+
+    // Register buttons added after Waves.init before its delegated handler runs.
+    const attachButtonWaves = event => {
+      const button = event.target.closest?.('button, a.btn, a.br-btn, [role="button"]');
+      if (button instanceof HTMLElement && !button.matches(':disabled, .disabled, [aria-disabled="true"], .waves-effect')) {
+        Waves.attach(button);
+      }
+    };
+
+    document.body.addEventListener('mousedown', attachButtonWaves, true);
+    document.body.addEventListener('touchstart', attachButtonWaves, { capture: true, passive: true });
   }
 
   // Initialize menu

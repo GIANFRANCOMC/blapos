@@ -20,8 +20,8 @@ test("el buscador compartido limpia el texto y conserva la búsqueda explícita"
     assert.match(component, /<InputText[\s\S]*?@enterKeyPressed="\$emit\('search'\)"/);
     assert.match(component, /v-if="String\(modelValue \?\? ''\)\.length > 0"/);
     assert.match(component, /clear\(\) \{[\s\S]*?\$emit\("update:modelValue", ""\);[\s\S]*?\$emit\("clear"\);[\s\S]*?this\.focus\(\);/);
-    assert.match(filters, /<SearchInput[\s\S]*?@search="\$emit\('search'\)"/);
-    assert.match(inventory, /<SearchInput[\s\S]*?@clear="clearProductSearch"/);
+    assert.doesNotMatch(filters, /<SearchInput[^>]*@search=/);
+    assert.doesNotMatch(inventory, /<SearchInput[^>]*@(?:search|clear)=/);
     assert.doesNotMatch(component, /this\.\$emit\("search"\)/);
 
 });
@@ -48,7 +48,8 @@ test("los buscadores propios reutilizan SearchInput y el panel central conserva 
     }
 
     const platform = read("resources/js/Platform/pages/TenantIndex.vue");
-    assert.match(platform, /class="platform-search__clear"[\s\S]*?@click="filters\.search = ''; scheduleSearch\(\)"/);
+    assert.match(platform, /class="platform-search__clear"[\s\S]*?@click="filters\.search = ''"/);
+    assert.doesNotMatch(platform, /scheduleSearch|@change="loadTenants/);
 
 });
 
@@ -92,7 +93,7 @@ test("limpiar Producto en alertas solo actualiza el texto y devuelve el foco", (
     const handlers = productSearch.props.filter(prop => prop.name === "on");
     assert.ok(!handlers.some(prop => ["clear", "input", "change"].includes(prop.arg?.content)));
     assert.equal(handlers.find(prop => prop.arg?.content === "update:model-value")?.exp.content, "$emit('update:productSearch', $event)");
-    assert.equal(handlers.find(prop => prop.arg?.content === "search")?.exp.content, "$emit('search')");
+    assert.ok(!handlers.some(prop => prop.arg?.content === "search"));
 });
 
 test("el foco del buscador permanece en el grupo también antes de aparecer la X", () => {

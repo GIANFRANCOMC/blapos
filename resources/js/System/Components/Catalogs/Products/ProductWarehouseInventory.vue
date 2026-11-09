@@ -36,7 +36,7 @@
                     :aria-label="currentLabel"
                     :title="mode === 'edit' && isUpdate ? 'El stock actual se modifica desde Inventario.' : null">
                     <span class="br-entity-inventory__mobile-label" v-text="currentLabel"></span>
-                    <strong v-text="formatQuantity(item.inventory.initial_stock)"></strong>
+                    <strong><QuantityValue :value="item.inventory.initial_stock" :unit="measurementUnit"/></strong>
                 </span>
             </div>
 
@@ -53,7 +53,7 @@
                     @update:modelValue="updateRow(item.index, 'minimum_stock', $event)"/>
                 <span v-else class="br-entity-readonly-metric" aria-label="Stock mínimo">
                     <span class="br-entity-inventory__mobile-label">Stock mínimo</span>
-                    <strong v-text="formatQuantity(item.inventory.minimum_stock)"></strong>
+                    <strong><QuantityValue :value="item.inventory.minimum_stock" :unit="measurementUnit"/></strong>
                 </span>
             </div>
         </div>
@@ -61,13 +61,13 @@
 </template>
 
 <script>
-import * as Utils from "@System/Helpers/Utils.js";
 import InputNumber from "@System/Components/InputNumber.vue";
+import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import {inventoryStockStatus} from "./productInventory.js";
 
 export default {
     name: "ProductWarehouseInventory",
-    components: {InputNumber},
+    components: {InputNumber, QuantityValue},
     emits: ["update:rows"],
     props: {
         rows: {type: Array, required: true},
@@ -98,11 +98,6 @@ export default {
             const error = this.errors[`inventory.${index}.${field}`];
 
             return Array.isArray(error) ? error : (error ? [error] : []);
-
-        },
-        formatQuantity(value) {
-
-            return Utils.quantityWithUnit(value ?? 0, this.measurementUnit);
 
         },
         updateRow(index, field, value) {

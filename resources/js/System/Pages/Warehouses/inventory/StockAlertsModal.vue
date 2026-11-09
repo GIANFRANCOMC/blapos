@@ -16,7 +16,7 @@
             </header>
 
             <div class="br-inventory-alerts__toolbar">
-                <form class="br-inventory-alerts__filters" role="search" @submit.prevent="$emit('search')">
+                <div class="br-inventory-alerts__filters" role="search">
                     <div class="col-12 col-sm-6 br-inventory-alerts__product-filter">
                         <label for="inventoryAlertProduct" class="form-label">Producto</label>
                         <SearchInput
@@ -26,8 +26,7 @@
                             placeholder="Buscar o escanear producto"
                             :disabled="loading || !warehouse?.code"
                             maxlength="100"
-                            @update:model-value="$emit('update:productSearch', $event)"
-                            @search="$emit('search')"/>
+                            @update:model-value="$emit('update:productSearch', $event)"/>
                     </div>
                     <div class="col-12 col-sm-4 col-xl-3">
                         <label for="inventoryAlertMinimumStatus" class="form-label">Stock mínimo</label>
@@ -41,7 +40,7 @@
                             :searchable="false"
                             @update:model-value="$emit('update:minimumStatus', $event)"/>
                     </div>
-                    <button type="submit" class="br-btn br-btn-search" :disabled="loading || !warehouse?.code">Buscar</button>
+                    <button type="button" class="br-btn br-btn-search" :disabled="loading || !warehouse?.code" @click="$emit('search')">Buscar</button>
                     <div class="dropdown br-inventory-alerts__actions">
                         <button
                             type="button"
@@ -67,7 +66,7 @@
                             </li>
                         </ul>
                     </div>
-                </form>
+                </div>
             </div>
 
             <section class="br-entity-list br-inventory-alerts__list" aria-label="Alertas abiertas del almacén" :aria-busy="loading">
@@ -122,8 +121,8 @@
                                             <td>
                                                 <ProductIdentity :product="alert.warehouse_item?.item"/>
                                             </td>
-                                            <td class="text-end"><span class="br-inventory__stock-current">{{ formatQuantity(alert.quantity, alert) }}</span></td>
-                                            <td class="text-end">{{ formatQuantity(alert.minimum_stock, alert) }}</td>
+                                            <td class="text-end"><QuantityValue class="br-inventory__stock-current" :value="alert.quantity" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
+                                            <td class="text-end"><QuantityValue :value="alert.minimum_stock" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
                                             <td class="text-end"><StockDifference :current="alert.quantity" :minimum="alert.minimum_stock" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
                                             <td class="text-center">{{ formatDate(alert.detected_at) }}</td>
                                             <td class="text-center">
@@ -162,15 +161,15 @@
 <script>
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
+import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StockDifference from "./StockDifference.vue";
-import {quantityWithUnit} from "@System/Helpers/NumberUtils.js";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 export default {
     name: "StockAlertsModal",
-    components: {FormModal, ProductIdentity, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
+    components: {FormModal, ProductIdentity, QuantityValue, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
     emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "edit"],
     props: {
         alerts: {type: Object, required: true},
@@ -186,9 +185,6 @@ export default {
         error: {type: String, default: ""}
     },
     methods: {
-        formatQuantity(value, alert) {
-            return quantityWithUnit(value, alert.warehouse_item?.item?.measurement_unit);
-        },
         formatDate(value) {
             if(!value) return "—";
             return new Intl.DateTimeFormat("es-PE", {dateStyle: "short", timeStyle: "short"}).format(new Date(value));

@@ -40,12 +40,6 @@
   background: color-mix(in srgb, var(--br-primary-soft) 28%, var(--br-white));
 }
 
-.br-cash__selector .form-label,
-.br-cash .form-label {
-  margin-bottom: 0.18rem;
-  color: var(--br-text-muted);
-}
-
 .br-cash__tabs {
   gap: 0.45rem;
   background: transparent;

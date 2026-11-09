@@ -13,7 +13,7 @@ export function tooltipOptionsFor(element, navigationContainer = document.body) 
             show: 0,
             hide: 0
         },
-        trigger: "hover focus"
+        trigger: element?.dataset?.bsTrigger ?? "hover focus"
     };
 
 }

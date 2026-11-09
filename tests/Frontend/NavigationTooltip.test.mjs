@@ -20,6 +20,8 @@ test("los tooltips del menú conservan su clase al reconstruirse", async () => {
 
     assert.equal(regular.customClass, "br-tooltip");
     assert.equal(regular.container, false);
+    assert.equal(regular.trigger, "hover focus");
+    assert.equal(tooltipOptionsFor({dataset: {bsTrigger: "hover"}}, body).trigger, "hover");
 
     const alerts = readFileSync(new URL("../../resources/js/System/Helpers/Alerts.js", import.meta.url), "utf8");
     const navigation = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");

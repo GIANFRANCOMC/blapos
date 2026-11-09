@@ -845,7 +845,7 @@ export default {
 
             const entityList   = this.lists[this.entity];
             const emptyRecords = {total: 0, data: [], links: []};
-            const filters      = Utils.cloneJson(entityList.filters);
+            const filters      = (entityList.appliedFilters ??= {...entityList.filters});
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
@@ -893,9 +893,8 @@ export default {
 
         },
         handleSearch() {
-
-            this.listEntity({});
-
+            this.entityList.appliedFilters = {...this.entityList.filters};
+            return this.listEntity({});
         },
         openImportModal() {
 
@@ -927,8 +926,8 @@ export default {
                 await Requests.download({
                     route: this.routeActions.export,
                     data: {
-                        filter_by: this.entityList.filters.filter_by?.code,
-                        word: this.entityList.filters.word
+                        filter_by: this.entityList.appliedFilters?.filter_by?.code,
+                        word: this.entityList.appliedFilters?.word || ""
                     },
                     fileName: "colaboradores.xlsx",
                     showAlert: true

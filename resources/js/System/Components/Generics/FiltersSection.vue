@@ -41,7 +41,6 @@
                 v-if="showSearchInput"
                 :model-value="filterWordValue"
                 @update:model-value="$emit('update:filterWordValue', $event)"
-                @search="$emit('search')"
                 hasDiv
                 :title="searchTitle"
                 :titleClass="titleClass"

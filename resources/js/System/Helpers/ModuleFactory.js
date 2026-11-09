@@ -33,6 +33,7 @@ export function initCrudModule(config = {}) {
                     filter_by: null,
                     word: ""
                 },
+                appliedFilters: null,
                 records: {
                     total: 0,
                     data: [],

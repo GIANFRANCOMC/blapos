@@ -58,7 +58,8 @@ test("un mundo de página única navega y los demás muestran su menú lateral",
     assert.doesNotMatch(styles, /\.br-navigation__context\.is-entering \.br-navigation__world-card/);
     assert.doesNotMatch(layout, /@if\(\$isActivePage\)\s*<i class="fa-solid fa-chevron-right"/);
     assert.doesNotMatch(layout, /br-navigation__page-icon/);
-    assert.match(styles, /\.br-navigation__page\s*\{[\s\S]*?gap: 0\.78rem;[\s\S]*?min-height: 2rem;[\s\S]*?padding: 0\.28rem 0\.52rem 0\.28rem 1\.04rem;/);
+    assert.match(styles, /\.br-navigation__pages\s*\{[^}]*gap: 0\.0625rem;/);
+    assert.match(styles, /\.br-navigation__page\s*\{[\s\S]*?gap: 0\.78rem;[\s\S]*?min-height: var\(--br-btn-height-sm\);[\s\S]*?padding: 0\.28rem 0\.52rem 0\.28rem 1\.04rem;/);
     assert.match(styles, /\.br-navigation__page::before\s*\{[^}]*border: 1px solid[^}]*background: transparent;/);
     assert.match(styles, /\.br-navigation__page\.active\s*\{[^}]*color: var\(--br-primary-active\);/);
     assert.doesNotMatch(styles, /\.br-navigation__group\.is-current/);

@@ -17,8 +17,6 @@
                 </div>
 
                 <SearchInput
-                    v-if="['stock', 'transfers'].includes(activeView)"
-                    ref="productSearch"
                     v-model.trim="filters.productSearch"
                     hasDiv
                     title="Producto"
@@ -28,11 +26,9 @@
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     xl="3"
                     lg="3"
-                    md="6"
-                    @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
-                    @clear="clearProductSearch"/>
+                    md="6"/>
 
-                <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
+                <div class="col-12 col-md-6 col-lg-2 col-xl-2">
                     <label for="movementType" class="form-label">Movimiento</label>
                     <v-select
                         id="movementType"
@@ -43,83 +39,66 @@
                         :clearable="false"
                         :searchable="false"/>
                 </div>
-
-                <div v-if="activeView === 'guides'" class="col-12 col-md-6 col-lg-2 col-xl-2">
-                    <label for="guideType" class="form-label">Tipo de guía</label>
-                    <v-select
-                        id="guideType"
-                        v-model="filters.guideType"
-                        :options="guideTypes"
-                        :class="config.forms.classes.select2"
-                        :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                        :clearable="false"
-                        :searchable="false"/>
+                <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                    <label for="inventoryDateFrom" class="form-label">Desde</label>
+                    <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
+                </div>
+                <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                    <label for="inventoryDateTo" class="form-label">Hasta</label>
+                    <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
                 </div>
 
-                <template v-if="['kardex', 'valued', 'guides'].includes(activeView)">
-                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
-                        <label for="inventoryDateFrom" class="form-label">Desde</label>
-                        <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
+                <StockAdvancedFilters
+                    v-model:category="filters.stockCategory"
+                    v-model:brand="filters.stockBrand"
+                    :categories="stockCategories"
+                    :brands="stockBrands"
+                    :select-class="config.forms.classes.select2"
+                    :disabled="isCurrentViewLoading || !filters.warehouse?.code">
+                    <template #before-filters>
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                            <label for="movementUser" class="form-label">Realizado por</label>
+                            <v-select
+                                id="movementUser"
+                                v-model="filters.movementUser"
+                                :options="movementUsers"
+                                :class="config.forms.classes.select2"
+                                :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                                :clearable="false"/>
+                        </div>
+                    </template>
+                    <div class="col-12 col-lg-3">
+                        <div class="br-filter-bar__actions br-inventory__context-actions gap-lg-1">
+                            <button
+                                type="button"
+                                class="br-btn br-btn-sm br-btn-search px-lg-2"
+                                :disabled="!filters.warehouse?.code || isCurrentViewLoading"
+                                @click="searchCurrentView">
+                                <span>Buscar</span>
+                            </button>
+                            <ClearFiltersButton
+                                :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                                @clear="clearFilters"/>
+                            <button
+                                type="button"
+                                class="br-btn br-btn-sm br-btn-actions px-lg-2"
+                                :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <span>Acciones</span>
+                                <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                                <li>
+                                    <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
+                                        <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                                        <span>Descargar Excel</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
-                        <label for="inventoryDateTo" class="form-label">Hasta</label>
-                        <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
-                    </div>
-                </template>
-
-                <div :class="contextActionColumns">
-                    <div class="br-filter-bar__actions br-inventory__context-actions">
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-search"
-                            :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                            @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
-                            <span>Buscar</span>
-                        </button>
-                        <ClearFiltersButton
-                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            @clear="clearFilters"/>
-                        <button
-                            v-if="activeView === 'stock'"
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create"
-                            :disabled="isCurrentViewLoading"
-                            data-bs-toggle="modal"
-                            data-bs-target="#inventoryMovementModal"
-                            @click="prepareMovement()">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Registrar operación</span>
-                        </button>
-                        <button
-                            v-if="activeView === 'transfers'"
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
-                            :disabled="isCurrentViewLoading"
-                            data-bs-toggle="modal"
-                            data-bs-target="#inventoryTransferModal"
-                            @click="prepareTransfer">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Registrar traslado</span>
-                        </button>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-actions"
-                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <span>Acciones</span>
-                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
-                            <li>
-                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !filters.warehouse?.code" @click="exportCurrentView">
-                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                    <span>Descargar Excel</span>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                </StockAdvancedFilters>
             </div>
 
             <div class="br-inventory__workspace">

@@ -42,10 +42,12 @@
                                         <span class="br-inventory__meta">{{ movement.user?.name || 'Proceso del sistema' }}</span>
                                     </td>
                                     <td><span :class="['br-inventory-movement', `is-${movement.movement_type}`]">{{ formatters.movementTypeLabel(movement.movement_type) }}</span></td>
-                                    <td :class="['text-end br-inventory__difference', Number(movement.quantity_change) > 0 ? 'text-success' : Number(movement.quantity_change) < 0 ? 'text-danger' : 'text-muted']">{{ formatters.signedQuantity(movement.quantity_change, product) }}</td>
+                                    <td :class="['text-end br-inventory__difference', Number(movement.quantity_change) > 0 ? 'text-success' : Number(movement.quantity_change) < 0 ? 'text-danger' : 'text-muted']">
+                                        <QuantityValue :value="movement.quantity_change" :unit="product?.measurement_unit || product" signed/>
+                                    </td>
                                     <td class="text-end text-nowrap">
-                                        <span class="br-inventory__stock-current">{{ formatters.quantityWithUnit(movement.quantity_after, product) }}</span>
-                                        <span class="br-inventory__meta">Antes: {{ formatters.quantityWithUnit(movement.quantity_before, product) }}</span>
+                                        <QuantityValue class="br-inventory__stock-current" :value="movement.quantity_after" :unit="product?.measurement_unit || product"/>
+                                        <span class="br-inventory__meta">Antes: <QuantityValue :value="movement.quantity_before" :unit="product?.measurement_unit || product"/></span>
                                     </td>
                                     <td>
                                         <span>{{ movement.reason }}</span>
@@ -66,12 +68,13 @@
 <script>
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
+import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import Loader from "@System/Components/Loader.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import Paginator from "@System/Components/Paginator.vue";
 
 export default {
-    components: {FormModal, Loader, WithoutData, Paginator, ProductIdentity},
+    components: {FormModal, Loader, WithoutData, Paginator, ProductIdentity, QuantityValue},
     emits: ["page", "retry"],
     props: {
         product: {type: Object, default: null}, warehouse: {type: Object, default: null},

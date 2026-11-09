@@ -106,19 +106,6 @@ body.br-layout .table :is(thead, tbody, tfoot, tr, th, td) {
   margin-bottom: 0;
 }
 
-.br-filter-bar .form-label {
-  margin-bottom: 0.3rem;
-  color: var(--br-text-muted);
-  line-height: 1.25;
-}
-
-body.br-layout .form-label {
-  margin-bottom: 1px;
-  color: color-mix(in srgb, var(--br-secondary) 72%, var(--br-text-muted));
-  line-height: 1.2;
-  letter-spacing: 0;
-}
-
 /* -------------------------------------------------------------------------
  * [br] Tooltips compactos
  * ------------------------------------------------------------------------- */

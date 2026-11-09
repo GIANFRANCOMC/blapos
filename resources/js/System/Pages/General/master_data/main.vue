@@ -35,6 +35,7 @@
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <SearchInput v-model.trim="searchTerm" placeholder="Buscar dato automático" aria-label="Buscar dato automático"/>
                         </div>
+                        <button type="button" class="br-btn br-btn-sm br-btn-search" @click="applySearch">Buscar</button>
                         <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                     </div>
                     <Loader v-if="loading"/>
@@ -61,6 +62,7 @@
                                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                 <SearchInput v-model.trim="searchTerm" placeholder="Buscar registro" aria-label="Buscar registro"/>
                             </div>
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="applySearch">Buscar</button>
                             <span>{{ filteredRecords.length }} registro{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                         </div>
 
@@ -354,6 +356,7 @@ export default {
             initialLoading: true,
             saving: false,
             searchTerm: "",
+            appliedSearch: "",
             imageFile: null,
             config: {
                 ...Constants.generalConfig,
@@ -396,7 +399,7 @@ export default {
             return this.selectedResource.fields;
         },
         filteredRecords() {
-            const term = this.searchTerm.toLowerCase();
+            const term = this.appliedSearch.toLowerCase();
             if(!term) return this.records;
 
             return this.records.filter(record => JSON.stringify(record).toLowerCase().includes(term));
@@ -412,11 +415,15 @@ export default {
         }
     },
     methods: {
+        applySearch() {
+            this.appliedSearch = this.searchTerm;
+        },
         async selectResource(resourceCode) {
             if(this.selectedResourceCode === resourceCode) return;
 
             this.selectedResourceCode = resourceCode;
             this.searchTerm = "";
+            this.appliedSearch = "";
             this.startCreate();
             await this.loadRecords();
         },

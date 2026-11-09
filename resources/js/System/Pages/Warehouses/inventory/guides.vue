@@ -28,9 +28,7 @@
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     xl="3"
                     lg="3"
-                    md="6"
-                    @search="activeView === 'stock' ? handleProductSearch() : searchCurrentView()"
-                    @clear="clearProductSearch"/>
+                    md="6"/>
 
                 <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
                     <label for="movementType" class="form-label">Movimiento</label>
@@ -73,7 +71,7 @@
                             type="button"
                             class="br-btn br-btn-sm br-btn-search"
                             :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                            @click="activeView === 'stock' ? handleProductSearch() : searchCurrentView()">
+                            @click="searchCurrentView">
                             <span>Buscar</span>
                         </button>
                         <ClearFiltersButton
@@ -112,7 +110,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
                             <li>
-                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !filters.warehouse?.code" @click="exportCurrentView">
+                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
                                     <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
                                     <span>Descargar Excel</span>
                                 </button>
@@ -161,7 +159,7 @@
                                                     <strong>{{ (guide.items || []).length }} producto{{ (guide.items || []).length === 1 ? "" : "s" }}</strong>
                                                     <div v-for="line in (guide.items || []).slice(0, 2)" :key="line.id" class="mt-2">
                                                         <ProductIdentity :product="line.item"/>
-                                                        <span class="br-inventory__meta">Cantidad: {{ quantityWithUnit(line.quantity, line.item) }}</span>
+                                                        <span class="br-inventory__meta">Cantidad: <QuantityValue :value="line.quantity" :unit="line.item?.measurement_unit || line.item"/></span>
                                                     </div>
                                                 </td>
                                                 <td>

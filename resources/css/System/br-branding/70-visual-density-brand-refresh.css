@@ -68,17 +68,6 @@ body.br-layout :where(.column-gap-3, .column-gap-sm-3, .column-gap-md-3, .column
   column-gap: var(--br-grid-gap-3) !important;
 }
 
-/* Tipografía de formulario más silenciosa y consistente */
-body.br-layout .form-label,
-.br-filter-bar .form-label,
-.br-cash__selector .form-label,
-.br-cash .form-label,
-.br-document-settlement .form-label {
-  margin-bottom: 0.16rem;
-  color: color-mix(in srgb, var(--br-secondary) 64%, var(--br-text-muted));
-  line-height: 1.15;
-}
-
 body.br-layout .text-danger.ms-1.fw-bold {
   line-height: 1;
 }

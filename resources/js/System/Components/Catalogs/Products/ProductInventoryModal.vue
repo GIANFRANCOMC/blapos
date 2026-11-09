@@ -19,7 +19,7 @@
                     </div>
                     <div class="br-product-inventory-view__total">
                         <span>Stock total</span>
-                        <strong>{{ quantityWithUnit(summary.total) }}</strong>
+                        <strong><QuantityValue :value="summary.total" :unit="record?.measurement_unit"/></strong>
                         <small v-if="summary.alerts" class="br-product-inventory-view__alert">
                             {{ summary.alerts }} {{ summary.alerts === 1 ? "almacén requiere atención" : "almacenes requieren atención" }}
                         </small>
@@ -39,8 +39,8 @@
 
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
-import * as Utils from "@System/Helpers/Utils.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
+import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import ProductWarehouseInventory from "./ProductWarehouseInventory.vue";
 import {summarizeProductStock} from "./productInventory.js";
 
@@ -48,7 +48,7 @@ let inventoryModalInstance = 0;
 
 export default {
     name: "ProductInventoryModal",
-    components: {FormModal, ProductWarehouseInventory},
+    components: {FormModal, ProductWarehouseInventory, QuantityValue},
     data() {
 
         return {
@@ -86,11 +86,6 @@ export default {
             Alerts.tooltips({show: false});
             this.record = record;
             Alerts.modals({type: "show", id: this.modalId});
-
-        },
-        quantityWithUnit(value) {
-
-            return Utils.quantityWithUnit(value, this.record?.measurement_unit);
 
         }
     }

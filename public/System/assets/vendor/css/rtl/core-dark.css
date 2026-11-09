@@ -2014,12 +2014,6 @@ progress {
     -webkit-overflow-scrolling: touch;
   }
 }
-.form-label {
-  margin-bottom: 0.25rem;
-  font-size: 0.8125rem;
-  color: #cfd3ec;
-}
-
 .col-form-label {
   padding-top: calc(0.422rem + var(--bs-border-width));
   padding-bottom: calc(0.422rem + var(--bs-border-width));
@@ -9810,7 +9804,6 @@ html:not([dir=rtl]) .nav-align-left .nav-tabs {
   text-align: right;
 }
 
-.form-label,
 .col-form-label {
   text-transform: inherit;
   letter-spacing: inherit;

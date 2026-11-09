@@ -35,7 +35,7 @@
                                     type="button"
                                     class="br-btn br-btn-sm br-btn-search"
                                     :disabled="lists.entity.extras.loading"
-                                    @click="listEntity({})">
+                                    @click="listEntity({applyFilters: true})">
                                     <span>Buscar</span>
                                 </button>
                             </template>
@@ -219,6 +219,7 @@ export default {
                         loading: false,
                         route: Requests.config({entity: "tracking_notifications", type: "list"})
                     },
+                    appliedFilters: null,
                     filters: {
                         status: STATUS_OPTIONS[0]
                     },
@@ -248,8 +249,11 @@ export default {
 
             return Requests.valid({result: initParams});
         },
-        async listEntity({url = null}) {
-            const filterData = {status: this.lists.entity.filters.status?.code || ""};
+        async listEntity({url = null, applyFilters = false}) {
+            if(applyFilters || !this.lists.entity.appliedFilters) {
+                this.lists.entity.appliedFilters = {...this.lists.entity.filters};
+            }
+            const filterData = {status: this.lists.entity.appliedFilters.status?.code || ""};
             let route = url || this.lists.entity.extras.route;
             let data = filterData;
 
@@ -320,11 +324,6 @@ export default {
         },
         statusOptions() {
             return STATUS_OPTIONS;
-        }
-    },
-    watch: {
-        "lists.entity.filters.status": function() {
-            this.listEntity({});
         }
     }
 };

@@ -8,7 +8,7 @@ import {renderToString} from "vue/server-renderer";
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 const directory = "resources/js/System/Pages/Warehouses/inventory";
 
-test("todas las tablas de inventario centran sus cabeceras sin cambiar las celdas", () => {
+test("las tablas de inventario centran las cabeceras de texto y Kardex alinea a la derecha las numéricas", () => {
     const styles = read("resources/css/System/br-branding/82-inventory.css");
     assert.match(styles, /body\.br-layout \.br-inventory-table-headings > thead > tr > th \{\s*text-align: center !important;/);
 
@@ -17,12 +17,14 @@ test("todas las tablas de inventario centran sus cabeceras sin cambiar las celda
         const tables = [...source.matchAll(/<table\b[\s\S]*?>/g)].map(match => match[0]);
 
         assert.ok(tables.length > 0, `${file} debe contener una tabla`);
-        assert.ok(tables.every(table => table.includes("br-inventory-table-headings")), `${file} debe centrar todas sus cabeceras`);
+        assert.ok(tables.every(table => table.includes("br-inventory-table-headings")), `${file} debe compartir la regla de cabeceras`);
 
         for(const [, head] of source.matchAll(/<thead\b[^>]*>([\s\S]*?)<\/thead>/g)) {
-            assert.doesNotMatch(head, /<th\b[^>]*\btext-end\b/, `${file} no debe alinear cabeceras a la derecha`);
+            assert.doesNotMatch(head, /<th\b[^>]*\btext-end\b/, `${file} debe usar la regla compartida de alineación`);
         }
     }
+    assert.doesNotMatch(styles, /\.br-inventory__kardex-table > thead > tr > th:nth-child\(-n\+2\)/);
+    assert.match(styles, /\.br-inventory__kardex-table > thead > tr > th:nth-child\(n\+3\) \{\s*text-align: end !important;/);
 });
 
 test("el skeleton reutiliza la distribución de las tablas de stock y kardex", () => {
@@ -45,26 +47,33 @@ test("el skeleton reutiliza la distribución de las tablas de stock y kardex", (
         assert.ok(skeleton.includes("[...kardexHeadings, " + remaining.map(label => JSON.stringify(label)).join(", ") + "]"), view);
         assert.match(page, /<td>\s*<ProductIdentity :product="movement\.item"\/>\s*<\/td>\s*<td>\s*<KardexMovementDetails\b[^>]*\/>\s*<\/td>\s*<td class="text-end">\s*<StockDifference\b/);
     }
-    assert.match(styles, /\.br-inventory__kardex-table \{[^}]*table-layout: fixed;/);
+    assert.match(styles, /body\.br-layout \.br-inventory__difference \{[^}]*white-space: nowrap;/);
+    assert.match(styles, /\.br-inventory__kardex-table--valued tbody td:nth-child\(n\+3\) \{\s*white-space: nowrap;\s*overflow-wrap: normal;/);
+    assert.doesNotMatch(styles, /\.br-inventory__kardex-table \.br-inventory__difference \{[^}]*white-space: normal;/);
+    assert.match(styles, /\.br-inventory__table--single-warehouse \.br-inventory__col-product,\s*\.br-inventory__kardex-table th:first-child \{ width: 37%; \}/);
 });
 
 test("el detalle de movimiento conserva la autoría y los datos disponibles", async () => {
     const {descriptor, errors} = parse(read(directory + "/KardexMovementDetails.vue"));
     assert.deepEqual(errors, []);
-    const component = {
-        props: ["movement", "dateLabel", "typeLabel", "originLabel"],
-        render: compile(descriptor.template.content)
-    };
-    const renderMovement = movement => renderToString(createSSRApp({
+    const moduleUrl = "data:text/javascript;base64," + Buffer.from(descriptor.script.content).toString("base64");
+    const {default: options} = await import(moduleUrl);
+    const component = {...options, render: compile(descriptor.template.content)};
+    const renderMovement = (movement, originLabel = "Compra") => renderToString(createSSRApp({
         render: () => h(component, {
-            movement, dateLabel: "08/11/26 09:20", typeLabel: "Entrada", originLabel: "Compra"
+            movement, dateLabel: "08/11/26 09:20", typeLabel: "Entrada", originLabel
         })
     }));
     const manual = await renderMovement({
         created_at: "2026-11-08T14:20:00Z", movement_type: "entry", user: {name: "Ana Pérez"},
         user_id: 1, reason: "Recepción de mercadería", reference: "OC-001"
     });
-    assert.match(manual, /08\/11\/26 09:20[\s\S]*?Entrada[\s\S]*?Ana Pérez[\s\S]*?Compra[\s\S]*?Recepción de mercadería[\s\S]*?OC-001/);
+    assert.match(manual, /08\/11\/26 09:20[\s\S]*?Entrada[\s\S]*?Compra[\s\S]*?Por Ana Pérez[\s\S]*?Recepción de mercadería[\s\S]*?OC-001/);
+    const opening = await renderMovement({reason: "Stock inicial de demostración.", reference: "REF-001"}, "Stock inicial de demostración");
+    assert.equal((opening.match(/Stock inicial de demostración/g) || []).length, 1);
+    assert.doesNotMatch(opening, />Motivo</);
+    assert.match(opening, /REF-001/);
+    assert.match(await renderMovement({reason: "Conteo manual"}, null), /Motivo[\s\S]*?Conteo manual/);
     assert.match(await renderMovement({}), /Proceso del sistema/);
     assert.match(await renderMovement({user_id: 2}), /Usuario no disponible/);
 });

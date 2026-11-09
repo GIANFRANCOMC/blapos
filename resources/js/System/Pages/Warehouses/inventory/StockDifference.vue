@@ -1,12 +1,14 @@
 <template>
-    <span :class="['br-inventory__difference', tone]">{{ label }}</span>
+    <QuantityValue :class="['br-inventory__difference', tone]" :value="difference" :unit="unit" signed/>
 </template>
 
 <script>
-import {normalizeNumber, quantityWithUnit, resolveDecimals} from "@System/Helpers/NumberUtils.js";
+import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
+import {normalizeNumber, resolveDecimals} from "@System/Helpers/NumberUtils.js";
 
 export default {
     name: "StockDifference",
+    components: {QuantityValue},
     props: {
         current: {type: [Number, String], default: 0},
         minimum: {type: [Number, String], default: 0},
@@ -22,9 +24,6 @@ export default {
             if(this.difference > 0) return "is-positive";
             if(this.difference < 0) return "is-negative";
             return "is-neutral";
-        },
-        label() {
-            return `${this.difference > 0 ? "+" : ""}${quantityWithUnit(this.difference, this.unit)}`;
         }
     }
 };

@@ -311,8 +311,7 @@
                             :titleClass="[config.forms.classes.title]"
                             placeholder="Proveedor, documento o producto"
                             xl="5"
-                            lg="5"
-                            @search="listPurchases({})"/>
+                            lg="5"/>
                         <div class="form-group col-xl-3 col-lg-3 col-md-12">
                             <label class="form-label">{{ activeMode === "receipts" ? "Estado del ingreso" : "Estado" }}</label>
                             <v-select
@@ -323,7 +322,7 @@
                         </div>
                         <div class="form-group col-xl-4 col-lg-4 col-md-12">
                             <div class="br-filter-bar__actions">
-                                <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listPurchases({})">
+                                <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listPurchases({applyFilters: true})">
                                     <span>Buscar</span>
                                 </button>
                                 <button
@@ -519,6 +518,7 @@ export default {
             savingReceipt: false,
             exporting: false,
             records: {total: 0, data: []},
+            appliedFilters: null,
             filters: {
                 word: "",
                 status: {code: "", label: "Todos los estados"}
@@ -649,7 +649,8 @@ export default {
                 this.deliveryModes = this.options.purchaseDeliveryModes;
             }
         },
-        async listPurchases({url = null} = {}) {
+        async listPurchases({url = null, applyFilters = false} = {}) {
+            if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
             this.loading = true;
 
             try {
@@ -657,10 +658,10 @@ export default {
                 const result = await Requests.get({
                     route: url || this.config.entity.routes.list,
                     data: {
-                        word: this.filters.word,
+                        word: this.appliedFilters.word,
                         status: this.activeMode === "receipts"
-                            ? (this.filters.status?.code || "pending_receipt")
-                            : (this.filters.status?.code || "")
+                            ? (this.appliedFilters.status?.code || "pending_receipt")
+                            : (this.appliedFilters.status?.code || "")
                     }
                 });
                 this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
@@ -939,7 +940,7 @@ export default {
             Alerts.swals({type: "loading", message: "Preparando reporte"});
             const result = await Requests.download({
                 route: this.config.entity.routes.export,
-                data: {word: this.filters.word, status: this.filters.status?.code || ""},
+                data: {word: this.appliedFilters.word, status: this.appliedFilters.status?.code || ""},
                 fileName: "compras.xlsx"
             });
             Alerts.swals({show: false});

@@ -46,7 +46,6 @@
 
                     <SearchInput
                         v-model="lists.entity.filters.sequential"
-                        @search="listEntity({})"
                         hasDiv
                         title="Secuencia"
                         :titleClass="[config.forms.classes.title]"
@@ -55,7 +54,6 @@
 
                     <InputDate
                         v-model="lists.entity.filters.start_date"
-                        @enterKeyPressed="listEntity({})"
                         hasDiv
                         title="Desde"
                         :titleClass="[config.forms.classes.title]"
@@ -65,7 +63,6 @@
 
                     <InputDate
                         v-model="lists.entity.filters.end_date"
-                        @enterKeyPressed="listEntity({})"
                         hasDiv
                         title="Hasta"
                         :titleClass="[config.forms.classes.title]"
@@ -122,7 +119,7 @@
                         xl="5"
                         lg="6">
                         <template #input>
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
                                 <span>Buscar</span>
                             </button>
                             <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="clearFilters" :disabled="lists.entity.extras.loading">
@@ -311,6 +308,7 @@ export default {
                         route: Requests.config({entity: "sales", type: "list"})
                     },
                     filters: this.defaultFilters(),
+                    appliedFilters: null,
                     records: {
                         total: 0,
                         data: [],
@@ -390,7 +388,11 @@ export default {
             });
 
         },
-        async listEntity({url = null}) {
+        async listEntity({url = null, applyFilters = false}) {
+
+            if(applyFilters || !this.lists.entity.appliedFilters) {
+                this.lists.entity.appliedFilters = {...this.lists.entity.filters};
+            }
 
             const filterJson = this.requestFilters();
             let requestUrl = url || this.lists.entity.extras.route;
@@ -417,7 +419,7 @@ export default {
             }
         },
         requestFilters() {
-            const filters = Utils.cloneJson(this.lists.entity.filters);
+            const filters = this.lists.entity.appliedFilters;
 
             return {
                 branch_id: filters?.branch?.code,
@@ -431,7 +433,7 @@ export default {
         },
         clearFilters() {
             this.lists.entity.filters = this.defaultFilters();
-            this.listEntity({});
+            return Alerts.showFiltersCleared();
         },
         modalActionsEntity({record = null}) {
 

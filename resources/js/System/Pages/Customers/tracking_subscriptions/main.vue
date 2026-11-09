@@ -41,7 +41,6 @@
                         </InputSlot>
                         <InputDate
                             v-model="lists.entity.filters.start_date"
-                            @change="listEntity({})"
                             hasDiv
                             title="Desde"
                             :titleClass="[config.forms.classes.title]"
@@ -49,7 +48,6 @@
                             lg="6"/>
                         <InputDate
                             v-model="lists.entity.filters.end_date"
-                            @change="listEntity({})"
                             hasDiv
                             title="Hasta"
                             :titleClass="[config.forms.classes.title]"
@@ -65,7 +63,7 @@
                         <div class="col-lg-12 col-xl-12">
                             <div class="form-check">
                                 <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status"/>
                                     <span class="fw-bold text-secondary">Todos los estados</span>
                                 </label>
                             </div>
@@ -73,7 +71,7 @@
                         <div class="col-lg-12 col-xl-12">
                             <div class="form-check">
                                 <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status"/>
                                     <span class="fw-bold text-success">Vigente</span>
                                 </label>
                             </div>
@@ -81,7 +79,7 @@
                         <div class="col-lg-12 col-xl-12">
                             <div class="form-check">
                                 <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == 'inactive' ? 'bg-primary border-primary' : '']" type="radio" value="inactive" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <input :class="['form-check-input', lists.entity.filters.status == 'inactive' ? 'bg-primary border-primary' : '']" type="radio" value="inactive" v-model="lists.entity.filters.status"/>
                                     <span class="fw-bold text-primary">Vencida</span>
                                 </label>
                             </div>
@@ -89,7 +87,7 @@
                         <div class="col-lg-12 col-xl-12">
                             <div class="form-check">
                                 <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status" @change="listEntity({})"/>
+                                    <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status"/>
                                     <span class="fw-bold text-danger">Anulada</span>
                                 </label>
                             </div>
@@ -103,7 +101,7 @@
                     xl="12"
                     lg="12">
                     <template v-slot:input>
-                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({})" :disabled="lists.entity.extras.loading">
+                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
                             <span>Filtrar</span>
                         </button>
                         <button type="button" class="br-btn br-btn-action-create waves-effect" @click="createManualEntity">
@@ -278,7 +276,10 @@ export default {
         Utils.navbarItem(this.config.entity.page.menu.id, {});
 
         const initialized = await this.loadInitialParams(() => this.initParams({}));
-        if(initialized) await this.initOthers({});
+        if(initialized) {
+            await this.initOthers({});
+            await this.listEntity({});
+        }
 
     },
     data() {
@@ -289,6 +290,7 @@ export default {
                         loading: false,
                         route: Requests.config({entity: "tracking_subscriptions", type: "list"})
                     },
+                    appliedFilters: null,
                     filters: {
                         branch: null,
                         customer: null,
@@ -375,9 +377,12 @@ export default {
         // ============================================
         // Entity List Methods
         // ============================================
-        async listEntity({url = null}) {
+        async listEntity({url = null, applyFilters = false}) {
+            if(applyFilters || !this.lists.entity.appliedFilters) {
+                this.lists.entity.appliedFilters = {...this.lists.entity.filters};
+            }
 
-            const filters = Utils.cloneJson(this.lists.entity.filters);
+            const filters = this.lists.entity.appliedFilters;
             const filterJson = {
                 branch_id:   filters?.branch?.code,
                 customer_id: filters?.customer?.code,
@@ -869,18 +874,6 @@ export default {
         },
         statusBadgeSubscriptionVariants() {
             return STATUS_BADGE_CUSTOM_SUBSCRIPTION;
-        }
-    },
-    watch: {
-        "lists.entity.filters.branch": function(newValue, oldValue) {
-
-            this.listEntity({});
-
-        },
-        "lists.entity.filters.customer": function(newValue, oldValue) {
-
-            this.listEntity({});
-
         }
     }
 };

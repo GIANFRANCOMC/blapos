@@ -2,14 +2,15 @@
     <button
         ref="button"
         type="button"
-        class="br-filter-clear"
+        class="br-filter-clear waves-effect waves-light"
         :disabled="disabled"
         aria-label="Limpiar filtros"
         title="Limpiar filtros"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        @click="$emit('clear')">
-        <i class="fa-solid fa-broom" aria-hidden="true"></i>
+        data-bs-trigger="hover"
+        @click="clear">
+        <i class="fa-solid fa-eraser" aria-hidden="true"></i>
     </button>
 </template>
 
@@ -28,7 +29,16 @@ export default {
     },
     watch: {
         disabled(isDisabled) {
-            if(isDisabled) window.bootstrap?.Tooltip?.getInstance(this.$refs.button)?.hide();
+            if(isDisabled) this.hideTooltip();
+        }
+    },
+    methods: {
+        clear() {
+            this.hideTooltip();
+            this.$emit("clear");
+        },
+        hideTooltip() {
+            window.bootstrap?.Tooltip?.getInstance(this.$refs.button)?.hide();
         }
     }
 };

@@ -101,7 +101,7 @@ Jerarquía de peso: títulos y totales `600–700`, etiquetas y botones `500`, t
 
 Todo valor visual nuevo debe pertenecer al sistema compartido antes de usarse en una pantalla: tipografía, colores, pesos, espaciado, altura de controles, radios, bordes, sombras y transiciones. Primero elegir un token existente según la función del elemento; si falta, añadirlo al catálogo central y documentar su propósito. No duplicar valores ni crear clases por módulo para representar el mismo rol visual.
 
-Control de stock es la referencia tipográfica para System, Guest y Platform. Los pasos de la escala y los pesos se definen en `resources/css/Shared/typography-tokens.css`. Los roles viven en `br-branding/00-tokens.css` y la tipografía de controles, etiquetas, botones y tablas se aplica desde `br-branding/01-typography.css`.
+Control de stock es la referencia tipográfica para System, Guest y Platform. Los pasos de la escala y los pesos se definen en `resources/css/Shared/typography-tokens.css`. Los roles viven en `br-branding/00-tokens.css` y la tipografía de controles, etiquetas, botones y tablas se aplica desde `br-branding/01-typography.css`. Este parcial también define el color y el margen base de `.form-label` para las tres superficies.
 
 ### Tamaños estándar según el rol
 
@@ -109,7 +109,8 @@ El catálogo contiene solo los tamaños de Control de stock. Al migrar una panta
 
 | Rol de interfaz | Tamaño estándar existente | Uso |
 | --- | --- | --- |
-| Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales; los aliases de inputs, labels y botones parten de este tamaño. |
+| Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales. Los inputs y botones parten de este tamaño. |
+| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-061` en las etiquetas de campos. |
 | Ayuda o descripción breve | `--br-table-caption-font-size` | Contexto subordinado al dato principal; no reducirlo por pantalla. |
 | Dato secundario | `--br-ui-font-size` | Desgloses comparables y valores secundarios. |
 | Dato principal destacado | `--br-table-value-font-size` | Precios y métricas que requieren mayor jerarquía. |
@@ -122,6 +123,8 @@ Los elementos del mismo rol comparten tamaño y peso. Al reutilizar un control, 
 Para ampliar toda la tipografía, cambiar `--br-font-scale` de `1` a `1.1` (10 % más). Los iconos en `em` siguen el tamaño de su texto. Para cambiar un rol, apuntar su alias en `00-tokens.css` a otro paso existente para todos sus consumidores.
 
 Stock actual y Diferencia comparten `--br-stock-quantity-font-size` (`0.8rem` de base), conservando sus colores y peso. Los encabezados de tablas usan `--br-table-heading-font-size`; las etiquetas y valores de los códigos de inventario usan `--br-product-code-label-font-size` y `--br-product-code-font-size`. Usar `colon-at-end` en Cód. interno y Cód. barras en lugar de escribir dos puntos manuales.
+
+Para mostrar una cantidad con unidad en System, reutilizar `QuantityValue`. El número hereda el tamaño de su contexto y la abreviatura registrada usa el paso compartido `--br-font-size-066`. **Saldo** y **Variación** comparten el rol de cantidad de stock. **Variación** mantiene el signo, el número y la unidad en una línea.
 
 Reutilizar `ProductIdentity` al presentar un producto con su nombre e identificadores en el mismo bloque. Pasar el objeto con `name`, `internal_code` y `barcode`. El componente conserva la presentación de Control de stock y muestra el código de barras cuando está disponible.
 
@@ -175,7 +178,9 @@ Criterios prácticos:
 - Preferir tooltips para aclaraciones breves, no alertas visuales invasivas.
 - Usar labels sutiles, no grandes ni demasiado oscuros.
 - Los botones deben diferenciar intención: buscar, crear, editar, importar, descargar, cancelar, confirmar y peligro.
-- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón muestra una escoba y comparte los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
+- Los botones de los layouts compartidos usan el efecto Waves al presionarse. La inicialización de `main.js` también registra los botones incorporados después de cargar la página, como los de Vue y SweetAlert.
+- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa el icono de borrador `fa-eraser` y comparte los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
+- Para confirmar el restablecimiento de los filtros, llamar a `Alerts.showFiltersCleared()` al terminar. El aviso de éxito muestra únicamente el título «Se limpiaron los filtros correctamente.». El botón oculta su tooltip al pulsarlo y lo vuelve a mostrar al pasar el cursor por encima.
 - Los icon buttons requieren `aria-label` y tooltip.
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
@@ -190,10 +195,12 @@ Criterios prácticos:
 
 ### Consultas de tablas y limpieza de registros
 
-- Antes de cada consulta de listado (Buscar, Enter, filtros aplicados, paginación, reintento o recarga), activar `loading` y vaciar los registros antes del `await`. Para tablas paginadas, usar `Requests.emptyPagination()` de `Helpers/ListState.js`, reexportado por `Requests.js`: devuelve un objeto nuevo con `data: []`, `total: 0`, `links: []` y metadatos reiniciados. Para listados sin paginación, asignar `[]`. Limpiar también los resúmenes que dependan de esos resultados.
+- Los listados paginados de Inventario y Catálogo comercial muestran 10 registros por defecto. Los controladores reutilizan `Utilities::$per_page_default` y aceptan un tamaño explícito mediante `per_page`, dentro del límite definido para cada listado.
+- Antes de cada consulta de listado (búsqueda, paginación, reintento o recarga), activar `loading` y vaciar los registros antes del `await`. Para tablas paginadas, usar `Requests.emptyPagination()` de `Helpers/ListState.js`, reexportado por `Requests.js`: devuelve un objeto nuevo con `data: []`, `total: 0`, `links: []` y metadatos reiniciados. Para listados sin paginación, asignar `[]`. Limpiar también los resúmenes que dependan de esos resultados.
 - Solo una respuesta válida puede repoblar la tabla. Si la consulta falla, conservar el estado vacío; nunca restaurar filas, totales o enlaces de la búsqueda anterior. Liberar `loading` en `finally`, también ante excepciones. Las pantallas con consultas simultáneas deben conservar sus controles de versión para descartar respuestas antiguas.
-- Cada consulta lee los filtros visibles actuales. Los parámetros incluidos en enlaces de paginación anteriores nunca prevalecen: `Requests.get` elimina de la URL los filtros enviados en `data` mediante `currentQueryRoute`, incluso vacíos o nulos. En URLs construidas manualmente, sobrescribir o eliminar cada parámetro; no conservarlo por existir ya. Al reabrir una modal de búsqueda, restablecer sus filtros antes de consultar. Las descargas conservan el filtro de los resultados mostrados hasta la siguiente consulta.
-- Editar el texto de un filtro o pulsar su X no limpia los registros ni consulta por sí solo cuando la pantalla aplica filtros con Buscar. La limpieza pertenece al inicio de la consulta, conserva los filtros escritos y no al evento de edición del input.
+- **Buscar** aplica una copia de los campos de filtro y consulta desde la primera página. Escribir, elegir una opción, cambiar una fecha o limpiar un campo actualiza únicamente los filtros pendientes. Las filas, los totales y la paginación permanecen visibles hasta iniciar una consulta. Los watchers de filtros pueden ajustar opciones dependientes del formulario.
+- Los campos de una barra comparten una fila flexible de Bootstrap. Los componentes que agrupan filtros aportan sus columnas directamente a esa fila para que los campos mantengan su orden y pasen a la línea siguiente según el ancho disponible. El skeleton usa la misma cuadrícula.
+- Paginar, reintentar, refrescar o exportar reutiliza los filtros aplicados. `Requests.get` elimina de la URL los filtros enviados en `data` mediante `currentQueryRoute`, incluso vacíos o nulos. En URLs construidas manualmente, sobrescribir o eliminar cada parámetro. Cuando se reabre una modal de búsqueda que inicia su propia consulta, preparar primero sus filtros iniciales.
 - Durante la consulta mostrar el indicador habitual del listado y ocultar conjuntamente paginador y cantidad de resultados. Al finalizar, mostrar el total de la respuesta actual o cero si falló.
 
 ### Carga inicial con skeleton
