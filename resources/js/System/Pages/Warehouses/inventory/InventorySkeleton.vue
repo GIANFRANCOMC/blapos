@@ -79,9 +79,8 @@
                         </colgroup>
                         <thead class="br-table-header-surface">
                             <tr>
-                                <th v-for="heading in headings" :key="heading">
-                                    <template v-if="heading === 'Estado del stock'">Estado del<br>stock</template>
-                                    <template v-else-if="heading">{{ heading }}</template>
+                                <th v-for="heading in headings" :key="heading" :class="{'text-nowrap px-0': page === 'stock' && heading === 'Estado del stock'}">
+                                    <template v-if="heading">{{ heading }}</template>
                                     <span v-else class="visually-hidden">Acciones</span>
                                 </th>
                             </tr>

@@ -274,12 +274,12 @@ test("stock lists only the selected warehouse and shows six table columns includ
     assert.match(stock, /<table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">/);
     assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
     assert.equal((stock.match(/colspan="6"/g) || []).length, 2);
-    assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th>Estado del<br>stock<\/th>/);
+    assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th class="text-nowrap px-0">Estado del stock<\/th>/);
     assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
     assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse,\s*\.br-inventory__kardex-table \{\s*min-width: 52rem;/);
-    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \.br-inventory__col-status \{ width: 13%; \}/);
+    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \.br-inventory__col-status \{ width: 14%; \}/);
     assert.match(inventoryCss, /\.br-inventory__table--single-warehouse > thead > tr > th:nth-child\(n\+2\):nth-child\(-n\+4\) \{\s*text-align: right !important;/);
     assert.match(inventoryCss, /td\.br-inventory__situation \{[^}]*text-align: center;/);
 

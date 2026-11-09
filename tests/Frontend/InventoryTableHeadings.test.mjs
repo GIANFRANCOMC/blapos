@@ -31,7 +31,7 @@ test("el skeleton reutiliza la distribución de las tablas de stock y kardex", (
     const skeleton = read(directory + "/InventorySkeleton.vue");
     const styles = read("resources/css/System/br-branding/82-inventory.css");
 
-    assert.match(skeleton, /heading === 'Estado del stock'">Estado del<br>stock/);
+    assert.match(skeleton, /:class="\{'text-nowrap px-0': page === 'stock' && heading === 'Estado del stock'\}"/);
     assert.match(skeleton, /'br-inventory__kardex-table': isKardex/);
     assert.match(skeleton, /'br-inventory__kardex-table--valued': page === 'valued'/);
     const commonHeadings = ["Producto", "Movimiento", "Variación"];

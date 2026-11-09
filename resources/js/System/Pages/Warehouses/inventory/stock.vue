@@ -176,7 +176,7 @@
                                         <th>Stock actual</th>
                                         <th>Stock mínimo</th>
                                         <th>Diferencia</th>
-                                        <th>Estado del<br>stock</th>
+                                        <th class="text-nowrap px-0">Estado del stock</th>
                                         <th><span class="visually-hidden">Acciones</span></th>
                                     </tr>
                                 </thead>

@@ -392,8 +392,8 @@
     "file": "assets/inventoryState-DHPYDxVC.css",
     "src": "_inventoryState-!~{01H}~.js"
   },
-  "_inventoryState-DZv6sHm1.js": {
-    "file": "assets/inventoryState-DZv6sHm1.js",
+  "_inventoryState-DVEacbtT.js": {
+    "file": "assets/inventoryState-DVEacbtT.js",
     "name": "inventoryState",
     "imports": [
       "_InitialLoadTransition-CydU8uLR.js",
@@ -469,7 +469,7 @@
     "isEntry": true
   },
   "resources/css/System/platform.css": {
-    "file": "assets/platform-kVbu2DTC.css",
+    "file": "assets/platform-21EIXHLa.css",
     "src": "resources/css/System/platform.css",
     "isEntry": true
   },
@@ -1861,12 +1861,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/guides.js": {
-    "file": "assets/guides-B_NFvXEa.js",
+    "file": "assets/guides-BgoI980A.js",
     "name": "guides",
     "src": "resources/js/System/Pages/Warehouses/inventory/guides.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-DZv6sHm1.js",
+      "_inventoryState-DVEacbtT.js",
       "_InitialLoadTransition-CydU8uLR.js",
       "_vue-select-DtXDsjPU.js",
       "_Breadcrumb-AGpRHAZh.js",
@@ -1893,12 +1893,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/kardex.js": {
-    "file": "assets/kardex-CpZVegEH.js",
+    "file": "assets/kardex-z02bfpNC.js",
     "name": "kardex",
     "src": "resources/js/System/Pages/Warehouses/inventory/kardex.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-DZv6sHm1.js",
+      "_inventoryState-DVEacbtT.js",
       "_InitialLoadTransition-CydU8uLR.js",
       "_vue-select-DtXDsjPU.js",
       "_Breadcrumb-AGpRHAZh.js",
@@ -1925,12 +1925,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/stock.js": {
-    "file": "assets/stock-1GBKLLlW.js",
+    "file": "assets/stock-BissjIKZ.js",
     "name": "stock",
     "src": "resources/js/System/Pages/Warehouses/inventory/stock.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-DZv6sHm1.js",
+      "_inventoryState-DVEacbtT.js",
       "_InitialLoadTransition-CydU8uLR.js",
       "_vue-select-DtXDsjPU.js",
       "_Breadcrumb-AGpRHAZh.js",
@@ -1957,12 +1957,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/transfers.js": {
-    "file": "assets/transfers-BY7PVD4Y.js",
+    "file": "assets/transfers-CCV9kbFa.js",
     "name": "transfers",
     "src": "resources/js/System/Pages/Warehouses/inventory/transfers.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-DZv6sHm1.js",
+      "_inventoryState-DVEacbtT.js",
       "_InitialLoadTransition-CydU8uLR.js",
       "_vue-select-DtXDsjPU.js",
       "_Breadcrumb-AGpRHAZh.js",
@@ -1989,12 +1989,12 @@
     ]
   },
   "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js": {
-    "file": "assets/valued-kardex-BjTqhVKb.js",
+    "file": "assets/valued-kardex-Cg2EbGVt.js",
     "name": "valued-kardex",
     "src": "resources/js/System/Pages/Warehouses/inventory/valued-kardex.js",
     "isEntry": true,
     "imports": [
-      "_inventoryState-DZv6sHm1.js",
+      "_inventoryState-DVEacbtT.js",
       "_InitialLoadTransition-CydU8uLR.js",
       "_vue-select-DtXDsjPU.js",
       "_Breadcrumb-AGpRHAZh.js",

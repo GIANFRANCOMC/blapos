@@ -69,9 +69,11 @@ Se conservan los `dom_id` y clases históricas para que los componentes Vue que 
 
 Los submódulos sin `menu_group_id` aparecen juntos al inicio del panel contextual, sin encabezado. Luego aparecen los grupos por `menu_groups.order`; dentro de cada grupo se conserva el orden de las opciones habilitadas para la empresa.
 
-Las opciones del panel contextual usan la altura compacta `--br-btn-height-sm` y una separación de `0.0625rem` entre filas. La separación entre grupos se define en el mismo estilo compartido de navegación.
+Las opciones del panel contextual se colocan en filas consecutivas de altura mínima `--br-btn-height-sm`. El estilo compartido alinea los textos de los encabezados y las opciones. Usa `--br-grid-gap-3` entre icono y texto y a ambos lados del separador entre grupos.
 
-Las variables históricas `--br-sidebar-width` y `--br-sidebar-collapsed-width` se proyectan sobre las dimensiones de la navegación nueva. Navbar, panel contextual y contenido comparten así una sola fuente de ancho y nunca se superponen.
+El título del módulo, la descripción, los encabezados de grupo y las opciones comparten `--br-font-size-061`. El peso y el color distinguen cada nivel.
+
+El panel contextual usa `--br-navigation-context-width` (`11.75rem`). Las variables históricas `--br-sidebar-width` y `--br-sidebar-collapsed-width` se proyectan sobre las dimensiones compartidas para alinear el navbar, el menú y el contenido.
 
 Las solicitudes de inicialización tienen un límite de 20 segundos. Ante error o timeout se cierra siempre el loader global y se muestra el mensaje correspondiente, evitando overlays permanentes cuando un endpoint no responde.
 

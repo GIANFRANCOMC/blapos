@@ -85,9 +85,9 @@ body.br-layout .br-inventory__kardex-table > thead > tr > th:nth-child(n+3) {
 .br-inventory__table--single-warehouse .br-inventory__col-product,
 .br-inventory__kardex-table th:first-child { width: 37%; }
 .br-inventory__table--single-warehouse .br-inventory__col-current,
-.br-inventory__table--single-warehouse .br-inventory__col-minimum { width: 14%; }
-.br-inventory__table--single-warehouse .br-inventory__col-difference { width: 15%; }
-.br-inventory__table--single-warehouse .br-inventory__col-status { width: 13%; }
+.br-inventory__table--single-warehouse .br-inventory__col-minimum,
+.br-inventory__table--single-warehouse .br-inventory__col-difference,
+.br-inventory__table--single-warehouse .br-inventory__col-status { width: 14%; }
 .br-inventory__table--single-warehouse .br-entity-table__col-actions { width: 7%; }
 
 .br-inventory__table td:nth-child(2),
