@@ -173,8 +173,8 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Tabla compacta con producto, identificación, precio, inventario, estado y acción.
 - Código interno y código de barras se muestran como identificadores distintos; el formato EAN-13 se explica únicamente como ayuda técnica en tooltips y documentación.
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
-- La marca aparece inmediatamente debajo del nombre en una cápsula compacta de azul suave, con icono y nombre. Se diferencia del código interno sin añadir otra columna; el icono muestra el tooltip `Marca`.
-- Cuando existe descripción, se conserva una separación adicional después de la marca para que ambos datos puedan leerse como niveles distintos.
+- La marca aparece debajo de **Cód. barras** en la columna **Identificación**, como texto con la etiqueta **Marca** y la misma escala visual de los códigos. La fila se muestra cuando el producto tiene una marca.
+- La descripción, si existe, aparece debajo del nombre del producto.
 - El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; Producto activa la variante descriptiva de `CatalogFormTabs`, mientras Servicios y Membresías conservan por ahora la variante compacta.
 - Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
 - Los placeholders heredan el tamaño y el peso del campo en inputs, `vue-select` y Select2.
@@ -275,9 +275,9 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Todos los `vue-select` de System usan un indicador compacto con superficie neutral; al desplegar rota y adopta el azul de marca.
 - Las acciones de la barra se alinean al inicio para evitar espacios muertos después del campo de búsqueda.
 - La tabla usa `table-layout: fixed` y un `colgroup` con proporciones estables; Precio gana espacio y Producto se compacta para separar mejor los importes de Identificación.
-- Identificación diferencia visualmente “Código interno” y “Código de barras” en filas etiquetadas.
+- Identificación muestra el código interno, el código de barras y la marca en filas etiquetadas.
 - Identificación usa siempre las etiquetas compactas `Cód. interno` y `Cód. barras`, evitando abreviaciones variables o elipsis confusas.
-- Ambos valores utilizan cápsulas equivalentes; el código de barras incorpora un borde y fondo primary muy suaves para diferenciarlo del código interno sin competir visualmente.
+- Los valores de identificación usan el estilo compartido de texto plano. El código interno y el código de barras incluyen su botón de copia.
 - Las etiquetas abreviadas de identificación no muestran tooltip; los botones Copiar conservan el suyo.
 - El loading de persistencia informa la acción actual: `Agregando producto` o `Editando producto`.
 - Código interno y código de barras usan el componente reutilizable `CopyButton`; por defecto muestra `Copiar` y `Copiado`, y puede activar `useLabelInTooltip` para mostrar textos contextuales como `Copiar código interno` y `Código interno copiado`.
@@ -296,7 +296,6 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El almacén es el dato principal de cada fila y la sucursal queda como contexto. Solo se muestra el estado cuando el stock requiere atención o falta registrarlo; los estados saludables no añaden una etiqueta repetida.
 - Las filas usan separadores neutros y una marca warning mínima en lugar de pintar los controles o toda la superficie. El encabezado deja de reutilizar la banda azul del listado para no competir con los datos.
 - La modal de consulta identifica el producto con nombre, código interno, código de barras y marca cuando están disponibles; el total y la cantidad de almacenes con alerta quedan separados del detalle.
-- Los tooltips de Marca usan la variante global compacta `br-tooltip`, con fondo secondary y aparición inmediata, sin animación.
 - `CopyButton` conserva esa variante compacta al alternar entre `Copiar` y `Copiado`, porque recrea su instancia mediante la configuración centralizada de `Alerts.createTooltip`.
 - Los switches `Publicar producto` y `Mostrar precio` usan verde success al seleccionarse, foco verde suave y estado neutral al desmarcarse o deshabilitarse, sin heredar el morado del tema base.
 - En edición, el stock actual conserva su comportamiento de solo lectura y se presenta como cifra sin recuadro, formateada con `separatorNumber`; no se renderiza como un control deshabilitado porque la cantidad se modifica desde Inventario, no desde Productos. En creación se conserva `InputNumber` para registrar el stock inicial.

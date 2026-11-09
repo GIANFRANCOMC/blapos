@@ -110,7 +110,7 @@ El catálogo contiene solo los tamaños de Control de stock. Al migrar una panta
 | Rol de interfaz | Tamaño estándar existente | Uso |
 | --- | --- | --- |
 | Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales. Los inputs y botones parten de este tamaño. |
-| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-061` en las etiquetas de campos. |
+| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-066` en las etiquetas de campos. |
 | Ayuda o descripción breve | `--br-table-caption-font-size` | Contexto subordinado al dato principal; no reducirlo por pantalla. |
 | Dato secundario | `--br-ui-font-size` | Desgloses comparables y valores secundarios. |
 | Dato principal destacado | `--br-table-value-font-size` | Precios y métricas que requieren mayor jerarquía. |
@@ -182,8 +182,10 @@ Criterios prácticos:
 - Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa el icono de borrador `fa-eraser` y comparte los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
 - Para confirmar el restablecimiento de los filtros, llamar a `Alerts.showFiltersCleared()` al terminar. El aviso de éxito muestra únicamente el título «Se limpiaron los filtros correctamente.». El botón oculta su tooltip al pulsarlo y lo vuelve a mostrar al pasar el cursor por encima.
 - Los icon buttons requieren `aria-label` y tooltip.
+- La integración compartida de SweetAlert oculta los tooltips de la página al abrir una alerta y durante el retorno de foco. Una vez cerrada, el tooltip vuelve a responder a una nueva interacción con su disparador. Los formularios y listados reutilizan este comportamiento en sus llamadas a `Swal.fire`.
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
 - Las tablas deben reutilizar la superficie global de encabezado y estados compactos.
+- Encerrar cada tabla ancha en `table-responsive`. El contenedor toma el ancho disponible y la tabla desplaza sus columnas dentro de él. Menú lateral, filtros, acciones superiores y paginación quedan fuera del scroll. Los estados de carga y vacío se centran en el área visible. Los menús de fila usan posicionamiento fijo de Popper para abrir sin liberar el overflow de la tabla.
 - Debajo de todas las tablas paginadas, incluidas las modales, usar `Paginator`, que integra el pie completo `br-list-footer`: navegación centrada y `ListResultCount` a la derecha. Pasar `:pagination` con el objeto paginado completo del servidor, `:links` y `:loading`; no añadir otro contador ni wrappers de centrado o margen. El contador muestra únicamente el total filtrado del servidor con singular o plural (por ejemplo, «Resultado: 1 registro» o «Resultado: 50 registros»), nunca el número de filas de la página ni el rango. Durante cualquier carga inicial, búsqueda, cambio de filtro o página, ocultar juntos navegación y contador hasta que termine la consulta. El componente compartido centraliza esta condición mediante `loading`; no mostrar cifras anteriores ni permitir navegación mientras se actualiza la tabla. Al terminar, reaparecen con el total actualizado, incluso con cero registros o una sola página. No añadir condiciones locales por `total > 0` o `links`, ni colocar el pie dentro del scroll horizontal/vertical. Mantener únicamente condiciones de contexto, como la vista activa o el almacén seleccionado. La regla aplica también a Guest y Platform, incluidos sus paginadores propios.
 - La distancia entre tabla y pie se define una sola vez mediante `--br-list-pagination-gap` en `br-branding/00-tokens.css` (`0.75rem` de base). No sumar `mt-*`, márgenes propios del módulo o márgenes inferiores de tabla a esa separación. En móvil y contenedores estrechos, incluidas modales en pantallas grandes, el pie dispone navegación y contador en filas según su propio ancho para evitar superposición; el contador conserva alineación a la derecha. `DataTable` recibe el objeto completo mediante `pagination` cuando es paginada.
 - El paginador compartido muestra `Primera`, `Anterior`, páginas próximas, `Siguiente` y `Última`. Sus botones son compactos y usan peso tipográfico normal; la página activa se distingue por el fondo, no por negrita. Los extremos no disponibles usan botones nativos deshabilitados. Cada módulo conserva sus propios colores y estilos de botones deshabilitados; no aplicar una neutralización global.
@@ -227,9 +229,11 @@ Todos los formularios deben reutilizar componentes y patrones existentes:
 - `CopyButton` para copiar valores puntuales.
 - `BarcodeDownloadButton` para códigos de barras descargables.
 
-Los controles compuestos se tratan como una sola unidad visual. El hover, foco, disabled y error deben bordear el conjunto completo: input, prefijo, contador, botón lateral o selector.
+Los controles compuestos se tratan como una sola unidad visual. El hover, el foco y los estados deshabilitado y de error se aplican al conjunto. En cualquier campo agrupado, los complementos informativos como prefijos, símbolos de moneda y unidades usan el azul de foco `--br-primary` mientras el campo tiene el foco. El valor editable, los fondos y los botones de acción conservan sus propios estilos.
 
 System, Guest y Platform comparten las métricas de `03-form-controls.css`. Los campos de una línea usan `--br-control-height`, `--br-font-size-ui` y peso regular. El placeholder, la búsqueda y el valor seleccionado usan el mismo tamaño. Los textos e iconos se centran verticalmente y los valores arrancan con el mismo padding. Las áreas de texto y las selecciones múltiples pueden crecer según su contenido.
+
+En los selectores, el fondo se pinta en la superficie redondeada del campo, como `.vs__dropdown-toggle` o `.select2-selection`. El contenedor externo queda transparente para que las esquinas muestren el fondo de la página.
 
 Errores de campo:
 

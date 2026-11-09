@@ -14,7 +14,7 @@ export const generalConfig = {
     forms: {
         classes: {
             title: "form-label colon-at-end",
-            select2: "bg-white"
+            select2: ""
         },
         inputs: {
             maxlength: 999,

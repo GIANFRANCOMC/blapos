@@ -80,6 +80,27 @@ strong {
   box-shadow: none !important;
 }
 
+/* Source: resources/css/Shared/responsive-tables.css */
+/* The scroll surface takes the available width, independent of its columns. */
+.table-responsive {
+  inline-size: 100%;
+  min-inline-size: 0;
+  container-type: inline-size;
+  overflow-x: auto;
+}
+
+/* Keep feedback centered in the visible area of a wide table. */
+.table-responsive > .table > tbody > .br-table-state > td[colspan]:has(> :is(.br-feedback-state, .br-loader)) {
+  padding-inline: 0;
+}
+
+.table-responsive > .table > tbody > .br-table-state > td[colspan] > :is(.br-feedback-state, .br-loader) {
+  display: flex;
+  position: sticky;
+  inset-inline-start: 0;
+  max-inline-size: 100cqi;
+}
+
 /* Source: resources/css/System/br-branding/00-tokens.css */
 /**
  * br-branding.css — Marca y UI reutilizable (prefijo `br-`)
@@ -188,7 +209,7 @@ strong {
   --br-table-value-font-size: var(--br-font-size-082);
   --br-table-caption-font-size: var(--br-font-size-068);
   --br-font-size-ui: var(--br-ui-font-size);
-  --br-font-size-label: var(--br-font-size-061);
+  --br-font-size-label: var(--br-font-size-066);
   --br-font-size-table: var(--br-ui-font-size);
   --br-btn-font-size: var(--br-ui-font-size);
 
@@ -572,6 +593,17 @@ body :is(.form-control, .form-select):focus {
   color: var(--br-text);
 }
 
+body :is(.input-group, .br-form-control-group):not(.is-invalid):has(
+  > :is(input, textarea, select):focus:not([readonly], .is-invalid, [type="button"], [type="submit"], [type="reset"], [type="image"]),
+  > .v-select:not(.vs--disabled, .is-invalid) .vs__search:focus,
+  > .select2-container:not(.select2-container--disabled, .is-invalid):is(:focus-within, .select2-container--open)
+)
+  > :is(span, .input-group-text):not(
+    button, a[href], [role="button"], [role="link"], [tabindex], .btn, .br-input-action, .select2-container, .v-select
+  ):not(:has(button, a[href], input, textarea, select, [role="button"], [role="link"])) {
+  color: var(--br-primary) !important;
+}
+
 body :is(select.form-control, .form-select):not([multiple]):not([size]:not([size="1"])) {
   padding-inline-end: 2rem;
   background-position: right var(--br-control-padding-x) center;
@@ -627,6 +659,11 @@ body .v-select .vs__dropdown-toggle {
   display: flex;
   align-items: stretch;
   padding: 0;
+}
+
+body .v-select:not(.vs--disabled) .vs__dropdown-toggle,
+body .select2-container.select2-container--default:not(.select2-container--disabled) .select2-selection {
+  background-color: var(--br-surface-elevated);
 }
 
 body .v-select.vs--single .vs__dropdown-toggle {
@@ -1164,8 +1201,11 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
 .br-layout .select2-container--default .select2-selection--single,
 .br-layout .select2-container--default .select2-selection--multiple {
   border-color: var(--bs-border-color, var(--br-border)) !important;
-  background-color: var(--br-surface-elevated) !important;
   transition: var(--br-transition);
+}
+
+.br-layout :is(.form-control, .form-select) {
+  background-color: var(--br-surface-elevated) !important;
 }
 
 .br-layout .form-control:focus,
@@ -1665,7 +1705,7 @@ body.br-layout .br-table-footer-stripe > td {
 }
 
 body.br-layout .br-table-footer-stripe__label {
-  font-size: var(--br-font-size-label);
+  font-size: var(--br-font-size-061);
   font-weight: var(--br-font-weight-label);
   letter-spacing: 0.04em;
   color: var(--br-white);
@@ -2747,11 +2787,6 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 
 .br-table-actions-dropdown {
   display: inline-block;
-}
-
-.br-entity-list:has(.br-table-actions-dropdown .dropdown-menu.show),
-.table-responsive:has(.br-table-actions-dropdown .dropdown-menu.show) {
-  overflow: visible;
 }
 
 .br-btn-actions__chevron {
@@ -9228,11 +9263,6 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   box-shadow: var(--br-shadow);
 }
 
-.br-sale-detail-table-shell:has(.br-sale-detail-actions__menu.show),
-.br-sale-detail-table-shell .table-responsive:has(.br-sale-detail-actions__menu.show) {
-  overflow: visible;
-}
-
 .br-sale-detail-actions__menu .dropdown-item {
   display: flex;
   align-items: center;
@@ -14098,10 +14128,6 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
     font-size: var(--br-table-value-font-size);
 }
 
-.br-document-settlement .v-select {
-    background: var(--br-surface-elevated);
-}
-
 .br-document-settlement__summary {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -14937,7 +14963,6 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
   border: 1px solid var(--br-border);
   border-radius: 0;
   background: var(--br-surface-elevated);
-  overflow: hidden;
 }
 
 .br-cash__panel .br-icon-action {

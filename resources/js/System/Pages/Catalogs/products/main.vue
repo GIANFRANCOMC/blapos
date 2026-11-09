@@ -102,22 +102,16 @@
                                                     </span>
                                                 </span>
                                             </div>
+                                            <div v-if="record.brand?.name" class="br-entity-identifier">
+                                                <span class="br-entity-identifier__label colon-at-end">Marca</span>
+                                                <span class="br-entity-identifier__value">
+                                                    <span class="br-entity-code" v-text="record.brand.name"></span>
+                                                </span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
                                         <span class="br-entity-table__name" v-text="record.name"></span>
-                                        <span v-if="record.brand" class="br-entity-table__attribute">
-                                            <span
-                                                class="br-entity-table__attribute-icon"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Marca"
-                                                aria-label="Marca"
-                                                tabindex="0">
-                                                <i class="fa-solid fa-tag" aria-hidden="true"></i>
-                                            </span>
-                                            <strong v-text="record.brand.name"></strong>
-                                        </span>
                                         <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
                                     </td>
                                     <td class="text-end">

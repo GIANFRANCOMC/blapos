@@ -27,7 +27,7 @@
     </main>
 </div>
 <script src="{{ asset('System/assets/vendor/js/bootstrap.js') }}"></script>
-<script src="{{ asset('System/assets/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
+@include('shared.sweetalert')
 @stack('scripts')
 </body>
 </html>

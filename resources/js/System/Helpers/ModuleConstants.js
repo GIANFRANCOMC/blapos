@@ -84,7 +84,7 @@ export const FILTER_BY_OPTIONS = {
 // Clases CSS comunes
 export const CSS_CLASSES = {
     TITLE: "form-label colon-at-end",
-    SELECT2: "bg-white",
+    SELECT2: "",
     BADGE_BASE: ["br-badge"],
     STATUS_LABEL_BASE: ["br-badge"],
     BUTTON_PRIMARY: "btn btn-primary waves-effect",

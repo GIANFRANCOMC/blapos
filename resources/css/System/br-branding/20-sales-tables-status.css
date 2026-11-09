@@ -350,7 +350,7 @@ body.br-layout .br-table-footer-stripe > td {
 }
 
 body.br-layout .br-table-footer-stripe__label {
-  font-size: var(--br-font-size-label);
+  font-size: var(--br-font-size-061);
   font-weight: var(--br-font-weight-label);
   letter-spacing: 0.04em;
   color: var(--br-white);

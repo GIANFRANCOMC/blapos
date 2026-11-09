@@ -8,6 +8,26 @@ import {renderToString} from "vue/server-renderer";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
+test("el scroll horizontal de las tablas se mantiene local incluso con el menú de fila abierto", () => {
+    const styles = read("resources/css/Shared/responsive-tables.css");
+    const system = read("resources/css/System/platform.css");
+    const platform = read("resources/css/Platform/app.css");
+    const actions = read("resources/js/System/Components/Generics/TableActionsDropdown.vue");
+    const sales = read("resources/js/System/Pages/Sales/sales/main.vue");
+
+    assert.match(styles, /\.table-responsive\s*\{[^}]*inline-size: 100%;[^}]*container-type: inline-size;[^}]*overflow-x: auto;/);
+    assert.match(styles, /\.br-table-state > td\[colspan\] > :is\(\.br-feedback-state, \.br-loader\)\s*\{[^}]*position: sticky;[^}]*max-inline-size: 100cqi;/);
+    for(const entry of [system, platform]) {
+        assert.match(entry, /@import "\.\.\/Shared\/responsive-tables\.css";/);
+    }
+    for(const component of [actions, sales]) {
+        assert.match(component, /data-bs-config='\{"popperConfig":\{"strategy":"fixed"\}\}'/);
+    }
+    for(const file of ["40-buttons-quick-create.css", "70-visual-density-brand-refresh.css"]) {
+        assert.doesNotMatch(read(`resources/css/System/br-branding/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
+    }
+});
+
 test("control de stock muestra el total filtrado a la derecha del paginador", () => {
     const page = read("resources/js/System/Pages/Warehouses/inventory/stock.vue");
     const paginator = read("resources/js/System/Components/Paginator.vue");

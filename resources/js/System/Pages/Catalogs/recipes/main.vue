@@ -153,7 +153,6 @@
                                             label="name"
                                             :clearable="false"
                                             :searchable="true"
-                                            class="bg-white"
                                             placeholder="Selecciona el item que venderás"/>
                                     </template>
                                 </InputSlot>
@@ -173,8 +172,7 @@
                                             :options="statuses"
                                             label="label"
                                             :clearable="false"
-                                            :searchable="false"
-                                            class="bg-white"/>
+                                            :searchable="false"/>
                                     </template>
                                 </InputSlot>
 
@@ -229,7 +227,7 @@
                             </div>
                             <div class="br-recipe-lines">
                                 <div v-for="(row, index) in form.components" :key="row.uid" class="br-recipe-line">
-                                    <v-select v-model="row.item" :options="ingredients" label="name" class="bg-white" placeholder="Insumo"/>
+                                    <v-select v-model="row.item" :options="ingredients" label="name" placeholder="Insumo"/>
                                     <InputNumber v-model="row.quantity" :hasNegative="false" minValue="0.0001" placeholder="Cantidad"/>
                                     <InputNumber v-model="row.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
                                     <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(form.components, index)">
@@ -268,7 +266,7 @@
                                     <span>Agregar insumo del extra</span>
                                 </button>
                                 <div v-for="(component, componentIndex) in topping.components" :key="component.uid" class="br-recipe-line mt-2">
-                                    <v-select v-model="component.item" :options="ingredients" label="name" class="bg-white" placeholder="Insumo"/>
+                                    <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Insumo"/>
                                     <InputNumber v-model="component.quantity" :hasNegative="false" minValue="0.0001" placeholder="Cantidad"/>
                                     <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
                                     <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(topping.components, componentIndex)">
@@ -303,7 +301,7 @@
                                     <span>Agregar insumo del sabor</span>
                                 </button>
                                 <div v-for="(component, componentIndex) in option.components" :key="component.uid" class="br-recipe-line mt-2">
-                                    <v-select v-model="component.item" :options="ingredients" label="name" class="bg-white" placeholder="Insumo"/>
+                                    <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Insumo"/>
                                     <InputNumber v-model="component.quantity" :hasNegative="false" minValue="0.0001" placeholder="Cantidad"/>
                                     <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
                                     <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(option.components, componentIndex)">

@@ -5,6 +5,7 @@
  */
 @import "../Shared/typography-tokens.css";
 @import "../Shared/disabled-controls.css";
+@import "../Shared/responsive-tables.css";
 @import "./br-branding/00-tokens.css";
 @import "./br-branding/01-typography.css";
 @import "./br-branding/02-loading-transitions.css";

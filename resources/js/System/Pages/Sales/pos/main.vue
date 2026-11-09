@@ -112,7 +112,6 @@
                             <v-select
                                 v-model="selectedCashSession"
                                 :options="cashSessionOptions"
-                                class="bg-white"
                                 :clearable="true"
                                 :searchable="false"
                                 placeholder="Seleccione caja abierta"
@@ -123,7 +122,6 @@
                             <v-select
                                 v-model="selectedWarehouse"
                                 :options="warehouseOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="false"
                                 placeholder="Seleccione almacén"/>
@@ -303,7 +301,6 @@
                             <v-select
                                 v-model="selectedSerie"
                                 :options="serieOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="false"
                                 append-to-body
@@ -328,7 +325,6 @@
                             <v-select
                                 v-model="selectedCustomer"
                                 :options="customerOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="true"
                                 append-to-body
@@ -410,7 +406,6 @@
                                 <v-select
                                     v-model="payment.method"
                                     :options="paymentMethodOptions"
-                                    class="bg-white"
                                     :clearable="false"
                                     :searchable="true"
                                     placeholder="Método"
@@ -432,7 +427,6 @@
                                     v-if="paymentVariantOptions(payment).length"
                                     v-model="payment.variant"
                                     :options="paymentVariantOptions(payment)"
-                                    class="bg-white"
                                     :clearable="false"
                                     :searchable="true"
                                     append-to-body

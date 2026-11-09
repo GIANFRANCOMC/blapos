@@ -28,6 +28,17 @@ body :is(.form-control, .form-select):focus {
   color: var(--br-text);
 }
 
+body :is(.input-group, .br-form-control-group):not(.is-invalid):has(
+  > :is(input, textarea, select):focus:not([readonly], .is-invalid, [type="button"], [type="submit"], [type="reset"], [type="image"]),
+  > .v-select:not(.vs--disabled, .is-invalid) .vs__search:focus,
+  > .select2-container:not(.select2-container--disabled, .is-invalid):is(:focus-within, .select2-container--open)
+)
+  > :is(span, .input-group-text):not(
+    button, a[href], [role="button"], [role="link"], [tabindex], .btn, .br-input-action, .select2-container, .v-select
+  ):not(:has(button, a[href], input, textarea, select, [role="button"], [role="link"])) {
+  color: var(--br-primary) !important;
+}
+
 body :is(select.form-control, .form-select):not([multiple]):not([size]:not([size="1"])) {
   padding-inline-end: 2rem;
   background-position: right var(--br-control-padding-x) center;
@@ -83,6 +94,11 @@ body .v-select .vs__dropdown-toggle {
   display: flex;
   align-items: stretch;
   padding: 0;
+}
+
+body .v-select:not(.vs--disabled) .vs__dropdown-toggle,
+body .select2-container.select2-container--default:not(.select2-container--disabled) .select2-selection {
+  background-color: var(--br-surface-elevated);
 }
 
 body .v-select.vs--single .vs__dropdown-toggle {

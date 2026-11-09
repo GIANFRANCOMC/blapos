@@ -183,11 +183,6 @@
   display: inline-block;
 }
 
-.br-entity-list:has(.br-table-actions-dropdown .dropdown-menu.show),
-.table-responsive:has(.br-table-actions-dropdown .dropdown-menu.show) {
-  overflow: visible;
-}
-
 .br-btn-actions__chevron {
   transition: transform 0.16s ease;
 }

@@ -13,7 +13,7 @@
 <script src="{{ asset('System/assets/vendor/libs/bootstrap-select/bootstrap-select.js') }}"></script>
 
 <!-- Vendors JS -->
-<script src="{{ asset('System/assets/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
+@include('shared.sweetalert')
 <script src="{{ asset('System/assets/js/ui-toasts.js') }}"></script>
 <script src="{{ asset('System/assets/vendor/libs/toastr/toastr.js') }}"></script>
 <script src="{{ asset('System/assets/vendor/libs/chartjs/chartjs.js') }}"></script>

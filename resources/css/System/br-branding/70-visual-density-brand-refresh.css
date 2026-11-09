@@ -1292,11 +1292,6 @@ body.br-layout .br-sale-detail-total-row > td.br-sale-detail-calc-cell--total {
   box-shadow: var(--br-shadow);
 }
 
-.br-sale-detail-table-shell:has(.br-sale-detail-actions__menu.show),
-.br-sale-detail-table-shell .table-responsive:has(.br-sale-detail-actions__menu.show) {
-  overflow: visible;
-}
-
 .br-sale-detail-actions__menu .dropdown-item {
   display: flex;
   align-items: center;

@@ -61,6 +61,7 @@ export default defineConfig({
                 'resources/js/System/app.js',
                 'resources/js/System/Layout/main.js',
                 'resources/js/Shared/disabled-controls.js',
+                'resources/js/Shared/sweetalert-tooltips.js',
                 'resources/js/Platform/app.js',
 
                 // Guest Pages

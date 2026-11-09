@@ -72,7 +72,6 @@
   border: 1px solid var(--br-border);
   border-radius: 0;
   background: var(--br-surface-elevated);
-  overflow: hidden;
 }
 
 .br-cash__panel .br-icon-action {

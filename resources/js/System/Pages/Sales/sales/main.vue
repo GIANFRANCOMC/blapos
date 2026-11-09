@@ -245,6 +245,7 @@
                                                                     type="button"
                                                                     data-bs-toggle="dropdown"
                                                                     data-bs-boundary="viewport"
+                                                                    data-bs-config='{"popperConfig":{"strategy":"fixed"}}'
                                                                     aria-expanded="false"
                                                                     aria-label="Acciones del ítem"
                                                                     @click="hideDetailActionsTooltip">

@@ -31,6 +31,8 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\)/);
     assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. interno/);
     assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. barras/);
+    assert.match(product, /Cód\. barras[\s\S]*?<div v-if="record\.brand\?\.name" class="br-entity-identifier">\s*<span class="br-entity-identifier__label colon-at-end">Marca<\/span>\s*<span class="br-entity-identifier__value">\s*<span class="br-entity-code" v-text="record\.brand\.name"><\/span>\s*<\/span>\s*<\/div>/);
+    assert.equal((product.match(/record\.brand\.name/g) || []).length, 1);
     assert.match(branding, /\.br-entity-identifiers--plain \{\s*grid-template-columns: max-content minmax\(0, 1fr\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier \{\s*display: contents/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);

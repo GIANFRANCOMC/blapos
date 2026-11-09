@@ -16,7 +16,6 @@
                         <v-select
                             v-model="registerFilter"
                             :options="registerOptions"
-                            class="bg-white"
                             :clearable="false"
                             :searchable="false"
                             append-to-body
@@ -265,7 +264,6 @@
                             <v-select
                                 v-model="forms.register.branch"
                                 :options="branchOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="branchOptions.length > 6"
                                 placeholder="Seleccione sucursal"/>
@@ -295,7 +293,6 @@
                             <v-select
                                 v-model="forms.register.status"
                                 :options="statusOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="false"/>
                         </template>
@@ -328,7 +325,6 @@
                             <v-select
                                 v-model="forms.open.cash_register"
                                 :options="registerOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="false"
                                 placeholder="Seleccione una caja"/>
@@ -487,7 +483,6 @@
                             <v-select
                                 v-model="forms.movement.type"
                                 :options="movementTypeOptions"
-                                class="bg-white"
                                 :clearable="false"
                                 :searchable="false"
                                 placeholder="Seleccione"/>
@@ -498,7 +493,6 @@
                             <v-select
                                 v-model="forms.movement.payment_method"
                                 :options="paymentMethodOptions"
-                                class="bg-white"
                                 :clearable="true"
                                 :searchable="false"
                                 placeholder="Efectivo / caja"/>

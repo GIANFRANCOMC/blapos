@@ -200,13 +200,15 @@ export default {
 
 .br-character-counter__content {
     display: inline-flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: center;
     color: inherit;
     font-size: inherit;
     font-weight: inherit;
     line-height: 1;
     letter-spacing: 0;
+    /* Compensa la posición visual de los dígitos dentro de la línea. */
+    translate: 0 1px;
 }
 
 .character-counter-warning .br-character-counter__content {

@@ -5,6 +5,17 @@ import postcss from "postcss";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
+test("el fondo de los selectores se aplica al campo redondeado", () => {
+    const controls = read("resources/css/System/br-branding/03-form-controls.css");
+    const purchases = read("resources/css/System/br-branding/83-purchases-suppliers.css");
+
+    assert.match(controls, /body \.v-select:not\(\.vs--disabled\) \.vs__dropdown-toggle,\s*body \.select2-container\.select2-container--default:not\(\.select2-container--disabled\) \.select2-selection\s*\{[^}]*background-color: var\(--br-surface-elevated\);/);
+    assert.doesNotMatch(purchases, /\.br-document-settlement \.v-select\s*\{[^}]*background/);
+    for(const file of ["System/Helpers/Constants.js", "Guest/Helpers/Constants.js", "System/Helpers/ModuleConstants.js"]) {
+        assert.doesNotMatch(read(`resources/js/${file}`), /select2:\s*"bg-white"/i);
+    }
+});
+
 test("select2 y vue-select comparten placeholder recto y hover suave con los inputs", () => {
 
     const styles = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");

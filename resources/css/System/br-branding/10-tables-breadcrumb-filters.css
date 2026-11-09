@@ -417,8 +417,11 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
 .br-layout .select2-container--default .select2-selection--single,
 .br-layout .select2-container--default .select2-selection--multiple {
   border-color: var(--bs-border-color, var(--br-border)) !important;
-  background-color: var(--br-surface-elevated) !important;
   transition: var(--br-transition);
+}
+
+.br-layout :is(.form-control, .form-select) {
+  background-color: var(--br-surface-elevated) !important;
 }
 
 .br-layout .form-control:focus,

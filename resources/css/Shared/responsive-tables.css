@@ -1,0 +1,19 @@
+/* The scroll surface takes the available width, independent of its columns. */
+.table-responsive {
+  inline-size: 100%;
+  min-inline-size: 0;
+  container-type: inline-size;
+  overflow-x: auto;
+}
+
+/* Keep feedback centered in the visible area of a wide table. */
+.table-responsive > .table > tbody > .br-table-state > td[colspan]:has(> :is(.br-feedback-state, .br-loader)) {
+  padding-inline: 0;
+}
+
+.table-responsive > .table > tbody > .br-table-state > td[colspan] > :is(.br-feedback-state, .br-loader) {
+  display: flex;
+  position: sticky;
+  inset-inline-start: 0;
+  max-inline-size: 100cqi;
+}

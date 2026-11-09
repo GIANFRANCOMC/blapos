@@ -4,6 +4,7 @@
             type="button"
             class="br-btn br-btn-actions br-btn-actions--icon"
             data-bs-toggle="dropdown"
+            data-bs-config='{"popperConfig":{"strategy":"fixed"}}'
             aria-expanded="false"
             :aria-label="label"
             :disabled="disabled">

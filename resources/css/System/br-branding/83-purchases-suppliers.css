@@ -89,10 +89,6 @@
     font-size: var(--br-table-value-font-size);
 }
 
-.br-document-settlement .v-select {
-    background: var(--br-surface-elevated);
-}
-
 .br-document-settlement__summary {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;

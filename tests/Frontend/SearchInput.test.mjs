@@ -109,3 +109,14 @@ test("el foco del buscador permanece en el grupo también antes de aparecer la X
     assert.equal(childShadow?.value, "none");
     assert.equal(childShadow?.important, true);
 });
+
+test("los controles agrupados resaltan los complementos informativos sin cambiar el halo ni las acciones", () => {
+    const css = postcss.parse(read("resources/css/System/br-branding/03-form-controls.css"));
+    const tint = css.nodes.find(node => node.selector?.includes("> :is(span, .input-group-text)"));
+
+    assert.match(tint?.selector ?? "", /> :is\(input, textarea, select\):focus/);
+    assert.match(tint?.selector ?? "", /\.vs__search:focus/);
+    assert.match(tint?.selector ?? "", /\.select2-container--open/);
+    assert.match(tint?.selector ?? "", /> :is\(span, \.input-group-text\):not\(\s*button,/);
+    assert.deepEqual(tint?.nodes.map(node => [node.prop, node.value]), [["color", "var(--br-primary)"]]);
+});
