@@ -7,7 +7,7 @@
 </template>
 
 <script>
-const formatter = new Intl.NumberFormat("es-PE");
+import {normalizeNumber, separatorNumber} from "../../../Shared/Numbers.js";
 
 export default {
     props: {
@@ -18,12 +18,12 @@ export default {
     },
     computed: {
         total() {
-            return Math.max(0, Number(this.pagination?.total) || 0);
+            return Math.max(0, normalizeNumber(this.pagination?.total));
         }
     },
     methods: {
         formatNumber(value) {
-            return formatter.format(Number(value) || 0);
+            return separatorNumber(value, 0, "es-PE");
         }
     }
 };

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Operations;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\Operations\{ServiceFloor, ServiceSession, ServiceSessionItem, ServiceStation};
@@ -99,13 +99,13 @@ final class ServiceOperationService {
 
         if($type === "percentage") {
 
-            return Utilities::round(($quantity * $unitPrice) * (min($value, 100) / 100));
+            return Numbers::percentage($quantity, min($value, 100), $unitPrice);
 
         }
 
         if($type === "fixed") {
 
-            return Utilities::round($quantity * max($value, 0));
+            return Numbers::multiply($quantity, max($value, 0));
 
         }
 
@@ -1078,12 +1078,12 @@ final class ServiceOperationService {
                 "open_sessions" => $sessions->whereIn("status", [self::STATUS_PENDING, self::STATUS_IN_PROGRESS])->count(),
                 "completed_sessions" => $completed->count(),
                 "canceled_sessions" => $sessions->where("status", self::STATUS_CANCELED)->count(),
-                "average_duration_minutes" => Utilities::round((float) $completed->avg("duration_minutes")),
+                "average_duration_minutes" => Numbers::round($completed->avg("duration_minutes")),
                 "sla_late_sessions" => $late->count(),
                 "sla_compliance_rate" => $withSla->count()
-                    ? Utilities::round((($withSla->count() - $late->count()) / $withSla->count()) * 100)
+                    ? Numbers::proportion($withSla->count() - $late->count(), 100, $withSla->count())
                     : null,
-                "commission_total" => Utilities::round($commissionTotal),
+                "commission_total" => Numbers::round($commissionTotal),
             ],
             "by_branch" => self::reportGroup($sessions, "branch", "Sucursal"),
             "by_station" => self::reportGroup($sessions, "station", "Estación"),
@@ -1299,7 +1299,7 @@ final class ServiceOperationService {
 
     private static function percentage(mixed $value): float {
 
-        return min(95, max(5, Utilities::round((float) $value)));
+        return min(95, max(5, Numbers::round($value)));
 
     }
 
@@ -1324,7 +1324,7 @@ final class ServiceOperationService {
                     "name" => $related?->name ?? "Sin {$fallback}",
                     "total_sessions" => $records->count(),
                     "completed_sessions" => $completed->count(),
-                    "average_duration_minutes" => Utilities::round((float) $completed->avg("duration_minutes")),
+                    "average_duration_minutes" => Numbers::round($completed->avg("duration_minutes")),
                 ];
 
             })
@@ -1342,19 +1342,15 @@ final class ServiceOperationService {
             ->map(function($records) {
 
                 $first = $records->first();
-                $commission = $records->sum(function(ServiceSessionItem $detail) {
-
-                    return self::calculateDetailCommission($detail);
-
-                });
+                $commission = Numbers::sum($records->map(fn(ServiceSessionItem $detail) => self::calculateDetailCommission($detail)));
 
                 return [
                     "id" => $first?->item_id,
                     "name" => $first?->name ?? "Detalle sin nombre",
-                    "quantity" => Utilities::round((float) $records->sum("quantity")),
-                    "total" => Utilities::round((float) $records->sum(fn(ServiceSessionItem $detail) => (float) $detail->quantity * (float) $detail->unit_price)),
-                    "commission_total" => Utilities::round($commission),
-                    "average_duration_minutes" => Utilities::round((float) $records->avg("duration_minutes")),
+                    "quantity" => Numbers::sum($records->pluck("quantity")),
+                    "total" => Numbers::sumProducts($records->map(fn(ServiceSessionItem $detail) => [$detail->quantity, $detail->unit_price])),
+                    "commission_total" => $commission,
+                    "average_duration_minutes" => Numbers::round($records->avg("duration_minutes")),
                 ];
 
             })

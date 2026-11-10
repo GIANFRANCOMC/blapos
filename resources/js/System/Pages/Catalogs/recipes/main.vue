@@ -327,7 +327,7 @@
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
-import {decimalStep} from "@System/Helpers/NumberUtils.js";
+import {decimalStep} from "../../../../Shared/Numbers.js";
 import CopyButton from "@System/Components/CopyButton.vue";
 
 const CONFIG = {

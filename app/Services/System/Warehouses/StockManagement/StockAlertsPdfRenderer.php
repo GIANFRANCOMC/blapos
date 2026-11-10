@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\StockManagement;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use Dompdf\Adapter\CPDF;
 use Illuminate\Support\Carbon;
 
@@ -94,7 +94,7 @@ final class StockAlertsPdfRenderer {
 
         $this->summaryCard(self::LEFT, 87, 226, "SEDE", $branch);
         $this->summaryCard(self::LEFT + 234, 87, 294, "ALMACÉN", $warehouse);
-        $this->summaryCard(self::LEFT + 536, 87, 242, "ALERTAS ABIERTAS", number_format($total, 0, ".", ","), true);
+        $this->summaryCard(self::LEFT + 536, 87, 242, "ALERTAS ABIERTAS", Numbers::formatDecimal($total, 0), true);
         $this->drawTableHeader(149);
 
     }
@@ -161,14 +161,14 @@ final class StockAlertsPdfRenderer {
 
         }
 
-        $quantity = (float) $alert->quantity;
-        $minimum = (float) $alert->minimum_stock;
+        $quantity = $alert->quantity;
+        $minimum = $alert->minimum_stock;
         $unit = trim((string) ($alert->unit_abbreviation ?? ""));
         $suffix = $unit === "" ? "" : " ".$unit;
         $values = [
-            Utilities::formatDecimal($quantity).$suffix,
-            Utilities::formatDecimal($minimum).$suffix,
-            Utilities::formatDecimal(max(0, $minimum - $quantity)).$suffix,
+            Numbers::formatDecimal($quantity).$suffix,
+            Numbers::formatDecimal($minimum).$suffix,
+            Numbers::formatDecimal(max(0, Numbers::subtract($minimum, $quantity))).$suffix,
         ];
 
         $x = self::LEFT + self::COLUMNS[0] + self::COLUMNS[1];

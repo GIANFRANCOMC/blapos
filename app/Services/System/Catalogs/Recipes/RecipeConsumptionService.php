@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Catalogs\Recipes;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{RecipeDish};
 use App\Models\System\Sales\{SaleBody};
 use App\Models\System\Warehouses\{Warehouse};
@@ -37,13 +37,13 @@ final class RecipeConsumptionService {
 
         }
 
-        $yield = max(Utilities::decimalStep(), (float) $recipe->yield_quantity);
+        $yield = max(Numbers::decimalStep(), (float) $recipe->yield_quantity);
 
         $portions = max(0, (float) $saleBody->quantity);
-        $recipeWasteFactor = 1 + (max(0, (float) $recipe->waste_percentage) / 100);
+        $recipeWasteFactor = Numbers::sum([100, max(0, (float) $recipe->waste_percentage)]);
         $requirements = [];
 
-        self::appendComponents($requirements, $recipe->components, ($portions / $yield) * $recipeWasteFactor);
+        self::appendComponents($requirements, $recipe->components, [$portions, $recipeWasteFactor], $yield);
 
         $extras = is_array($detail["extras"] ?? null) ? $detail["extras"] : [];
 
@@ -66,7 +66,7 @@ final class RecipeConsumptionService {
 
             }
 
-            self::appendComponents($requirements, $option->components, $portions * $selectedPortions * $recipeWasteFactor);
+            self::appendComponents($requirements, $option->components, [$portions, $selectedPortions, $recipeWasteFactor]);
 
         }
 
@@ -90,11 +90,19 @@ final class RecipeConsumptionService {
 
             }
 
-            self::appendComponents($requirements, $link->topping->components, $portions * $quantity * $recipeWasteFactor);
+            self::appendComponents($requirements, $link->topping->components, [$portions, $quantity, $recipeWasteFactor]);
 
         }
 
-        foreach($requirements as $itemId => $quantity) {
+        foreach($requirements as $itemId => $amounts) {
+
+            $quantity = Numbers::sum($amounts);
+
+            if($quantity === 0.0) {
+
+                continue;
+
+            }
 
             InventoryMovementService::apply([
                 "warehouse_id" => $warehouse->id,
@@ -103,7 +111,7 @@ final class RecipeConsumptionService {
                 "movement_type" => InventoryMovementService::TYPE_EXIT,
                 "origin_type" => InventoryMovementService::ORIGIN_RECIPE_SALE,
                 "origin_id" => $saleBody->id,
-                "quantity" => Utilities::round($quantity),
+                "quantity" => $quantity,
                 "reason" => "Consumo de insumos por venta de receta.",
                 "allow_negative" => $allowNegative,
                 "metadata" => [
@@ -118,14 +126,14 @@ final class RecipeConsumptionService {
 
     }
 
-    private static function appendComponents(array &$requirements, $components, float $multiplier): void {
+    private static function appendComponents(array &$requirements, $components, array $factors, float $yield = 1): void {
+
+        $divisor = Numbers::multiply($yield, 10000);
 
         foreach($components as $component) {
 
-            $wasteFactor = 1 + (max(0, (float) $component->waste_percentage) / 100);
-            $quantity = (float) $component->quantity * $multiplier * $wasteFactor;
-            $requirements[(int) $component->item_id] =
-                ($requirements[(int) $component->item_id] ?? 0) + $quantity;
+            $wasteFactor = Numbers::sum([100, max(0, (float) $component->waste_percentage)]);
+            $requirements[(int) $component->item_id][] = Numbers::ratioOf([...$factors, $component->quantity, $wasteFactor], $divisor);
 
         }
 

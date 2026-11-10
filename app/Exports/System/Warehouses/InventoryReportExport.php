@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Warehouses;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Support\{Collection};
@@ -224,7 +224,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->guide_type === "entry" ? "Entrada" : "Salida",
                 $record->items->map(function($item): string {
 
-                    $description = $item->item?->name." x ".Utilities::formatDecimal($item->quantity);
+                    $description = $item->item?->name." x ".Numbers::formatDecimal($item->quantity);
                     $abbreviation = $item->item?->measurementUnit?->abbreviation;
 
                     return $abbreviation ? $description." ".$abbreviation : $description;
@@ -274,7 +274,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         if($decimalColumns !== null) {
 
-            $sheet->getStyle($decimalColumns)->getNumberFormat()->setFormatCode(Utilities::spreadsheetDecimalFormat());
+            $sheet->getStyle($decimalColumns)->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat());
 
         }
 
@@ -373,7 +373,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $warehouseName = $warehouse["warehouse_name"] ?? "Almacén";
                 $location = trim(($branchName !== "" ? $branchName." / " : "").$warehouseName);
 
-                $quantity = Utilities::formatDecimal($warehouse["quantity"] ?? 0);
+                $quantity = Numbers::formatDecimal($warehouse["quantity"] ?? 0);
                 $description = $location.": ".$quantity;
                 $abbreviation = $unit?->abbreviation;
 

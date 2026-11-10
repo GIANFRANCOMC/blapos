@@ -334,7 +334,7 @@ export default {
 
             if(total <= 0) return 0;
 
-            return Math.max(0, Math.min(100, Math.round((Number(account.paid_amount || 0) / total) * 100)));
+            return Math.max(0, Math.min(100, Utils.proportion(account.paid_amount, 100, total, 0)));
         },
         money(account, value) {
             return `${account.currency?.sign || account.currency?.code || ""} ${this.separatorNumber(value || 0)}`.trim();

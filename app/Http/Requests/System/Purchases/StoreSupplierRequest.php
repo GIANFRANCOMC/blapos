@@ -17,7 +17,7 @@ final class StoreSupplierRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -35,7 +35,7 @@ final class StoreSupplierRequest extends CompanyFormRequest {
             "email" => ["nullable", "email", "max:255"],
             "address" => ["nullable", "string", "max:255"],
             "payment_term_days" => ["nullable", "integer", "min:0", "max:3650"],
-            "credit_limit" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "credit_limit" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "contacts" => ["nullable", "array", "max:20"],
             "contacts.*.name" => ["required", "string", "max:255"],
             "contacts.*.position" => ["nullable", "string", "max:100"],

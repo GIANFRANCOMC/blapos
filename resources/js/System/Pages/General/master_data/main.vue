@@ -193,10 +193,8 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
-import {MAX_DECIMAL_PRECISION, normalizePrecision} from "../../../../Shared/DecimalPrecision.js";
+import {normalizePrecision, precisionOptions} from "../../../../Shared/Numbers.js";
 import MasterDataSkeleton from "./MasterDataSkeleton.vue";
-
-const DECIMAL_PRECISION_OPTIONS = Array.from({length: MAX_DECIMAL_PRECISION + 1}, (_, precision) => precision);
 
 function isDecimalPrecisionSetting(record) {
     return record?.group?.toLowerCase() === "numeric_validation" && record?.key?.toLowerCase() === "decimal_precision";
@@ -421,7 +419,7 @@ export default {
             return this.selectedResourceCode === "company-settings" && isDecimalPrecisionSetting(this.form);
         },
         decimalPrecisionOptions() {
-            return DECIMAL_PRECISION_OPTIONS;
+            return precisionOptions();
         },
         filteredRecords() {
             const term = this.appliedSearch.toLowerCase();

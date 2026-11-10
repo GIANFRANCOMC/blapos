@@ -16,7 +16,7 @@ final class SaveMasterDataRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
         $maxFileSizeKb = $this->numericMaxFileSizeKb();
 
@@ -40,7 +40,7 @@ final class SaveMasterDataRequest extends CompanyFormRequest {
                 "code" => ["required", "string", "max:30"],
                 "name" => ["required", "string", "max:255"],
                 "description" => ["nullable", "string", "max:500"],
-                "rate" => ["required", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+                "rate" => ["required", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
                 "calculation_type" => ["required", "in:percentage,fixed"],
                 "operation_type" => ["required", "in:addition,subtraction"],
                 "min_apply_quantity" => ["nullable", "integer", "min:0"],

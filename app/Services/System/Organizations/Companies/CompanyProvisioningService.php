@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Organizations\Companies;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use Database\Seeders\AccessProfilesSeeder;
 use Illuminate\Support\Facades\{DB, Hash, Schema};
@@ -251,15 +251,15 @@ final class CompanyProvisioningService {
             ["group" => "inventory", "key" => "stock_alert_email_to", "value" => null, "description" => "Correo destino de las alertas de stock; usa el correo de la empresa cuando queda vacío.", "value_type" => "string"],
             ["group" => "external_api", "key" => "document_lookup_monthly_warning_threshold", "value" => "80", "description" => "Umbral mensual para advertir el consumo de consultas externas de DNI y RUC.", "value_type" => "integer"],
             [
-                "group" => CompanySettingService::NUMERIC_VALIDATION,
-                "key" => CompanySettingService::DECIMAL_PRECISION_KEY,
-                "value" => (string) CompanySettingService::DEFAULT_DECIMAL_PRECISION,
+                "group" => Numbers::SETTINGS_GROUP,
+                "key" => Numbers::PRECISION_KEY,
+                "value" => (string) Numbers::DEFAULTS[Numbers::PRECISION_KEY],
                 "description" => "Cantidad de decimales para validar, calcular y mostrar montos y cantidades de la empresa.",
                 "value_type" => "integer",
             ],
-            ["group" => "numeric_validation", "key" => "default_min_value", "value" => "0", "description" => "Valor minimo operativo usado por defecto en validaciones numericas cuando el campo no define una regla mas especifica.", "value_type" => "decimal"],
-            ["group" => "numeric_validation", "key" => "default_max_value", "value" => "999999999999.999", "description" => "Valor maximo operativo usado por defecto en validaciones numericas de cantidades, precios, totales, pagos, costos y saldos.", "value_type" => "decimal"],
-            ["group" => "numeric_validation", "key" => "max_file_size_kb", "value" => "4096", "description" => "Tamanio maximo por defecto, en KB, para archivos validados desde formularios de la empresa.", "value_type" => "integer"],
+            ["group" => Numbers::SETTINGS_GROUP, "key" => "default_min_value", "value" => (string) Numbers::DEFAULTS["default_min_value"], "description" => "Valor minimo operativo usado por defecto en validaciones numericas cuando el campo no define una regla mas especifica.", "value_type" => "decimal"],
+            ["group" => Numbers::SETTINGS_GROUP, "key" => "default_max_value", "value" => (string) Numbers::DEFAULTS["default_max_value"], "description" => "Valor maximo operativo usado por defecto en validaciones numericas de cantidades, precios, totales, pagos, costos y saldos.", "value_type" => "decimal"],
+            ["group" => Numbers::SETTINGS_GROUP, "key" => "max_file_size_kb", "value" => (string) Numbers::DEFAULTS["max_file_size_kb"], "description" => "Tamanio maximo por defecto, en KB, para archivos validados desde formularios de la empresa.", "value_type" => "integer"],
         ];
 
         $records = collect([...$settings, ...$attendanceSettings])

@@ -11,7 +11,7 @@ class StoreRecipeRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         $productFromCompany = fn(string $message) => new ExistsInTenant(
@@ -22,29 +22,29 @@ class StoreRecipeRequest extends CompanyFormRequest {
 
         return [
             "item_id" => ["required", "integer", new ExistsInTenant("items", [], "El item principal no pertenece a la empresa.")],
-            "yield_quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
+            "yield_quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "waste_percentage" => ["nullable", "numeric", "min:0", "max:100", $decimalRule],
             "preparation_notes" => ["nullable", "string", "max:1000"],
             "status" => ["required", "in:active,inactive"],
 
             "components" => ["nullable", "array", "max:200"],
             "components.*.item_id" => ["required_with:components.*.quantity", "nullable", "integer", $productFromCompany("Un insumo no pertenece a la empresa.")],
-            "components.*.quantity" => ["required_with:components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
+            "components.*.quantity" => ["required_with:components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", $decimalRule],
             "components.*.note" => ["nullable", "string", "max:255"],
 
             "toppings" => ["nullable", "array", "max:100"],
             "toppings.*.name" => ["nullable", "string", "max:100"],
             "toppings.*.description" => ["nullable", "string", "max:255"],
-            "toppings.*.price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "toppings.*.price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "toppings.*.currency_id" => ["nullable", "integer", new ExistsInTenant("currencies", ["status" => "active"], "Una moneda del topping no pertenece a la empresa.")],
             "toppings.*.item_id" => ["nullable", "integer", new ExistsInTenant("items", [], "Un topping vinculado no pertenece a la empresa.")],
             "toppings.*.max_quantity" => ["nullable", "integer", "min:1"],
             "toppings.*.status" => ["nullable", "in:active,inactive"],
             "toppings.*.components" => ["nullable", "array", "max:100"],
             "toppings.*.components.*.item_id" => ["required_with:toppings.*.components.*.quantity", "nullable", "integer", $productFromCompany("Un insumo del topping no pertenece a la empresa.")],
-            "toppings.*.components.*.quantity" => ["required_with:toppings.*.components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "toppings.*.components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
+            "toppings.*.components.*.quantity" => ["required_with:toppings.*.components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "toppings.*.components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", $decimalRule],
             "toppings.*.components.*.note" => ["nullable", "string", "max:255"],
 
             "options" => ["nullable", "array", "max:100"],
@@ -54,8 +54,8 @@ class StoreRecipeRequest extends CompanyFormRequest {
             "options.*.status" => ["nullable", "in:active,inactive"],
             "options.*.components" => ["nullable", "array", "max:100"],
             "options.*.components.*.item_id" => ["required_with:options.*.components.*.quantity", "nullable", "integer", $productFromCompany("Un insumo de la opcion no pertenece a la empresa.")],
-            "options.*.components.*.quantity" => ["required_with:options.*.components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "options.*.components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
+            "options.*.components.*.quantity" => ["required_with:options.*.components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "options.*.components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", $decimalRule],
             "options.*.components.*.note" => ["nullable", "string", "max:255"],
         ];
 

@@ -455,7 +455,7 @@ export default {
 
                 const saleHour = new Date(sale.created_at).getHours();
 
-                if(saleHour >= 0 && saleHour < 24) totalsByHour[saleHour] += parseFloat(sale.total);
+                if(saleHour >= 0 && saleHour < 24) totalsByHour[saleHour] = Utils.sum([totalsByHour[saleHour], sale.total]);
 
             });
 
@@ -905,7 +905,7 @@ export default {
                                 precision: 0,
                                 callback(value) {
 
-                                    const n = Math.round(Number(value));
+                                    const n = Utils.roundNumber(value, 0);
                                     return vm.separatorNumber(String(n));
 
                                 }
@@ -1060,7 +1060,7 @@ export default {
 
                 const saleHour = new Date(sale.created_at).getHours();
 
-                if(saleHour >= 0 && saleHour < 24) totalsByHour[saleHour] += parseFloat(sale.total);
+                if(saleHour >= 0 && saleHour < 24) totalsByHour[saleHour] = Utils.sum([totalsByHour[saleHour], sale.total]);
 
             });
 

@@ -10,15 +10,15 @@ final class UpdateAssetInBranchRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
             "branch_id" => ["required", "integer"],
             "id" => ["required", "integer"],
             "asset_id" => ["required", "integer"],
-            "quantity" => ["required", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "acquisition_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "quantity" => ["required", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
+            "acquisition_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "acquisition_date" => ["nullable", "date"],
             "note" => ["nullable", "string", "max:500"],
         ];

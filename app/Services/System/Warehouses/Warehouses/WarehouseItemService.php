@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\Warehouses;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{Warehouse, WarehouseItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
@@ -66,9 +66,9 @@ class WarehouseItemService {
                     "warehouse_id" => $warehouseId,
                     "item_id" => $itemId,
                     "quantity" => 0,
-                    "minimum_stock" => (float) (
-                        $inventoryRecord["minimum_stock"] ?? $current?->minimum_stock ?? 0
-                    ),
+                    "minimum_stock" => isset($inventoryRecord["minimum_stock"])
+                        ? Numbers::storage($inventoryRecord["minimum_stock"])
+                        : ($current?->getRawOriginal("minimum_stock") ?? 0),
                     "status" => "active",
                     "created_at" => $timestamp,
                     "created_by" => $userId,
@@ -94,7 +94,7 @@ class WarehouseItemService {
         foreach($newWarehouseIds as $warehouseId) {
 
             $inventoryRecord = $inventoryByWarehouse->get($warehouseId, []);
-            $initialStock = Utilities::round((float) ($inventoryRecord["initial_stock"] ?? 0));
+            $initialStock = Numbers::round(($inventoryRecord["initial_stock"] ?? 0));
 
             if($initialStock <= 0) {
 

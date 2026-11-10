@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\System\Organizations;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use Illuminate\Database\Eloquent\{Model};
 
 final class UserAttendance extends Model {
@@ -52,7 +52,7 @@ final class UserAttendance extends Model {
 
     public function getWorkedHoursAttribute(): float {
 
-        return Utilities::round(
+        return Numbers::round(
             ((int) ($this->attributes["worked_minutes"] ?? 0)) / 60,
             null,
             null

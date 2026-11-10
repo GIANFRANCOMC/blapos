@@ -492,7 +492,7 @@ export default {
         deliveryPercent(record) {
             const total = Number(record?.total_quantity ?? 0);
             if(total <= 0) return 0;
-            return Math.min(100, Math.max(0, (Number(record?.delivered_quantity ?? 0) / total) * 100));
+            return Math.min(100, Math.max(0, Utils.proportion(record?.delivered_quantity, 100, total)));
         },
         saleLabel(record) {
             return record?.sale_header?.serie_sequential || `Venta #${record?.sale_header_id || record?.id}`;

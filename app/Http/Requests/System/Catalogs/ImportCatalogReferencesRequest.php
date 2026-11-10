@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Catalogs;
 
+use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class ImportCatalogReferencesRequest extends CompanyFormRequest {
@@ -20,7 +21,7 @@ final class ImportCatalogReferencesRequest extends CompanyFormRequest {
 
     public function messages(): array {
 
-        $maxFileSizeMb = round($this->numericMaxFileSizeKb() / 1024, 2);
+        $maxFileSizeMb = Numbers::round($this->numericMaxFileSizeKb() / 1024, 2);
 
         return array_merge(parent::messages(), [
             "file.file" => "Selecciona un archivo válido.",

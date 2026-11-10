@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Customers\Loyalty;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Sales\{SaleBody, SaleHeader};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use Illuminate\Support\Facades\{DB, Schema};
@@ -138,17 +138,17 @@ final class CustomerLoyaltyPointService {
 
         if($triggerType === "item_quantity" || $triggerType === "subscription_sale") {
 
-            $quantity = Utilities::round((float) $saleBodies->sum("quantity"));
+            $quantity = Numbers::sum($saleBodies->pluck("quantity"));
 
             return [
                 "basis_type" => "item_quantity",
                 "basis_amount" => $quantity,
-                "points" => Utilities::round($quantity * (float) $rule->points_per_unit),
+                "points" => Numbers::multiply($quantity, $rule->points_per_unit),
             ];
 
         }
 
-        $basisAmount = Utilities::round((float) $saleBodies->sum("total"));
+        $basisAmount = Numbers::sum($saleBodies->pluck("total"));
 
         if($basisAmount < (float) $rule->minimum_sale_total) {
 
@@ -156,14 +156,14 @@ final class CustomerLoyaltyPointService {
 
         }
 
-        $amountStep = max(Utilities::decimalStep(), Utilities::round($rule->amount_step));
+        $amountStep = max(Numbers::decimalStep(), Numbers::round($rule->amount_step));
 
-        $steps = floor($basisAmount / $amountStep);
+        $steps = Numbers::floorQuotient($basisAmount, $amountStep);
 
         return [
             "basis_type" => "sale_total",
             "basis_amount" => $basisAmount,
-            "points" => Utilities::round($steps * (float) $rule->points_per_amount),
+            "points" => Numbers::multiply($steps, $rule->points_per_amount),
         ];
 
     }
@@ -204,8 +204,8 @@ final class CustomerLoyaltyPointService {
             "sale_body_id" => $data["sale_body_id"],
             "movement_type" => $data["movement_type"],
             "basis_type" => $data["basis_type"],
-            "basis_amount" => $data["basis_amount"],
-            "points" => $data["points"],
+            "basis_amount" => Numbers::storage($data["basis_amount"]),
+            "points" => Numbers::storage($data["points"]),
             "description" => $data["description"],
             "occurred_at" => now(),
             "status" => "active",
@@ -226,7 +226,7 @@ final class CustomerLoyaltyPointService {
 
         DB::table("customer_point_balances")
             ->where("customer_id", $data["customer_id"])
-            ->increment("points_balance", (float) $data["points"], [
+            ->increment("points_balance", Numbers::storage($data["points"]), [
                 "updated_at" => now(),
                 "updated_by" => $data["created_by"],
             ]);

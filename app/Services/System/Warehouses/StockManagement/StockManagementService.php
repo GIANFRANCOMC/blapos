@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Warehouses\StockManagement;
 
 use App\Casts\System\{ConfigurableDecimal};
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{InventoryStockAlert, Warehouse, WarehouseItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
@@ -163,8 +163,8 @@ class StockManagementService {
 
         })->values();
 
-        $item->setAttribute("stock_quantity", Utilities::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("quantity"))));
-        $item->setAttribute("minimum_stock", Utilities::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("minimum_stock"))));
+        $item->setAttribute("stock_quantity", Numbers::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("quantity"))));
+        $item->setAttribute("minimum_stock", Numbers::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("minimum_stock"))));
         $item->setAttribute("warehouse_breakdown", $warehouses);
         $item->setAttribute("alert_warehouses_count", $warehouses->where("requires_attention", true)->count());
 
@@ -298,11 +298,12 @@ class StockManagementService {
                 : " AND wi.warehouse_id IN (".implode(",", $ids).")";
         }
 
-        $precision = Utilities::decimalPrecision();
+        $stock = Numbers::sqlRound("COALESCE(SUM(wi.quantity), 0)");
+        $minimum = Numbers::sqlRound("COALESCE(SUM(wi.minimum_stock), 0)");
 
         return [
-            "(SELECT ROUND(COALESCE(SUM(wi.quantity), 0), {$precision}) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
-            "(SELECT ROUND(COALESCE(SUM(wi.minimum_stock), 0), {$precision}) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
+            "(SELECT {$stock} FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
+            "(SELECT {$minimum} FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
         ];
 
     }
@@ -339,8 +340,8 @@ class StockManagementService {
                     ->where("item_id", $item["id"])
                     ->first();
 
-                $currentQuantity = Utilities::round((float) ($warehouseItem?->quantity ?? 0));
-                $resultingBalance = Utilities::round((float) ($item["stock_quantity"] ?? 0));
+                $currentQuantity = Numbers::round(($warehouseItem?->quantity ?? 0));
+                $resultingBalance = Numbers::round(($item["stock_quantity"] ?? 0));
 
                 if($currentQuantity === $resultingBalance) {
 
@@ -586,21 +587,20 @@ class StockManagementService {
             ->orderByDesc("inventory_stock_alerts.detected_at")
             ->orderByDesc("inventory_stock_alerts.id");
 
-        $precision = Utilities::decimalPrecision();
-
-        return self::filterAlertMinimum($query, $minimumStatus, "ROUND(inventory_stock_alerts.minimum_stock, {$precision})");
+        return self::filterAlertMinimum($query, $minimumStatus, Numbers::sqlRound("inventory_stock_alerts.minimum_stock"));
 
     }
 
     /** Filas planas para exportación: evita hidratar modelos, accessors y relaciones por alerta. */
     public static function stockAlertsReportQuery(int $warehouseId, string $productSearch = "", string $minimumStatus = ""): QueryBuilder {
 
-        $precision = Utilities::decimalPrecision();
+        $quantity = Numbers::sqlRound("SUM(quantity)");
+        $minimum = Numbers::sqlRound("SUM(minimum_stock)");
         $stock = DB::table("warehouse_items")
             ->where("warehouse_id", $warehouseId)
             ->where("status", "active")
             ->select("item_id")
-            ->selectRaw("MIN(id) as warehouse_item_id, ROUND(SUM(quantity), ?) as quantity, ROUND(SUM(minimum_stock), ?) as minimum_stock", [$precision, $precision])
+            ->selectRaw("MIN(id) as warehouse_item_id, {$quantity} as quantity, {$minimum} as minimum_stock")
             ->groupBy("item_id");
         $detected = DB::table("inventory_stock_alerts as alerts")
             ->join("warehouse_items as alert_stock", "alert_stock.id", "=", "alerts.warehouse_item_id")

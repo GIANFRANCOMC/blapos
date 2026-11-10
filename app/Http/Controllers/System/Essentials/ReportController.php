@@ -219,7 +219,7 @@ class ReportController extends BaseController {
                 );
 
             })
-            ->with(["serie.documentType", "holder", "allPositions"])
+            ->with(["serie.documentType", "holder", "allPositions", "currency"])
             ->first();
 
         $company = Company::query()->first();

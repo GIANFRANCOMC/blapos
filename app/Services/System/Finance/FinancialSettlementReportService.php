@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Finance;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Collection};
 
@@ -33,7 +33,8 @@ final class FinancialSettlementReportService {
         [$detailTable, $headerTable, $foreignKey, $dateColumn] = $scope === "purchase"
             ? ["purchase_taxes", "purchase_headers", "purchase_header_id", "issue_date"]
             : ["sale_taxes", "sales_header", "sale_header_id", "issue_date"];
-        $precision = Utilities::decimalPrecision();
+        $baseAmount = Numbers::sqlRound("SUM(detail.base_amount)");
+        $amount = Numbers::sqlRound("SUM(detail.amount)");
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
@@ -41,7 +42,7 @@ final class FinancialSettlementReportService {
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
             ->groupBy("detail.tax_id", "detail.name", "detail.calculation_type", "detail.operation_type")
-            ->selectRaw("? as scope, detail.tax_id, detail.name, detail.calculation_type, detail.operation_type, COUNT(DISTINCT header.id) as documents, SUM(detail.quantity) as quantity, ROUND(SUM(detail.base_amount), ?) as base_amount, ROUND(SUM(detail.amount), ?) as amount", [$scope, $precision, $precision])
+            ->selectRaw("? as scope, detail.tax_id, detail.name, detail.calculation_type, detail.operation_type, COUNT(DISTINCT header.id) as documents, SUM(detail.quantity) as quantity, {$baseAmount} as base_amount, {$amount} as amount", [$scope])
             ->get();
 
     }
@@ -51,6 +52,7 @@ final class FinancialSettlementReportService {
         [$detailTable, $headerTable, $foreignKey, $dateColumn] = $scope === "purchase"
             ? ["purchase_payments", "purchase_headers", "purchase_header_id", "issue_date"]
             : ["sale_payments", "sales_header", "sale_header_id", "issue_date"];
+        $amount = Numbers::sqlRound("SUM(detail.amount)");
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
@@ -58,7 +60,7 @@ final class FinancialSettlementReportService {
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
             ->groupBy("detail.payment_method_id", "detail.name")
-            ->selectRaw("? as scope, detail.payment_method_id, detail.name, COUNT(DISTINCT header.id) as documents, ROUND(SUM(detail.amount), ?) as amount", [$scope, Utilities::decimalPrecision()])
+            ->selectRaw("? as scope, detail.payment_method_id, detail.name, COUNT(DISTINCT header.id) as documents, {$amount} as amount", [$scope])
             ->get();
 
     }

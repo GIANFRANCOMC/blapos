@@ -42,7 +42,7 @@ class StoreSaleRequest extends CompanyFormRequest {
      */
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -68,16 +68,16 @@ class StoreSaleRequest extends CompanyFormRequest {
             "observation" => "nullable|string|max:300",
             "taxes" => "nullable|array|max:20",
             "taxes.*.tax_id" => "required_with:taxes|integer",
-            "taxes.*.rate" => "nullable|numeric|min:0|max:$maxValue|decimal:0,$round",
+            "taxes.*.rate" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
             "taxes.*.calculation_type" => "nullable|in:percentage,fixed",
             "taxes.*.operation_type" => "nullable|in:addition,subtraction",
             "taxes.*.is_required" => "nullable|boolean",
             "taxes.*.quantity" => "nullable|integer|min:1|max:$maxValue",
-            "taxes.*.amount" => "nullable|numeric|min:-$maxValue|max:$maxValue|decimal:0,$round",
+            "taxes.*.amount" => "nullable|numeric|min:-$maxValue|max:$maxValue|$decimalRule",
             "payments" => "nullable|array|max:20",
             "payments.*.payment_method_id" => "required_with:payments|integer",
             "payments.*.payment_method_variant_id" => "nullable|integer",
-            "payments.*.amount" => "required_with:payments|numeric|gt:0|max:$maxValue|decimal:0,$round",
+            "payments.*.amount" => "required_with:payments|numeric|gt:0|max:$maxValue|$decimalRule",
             "payments.*.reference" => "nullable|string|max:100",
             "payments.*.note" => "nullable|string|max:300",
             // Details
@@ -87,14 +87,14 @@ class StoreSaleRequest extends CompanyFormRequest {
             "details.*.type" => "required|string|max:255",
             "details.*.currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "Una moneda del detalle no pertenece a la empresa.")],
             "details.*.name" => "required|string|max:255",
-            "details.*.quantity" => "required|numeric|min:0.1|max:$maxValue|decimal:0,$round",
-            "details.*.price" => "required|numeric|min:0.1|max:$maxValue|decimal:0,$round",
-            "details.*.total" => "nullable|numeric|min:0|max:$maxValue|decimal:0,$round",
+            "details.*.quantity" => "required|numeric|gt:0|max:$maxValue|$decimalRule",
+            "details.*.price" => "required|numeric|gt:0|max:$maxValue|$decimalRule",
+            "details.*.total" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
             "details.*.price_includes_tax" => "nullable|boolean",
             "details.*.igv_exempt" => "nullable|boolean",
             "details.*.commission_type" => "nullable|in:none,percentage,fixed",
-            "details.*.commission_value" => "nullable|numeric|min:0|max:$maxValue|decimal:0,$round",
-            "details.*.commission_amount" => "nullable|numeric|min:0|max:$maxValue|decimal:0,$round",
+            "details.*.commission_value" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
+            "details.*.commission_amount" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
             "details.*.observation" => "nullable|string|max:300",
             "details.*.extras" => "nullable|array",
             "details.*.extras.duration_type" => "nullable|in:hour,day,today,month,year",

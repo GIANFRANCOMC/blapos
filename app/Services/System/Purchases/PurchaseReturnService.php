@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Purchases;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Purchases\{PurchaseHeader, PurchaseItem, PurchaseReturn, PurchaseReturnItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
 use DomainException;
@@ -64,8 +64,8 @@ final class PurchaseReturnService {
                     ->where("purchase_returns.status", "confirmed")
                     ->sum("purchase_return_items.quantity");
 
-                $quantity = Utilities::round((float) $line["quantity"]);
-                $available = Utilities::round((float) $purchaseItem->received_quantity - $previouslyReturned);
+                $quantity = Numbers::round($line["quantity"]);
+                $available = Numbers::subtract($purchaseItem->received_quantity, $previouslyReturned);
 
                 if($quantity > $available) {
 
@@ -93,7 +93,7 @@ final class PurchaseReturnService {
                     "inventory_movement_id" => $movement->id,
                     "quantity" => $quantity,
                     "unit_cost" => $purchaseItem->unit_cost,
-                    "total_cost" => Utilities::round($quantity * (float) $purchaseItem->unit_cost),
+                    "total_cost" => Numbers::multiply($quantity, $purchaseItem->unit_cost),
                     "created_at" => now(),
                 ]);
 

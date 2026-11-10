@@ -10,12 +10,12 @@ final class OpenCashSessionRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
             "cash_register_id" => ["required", "integer"],
-            "opening_amount" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "opening_amount" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "observation" => ["nullable", "string", "max:300"],
         ];
 

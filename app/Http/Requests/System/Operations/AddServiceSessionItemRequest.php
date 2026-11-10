@@ -10,13 +10,13 @@ final class AddServiceSessionItemRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
             "item_id" => ["required", "integer"],
             "assigned_user_id" => ["nullable", "integer"],
-            "quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "start_immediately" => ["nullable", "boolean"],
             "observation" => ["nullable", "string", "max:500"],
         ];

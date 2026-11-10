@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Finance;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Models\System\Finance\{CashSession, MiscExpenseCategory};
 use App\Models\System\General\{Currency};
@@ -86,14 +86,14 @@ final class MiscExpenseController extends BaseController {
             "expense_date" => ["required", "date"],
             "reference" => ["nullable", "string", "max:100"],
             "concept" => ["required", "string", "max:255"],
-            "amount" => ["required", "numeric", "gt:0", "decimal:0,".Utilities::decimalPrecision()],
+            "amount" => Numbers::numericRules(min: Numbers::decimalStep(), required: true),
             "description" => ["nullable", "string", "max:2000"],
             "observation" => ["nullable", "string", "max:2000"],
         ], [
             "required" => "Campo obligatorio.",
             "numeric" => "Ingresa un número válido.",
             "gt" => "Debe ser mayor que cero.",
-            "decimal" => "Usa hasta ".Utilities::decimalPrecision()." decimales.",
+            "decimal" => Numbers::decimalError(),
             "max" => "Supera la longitud permitida.",
         ]);
 

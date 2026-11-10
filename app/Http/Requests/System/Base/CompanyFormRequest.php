@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Base;
 
-use App\Helpers\System\{ApiResponse, Utilities};
-use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Helpers\System\{ApiResponse, Numbers};
 use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Http\Exceptions\{HttpResponseException};
@@ -64,96 +63,44 @@ abstract class CompanyFormRequest extends FormRequest {
 
     }
 
-    protected function decimalPrecision(): int {
+    protected function numericMinValue(): string {
 
-        return Utilities::decimalPrecision();
-
-    }
-
-    protected function numericMinValue(): float {
-
-        return (float) ($this->numericValidationSettings()["default_min_value"] ?? 0);
+        return Numbers::minValue();
 
     }
 
-    protected function numericMaxValue(): float {
+    protected function numericMaxValue(): string {
 
-        return (float) ($this->numericValidationSettings()["default_max_value"] ?? 999999999999.999);
+        return Numbers::maxValue();
 
     }
 
     protected function numericMaxFileSizeKb(): int {
 
-        return max(1, (int) ($this->numericValidationSettings()["max_file_size_kb"] ?? 4096));
+        return Numbers::maxFileSizeKb();
 
     }
 
     protected function decimalRule(): string {
 
-        return "decimal:0,".$this->decimalPrecision();
-
-    }
-
-    protected function maxValueRule(?float $maxValue = null): string {
-
-        return "max:".($maxValue ?? $this->numericMaxValue());
-
-    }
-
-    protected function minValueRule(?float $minValue = null): string {
-
-        return "min:".($minValue ?? $this->numericMinValue());
+        return Numbers::decimalRule();
 
     }
 
     protected function numericRules(
-        ?float $min = null,
-        ?float $max = null,
+        float|string|null $min = null,
+        float|string|null $max = null,
         bool $required = false,
         bool $decimal = true
     ): array {
 
-        $rules = [$required ? "required" : "nullable", "numeric", $this->minValueRule($min), $this->maxValueRule($max)];
-
-        if($decimal) {
-
-            $rules[] = $this->decimalRule();
-
-        }
-
-        return $rules;
-
-    }
-
-    protected function positiveNumericRules(
-        ?float $min = null,
-        ?float $max = null,
-        bool $required = true
-    ): array {
-
-        return $this->numericRules($min ?? Utilities::decimalStep(), $max, $required);
+        return Numbers::numericRules($min, $max, $required, $decimal);
 
     }
 
     protected function normalizeDecimalInput(mixed $value): mixed {
 
-        if($value === null || $value === "") {
-
-            return null;
-
-        }
-
-        $normalized = is_string($value) ? trim($value) : $value;
-
-        if(is_string($normalized) && preg_match('/^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/D', $normalized)) {
-
-            $normalized = str_replace(",", "", $normalized);
-
-        }
-
-        return is_numeric($normalized) && is_finite((float) $normalized)
-            ? Utilities::round($normalized)
-            : $normalized;
+        return Numbers::normalizeDecimalInput($value);
 
     }
 
@@ -191,14 +138,6 @@ abstract class CompanyFormRequest extends FormRequest {
 
     }
 
-    private function numericValidationSettings(): array {
-
-        return CompanySettingService::group(
-            CompanySettingService::NUMERIC_VALIDATION
-        );
-
-    }
-
     public function messages(): array {
 
         return [
@@ -225,7 +164,7 @@ abstract class CompanyFormRequest extends FormRequest {
             "min.array" => "Selecciona al menos :min opción.",
             "max.array" => "Selecciona como máximo :max opciones.",
             "max.string" => "Debe tener como máximo :max caracteres.",
-            "decimal" => "Usa hasta ".$this->decimalPrecision()." decimales.",
+            "decimal" => Numbers::decimalError(),
         ];
 
     }

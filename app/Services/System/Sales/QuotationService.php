@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Sales;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Sales\{QuotationHeader, QuotationItem, QuotationTax};
 use App\Services\System\Finance\{CommercialDocumentSettlementService};
@@ -71,8 +71,8 @@ final class QuotationService {
             $normalizedDetails = $details->map(function($detail) use ($items) {
 
                 $item = $items->get((int) $detail["item_id"]);
-                $quantity = Utilities::round($detail["quantity"] ?? 1);
-                $price = Utilities::round($detail["price"] ?? $item->price);
+                $quantity = Numbers::round($detail["quantity"] ?? 1);
+                $price = Numbers::round($detail["price"] ?? $item->price);
 
                 return [
                     "item_id" => (int) $item->id,
@@ -85,13 +85,13 @@ final class QuotationService {
                     "price_includes_tax" => filter_var($detail["igv_exempt"] ?? $item->igv_exempt ?? false, FILTER_VALIDATE_BOOL)
                         ? false
                         : filter_var($detail["price_includes_tax"] ?? $item->price_includes_tax ?? true, FILTER_VALIDATE_BOOL),
-                    "total" => Utilities::round($quantity * $price),
+                    "total" => Numbers::multiply($quantity, $price),
                     "observation" => $detail["observation"] ?? null,
                 ];
 
             })->values();
 
-            $grossSubtotal = Utilities::round((float) $normalizedDetails->sum("total"));
+            $grossSubtotal = Numbers::sum($normalizedDetails->pluck("total"));
             $taxLines = CommercialDocumentSettlementService::saleTaxes(
                 $normalizedDetails->all(),
                 $userId,
@@ -99,11 +99,11 @@ final class QuotationService {
                 collect($data["taxes"] ?? [])->filter(fn($tax) => !empty($tax["tax_id"]))->mapWithKeys(fn($tax) => [(int) $tax["tax_id"] => (int) ($tax["quantity"] ?? 1)])->all()
             );
 
-            $taxTotal = Utilities::round((float) $taxLines->sum("amount"));
-            $taxImpactTotal = Utilities::round((float) $taxLines->sum("_total_impact"));
-            $includedTaxTotal = Utilities::round($taxTotal - $taxImpactTotal);
-            $subtotal = Utilities::round($grossSubtotal - $includedTaxTotal);
-            $total = Utilities::round($grossSubtotal + $taxImpactTotal);
+            $taxTotal = Numbers::sum($taxLines->pluck("amount"));
+            $taxImpactTotal = Numbers::sum($taxLines->pluck("_total_impact"));
+            $includedTaxTotal = Numbers::subtract($taxTotal, $taxImpactTotal);
+            $subtotal = Numbers::subtract($grossSubtotal, $includedTaxTotal);
+            $total = Numbers::sum([$grossSubtotal, $taxImpactTotal]);
 
             $quotation = QuotationHeader::create([
                 "branch_id" => $data["branch_id"] ?? null,
@@ -126,7 +126,7 @@ final class QuotationService {
                 "quotation_header_id" => $quotation->id,
                 "created_at" => now(),
                 "created_by" => $userId,
-            ] + $detail)->all());
+            ] + Numbers::storageRow($detail, ["quantity", "price", "total"]))->all());
 
             if($taxLines->isNotEmpty()) {
 
@@ -138,7 +138,7 @@ final class QuotationService {
                         "quotation_header_id" => $quotation->id,
                         "created_at" => now(),
                         "created_by" => $userId,
-                    ] + $tax;
+                    ] + Numbers::storageRow($tax, ["rate", "base_amount", "amount"]);
 
                 })->all());
 
@@ -188,7 +188,7 @@ final class QuotationService {
             "details" => $quotation->items->map(function(QuotationItem $detail) use ($items) {
 
                 $item = $items->get((int) $detail->item_id);
-                $price = Utilities::round((float) ($item?->price ?? $detail->price));
+                $price = Numbers::round(($item?->price ?? $detail->price));
 
                 return [
                     "item_id" => $detail->item_id,
@@ -203,7 +203,7 @@ final class QuotationService {
                         ? false
                         : (bool) ($item?->price_includes_tax ?? $detail->price_includes_tax),
                     "observation" => $detail->observation,
-                    "recalculated_from_quote" => Utilities::round((float) $detail->price) !== $price,
+                    "recalculated_from_quote" => Numbers::round($detail->price) !== $price,
                 ];
 
             })->all(),

@@ -589,18 +589,9 @@ export default {
 
         },
         calculateTaxAmount(tax = {}, baseAmount = 0) {
-
-            const base = Number(baseAmount || 0);
-            const rate = Number(tax?.rate || 0);
-            const calculationType = tax?.calculation_type || "percentage";
-            const operationType = tax?.operation_type || "addition";
             const quantity = this.isFixedTax(tax) ? this.selectedTaxQuantity(tax.id) : 1;
-            const amount = calculationType === "fixed"
-                ? rate * quantity
-                : base * (rate / 100);
 
-            return Number(Utils.fixedNumber(operationType === "subtraction" ? amount * -1 : amount));
-
+            return Utils.taxAmount(baseAmount, tax, quantity);
         },
         taxIsRequired(tax = {}) {
 
@@ -793,7 +784,7 @@ export default {
             return this.warehouses.filter(warehouse => Number(warehouse.branchId) === Number(branchId));
         },
         lineTotal(detail) {
-            return Number(detail.quantity || 0) * Number(detail.unitCost || 0);
+            return Utils.lineTotal(detail.quantity, detail.unitCost);
         },
         taxQuantityMinimum(tax = {}) {
             return Math.max(1, Number(tax?.min_apply_quantity ?? 1));
@@ -1088,12 +1079,10 @@ export default {
             return `Observaciones. ${this.observationHasContent ? "Cambiar observación" : "Agregar observación"}`;
         },
         purchaseSubtotal() {
-            return (this.purchaseForm.items || []).reduce((total, detail) => total + this.lineTotal(detail), 0);
+            return Utils.sum((this.purchaseForm.items || []).map(detail => this.lineTotal(detail)));
         },
         purchaseTaxTotal() {
-            return (this.purchaseTaxBreakdown || []).reduce((total, tax) => {
-                return total + Number(tax.amount || 0);
-            }, 0);
+            return Utils.sum((this.purchaseTaxBreakdown || []).map(tax => tax.amount));
         },
         purchaseTaxBreakdown() {
             const subtotal = Number(this.purchaseSubtotal || 0);
@@ -1111,7 +1100,7 @@ export default {
             });
         },
         purchaseTotal() {
-            return this.purchaseSubtotal + this.purchaseTaxTotal;
+            return Utils.sum([this.purchaseSubtotal, this.purchaseTaxTotal]);
         },
         purchaseTaxes() {
             return (this.options.taxes?.records || []).map(tax => ({
@@ -1155,12 +1144,10 @@ export default {
                 }));
         },
         purchasePaidTotal() {
-            return (this.purchaseForm.payments || []).reduce((total, payment) => {
-                return total + Number(payment.amount || 0);
-            }, 0);
+            return Utils.sum((this.purchaseForm.payments || []).map(payment => payment.amount));
         },
         purchasePaymentDifference() {
-            return Number(Utils.fixedNumber(this.purchaseTotal - this.purchasePaidTotal));
+            return Utils.subtract(this.purchaseTotal, this.purchasePaidTotal);
         }
     },
     watch: {

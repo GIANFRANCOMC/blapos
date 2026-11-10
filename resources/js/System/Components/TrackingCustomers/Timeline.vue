@@ -237,7 +237,7 @@ export default {
             const data  = (this.data?.sales ?? []).filter(e => !["inactive", "canceled"].includes(e.status));
             const count = data.length;
 
-            const total = data.reduce((sum, item) => sum + parseFloat(item?.total), 0);
+            const total = data.reduce((sum, item) => sum + Utils.normalizeNumber(item?.total), 0);
             const currency = count > 0 ? data[0]?.currency : null;
 
             let statistics = [
@@ -269,7 +269,7 @@ export default {
             const data  = (this.data?.attendances ?? []).filter(e => !["inactive", "canceled"].includes(e.status));
             const count = data.length;
 
-            const total = data.reduce((sum, item) => sum + parseFloat(item?.worked_hours), 0);
+            const total = data.reduce((sum, item) => sum + Utils.normalizeNumber(item?.worked_hours), 0);
             const units = {singular: "Hora", plural: "Horas"};
 
             let statistics = [

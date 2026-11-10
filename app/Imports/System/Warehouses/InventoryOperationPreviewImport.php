@@ -6,7 +6,7 @@ namespace App\Imports\System\Warehouses;
 
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{WarehouseItem};
-use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Helpers\System\{Numbers};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
 use Illuminate\Support\{Collection};
 use Illuminate\Validation\{ValidationException};
@@ -82,9 +82,6 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
             ->whereIn("item_id", $products->pluck("id"))
             ->pluck("quantity", "item_id");
 
-        $settings = CompanySettingService::group(CompanySettingService::NUMERIC_VALIDATION);
-        $precision = $settings[CompanySettingService::DECIMAL_PRECISION_KEY];
-        $maxValue = (float) ($settings["default_max_value"] ?? 999999999999.999);
         $seen = [];
 
         foreach($enteredRows as $index => $row) {
@@ -135,12 +132,12 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
             }
 
             $seen[$product->id] = true;
-            $amount = $this->number($row->get($amountKey), $rowNumber, $this->operation["amount_heading"], $precision, $maxValue, $amountKey === "saldo_contado");
+            $amount = $this->number($row->get($amountKey), $rowNumber, $this->operation["amount_heading"], $amountKey === "saldo_contado");
             $cost = null;
 
             if($this->operation["has_cost"] && $this->hasValue($row->get("costo_unitario_opcional"))) {
 
-                $cost = $this->number($row->get("costo_unitario_opcional"), $rowNumber, "Costo unitario", $precision, $maxValue, true);
+                $cost = $this->number($row->get("costo_unitario_opcional"), $rowNumber, "Costo unitario", true);
 
             }
 
@@ -170,16 +167,14 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
 
     }
 
-    private function number(mixed $value, int $rowNumber, string $label, int $precision, float $maxValue, bool $allowZero): string {
+    private function number(mixed $value, int $rowNumber, string $label, bool $allowZero): string {
 
-        $number = str_replace(",", ".", trim((string) $value));
-        $pattern = $precision === 0
-            ? '/^\d+$/D'
-            : '/^\d+(?:\.\d{1,'.$precision.'})?$/D';
+        $number = Numbers::spreadsheetDecimal($value, $allowZero);
 
-        if(!preg_match($pattern, $number) || (float) $number > $maxValue || (!$allowZero && (float) $number <= 0)) {
+        if($number === null) {
 
             $condition = $allowZero ? "no negativo" : "mayor que cero";
+            $precision = Numbers::decimalPrecision();
 
             throw ValidationException::withMessages(["file" => ["Fila {$rowNumber}: {$label} debe ser un número {$condition} con hasta {$precision} decimales."]]);
 

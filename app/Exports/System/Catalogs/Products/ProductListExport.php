@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Catalogs\Products;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Products\{ProductService};
 use Illuminate\Database\Eloquent\{Builder};
@@ -96,8 +96,8 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
                 $branchName = $warehouseItem->warehouse?->branch?->name;
                 $warehouseName = $warehouseItem->warehouse?->name ?? "Almacén";
                 $location = $branchName ? "{$branchName} / {$warehouseName}" : $warehouseName;
-                $quantity = $this->formatDecimal($warehouseItem->quantity);
-                $minimum = $this->formatDecimal($warehouseItem->minimum_stock);
+                $quantity = Numbers::formatDecimal($warehouseItem->quantity);
+                $minimum = Numbers::formatDecimal($warehouseItem->minimum_stock);
 
                 return "{$location}: {$quantity} (mín. {$minimum})";
 
@@ -115,7 +115,7 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
             (float) $item->price,
             $item->min_price !== null ? (float) $item->min_price : null,
             $item->max_price !== null ? (float) $item->max_price : null,
-            (float) $warehouseItems->sum("quantity"),
+            Numbers::sum($warehouseItems->pluck("quantity")),
             $warehouseItems->count(),
             $alertCount,
             $warehouseItems->isEmpty()
@@ -196,7 +196,7 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
         ]);
 
         $sheet->getRowDimension(1)->setRowHeight(24);
-        $sheet->getStyle("H:K")->getNumberFormat()->setFormatCode(Utilities::spreadsheetDecimalFormat());
+        $sheet->getStyle("H:K")->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat());
         $sheet->getStyle("A:".self::LAST_COLUMN)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle("E:F")->getAlignment()->setWrapText(true);
         $sheet->getStyle("O:O")->getAlignment()->setWrapText(true);
@@ -236,12 +236,6 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
 
             },
         ];
-
-    }
-
-    private function formatDecimal(mixed $value): string {
-
-        return Utilities::formatDecimal($value);
 
     }
 

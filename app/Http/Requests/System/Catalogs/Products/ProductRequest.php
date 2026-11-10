@@ -16,7 +16,7 @@ abstract class ProductRequest extends CompanyFormRequest {
     public function rules(): array {
 
         $itemId = $this->route("id") ? (int) $this->route("id") : null;
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -25,13 +25,13 @@ abstract class ProductRequest extends CompanyFormRequest {
             "name" => ["bail", "required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
             "brand_id" => ["nullable", "integer", new ExistsInTenant("brands", [], "La marca seleccionada no pertenece a la empresa.")],
-            "price" => ["bail", "required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "price" => ["bail", "required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "price_includes_tax" => ["nullable", "boolean"],
             "igv_exempt" => ["nullable", "boolean"],
-            "min_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "max_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "min_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
+            "max_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "commission_type" => ["required", "in:none,percentage,fixed"],
-            "commission_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "commission_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "currency_id" => ["bail", "required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "capacity_control_enabled" => ["prohibited"],
             "capacity_limit" => ["prohibited"],
@@ -52,8 +52,8 @@ abstract class ProductRequest extends CompanyFormRequest {
             ],
             "inventory.*.initial_stock" => $this->isMethod("PATCH")
                 ? ["exclude"]
-                : ["required", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "inventory.*.minimum_stock" => ["required", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+                : ["required", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
+            "inventory.*.minimum_stock" => ["required", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "status" => ["required", "in:active,inactive"],
         ];
 

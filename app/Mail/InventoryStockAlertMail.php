@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Helpers\System\{Numbers};
 use App\Models\System\Warehouses\{InventoryStockAlert};
 use Illuminate\Bus\{Queueable};
 use Illuminate\Mail\Mailables\{Content, Envelope};
@@ -14,9 +15,15 @@ final class InventoryStockAlertMail extends Mailable {
 
     use Queueable, SerializesModels;
 
+    private readonly string $quantity;
+    private readonly string $minimumStock;
+
     public function __construct(
         public readonly InventoryStockAlert $alert
     ) {
+        $precision = Numbers::decimalPrecision();
+        $this->quantity = Numbers::formatDecimal($alert->getRawOriginal("quantity"), $precision);
+        $this->minimumStock = Numbers::formatDecimal($alert->getRawOriginal("minimum_stock"), $precision);
     }
 
     public function envelope(): Envelope {
@@ -35,6 +42,8 @@ final class InventoryStockAlertMail extends Mailable {
             view: "emails.inventory.stock_alert",
             with: [
                 "alert" => $this->alert,
+                "quantity" => $this->quantity,
+                "minimumStock" => $this->minimumStock,
             ]
         );
 

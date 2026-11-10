@@ -53,7 +53,7 @@
 
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
-import { fixedNumber, isDefined, resolveDecimals, separatorNumber } from "../Helpers/Utils.js";
+import {commitNumberInput, isNumberInputKey, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 export default {
     name: "InputNumber",
@@ -115,12 +115,12 @@ export default {
         minValue: {
             type: [String, Number],
             required: false,
-            default: generalConfig.forms.inputs.minValue
+            default: null
         },
         maxValue: {
             type: [String, Number],
             required: false,
-            default: generalConfig.forms.inputs.maxValue
+            default: null
         },
         decimals: {
             type: [String, Number],
@@ -224,65 +224,13 @@ export default {
         },
         updateValue(value) {
 
-            const isDefinedMinValue = isDefined({value: this.minValue});
-            const isDefinedMaxValue = isDefined({value: this.maxValue});
+            if(this.hasNegative && value === "-") return;
 
-            let maxValue = isDefinedMaxValue ? this.maxValue : generalConfig.forms.inputs.maxValue;
-            let minValue = isDefinedMinValue ? this.minValue : generalConfig.forms.inputs.minValue;
+            const bounds = numericBounds(this);
+            const options = {...bounds, hasNegative: this.hasNegative, decimals: this.decimalPlaces};
+            const result = commitNumberInput(value, options) ?? commitNumberInput(bounds.min, options);
 
-            if(this.hasNegative && !isDefinedMinValue) {
-
-                minValue = -maxValue;
-
-            }
-
-            const defaultValue = minValue;
-
-            let valueString = String(value).trim();
-
-            if(valueString === "") {
-
-                this.emitValue({reset: false, result: defaultValue});
-
-            }else {
-
-                const hasFormattedNumber = this.hasNegative ? /^-?\d+(\.\d+)?$/.test(valueString) : /^\d+(\.\d+)?$/.test(valueString); // Case: 1  2  3.1  5.67  0.329
-                const hasDecimalInitNumber = this.decimalPlaces > 0 && (this.hasNegative ? /^-?\d+\.$/.test(valueString) : /^\d+\.$/.test(valueString)); // Case: With decimals (Input: 12. 3134. 23461.)
-
-                if(this.hasNegative && value == "-") {
-
-                    //
-
-                }else if(hasFormattedNumber || hasDecimalInitNumber) {
-
-                    let numericValue = Number(value);
-
-                    if(isNaN(numericValue)) {
-
-                        this.emitValue({reset: false, result: defaultValue});
-
-                    }else if(numericValue < minValue) {
-
-                        this.emitValue({reset: false, result: minValue});
-
-                    }else if(numericValue > maxValue) {
-
-                        this.emitValue({reset: false, result: maxValue});
-
-                    }else {
-
-                        this.emitValue({reset: false, result: Number(fixedNumber(numericValue, this.decimalPlaces))});
-
-                    }
-
-                }else {
-
-                    // console.error("Sin formato correcto");
-                    this.emitValue({reset: false, result: defaultValue});
-
-                }
-
-            }
+            this.emitValue({reset: false, result});
 
         },
         emitValue({reset = true, result}) {
@@ -325,21 +273,7 @@ export default {
         },
         handleKeyDown(event) {
 
-            let allowedKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ArrowLeft", "ArrowRight", "Backspace", "Tab"];
-
-            if(this.hasNegative) {
-
-                allowedKeys.push("-");
-
-            }
-
-            if(this.decimalPlaces > 0) {
-
-                allowedKeys.push(".");
-
-            }
-
-            if(!allowedKeys.includes(event.key)) {
+            if(!isNumberInputKey(event.key, {hasNegative: this.hasNegative, decimals: this.decimalPlaces})) {
 
                 event.preventDefault();
 

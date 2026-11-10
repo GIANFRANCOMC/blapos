@@ -646,7 +646,7 @@ export default {
             return this.views.find(view => view.id === this.activeView) || this.views[0];
         },
         inventoryCountDifferenceTotal() {
-            return this.forms.close.inventory_counts.reduce((total, row) => total + this.inventoryRowDifference(row), 0);
+            return Utils.sum(this.forms.close.inventory_counts.map(row => this.inventoryRowDifference(row)));
         }
     },
     async mounted() {
@@ -838,7 +838,7 @@ export default {
         inventoryRowDifference(row) {
             if(row.counted_quantity === "" || row.counted_quantity === null) return 0;
 
-            return Number(row.counted_quantity || 0) - Number(row.system_quantity || 0);
+            return Utils.subtract(row.counted_quantity, row.system_quantity);
         },
         inventoryCountsAreComplete() {
             if(!this.forms.close.requires_inventory_count) return true;

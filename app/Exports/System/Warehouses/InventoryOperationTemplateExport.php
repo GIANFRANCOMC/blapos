@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Exports\System\Warehouses;
 
 use App\Models\System\Catalogs\{Item};
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
 use Illuminate\Database\Eloquent\{Builder};
 use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles};
@@ -78,7 +78,7 @@ class InventoryOperationTemplateExport extends DefaultValueBinder implements Fro
 
     public function columnFormats(): array {
 
-        $quantityFormat = Utilities::spreadsheetDecimalFormat(groupThousands: false);
+        $quantityFormat = Numbers::spreadsheetDecimalFormat(groupThousands: false);
 
         return [
             "A" => NumberFormat::FORMAT_TEXT,

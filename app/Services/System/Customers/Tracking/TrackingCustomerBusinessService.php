@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Customers\Tracking;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Customers\{Attendance, Customer, Subscription};
 use App\Models\System\Sales\{SaleHeader};
 use Carbon\{Carbon};
@@ -208,8 +208,8 @@ class TrackingCustomerBusinessService {
         $attendances = $response["tracking"]["attendances"] ?? collect();
         $response["tracking"]["summary"] = [
             "sales_count" => $sales->count(),
-            "active_sales_total" => (float) $sales->where("status", "active")->sum("total"),
-            "canceled_sales_total" => (float) $sales->where("status", "canceled")->sum("total"),
+            "active_sales_total" => Numbers::sum($sales->where("status", "active")->pluck("total")),
+            "canceled_sales_total" => Numbers::sum($sales->where("status", "canceled")->pluck("total")),
             "active_subscriptions" => $subscriptions->where("status", "active")->count(),
             "attendances" => $attendances->whereIn("status", ["active", "finalized"])->count(),
         ];

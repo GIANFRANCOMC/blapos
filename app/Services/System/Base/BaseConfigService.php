@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Base;
 
+use App\Helpers\System\{Numbers};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use App\Services\System\Tenancy\{TenantContext};
 use Illuminate\Support\Facades\{Cache};
@@ -206,19 +207,8 @@ abstract class BaseConfigService {
 
     private static function frontendGeneralConfig(): stdClass {
 
-        $numeric = CompanySettingService::group(
-            CompanySettingService::NUMERIC_VALIDATION
-        );
-
         return self::data([
-            "forms" => [
-                "inputs" => [
-                    "round" => $numeric[CompanySettingService::DECIMAL_PRECISION_KEY],
-                    "minValue" => (float) ($numeric["default_min_value"] ?? 0),
-                    "maxValue" => (float) ($numeric["default_max_value"] ?? 999999999999.999),
-                    "maxSize" => max(1, (int) ($numeric["max_file_size_kb"] ?? 4096)),
-                ],
-            ],
+            "forms" => ["inputs" => Numbers::inputConfig()],
         ]);
 
     }

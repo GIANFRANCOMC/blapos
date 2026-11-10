@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Finance;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Sales\{SaleAccountReceivable};
 use App\Services\System\Base\{CompanyReferenceDataService};
 use Carbon\{Carbon};
@@ -61,9 +61,9 @@ final class AccountsReceivableService {
                     "currency_id" => (int) $row->currency_id,
                     "code" => $row->currency?->code ?? "",
                     "sign" => $row->currency?->sign ?? "",
-                    "total" => Utilities::round((float) $row->total_amount),
-                    "paid" => Utilities::round((float) $row->paid_amount),
-                    "pending" => Utilities::round((float) $row->pending_amount),
+                    "total" => Numbers::round($row->total_amount),
+                    "paid" => Numbers::round($row->paid_amount),
+                    "pending" => Numbers::round($row->pending_amount),
                 ];
 
             })
@@ -72,7 +72,7 @@ final class AccountsReceivableService {
         $overdueAmounts = (clone $query)
             ->whereHas("installments", fn($installmentQuery) => $installmentQuery
                 ->whereIn("status", ["pending", "partial", "overdue"])
-                ->where("pending_amount", ">", 0)
+                ->whereRaw(Numbers::sqlRound("pending_amount")." > 0")
                 ->whereDate("due_date", "<", now()->toDateString()))
             ->selectRaw("currency_id, SUM(pending_amount) as overdue_amount")
             ->groupBy("currency_id")
@@ -83,13 +83,13 @@ final class AccountsReceivableService {
             "overdue_accounts" => (clone $query)
                 ->whereHas("installments", fn($installmentQuery) => $installmentQuery
                     ->whereIn("status", ["pending", "partial", "overdue"])
-                    ->where("pending_amount", ">", 0)
+                    ->whereRaw(Numbers::sqlRound("pending_amount")." > 0")
                     ->whereDate("due_date", "<", now()->toDateString()))
                 ->count(),
             "amounts" => $amounts->map(function($amount) use ($overdueAmounts) {
 
-                $amount["overdue"] = Utilities::round(
-                    (float) ($overdueAmounts[$amount["currency_id"]] ?? 0)
+                $amount["overdue"] = Numbers::round(
+                    $overdueAmounts[$amount["currency_id"]] ?? 0
                 );
 
                 return $amount;
@@ -135,7 +135,7 @@ final class AccountsReceivableService {
 
             $query->whereHas("installments", fn($installmentQuery) => $installmentQuery
                 ->whereIn("status", ["pending", "partial", "overdue"])
-                ->where("pending_amount", ">", 0)
+                ->whereRaw(Numbers::sqlRound("pending_amount")." > 0")
                 ->whereDate("due_date", "<", now()->toDateString()));
 
         }elseif(in_array($status, ["pending", "partial", "paid", "canceled"], true)) {

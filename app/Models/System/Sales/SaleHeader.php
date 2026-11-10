@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\System\Sales;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\Finance\{CashSession};
 use App\Models\System\General\{Currency};
@@ -142,7 +142,7 @@ class SaleHeader extends Model {
 
     public function getLegibleTotalAttribute() {
 
-        return Utilities::convertNumberToWords($this->attributes["total"] ?? 0);
+        return Numbers::convertNumberToWords($this->attributes["total"] ?? 0);
 
     }
 

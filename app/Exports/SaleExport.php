@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use Maatwebsite\Excel\Concerns\{FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings};
 
 class SaleExport implements FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings {
@@ -36,7 +36,7 @@ class SaleExport implements FromCollection, WithColumnFormatting, WithColumnWidt
 
     public function columnFormats(): array {
 
-        return ["D" => Utilities::spreadsheetDecimalFormat()];
+        return ["D" => Numbers::spreadsheetDecimalFormat()];
 
     }
 

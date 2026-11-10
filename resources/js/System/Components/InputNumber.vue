@@ -53,7 +53,8 @@
 
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
-import { fixedNumber, isDefined, isNumber, resolveDecimals, separatorNumber } from "../Helpers/Utils.js";
+import {isDefined} from "../Helpers/Utils.js";
+import {commitNumberInput, editableNumber, isNumberInputKey, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 export default {
     name: "InputNumber",
@@ -115,12 +116,12 @@ export default {
         minValue: {
             type: [String, Number],
             required: false,
-            default: generalConfig.forms.inputs.minValue
+            default: null
         },
         maxValue: {
             type: [String, Number],
             required: false,
-            default: generalConfig.forms.inputs.maxValue
+            default: null
         },
         decimals: {
             type: [String, Number],
@@ -247,13 +248,7 @@ export default {
         }
     },
     methods: {
-        editableValue(value) {
-
-            if(!isDefined({value})) return "";
-
-            return String(value).replace(/,/g, "");
-
-        },
+        editableValue: editableNumber,
         handleTyping(value) {
 
             this.localValue = value;
@@ -275,71 +270,13 @@ export default {
         },
         updateValue(value) {
 
-            const isDefinedMinValue = isDefined({value: this.minValue});
-            const isDefinedMaxValue = isDefined({value: this.maxValue});
+            const bounds = numericBounds(this);
+            const parsed = commitNumberInput(value, {...bounds, hasNegative: this.hasNegative, decimals: this.decimalPlaces});
+            const text = editableNumber(value);
+            const result = ["", "-", "."].includes(text) ? null : (parsed ?? this.modelValue ?? null);
 
-            let maxValue = isDefinedMaxValue ? this.maxValue : generalConfig.forms.inputs.maxValue;
-            let minValue = isDefinedMinValue ? this.minValue : generalConfig.forms.inputs.minValue;
-
-            if(this.hasNegative && !isDefinedMinValue) {
-
-                minValue = -maxValue;
-
-            }
-
-            let valueString = String(value ?? "").trim().replace(/,/g, "");
-
-            // If value is empty, emit null to keep field empty
-            if(valueString === "" || valueString === "-" || valueString === ".") {
-
-                this.emitValue({reset: false, result: null});
-                this.localValue = "";
-                return;
-
-            }
-
-            // Validate numeric format
-            const hasFormattedNumber = this.hasNegative ? /^-?\d+(\.\d+)?$/.test(valueString) : /^\d+(\.\d+)?$/.test(valueString);
-            const hasDecimalInitNumber = this.decimalPlaces > 0 && (this.hasNegative ? /^-?\d+\.$/.test(valueString) : /^\d+\.$/.test(valueString));
-
-            if(hasFormattedNumber || hasDecimalInitNumber) {
-
-                if(!isNumber({value: valueString, minValue: this.hasNegative ? -maxValue : 0})) {
-
-                    // If not a valid number, keep current value or null
-                    const result = isDefined({value: this.modelValue}) ? this.modelValue : null;
-                    this.localValue = this.editableValue(result);
-                    this.emitValue({reset: false, result});
-                    return;
-
-                }
-
-                let numericValue = Number(valueString);
-
-                // Apply min/max limits
-                if(numericValue < minValue) {
-
-                    numericValue = minValue;
-
-                }else if(numericValue > maxValue) {
-
-                    numericValue = maxValue;
-
-                }
-
-                const result = Number(fixedNumber(numericValue, this.decimalPlaces));
-                this.localValue = String(result);
-                this.emitValue({reset: false, result});
-
-            }else {
-
-                // Invalid format, keep current value if exists, otherwise null
-                const result = isDefined({value: this.modelValue}) ? this.modelValue : null;
-
-                this.localValue = this.editableValue(result);
-                this.emitValue({reset: false, result});
-
-            }
+            this.localValue = editableNumber(result);
+            this.emitValue({reset: false, result});
 
         },
         emitValue({reset = true, result}) {
@@ -383,21 +320,7 @@ export default {
         },
         handleKeyDown(event) {
 
-            let allowedKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ArrowLeft", "ArrowRight", "Backspace", "Tab"];
-
-            if(this.hasNegative) {
-
-                allowedKeys.push("-");
-
-            }
-
-            if(this.decimalPlaces > 0) {
-
-                allowedKeys.push(".");
-
-            }
-
-            if(!allowedKeys.includes(event.key)) {
+            if(!isNumberInputKey(event.key, {hasNegative: this.hasNegative, decimals: this.decimalPlaces})) {
 
                 event.preventDefault();
 

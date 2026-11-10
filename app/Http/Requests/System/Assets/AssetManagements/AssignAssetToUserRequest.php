@@ -10,7 +10,7 @@ final class AssignAssetToUserRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -20,7 +20,7 @@ final class AssignAssetToUserRequest extends CompanyFormRequest {
             "assignments" => ["required", "array", "min:1"],
             "assignments.*.id" => ["nullable", "integer"],
             "assignments.*.user_id" => ["required", "integer"],
-            "assignments.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "assignments.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
         ];
 
     }

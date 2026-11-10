@@ -10,7 +10,7 @@ final class OpenServiceSessionRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -19,7 +19,7 @@ final class OpenServiceSessionRequest extends CompanyFormRequest {
             "customer_id" => ["nullable", "integer"],
             "assigned_user_id" => ["nullable", "integer"],
             "item_id" => ["nullable", "integer"],
-            "quantity" => ["nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "quantity" => ["nullable", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "session_type" => ["required", "string", "max:30"],
             "start_immediately" => ["nullable", "boolean"],
             "started_at" => ["nullable", "date"],

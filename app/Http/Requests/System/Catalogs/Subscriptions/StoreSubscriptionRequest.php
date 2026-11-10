@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Catalogs\Subscriptions;
 
+use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
 use App\Rules\System\Catalogs\{DelimitedArrayTextLength};
@@ -33,21 +34,27 @@ class StoreSubscriptionRequest extends CompanyFormRequest {
      */
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
-        $minValue = $this->filled("min_price") && (float) $this->input("min_price") > 0 ? (float) $this->input("min_price") : 0.1;
-        $maxValue = $this->filled("max_price") && (float) $this->input("max_price") > 0 ? (float) $this->input("max_price") : $this->numericMaxValue();
+        $decimalRule = $this->decimalRule();
+        $minimumPrice = $this->input("min_price");
+        $maximumPrice = $this->input("max_price");
+        $companyMaximum = $this->numericMaxValue();
+        $minimumBound = is_numeric($minimumPrice) && (float) $minimumPrice > 0 ? $minimumPrice : 0;
+        $minValue = $minimumBound ?: Numbers::decimalStep();
+        $maxValue = is_numeric($maximumPrice) && (float) $maximumPrice > 0 ? $maximumPrice : $companyMaximum;
 
         $validations = [
             "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", null, ["type" => "subscription"], "código interno")],
             "name" => "required|string|max:100",
             "description" => "nullable|string|max:100",
-            "duration_value" => "required|integer|min:1|max:$maxValue|decimal:0",
+            "duration_value" => "required|integer|min:1|max:$maxValue",
             "duration_type" => "required|in:hour,day,today,month,year",
-            "price" => "required|numeric|min:$minValue|max:$maxValue|decimal:0,$round",
+            "price" => "required|numeric|min:$minValue|max:$maxValue|$decimalRule",
+            "min_price" => "nullable|numeric|min:0|max:$companyMaximum|$decimalRule",
+            "max_price" => "nullable|numeric|min:$minimumBound|max:$companyMaximum|$decimalRule",
             "price_includes_tax" => "nullable|boolean",
             "igv_exempt" => "nullable|boolean",
             "commission_type" => "nullable|in:none,percentage,fixed",
-            "commission_value" => "nullable|numeric|min:0|max:$maxValue|decimal:0,$round",
+            "commission_value" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
             "currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "capacity_control_enabled" => "nullable|boolean",
             "capacity_limit" => "nullable|integer|min:1|max:1000000",
@@ -59,12 +66,6 @@ class StoreSubscriptionRequest extends CompanyFormRequest {
             "restrictions.*" => "string|max:100",
             "status" => "required|in:active,inactive",
         ];
-
-        if($this->filled("min_price") && (float) $this->input("min_price") > 0) {
-
-            $validations["max_price"] = "nullable|numeric|min:$minValue|decimal:0,$round";
-
-        }
 
         return $validations;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Sales;
 
-use App\Helpers\System\{TranslationHelper, Utilities};
+use App\Helpers\System\{Numbers, TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Customers\{Subscription};
 use App\Models\System\Finance\{CashMovement, CashSession};
@@ -59,15 +59,7 @@ class SaleService {
      */
     private static function calculateTotal(array $details): float {
 
-        $total = 0;
-
-        foreach($details as $detail) {
-
-            $total += Utilities::round(floatval($detail["quantity"]) * floatval($detail["price"]));
-
-        }
-
-        return $total;
+        return Numbers::sum(array_map(fn(array $detail) => Numbers::multiply($detail["quantity"], $detail["price"]), $details));
 
     }
 
@@ -95,13 +87,13 @@ class SaleService {
 
         if($type === "percentage") {
 
-            return Utilities::round(($quantity * $price) * ($value / 100));
+            return Numbers::percentage($quantity, $value, $price);
 
         }
 
         if($type === "fixed") {
 
-            return Utilities::round($quantity * $value);
+            return Numbers::multiply($quantity, $value);
 
         }
 
@@ -351,7 +343,7 @@ class SaleService {
             ? false
             : filter_var($detail["price_includes_tax"] ?? true, FILTER_VALIDATE_BOOL);
 
-        $saleBody->total = Utilities::round((floatval($saleBody->quantity) * floatval($saleBody->price)));
+        $saleBody->total = Numbers::multiply($saleBody->quantity, $saleBody->price);
         $saleBody->commission_type = $detail["commission_type"] ?? "none";
         $saleBody->commission_value = $detail["commission_value"] ?? 0;
         $saleBody->commission_amount = $detail["commission_amount"] ?? 0;
@@ -413,7 +405,7 @@ class SaleService {
 
         }
 
-        $quantity = Utilities::round((float) ($detail["quantity"] ?? $saleBody->quantity));
+        $quantity = Numbers::round(($detail["quantity"] ?? $saleBody->quantity));
 
         return InventoryMovementService::apply([
             "warehouse_id" => (int) $warehouse->id,
@@ -669,7 +661,7 @@ class SaleService {
                     "movement_type" => "sale",
                     "origin_type" => "sale",
                     "origin_id" => $saleHeader->id,
-                    "amount" => $payment["amount"] ?? 0,
+                    "amount" => Numbers::storage($payment["amount"] ?? 0),
                     "reference" => $payment["reference"] ?? null,
                     "note" => $payment["note"] ?? null,
                     "occurred_at" => now(),
@@ -784,7 +776,7 @@ class SaleService {
             // Calculate totals
             $grossSubtotal = self::calculateTotal($data["details"]);
 
-            $commissionTotal = Utilities::round(array_reduce($data["details"], function($carry, $detail) {
+            $commissionTotal = Numbers::round(array_reduce($data["details"], function($carry, $detail) {
 
                 return $carry + (float) ($detail["commission_amount"] ?? 0);
 
@@ -810,11 +802,11 @@ class SaleService {
                 $selectedTaxQuantities
             );
 
-            $taxTotal = Utilities::round((float) $taxLines->sum("amount"));
-            $taxImpactTotal = Utilities::round((float) $taxLines->sum("_total_impact"));
-            $includedTaxTotal = Utilities::round($taxTotal - $taxImpactTotal);
-            $subtotal = Utilities::round($grossSubtotal - $includedTaxTotal);
-            $baseTotal = Utilities::round($grossSubtotal + $taxImpactTotal);
+            $taxTotal = Numbers::sum($taxLines->pluck("amount"));
+            $taxImpactTotal = Numbers::sum($taxLines->pluck("_total_impact"));
+            $includedTaxTotal = Numbers::subtract($taxTotal, $taxImpactTotal);
+            $subtotal = Numbers::subtract($grossSubtotal, $includedTaxTotal);
+            $baseTotal = Numbers::sum([$grossSubtotal, $taxImpactTotal]);
             $defaultPaymentModality = (string) CompanySettingService::value(
                 CompanySettingService::SALES,
                 "default_payment_modality",
@@ -834,9 +826,9 @@ class SaleService {
                 $paymentModality === CommercialCreditAccountService::PAID_NOW
             );
 
-            $paidAmount = Utilities::round((float) $paymentLines->sum("amount"));
+            $paidAmount = Numbers::sum($paymentLines->pluck("amount"));
             $financedPrincipal = $paymentModality === CommercialCreditAccountService::INSTALLMENTS
-                ? Utilities::round($baseTotal - $paidAmount)
+                ? Numbers::subtract($baseTotal, $paidAmount)
                 : 0.0;
 
             if($paymentModality === CommercialCreditAccountService::INSTALLMENTS && $financedPrincipal <= 0) {
@@ -853,9 +845,9 @@ class SaleService {
                 )
                 : 0.0;
 
-            $installmentExtraAmount = Utilities::round($financedPrincipal * ($installmentExtraPercentage / 100));
-            $total = Utilities::round($baseTotal + $installmentExtraAmount);
-            $balanceDue = Utilities::round($total - $paidAmount);
+            $installmentExtraAmount = Numbers::percentage($financedPrincipal, $installmentExtraPercentage);
+            $total = Numbers::sum([$baseTotal, $installmentExtraAmount]);
+            $balanceDue = Numbers::subtract($total, $paidAmount);
             $paymentStatus = CommercialCreditAccountService::paymentStatus((float) $total, (float) $paidAmount);
 
             // Create sale header
@@ -908,7 +900,7 @@ class SaleService {
 
                         unset($tax["_total_impact"]);
 
-                        return ["sale_header_id" => $saleHeader->id] + $tax;
+                        return ["sale_header_id" => $saleHeader->id] + Numbers::storageRow($tax, ["rate", "base_amount", "amount"]);
 
                     })
                     ->all());
@@ -918,7 +910,7 @@ class SaleService {
             if($paymentLines->isNotEmpty()) {
 
                 SalePayment::insert($paymentLines
-                    ->map(fn($payment) => ["sale_header_id" => $saleHeader->id] + $payment)
+                    ->map(fn($payment) => ["sale_header_id" => $saleHeader->id] + Numbers::storageRow($payment, ["amount"]))
                     ->all());
 
                 self::createCashMovements($saleHeader, $paymentLines, (int) $data["branch_id"], (int) $userId);

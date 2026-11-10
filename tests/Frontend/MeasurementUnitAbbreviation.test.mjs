@@ -7,7 +7,7 @@ import {renderToString} from "vue/server-renderer";
 
 globalThis.window ??= {location: {protocol: "http:", hostname: "localhost"}};
 
-const {normalizeNumber, quantityParts, quantityWithUnit} = await import("../../resources/js/System/Helpers/NumberUtils.js");
+const {normalizeNumber, quantityParts, quantityWithUnit} = await import("../../resources/js/Shared/Numbers.js");
 
 test("las cantidades muestran la abreviatura registrada sin inventar unidades", () => {
     assert.equal(quantityWithUnit(19, {abbreviation: "UND"}, 0), "19 UND");

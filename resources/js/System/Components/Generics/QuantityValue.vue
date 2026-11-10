@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import {normalizeNumber, quantityParts} from "@System/Helpers/NumberUtils.js";
+import {normalizeNumber, quantityParts} from "../../../Shared/Numbers.js";
 
 export default {
     props: {

@@ -45,11 +45,11 @@
                                 </tr>
                                 <tr>
                                     <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#64748b;">Stock actual</td>
-                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">{{ \App\Helpers\System\Utilities::formatDecimal($alert->quantity) }}</td>
+                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">{{ $quantity }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px;color:#64748b;">Stock mínimo</td>
-                                    <td style="padding:8px;text-align:right;">{{ \App\Helpers\System\Utilities::formatDecimal($alert->minimum_stock) }}</td>
+                                    <td style="padding:8px;text-align:right;">{{ $minimumStock }}</td>
                                 </tr>
                             </table>
                         </td>

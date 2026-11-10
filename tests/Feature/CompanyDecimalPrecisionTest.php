@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Exports\System\Warehouses\{StockAlertsExport};
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Http\Middleware\{EnsureAuthenticatedSession, EnsureOperationalScope, EnsureTenantSession, ResolveTenant, TrustHosts};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{User};
@@ -48,18 +48,20 @@ final class CompanyDecimalPrecisionTest extends TestCase {
             $this->assertSame($precision, StockManagementConfigService::getInitParams("stock", $userId)->config->generalConfig->forms["inputs"]["round"]);
             $this->assertSame($amount, Item::findOrFail($itemId)->price);
             $this->assertSame($format, (new StockAlertsExport(1))->columnFormats()["D"]);
-            $this->assertTrue(Validator::make(["value" => $amount], ["value" => "decimal:0,{$precision}"])->passes());
-            $this->assertFalse(Validator::make(["value" => "1.".str_repeat("1", $precision + 1)], ["value" => "decimal:0,{$precision}"])->passes());
+            $this->assertTrue(Validator::make(["value" => $amount], ["value" => Numbers::decimalRule()])->passes());
+            $this->assertFalse(Validator::make(["value" => "1.".str_repeat("1", $precision + 1)], ["value" => Numbers::decimalRule()])->passes());
+            $this->assertSame($amount, Numbers::spreadsheetDecimal(str_replace(".", ",", $amount), allowZero: false));
+            $this->assertNull(Numbers::spreadsheetDecimal("1,".str_repeat("1", $precision + 1), allowZero: false));
 
         }
 
         app(CompanyProvisioningService::class)->enable();
         $this->assertSame("3", $this->setting()->value);
         $this->assertSame("1.005", (string) DB::table("items")->where("id", $itemId)->value("price"));
-        $this->assertSame(-1.01, Utilities::round(-1.005, 2));
-        $this->assertSame("MIL UNO CON 005/1000 SOLES", Utilities::convertNumberToWords("1001.005"));
+        $this->assertSame(-1.01, Numbers::round(-1.005, 2));
+        $this->assertSame("MIL UNO CON 005/1000 SOLES", Numbers::convertNumberToWords("1001.005"));
         $this->savePrecision(0);
-        $this->assertSame("MIL SOLES", Utilities::convertNumberToWords("999.5"));
+        $this->assertSame("MIL SOLES", Numbers::convertNumberToWords("999.5"));
 
     }
 
@@ -77,6 +79,42 @@ final class CompanyDecimalPrecisionTest extends TestCase {
         $this->patchJson($route, $fields + ["value" => 4])->assertUnprocessable()->assertJsonValidationErrors(["value"]);
         $this->patchJson($route, $fields + ["value" => 0])->assertOk();
         $this->assertSame("0", $this->setting()->value);
+
+    }
+
+    public function test_decimal_contract_matches_the_frontend_and_preserves_the_storage_limit(): void {
+
+        $cases = json_decode(file_get_contents(base_path("tests/Fixtures/decimal-cases.json")), true, flags: JSON_THROW_ON_ERROR);
+
+        foreach($cases["format"] as [$value, $precision, $expected]) {
+
+            $this->assertSame($expected, Numbers::formatDecimal($value, $precision, ""));
+            $this->assertSame((float) $expected, Numbers::round($value, $precision));
+
+        }
+
+        foreach($cases["arithmetic"] as [$operation, $precision, $arguments, $expected]) {
+
+            $this->savePrecision($precision);
+            $this->assertSame($expected, Numbers::formatDecimal(Numbers::$operation(...$arguments), thousandsSeparator: ""));
+
+        }
+
+        $rules = ["amount" => Numbers::numericRules(required: true)];
+        $this->assertTrue(Validator::make(["amount" => "999999999999.999"], $rules)->passes());
+        $this->assertFalse(Validator::make(["amount" => "1000000000000.000"], $rules)->passes());
+
+        $this->savePrecision(2);
+        $itemId = $this->createItem();
+        $item = Item::findOrFail($itemId);
+        $item->status = "inactive";
+        $item->save();
+        $this->assertSame("1.005", DB::table("items")->where("id", $itemId)->value("price"));
+        $this->assertSame("1.01", $item->fresh()->price);
+
+        $item->price = "1.155";
+        $item->save();
+        $this->assertSame("1.160", DB::table("items")->where("id", $itemId)->value("price"));
 
     }
 
@@ -100,7 +138,7 @@ final class CompanyDecimalPrecisionTest extends TestCase {
 
         DB::table("company_settings")->where("id", $this->setting()->id)->update(["value" => "4"]);
         CompanySettingService::clearCache();
-        $this->assertSame(3, Utilities::decimalPrecision());
+        $this->assertSame(3, Numbers::decimalPrecision());
 
     }
 
@@ -147,6 +185,23 @@ final class CompanyDecimalPrecisionTest extends TestCase {
 
         $this->expectExceptionMessage("El total de los métodos de pago debe coincidir con el total del documento.");
         CommercialDocumentSettlementService::payments("sale", 0.2, [$payment], $userId);
+
+    }
+
+    public function test_tax_on_a_rounded_line_matches_the_point_of_sale_preview(): void {
+
+        $userId = (int) DB::table("users")->value("id");
+        $details = [
+            ["quantity" => "0.30", "price" => "0.35", "price_includes_tax" => true],
+            ["quantity" => "0.30", "price" => "0.35", "price_includes_tax" => false],
+        ];
+        $igv = CommercialDocumentSettlementService::saleTaxes($details, $userId)->first();
+
+        $this->assertSame(0.20, $igv["base_amount"]);
+        $this->assertSame(0.04, $igv["amount"]);
+        $this->assertSame(0.02, $igv["_total_impact"]);
+        $this->assertSame(3, Numbers::floorQuotient("0.3", "0.1"));
+        $this->assertSame("999999999999.99", Numbers::storage("999999999999.994"));
 
     }
 

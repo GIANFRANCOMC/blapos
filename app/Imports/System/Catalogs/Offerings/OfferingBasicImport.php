@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Imports\System\Catalogs\Offerings;
 
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Base\{InternalCodeService};
 use App\Services\System\Catalogs\Services\{ServiceService};
@@ -50,6 +51,7 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
                 $validator = Validator::make($data, $this->rules(), [
                     "required" => "Campo obligatorio.",
                     "numeric" => "Ingresa un número válido.",
+                    "decimal" => Numbers::decimalError(),
                     "integer" => "Ingresa un número entero.",
                     "min" => "Debe ser mayor o igual al mínimo permitido.",
                     "max" => "Supera el límite permitido.",
@@ -131,7 +133,7 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
                 : $this->generateInternalCode(),
             "name" => trim((string) ($row["nombre"] ?? "")),
             "description" => trim((string) ($row["descripcion"] ?? "")) ?: null,
-            "price" => $row["precio"] ?? null,
+            "price" => Numbers::normalizeDecimalInput($row["precio"] ?? null),
             "estimated_duration_minutes" => $estimatedDuration === "" ? null : $estimatedDuration,
             "duration_value" => $row["duracion_valor"] ?? null,
             "duration_type" => $durationTypes[$durationType] ?? $durationType,
@@ -148,7 +150,7 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
             ],
             "name" => ["required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
-            "price" => ["required", "numeric", "min:0.1"],
+            "price" => Numbers::numericRules(min: Numbers::decimalStep(), required: true),
         ];
 
         if($this->type === Item::TYPE_SERVICE) {

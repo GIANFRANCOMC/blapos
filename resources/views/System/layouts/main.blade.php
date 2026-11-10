@@ -125,7 +125,7 @@
             window.ownerApp = @json($ownerApp ?? null);
             window.user     = @json($user ?? null);
             window.company  = @json($company ?? null);
-            window.decimalPrecision = @json(\App\Helpers\System\Utilities::decimalPrecision());
+            window.numericInputConfig = @json(\App\Helpers\System\Numbers::inputConfig());
             window.sections = @json($sections ?? []);
             window.preferences = @json($preferences ?? []);
         </script>

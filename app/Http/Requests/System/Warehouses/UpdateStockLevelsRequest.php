@@ -17,7 +17,7 @@ final class UpdateStockLevelsRequest extends CompanyFormRequest {
         return [
             "warehouse_id" => ["required", "integer", "min:1"],
             "item_id" => ["required", "integer", "min:1"],
-            "quantity" => $this->numericRules(min: $preservesNegative ? -$this->numericMaxValue() : 0, required: true),
+            "quantity" => $this->numericRules(min: $preservesNegative ? "-".$this->numericMaxValue() : 0, required: true),
             "minimum_stock" => $this->numericRules(min: 0, required: true),
             "expected_quantity" => ["required", "numeric", $this->decimalRule()],
             "expected_minimum_stock" => $this->numericRules(min: 0, required: true),

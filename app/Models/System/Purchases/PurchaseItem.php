@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
@@ -42,7 +42,7 @@ final class PurchaseItem extends Model {
 
     public function getRemainingQuantityAttribute(): float {
 
-        return Utilities::round(
+        return Numbers::round(
             (float) ($this->attributes["quantity"] ?? 0)
             - (float) ($this->attributes["received_quantity"] ?? 0),
             null

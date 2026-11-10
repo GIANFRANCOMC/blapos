@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Finance;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Finance\{PaymentMethod, PaymentMethodVariant, Tax};
 use DomainException;
 use Illuminate\Support\{Collection};
@@ -88,8 +88,8 @@ final class CommercialDocumentSettlementService {
             ->filter()
             ->values();
 
-        $paid = Utilities::round((float) $payments->sum("amount"));
-        $difference = Utilities::round($paid - Utilities::round($total));
+        $paid = Numbers::sum($payments->pluck("amount"));
+        $difference = Numbers::subtract($paid, Numbers::round($total));
 
         if($requireExactTotal && $difference !== 0.0) {
 
@@ -200,8 +200,8 @@ final class CommercialDocumentSettlementService {
 
     private static function taxLine(Tax $tax, float $baseAmount, int $userId, int $quantity = 1): array {
 
-        $rate = Utilities::round((float) $tax->rate);
-        $base = Utilities::round($baseAmount);
+        $rate = Numbers::round($tax->rate);
+        $base = Numbers::round($baseAmount);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
             ? $tax->calculation_type
             : "percentage";
@@ -232,7 +232,7 @@ final class CommercialDocumentSettlementService {
 
     private static function saleTaxLine(Tax $tax, array $details, int $userId, int $quantity = 1): array {
 
-        $rate = Utilities::round((float) $tax->rate);
+        $rate = Numbers::round($tax->rate);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
             ? $tax->calculation_type
             : "percentage";
@@ -255,7 +255,7 @@ final class CommercialDocumentSettlementService {
 
             foreach($details as $detail) {
 
-                $lineTotal = Utilities::round((float) ($detail["quantity"] ?? 0) * (float) ($detail["price"] ?? 0));
+                $lineTotal = Numbers::multiply($detail["quantity"] ?? 0, $detail["price"] ?? 0);
 
                 if($lineTotal <= 0) {
 
@@ -275,10 +275,10 @@ final class CommercialDocumentSettlementService {
 
                 if($taxIsIncluded) {
 
-                    $lineBase = Utilities::round($lineTotal / (1 + ($rate / 100)));
-                    $lineAmount = Utilities::round($lineTotal - $lineBase);
-                    $base += $lineBase;
-                    $amount += $lineAmount;
+                    $lineBase = Numbers::baseFromGross($lineTotal, $rate);
+                    $lineAmount = Numbers::subtract($lineTotal, $lineBase);
+                    $base = Numbers::sum([$base, $lineBase]);
+                    $amount = Numbers::sum([$amount, $lineAmount]);
 
                     continue;
 
@@ -286,9 +286,9 @@ final class CommercialDocumentSettlementService {
 
                 $lineAmount = self::taxAmount($lineTotal, $rate, $calculationType, $operationType);
 
-                $base += $lineTotal;
-                $amount += $lineAmount;
-                $totalImpact += $lineAmount;
+                $base = Numbers::sum([$base, $lineTotal]);
+                $amount = Numbers::sum([$amount, $lineAmount]);
+                $totalImpact = Numbers::sum([$totalImpact, $lineAmount]);
 
             }
 
@@ -303,9 +303,9 @@ final class CommercialDocumentSettlementService {
             "operation_type" => $operationType,
             "is_required" => (bool) $tax->is_required,
             "quantity" => $calculationType === "fixed" ? $quantity : 1,
-            "base_amount" => Utilities::round($base),
-            "amount" => Utilities::round($amount),
-            "_total_impact" => Utilities::round($totalImpact),
+            "base_amount" => Numbers::round($base),
+            "amount" => Numbers::round($amount),
+            "_total_impact" => Numbers::round($totalImpact),
             "status" => "active",
             "created_at" => now(),
             "created_by" => $userId,
@@ -318,17 +318,11 @@ final class CommercialDocumentSettlementService {
         $quantity = max(1, $quantity);
 
         $amount = match ($calculationType) {
-            "fixed" => Utilities::round($rate * $quantity),
-            default => Utilities::round($base * ($rate / 100))
+            "fixed" => Numbers::multiply($rate, $quantity),
+            default => Numbers::percentage($base, $rate)
         };
 
-        if($operationType === "subtraction") {
-
-            $amount *= -1;
-
-        }
-
-        return Utilities::round($amount);
+        return $operationType === "subtraction" && $amount !== 0.0 ? -$amount : $amount;
 
     }
 
@@ -372,7 +366,7 @@ final class CommercialDocumentSettlementService {
 
         $variantId = (int) ($paymentData["payment_method_variant_id"] ?? 0);
         $variant = $variantId > 0 ? $variants->get($variantId) : null;
-        $amount = Utilities::round((float) ($paymentData["amount"] ?? 0));
+        $amount = Numbers::round(($paymentData["amount"] ?? 0));
 
         if($amount <= 0) {
 

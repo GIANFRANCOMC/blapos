@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Guest;
 
 use App\Services\Security\{TurnstileVerificationService};
-use App\Services\System\Organizations\Companies\{CompanySettingService};
+use App\Helpers\System\{Numbers};
 use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Validation\{Rule, Validator};
 
@@ -55,11 +55,7 @@ final class StoreBookComplaintRequest extends FormRequest {
 
     private function numericMaxFileSizeKb(): int {
 
-        $settings = CompanySettingService::group(
-            CompanySettingService::NUMERIC_VALIDATION
-        );
-
-        return max(1, (int) ($settings["max_file_size_kb"] ?? 4096));
+        return Numbers::maxFileSizeKb();
 
     }
 

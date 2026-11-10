@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\General;
 
+use App\Helpers\System\{Numbers};
 use App\Models\System\Finance\{PaymentMethod, PaymentMethodVariant, Tax};
 use App\Models\System\General\{Currency, DocumentType, IdentityDocumentType};
 use App\Models\System\Organizations\{CompanySetting};
@@ -301,9 +302,9 @@ final class MasterDataService {
 
     private static function validateDecimalPrecisionSetting(CompanySetting $record, array $data): array {
 
-        $isPrecision = CompanySettingService::isDecimalPrecisionSetting($data["group"], $data["key"]);
+        $isPrecision = Numbers::isPrecisionSetting($data["group"], $data["key"]);
 
-        if(!$isPrecision && CompanySettingService::isDecimalPrecisionSetting($record->group, $record->key)) {
+        if(!$isPrecision && Numbers::isPrecisionSetting($record->group, $record->key)) {
 
             throw ValidationException::withMessages(["key" => "La clave de precisión decimal no se puede cambiar."]);
 
@@ -315,13 +316,11 @@ final class MasterDataService {
 
         }
 
-        $value = $data["value"] ?? null;
-        $max = CompanySettingService::MAX_DECIMAL_PRECISION;
-        $precision = is_int($value) || is_string($value)
-            ? filter_var($value, FILTER_VALIDATE_INT, ["options" => ["min_range" => 0, "max_range" => $max]])
-            : false;
+        $precision = Numbers::allowedPrecision($data["value"] ?? null);
 
-        if($precision === false) {
+        if($precision === null) {
+
+            $max = Numbers::MAX_PRECISION;
 
             throw ValidationException::withMessages(["value" => "Elige una cantidad entera de decimales entre 0 y {$max}."]);
 
@@ -333,8 +332,8 @@ final class MasterDataService {
 
         }
 
-        $data["group"] = CompanySettingService::NUMERIC_VALIDATION;
-        $data["key"] = CompanySettingService::DECIMAL_PRECISION_KEY;
+        $data["group"] = Numbers::SETTINGS_GROUP;
+        $data["key"] = Numbers::PRECISION_KEY;
         $data["value"] = $precision;
 
         return $data;

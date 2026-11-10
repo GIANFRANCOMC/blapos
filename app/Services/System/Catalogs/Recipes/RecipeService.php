@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Catalogs\Recipes;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Catalogs\{Item, RecipeDish, RecipeDishComponent, RecipeDishOption, RecipeDishOptionComponent, RecipeDishTopping, RecipeTopping, RecipeToppingComponent};
 use App\Models\System\Warehouses\{Warehouse, WarehouseItem};
 use DomainException;
@@ -201,9 +201,9 @@ final class RecipeService {
             ->whereIn("item_id", $itemIds)
             ->pluck("average_cost", "item_id");
 
-        $yield = max(Utilities::decimalStep(), (float) $recipe->yield_quantity);
-        $recipeWasteFactor = 1 + (max(0, (float) $recipe->waste_percentage) / 100);
-        $base = self::costComponents($recipe->components, $costs, $recipeWasteFactor / $yield);
+        $yield = max(Numbers::decimalStep(), (float) $recipe->yield_quantity);
+        $recipeWasteFactor = Numbers::sum([100, max(0, (float) $recipe->waste_percentage)]);
+        $base = self::costComponents($recipe->components, $costs, $recipeWasteFactor, $yield);
         $options = $recipe->options->map(fn($option) => [
             "id" => $option->id,
             "name" => $option->name,
@@ -220,7 +220,7 @@ final class RecipeService {
             "recipe_id" => $recipe->id,
             "item" => $recipe->item,
             "warehouse" => $warehouse,
-            "yield_quantity" => Utilities::round($yield),
+            "yield_quantity" => Numbers::round($yield),
             "base_components" => $base["components"],
             "base_cost" => $base["total"],
             "option_costs" => $options,
@@ -422,27 +422,28 @@ final class RecipeService {
 
     }
 
-    private static function costComponents($components, $costs, float $multiplier): array {
+    private static function costComponents($components, $costs, float $recipeWasteFactor, float $yield = 1): array {
 
-        $rows = collect($components)->map(function($component) use ($costs, $multiplier) {
+        $divisor = Numbers::multiply($yield, 10000);
+        $rows = collect($components)->map(function($component) use ($costs, $recipeWasteFactor, $divisor) {
 
-            $wasteFactor = 1 + (max(0, (float) $component->waste_percentage) / 100);
-            $quantity = Utilities::round((float) $component->quantity * $multiplier * $wasteFactor);
-            $unitCost = Utilities::round((float) ($costs->get($component->item_id) ?? 0));
+            $wasteFactor = Numbers::sum([100, max(0, (float) $component->waste_percentage)]);
+            $quantity = Numbers::round(Numbers::ratioOf([$component->quantity, $recipeWasteFactor, $wasteFactor], $divisor));
+            $unitCost = Numbers::round(($costs->get($component->item_id) ?? 0));
 
             return [
                 "item_id" => (int) $component->item_id,
                 "item" => $component->item,
                 "quantity_with_waste" => $quantity,
                 "average_unit_cost" => $unitCost,
-                "cost" => Utilities::round($quantity * $unitCost),
+                "cost" => Numbers::multiply($quantity, $unitCost),
             ];
 
         })->values();
 
         return [
             "components" => $rows,
-            "total" => Utilities::round((float) $rows->sum("cost")),
+            "total" => Numbers::sum($rows->pluck("cost")),
         ];
 
     }

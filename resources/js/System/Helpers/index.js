@@ -13,7 +13,6 @@ export * from "./Forms.js";
 export * from "./Utils.js"; // Re-exporta todas las utilidades
 export * from "./DateUtils.js";
 export * from "./StringUtils.js";
-export * from "./NumberUtils.js";
 export * from "./ValidationUtils.js";
 export * from "./CommonUtils.js";
 export * from "./BusinessUtils.js";

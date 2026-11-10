@@ -697,10 +697,10 @@
                 @foreach($saleHeader->allPositions as $position)
                     <tr>
                         <td class="text-center desc-9">{{ $position->name }}</td>
-                        <td class="text-center desc-9">{{ $position->quantity }}</td>
+                        <td class="text-center desc-9">{{ \App\Helpers\System\Numbers::formatDecimal($position->quantity) }}</td>
                         {{-- <td class="text-center desc-9">UND</td> --}}
-                        <td class="text-right desc-9">S/ {{ \App\Helpers\System\Utilities::formatDecimal($position->price) }}</td>
-                        <td class="text-right desc-9">S/ {{ \App\Helpers\System\Utilities::formatDecimal($position->total) }}</td>
+                        <td class="text-right desc-9">{{ $saleHeader->currency?->sign ?? "S/" }} {{ \App\Helpers\System\Numbers::formatDecimal($position->price) }}</td>
+                        <td class="text-right desc-9">{{ $saleHeader->currency?->sign ?? "S/" }} {{ \App\Helpers\System\Numbers::formatDecimal($position->total) }}</td>
                     </tr>
                     @if(in_array($position->type, ["subscription"]))
                         <tr>
@@ -716,7 +716,7 @@
                 @endforeach
                 <tr class="border-top">
                     <td colspan="3" class="text-right font-bold desc-9">TOTAL A PAGAR:</td>
-                    <td colspan="1" class="text-right font-bold desc-9">S/ {{ \App\Helpers\System\Utilities::formatDecimal($saleHeader->total) }}</td>
+                    <td colspan="1" class="text-right font-bold desc-9">{{ $saleHeader->currency?->sign ?? "S/" }} {{ \App\Helpers\System\Numbers::formatDecimal($saleHeader->total) }}</td>
                 </tr>
             </tbody>
         </table>

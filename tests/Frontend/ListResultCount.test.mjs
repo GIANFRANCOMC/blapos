@@ -5,6 +5,7 @@ import {parse} from "@vue/compiler-sfc";
 import {compile, parse as parseTemplate} from "@vue/compiler-dom";
 import * as Vue from "vue";
 import {renderToString} from "vue/server-renderer";
+import {normalizeNumber, separatorNumber} from "../../resources/js/Shared/Numbers.js";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
@@ -59,7 +60,7 @@ function component(file, dependencies = {}) {
 }
 
 test("el pie se oculta al cargar y muestra el total al terminar, incluso con cero resultados", async () => {
-    const ListResultCount = component("resources/js/System/Components/Generics/ListResultCount.vue");
+    const ListResultCount = component("resources/js/System/Components/Generics/ListResultCount.vue", {normalizeNumber, separatorNumber});
     const Paginator = component("resources/js/System/Components/Paginator.vue", {ListResultCount});
     const links = [{url: null, label: "Anterior"}, {url: "/items?page=1", label: "1", active: true}, {url: null, label: "Siguiente"}];
     for(const [total, loading, pageLinks] of [[0, false, []], [1, false, links], [75, false, links], [75, true, links]]) {
@@ -108,15 +109,13 @@ test("todos los listados paginados comparten el pie, total y estado de carga sin
 });
 
 test("el contador usa registro en singular y registros en plural", async () => {
-    const source = read("resources/js/System/Components/Generics/ListResultCount.vue");
-    const {descriptor} = parse(source);
-    const {default: component} = await import(`data:text/javascript,${encodeURIComponent(descriptor.script.content)}`);
+    const count = component("resources/js/System/Components/Generics/ListResultCount.vue", {normalizeNumber, separatorNumber});
 
-    assert.equal(component.props.singular.default, "registro");
-    assert.equal(component.props.plural.default, "registros");
-    assert.equal(component.computed.total.call({pagination: {total: 1}}), 1);
-    assert.equal(component.computed.total.call({pagination: {total: 50}}), 50);
-    assert.equal(component.computed.total.call({pagination: {total: 0}}), 0);
+    assert.equal(count.props.singular.default, "registro");
+    assert.equal(count.props.plural.default, "registros");
+    assert.equal(count.computed.total.call({pagination: {total: 1}}), 1);
+    assert.equal(count.computed.total.call({pagination: {total: 50}}), 50);
+    assert.equal(count.computed.total.call({pagination: {total: 0}}), 0);
 });
 
 test("Guest y el listado central de Platform ocultan su navegación mientras consultan", async () => {

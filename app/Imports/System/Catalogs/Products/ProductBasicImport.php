@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Imports\System\Catalogs\Products;
 
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Rules\System\Catalogs\{ValidEan13};
 use App\Services\System\Base\{InternalCodeService};
@@ -103,9 +104,9 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
             "barcode" => $barcode !== "" ? $barcode : $this->generateBarcode(),
             "name" => trim((string) ($row["nombre"] ?? "")),
             "description" => trim((string) ($row["descripcion"] ?? "")) ?: null,
-            "price" => $row["precio"] ?? null,
-            "initial_stock" => $this->optionalNumber($row["stock_inicial"] ?? null, 0),
-            "minimum_stock" => $this->optionalNumber($row["stock_minimo"] ?? null, 0),
+            "price" => Numbers::normalizeDecimalInput($row["precio"] ?? null),
+            "initial_stock" => Numbers::normalizeDecimalInput($row["stock_inicial"] ?? null) ?? 0,
+            "minimum_stock" => Numbers::normalizeDecimalInput($row["stock_minimo"] ?? null) ?? 0,
         ];
 
     }
@@ -129,14 +130,16 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
             ],
             "name" => ["required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
-            "price" => ["required", "numeric", "min:0.01"],
-            "initial_stock" => ["required", "numeric", "min:0"],
-            "minimum_stock" => ["required", "numeric", "min:0"],
+            "price" => Numbers::numericRules(min: Numbers::decimalStep(), required: true),
+            "initial_stock" => Numbers::numericRules(min: 0, required: true),
+            "minimum_stock" => Numbers::numericRules(min: 0, required: true),
         ], [
             "required" => "Campo obligatorio.",
             "numeric" => "Ingresa un número válido.",
+            "decimal" => Numbers::decimalError(),
             "min" => "Debe ser mayor o igual al mínimo permitido.",
-            "max" => "Supera la longitud permitida.",
+            "max.numeric" => "El valor máximo permitido es :max.",
+            "max.string" => "Supera la longitud permitida.",
             "unique" => "Ya existe un producto con este valor.",
             "regex" => "Contiene caracteres no permitidos.",
         ]);
@@ -187,12 +190,6 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
         }
 
         return (10 - ($sum % 10)) % 10;
-
-    }
-
-    private function optionalNumber(mixed $value, float $default): mixed {
-
-        return $value === null || $value === "" ? $default : $value;
 
     }
 

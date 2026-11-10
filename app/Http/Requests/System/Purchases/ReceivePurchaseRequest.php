@@ -16,7 +16,7 @@ final class ReceivePurchaseRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -24,7 +24,7 @@ final class ReceivePurchaseRequest extends CompanyFormRequest {
             "observation" => ["nullable", "string", "max:1000"],
             "items" => ["required", "array", "min:1"],
             "items.*.purchase_item_id" => ["required", "integer", "distinct"],
-            "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
         ];
 
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Essentials;
 
+use App\Helpers\System\{Numbers};
 use Carbon\{CarbonImmutable};
 use Illuminate\Support\Facades\{DB};
 
@@ -63,8 +64,8 @@ final class DashboardService {
             "timezone" => $timezone,
             "branch_id" => $branchId,
             "sales" => [
-                "net" => ["count" => (int) $netSales->count, "total" => (float) $netSales->total],
-                "canceled" => ["count" => (int) $canceledSales->count, "total" => (float) $canceledSales->total],
+                "net" => ["count" => (int) $netSales->count, "total" => Numbers::round($netSales->total)],
+                "canceled" => ["count" => (int) $canceledSales->count, "total" => Numbers::round($canceledSales->total)],
             ],
             "attendances" => ["count" => $attendances],
             "expiring_subscriptions" => [

@@ -644,13 +644,13 @@ export default {
             });
         },
         totalQuantity() {
-            return this.cart.reduce((total, line) => total + Number(line.quantity || 0), 0);
+            return Utils.sum(this.cart.map(line => line.quantity));
         },
         grossSubtotal() {
-            return this.fixedNumber(this.cart.reduce((total, line) => total + this.lineTotal(line), 0));
+            return Utils.sum(this.cart.map(line => this.lineTotal(line)));
         },
         subtotal() {
-            return this.fixedNumber(Number(this.grossSubtotal || 0) - Number(this.includedTaxTotal || 0));
+            return Utils.subtract(this.grossSubtotal, this.includedTaxTotal);
         },
         requiredTaxes() {
             return this.taxes.filter(tax => this.taxIsRequired(tax?.data || tax));
@@ -685,19 +685,19 @@ export default {
             });
         },
         totalTax() {
-            return this.fixedNumber(this.taxSummary.reduce((total, tax) => total + tax.amount, 0));
+            return Utils.sum(this.taxSummary.map(tax => tax.amount));
         },
         taxImpactTotal() {
-            return this.fixedNumber(this.taxSummary.reduce((total, tax) => total + Number(tax.total_impact || 0), 0));
+            return Utils.sum(this.taxSummary.map(tax => tax.total_impact));
         },
         includedTaxTotal() {
-            return this.fixedNumber(Number(this.totalTax || 0) - Number(this.taxImpactTotal || 0));
+            return Utils.subtract(this.totalTax, this.taxImpactTotal);
         },
         total() {
-            return this.fixedNumber(Number(this.grossSubtotal || 0) + Number(this.taxImpactTotal || 0));
+            return Utils.sum([this.grossSubtotal, this.taxImpactTotal]);
         },
         paymentsTotal() {
-            return this.payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
+            return Utils.sum(this.payments.map(payment => payment.amount));
         },
         paymentSummary() {
             return this.payments
@@ -709,7 +709,7 @@ export default {
                 }));
         },
         paymentDifference() {
-            return this.fixedNumber(Number(this.total || 0) - Number(this.paymentsTotal || 0));
+            return Utils.subtract(this.total, this.paymentsTotal);
         },
         canSubmit() {
             return this.cart.length > 0
@@ -748,18 +748,6 @@ export default {
             }
 
             return `${name} ${sign}${this.separatorNumber(rate)}%`;
-        },
-        calculateTaxAmount(tax = {}, baseAmount = 0) {
-            const base = Number(baseAmount || 0);
-            const rate = Number(tax?.rate || 0);
-            const calculationType = tax?.calculation_type || "percentage";
-            const operationType = tax?.operation_type || "addition";
-            const quantity = this.isFixedTax(tax) ? this.selectedTaxQuantity(tax.id) : 1;
-            const amount = calculationType === "fixed"
-                ? rate * quantity
-                : base * (rate / 100);
-
-            return this.fixedNumber(operationType === "subtraction" ? amount * -1 : amount);
         },
         isFixedTax(tax = {}) {
             return (tax?.calculation_type || "percentage") === "fixed";
@@ -801,44 +789,19 @@ export default {
             return code.includes("IGV") || name === "IGV";
         },
         calculateSaleTaxLine(tax = {}) {
-            const rate = Number(tax?.rate || 0);
-            const calculationType = tax?.calculation_type || "percentage";
-            const operationType = tax?.operation_type || "addition";
             const isIgvTax = this.isIgvTax(tax);
-            let base = 0;
-            let amount = 0;
-            let totalImpact = 0;
-
-            if(calculationType === "fixed") {
-                amount = this.calculateTaxAmount(tax, 0);
-                totalImpact = amount;
-            }else {
-                this.cart.forEach(line => {
-                    const lineTotal = this.lineTotal(line);
-                    if(lineTotal <= 0) return;
-                    if(isIgvTax && this.itemIsIgvExempt(line.item)) return;
-
-                    const taxIsIncluded = this.includesTax(line.item) && operationType === "addition" && rate > 0;
-
-                    if(taxIsIncluded) {
-                        const lineBase = Number(this.fixedNumber(lineTotal / (1 + (rate / 100))));
-                        const lineAmount = Number(this.fixedNumber(lineTotal - lineBase));
-                        base += lineBase;
-                        amount += lineAmount;
-                        return;
-                    }
-
-                    const lineAmount = Number(this.calculateTaxAmount(tax, lineTotal));
-                    base += lineTotal;
-                    amount += lineAmount;
-                    totalImpact += lineAmount;
-                });
-            }
+            const quantity = this.isFixedTax(tax) ? this.selectedTaxQuantity(tax.id) : 1;
+            const lines = this.cart.map(line => ({
+                total: this.lineTotal(line),
+                includesTax: this.includesTax(line.item),
+                exempt: isIgvTax && this.itemIsIgvExempt(line.item)
+            }));
+            const result = Utils.documentTax(tax, lines, quantity);
 
             return {
-                baseAmount: this.fixedNumber(base),
-                amount: this.fixedNumber(amount),
-                totalImpact: this.fixedNumber(totalImpact)
+                baseAmount: this.fixedNumber(result.baseAmount),
+                amount: this.fixedNumber(result.amount),
+                totalImpact: this.fixedNumber(result.totalImpact)
             };
         },
         async initParams() {
@@ -1069,10 +1032,10 @@ export default {
             this.resetPayments();
         },
         lineTotal(line) {
-            return this.fixedNumber(Number(line.quantity || 0) * Number(line.price || 0));
+            return Utils.lineTotal(line.quantity, line.price);
         },
         fixedNumber(value, decimals = null) {
-            return Number(Utils.fixedNumber(value || 0, decimals));
+            return Utils.roundNumber(value, decimals);
         },
         currencySign(item = null) {
             return item?.currency?.sign || this.currencies[0]?.sign || "S/";

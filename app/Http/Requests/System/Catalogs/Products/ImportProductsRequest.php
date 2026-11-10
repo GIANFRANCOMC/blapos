@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Catalogs\Products;
 
+use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Rules\System\Defaults\{ExistsInTenant};
 
@@ -27,7 +28,7 @@ final class ImportProductsRequest extends CompanyFormRequest {
 
     public function messages(): array {
 
-        $maxFileSizeMb = round($this->numericMaxFileSizeKb() / 1024, 2);
+        $maxFileSizeMb = Numbers::round($this->numericMaxFileSizeKb() / 1024, 2);
 
         return array_merge(parent::messages(), [
             "file.file" => "Seleccione un archivo valido.",

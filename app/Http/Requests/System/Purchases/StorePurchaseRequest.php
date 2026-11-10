@@ -51,7 +51,7 @@ final class StorePurchaseRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -87,7 +87,7 @@ final class StorePurchaseRequest extends CompanyFormRequest {
             "payment_modality" => ["nullable", "in:paid_now,cash_on_delivery,installments"],
             "installment_count" => ["nullable", "integer", "min:1", "max:120"],
             "first_due_date" => ["nullable", "date", "after_or_equal:issue_date"],
-            "tax" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "tax" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
 
             "taxes" => ["nullable", "array", "max:20"],
             "taxes.*.tax_id" => [
@@ -95,12 +95,12 @@ final class StorePurchaseRequest extends CompanyFormRequest {
                 "integer",
                 new ExistsInTenant("taxes", ["status" => "active", "scope" => "purchase"], "Selecciona un tributo activo de compras."),
             ],
-            "taxes.*.rate" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "taxes.*.rate" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "taxes.*.calculation_type" => ["nullable", "in:percentage,fixed"],
             "taxes.*.operation_type" => ["nullable", "in:addition,subtraction"],
             "taxes.*.is_required" => ["nullable", "boolean"],
             "taxes.*.quantity" => ["nullable", "integer", "min:1", "max:{$maxValue}"],
-            "taxes.*.amount" => ["nullable", "numeric", "min:-{$maxValue}", "max:{$maxValue}", "decimal:0,{$round}"],
+            "taxes.*.amount" => ["nullable", "numeric", "min:-{$maxValue}", "max:{$maxValue}", $decimalRule],
 
             "payments" => ["nullable", "array", "max:20"],
             "payments.*.payment_method_id" => [
@@ -109,14 +109,14 @@ final class StorePurchaseRequest extends CompanyFormRequest {
                 new ExistsInTenant("payment_methods", ["status" => "active"], "Selecciona un método de pago activo."),
             ],
             "payments.*.payment_method_variant_id" => ["nullable", "integer"],
-            "payments.*.amount" => ["required_with:payments", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "payments.*.amount" => ["required_with:payments", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "payments.*.reference" => ["nullable", "string", "max:100"],
             "payments.*.note" => ["nullable", "string", "max:300"],
 
             "expenses" => ["nullable", "array", "max:20"],
             "expenses.*.expense_type" => ["required_with:expenses", "string", "max:40"],
             "expenses.*.name" => ["required_with:expenses", "string", "max:150"],
-            "expenses.*.amount" => ["required_with:expenses", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "expenses.*.amount" => ["required_with:expenses", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "expenses.*.allocation_method" => ["nullable", "in:value,quantity,equal"],
             "expenses.*.note" => ["nullable", "string", "max:500"],
 
@@ -128,8 +128,8 @@ final class StorePurchaseRequest extends CompanyFormRequest {
                 "distinct",
                 new ExistsInTenant("items", ["type" => "product", "status" => "active"], "Selecciona un producto activo de tu empresa."),
             ],
-            "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "items.*.unit_cost" => ["required", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "items.*.unit_cost" => ["required", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
         ];
 
     }

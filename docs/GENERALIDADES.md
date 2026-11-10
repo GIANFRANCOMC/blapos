@@ -262,9 +262,11 @@ Configuración vigente por empresa:
 
 Reglas:
 
-- Los `FormRequest` company-scoped deben extender `CompanyFormRequest` cuando validen números, archivos o normalicen entradas. Usar `decimalPrecision()`, `numericMinValue()`, `numericMaxValue()`, `numericMaxFileSizeKb()`, `numericRules()` y `normalizeDecimalInput()` en vez de valores fijos.
-- Las vistas cargan la precisión desde la empresa activa. `BaseConfigService` también la expone en `config.generalConfig.forms.inputs.round` y `applyGeneralConfig()` la aplica al recibir `initParams`. El valor `0` es válido.
-- En PHP se usan `Utilities::round()` para calcular, `Utilities::formatDecimal()` para mostrar y `Utilities::spreadsheetDecimalFormat()` para Excel. En JavaScript se usan `InputNumber`, `fixedNumber()` y `separatorNumber()`. En ambos lenguajes, los empates se redondean alejándose de cero.
+- En backend, `app/Helpers/System/Numbers.php` concentra la configuración, validación, normalización, redondeo, expresiones SQL y formatos de exportación. Los `FormRequest` delegan las reglas comunes a través de `CompanyFormRequest`. Las importaciones de catálogo normalizan las entradas con `Numbers::normalizeDecimalInput()` y las plantillas de inventario validan con `Numbers::spreadsheetDecimal()`.
+- En frontend, `resources/js/Shared/Numbers.js` es el módulo compartido por System y Guest. Gestiona el formato, los límites y el análisis de los campos. Usar `roundNumber()` para cálculos, `fixedNumber()` para cadenas sin separador de miles y `separatorNumber()` para presentación.
+- El mismo objeto de configuración se entrega al cargar las vistas y en `config.generalConfig.forms.inputs` de `initParams`. El valor `0` es válido y los empates se redondean alejándose de cero en ambos lenguajes. PHP usa aritmética decimal y JavaScript usa enteros escalados. En cálculos de importes, operar con `sum`, `subtract`, `multiply`, `divide` y `percentage` desde los valores originales para que una operación binaria previa no cambie el resultado en un empate.
+- Las escrituras por lote de importes y cantidades usan `Numbers::storage()` o `Numbers::storageRow()` porque Laravel no aplica casts a `insert` o `upsert`. Los valores históricos se redondean al presentar el registro, con independencia de su estado. El límite de almacenamiento de `DECIMAL(15,3)` es `999999999999.999`.
+- En tareas programadas, resolver el tenant antes de leer la configuración numérica. Los jobs reutilizan `UseTenantConnection`, que limpia el contexto al terminar. Los correos de alertas capturan los importes ya formateados mientras la empresa está activa.
 - Los casts Eloquent usan `ConfigurableDecimal`. La escala técnica de las columnas se mantiene para soportar el máximo permitido. En cálculos con distribución, la suma de los importes redondeados debe coincidir con el total.
 - Los conteos, identificadores, duraciones expresadas en minutos enteros y formatos técnicos de integraciones conservan su propia representación.
 

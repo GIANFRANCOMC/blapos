@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Tenancy;
 
 use App\Enums\System\Tenancy\{TenantStatus};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Tenancy\{TenantAuditLog, TenantDatabase};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Support\Facades\{Cache, DB, Schema};
@@ -114,7 +115,7 @@ final class TenantAdministrationService {
             $result = [
                 "healthy" => $hasCompanies,
                 "database" => $tenant->database_name,
-                "latency_ms" => round((microtime(true) - $startedAt) * 1000, 2),
+                "latency_ms" => Numbers::round((microtime(true) - $startedAt) * 1000, 2),
                 "message" => $hasCompanies
                     ? "Conexión disponible y esquema base presente."
                     : "La conexión responde, pero falta la tabla companies.",
@@ -129,7 +130,7 @@ final class TenantAdministrationService {
             $result = [
                 "healthy" => false,
                 "database" => $tenant->database_name,
-                "latency_ms" => round((microtime(true) - $startedAt) * 1000, 2),
+                "latency_ms" => Numbers::round((microtime(true) - $startedAt) * 1000, 2),
                 "message" => $exception->getMessage(),
             ];
 

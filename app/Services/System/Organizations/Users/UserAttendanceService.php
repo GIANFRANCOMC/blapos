@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Organizations\Users;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Organizations\{Branch, User, UserAttendance, UserAttendanceBreak, UserAttendanceCorrection};
 use App\Services\System\Devices\BiometricDevices\{BiometricDeviceService};
 use App\Services\System\Organizations\{AccessScopeService};
@@ -463,13 +463,13 @@ final class UserAttendanceService {
             "week_start" => $start->toDateString(),
             "week_end" => $end->toDateString(),
             "total_minutes" => $totalMinutes,
-            "total_hours" => Utilities::round($totalMinutes / 60),
+            "total_hours" => Numbers::divide($totalMinutes, 60),
             "days" => $records
                 ->groupBy(fn(UserAttendance $attendance) => $attendance->work_date->toDateString())
                 ->map(fn($dayRecords, $date) => [
                     "date" => $date,
                     "worked_minutes" => (int) $dayRecords->sum("worked_minutes"),
-                    "worked_hours" => Utilities::round(((int) $dayRecords->sum("worked_minutes")) / 60),
+                    "worked_hours" => Numbers::divide($dayRecords->sum("worked_minutes"), 60),
                 ])
                 ->values()
                 ->all(),

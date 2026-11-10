@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\System\Purchases;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\General\{Currency};
 use App\Models\System\Organizations\{User};
 use App\Models\System\Warehouses\{Warehouse};
@@ -165,12 +165,12 @@ final class PurchaseHeader extends Model {
 
         }
 
-        $ordered = (float) $this->items->sum("quantity");
+        $ordered = Numbers::sum($this->items->pluck("quantity"));
 
-        $received = (float) $this->items->sum("received_quantity");
+        $received = Numbers::sum($this->items->pluck("received_quantity"));
 
         return $ordered > 0
-            ? Utilities::round(($received / $ordered) * 100)
+            ? Numbers::proportion($received, 100, $ordered)
             : 0;
 
     }

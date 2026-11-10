@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Sales;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Services\System\Sales\{CommercialSelectionService, QuotationService, SaleConfigService};
 use Illuminate\Http\{JsonResponse, Request};
@@ -87,7 +87,8 @@ final class QuotationController extends BaseController {
 
     public function store(Request $request): JsonResponse {
 
-        $round = Utilities::decimalPrecision();
+        $decimalRule = Numbers::decimalRule();
+        $maxValue = Numbers::maxValue();
         $validator = Validator::make($request->all(), [
             "branch_id" => ["nullable", "integer"],
             "holder_id" => ["required", "integer"],
@@ -102,8 +103,8 @@ final class QuotationController extends BaseController {
             "details.*.item_id" => ["required", "integer"],
             "details.*.currency_id" => ["nullable", "integer"],
             "details.*.name" => ["nullable", "string", "max:255"],
-            "details.*.quantity" => ["required", "numeric", "gt:0", "decimal:0,$round"],
-            "details.*.price" => ["nullable", "numeric", "min:0", "decimal:0,$round"],
+            "details.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "details.*.price" => Numbers::numericRules(min: 0),
             "details.*.price_includes_tax" => ["nullable", "boolean"],
             "details.*.igv_exempt" => ["nullable", "boolean"],
             "details.*.observation" => ["nullable", "string", "max:1000"],
@@ -112,7 +113,7 @@ final class QuotationController extends BaseController {
             "details.min" => "Agrega al menos un detalle.",
             "numeric" => "Ingresa un número válido.",
             "gt" => "Debe ser mayor que cero.",
-            "decimal" => "Usa hasta {$round} decimales.",
+            "decimal" => Numbers::decimalError(),
             "after_or_equal" => "No puede ser anterior a la fecha de emisión.",
         ]);
 

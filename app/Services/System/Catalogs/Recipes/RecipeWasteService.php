@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Catalogs\Recipes;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Catalogs\{Item, RecipeDish, RecipeWasteRecord};
 use App\Models\System\Warehouses\{Warehouse, WarehouseItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
@@ -63,9 +63,9 @@ final class RecipeWasteService {
 
             }
 
-            $quantity = Utilities::round((float) $data["quantity"]);
+            $quantity = Numbers::round($data["quantity"]);
 
-            $unitCost = Utilities::round(WarehouseItem::query()
+            $unitCost = Numbers::round(WarehouseItem::query()
                 ->where("warehouse_id", $warehouseId)
                 ->where("item_id", $itemId)
                 ->value("average_cost") ?? 0);
@@ -91,7 +91,7 @@ final class RecipeWasteService {
                 "inventory_movement_id" => $movement->id,
                 "quantity" => $quantity,
                 "unit_cost" => $unitCost,
-                "total_cost" => Utilities::round($quantity * $unitCost),
+                "total_cost" => Numbers::multiply($quantity, $unitCost),
                 "reason" => trim((string) $data["reason"]),
                 "occurred_at" => Carbon::parse($data["occurred_at"] ?? now()),
                 "created_at" => now(),

@@ -12,7 +12,7 @@ final class StoreInventoryOperationRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -21,9 +21,9 @@ final class StoreInventoryOperationRequest extends CompanyFormRequest {
             "origin_type" => ["required", Rule::in(InventoryMovementService::manualOperationOrigins((string) $this->input("movement_type")))],
             "items" => ["required", "array", "min:1", "max:100"],
             "items.*.item_id" => ["required", "integer", "distinct"],
-            "items.*.quantity" => ["nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "items.*.resulting_balance" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
-            "items.*.unit_cost" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "items.*.quantity" => ["nullable", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
+            "items.*.resulting_balance" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
+            "items.*.unit_cost" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "reason" => ["required", "string", "max:100"],
         ];
 

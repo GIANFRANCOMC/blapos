@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Catalogs\Offerings;
 
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use Maatwebsite\Excel\Concerns\{FromArray, ShouldAutoSize, WithHeadings, WithStyles};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
@@ -42,6 +43,7 @@ final class OfferingImportTemplateExport implements FromArray, ShouldAutoSize, W
         $lastColumn = $this->type === Item::TYPE_SERVICE ? "E" : "F";
 
         $sheet->freezePane("A2");
+        $sheet->getStyle("B:B")->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat(groupThousands: false));
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray([
             "font" => ["bold" => true, "color" => ["rgb" => "FFFFFF"]],
             "fill" => ["fillType" => Fill::FILL_SOLID, "startColor" => ["rgb" => "1A1A35"]],

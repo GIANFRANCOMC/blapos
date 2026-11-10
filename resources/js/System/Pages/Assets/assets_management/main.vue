@@ -479,7 +479,7 @@ export default {
                                 <label class="form-label colon-at-end required">Cantidad</label>
                                 <label class="text-danger ms-1 fw-bold">*</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control input-number-no-range" id="quantityId"/>
+                                    <input type="number" class="form-control input-number-no-range" id="quantityId" min="${Utils.decimalStep()}" step="${Utils.decimalStep()}"/>
                                 </div>
                             </div>
                        </div>`,
@@ -503,14 +503,14 @@ export default {
                         Swal.showValidationMessage("La cantidad es obligatoria");
                         return false;
 
-                    }else if(!(Number(quantity) > 0.1)) {
+                    }else if(!Utils.isNumber({value: quantity, minValue: Utils.decimalStep(), maxValue: Utils.numericInputConfig().maxValue})) {
 
-                        Swal.showValidationMessage(`La cantidad ${el.config.forms.errors.functions.min.numeric(0.1).toLowerCase()}`);
+                        Swal.showValidationMessage(`La cantidad ${el.config.forms.errors.functions.min.numeric(Utils.decimalStep()).toLowerCase()}`);
                         return false;
 
                     }
 
-                    return { quantity };
+                    return {quantity: Utils.roundNumber(quantity)};
 
                 }
             })
@@ -964,9 +964,9 @@ export default {
 
                         }
 
-                        if(!(Number(detail?.quantity) > 0.1)) {
+                        if(!Utils.isNumber({value: detail?.quantity, minValue: Utils.decimalStep()})) {
 
-                            errorDetails.push(`${isDescriptive ? "Cantidad:" : ""} ${this.config.forms.errors.functions.min.numeric(0.1)}`);
+                            errorDetails.push(`${isDescriptive ? "Cantidad:" : ""} ${this.config.forms.errors.functions.min.numeric(Utils.decimalStep())}`);
                             result.bool = false;
 
                         }
@@ -1056,9 +1056,9 @@ export default {
 
                 }
 
-                if(!(Number(form?.quantity) > 0.1)) {
+                if(!Utils.isNumber({value: form?.quantity, minValue: Utils.decimalStep()})) {
 
-                    result.msg.push(`${isDescriptive ? "Cantidad:" : ""} ${this.config.forms.errors.functions.min.numeric(0.1)}`);
+                    result.msg.push(`${isDescriptive ? "Cantidad:" : ""} ${this.config.forms.errors.functions.min.numeric(Utils.decimalStep())}`);
                     result.bool = false;
 
                 }
@@ -1133,9 +1133,9 @@ export default {
 
                         }
 
-                        if(!(Number(detail?.quantity) > 0.1)) {
+                        if(!Utils.isNumber({value: detail?.quantity, minValue: Utils.decimalStep()})) {
 
-                            errorDetails.push(`${isDescriptive ? "Cantidad:" : ""} ${this.config.forms.errors.functions.min.numeric(0.1)}`);
+                            errorDetails.push(`${isDescriptive ? "Cantidad:" : ""} ${this.config.forms.errors.functions.min.numeric(Utils.decimalStep())}`);
                             result.bool = false;
 
                         }
@@ -1287,20 +1287,14 @@ export default {
         },
         assignmentsSum: function() {
 
-            let total = 0;
+            const assignments = this.forms.entity.assignToUser.data.assignments;
 
-            for(let detail of this.forms.entity.assignToUser.data.assignments) {
-
-                total += Number(detail?.quantity);
-
-            }
-
-            return this.fixedNumber(total);
+            return this.fixedNumber(Utils.sum(assignments.map(detail => detail?.quantity)));
 
         },
         assignmentsPending: function() {
 
-            let calculate = Number(this.forms.entity.assignToUser.data?.branchAsset?.quantity ?? 0) - Number(this.assignmentsSum);
+            let calculate = Utils.subtract(this.forms.entity.assignToUser.data?.branchAsset?.quantity, this.assignmentsSum);
 
             return this.fixedNumber(calculate > 0 ? calculate : 0);
 

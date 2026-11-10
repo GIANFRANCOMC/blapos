@@ -4,7 +4,7 @@
 
 <script>
 import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
-import {fixedNumber, normalizeNumber} from "@System/Helpers/NumberUtils.js";
+import {normalizeNumber, roundNumber} from "../../../../Shared/Numbers.js";
 
 export default {
     name: "StockDifference",
@@ -17,7 +17,7 @@ export default {
     computed: {
         difference() {
             const value = normalizeNumber(this.current) - normalizeNumber(this.minimum);
-            return Number(fixedNumber(value));
+            return roundNumber(value);
         },
         tone() {
             if(this.difference > 0) return "is-positive";

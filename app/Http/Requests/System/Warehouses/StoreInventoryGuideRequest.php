@@ -10,7 +10,7 @@ final class StoreInventoryGuideRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -21,8 +21,8 @@ final class StoreInventoryGuideRequest extends CompanyFormRequest {
             "reference" => "nullable|string|max:100",
             "items" => "required|array|min:1|max:100",
             "items.*.item_id" => "required|integer|distinct",
-            "items.*.quantity" => "required|numeric|gt:0|max:{$maxValue}|decimal:0,{$round}",
-            "items.*.unit_cost" => "nullable|numeric|min:0|max:{$maxValue}|decimal:0,{$round}",
+            "items.*.quantity" => "required|numeric|gt:0|max:{$maxValue}|$decimalRule",
+            "items.*.unit_cost" => "nullable|numeric|min:0|max:{$maxValue}|$decimalRule",
         ];
 
     }

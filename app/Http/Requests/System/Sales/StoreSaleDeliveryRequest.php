@@ -36,7 +36,7 @@ class StoreSaleDeliveryRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -45,7 +45,7 @@ class StoreSaleDeliveryRequest extends CompanyFormRequest {
             "observation" => "nullable|string|max:500",
             "items" => "required|array|min:1|max:100",
             "items.*.sale_delivery_item_id" => "required|integer",
-            "items.*.quantity" => "required|numeric|min:0|max:$maxValue|decimal:0,$round",
+            "items.*.quantity" => "required|numeric|min:0|max:$maxValue|$decimalRule",
         ];
 
     }

@@ -11,7 +11,7 @@ final class StoreRecipeWasteRequest extends CompanyFormRequest {
 
     public function rules(): array {
 
-        $round = $this->decimalPrecision();
+        $decimalRule = $this->decimalRule();
         $maxValue = $this->numericMaxValue();
 
         return [
@@ -27,7 +27,7 @@ final class StoreRecipeWasteRequest extends CompanyFormRequest {
                 "integer",
                 new ExistsInTenant("items", ["type" => "product", "status" => "active"], "El insumo seleccionado no esta disponible."),
             ],
-            "quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
+            "quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "reason" => ["required", "string", "max:500"],
             "occurred_at" => ["nullable", "date"],
             "allow_negative" => ["nullable", "boolean"],

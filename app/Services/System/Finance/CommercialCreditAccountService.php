@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Finance;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Purchases\{PurchaseAccountPayable, PurchaseHeader, PurchasePayableInstallment, PurchasePayablePayment};
 use App\Models\System\Sales\{SaleAccountReceivable, SaleHeader, SaleReceivableInstallment, SaleReceivablePayment};
 use Carbon\{Carbon};
@@ -28,9 +28,9 @@ final class CommercialCreditAccountService {
 
     public static function paymentStatus(float $total, float $paid): string {
 
-        $total = Utilities::round($total);
-        $paid = Utilities::round($paid);
-        $balance = Utilities::round($total - $paid);
+        $total = Numbers::round($total);
+        $paid = Numbers::round($paid);
+        $balance = Numbers::subtract($total, $paid);
 
         return match (true) {
             $paid <= 0 => "unpaid",
@@ -49,7 +49,7 @@ final class CommercialCreditAccountService {
         int $userId
     ): ?SaleAccountReceivable {
 
-        if($sale->payment_modality === self::PAID_NOW || Utilities::round((float) $sale->balance_due) <= 0) {
+        if($sale->payment_modality === self::PAID_NOW || Numbers::round($sale->balance_due) <= 0) {
 
             return null;
 
@@ -58,8 +58,8 @@ final class CommercialCreditAccountService {
         $isInstallmentCredit = $sale->payment_modality === self::INSTALLMENTS;
 
         $receivablePrincipal = $isInstallmentCredit
-            ? Utilities::round((float) $sale->balance_due - (float) $sale->installment_extra_amount)
-            : Utilities::round((float) $sale->total - (float) $sale->installment_extra_amount);
+            ? Numbers::round($sale->balance_due - (float) $sale->installment_extra_amount)
+            : Numbers::round($sale->total - (float) $sale->installment_extra_amount);
 
         $receivableTotal = $isInstallmentCredit ? $sale->balance_due : $sale->total;
         $receivablePaid = $isInstallmentCredit ? 0 : $sale->paid_amount;
@@ -102,7 +102,7 @@ final class CommercialCreditAccountService {
         int $userId
     ): ?PurchaseAccountPayable {
 
-        if($purchase->payment_modality === self::PAID_NOW || Utilities::round((float) $purchase->balance_due) <= 0) {
+        if($purchase->payment_modality === self::PAID_NOW || Numbers::round($purchase->balance_due) <= 0) {
 
             return null;
 
@@ -117,7 +117,7 @@ final class CommercialCreditAccountService {
             "issue_date" => $purchase->issue_date,
             "due_date" => $dueDate,
             "payment_modality" => $purchase->payment_modality,
-            "original_amount" => Utilities::round((float) $purchase->total - (float) $purchase->installment_extra_amount),
+            "original_amount" => Numbers::round($purchase->total - (float) $purchase->installment_extra_amount),
             "extra_percentage" => $purchase->installment_extra_percentage,
             "extra_amount" => $purchase->installment_extra_amount,
             "total_amount" => $purchase->total,
@@ -185,15 +185,14 @@ final class CommercialCreditAccountService {
 
     private static function installmentAmounts(float $total, int $count): array {
 
-        $scale = 10 ** Utilities::decimalPrecision();
-        $totalUnits = (int) round($total * $scale);
+        $totalUnits = Numbers::toUnits($total);
         $baseUnits = intdiv($totalUnits, $count);
         $extraUnits = $totalUnits % $count;
         $amounts = [];
 
         for($number = 1; $number <= $count; $number++) {
 
-            $amounts[$number] = ($baseUnits + (int) ($number <= $extraUnits)) / $scale;
+            $amounts[$number] = Numbers::fromUnits($baseUnits + (int) ($number <= $extraUnits));
 
         }
 
@@ -215,7 +214,7 @@ final class CommercialCreditAccountService {
                 "payment_method_id" => $payment["payment_method_id"] ?? null,
                 "payment_method_variant_id" => $payment["payment_method_variant_id"] ?? null,
                 "paid_at" => now(),
-                "amount" => $payment["amount"] ?? 0,
+                "amount" => Numbers::storage($payment["amount"] ?? 0),
                 "reference" => $payment["reference"] ?? null,
                 "observation" => $payment["note"] ?? null,
                 "status" => "active",
@@ -240,7 +239,7 @@ final class CommercialCreditAccountService {
                 "payment_method_id" => $payment["payment_method_id"] ?? null,
                 "payment_method_variant_id" => $payment["payment_method_variant_id"] ?? null,
                 "paid_at" => now(),
-                "amount" => $payment["amount"] ?? 0,
+                "amount" => Numbers::storage($payment["amount"] ?? 0),
                 "reference" => $payment["reference"] ?? null,
                 "observation" => $payment["note"] ?? null,
                 "status" => "active",

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\Item;
 use App\Models\System\General\MeasurementUnit;
 use App\Models\System\Warehouses\Warehouse;
@@ -327,10 +328,10 @@ final class CommercialCatalogSeeder extends Seeder {
 
             // Los CSV conservan el precio de venta; el catálogo inicial cubre los cuatro casos opcionales.
             $minimum = $number % 4 === 2 || $number % 4 === 0
-                ? number_format(max(0.001, round((float) $price * 0.85, 3)), 3, ".", "")
+                ? Numbers::formatDecimal(max(Numbers::decimalStep(Numbers::MAX_PRECISION), (float) $price * 0.85), Numbers::MAX_PRECISION, "")
                 : null;
             $maximum = $number % 4 === 3 || $number % 4 === 0
-                ? number_format(round((float) $price * 1.15, 3), 3, ".", "")
+                ? Numbers::formatDecimal((float) $price * 1.15, Numbers::MAX_PRECISION, "")
                 : null;
 
         }
@@ -643,13 +644,13 @@ final class CommercialCatalogSeeder extends Seeder {
             3 => 3 + ($seed % 10),
             default => 0,
         };
-        $cost = $quantity > 0 ? round($price * (0.55 + (($seed >> 5) % 20) / 100), 3) : 0;
+        $cost = $quantity > 0 ? Numbers::round($price * (0.55 + (($seed >> 5) % 20) / 100), Numbers::MAX_PRECISION) : 0;
 
         return [
             "quantity" => $quantity,
             "minimum_stock" => $minimum,
             "average_cost" => $cost,
-            "inventory_value" => round($quantity * $cost, 3),
+            "inventory_value" => Numbers::round($quantity * $cost, Numbers::MAX_PRECISION),
         ];
 
     }

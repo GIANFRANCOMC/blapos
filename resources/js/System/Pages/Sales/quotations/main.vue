@@ -511,34 +511,32 @@ export default {
             const taxes = [...this.requiredTaxes, ...this.selectedOptionalTaxes];
 
             return taxes.map(tax => {
-                const amount = this.calculateTaxAmount(tax);
-                const impactAmount = tax.calculation_type === "percentage"
-                    ? this.calculateTaxImpact(tax)
-                    : amount;
-                const impact = tax.operation_type === "subtraction" ? -impactAmount : impactAmount;
+                const quantity = this.selectedTaxQuantity(tax);
+                const isIgvTax = this.isIgvTax(tax);
+                const lines = this.form.details.map(detail => ({
+                    total: this.lineTotal(detail),
+                    includesTax: this.detailIncludesTax(detail),
+                    exempt: isIgvTax && this.detailIsIgvExempt(detail)
+                }));
+                const {amount, totalImpact} = Utils.documentTax(tax, lines, quantity);
 
-                return {
-                    ...tax,
-                    amount: this.fixedNumber(amount),
-                    impact: this.fixedNumber(impact),
-                    quantity: this.selectedTaxQuantity(tax)
-                };
+                return {...tax, amount, impact: totalImpact, quantity};
             });
         },
         subtotal() {
-            const grossSubtotal = this.form.details.reduce((sum, detail) => sum + this.lineTotal(detail), 0);
-            const includedTaxTotal = this.taxBreakdown.reduce((sum, tax) => sum + (tax.amount - tax.impact), 0);
+            const grossSubtotal = Utils.sum(this.form.details.map(detail => this.lineTotal(detail)));
+            const includedTaxTotal = Utils.sum(this.taxBreakdown.map(tax => Utils.subtract(tax.amount, tax.impact)));
 
-            return this.fixedNumber(grossSubtotal - includedTaxTotal);
+            return Utils.subtract(grossSubtotal, includedTaxTotal);
         },
         taxTotal() {
-            return this.fixedNumber(this.taxBreakdown.reduce((sum, tax) => sum + tax.amount, 0));
+            return Utils.sum(this.taxBreakdown.map(tax => tax.amount));
         },
         total() {
-            const grossSubtotal = this.form.details.reduce((sum, detail) => sum + this.lineTotal(detail), 0);
-            const taxImpact = this.taxBreakdown.reduce((sum, tax) => sum + tax.impact, 0);
+            const grossSubtotal = Utils.sum(this.form.details.map(detail => this.lineTotal(detail)));
+            const taxImpact = Utils.sum(this.taxBreakdown.map(tax => tax.impact));
 
-            return this.fixedNumber(grossSubtotal + taxImpact);
+            return Utils.sum([grossSubtotal, taxImpact]);
         },
         canSubmit() {
             return Boolean(this.form.holder && this.form.currency && this.validDetails.length && this.total > 0);
@@ -653,7 +651,7 @@ export default {
             detail.price = this.fixedNumber(detail.price || 0);
         },
         lineTotal(detail) {
-            return this.fixedNumber(Number(detail.quantity || 0) * Number(detail.price || 0));
+            return Utils.lineTotal(detail.quantity, detail.price);
         },
         isIgvTax(tax = {}) {
             const code = String(tax?.code || "").toUpperCase();
@@ -672,35 +670,6 @@ export default {
             const value = detail?.item?.data?.price_includes_tax ?? detail?.price_includes_tax ?? true;
 
             return [true, 1, "1", "true"].includes(value);
-        },
-        calculateTaxAmount(tax) {
-            if(tax.calculation_type === "fixed") {
-                return this.fixedNumber(Number(tax.rate || 0) * this.selectedTaxQuantity(tax));
-            }
-
-            const taxableBase = this.form.details.reduce((sum, detail) => {
-                const total = this.lineTotal(detail);
-                const rate = Number(tax.rate || 0) / 100;
-                if(this.isIgvTax(tax) && this.detailIsIgvExempt(detail)) return sum;
-
-                return sum + (this.detailIncludesTax(detail) ? (total - (total / (1 + rate))) : (total * rate));
-            }, 0);
-
-            return this.fixedNumber(taxableBase);
-        },
-        calculateTaxImpact(tax) {
-            if(tax.calculation_type !== "percentage") {
-                return this.calculateTaxAmount(tax);
-            }
-
-            const rate = Number(tax.rate || 0) / 100;
-
-            return this.fixedNumber(this.form.details.reduce((sum, detail) => {
-                if(this.isIgvTax(tax) && this.detailIsIgvExempt(detail)) return sum;
-                if(this.detailIncludesTax(detail)) return sum;
-
-                return sum + (this.lineTotal(detail) * rate);
-            }, 0));
         },
         selectedTaxQuantity(tax) {
             if(tax.calculation_type !== "fixed") return 1;
@@ -868,7 +837,7 @@ export default {
             return Utils.separatorNumber(value);
         },
         fixedNumber(value) {
-            return Number(Utils.fixedNumber(value));
+            return Utils.roundNumber(value);
         },
         uuid() {
             return Utils.uuid ? Utils.uuid() : `${Date.now()}-${Math.random()}`;

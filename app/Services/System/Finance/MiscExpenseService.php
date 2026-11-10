@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Finance;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Finance\{CashMovement, CashSession, MiscExpense};
 use App\Services\System\Organizations\{AccessScopeService};
 use DomainException;
@@ -96,7 +96,7 @@ final class MiscExpenseService {
 
             }
 
-            $amount = Utilities::round($data["amount"]);
+            $amount = Numbers::round($data["amount"]);
 
             if($amount <= 0) {
 

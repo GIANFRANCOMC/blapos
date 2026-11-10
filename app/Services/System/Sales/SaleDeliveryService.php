@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Sales;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Models\System\Sales\{SaleBody, SaleDelivery, SaleDeliveryEvent, SaleDeliveryEventItem, SaleDeliveryItem, SaleHeader};
 use App\Models\System\Warehouses\{Warehouse};
 use App\Services\System\Organizations\{AccessScopeService};
@@ -34,7 +34,7 @@ final class SaleDeliveryService {
 
         }
 
-        $totalQuantity = Utilities::round((float) $productBodies->sum("quantity"));
+        $totalQuantity = Numbers::sum($productBodies->pluck("quantity"));
 
         $delivery = SaleDelivery::create([
             "sale_header_id" => (int) $saleHeader->id,
@@ -247,9 +247,9 @@ final class SaleDeliveryService {
 
                 }
 
-                $quantity = Utilities::round((float) ($payload["quantity"] ?? 0));
+                $quantity = Numbers::round(($payload["quantity"] ?? 0));
 
-                $pending = Utilities::round((float) $deliveryItem->quantity_pending);
+                $pending = Numbers::round($deliveryItem->quantity_pending);
 
                 if($quantity <= 0) {
 
@@ -282,8 +282,8 @@ final class SaleDeliveryService {
                     ]
                 );
 
-                $delivered = Utilities::round((float) $deliveryItem->quantity_delivered + $quantity);
-                $newPending = Utilities::round((float) $deliveryItem->quantity_ordered - $delivered);
+                $delivered = Numbers::sum([$deliveryItem->quantity_delivered, $quantity]);
+                $newPending = Numbers::subtract($deliveryItem->quantity_ordered, $delivered);
 
                 $deliveryItem->update([
                     "quantity_delivered" => $delivered,
@@ -315,7 +315,7 @@ final class SaleDeliveryService {
             }
 
             $event->update([
-                "total_quantity" => Utilities::round($totalDeliveredNow),
+                "total_quantity" => Numbers::round($totalDeliveredNow),
             ]);
 
             self::refreshDeliveryStatus($delivery, $userId, (int) $warehouse->id);
@@ -370,9 +370,9 @@ final class SaleDeliveryService {
             ->where("sale_delivery_id", (int) $delivery->id)
             ->get();
 
-        $total = Utilities::round((float) $items->sum("quantity_ordered"));
-        $delivered = Utilities::round((float) $items->sum("quantity_delivered"));
-        $pending = Utilities::round((float) $items->sum("quantity_pending"));
+        $total = Numbers::sum($items->pluck("quantity_ordered"));
+        $delivered = Numbers::sum($items->pluck("quantity_delivered"));
+        $pending = Numbers::sum($items->pluck("quantity_pending"));
         $status = $pending <= 0 ? "delivered" : ($delivered > 0 ? "partial" : "pending");
 
         $delivery->update([

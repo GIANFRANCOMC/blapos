@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Purchases;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Services\System\Purchases\{PurchaseService};
 use Maatwebsite\Excel\Concerns\{FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithStyles};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
@@ -62,7 +62,7 @@ final class PurchaseListExport implements FromQuery, ShouldAutoSize, WithHeading
 
     public function styles(Worksheet $sheet): array {
 
-        $sheet->getStyle("G:I")->getNumberFormat()->setFormatCode(Utilities::spreadsheetDecimalFormat());
+        $sheet->getStyle("G:I")->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat());
         $sheet->freezePane("A2");
         $sheet->setAutoFilter("A1:K1");
         $sheet->getStyle("A1:K1")->applyFromArray([

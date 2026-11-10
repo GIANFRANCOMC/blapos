@@ -1,7 +1,7 @@
-import { requestRoute, generalConfig } from "./Constants.js";
+import { requestRoute } from "./Constants.js";
 import * as Requests from "./Requests.js";
 import { toastrs } from "./Alerts.js";
-import {formatDecimalNumber, normalizePrecision} from "../../Shared/DecimalPrecision.js";
+export {calculateTotal, fixedNumber, isNumber, normalizeNumber, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 import axios from "axios";
 
@@ -39,14 +39,6 @@ export function navbarItem(id, {type = "active", addClass = null}) {
 export function isDefined({value}) {
 
     return value != "" && value != null && value != undefined;
-
-}
-
-export function isNumber({value, minValue = 0}) {
-
-    let number = Number(value);
-
-    return !isNaN(number) && Number(number) >= minValue;
 
 }
 
@@ -127,46 +119,6 @@ export function parseISOToDatetimeLocal(isoString) {
 export function cloneJson(json) {
 
     return JSON.parse(JSON.stringify(json));
-
-}
-
-export function calculateTotal({item}) {
-
-    const quantity = Number(item?.quantity),
-          price    = Number(item?.price);
-
-    const total = (isNaN(quantity) || isNaN(price)) ? 0 : fixedNumber(quantity * price);
-
-    return total;
-
-}
-
-export function fixedNumber(value, decimals = null) {
-
-    return formatDecimalNumber(normalizeNumber(value), resolveDecimals(decimals));
-
-}
-
-export function separatorNumber(value, decimals = null) {
-
-    return formatDecimalNumber(normalizeNumber(value), resolveDecimals(decimals), true);
-
-}
-
-export function resolveDecimals(decimals = null) {
-
-    return normalizePrecision(decimals ?? generalConfig.forms.inputs.round);
-
-}
-
-export function normalizeNumber(value) {
-
-    if(value === null || value === undefined || value === "") return 0;
-
-    const normalized = typeof value === "string" ? value.trim().replace(/,/g, "") : value;
-    const parsed = Number(normalized);
-
-    return Number.isFinite(parsed) ? parsed : 0;
 
 }
 

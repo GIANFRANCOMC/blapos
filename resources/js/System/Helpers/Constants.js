@@ -1,5 +1,5 @@
 import * as Utils from "./Utils.js";
-import {normalizePrecision} from "../../Shared/DecimalPrecision.js";
+import {applyNumericInputConfig, numericInputConfig} from "../../Shared/Numbers.js";
 
 export const requestRoute = `${window.location.protocol}//${window.location.hostname}`;
 
@@ -23,10 +23,7 @@ export const generalConfig = {
         inputs: {
             maxlength: 999,
             required: "*",
-            round: normalizePrecision(window.decimalPrecision),
-            minValue: 0,
-            maxValue: 999999999999.999,
-            maxSize: 4096
+            ...numericInputConfig()
         },
         errors: {
             functions: {
@@ -85,7 +82,8 @@ export function applyGeneralConfig(runtimeConfig = {}) {
 
         generalConfig.forms.inputs = {
             ...generalConfig.forms.inputs,
-            ...runtimeConfig.forms.inputs
+            ...runtimeConfig.forms.inputs,
+            ...applyNumericInputConfig(runtimeConfig.forms.inputs)
         };
 
     }

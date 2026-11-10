@@ -42,7 +42,7 @@ La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declara
 
 Las APIs `CompanySectionService` y `RolePermissionService` reciben únicamente el rol o los datos funcionales. Sus claves se aíslan con `TenantContext::cacheNamespace()` y la invalidación opera sobre el tenant conectado, evitando propagar un ID local que se repite entre bases.
 
-La precisión decimal también se resuelve directamente desde `CompanySettingService`; `Utilities::round()`, `Utilities::formatDecimal()` y `Utilities::decimalPrecision()` no aceptan un selector de empresa.
+Las reglas de precisión se concentran en `app/Helpers/System/Numbers.php`. La configuración se lee con `CompanySettingService` desde la empresa activa del tenant.
 
 `TenantCompanyDatabaseBoundaryTest` inspecciona `INFORMATION_SCHEMA` después de migrar MySQL y verifica que las cuatro columnas sean obligatorias y tengan clave foránea hacia `companies`.
 

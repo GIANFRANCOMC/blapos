@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Exports\System\Warehouses\StockAlertsExport;
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers};
 use App\Services\System\Warehouses\StockManagement\StockAlertsPdfRenderer;
 use App\Services\System\Warehouses\StockManagement\StockManagementService;
 use Illuminate\Support\LazyCollection;
@@ -16,15 +16,14 @@ final class StockAlertsExportTest extends TestCase {
     public function test_report_query_uses_current_stock_scoped_to_one_warehouse(): void {
 
         $query = StockManagementService::stockAlertsReportQuery(7);
-        $precision = Utilities::decimalPrecision();
-
-        $this->assertSame([$precision, $precision, 7, "active", 7, "active", "open", "product", 0], $query->getBindings());
+        $this->assertSame([7, "active", 7, "active", "open", "product", 0], $query->getBindings());
+        $this->assertStringContainsString(Numbers::sqlRound("SUM(quantity)"), $query->toSql());
         $this->assertStringContainsString("`warehouse_id` = ? and `status` = ?", $query->toSql());
         $this->assertStringContainsString("COALESCE(stock.quantity, 0) <= 0", $query->toSql());
         $this->assertStringContainsString("`alerts`.`status` = ?", $query->toSql());
 
         $filtered = StockManagementService::stockAlertsReportQuery(7, "tuerca");
-        $this->assertSame([$precision, $precision, 7, "active", 7, "active", "open", "product", 0, "%tuerca%", "%tuerca%", "%tuerca%"], $filtered->getBindings());
+        $this->assertSame([7, "active", 7, "active", "open", "product", 0, "%tuerca%", "%tuerca%", "%tuerca%"], $filtered->getBindings());
         $this->assertStringContainsString("`products`.`barcode` like ?", $filtered->toSql());
 
         $modalQuery = StockManagementService::stockAlertsQuery(7, "open", "tuerca");
@@ -35,8 +34,6 @@ final class StockAlertsExportTest extends TestCase {
 
     public function test_minimum_filter_matches_the_modal_and_both_exports(): void {
 
-        $precision = Utilities::decimalPrecision();
-
         foreach(["configured" => ">", "unconfigured" => "<="] as $status => $operator) {
 
             $modal = StockManagementService::stockAlertsQuery(7, "open", "tuerca", $status);
@@ -45,7 +42,7 @@ final class StockAlertsExportTest extends TestCase {
 
             $this->assertStringContainsString("COALESCE(stock.minimum_stock, 0) {$operator} ?", $modal->toSql());
             $this->assertStringContainsString("COALESCE(stock.minimum_stock, 0) {$operator} ?", $report->toSql());
-            $this->assertSame([$precision, $precision, 7, "active", 7, "active", "open", "product", 0, "%tuerca%", "%tuerca%", "%tuerca%", 0], $modal->getBindings());
+            $this->assertSame([7, "active", 7, "active", "open", "product", 0, "%tuerca%", "%tuerca%", "%tuerca%", 0], $modal->getBindings());
             $this->assertSame($modal->getBindings(), $report->getBindings());
             $this->assertSame($report->toSql(), $excel->toSql());
             $this->assertSame($report->getBindings(), $excel->getBindings());

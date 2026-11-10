@@ -1982,20 +1982,6 @@ export default {
             return `${name} ${sign}${this.separatorNumber(rate)}%`;
 
         },
-        calculateTaxAmount(tax = {}, baseAmount = 0) {
-
-            const base = Number(baseAmount || 0);
-            const rate = Number(tax?.rate || 0);
-            const calculationType = tax?.calculation_type || "percentage";
-            const operationType = tax?.operation_type || "addition";
-            const quantity = this.isFixedTax(tax) ? this.selectedTaxQuantity(tax.id) : 1;
-            const amount = calculationType === "fixed"
-                ? rate * quantity
-                : base * (rate / 100);
-
-            return this.fixedNumber(operationType === "subtraction" ? amount * -1 : amount);
-
-        },
         taxIsRequired(tax = {}) {
 
             return [true, 1, "1", "true"].includes(tax?.is_required);
@@ -2031,10 +2017,7 @@ export default {
         },
         saleNumber(value) {
 
-            const normalized = typeof value === "string" ? value.replace(/,/g, "") : value;
-            const number = Number(normalized);
-
-            return Number.isFinite(number) ? number : 0;
+            return Utils.normalizeNumber(value);
 
         },
         detailIsIgvExempt(detail = {}) {
@@ -2046,7 +2029,9 @@ export default {
         },
         detailShouldExtractIncludedIgv(detail = {}) {
 
-            return this.detailIncludesTax(detail) && this.saleIgvRate() > 0;
+            return this.detailIncludesTax(detail)
+                && this.saleIgvTaxConfig()?.operation_type !== "subtraction"
+                && this.saleIgvRate() > 0;
 
         },
         detailUnitPriceDisplay(detail = {}) {
@@ -2057,25 +2042,25 @@ export default {
 
             if(this.detailShouldExtractIncludedIgv(detail)) {
 
-                return this.fixedNumber(price / (1 + (this.saleIgvRate() / 100)));
+                return this.fixedNumber(Utils.baseFromGross(price, this.saleIgvRate()));
 
             }
 
             return this.fixedNumber(price);
 
         },
-        detailLineGrossTotalRaw(detail = {}) {
+        detailLineGrossTotal(detail = {}) {
 
-            return this.saleNumber(detail?.quantity) * this.saleNumber(detail?.price);
+            return Utils.lineTotal(detail?.quantity, detail?.price);
 
         },
         detailLineBaseTotalRaw(detail = {}) {
 
-            const lineTotal = this.detailLineGrossTotalRaw(detail);
+            const lineTotal = this.detailLineGrossTotal(detail);
 
             if(this.detailShouldExtractIncludedIgv(detail)) {
 
-                return lineTotal / (1 + (this.saleIgvRate() / 100));
+                return Utils.baseFromGross(lineTotal, this.saleIgvRate());
 
             }
 
@@ -2093,29 +2078,23 @@ export default {
 
             const tax = this.saleIgvTaxConfig();
             const rate = this.saleIgvRate();
-            const lineTotal = Number(this.fixedNumber(this.detailLineGrossTotalRaw(detail)));
+            const lineTotal = this.detailLineGrossTotal(detail);
             const lineBase = Number(this.detailLineBaseTotal(detail) || 0);
 
-            if(!tax || rate <= 0 || lineTotal <= 0 || lineBase <= 0) return 0;
+            if(!tax || rate <= 0 || lineTotal <= 0) return 0;
 
-            if(this.detailIncludesTax(detail)) {
+            if(this.detailShouldExtractIncludedIgv(detail)) {
 
-                return this.fixedNumber(lineTotal - lineBase);
+                return this.fixedNumber(Utils.subtract(lineTotal, lineBase));
 
             }
 
-            return this.fixedNumber(lineBase * (rate / 100));
+            return this.fixedNumber(Utils.taxAmount(lineBase, tax));
 
         },
         detailFinalTotal(detail = {}) {
 
-            if(this.detailIncludesTax(detail) || this.detailIsIgvExempt(detail)) {
-
-                return this.fixedNumber(this.detailLineGrossTotalRaw(detail));
-
-            }
-
-            return this.fixedNumber(Number(this.detailLineBaseTotal(detail) || 0) + Number(this.detailIgvAmount(detail) || 0));
+            return this.fixedNumber(Utils.sum([this.detailLineBaseTotal(detail), this.detailIgvAmount(detail)]));
 
         },
         detailIgvInfo(detail = {}) {
@@ -2347,60 +2326,24 @@ export default {
 
         },
         calculateSaleTaxLine(tax = {}) {
-
-            const rate = Number(tax?.rate || 0);
-            const calculationType = tax?.calculation_type || "percentage";
-            const operationType = tax?.operation_type || "addition";
             const isIgvTax = this.isIgvTax(tax);
-            let base = 0;
-            let amount = 0;
-            let totalImpact = 0;
-
-            if(calculationType === "fixed") {
-
-                amount = this.calculateTaxAmount(tax, 0);
-                totalImpact = amount;
-
-            }else {
-
-                (this.forms[this.entity].createUpdate.data.details || []).forEach(detail => {
-                    const lineTotalRaw = this.detailLineGrossTotalRaw(detail);
-                    const lineTotal = Number(this.fixedNumber(lineTotalRaw));
-                    if(lineTotal <= 0) return;
-                    if(isIgvTax && this.detailIsIgvExempt(detail)) return;
-
-                    const priceIncludesTax = this.detailIncludesTax(detail);
-                    const taxIsIncluded = priceIncludesTax && operationType === "addition" && rate > 0;
-
-                    if(taxIsIncluded) {
-
-                        const lineBase = Number(this.fixedNumber(lineTotalRaw / (1 + (rate / 100))));
-                        const lineAmount = Number(this.fixedNumber(lineTotal - lineBase));
-                        base += lineBase;
-                        amount += lineAmount;
-                        return;
-
-                    }
-
-                    const lineAmount = Number(this.calculateTaxAmount(tax, lineTotal));
-                    base += lineTotal;
-                    amount += lineAmount;
-                    totalImpact += lineAmount;
-
-                });
-
-            }
+            const quantity = this.isFixedTax(tax) ? this.selectedTaxQuantity(tax.id) : 1;
+            const lines = (this.forms[this.entity].createUpdate.data.details || []).map(detail => ({
+                total: this.detailLineGrossTotal(detail),
+                includesTax: this.detailIncludesTax(detail),
+                exempt: isIgvTax && this.detailIsIgvExempt(detail)
+            }));
+            const result = Utils.documentTax(tax, lines, quantity);
 
             return {
                 id: tax.id,
                 name: tax.name || "IGV",
                 isRequired: this.taxIsRequired(tax),
-                quantity: this.isFixedTax(tax) ? this.selectedTaxQuantity(tax.id) : 1,
-                amount: this.fixedNumber(amount),
-                totalImpact: this.fixedNumber(totalImpact),
-                baseAmount: this.fixedNumber(base)
+                quantity,
+                baseAmount: this.fixedNumber(result.baseAmount),
+                amount: this.fixedNumber(result.amount),
+                totalImpact: this.fixedNumber(result.totalImpact)
             };
-
         },
         // Init
         async initParams({}) {
@@ -4127,36 +4070,24 @@ export default {
         },
         saleGrossSubtotal: function() {
 
-            let total = 0;
+            const details = this.forms[this.entity].createUpdate.data.details || [];
 
-            for(let detail of this.forms[this.entity].createUpdate.data.details) {
-
-                total += Number(this.fixedNumber(this.detailLineGrossTotalRaw(detail)));
-
-            }
-
-            return this.fixedNumber(total);
+            return this.fixedNumber(Utils.sum(details.map(detail => this.detailLineGrossTotal(detail))));
 
         },
         saleDetailSubtotalTotal() {
 
-            return this.fixedNumber((this.forms[this.entity].createUpdate.data.details || []).reduce((total, detail) => {
-                return total + Number(this.detailLineBaseTotal(detail) || 0);
-            }, 0));
+            return this.fixedNumber(Utils.sum((this.forms[this.entity].createUpdate.data.details || []).map(detail => this.detailLineBaseTotal(detail))));
 
         },
         saleDetailIgvTotal() {
 
-            return this.fixedNumber((this.forms[this.entity].createUpdate.data.details || []).reduce((total, detail) => {
-                return total + Number(this.detailIgvAmount(detail) || 0);
-            }, 0));
+            return this.fixedNumber(Utils.sum((this.forms[this.entity].createUpdate.data.details || []).map(detail => this.detailIgvAmount(detail))));
 
         },
         saleDetailFinalTotal() {
 
-            return this.fixedNumber((this.forms[this.entity].createUpdate.data.details || []).reduce((total, detail) => {
-                return total + Number(this.detailFinalTotal(detail) || 0);
-            }, 0));
+            return this.fixedNumber(Utils.sum((this.forms[this.entity].createUpdate.data.details || []).map(detail => this.detailFinalTotal(detail))));
 
         },
         saleExtraTaxTotal() {
@@ -4176,26 +4107,22 @@ export default {
         },
         saleSubtotal: function() {
 
-            return this.fixedNumber(Number(this.saleGrossSubtotal || 0) - Number(this.saleIncludedTaxTotal || 0));
+            return this.fixedNumber(Utils.subtract(this.saleGrossSubtotal, this.saleIncludedTaxTotal));
 
         },
         saleTaxTotal() {
 
-            return this.fixedNumber((this.saleTaxBreakdown || []).reduce((total, tax) => {
-                return total + Number(tax.amount || 0);
-            }, 0));
+            return this.fixedNumber(Utils.sum((this.saleTaxBreakdown || []).map(tax => tax.amount)));
 
         },
         saleTaxImpactTotal() {
 
-            return this.fixedNumber((this.saleTaxBreakdown || []).reduce((total, tax) => {
-                return total + Number(tax.totalImpact || 0);
-            }, 0));
+            return this.fixedNumber(Utils.sum((this.saleTaxBreakdown || []).map(tax => tax.totalImpact)));
 
         },
         saleIncludedTaxTotal() {
 
-            return this.fixedNumber(Number(this.saleTaxTotal || 0) - Number(this.saleTaxImpactTotal || 0));
+            return this.fixedNumber(Utils.subtract(this.saleTaxTotal, this.saleTaxImpactTotal));
 
         },
         saleTaxBreakdown() {
@@ -4209,27 +4136,23 @@ export default {
         },
         saleAdditionalTaxBase() {
 
-            return this.fixedNumber((this.forms[this.entity].createUpdate.data.details || []).reduce((total, detail) => {
+            const details = this.forms[this.entity].createUpdate.data.details || [];
+            const amounts = details.filter(detail => !this.detailIncludesTax(detail))
+                .map(detail => this.detailLineGrossTotal(detail));
 
-                const priceIncludesTax = this.detailIncludesTax(detail);
-
-                if(priceIncludesTax) return total;
-
-                return total + Number(this.fixedNumber(this.detailLineGrossTotalRaw(detail)));
-
-            }, 0));
+            return this.fixedNumber(Utils.sum(amounts));
 
         },
         saleBaseTotal() {
 
-            return this.fixedNumber(Number(this.saleGrossSubtotal || 0) + Number(this.saleTaxImpactTotal || 0));
+            return this.fixedNumber(Utils.sum([this.saleGrossSubtotal, this.saleTaxImpactTotal]));
 
         },
         saleFinancedPrincipal() {
 
             if(!this.saleIsCredit) return this.fixedNumber(0);
 
-            return this.fixedNumber(Math.max(0, Number(this.saleBaseTotal || 0) - Number(this.salePaidTotal || 0)));
+            return this.fixedNumber(Math.max(0, Utils.subtract(this.saleBaseTotal, this.salePaidTotal)));
 
         },
         saleInstallmentExtraPercentage() {
@@ -4241,24 +4164,24 @@ export default {
         },
         saleInstallmentExtraAmount() {
 
-            return this.fixedNumber(Number(this.saleFinancedPrincipal || 0) * (Number(this.saleInstallmentExtraPercentage || 0) / 100));
+            return this.fixedNumber(Utils.percentage(this.saleFinancedPrincipal, this.saleInstallmentExtraPercentage));
 
         },
         saleReceivableTotal() {
 
-            return this.fixedNumber(Number(this.saleFinancedPrincipal || 0) + Number(this.saleInstallmentExtraAmount || 0));
+            return this.fixedNumber(Utils.sum([this.saleFinancedPrincipal, this.saleInstallmentExtraAmount]));
 
         },
         saleInstallmentAmount() {
 
             const count = Math.max(1, Number(this.forms[this.entity].createUpdate.data.installment_count || 1));
 
-            return this.fixedNumber(Number(this.saleReceivableTotal || 0) / count);
+            return this.fixedNumber(Utils.divide(this.saleReceivableTotal, count));
 
         },
         total: function() {
 
-            return this.fixedNumber(Number(this.saleBaseTotal || 0) + Number(this.saleInstallmentExtraAmount || 0));
+            return this.fixedNumber(Utils.sum([this.saleBaseTotal, this.saleInstallmentExtraAmount]));
 
         },
         salePaymentPayload() {
@@ -4281,14 +4204,12 @@ export default {
         },
         salePaidTotal() {
 
-            return this.fixedNumber((this.forms[this.entity].createUpdate.data.payments || []).reduce((total, payment) => {
-                return total + Number(payment.amount || 0);
-            }, 0));
+            return this.fixedNumber(Utils.sum((this.forms[this.entity].createUpdate.data.payments || []).map(payment => payment.amount)));
 
         },
         salePaymentDifference() {
 
-            return this.fixedNumber(Number(this.total || 0) - Number(this.salePaidTotal || 0));
+            return this.fixedNumber(Utils.subtract(this.total, this.salePaidTotal));
 
         },
         salePaymentStatusInfo() {
@@ -4568,7 +4489,7 @@ export default {
             const quantity = modalData?.quantity ?? 1,
                   decimals = this.getItemDecimals({mode: "result", record: modalData});
 
-            modalData.quantity = Number(this.fixedNumber(quantity, decimals));
+            modalData.quantity = Utils.roundNumber(quantity, decimals);
 
             // Set extras
             let extras = {

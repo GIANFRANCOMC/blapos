@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\Inventory;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Mail\{InventoryStockAlertMail};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{User};
@@ -121,12 +121,12 @@ final class InventoryMovementService {
 
             }
 
-            $quantityBefore = Utilities::round((float) $warehouseItem->quantity);
+            $quantityBefore = Numbers::round($warehouseItem->quantity);
 
             $quantityChange = self::resolveQuantityChange($type, $quantityBefore, $data);
-            $quantityAfter = Utilities::round($quantityBefore + $quantityChange);
-            $valueBefore = Utilities::round((float) ($warehouseItem->inventory_value ?? 0));
-            $currentAverageCost = Utilities::round((float) ($warehouseItem->average_cost ?? 0));
+            $quantityAfter = Numbers::sum([$quantityBefore, $quantityChange]);
+            $valueBefore = Numbers::round(($warehouseItem->inventory_value ?? 0));
+            $currentAverageCost = Numbers::round(($warehouseItem->average_cost ?? 0));
 
             if($quantityChange === 0.0) {
 
@@ -143,15 +143,15 @@ final class InventoryMovementService {
             $unitCost = self::resolveUnitCost($type, $quantityChange, $currentAverageCost, $data);
 
             $valueChange = match (true) {
-                $type === self::TYPE_ENTRY && isset($data["entry_value"]) => Utilities::round($data["entry_value"]),
+                $type === self::TYPE_ENTRY && isset($data["entry_value"]) => Numbers::round($data["entry_value"]),
                 $quantityAfter === 0.0 => -$valueBefore,
-                $quantityChange < 0 && $quantityAfter > 0 => Utilities::round($valueBefore * ($quantityChange / $quantityBefore)),
-                default => Utilities::round($quantityChange * $unitCost),
+                $quantityChange < 0 && $quantityAfter > 0 => Numbers::proportion($valueBefore, $quantityChange, $quantityBefore),
+                default => Numbers::multiply($quantityChange, $unitCost),
             };
-            $valueAfter = Utilities::round($valueBefore + $valueChange);
+            $valueAfter = Numbers::sum([$valueBefore, $valueChange]);
             $averageCost = match (true) {
                 $quantityAfter === 0.0 => 0.0,
-                $quantityAfter > 0 => Utilities::round($valueAfter / $quantityAfter),
+                $quantityAfter > 0 => Numbers::divide($valueAfter, $quantityAfter),
                 default => $currentAverageCost,
             };
 
@@ -224,13 +224,13 @@ final class InventoryMovementService {
             ]);
             $stock = WarehouseItem::query()->where("warehouse_id", $warehouseId)
                 ->where("item_id", $itemId)->lockForUpdate()->firstOrFail();
-            $before = Utilities::round((float) $stock->quantity);
-            $minimumBefore = Utilities::round((float) $stock->minimum_stock);
-            $quantity = Utilities::round((float) $data["quantity"]);
-            $minimum = Utilities::round((float) $data["minimum_stock"]);
+            $before = Numbers::round($stock->quantity);
+            $minimumBefore = Numbers::round($stock->minimum_stock);
+            $quantity = Numbers::round($data["quantity"]);
+            $minimum = Numbers::round($data["minimum_stock"]);
 
-            if($before !== Utilities::round((float) $data["expected_quantity"])
-                || $minimumBefore !== Utilities::round((float) $data["expected_minimum_stock"])) {
+            if($before !== Numbers::round($data["expected_quantity"])
+                || $minimumBefore !== Numbers::round($data["expected_minimum_stock"])) {
 
                 throw new DomainException("El inventario cambió mientras editabas. Revisa los valores actualizados y guarda nuevamente.", 409);
 
@@ -314,7 +314,7 @@ final class InventoryMovementService {
             foreach($items as $item) {
 
                 $itemId = (int) ($item["item_id"] ?? 0);
-                $quantity = Utilities::round((float) ($item["quantity"] ?? 0));
+                $quantity = Numbers::round(($item["quantity"] ?? 0));
 
                 if($quantity <= 0) {
 
@@ -564,7 +564,7 @@ final class InventoryMovementService {
 
             }
 
-            $resultingBalance = Utilities::round((float) $data["resulting_balance"]);
+            $resultingBalance = Numbers::round($data["resulting_balance"]);
 
             if($resultingBalance < 0) {
 
@@ -572,11 +572,11 @@ final class InventoryMovementService {
 
             }
 
-            return Utilities::round($resultingBalance - $quantityBefore);
+            return Numbers::subtract($resultingBalance, $quantityBefore);
 
         }
 
-        $quantity = Utilities::round((float) ($data["quantity"] ?? 0));
+        $quantity = Numbers::round(($data["quantity"] ?? 0));
 
         if($quantity <= 0) {
 
@@ -603,7 +603,7 @@ final class InventoryMovementService {
 
         if(array_key_exists("unit_cost", $data) && $data["unit_cost"] !== null) {
 
-            $unitCost = Utilities::round((float) $data["unit_cost"]);
+            $unitCost = Numbers::round($data["unit_cost"]);
 
             if($unitCost < 0) {
 

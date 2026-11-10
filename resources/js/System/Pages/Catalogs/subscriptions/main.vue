@@ -1015,9 +1015,9 @@ export default {
             // Custom validation for price ranges (only if price is valid)
             if(!result.errors.price) {
 
-                const minPrice = parseFloat(formData.min_price) || 0;
-                const maxPrice = parseFloat(formData.max_price) || 0;
-                const price    = parseFloat(formData.price) || 0;
+                const minPrice = Utils.normalizeNumber(formData.min_price);
+                const maxPrice = Utils.normalizeNumber(formData.max_price);
+                const price    = Utils.normalizeNumber(formData.price);
 
                 if(minPrice > 0 && maxPrice > 0) {
 
