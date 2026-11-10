@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Organizations;
 
+use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Organizations\UserAttendances\{BiometricCheckInRequest, CheckInUserAttendanceRequest, CheckOutUserAttendanceRequest, RequestUserAttendanceCorrectionRequest, ReviewUserAttendanceCorrectionRequest, StartUserAttendanceBreakRequest, UserAttendanceSummaryRequest};
 use App\Services\System\Base\{CompanyReferenceDataService};
@@ -95,7 +96,7 @@ final class UserAttendanceController extends BaseController {
                 $attendance->branch?->name,
                 $attendance->checked_in_at?->format("Y-m-d H:i:s"),
                 $attendance->checked_out_at?->format("Y-m-d H:i:s"),
-                number_format((float) $attendance->worked_hours, 2, ".", ""),
+                Utilities::formatDecimal($attendance->worked_hours, thousandsSeparator: ""),
                 (int) $attendance->ordinary_minutes,
                 (int) $attendance->late_minutes,
                 (int) $attendance->overtime_minutes,

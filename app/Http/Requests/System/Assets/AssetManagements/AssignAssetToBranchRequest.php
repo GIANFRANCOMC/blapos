@@ -17,7 +17,7 @@ final class AssignAssetToBranchRequest extends CompanyFormRequest {
             "branch_id" => ["required", "integer"],
             "branch_assets" => ["required", "array", "min:1"],
             "branch_assets.*.asset_id" => ["required", "integer"],
-            "branch_assets.*.quantity" => ["required", "numeric", "min:0.0001", "max:{$maxValue}", "decimal:0,{$round}"],
+            "branch_assets.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
         ];
 
     }

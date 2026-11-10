@@ -214,7 +214,7 @@ final class StorePurchaseRequest extends CompanyFormRequest {
 
     }
 
-    private function nullableDecimal(string $field): ?float {
+    private function nullableDecimal(string $field): mixed {
 
         return $this->filled($field) ? $this->normalizeDecimalInput($this->input($field)) : null;
 

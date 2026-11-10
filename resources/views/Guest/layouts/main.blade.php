@@ -19,6 +19,7 @@
             window.ownerApp = @json($ownerApp ?? null);
             window.withMenu = {{ json_encode($withMenu ?? true) }};
             window.company  = @json($company);
+            window.decimalPrecision = @json(\App\Helpers\System\Utilities::decimalPrecision());
             window.branch   = @json($branch ?? null);
             window.captchaSiteKey = @json(config("app.CAPTCHA_KEY_FRONTEND"));
             window.publicAttendanceAccess = @json($publicAttendanceAccess ?? null);

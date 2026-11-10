@@ -33,6 +33,7 @@ final class FinancialSettlementReportService {
         [$detailTable, $headerTable, $foreignKey, $dateColumn] = $scope === "purchase"
             ? ["purchase_taxes", "purchase_headers", "purchase_header_id", "issue_date"]
             : ["sale_taxes", "sales_header", "sale_header_id", "issue_date"];
+        $precision = Utilities::decimalPrecision();
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
@@ -40,7 +41,7 @@ final class FinancialSettlementReportService {
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
             ->groupBy("detail.tax_id", "detail.name", "detail.calculation_type", "detail.operation_type")
-            ->selectRaw("? as scope, detail.tax_id, detail.name, detail.calculation_type, detail.operation_type, COUNT(DISTINCT header.id) as documents, SUM(detail.quantity) as quantity, SUM(detail.base_amount) as base_amount, SUM(detail.amount) as amount", [$scope])
+            ->selectRaw("? as scope, detail.tax_id, detail.name, detail.calculation_type, detail.operation_type, COUNT(DISTINCT header.id) as documents, SUM(detail.quantity) as quantity, ROUND(SUM(detail.base_amount), ?) as base_amount, ROUND(SUM(detail.amount), ?) as amount", [$scope, $precision, $precision])
             ->get();
 
     }
@@ -57,7 +58,7 @@ final class FinancialSettlementReportService {
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
             ->groupBy("detail.payment_method_id", "detail.name")
-            ->selectRaw("? as scope, detail.payment_method_id, detail.name, COUNT(DISTINCT header.id) as documents, SUM(detail.amount) as amount", [$scope])
+            ->selectRaw("? as scope, detail.payment_method_id, detail.name, COUNT(DISTINCT header.id) as documents, ROUND(SUM(detail.amount), ?) as amount", [$scope, Utilities::decimalPrecision()])
             ->get();
 
     }

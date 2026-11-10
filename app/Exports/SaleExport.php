@@ -2,9 +2,10 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\{FromCollection, WithColumnWidths, WithHeadings};
+use App\Helpers\System\{Utilities};
+use Maatwebsite\Excel\Concerns\{FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings};
 
-class SaleExport implements FromCollection, WithColumnWidths, WithHeadings {
+class SaleExport implements FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings {
 
     protected $data;
 
@@ -30,6 +31,12 @@ class SaleExport implements FromCollection, WithColumnWidths, WithHeadings {
             "E" => 20,
             "F" => 25,
         ];
+
+    }
+
+    public function columnFormats(): array {
+
+        return ["D" => Utilities::spreadsheetDecimalFormat()];
 
     }
 

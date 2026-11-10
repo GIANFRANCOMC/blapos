@@ -77,7 +77,7 @@ class StoreSaleRequest extends CompanyFormRequest {
             "payments" => "nullable|array|max:20",
             "payments.*.payment_method_id" => "required_with:payments|integer",
             "payments.*.payment_method_variant_id" => "nullable|integer",
-            "payments.*.amount" => "required_with:payments|numeric|min:0.01|max:$maxValue|decimal:0,$round",
+            "payments.*.amount" => "required_with:payments|numeric|gt:0|max:$maxValue|decimal:0,$round",
             "payments.*.reference" => "nullable|string|max:100",
             "payments.*.note" => "nullable|string|max:300",
             // Details

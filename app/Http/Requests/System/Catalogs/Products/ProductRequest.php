@@ -25,7 +25,7 @@ abstract class ProductRequest extends CompanyFormRequest {
             "name" => ["bail", "required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
             "brand_id" => ["nullable", "integer", new ExistsInTenant("brands", [], "La marca seleccionada no pertenece a la empresa.")],
-            "price" => ["bail", "required", "numeric", "min:0.01", "max:{$maxValue}", "decimal:0,{$round}"],
+            "price" => ["bail", "required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "price_includes_tax" => ["nullable", "boolean"],
             "igv_exempt" => ["nullable", "boolean"],
             "min_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", "decimal:0,{$round}"],

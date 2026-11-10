@@ -83,7 +83,7 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
             ->pluck("quantity", "item_id");
 
         $settings = CompanySettingService::group(CompanySettingService::NUMERIC_VALIDATION);
-        $precision = min(8, max(0, (int) ($settings["decimal_precision"] ?? 3)));
+        $precision = $settings[CompanySettingService::DECIMAL_PRECISION_KEY];
         $maxValue = (float) ($settings["default_max_value"] ?? 999999999999.999);
         $seen = [];
 

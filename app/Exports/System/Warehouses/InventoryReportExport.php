@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Warehouses;
 
+use App\Helpers\System\{Utilities};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Support\{Collection};
@@ -223,7 +224,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->guide_type === "entry" ? "Entrada" : "Salida",
                 $record->items->map(function($item): string {
 
-                    $description = $item->item?->name." x ".(float) $item->quantity;
+                    $description = $item->item?->name." x ".Utilities::formatDecimal($item->quantity);
                     $abbreviation = $item->item?->measurementUnit?->abbreviation;
 
                     return $abbreviation ? $description." ".$abbreviation : $description;
@@ -264,6 +265,18 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "guides" => "J",
             default => "N"
         };
+        $decimalColumns = match ($this->view) {
+            "stock" => "E:F",
+            "valued" => "I:M",
+            "guides" => null,
+            default => "I:K"
+        };
+
+        if($decimalColumns !== null) {
+
+            $sheet->getStyle($decimalColumns)->getNumberFormat()->setFormatCode(Utilities::spreadsheetDecimalFormat());
+
+        }
 
         $sheet->freezePane("A2");
         $sheet->setAutoFilter("A1:{$lastColumn}1");
@@ -360,7 +373,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $warehouseName = $warehouse["warehouse_name"] ?? "Almacén";
                 $location = trim(($branchName !== "" ? $branchName." / " : "").$warehouseName);
 
-                $quantity = (float) ($warehouse["quantity"] ?? 0);
+                $quantity = Utilities::formatDecimal($warehouse["quantity"] ?? 0);
                 $description = $location.": ".$quantity;
                 $abbreviation = $unit?->abbreviation;
 

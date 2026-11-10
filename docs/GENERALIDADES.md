@@ -251,11 +251,11 @@ Errores de campo:
 
 ## Precisión Numérica
 
-Montos, cantidades operativas, costos, tributos, pagos, inventario y valorización deben tomar su precisión desde configuración por cliente. El valor `3` es el default inicial sembrado en `company_settings.numeric_validation.decimal_precision`; no debe quedar quemado como regla de negocio en requests, servicios ni componentes.
+Montos, cantidades operativas, costos, tributos, pagos, inventario y valorización usan la precisión de la empresa. Se configura en **Maestros internos → Configuraciones → Decimales de operación**. Las empresas nuevas empiezan con `2` decimales y pueden elegir un entero de `0` a `3`. El cambio afecta la presentación y las operaciones siguientes. Los datos históricos permanecen almacenados con su precisión original.
 
 Configuración vigente por empresa:
 
-- `numeric_validation.decimal_precision`: cantidad de decimales permitidos y usados para normalizar.
+- `numeric_validation.decimal_precision`: cantidad de decimales para validar, redondear y mostrar. Si falta la configuración o el valor no es entero, se usa el valor inicial. Los valores históricos fuera del rango se ajustan al extremo correspondiente al leerlos.
 - `numeric_validation.default_min_value`: mínimo operativo por defecto.
 - `numeric_validation.default_max_value`: máximo operativo por defecto para importes, cantidades, pagos y saldos.
 - `numeric_validation.max_file_size_kb`: tamaño máximo configurable para archivos de formularios.
@@ -263,11 +263,10 @@ Configuración vigente por empresa:
 Reglas:
 
 - Los `FormRequest` company-scoped deben extender `CompanyFormRequest` cuando validen números, archivos o normalicen entradas. Usar `decimalPrecision()`, `numericMinValue()`, `numericMaxValue()`, `numericMaxFileSizeKb()`, `numericRules()` y `normalizeDecimalInput()` en vez de valores fijos.
-- `BaseConfigService` expone `config.generalConfig.forms.inputs` en `initParams`; el frontend aplica esos valores con `applyGeneralConfig()` para que `InputNumber`, `InputSlot` y validaciones visuales queden alineadas con el backend.
-- `Utilities::round($value, null, $companyId)` puede usar la precisión por empresa cuando el servicio conoce el `companyId`. Si no lo conoce, conserva el fallback global para compatibilidad.
-- Usar `fixedNumber`/`InputNumber` sin forzar `2` decimales salvo que sea una métrica no monetaria ni operativa.
-- Los casts Eloquent usan `ConfigurableDecimal` y las migraciones nuevas nacen con escala técnica de 3 decimales; la validación y redondeo funcional se gobiernan por `company_settings`.
-- Métricas de tiempo, latencia o porcentajes visuales pueden conservar reglas propias si no afectan dinero, stock o saldo.
+- Las vistas cargan la precisión desde la empresa activa. `BaseConfigService` también la expone en `config.generalConfig.forms.inputs.round` y `applyGeneralConfig()` la aplica al recibir `initParams`. El valor `0` es válido.
+- En PHP se usan `Utilities::round()` para calcular, `Utilities::formatDecimal()` para mostrar y `Utilities::spreadsheetDecimalFormat()` para Excel. En JavaScript se usan `InputNumber`, `fixedNumber()` y `separatorNumber()`. En ambos lenguajes, los empates se redondean alejándose de cero.
+- Los casts Eloquent usan `ConfigurableDecimal`. La escala técnica de las columnas se mantiene para soportar el máximo permitido. En cálculos con distribución, la suma de los importes redondeados debe coincidir con el total.
+- Los conteos, identificadores, duraciones expresadas en minutos enteros y formatos técnicos de integraciones conservan su propia representación.
 
 ## Modales y SweetAlert
 

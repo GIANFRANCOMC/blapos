@@ -196,8 +196,7 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
         ]);
 
         $sheet->getRowDimension(1)->setRowHeight(24);
-        $sheet->getStyle("H:J")->getNumberFormat()->setFormatCode("#,##0.00");
-        $sheet->getStyle("K:K")->getNumberFormat()->setFormatCode("#,##0.00");
+        $sheet->getStyle("H:K")->getNumberFormat()->setFormatCode(Utilities::spreadsheetDecimalFormat());
         $sheet->getStyle("A:".self::LAST_COLUMN)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle("E:F")->getAlignment()->setWrapText(true);
         $sheet->getStyle("O:O")->getAlignment()->setWrapText(true);

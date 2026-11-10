@@ -128,7 +128,7 @@ final class InventoryMovementService {
             $valueBefore = Utilities::round((float) ($warehouseItem->inventory_value ?? 0));
             $currentAverageCost = Utilities::round((float) ($warehouseItem->average_cost ?? 0));
 
-            if(abs($quantityChange) < 0.00001) {
+            if($quantityChange === 0.0) {
 
                 throw new DomainException("El movimiento no modifica el saldo actual.");
 
@@ -142,16 +142,18 @@ final class InventoryMovementService {
 
             $unitCost = self::resolveUnitCost($type, $quantityChange, $currentAverageCost, $data);
 
-            $valueChange = Utilities::round($quantityChange * $unitCost);
+            $valueChange = match (true) {
+                $type === self::TYPE_ENTRY && isset($data["entry_value"]) => Utilities::round($data["entry_value"]),
+                $quantityAfter === 0.0 => -$valueBefore,
+                $quantityChange < 0 && $quantityAfter > 0 => Utilities::round($valueBefore * ($quantityChange / $quantityBefore)),
+                default => Utilities::round($quantityChange * $unitCost),
+            };
             $valueAfter = Utilities::round($valueBefore + $valueChange);
-            $averageCost = self::resolveAverageCost(
-                $type,
-                $quantityBefore,
-                $quantityAfter,
-                $valueAfter,
-                $currentAverageCost,
-                $unitCost
-            );
+            $averageCost = match (true) {
+                $quantityAfter === 0.0 => 0.0,
+                $quantityAfter > 0 => Utilities::round($valueAfter / $quantityAfter),
+                default => $currentAverageCost,
+            };
 
             $warehouseItem->update([
                 "quantity" => $quantityAfter,
@@ -357,6 +359,7 @@ final class InventoryMovementService {
                     "origin_type" => self::ORIGIN_TRANSFER_IN,
                     "quantity" => $quantity,
                     "unit_cost" => (float) $exit->unit_cost,
+                    "entry_value" => -(float) $exit->value_change,
                     "reason" => $reason,
                     "reference" => $reference,
                     "metadata" => $metadata,
@@ -607,37 +610,6 @@ final class InventoryMovementService {
                 throw new DomainException("El costo unitario no puede ser negativo.");
 
             }
-
-            return $unitCost;
-
-        }
-
-        return $currentAverageCost;
-
-    }
-
-    private static function resolveAverageCost(
-        string $type,
-        float $quantityBefore,
-        float $quantityAfter,
-        float $valueAfter,
-        float $currentAverageCost,
-        float $unitCost
-    ): float {
-
-        if(abs($quantityAfter) < 0.00001) {
-
-            return 0;
-
-        }
-
-        if($type === self::TYPE_ENTRY && $quantityAfter > 0) {
-
-            return Utilities::round($valueAfter / $quantityAfter);
-
-        }
-
-        if($quantityBefore <= 0 && $quantityAfter > 0) {
 
             return $unitCost;
 

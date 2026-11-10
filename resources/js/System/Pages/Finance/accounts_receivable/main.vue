@@ -325,7 +325,7 @@ export default {
         summaryAmount(key) {
             const amounts = this.summary.amounts || [];
 
-            if(!amounts.length) return "S/ 0.000";
+            if(!amounts.length) return `S/ ${this.separatorNumber(0)}`;
 
             return amounts.map(amount => `${amount.sign || amount.code} ${this.separatorNumber(amount[key] || 0)}`).join(" · ");
         },

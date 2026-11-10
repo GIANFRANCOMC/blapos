@@ -89,16 +89,15 @@ final class CommercialDocumentSettlementService {
             ->values();
 
         $paid = Utilities::round((float) $payments->sum("amount"));
-        $documentTotal = Utilities::round($total);
-        $tolerance = self::decimalTolerance();
+        $difference = Utilities::round($paid - Utilities::round($total));
 
-        if($requireExactTotal && abs($paid - $documentTotal) > $tolerance) {
+        if($requireExactTotal && $difference !== 0.0) {
 
             throw new DomainException("El total de los métodos de pago debe coincidir con el total del documento.");
 
         }
 
-        if(!$requireExactTotal && $paid - $documentTotal > $tolerance) {
+        if(!$requireExactTotal && $difference > 0) {
 
             throw new DomainException("El total pagado no puede superar el total del documento.");
 
@@ -406,12 +405,6 @@ final class CommercialDocumentSettlementService {
             "created_at" => now(),
             "created_by" => $userId,
         ];
-
-    }
-
-    private static function decimalTolerance(): float {
-
-        return 1 / (10 ** max(1, Utilities::decimalPrecision()));
 
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Warehouses;
 
+use App\Helpers\System\{Utilities};
 use App\Services\System\Warehouses\StockManagement\StockManagementService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
@@ -44,7 +45,7 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
             $alert->barcode ?? "",
             $quantity,
             $minimum,
-            max(0, $minimum - $quantity),
+            Utilities::round(max(0, $minimum - $quantity)),
             $alert->unit_abbreviation,
             $alert->detected_at ? Carbon::parse($alert->detected_at)->format("d/m/Y H:i") : "—",
             "Abierta",
@@ -68,12 +69,14 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
 
     public function columnFormats(): array {
 
+        $decimalFormat = Utilities::spreadsheetDecimalFormat();
+
         return [
             "B" => NumberFormat::FORMAT_TEXT,
             "C" => NumberFormat::FORMAT_TEXT,
-            "D" => "#,##0.000",
-            "E" => "#,##0.000",
-            "F" => "#,##0.000",
+            "D" => $decimalFormat,
+            "E" => $decimalFormat,
+            "F" => $decimalFormat,
         ];
 
     }

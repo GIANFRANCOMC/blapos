@@ -94,8 +94,12 @@ final class CompanySettingService {
         "sale_share_ttl_minutes" => 4320,
     ];
 
+    public const DECIMAL_PRECISION_KEY = "decimal_precision";
+    public const DEFAULT_DECIMAL_PRECISION = 2;
+    public const MAX_DECIMAL_PRECISION = 3;
+
     private const DEFAULT_NUMERIC_VALIDATION = [
-        "decimal_precision" => 3,
+        self::DECIMAL_PRECISION_KEY => self::DEFAULT_DECIMAL_PRECISION,
         "default_min_value" => 0,
         "default_max_value" => 999999999999.999,
         "max_file_size_kb" => 4096,
@@ -151,7 +155,15 @@ final class CompanySettingService {
 
         foreach($settings as $setting) {
 
-            $values[$setting->key] = self::castValue($setting->value, $setting->value_type);
+            if(self::isDecimalPrecisionSetting($group, $setting->key)) {
+
+                $values[self::DECIMAL_PRECISION_KEY] = self::normalizeDecimalPrecision($setting->value);
+
+            }else {
+
+                $values[$setting->key] = self::castValue($setting->value, $setting->value_type);
+
+            }
 
         }
 
@@ -164,6 +176,29 @@ final class CompanySettingService {
         $values = self::group($group);
 
         return array_key_exists($key, $values) ? $values[$key] : $default;
+
+    }
+
+    public static function decimalPrecision(): int {
+
+        return self::group(self::NUMERIC_VALIDATION)[self::DECIMAL_PRECISION_KEY];
+
+    }
+
+    public static function isDecimalPrecisionSetting(?string $group, ?string $key): bool {
+
+        return strcasecmp($group ?? "", self::NUMERIC_VALIDATION) === 0
+            && strcasecmp($key ?? "", self::DECIMAL_PRECISION_KEY) === 0;
+
+    }
+
+    private static function normalizeDecimalPrecision(?string $value): int {
+
+        $precision = filter_var($value, FILTER_VALIDATE_INT);
+
+        return $precision === false
+            ? self::DEFAULT_DECIMAL_PRECISION
+            : max(0, min(self::MAX_DECIMAL_PRECISION, $precision));
 
     }
 

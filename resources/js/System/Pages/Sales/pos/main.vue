@@ -166,7 +166,7 @@
                                 </div>
                                 <div v-if="!taxSummary.length">
                                     <span>IGV</span>
-                                    <strong>S/ 0.00</strong>
+                                    <strong>S/ {{ separatorNumber(0) }}</strong>
                                 </div>
                             </div>
 
@@ -343,7 +343,7 @@
                         </div>
                         <div v-if="!taxSummary.length">
                             <span>IGV</span>
-                            <strong>S/ 0.00</strong>
+                            <strong>S/ {{ separatorNumber(0) }}</strong>
                         </div>
                         <div class="is-total">
                             <span>Total</span>

@@ -185,7 +185,7 @@
                                     hasTextBottom
                                     :textBottomInfo="errors.yield_quantity"
                                     :hasNegative="false"
-                                    minValue="0.01"
+                                    :minValue="quantityStep"
                                     xl="3"
                                     lg="3"/>
 
@@ -228,7 +228,7 @@
                             <div class="br-recipe-lines">
                                 <div v-for="(row, index) in form.components" :key="row.uid" class="br-recipe-line">
                                     <v-select v-model="row.item" :options="ingredients" label="name" placeholder="Insumo"/>
-                                    <InputNumber v-model="row.quantity" :hasNegative="false" minValue="0.0001" placeholder="Cantidad"/>
+                                    <InputNumber v-model="row.quantity" :hasNegative="false" :minValue="quantityStep" placeholder="Cantidad"/>
                                     <InputNumber v-model="row.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
                                     <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(form.components, index)">
                                         <i class="fa-solid fa-minus" aria-hidden="true"></i>
@@ -267,7 +267,7 @@
                                 </button>
                                 <div v-for="(component, componentIndex) in topping.components" :key="component.uid" class="br-recipe-line mt-2">
                                     <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Insumo"/>
-                                    <InputNumber v-model="component.quantity" :hasNegative="false" minValue="0.0001" placeholder="Cantidad"/>
+                                    <InputNumber v-model="component.quantity" :hasNegative="false" :minValue="quantityStep" placeholder="Cantidad"/>
                                     <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
                                     <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(topping.components, componentIndex)">
                                         <i class="fa-solid fa-minus" aria-hidden="true"></i>
@@ -302,7 +302,7 @@
                                 </button>
                                 <div v-for="(component, componentIndex) in option.components" :key="component.uid" class="br-recipe-line mt-2">
                                     <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Insumo"/>
-                                    <InputNumber v-model="component.quantity" :hasNegative="false" minValue="0.0001" placeholder="Cantidad"/>
+                                    <InputNumber v-model="component.quantity" :hasNegative="false" :minValue="quantityStep" placeholder="Cantidad"/>
                                     <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
                                     <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(option.components, componentIndex)">
                                         <i class="fa-solid fa-minus" aria-hidden="true"></i>
@@ -327,6 +327,7 @@
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
+import {decimalStep} from "@System/Helpers/NumberUtils.js";
 import CopyButton from "@System/Components/CopyButton.vue";
 
 const CONFIG = {
@@ -385,6 +386,9 @@ export default {
         };
     },
     computed: {
+        quantityStep() {
+            return decimalStep();
+        },
         currencySign() {
             return this.currencies?.[0]?.sign || "S/";
         }

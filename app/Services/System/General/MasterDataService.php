@@ -9,12 +9,13 @@ use App\Models\System\General\{Currency, DocumentType, IdentityDocumentType};
 use App\Models\System\Organizations\{CompanySetting};
 use App\Services\System\Base\{InitParamsCacheInvalidationService, MasterReferenceDataService};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
-use App\Services\System\Tenancy\{TenantStoragePath};
+use App\Services\System\Tenancy\{TenantCompanyContext, TenantStoragePath};
 use DomainException;
 use Illuminate\Database\Eloquent\{Model};
 use Illuminate\Http\{UploadedFile};
 use Illuminate\Support\Facades\{DB, Storage};
 use Illuminate\Support\{Str};
+use Illuminate\Validation\{ValidationException};
 
 final class MasterDataService {
 
@@ -37,10 +38,11 @@ final class MasterDataService {
         }
 
         $definition = self::definition($resource);
+        $query = $resource === "company-settings"
+            ? app(TenantCompanyContext::class)->get()->settings()
+            : $definition["model"]::query();
 
-        return $definition["model"]::query()
-            ->orderBy(self::orderColumn($resource))
-            ->get();
+        return $query->orderBy(self::orderColumn($resource))->get();
 
     }
 
@@ -67,19 +69,28 @@ final class MasterDataService {
                 &$obsoleteImagePath
             ) {
 
+                $settings = $resource === "company-settings"
+                    ? app(TenantCompanyContext::class)->get()->settings()
+                    : null;
+                $query = $settings?->getQuery() ?? $definition["model"]::query();
+
                 $record = $id
-                    ? $definition["model"]::query()->findOrFail($id)
-                    : new $definition["model"]();
+                    ? (clone $query)->findOrFail($id)
+                    : ($settings?->make() ?? new $definition["model"]());
 
-                $duplicateQuery = $definition["model"]::query();
+                if($settings !== null) {
 
-                foreach(self::uniqueKey($resource, $data) as $column => $value) {
-
-                    $duplicateQuery->where($column, $value);
+                    $data = self::validateDecimalPrecisionSetting($record, $data);
 
                 }
 
-                $duplicate = $duplicateQuery
+                foreach(self::uniqueKey($resource, $data) as $column => $value) {
+
+                    $query->where($column, $value);
+
+                }
+
+                $duplicate = $query
                     ->when($id, fn($query) => $query->where("id", "!=", $id))
                     ->exists();
 
@@ -158,17 +169,6 @@ final class MasterDataService {
                 $record->{$id ? "updated_by" : "created_by"} = $userId;
                 $record->save();
 
-                if($resource === "company-settings") {
-
-                    CompanySettingService::clearCache();
-
-                }
-
-                MasterReferenceDataService::clearCache();
-                InitParamsCacheInvalidationService::invalidate(
-                    self::invalidationResource($resource)
-                );
-
                 return $record->fresh();
 
             });
@@ -184,6 +184,15 @@ final class MasterDataService {
             throw $exception;
 
         }
+
+        if($resource === "company-settings") {
+
+            CompanySettingService::clearCache();
+
+        }
+
+        MasterReferenceDataService::clearCache();
+        InitParamsCacheInvalidationService::invalidate(self::invalidationResource($resource));
 
         if($obsoleteImagePath && $obsoleteImagePath !== $newImagePath) {
 
@@ -287,6 +296,48 @@ final class MasterDataService {
             "company-settings" => InitParamsCacheInvalidationService::COMPANY_SETTINGS,
             default => throw new DomainException("El maestro solicitado no tiene política de caché.")
         };
+
+    }
+
+    private static function validateDecimalPrecisionSetting(CompanySetting $record, array $data): array {
+
+        $isPrecision = CompanySettingService::isDecimalPrecisionSetting($data["group"], $data["key"]);
+
+        if(!$isPrecision && CompanySettingService::isDecimalPrecisionSetting($record->group, $record->key)) {
+
+            throw ValidationException::withMessages(["key" => "La clave de precisión decimal no se puede cambiar."]);
+
+        }
+
+        if(!$isPrecision) {
+
+            return $data;
+
+        }
+
+        $value = $data["value"] ?? null;
+        $max = CompanySettingService::MAX_DECIMAL_PRECISION;
+        $precision = is_int($value) || is_string($value)
+            ? filter_var($value, FILTER_VALIDATE_INT, ["options" => ["min_range" => 0, "max_range" => $max]])
+            : false;
+
+        if($precision === false) {
+
+            throw ValidationException::withMessages(["value" => "Elige una cantidad entera de decimales entre 0 y {$max}."]);
+
+        }
+
+        if($data["value_type"] !== "integer" || $data["status"] !== "active") {
+
+            throw ValidationException::withMessages(["status" => "La precisión decimal debe permanecer activa y usar un valor entero."]);
+
+        }
+
+        $data["group"] = CompanySettingService::NUMERIC_VALIDATION;
+        $data["key"] = CompanySettingService::DECIMAL_PRECISION_KEY;
+        $data["value"] = $precision;
+
+        return $data;
 
     }
 

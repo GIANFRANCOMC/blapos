@@ -4,6 +4,7 @@
 
 import { generalConfig } from "./Constants.js";
 import { isDefined } from "./ValidationUtils.js";
+import {formatDecimalNumber, normalizePrecision} from "../../Shared/DecimalPrecision.js";
 
 /**
  * Valida si un valor es un número válido.
@@ -46,7 +47,7 @@ export function isNumber({value, minValue = 0, maxValue = null, allowEmpty = fal
  */
 export function fixedNumber(value, decimals = null) {
 
-    return normalizeNumber(value).toFixed(resolveDecimals(decimals));
+    return formatDecimalNumber(normalizeNumber(value), resolveDecimals(decimals));
 
 }
 
@@ -58,12 +59,7 @@ export function fixedNumber(value, decimals = null) {
  */
 export function separatorNumber(value, decimals = null) {
 
-    const decimalPlaces = resolveDecimals(decimals);
-
-    return new Intl.NumberFormat("en-US", {
-        minimumFractionDigits: decimalPlaces,
-        maximumFractionDigits: decimalPlaces
-    }).format(normalizeNumber(value));
+    return formatDecimalNumber(normalizeNumber(value), resolveDecimals(decimals), true);
 
 }
 
@@ -97,10 +93,13 @@ export function calculateTotal({item}) {
 
 export function resolveDecimals(decimals = null) {
 
-    const value = decimals ?? generalConfig.forms.inputs.round;
-    const parsed = Number(value);
+    return normalizePrecision(decimals ?? generalConfig.forms.inputs.round);
 
-    return Number.isFinite(parsed) ? Math.max(0, Math.min(8, Math.trunc(parsed))) : 3;
+}
+
+export function decimalStep() {
+
+    return 10 ** -resolveDecimals();
 
 }
 

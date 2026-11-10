@@ -39,9 +39,11 @@ La vista `resources/js/System/Pages/Purchases/purchases/main.vue` incluye una se
 
 ## Inventario
 
-El costo de inventario se mantiene desde el costo unitario del detalle. Los impuestos documentarios no alteran el stock ni el costo promedio por si solos.
+El valor de inventario de cada detalle parte del subtotal y de los gastos que se le asignaron. Los impuestos documentarios no alteran el costo promedio por sí solos.
 
 `delivery_mode = immediate` es el valor por defecto y registra la entrada completa al almacén. `delivery_mode = pending` deja la recepción pendiente para entradas parciales hasta completar el 100%.
+
+El reparto de gastos, las recepciones y las cuotas usan la precisión de la empresa. Cada recepción registra la diferencia entre el valor acumulado anterior y el nuevo, de modo que al completar la compra se incorpora todo el costo del detalle. Las cuotas distribuyen el saldo en las unidades mínimas de esa precisión y cualquier cuota de importe cero queda sin saldo pendiente.
 
 ## Estado de mejoras
 

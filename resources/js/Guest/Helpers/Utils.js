@@ -1,6 +1,7 @@
 import { requestRoute, generalConfig } from "./Constants.js";
 import * as Requests from "./Requests.js";
 import { toastrs } from "./Alerts.js";
+import {formatDecimalNumber, normalizePrecision} from "../../Shared/DecimalPrecision.js";
 
 import axios from "axios";
 
@@ -142,27 +143,19 @@ export function calculateTotal({item}) {
 
 export function fixedNumber(value, decimals = null) {
 
-    return normalizeNumber(value).toFixed(resolveDecimals(decimals));
+    return formatDecimalNumber(normalizeNumber(value), resolveDecimals(decimals));
 
 }
 
 export function separatorNumber(value, decimals = null) {
 
-    const decimalPlaces = resolveDecimals(decimals);
-
-    return new Intl.NumberFormat("en-US", {
-        minimumFractionDigits: decimalPlaces,
-        maximumFractionDigits: decimalPlaces
-    }).format(normalizeNumber(value));
+    return formatDecimalNumber(normalizeNumber(value), resolveDecimals(decimals), true);
 
 }
 
 export function resolveDecimals(decimals = null) {
 
-    const value = decimals ?? generalConfig.forms.inputs.round;
-    const parsed = Number(value);
-
-    return Number.isFinite(parsed) ? Math.max(0, Math.min(8, Math.trunc(parsed))) : 3;
+    return normalizePrecision(decimals ?? generalConfig.forms.inputs.round);
 
 }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\StockManagement;
 
+use App\Helpers\System\{Utilities};
 use Dompdf\Adapter\CPDF;
 use Illuminate\Support\Carbon;
 
@@ -165,9 +166,9 @@ final class StockAlertsPdfRenderer {
         $unit = trim((string) ($alert->unit_abbreviation ?? ""));
         $suffix = $unit === "" ? "" : " ".$unit;
         $values = [
-            number_format($quantity, 3, ".", ",").$suffix,
-            number_format($minimum, 3, ".", ",").$suffix,
-            number_format(max(0, $minimum - $quantity), 3, ".", ",").$suffix,
+            Utilities::formatDecimal($quantity).$suffix,
+            Utilities::formatDecimal($minimum).$suffix,
+            Utilities::formatDecimal(max(0, $minimum - $quantity)).$suffix,
         ];
 
         $x = self::LEFT + self::COLUMNS[0] + self::COLUMNS[1];

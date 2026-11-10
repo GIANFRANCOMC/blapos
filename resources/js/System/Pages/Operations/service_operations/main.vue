@@ -589,7 +589,7 @@
                             <label class="form-label colon-at-end">{{ isRestaurant ? 'Primer producto o servicio' : 'Servicio inicial' }}</label>
                             <v-select v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" @search="searchItems" placeholder="Opcional · puedes agregarlo después"/>
                         </div>
-                        <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="0.0001" :decimals="4" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="quantityStep" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
                         <div class="col-12">
                             <label class="br-entity-switch" for="startServiceImmediately">
                                 <input id="startServiceImmediately" v-model="sessionForm.startImmediately" class="form-check-input" type="checkbox" role="switch">
@@ -702,6 +702,9 @@ export default {
         };
     },
     computed: {
+        quantityStep() {
+            return Utils.decimalStep();
+        },
         sessionFormTabs() {
             return SESSION_FORM_TABS;
         },

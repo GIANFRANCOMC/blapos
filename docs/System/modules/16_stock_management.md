@@ -253,7 +253,7 @@ El módulo Compras está conectado. Crear el documento no cambia existencias; ca
 - **Descargar PDF** y **Descargar Excel** comparten `GET /stocks_management/alerts/export?warehouse_id=...&export=pdf|excel`. La consulta y las descargas aceptan `minimum_status=configured|unconfigured` o vacío para todos: configurado implica el mínimo actual mayor que cero; sin configurar implica menor o igual a cero. El servidor valida el valor y aplica la misma condición antes de paginar, contar o exportar. La descarga requiere permisos de vista/exportación y acceso al almacén. Se solicita como archivo sin navegar fuera de la modal, muestra el Swal de carga y notifica errores en la misma pantalla.
 - Los reportes consultan filas planas con los códigos, cantidades y abreviatura necesarios, sin hidratar todos los modelos ni ejecutar sus accessors. El PDF dibuja las filas directamente sobre el lienzo, con cabecera repetida y páginas numeradas, sin construir una tabla HTML gigante; recorre el resultado con cursor. El Excel usa `FromQuery`. Ninguno carga el reporte durante la carga inicial de Control de stock.
 - `inventory_guides` e `inventory_guide_items` respaldan guías confirmadas de entrada/salida; cada detalle genera su movimiento inmutable.
-- Cantidades, saldos y movimientos conservan cuatro decimales. Esto evita perder consumos pequeños de recetas, insumos fraccionados o traslados medidos por peso/volumen.
+- Cantidades, saldos y movimientos usan los decimales configurados para la empresa. Los filtros de estado y mínimo comparan los valores redondeados que muestra la tabla. Excel y PDF usan la misma precisión.
 
 ## Evolución del módulo
 

@@ -1,4 +1,5 @@
 import * as Utils from "./Utils.js";
+import {normalizePrecision} from "../../Shared/DecimalPrecision.js";
 
 export const requestRoute = `${window.location.protocol}//${window.location.hostname}`;
 
@@ -22,9 +23,9 @@ export const generalConfig = {
         inputs: {
             maxlength: 999,
             required: "*",
-            round: 3,
+            round: normalizePrecision(window.decimalPrecision),
             minValue: 0,
-        maxValue: 999999999999.999,
+            maxValue: 999999999999.999,
             maxSize: 4096
         },
         errors: {

@@ -868,8 +868,7 @@ export default {
             return Utils.separatorNumber(value);
         },
         fixedNumber(value) {
-            const decimals = Number(generalConfig.forms.inputs.round || 3);
-            return Number(Number(value || 0).toFixed(decimals));
+            return Number(Utils.fixedNumber(value));
         },
         uuid() {
             return Utils.uuid ? Utils.uuid() : `${Date.now()}-${Math.random()}`;

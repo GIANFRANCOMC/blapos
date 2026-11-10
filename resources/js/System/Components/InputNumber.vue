@@ -53,7 +53,7 @@
 
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
-import { isDefined, isNumber, resolveDecimals, separatorNumber } from "../Helpers/Utils.js";
+import { fixedNumber, isDefined, isNumber, resolveDecimals, separatorNumber } from "../Helpers/Utils.js";
 
 export default {
     name: "InputNumber",
@@ -327,40 +327,9 @@ export default {
 
                 }
 
-                // Validate and format decimals
-                const regexDecimals = this.hasNegative ?
-                    (this.decimalPlaces > 0 ? new RegExp(`^-?\\d+(\\.\\d{1,${this.decimalPlaces}})?$`) : /^-?\d+$/) :
-                    (this.decimalPlaces > 0 ? new RegExp(`^\\d+(\\.\\d{1,${this.decimalPlaces}})?$`) : /^\d+$/);
-
-                const hasFormattedDecimal = regexDecimals.test(valueString);
-
-                // If has allowed decimals or is typing decimals, keep the value
-                // Otherwise, apply decimal formatting
-                if(this.decimalPlaces > 0) {
-
-                    if(hasFormattedDecimal || hasDecimalInitNumber) {
-
-                        this.localValue = String(numericValue);
-                        this.emitValue({reset: false, result: numericValue});
-
-                    }else {
-
-                        const result = Number(numericValue.toFixed(this.decimalPlaces));
-
-                        this.localValue = String(result);
-                        this.emitValue({reset: false, result});
-
-                    }
-
-                }else {
-
-                    // No decimals, emit as integer
-                    const result = hasFormattedDecimal ? numericValue : Math.round(numericValue);
-
-                    this.localValue = String(result);
-                    this.emitValue({reset: false, result});
-
-                }
+                const result = Number(fixedNumber(numericValue, this.decimalPlaces));
+                this.localValue = String(result);
+                this.emitValue({reset: false, result});
 
             }else {
 

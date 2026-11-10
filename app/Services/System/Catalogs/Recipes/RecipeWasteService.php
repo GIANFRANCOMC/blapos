@@ -65,10 +65,10 @@ final class RecipeWasteService {
 
             $quantity = Utilities::round((float) $data["quantity"]);
 
-            $unitCost = round((float) (WarehouseItem::query()
+            $unitCost = Utilities::round(WarehouseItem::query()
                 ->where("warehouse_id", $warehouseId)
                 ->where("item_id", $itemId)
-                ->value("average_cost") ?? 0), 4);
+                ->value("average_cost") ?? 0);
 
             $movement = InventoryMovementService::apply([
                 "warehouse_id" => $warehouseId,

@@ -596,7 +596,7 @@ final class CashRegisterService {
             $difference = Utilities::round($countedQuantity - $systemQuantity);
             $movement = null;
 
-            if(abs($difference) >= 0.00001) {
+            if($difference !== 0.0) {
 
                 $movement = InventoryMovementService::apply([
                     "warehouse_id" => $warehouseId,

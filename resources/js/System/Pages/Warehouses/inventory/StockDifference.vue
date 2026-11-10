@@ -4,7 +4,7 @@
 
 <script>
 import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
-import {normalizeNumber, resolveDecimals} from "@System/Helpers/NumberUtils.js";
+import {fixedNumber, normalizeNumber} from "@System/Helpers/NumberUtils.js";
 
 export default {
     name: "StockDifference",
@@ -17,8 +17,7 @@ export default {
     computed: {
         difference() {
             const value = normalizeNumber(this.current) - normalizeNumber(this.minimum);
-            const rounded = Number(value.toFixed(resolveDecimals()));
-            return Object.is(rounded, -0) ? 0 : rounded;
+            return Number(fixedNumber(value));
         },
         tone() {
             if(this.difference > 0) return "is-positive";

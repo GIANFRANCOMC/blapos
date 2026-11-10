@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Catalogs\Offerings;
 
+use App\Helpers\System\{Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Services\{ServiceService};
 use App\Services\System\Catalogs\Subscriptions\{SubscriptionService};
@@ -114,7 +115,11 @@ final class OfferingListExport extends DefaultValueBinder implements FromQuery, 
     public function styles(Worksheet $sheet): array {
 
         $lastColumn = $sheet->getHighestColumn();
+        $decimalFormat = Utilities::spreadsheetDecimalFormat();
+        $commissionColumn = $this->type === Item::TYPE_SERVICE ? "O" : "S";
 
+        $sheet->getStyle("F:H")->getNumberFormat()->setFormatCode($decimalFormat);
+        $sheet->getStyle("{$commissionColumn}:{$commissionColumn}")->getNumberFormat()->setFormatCode($decimalFormat);
         $sheet->freezePane("A2");
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray([
             "font" => ["bold" => true, "color" => ["rgb" => "FFFFFF"]],

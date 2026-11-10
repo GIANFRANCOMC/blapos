@@ -201,7 +201,7 @@ final class RecipeService {
             ->whereIn("item_id", $itemIds)
             ->pluck("average_cost", "item_id");
 
-        $yield = max(0.0001, (float) $recipe->yield_quantity);
+        $yield = max(Utilities::decimalStep(), (float) $recipe->yield_quantity);
         $recipeWasteFactor = 1 + (max(0, (float) $recipe->waste_percentage) / 100);
         $base = self::costComponents($recipe->components, $costs, $recipeWasteFactor / $yield);
         $options = $recipe->options->map(fn($option) => [

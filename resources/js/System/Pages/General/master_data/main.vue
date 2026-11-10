@@ -106,12 +106,25 @@
                         <div class="row g-3">
                             <template v-for="field in activeFields" :key="field.key">
                                 <div :class="field.wrapperClass || 'form-group col-xl-6 col-lg-6 col-md-12 col-sm-12'">
-                                    <label class="form-label">{{ field.label }}<span v-if="field.required" class="text-danger ms-1">*</span></label>
+                                    <label class="form-label" :for="isDecimalPrecision && field.key === 'value' ? 'companyDecimalPrecision' : null">
+                                        {{ isDecimalPrecision && field.key === "value" ? "Decimales de operación" : field.label }}<span v-if="field.required || (isDecimalPrecision && field.key === 'value')" class="text-danger ms-1">*</span>
+                                    </label>
 
-                                    <template v-if="field.type === 'select'">
+                                    <template v-if="isDecimalPrecision && field.key === 'value'">
+                                        <select id="companyDecimalPrecision" v-model="form.value" class="form-select">
+                                            <option value="" disabled>Selecciona la cantidad de decimales</option>
+                                            <option v-for="precision in decimalPrecisionOptions" :key="precision" :value="String(precision)">
+                                                {{ precision }} {{ precision === 1 ? "decimal" : "decimales" }}
+                                            </option>
+                                        </select>
+                                        <small class="br-master-data-help">Se aplica a cantidades y montos de toda la empresa.</small>
+                                    </template>
+
+                                    <template v-else-if="field.type === 'select'">
                                         <v-select
                                             v-model="form[field.key]"
                                             :options="field.options"
+                                            :disabled="isDecimalPrecision && ['status', 'value_type'].includes(field.key)"
                                             :clearable="false"
                                             :searchable="field.searchable ?? false"
                                             :class="config.forms.classes.select2">
@@ -141,8 +154,8 @@
                                             class="form-control"
                                             :type="field.type || 'text'"
                                             :maxlength="field.maxlength || 255"
-                                            :step="field.step || undefined"
-                                            :disabled="field.disabled?.(form) || false">
+                                            :step="field.decimal ? decimalStep() : undefined"
+                                            :disabled="(isEditing && isDecimalPrecision && ['group', 'key'].includes(field.key)) || field.disabled?.(form) || false">
                                     </template>
 
                                     <small class="br-form-error">{{ firstError(field.key) }}</small>
@@ -180,8 +193,14 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
+import {MAX_DECIMAL_PRECISION, normalizePrecision} from "../../../../Shared/DecimalPrecision.js";
 import MasterDataSkeleton from "./MasterDataSkeleton.vue";
 
+const DECIMAL_PRECISION_OPTIONS = Array.from({length: MAX_DECIMAL_PRECISION + 1}, (_, precision) => precision);
+
+function isDecimalPrecisionSetting(record) {
+    return record?.group?.toLowerCase() === "numeric_validation" && record?.key?.toLowerCase() === "decimal_precision";
+}
 
 const OPTION = {
     statuses: [{code: "active", label: "Activo"}, {code: "inactive", label: "Inactivo"}],
@@ -247,7 +266,7 @@ const RESOURCES = [
             {key: "code", label: "Código", required: true, maxlength: 30},
             {key: "name", label: "Nombre", required: true, maxlength: 255},
             {key: "scope", label: "Alcance", type: "select", options: OPTION.scopesSalePurchase, required: true},
-            {key: "rate", label: "Valor", type: "number", step: "0.0001", required: true},
+            {key: "rate", label: "Valor", type: "number", decimal: true, required: true},
             {key: "calculation_type", label: "Tipo de cálculo", type: "select", options: OPTION.calculationTypes, required: true},
             {key: "operation_type", label: "Operación", type: "select", options: OPTION.operationTypes, required: true},
             {key: "min_apply_quantity", label: "Cantidad mínima", type: "number", disabled: form => form.calculation_type?.code === "percentage"},
@@ -398,6 +417,12 @@ export default {
         activeFields() {
             return this.selectedResource.fields;
         },
+        isDecimalPrecision() {
+            return this.selectedResourceCode === "company-settings" && isDecimalPrecisionSetting(this.form);
+        },
+        decimalPrecisionOptions() {
+            return DECIMAL_PRECISION_OPTIONS;
+        },
         filteredRecords() {
             const term = this.appliedSearch.toLowerCase();
             if(!term) return this.records;
@@ -415,6 +440,7 @@ export default {
         }
     },
     methods: {
+        decimalStep: Utils.decimalStep,
         applySearch() {
             this.appliedSearch = this.searchTerm;
         },
@@ -490,6 +516,12 @@ export default {
 
             form.status = this.optionByCode(OPTION.statuses, record.status || "active");
 
+            if(this.selectedResourceCode === "company-settings" && isDecimalPrecisionSetting(record)) {
+                form.value = String(normalizePrecision(record.value));
+                form.value_type = this.optionByCode(OPTION.valueTypes, "integer");
+                form.status = this.optionByCode(OPTION.statuses, "active");
+            }
+
             return form;
         },
         defaultValueForField(field) {
@@ -523,6 +555,9 @@ export default {
             this.saving = false;
 
             if(Requests.valid({result})) {
+                if(this.isDecimalPrecision) {
+                    Constants.applyGeneralConfig({forms: {inputs: {round: normalizePrecision(payload.value)}}});
+                }
                 Alerts.generateAlert({type: "success", msgContent: result.data.msg || "Registro guardado correctamente."});
                 await this.loadRecords();
                 this.startCreate();
@@ -580,6 +615,11 @@ export default {
                 data[field.key] = this.normalizeValue(field, value);
             });
 
+            if(this.isDecimalPrecision) {
+                data.value_type = "integer";
+                data.status = "active";
+            }
+
             if(this.selectedResourceCode === "taxes" && data.calculation_type === "percentage") {
                 data.min_apply_quantity = null;
                 data.max_apply_quantity = null;
@@ -610,6 +650,7 @@ export default {
         },
         recordTitle(record) {
             if(this.selectedResourceCode === "company-settings") {
+                if(isDecimalPrecisionSetting(record)) return "Decimales de operación";
                 return `${record.group || ""}.${record.key || ""}`;
             }
 

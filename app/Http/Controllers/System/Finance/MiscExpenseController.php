@@ -86,14 +86,14 @@ final class MiscExpenseController extends BaseController {
             "expense_date" => ["required", "date"],
             "reference" => ["nullable", "string", "max:100"],
             "concept" => ["required", "string", "max:255"],
-            "amount" => ["required", "numeric", "gt:0", "decimal:0,".Utilities::$inputs["round"]],
+            "amount" => ["required", "numeric", "gt:0", "decimal:0,".Utilities::decimalPrecision()],
             "description" => ["nullable", "string", "max:2000"],
             "observation" => ["nullable", "string", "max:2000"],
         ], [
             "required" => "Campo obligatorio.",
             "numeric" => "Ingresa un número válido.",
             "gt" => "Debe ser mayor que cero.",
-            "decimal" => "Usa hasta ".Utilities::$inputs["round"]." decimales.",
+            "decimal" => "Usa hasta ".Utilities::decimalPrecision()." decimales.",
             "max" => "Supera la longitud permitida.",
         ]);
 

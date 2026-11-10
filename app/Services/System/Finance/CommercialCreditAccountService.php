@@ -108,12 +108,14 @@ final class CommercialCreditAccountService {
 
         }
 
+        $dueDate = $firstDueDate ?: $purchase->due_date?->toDateString();
+
         $account = PurchaseAccountPayable::create([
             "purchase_header_id" => $purchase->id,
             "supplier_id" => $purchase->supplier_id,
             "currency_id" => $purchase->currency_id,
             "issue_date" => $purchase->issue_date,
-            "due_date" => $firstDueDate ?: $purchase->due_date,
+            "due_date" => $dueDate,
             "payment_modality" => $purchase->payment_modality,
             "original_amount" => Utilities::round((float) $purchase->total - (float) $purchase->installment_extra_amount),
             "extra_percentage" => $purchase->installment_extra_percentage,
@@ -126,7 +128,7 @@ final class CommercialCreditAccountService {
             "created_by" => $userId,
         ]);
 
-        self::createPurchaseInstallments($account, max(1, $installmentCount), $firstDueDate ?: $purchase->due_date, $userId);
+        self::createPurchaseInstallments($account, max(1, $installmentCount), $dueDate, $userId);
         self::createPurchasePaymentTrace($account, $paymentLines, $userId);
 
         return $account;
@@ -135,14 +137,9 @@ final class CommercialCreditAccountService {
 
     private static function createSaleInstallments(SaleAccountReceivable $account, int $count, ?string $firstDueDate, int $userId): void {
 
-        $amount = Utilities::round((float) $account->pending_amount / $count);
         $rows = [];
 
-        for($number = 1; $number <= $count; $number++) {
-
-            $lineAmount = $number === $count
-                ? Utilities::round((float) $account->pending_amount - ($amount * ($count - 1)))
-                : $amount;
+        foreach(self::installmentAmounts((float) $account->pending_amount, $count) as $number => $lineAmount) {
 
             $rows[] = [
                 "sale_account_receivable_id" => $account->id,
@@ -151,7 +148,7 @@ final class CommercialCreditAccountService {
                 "amount" => $lineAmount,
                 "paid_amount" => 0,
                 "pending_amount" => $lineAmount,
-                "status" => "pending",
+                "status" => $lineAmount > 0 ? "pending" : "paid",
                 "created_at" => now(),
                 "created_by" => $userId,
             ];
@@ -164,14 +161,9 @@ final class CommercialCreditAccountService {
 
     private static function createPurchaseInstallments(PurchaseAccountPayable $account, int $count, ?string $firstDueDate, int $userId): void {
 
-        $amount = Utilities::round((float) $account->pending_amount / $count);
         $rows = [];
 
-        for($number = 1; $number <= $count; $number++) {
-
-            $lineAmount = $number === $count
-                ? Utilities::round((float) $account->pending_amount - ($amount * ($count - 1)))
-                : $amount;
+        foreach(self::installmentAmounts((float) $account->pending_amount, $count) as $number => $lineAmount) {
 
             $rows[] = [
                 "purchase_account_payable_id" => $account->id,
@@ -180,7 +172,7 @@ final class CommercialCreditAccountService {
                 "amount" => $lineAmount,
                 "paid_amount" => 0,
                 "pending_amount" => $lineAmount,
-                "status" => "pending",
+                "status" => $lineAmount > 0 ? "pending" : "paid",
                 "created_at" => now(),
                 "created_by" => $userId,
             ];
@@ -188,6 +180,24 @@ final class CommercialCreditAccountService {
         }
 
         PurchasePayableInstallment::insert($rows);
+
+    }
+
+    private static function installmentAmounts(float $total, int $count): array {
+
+        $scale = 10 ** Utilities::decimalPrecision();
+        $totalUnits = (int) round($total * $scale);
+        $baseUnits = intdiv($totalUnits, $count);
+        $extraUnits = $totalUnits % $count;
+        $amounts = [];
+
+        for($number = 1; $number <= $count; $number++) {
+
+            $amounts[$number] = ($baseUnits + (int) ($number <= $extraUnits)) / $scale;
+
+        }
+
+        return $amounts;
 
     }
 

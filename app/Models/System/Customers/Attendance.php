@@ -61,7 +61,7 @@ class Attendance extends Model {
 
         $end = Carbon::parse($endDate);
 
-        return round($start->floatDiffInHours($end), 3);
+        return $start->floatDiffInHours($end);
 
     }
 

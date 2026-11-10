@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\StockManagement;
 
+use App\Casts\System\{ConfigurableDecimal};
 use App\Helpers\System\{Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{InventoryStockAlert, Warehouse, WarehouseItem};
@@ -162,8 +163,8 @@ class StockManagementService {
 
         })->values();
 
-        $item->setAttribute("stock_quantity", Utilities::round((float) $warehouses->sum("quantity")));
-        $item->setAttribute("minimum_stock", Utilities::round((float) $warehouses->sum("minimum_stock")));
+        $item->setAttribute("stock_quantity", Utilities::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("quantity"))));
+        $item->setAttribute("minimum_stock", Utilities::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("minimum_stock"))));
         $item->setAttribute("warehouse_breakdown", $warehouses);
         $item->setAttribute("alert_warehouses_count", $warehouses->where("requires_attention", true)->count());
 
@@ -188,7 +189,8 @@ class StockManagementService {
 
                 $query->where("warehouse_id", $warehouseId)->where("status", "active");
 
-            }], "minimum_stock");
+            }], "minimum_stock")
+            ->withCasts(["stock_quantity" => ConfigurableDecimal::class, "minimum_stock" => ConfigurableDecimal::class]);
 
         $search = trim($search);
 
@@ -296,9 +298,11 @@ class StockManagementService {
                 : " AND wi.warehouse_id IN (".implode(",", $ids).")";
         }
 
+        $precision = Utilities::decimalPrecision();
+
         return [
-            "(SELECT COALESCE(SUM(wi.quantity), 0) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
-            "(SELECT COALESCE(SUM(wi.minimum_stock), 0) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
+            "(SELECT ROUND(COALESCE(SUM(wi.quantity), 0), {$precision}) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
+            "(SELECT ROUND(COALESCE(SUM(wi.minimum_stock), 0), {$precision}) FROM warehouse_items wi WHERE wi.item_id = items.id AND wi.status = 'active'{$warehouseScope})",
         ];
 
     }
@@ -338,7 +342,7 @@ class StockManagementService {
                 $currentQuantity = Utilities::round((float) ($warehouseItem?->quantity ?? 0));
                 $resultingBalance = Utilities::round((float) ($item["stock_quantity"] ?? 0));
 
-                if(abs($currentQuantity - $resultingBalance) < 0.00001) {
+                if($currentQuantity === $resultingBalance) {
 
                     continue;
 
@@ -582,18 +586,21 @@ class StockManagementService {
             ->orderByDesc("inventory_stock_alerts.detected_at")
             ->orderByDesc("inventory_stock_alerts.id");
 
-        return self::filterAlertMinimum($query, $minimumStatus, "inventory_stock_alerts.minimum_stock");
+        $precision = Utilities::decimalPrecision();
+
+        return self::filterAlertMinimum($query, $minimumStatus, "ROUND(inventory_stock_alerts.minimum_stock, {$precision})");
 
     }
 
     /** Filas planas para exportación: evita hidratar modelos, accessors y relaciones por alerta. */
     public static function stockAlertsReportQuery(int $warehouseId, string $productSearch = "", string $minimumStatus = ""): QueryBuilder {
 
+        $precision = Utilities::decimalPrecision();
         $stock = DB::table("warehouse_items")
             ->where("warehouse_id", $warehouseId)
             ->where("status", "active")
             ->select("item_id")
-            ->selectRaw("MIN(id) as warehouse_item_id, SUM(quantity) as quantity, SUM(minimum_stock) as minimum_stock")
+            ->selectRaw("MIN(id) as warehouse_item_id, ROUND(SUM(quantity), ?) as quantity, ROUND(SUM(minimum_stock), ?) as minimum_stock", [$precision, $precision])
             ->groupBy("item_id");
         $detected = DB::table("inventory_stock_alerts as alerts")
             ->join("warehouse_items as alert_stock", "alert_stock.id", "=", "alerts.warehouse_item_id")
@@ -640,13 +647,10 @@ class StockManagementService {
 
     private static function filterAlertMinimum(Builder|QueryBuilder $query, string $status, string $column): Builder|QueryBuilder {
 
-        if($status === "configured") {
+        if(in_array($status, ["configured", "unconfigured"], true)) {
 
-            $query->where(DB::raw($column), ">", 0);
-
-        }elseif($status === "unconfigured") {
-
-            $query->where(DB::raw($column), "<=", 0);
+            $operator = $status === "configured" ? ">" : "<=";
+            $query->where(DB::raw($column), $operator, 0);
 
         }
 

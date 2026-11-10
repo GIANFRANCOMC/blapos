@@ -37,7 +37,7 @@ final class RecipeConsumptionService {
 
         }
 
-        $yield = max(0.0001, (float) $recipe->yield_quantity);
+        $yield = max(Utilities::decimalStep(), (float) $recipe->yield_quantity);
 
         $portions = max(0, (float) $saleBody->quantity);
         $recipeWasteFactor = 1 + (max(0, (float) $recipe->waste_percentage) / 100);

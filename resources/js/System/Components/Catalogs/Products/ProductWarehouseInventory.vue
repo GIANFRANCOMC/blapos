@@ -26,7 +26,6 @@
                     :title="currentLabel"
                     :titleClass="['br-entity-inventory__mobile-label']"
                     :minValue="0"
-                    :decimals="4"
                     hasTextBottom
                     :textBottomInfo="fieldErrors(item.index, 'initial_stock')"
                     @update:modelValue="updateRow(item.index, 'initial_stock', $event)"/>
@@ -47,7 +46,6 @@
                     title="Stock mínimo"
                     :titleClass="['br-entity-inventory__mobile-label']"
                     :minValue="0"
-                    :decimals="4"
                     hasTextBottom
                     :textBottomInfo="fieldErrors(item.index, 'minimum_stock')"
                     @update:modelValue="updateRow(item.index, 'minimum_stock', $event)"/>

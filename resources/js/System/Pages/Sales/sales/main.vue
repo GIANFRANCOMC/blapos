@@ -3913,7 +3913,7 @@ export default {
         },
         salePaymentIsBalanced() {
 
-            return Math.abs(Number(this.salePaymentDifference || 0)) < 0.000001;
+            return Number(this.salePaymentDifference || 0) === 0;
 
         },
         saleSubmitBlocker() {
@@ -4307,10 +4307,8 @@ export default {
             }
 
             const difference = Number(this.salePaymentDifference || 0);
-            const precision = Math.max(0, Number(this.config?.forms?.inputs?.round ?? 3));
-            const tolerance = precision > 0 ? (1 / (10 ** precision)) : 1;
 
-            if(Math.abs(difference) <= tolerance) {
+            if(difference === 0) {
 
                 return {
                     amount: null,

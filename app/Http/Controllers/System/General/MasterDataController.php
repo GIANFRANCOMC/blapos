@@ -8,6 +8,7 @@ use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\General\{SaveMasterDataRequest};
 use App\Services\System\General\{MasterDataService};
 use Illuminate\Http\{JsonResponse};
+use Illuminate\Validation\{ValidationException};
 
 final class MasterDataController extends BaseController {
 
@@ -66,6 +67,10 @@ final class MasterDataController extends BaseController {
             return $id
                 ? $this->updatedResponse($record, "updated", "masterData")
                 : $this->createdResponse($record, "created", "masterData");
+
+        }catch(ValidationException $e) {
+
+            return response()->json(["bool" => false, "errors" => $e->errors()], 422);
 
         }catch(\Throwable $e) {
 

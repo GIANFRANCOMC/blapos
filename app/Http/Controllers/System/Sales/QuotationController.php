@@ -87,7 +87,7 @@ final class QuotationController extends BaseController {
 
     public function store(Request $request): JsonResponse {
 
-        $round = Utilities::$inputs["round"];
+        $round = Utilities::decimalPrecision();
         $validator = Validator::make($request->all(), [
             "branch_id" => ["nullable", "integer"],
             "holder_id" => ["required", "integer"],

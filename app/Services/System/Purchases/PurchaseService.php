@@ -26,7 +26,7 @@ final class PurchaseService {
 
         foreach($expenses as $expense) {
 
-            $amount = Utilities::round((float) ($expense["amount"] ?? 0));
+            $amount = $expense["amount"];
 
             if($amount <= 0) {
 
@@ -57,17 +57,20 @@ final class PurchaseService {
             }
 
             $distributed = 0.0;
+            $cumulativeWeight = 0.0;
 
             $lastItemId = (int) $weights->keys()->last();
 
             foreach($weights as $itemId => $weight) {
 
-                $allocated = (int) $itemId === $lastItemId
-                    ? Utilities::round($amount - $distributed)
-                    : Utilities::round($amount * ((float) $weight / $denominator));
+                $cumulativeWeight += (float) $weight;
+                $target = (int) $itemId === $lastItemId
+                    ? $amount
+                    : Utilities::round($amount * ($cumulativeWeight / $denominator));
+                $allocated = Utilities::round($target - $distributed);
 
                 $allocations[(int) $itemId] += $allocated;
-                $distributed += $allocated;
+                $distributed = $target;
 
             }
 
@@ -218,8 +221,11 @@ final class PurchaseService {
 
             }
 
-            $subtotal = collect($data["items"])->sum(fn($item) => Utilities::round((float) $item["quantity"] * (float) $item["unit_cost"])
-            );
+            $details = array_map(fn(array $detail) => [
+                "quantity" => Utilities::round($detail["quantity"]),
+                "unit_cost" => Utilities::round($detail["unit_cost"]),
+            ] + $detail, $data["items"]);
+            $subtotal = Utilities::round(collect($details)->sum(fn($item) => Utilities::round($item["quantity"] * $item["unit_cost"])));
 
             $selectedTaxIds = collect($data["taxes"] ?? [])
                 ->pluck("tax_id")
@@ -243,9 +249,11 @@ final class PurchaseService {
             );
 
             $tax = Utilities::round((float) $taxLines->sum("amount"));
-            $expenses = is_array($data["expenses"] ?? null) ? $data["expenses"] : [];
+            $expenses = is_array($data["expenses"] ?? null)
+                ? array_map(fn(array $expense) => ["amount" => Utilities::round($expense["amount"] ?? 0)] + $expense, $data["expenses"])
+                : [];
             $expenseTotal = Utilities::round((float) collect($expenses)->sum("amount"));
-            $allocatedExpenses = self::allocateExpenses($data["items"], $expenses);
+            $allocatedExpenses = self::allocateExpenses($details, $expenses);
             $total = Utilities::round($subtotal + $tax + $expenseTotal);
             $defaultPaymentModality = (string) CompanySettingService::value(
                 CompanySettingService::PURCHASES,
@@ -358,11 +366,11 @@ final class PurchaseService {
 
             }
 
-            foreach($data["items"] as $detail) {
+            foreach($details as $detail) {
 
                 $item = $items->get((int) $detail["item_id"]);
-                $quantity = Utilities::round((float) $detail["quantity"]);
-                $unitCost = Utilities::round((float) $detail["unit_cost"]);
+                $quantity = $detail["quantity"];
+                $unitCost = $detail["unit_cost"];
                 $allocatedExpense = Utilities::round((float) ($allocatedExpenses[$item->id] ?? 0));
                 $inventoryUnitCost = $quantity > 0
                     ? Utilities::round($unitCost + ($allocatedExpense / $quantity))
@@ -459,8 +467,9 @@ final class PurchaseService {
                 }
 
                 $quantity = Utilities::round((float) $receivedItem["quantity"]);
-
-                $remaining = Utilities::round((float) $purchaseItem->quantity - (float) $purchaseItem->received_quantity);
+                $orderedQuantity = (float) $purchaseItem->quantity;
+                $previousQuantity = (float) $purchaseItem->received_quantity;
+                $remaining = Utilities::round($orderedQuantity - $previousQuantity);
 
                 if($quantity <= 0 || $quantity > $remaining) {
 
@@ -470,6 +479,13 @@ final class PurchaseService {
 
                 }
 
+                $receivedQuantity = Utilities::round($previousQuantity + $quantity);
+                $itemValue = Utilities::round((float) $purchaseItem->subtotal + (float) $purchaseItem->allocated_expense_total);
+                $previousValue = Utilities::round($itemValue * ($previousQuantity / $orderedQuantity));
+                $receivedValue = Utilities::round($itemValue * ($receivedQuantity / $orderedQuantity));
+                $receiptValue = Utilities::round($receivedValue - $previousValue);
+                $receiptUnitCost = Utilities::round($receiptValue / $quantity);
+
                 $movement = InventoryMovementService::apply([
                     "warehouse_id" => (int) $purchase->warehouse_id,
                     "item_id" => (int) $purchaseItem->item_id,
@@ -478,7 +494,8 @@ final class PurchaseService {
                     "origin_type" => InventoryMovementService::ORIGIN_PURCHASE,
                     "origin_id" => (int) $receipt->id,
                     "quantity" => $quantity,
-                    "unit_cost" => (float) $purchaseItem->inventory_unit_cost,
+                    "unit_cost" => $receiptUnitCost,
+                    "entry_value" => $receiptValue,
                     "reason" => "Recepción de compra.",
                     "reference" => $receipt->reference,
                     "metadata" => [
@@ -493,16 +510,15 @@ final class PurchaseService {
                     "item_id" => $purchaseItem->item_id,
                     "inventory_movement_id" => $movement->id,
                     "quantity" => $quantity,
-                    "unit_cost" => $purchaseItem->inventory_unit_cost,
-                    "total_cost" => Utilities::round($quantity * (float) $purchaseItem->inventory_unit_cost),
+                    "unit_cost" => $receiptUnitCost,
+                    "total_cost" => $receiptValue,
                     "created_at" => now(),
                     "created_by" => $userId,
                 ]);
 
-                $receivedQuantity = Utilities::round((float) $purchaseItem->received_quantity + $quantity);
                 $purchaseItem->update([
                     "received_quantity" => $receivedQuantity,
-                    "status" => $receivedQuantity >= (float) $purchaseItem->quantity
+                    "status" => $receivedQuantity >= $orderedQuantity
                         ? "received"
                         : "partial",
                     "updated_at" => now(),

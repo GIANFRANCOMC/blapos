@@ -155,7 +155,7 @@
                                 <div class="ms-auto" v-if="isDefined({value: item?.data?.end_date})">
                                     <div class="d-block w-100 fw-bold">
                                         <span v-text="item?.icon"></span>
-                                        <span v-text="item?.data?.worked_hours" class="ms-2"></span>
+                                        <span v-text="separatorNumber(item?.data?.worked_hours)" class="ms-2"></span>
                                         <span v-text="item?.data?.worked_hours == 1 ? 'hora trabajada' : 'horas trabajadas'" class="ms-2"></span>
                                     </div>
                                 </div>
@@ -275,7 +275,7 @@ export default {
             let statistics = [
                 {label: "Cantidad", value: count, type: "number"},
                 {label: "Horas", value: total, units, type: "units"},
-                {label: "Promedio de horas", value: count == 0 ? 0 : (total / count).toFixed(3), units, type: "units"}
+                {label: "Promedio de horas", value: count === 0 ? 0 : total / count, units, type: "units"}
             ];
 
             for(let sta of statistics) {

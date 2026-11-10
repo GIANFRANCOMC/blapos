@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Finance;
 
+use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Finance\{StoreCashMovementRequest};
 use App\Services\System\Finance\{CashRegisterService};
@@ -89,7 +90,7 @@ final class CashMovementController extends BaseController {
                 $row->paymentMethod?->name ?? "Efectivo / caja",
                 $row->reference,
                 $row->user?->name,
-                number_format((float) $row->amount, 2, ".", ""),
+                Utilities::formatDecimal($row->amount, thousandsSeparator: ""),
             ], ";");
 
         }

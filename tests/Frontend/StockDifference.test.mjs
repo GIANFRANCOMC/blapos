@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
+import {formatDecimalNumber} from "../../resources/js/Shared/DecimalPrecision.js";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
@@ -25,10 +26,10 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
     const script = descriptor.script.content
         .replace(/^import .*;\s*$/gm, "")
         .replace("export default", "return");
-    const component = new Function("QuantityValue", "normalizeNumber", "resolveDecimals", script)(
+    const component = new Function("QuantityValue", "normalizeNumber", "fixedNumber", script)(
         {},
         value => Number(value || 0),
-        () => 3
+        value => formatDecimalNumber(value, 3)
     );
     const present = (current, minimum) => {
         const instance = {current, minimum, unit: {abbreviation: "UND"}};

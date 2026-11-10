@@ -156,7 +156,7 @@ final class CustomerLoyaltyPointService {
 
         }
 
-        $amountStep = max(0.0001, (float) $rule->amount_step);
+        $amountStep = max(Utilities::decimalStep(), Utilities::round($rule->amount_step));
 
         $steps = floor($basisAmount / $amountStep);
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Base;
 
-use App\Helpers\System\{ApiResponse};
+use App\Helpers\System\{ApiResponse, Utilities};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Foundation\Http\{FormRequest};
@@ -66,9 +66,7 @@ abstract class CompanyFormRequest extends FormRequest {
 
     protected function decimalPrecision(): int {
 
-        $precision = (int) ($this->numericValidationSettings()["decimal_precision"] ?? 3);
-
-        return max(0, min(8, $precision));
+        return Utilities::decimalPrecision();
 
     }
 
@@ -128,16 +126,16 @@ abstract class CompanyFormRequest extends FormRequest {
     }
 
     protected function positiveNumericRules(
-        float $min = 0.0001,
+        ?float $min = null,
         ?float $max = null,
         bool $required = true
     ): array {
 
-        return $this->numericRules($min, $max, $required);
+        return $this->numericRules($min ?? Utilities::decimalStep(), $max, $required);
 
     }
 
-    protected function normalizeDecimalInput(mixed $value): ?float {
+    protected function normalizeDecimalInput(mixed $value): mixed {
 
         if($value === null || $value === "") {
 
@@ -145,11 +143,17 @@ abstract class CompanyFormRequest extends FormRequest {
 
         }
 
-        $normalized = is_string($value)
-            ? str_replace(",", "", trim($value))
-            : $value;
+        $normalized = is_string($value) ? trim($value) : $value;
 
-        return round((float) $normalized, $this->decimalPrecision());
+        if(is_string($normalized) && preg_match('/^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/D', $normalized)) {
+
+            $normalized = str_replace(",", "", $normalized);
+
+        }
+
+        return is_numeric($normalized) && is_finite((float) $normalized)
+            ? Utilities::round($normalized)
+            : $normalized;
 
     }
 
@@ -165,7 +169,7 @@ abstract class CompanyFormRequest extends FormRequest {
 
     }
 
-    protected function normalizeDecimalFromArray(array $data, string $field): ?float {
+    protected function normalizeDecimalFromArray(array $data, string $field): mixed {
 
         return array_key_exists($field, $data)
             ? $this->normalizeDecimalInput($data[$field])
@@ -221,7 +225,7 @@ abstract class CompanyFormRequest extends FormRequest {
             "min.array" => "Selecciona al menos :min opción.",
             "max.array" => "Selecciona como máximo :max opciones.",
             "max.string" => "Debe tener como máximo :max caracteres.",
-            "decimal" => "Usa hasta :decimal decimales.",
+            "decimal" => "Usa hasta ".$this->decimalPrecision()." decimales.",
         ];
 
     }

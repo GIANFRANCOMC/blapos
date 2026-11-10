@@ -117,7 +117,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Importe *</label>
-                            <input v-model="form.amount" type="number" min="0.001" step="0.001" class="form-control">
+                            <input v-model="form.amount" type="number" :min="amountStep" :step="amountStep" class="form-control">
                             <small v-if="error('amount')" class="text-danger">{{ error("amount") }}</small>
                         </div>
                         <div class="col-md-4">
@@ -209,6 +209,11 @@ export default {
         const initialized = await this.loadInitialParams(() => this.initialize());
         if(initialized) await this.loadExpenses();
     },
+    computed: {
+        amountStep() {
+            return Utils.decimalStep();
+        }
+    },
     methods: {
         async initialize() {
             const params = await Requests.get({route: this.routes.initParams});
@@ -277,7 +282,7 @@ export default {
             return new Intl.DateTimeFormat("es-PE").format(new Date(`${String(value).slice(0, 10)}T00:00:00`));
         },
         money(expense) {
-            return `${expense.currency?.sign || expense.currency?.code || "S/"} ${Number(expense.amount || 0).toFixed(3)}`;
+            return `${expense.currency?.sign || expense.currency?.code || "S/"} ${Utils.fixedNumber(expense.amount)}`;
         }
     }
 };

@@ -18,12 +18,7 @@ final class ConfigurableDecimal implements CastsAttributes {
 
         }
 
-        return number_format(
-            (float) $value,
-            Utilities::decimalPrecision(),
-            ".",
-            ""
-        );
+        return Utilities::formatDecimal($value, thousandsSeparator: "");
 
     }
 

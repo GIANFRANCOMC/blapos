@@ -27,7 +27,7 @@ test("QuantityValue conserva la cantidad y separa la abreviatura para su estilo"
     };
     const render = props => renderToString(createSSRApp({render: () => h(component, props)}));
     const withUnit = await render({value: 201654, unit: {abbreviation: "UND"}, signed: true});
-    assert.match(withUnit, /\+201,654\.000<small class="br-quantity-value__unit"> UND<\/small>/);
+    assert.match(withUnit, /\+201,654\.00<small class="br-quantity-value__unit"> UND<\/small>/);
     assert.doesNotMatch(await render({value: -1, unit: null}), /<small/);
 });
 

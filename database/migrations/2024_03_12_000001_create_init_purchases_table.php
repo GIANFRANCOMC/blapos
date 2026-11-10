@@ -128,6 +128,8 @@ return new class extends Migration {
             $table->decimal("quantity", 15, 3);
             $table->decimal("received_quantity", 15, 3)->default(0);
             $table->decimal("unit_cost", 15, 3);
+            $table->decimal("allocated_expense_total", 15, 3)->default(0);
+            $table->decimal("inventory_unit_cost", 15, 3)->nullable();
             $table->decimal("subtotal", 15, 3);
             $table->enum("status", ["pending", "partial", "received", "canceled"])->default("pending");
             $table->timestamp("created_at")->useCurrent()->nullable();
@@ -278,8 +280,6 @@ return new class extends Migration {
             $table->unsignedBigInteger("inventory_movement_id")->nullable();
             $table->decimal("quantity", 15, 3);
             $table->decimal("unit_cost", 15, 3);
-            $table->decimal("allocated_expense_total", 15, 3)->default(0);
-            $table->decimal("inventory_unit_cost", 15, 3);
             $table->decimal("total_cost", 15, 3);
             $table->timestamp("created_at")->useCurrent()->nullable();
 

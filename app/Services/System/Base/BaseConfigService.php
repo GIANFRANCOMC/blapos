@@ -213,7 +213,7 @@ abstract class BaseConfigService {
         return self::data([
             "forms" => [
                 "inputs" => [
-                    "round" => max(0, min(8, (int) ($numeric["decimal_precision"] ?? 3))),
+                    "round" => $numeric[CompanySettingService::DECIMAL_PRECISION_KEY],
                     "minValue" => (float) ($numeric["default_min_value"] ?? 0),
                     "maxValue" => (float) ($numeric["default_max_value"] ?? 999999999999.999),
                     "maxSize" => max(1, (int) ($numeric["max_file_size_kb"] ?? 4096)),

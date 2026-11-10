@@ -53,7 +53,7 @@
 
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
-import { isDefined, resolveDecimals, separatorNumber } from "../Helpers/Utils.js";
+import { fixedNumber, isDefined, resolveDecimals, separatorNumber } from "../Helpers/Utils.js";
 
 export default {
     name: "InputNumber",
@@ -271,23 +271,7 @@ export default {
 
                     }else {
 
-                        const regexDecimals = this.hasNegative ? (this.decimalPlaces > 0 ? new RegExp(`^-?\\d+(\\.\\d{1,${this.decimalPlaces}})?$`) : /^-?\d+$/) :
-                                                                 (this.decimalPlaces > 0 ? new RegExp(`^\\d+(\\.\\d{1,${this.decimalPlaces}})?$`) : /^\d+$/);
-
-                        const hasFormattedDecimal = regexDecimals.test(valueString);
-
-                        // hasFormattedDecimal 23.1  43.12 (1.n decimals limit)
-                        // hasDecimalInitNumber 23.  65.
-
-                        if(this.decimalPlaces > 0) {
-
-                            hasFormattedDecimal || hasDecimalInitNumber ? this.emitValue({reset: false, result: numericValue}) : this.emitValue({reset: false, result: Number(numericValue.toFixed(this.decimalPlaces))});
-
-                        }else {
-
-                            hasFormattedDecimal ? this.emitValue({reset: false, result: numericValue}) : this.emitValue({reset: false, result: Number(numericValue.toFixed(this.decimalPlaces))});
-
-                        }
+                        this.emitValue({reset: false, result: Number(fixedNumber(numericValue, this.decimalPlaces))});
 
                     }
 

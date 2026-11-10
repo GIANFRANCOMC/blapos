@@ -22,14 +22,14 @@ class StoreRecipeRequest extends CompanyFormRequest {
 
         return [
             "item_id" => ["required", "integer", new ExistsInTenant("items", [], "El item principal no pertenece a la empresa.")],
-            "yield_quantity" => ["required", "numeric", "min:0.01", "max:{$maxValue}", "decimal:0,{$round}"],
+            "yield_quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
             "preparation_notes" => ["nullable", "string", "max:1000"],
             "status" => ["required", "in:active,inactive"],
 
             "components" => ["nullable", "array", "max:200"],
             "components.*.item_id" => ["required_with:components.*.quantity", "nullable", "integer", $productFromCompany("Un insumo no pertenece a la empresa.")],
-            "components.*.quantity" => ["required_with:components.*.item_id", "nullable", "numeric", "min:0.0001", "max:{$maxValue}", "decimal:0,{$round}"],
+            "components.*.quantity" => ["required_with:components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
             "components.*.note" => ["nullable", "string", "max:255"],
 
@@ -43,7 +43,7 @@ class StoreRecipeRequest extends CompanyFormRequest {
             "toppings.*.status" => ["nullable", "in:active,inactive"],
             "toppings.*.components" => ["nullable", "array", "max:100"],
             "toppings.*.components.*.item_id" => ["required_with:toppings.*.components.*.quantity", "nullable", "integer", $productFromCompany("Un insumo del topping no pertenece a la empresa.")],
-            "toppings.*.components.*.quantity" => ["required_with:toppings.*.components.*.item_id", "nullable", "numeric", "min:0.0001", "max:{$maxValue}", "decimal:0,{$round}"],
+            "toppings.*.components.*.quantity" => ["required_with:toppings.*.components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "toppings.*.components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
             "toppings.*.components.*.note" => ["nullable", "string", "max:255"],
 
@@ -54,7 +54,7 @@ class StoreRecipeRequest extends CompanyFormRequest {
             "options.*.status" => ["nullable", "in:active,inactive"],
             "options.*.components" => ["nullable", "array", "max:100"],
             "options.*.components.*.item_id" => ["required_with:options.*.components.*.quantity", "nullable", "integer", $productFromCompany("Un insumo de la opcion no pertenece a la empresa.")],
-            "options.*.components.*.quantity" => ["required_with:options.*.components.*.item_id", "nullable", "numeric", "min:0.0001", "max:{$maxValue}", "decimal:0,{$round}"],
+            "options.*.components.*.quantity" => ["required_with:options.*.components.*.item_id", "nullable", "numeric", "gt:0", "max:{$maxValue}", "decimal:0,{$round}"],
             "options.*.components.*.waste_percentage" => ["nullable", "numeric", "min:0", "max:100", "decimal:0,{$round}"],
             "options.*.components.*.note" => ["nullable", "string", "max:255"],
         ];

@@ -228,7 +228,7 @@ export default {
             return Alerts.showFiltersCleared();
         },
         summaryAmount(key) {
-            if(!this.summary.amounts?.length) return "S/ 0.000";
+            if(!this.summary.amounts?.length) return `S/ ${Utils.separatorNumber(0)}`;
 
             return this.summary.amounts.map(amount => `${amount.sign || amount.code} ${Utils.separatorNumber(amount[key] || 0)}`).join(" · ");
         },
