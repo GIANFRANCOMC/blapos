@@ -91,7 +91,7 @@
                                         <td>
                                             <strong>{{ supplier.purchases_count || 0 }} compra{{ Number(supplier.purchases_count || 0) === 1 ? "" : "s" }}</strong>
                                             <span class="br-purchases__meta">
-                                                Total: S/ {{ separatorNumber(supplier.purchased_total || 0) }}
+                                                Total: {{ formatCurrencyTotals(supplier.purchase_amounts) }}
                                             </span>
                                         </td>
                                         <td>
@@ -375,6 +375,9 @@ export default {
                 {code: "active", label: "Activo"},
                 {code: "inactive", label: "Inactivo"}
             ];
+        },
+        formatCurrencyTotals() {
+            return Utils.formatCurrencyTotals;
         },
         separatorNumber() {
             return Utils.separatorNumber;

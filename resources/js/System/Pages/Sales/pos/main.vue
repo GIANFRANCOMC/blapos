@@ -1004,7 +1004,7 @@ export default {
             const line = this.cart.find(row => row.item.id === item.id);
 
             if(line) {
-                line.quantity = Number(line.quantity) + 1;
+                line.quantity = Utils.sum([line.quantity, 1]);
                 return;
             }
 
@@ -1018,7 +1018,7 @@ export default {
             const line = this.cart.find(row => row.item.id === itemId);
             if(!line) return;
 
-            line.quantity = Number(line.quantity) - 1;
+            line.quantity = Utils.subtract(line.quantity, 1);
 
             if(line.quantity <= 0) {
                 this.cart = this.cart.filter(row => row.item.id !== itemId);

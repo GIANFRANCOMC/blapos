@@ -23,9 +23,10 @@ final class SupplierController extends BaseController {
 
     public function list(Request $request) {
 
-        return SupplierService::query(
-            (string) $request->input("word", "")
-        )->paginate($this->getPerPage($request, Utilities::$per_page_default));
+        return SupplierService::paginate(
+            (string) $request->input("word", ""),
+            $this->getPerPage($request, Utilities::$per_page_default)
+        );
 
     }
 

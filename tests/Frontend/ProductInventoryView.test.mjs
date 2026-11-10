@@ -13,8 +13,9 @@ test("el resumen mantiene las alertas y el total del listado", () => {
         ]
     };
 
-    assert.deepEqual(summarizeProductStock(record), {total: 10, alerts: 1});
-    assert.deepEqual(summarizeProductStock({warehouse_items: []}), {total: 0, alerts: 0});
+    assert.deepEqual(summarizeProductStock(record), {total: "10.00", alerts: 1});
+    assert.deepEqual(summarizeProductStock({warehouse_items: []}), {total: "0.00", alerts: 0});
+    assert.equal(inventoryStockStatus({initial_stock: "10", minimum_stock: "2"}).className, "is-healthy");
     assert.equal(inventoryStockStatus({initial_stock: 2, minimum_stock: 2}).className, "is-alert");
     assert.equal(inventoryStockStatus({initial_stock: 8, minimum_stock: 3}).className, "is-healthy");
 

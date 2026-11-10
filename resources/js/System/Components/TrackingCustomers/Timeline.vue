@@ -234,34 +234,12 @@ export default {
         },
         salesStatistics() {
 
-            const data  = (this.data?.sales ?? []).filter(e => !["inactive", "canceled"].includes(e.status));
-            const count = data.length;
-
-            const total = data.reduce((sum, item) => sum + Utils.normalizeNumber(item?.total), 0);
-            const currency = count > 0 ? data[0]?.currency : null;
-
-            let statistics = [
-                {label: "Cantidad", value: count, type: "number"},
-                {label: "Total", value: total, currency, type: "currency"},
-                {label: "Sede más frecuente", value: this.getMostFrequentSerie(data)?.branch?.name ?? "-", type: "value"}
+            const sales = (this.data?.sales ?? []).filter(sale => sale.status === "active");
+            return [
+                {label: "Cantidad", value: Utils.separatorNumber(sales.length, 0), type: "value"},
+                {label: "Total", value: Utils.formatCurrencyTotals(this.data?.summary?.active_sales_amounts), type: "value"},
+                {label: "Sede más frecuente", value: this.getMostFrequentSerie(sales)?.branch?.name ?? "-", type: "value"}
             ];
-
-            for(let sta of statistics) {
-
-                if(["number"].includes(sta?.type)) {
-
-                    sta.parseValue = this.separatorNumber(sta.value);
-
-                }else if(["currency"].includes(sta?.type)) {
-
-                    sta.parseValue = this.separatorNumber(sta.value);
-                    sta.sign = currency?.sign;
-
-                }
-
-            }
-
-            return statistics;
 
         },
         attendancesStatistics() {
@@ -269,13 +247,13 @@ export default {
             const data  = (this.data?.attendances ?? []).filter(e => !["inactive", "canceled"].includes(e.status));
             const count = data.length;
 
-            const total = data.reduce((sum, item) => sum + Utils.normalizeNumber(item?.worked_hours), 0);
+            const total = Utils.sumText(data.map(item => item.worked_hours));
             const units = {singular: "Hora", plural: "Horas"};
 
             let statistics = [
                 {label: "Cantidad", value: count, type: "number"},
                 {label: "Horas", value: total, units, type: "units"},
-                {label: "Promedio de horas", value: count === 0 ? 0 : total / count, units, type: "units"}
+                {label: "Promedio de horas", value: count === 0 ? 0 : Utils.divide(total, count), units, type: "units"}
             ];
 
             for(let sta of statistics) {

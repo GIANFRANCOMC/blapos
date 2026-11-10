@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Assets;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Assets\{AssetAssignment, AssetAssignmentLog, BranchAsset};
 use App\Models\System\Organizations\{Branch};
 use Illuminate\Pagination\{LengthAwarePaginator};
@@ -312,15 +312,9 @@ class AssetManagementService {
 
         }
 
-        $assetQuantity = floatval($branchAsset->quantity);
+        $totalQuantity = Numbers::sumText(array_column($assignments, "quantity"));
 
-        $totalQuantity = array_reduce($assignments, function($accumulator, $currentValue) {
-
-            return $accumulator + floatval($currentValue["quantity"] ?? 0);
-
-        }, 0);
-
-        if($totalQuantity > $assetQuantity) {
+        if(Numbers::compare($totalQuantity, $branchAsset->quantity) > 0) {
 
             return $information;
 

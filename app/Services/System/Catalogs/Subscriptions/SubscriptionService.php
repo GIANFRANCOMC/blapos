@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Catalogs\Subscriptions;
 
-use App\Helpers\System\{TranslationHelper, Utilities};
+use App\Helpers\System\{Numbers, TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Categories\{CategoryItemService};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
@@ -96,7 +96,7 @@ class SubscriptionService {
 
                 if(in_array($field, ["min_price", "max_price"])) {
 
-                    $itemData[$field] = floatval($data[$field]) <= 0 ? null : $data[$field];
+                    $itemData[$field] = Numbers::compare($data[$field], 0) <= 0 ? null : $data[$field];
 
                 }elseif($field === "see_my_web_price") {
 
@@ -138,7 +138,7 @@ class SubscriptionService {
 
                 if(in_array($field, ["min_price", "max_price"])) {
 
-                    $value = floatval($data[$field]) <= 0 ? null : $data[$field];
+                    $value = Numbers::compare($data[$field], 0) <= 0 ? null : $data[$field];
 
                     if($value !== $item->$field) {
 

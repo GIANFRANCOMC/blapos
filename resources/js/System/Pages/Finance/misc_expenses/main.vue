@@ -117,8 +117,8 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Importe *</label>
-                            <input v-model="form.amount" type="number" :min="amountStep" :step="amountStep" class="form-control">
-                            <small v-if="error('amount')" class="text-danger">{{ error("amount") }}</small>
+                            <InputNumber v-model="form.amount" :has-div="false" :min-value="0"
+                                         :has-text-bottom="Boolean(error('amount'))" :text-bottom-info="[error('amount')]"/>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Moneda *</label>
@@ -185,11 +185,12 @@ import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import InputNumber from "@System/Components/InputNumber.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchInput},
+    components: {InputNumber, SearchInput},
     data() {
         return {
             routes: Requests.config({entity: "misc_expenses"}).routes,
@@ -208,11 +209,6 @@ export default {
         Utils.navbarItem("menu-misc-expenses", {addClass: "active"});
         const initialized = await this.loadInitialParams(() => this.initialize());
         if(initialized) await this.loadExpenses();
-    },
-    computed: {
-        amountStep() {
-            return Utils.decimalStep();
-        }
     },
     methods: {
         async initialize() {
@@ -282,7 +278,7 @@ export default {
             return new Intl.DateTimeFormat("es-PE").format(new Date(`${String(value).slice(0, 10)}T00:00:00`));
         },
         money(expense) {
-            return `${expense.currency?.sign || expense.currency?.code || "S/"} ${Utils.fixedNumber(expense.amount)}`;
+            return Utils.formatCurrencyAmount(expense.amount, expense.currency);
         }
     }
 };

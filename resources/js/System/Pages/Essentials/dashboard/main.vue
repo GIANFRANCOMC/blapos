@@ -16,7 +16,7 @@
                                         </div>
                                         <div class="br-dashboard-kpi__body">
                                             <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.salesTotal"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="'S/ '+separatorNumber(fixedNumber(forms.entity.dashboard.data.sales?.net?.total ?? 0))"></p>
+                                            <p class="br-dashboard-kpi__value" v-text="formatCurrencyTotals(forms.entity.dashboard.data.sales?.net?.amounts)"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -29,7 +29,7 @@
                                         </div>
                                         <div class="br-dashboard-kpi__body">
                                             <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.salesCanceled"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="'S/ '+separatorNumber(fixedNumber(forms.entity.dashboard.data.sales?.canceled?.total ?? 0))"></p>
+                                            <p class="br-dashboard-kpi__value" v-text="formatCurrencyTotals(forms.entity.dashboard.data.sales?.canceled?.amounts)"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -42,7 +42,7 @@
                                         </div>
                                         <div class="br-dashboard-kpi__body">
                                             <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.attendancesToday"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.attendances?.count ?? 0)"></p>
+                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.attendances?.count ?? 0, 0)"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -55,7 +55,7 @@
                                         </div>
                                         <div class="br-dashboard-kpi__body">
                                             <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.expiringSubscriptions"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.expiringSubscriptions?.count ?? 0)"></p>
+                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.expiringSubscriptions?.count ?? 0, 0)"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -68,7 +68,7 @@
                                         </div>
                                         <div class="br-dashboard-kpi__body">
                                             <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.branchesActive"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.branches?.active_count ?? 0)"></p>
+                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.branches?.active_count ?? 0, 0)"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -546,15 +546,7 @@ export default {
 
                 if(seg.kind === "single") return totalsByHour[seg.hour];
 
-                let sum = 0;
-
-                for(let hh = seg.startHour; hh <= seg.endHour; hh++) {
-
-                    sum += totalsByHour[hh];
-
-                }
-
-                return sum;
+                return Utils.sum(totalsByHour.slice(seg.startHour, seg.endHour + 1));
 
             });
 
@@ -993,14 +985,15 @@ export default {
             return Utils.isDefined({value});
 
         },
+        formatCurrencyTotals: Utils.formatCurrencyTotals,
         fixedNumber(value) {
 
             return Utils.fixedNumber(value);
 
         },
-        separatorNumber(value) {
+        separatorNumber(value, decimals = null) {
 
-            return Utils.separatorNumber(value);
+            return Utils.separatorNumber(value, decimals);
 
         },
         legibleFormatDate({dateString = null, type = "datetime"}) {
@@ -1053,16 +1046,8 @@ export default {
         },
         dashboardChartHoursRangeCaption: function() {
 
-            const totalsByHour = Array.from({length: 24}, () => 0);
             const sales = this.forms.entity.dashboard.data.sales?.records ?? this.forms.entity.dashboard.data.sales?.net?.records ?? [];
-
-            sales.forEach((sale) => {
-
-                const saleHour = new Date(sale.created_at).getHours();
-
-                if(saleHour >= 0 && saleHour < 24) totalsByHour[saleHour] = Utils.sum([totalsByHour[saleHour], sale.total]);
-
-            });
+            const totalsByHour = this.dashboardChartTotalsByHour(sales);
 
             const hasAnySale = totalsByHour.some((t) => t > 0);
 

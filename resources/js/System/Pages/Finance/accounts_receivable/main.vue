@@ -323,21 +323,17 @@ export default {
             return Alerts.showFiltersCleared();
         },
         summaryAmount(key) {
-            const amounts = this.summary.amounts || [];
-
-            if(!amounts.length) return `S/ ${this.separatorNumber(0)}`;
-
-            return amounts.map(amount => `${amount.sign || amount.code} ${this.separatorNumber(amount[key] || 0)}`).join(" · ");
+            return Utils.formatCurrencyTotals(this.summary.amounts, key);
         },
         paymentProgress(account) {
-            const total = Number(account.total_amount || 0);
+            const total = account.total_amount;
 
-            if(total <= 0) return 0;
+            if(Utils.compareNumbers(total, 0) <= 0) return 0;
 
             return Math.max(0, Math.min(100, Utils.proportion(account.paid_amount, 100, total, 0)));
         },
         money(account, value) {
-            return `${account.currency?.sign || account.currency?.code || ""} ${this.separatorNumber(value || 0)}`.trim();
+            return Utils.formatCurrencyAmount(value, account.currency);
         },
         separatorNumber(value) {
             return Utils.separatorNumber(value);

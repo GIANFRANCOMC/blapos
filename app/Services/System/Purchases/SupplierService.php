@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\System\Purchases;
 
-use App\Models\System\Purchases\{Supplier, SupplierBankAccount, SupplierContact};
+use App\Helpers\System\{Numbers};
+use App\Models\System\Purchases\{PurchaseHeader, Supplier, SupplierBankAccount, SupplierContact};
+use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Support\Facades\{DB};
 use Illuminate\Support\{Arr};
 
 final class SupplierService {
 
-    public static function query(string $word = "") {
+    public static function paginate(string $word, int $perPage): LengthAwarePaginator {
 
         $query = Supplier::query()
             ->with(["contacts", "bankAccounts"])
-            ->withCount(["purchases"])
-            ->withSum("purchases as purchased_total", "total");
+            ->withCount(["purchases"]);
 
         $word = trim($word);
 
@@ -31,7 +32,29 @@ final class SupplierService {
 
         }
 
-        return $query->orderBy("name");
+        $page = $query->orderBy("name")->paginate($perPage);
+        $totals = PurchaseHeader::query()
+            ->join("currencies", "currencies.id", "=", "purchase_headers.currency_id")
+            ->whereIn("purchase_headers.supplier_id", $page->getCollection()->modelKeys())
+            ->select("purchase_headers.supplier_id", "currencies.id as currency_id", "currencies.code", "currencies.sign")
+            ->selectRaw("SUM(purchase_headers.total) AS purchased_total")
+            ->groupBy("purchase_headers.supplier_id", "currencies.id", "currencies.code", "currencies.sign")
+            ->orderBy("currencies.code")
+            ->get()
+            ->groupBy("supplier_id");
+
+        return $page->through(function(Supplier $supplier) use ($totals) {
+
+            $supplier->setAttribute("purchase_amounts", $totals->get($supplier->id, collect())->map(fn($row) => [
+                "currency_id" => (int) $row->currency_id,
+                "code" => $row->code,
+                "sign" => $row->sign,
+                "total" => Numbers::storage($row->purchased_total),
+            ])->values());
+
+            return $supplier;
+
+        });
 
     }
 

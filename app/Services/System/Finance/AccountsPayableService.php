@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\System\Finance;
 
-use App\Helpers\System\{Numbers};
 use App\Models\System\Purchases\{PurchaseAccountPayable};
 use App\Services\System\Base\{CompanyReferenceDataService};
 use Carbon\{Carbon};
@@ -47,48 +46,7 @@ final class AccountsPayableService {
 
     public function summary(int $userId, array $filters = []): array {
 
-        $query = $this->query($userId, $filters)
-            ->where("status", "!=", "canceled");
-
-        $amounts = (clone $query)
-            ->selectRaw("currency_id, SUM(total_amount) total_amount, SUM(paid_amount) paid_amount, SUM(pending_amount) pending_amount")
-            ->with("currency:id,code,sign")
-            ->groupBy("currency_id")
-            ->get()
-            ->map(fn($row) => [
-                "currency_id" => (int) $row->currency_id,
-                "code" => $row->currency?->code ?? "",
-                "sign" => $row->currency?->sign ?? "",
-                "total" => Numbers::round($row->total_amount),
-                "paid" => Numbers::round($row->paid_amount),
-                "pending" => Numbers::round($row->pending_amount),
-            ])
-            ->values();
-
-        $overdueQuery = fn(Builder $installments) => $installments
-            ->whereIn("status", ["pending", "partial", "overdue"])
-            ->whereRaw(Numbers::sqlRound("pending_amount")." > 0")
-            ->whereDate("due_date", "<", now()->toDateString());
-
-        $overdueAmounts = (clone $query)
-            ->whereHas("installments", $overdueQuery)
-            ->selectRaw("currency_id, SUM(pending_amount) overdue_amount")
-            ->groupBy("currency_id")
-            ->pluck("overdue_amount", "currency_id");
-
-        return [
-            "accounts" => (clone $query)->count(),
-            "overdue_accounts" => (clone $query)->whereHas("installments", $overdueQuery)->count(),
-            "amounts" => $amounts->map(function(array $amount) use ($overdueAmounts) {
-
-                $amount["overdue"] = Numbers::round(
-                    $overdueAmounts[$amount["currency_id"]] ?? 0
-                );
-
-                return $amount;
-
-            })->values(),
-        ];
+        return CommercialCreditAccountService::summarize($this->query($userId, $filters));
 
     }
 
@@ -126,10 +84,7 @@ final class AccountsPayableService {
 
         if($status === "overdue") {
 
-            $query->whereHas("installments", fn(Builder $installments) => $installments
-                ->whereIn("status", ["pending", "partial", "overdue"])
-                ->whereRaw(Numbers::sqlRound("pending_amount")." > 0")
-                ->whereDate("due_date", "<", now()->toDateString()));
+            $query->whereHas("installments", fn(Builder $installments) => CommercialCreditAccountService::overdueInstallments($installments));
 
         }elseif(in_array($status, ["pending", "partial", "paid", "canceled"], true)) {
 

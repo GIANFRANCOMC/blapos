@@ -534,18 +534,6 @@ export default {
             return Utils.separatorNumber(value || 0);
 
         },
-        formatCurrency(value) {
-
-            return `S/ ${this.separatorNumber(value)}`;
-
-        }
-    },
-    computed: {
-        breadcrumbTitles: function() {
-
-            return [{title: "Seguimiento"}, this.config.entity.page];
-
-        },
         customers: function() {
 
             return this.options?.customers?.records.map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
@@ -598,14 +586,14 @@ export default {
                 {
                     key: "active_sales_total",
                     label: "Ventas activas",
-                    value: this.formatCurrency(summary.active_sales_total ?? 0),
+                    value: Utils.formatCurrencyTotals(summary.active_sales_amounts),
                     icon: "fa-solid fa-receipt",
                     tone: "is-primary"
                 },
                 {
                     key: "canceled_sales_total",
                     label: "Ventas anuladas",
-                    value: this.formatCurrency(summary.canceled_sales_total ?? 0),
+                    value: Utils.formatCurrencyTotals(summary.canceled_sales_amounts),
                     icon: "fa-solid fa-ban",
                     tone: "is-danger"
                 },

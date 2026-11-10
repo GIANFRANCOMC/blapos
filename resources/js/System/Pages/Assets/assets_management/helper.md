@@ -204,7 +204,7 @@ DB::transaction(function() use($request, $userAuth) {
 
         $branchAsset = null;
 
-        if(floatval($item["branch_asset_id"]) > 0) {
+        if((int) $item["branch_asset_id"] > 0) {
 
             $branchAsset = BranchAsset::where("id", $item["branch_asset_id"])
                                         ->first();
@@ -213,8 +213,8 @@ DB::transaction(function() use($request, $userAuth) {
 
         if(Utilities::isDefined($branchAsset)) {
 
-            $branchAsset->quantity          = Numbers::round(floatval($item["branch_asset_quantity"] ?? 0));
-            $branchAsset->acquisition_value = Numbers::round(floatval($item["branch_asset_acquisition_value"] ?? 0));
+            $branchAsset->quantity          = Numbers::storage($item["branch_asset_quantity"] ?? 0);
+            $branchAsset->acquisition_value = Numbers::storage($item["branch_asset_acquisition_value"] ?? 0);
             $branchAsset->acquisition_date  = $item["branch_asset_acquisition_date"] ?? null;
             $branchAsset->note              = $item["branch_asset_note"] ?? "";
             $branchAsset->status            = $item["branch_asset_status"] ?? "active";
@@ -228,8 +228,8 @@ DB::transaction(function() use($request, $userAuth) {
             $branchAsset->branch_id         = $item["branch_id"];
             $branchAsset->asset_id          = $item["asset_id"];
             $branchAsset->currency_id       = 1;
-            $branchAsset->quantity          = Numbers::round(floatval($item["branch_asset_quantity"] ?? 0));
-            $branchAsset->acquisition_value = Numbers::round(floatval($item["branch_asset_acquisition_value"] ?? 0));
+            $branchAsset->quantity          = Numbers::storage($item["branch_asset_quantity"] ?? 0);
+            $branchAsset->acquisition_value = Numbers::storage($item["branch_asset_acquisition_value"] ?? 0);
             $branchAsset->acquisition_date  = $item["branch_asset_acquisition_date"] ?? null;
             $branchAsset->note              = $item["branch_asset_notes"] ?? "";
             $branchAsset->status            = $item["branch_asset_status"] ?? "active";

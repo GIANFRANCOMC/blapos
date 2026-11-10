@@ -8,12 +8,12 @@ use App\Models\System\Catalogs\{Item};
 use App\Helpers\System\{Numbers};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
 use Illuminate\Database\Eloquent\{Builder};
-use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison};
 use PhpOffice\PhpSpreadsheet\Cell\{Cell, DataType, DefaultValueBinder};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
-class InventoryOperationTemplateExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles {
+class InventoryOperationTemplateExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison {
 
     private readonly array $operation;
 
@@ -48,7 +48,7 @@ class InventoryOperationTemplateExport extends DefaultValueBinder implements Fro
             $product->barcode ?? "",
             $product->name,
             $product->measurementUnit?->abbreviation,
-            (float) $product->stock_actual,
+            Numbers::spreadsheetNumber($product->stock_actual),
             "",
         ];
 

@@ -8,12 +8,12 @@ use App\Helpers\System\{Numbers};
 use App\Services\System\Warehouses\StockManagement\StockManagementService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
-use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnFormatting, WithColumnWidths, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnFormatting, WithColumnWidths, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison};
 use PhpOffice\PhpSpreadsheet\Cell\{Cell, DataType, DefaultValueBinder};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
-final class StockAlertsExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithColumnWidths, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles {
+final class StockAlertsExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithColumnWidths, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison {
 
     public function __construct(
         private readonly int $warehouseId,
@@ -36,16 +36,17 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
 
     public function map($alert): array {
 
-        $quantity = Numbers::round($alert->quantity);
-        $minimum = Numbers::round($alert->minimum_stock);
+        $quantity = Numbers::storage($alert->quantity);
+        $minimum = Numbers::storage($alert->minimum_stock);
+        $shortage = Numbers::subtractText($minimum, $quantity);
 
         return [
             $alert->product_name,
             $alert->internal_code,
             $alert->barcode ?? "",
-            $quantity,
-            $minimum,
-            max(0.0, Numbers::subtract($minimum, $quantity)),
+            Numbers::spreadsheetNumber($quantity),
+            Numbers::spreadsheetNumber($minimum),
+            Numbers::spreadsheetNumber(Numbers::compare($shortage, 0) < 0 ? 0 : $shortage),
             $alert->unit_abbreviation,
             $alert->detected_at ? Carbon::parse($alert->detected_at)->format("d/m/Y H:i") : "—",
             "Abierta",
@@ -55,7 +56,8 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
 
     public function bindValue(Cell $cell, $value): bool {
 
-        if($cell->getRow() > 1 && in_array($cell->getColumn(), ["B", "C"], true)) {
+        if($cell->getRow() > 1 && (in_array($cell->getColumn(), ["B", "C"], true)
+            || ($cell->getColumn() === "F" && is_string($value)))) {
 
             $cell->setValueExplicit((string) ($value ?? ""), DataType::TYPE_STRING);
 

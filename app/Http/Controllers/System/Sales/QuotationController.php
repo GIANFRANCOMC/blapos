@@ -117,7 +117,7 @@ final class QuotationController extends BaseController {
             "after_or_equal" => "No puede ser anterior a la fecha de emisión.",
         ]);
 
-        if($validator->fails()) {
+        if(Numbers::prepareValidator($validator)->fails()) {
 
             return response()->json(["bool" => false, "errors" => $validator->errors()], 422);
 

@@ -174,7 +174,7 @@ final class CashRegisterService {
                 return [
                     "payment_method_id" => $row->payment_method_id,
                     "payment_method" => $row->paymentMethod,
-                    "amount" => Numbers::round($row->amount),
+                    "amount" => Numbers::storage($row->getRawOriginal("amount")),
                 ];
 
             })
@@ -182,28 +182,30 @@ final class CashRegisterService {
 
         $paymentMethodId = $filters["payment_method_id"] ?? null;
         $expected = $paymentMethodId
-            ? Numbers::round(CashMovement::query()
+            ? Numbers::storage(CashMovement::query()
                 ->whereIn("cash_session_id", $sessionIds)
                 ->where("payment_method_id", $paymentMethodId)
                 ->where("status", "active")
                 ->sum("amount"))
-            : Numbers::sum($sessions->pluck("expected_amount"));
+            : Numbers::sumText($sessions->map(fn(CashSession $session) => $session->getRawOriginal("expected_amount")));
 
         $counted = $paymentMethodId
-            ? Numbers::round(CashSessionPayment::query()
+            ? Numbers::storage(CashSessionPayment::query()
                 ->whereIn("cash_session_id", $sessionIds)
                 ->where("payment_method_id", $paymentMethodId)
                 ->sum("counted_amount"))
-            : Numbers::sum($sessions->pluck("counted_amount"));
+            : Numbers::sumText($sessions->map(fn(CashSession $session) => $session->getRawOriginal("counted_amount")));
 
         return [
             "sessions" => $sessions,
             "payments" => $payments,
             "totals" => [
-                "opening" => $paymentMethodId ? 0 : Numbers::sum($sessions->pluck("opening_amount")),
+                "opening" => $paymentMethodId
+                    ? Numbers::storage(0)
+                    : Numbers::sumText($sessions->map(fn(CashSession $session) => $session->getRawOriginal("opening_amount"))),
                 "expected" => $expected,
                 "counted" => $counted,
-                "difference" => Numbers::subtract($counted, $expected),
+                "difference" => Numbers::subtractText($counted, $expected),
             ],
         ];
 
@@ -657,11 +659,13 @@ final class CashRegisterService {
 
     private function emptyTotals(): array {
 
+        $zero = Numbers::storage(0);
+
         return [
-            "opening" => 0,
-            "expected" => 0,
-            "counted" => 0,
-            "difference" => 0,
+            "opening" => $zero,
+            "expected" => $zero,
+            "counted" => $zero,
+            "difference" => $zero,
         ];
 
     }

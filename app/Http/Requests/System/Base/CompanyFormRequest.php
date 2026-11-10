@@ -8,6 +8,7 @@ use App\Helpers\System\{ApiResponse, Numbers};
 use Illuminate\Contracts\Validation\{Validator};
 use Illuminate\Foundation\Http\{FormRequest};
 use Illuminate\Http\Exceptions\{HttpResponseException};
+use Illuminate\Validation\Validator as LaravelValidator;
 
 /**
  * Shared request contract for modules isolated by the current tenant database.
@@ -17,6 +18,12 @@ abstract class CompanyFormRequest extends FormRequest {
     public function authorize(): bool {
 
         return $this->user() !== null;
+
+    }
+
+    public function withValidator(LaravelValidator $validator): void {
+
+        Numbers::prepareValidator($validator);
 
     }
 

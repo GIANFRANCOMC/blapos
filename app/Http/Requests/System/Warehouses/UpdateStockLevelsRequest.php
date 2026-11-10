@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Warehouses;
 
+use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 
 final class UpdateStockLevelsRequest extends CompanyFormRequest {
@@ -11,8 +12,9 @@ final class UpdateStockLevelsRequest extends CompanyFormRequest {
     public function rules(): array {
 
         // Un saldo negativo existente puede conservarse al editar solo el mínimo.
-        $preservesNegative = (float) $this->input("quantity") < 0
-            && (float) $this->input("quantity") === (float) $this->input("expected_quantity");
+        $quantity = $this->input("quantity");
+        $preservesNegative = Numbers::compare($quantity, 0) < 0
+            && Numbers::compare($quantity, $this->input("expected_quantity")) === 0;
 
         return [
             "warehouse_id" => ["required", "integer", "min:1"],

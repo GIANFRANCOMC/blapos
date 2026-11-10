@@ -198,8 +198,8 @@
                                         </td>
                                         <td class="text-end">{{ numberLabel(record.documents) }}</td>
                                         <td class="text-end">{{ settlementQuantity(record) }}</td>
-                                        <td class="text-end">{{ amountLabel(record.base_amount) }}</td>
-                                        <td class="text-end fw-medium">{{ amountLabel(record.amount) }}</td>
+                                        <td class="text-end">{{ amountLabel(record.base_amount, record) }}</td>
+                                        <td class="text-end fw-medium">{{ amountLabel(record.amount, record) }}</td>
                                     </tr>
                                 </template>
                                 <tr class="br-table-state" v-else>
@@ -490,10 +490,10 @@ export default {
         numberLabel(value) {
             return Utils.separatorNumber(value || 0, 0);
         },
-        amountLabel(value) {
+        amountLabel(value, currency) {
             if(value === undefined || value === null) return "—";
 
-            return `S/ ${Utils.separatorNumber(value || 0)}`;
+            return Utils.formatCurrencyAmount(value, currency);
         },
         isDefined({value}) {
             return Utils.isDefined({value});

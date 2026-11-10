@@ -8,13 +8,13 @@ use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Products\{ProductService};
 use Illuminate\Database\Eloquent\{Builder};
-use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromQuery, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison};
 use Maatwebsite\Excel\Events\{AfterSheet};
 use PhpOffice\PhpSpreadsheet\Cell\{Cell, DataType, DefaultValueBinder};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
-final class ProductListExport extends DefaultValueBinder implements FromQuery, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles {
+final class ProductListExport extends DefaultValueBinder implements FromQuery, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison {
 
     private const LAST_COLUMN = "R";
 
@@ -67,8 +67,7 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
 
         $warehouseItems = $item->warehouseItems;
         $alertCount = $warehouseItems
-            ->filter(fn($warehouseItem) => (float) ($warehouseItem->quantity ?? 0) <= (float) ($warehouseItem->minimum_stock ?? 0)
-            )
+            ->filter(fn($warehouseItem) => Numbers::compare($warehouseItem->quantity, $warehouseItem->minimum_stock) <= 0)
             ->count();
 
         $requiresAttention = $warehouseItems->isEmpty() || $alertCount > 0;
@@ -112,10 +111,10 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
             $categories,
             $item->description,
             $item->currency?->sign ?? $item->currency?->code,
-            (float) $item->price,
-            $item->min_price !== null ? (float) $item->min_price : null,
-            $item->max_price !== null ? (float) $item->max_price : null,
-            Numbers::sum($warehouseItems->pluck("quantity")),
+            Numbers::spreadsheetNumber($item->price),
+            $item->min_price !== null ? Numbers::spreadsheetNumber($item->min_price) : null,
+            $item->max_price !== null ? Numbers::spreadsheetNumber($item->max_price) : null,
+            Numbers::spreadsheetNumber($item->total_stock_quantity),
             $warehouseItems->count(),
             $alertCount,
             $warehouseItems->isEmpty()
@@ -158,7 +157,8 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
 
         $textColumns = ["A", "B", "C", "D", "E", "F", "G", "N", "O", "P", "Q", "R"];
 
-        if(in_array($cell->getColumn(), $textColumns, true) && $cell->getRow() > 1) {
+        if($cell->getRow() > 1 && (in_array($cell->getColumn(), $textColumns, true)
+            || ($cell->getColumn() === "K" && is_string($value)))) {
 
             $cell->setValueExplicit((string) ($value ?? ""), DataType::TYPE_STRING);
 

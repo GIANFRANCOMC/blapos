@@ -163,8 +163,8 @@ class StockManagementService {
 
         })->values();
 
-        $item->setAttribute("stock_quantity", Numbers::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("quantity"))));
-        $item->setAttribute("minimum_stock", Numbers::round($item->warehouseItems->sum(fn(WarehouseItem $stock) => $stock->getRawOriginal("minimum_stock"))));
+        $item->setAttribute("stock_quantity", Numbers::sumText($item->warehouseItems->map(fn(WarehouseItem $stock) => $stock->getRawOriginal("quantity"))));
+        $item->setAttribute("minimum_stock", Numbers::sumText($item->warehouseItems->map(fn(WarehouseItem $stock) => $stock->getRawOriginal("minimum_stock"))));
         $item->setAttribute("warehouse_breakdown", $warehouses);
         $item->setAttribute("alert_warehouses_count", $warehouses->where("requires_attention", true)->count());
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Catalogs\Products;
 
+use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Rules\System\Catalogs\{ValidEan13};
@@ -175,24 +176,24 @@ abstract class ProductRequest extends CompanyFormRequest {
 
         }
 
-        $price = (float) $this->input("price");
+        $price = $this->input("price");
 
         $minimum = $this->positiveNumberOrNull($this->input("min_price"));
         $maximum = $this->positiveNumberOrNull($this->input("max_price"));
 
-        if($minimum !== null && $minimum > $price) {
+        if($minimum !== null && Numbers::compare($minimum, $price) > 0) {
 
             $validator->errors()->add("min_price", "No puede ser mayor que el precio de venta.");
 
         }
 
-        if($maximum !== null && $maximum < $price) {
+        if($maximum !== null && Numbers::compare($maximum, $price) < 0) {
 
             $validator->errors()->add("max_price", "No puede ser menor que el precio de venta.");
 
         }
 
-        if($minimum !== null && $maximum !== null && $minimum > $maximum) {
+        if($minimum !== null && $maximum !== null && Numbers::compare($minimum, $maximum) > 0) {
 
             $validator->errors()->add("max_price", "No puede ser menor que el precio mínimo.");
 
@@ -267,9 +268,9 @@ abstract class ProductRequest extends CompanyFormRequest {
 
     }
 
-    private function positiveNumberOrNull(mixed $value): ?float {
+    private function positiveNumberOrNull(mixed $value): mixed {
 
-        return is_numeric($value) && (float) $value > 0 ? (float) $value : null;
+        return Numbers::compare($value, 0) > 0 ? $value : null;
 
     }
 

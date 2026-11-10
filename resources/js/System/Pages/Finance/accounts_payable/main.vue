@@ -228,12 +228,10 @@ export default {
             return Alerts.showFiltersCleared();
         },
         summaryAmount(key) {
-            if(!this.summary.amounts?.length) return `S/ ${Utils.separatorNumber(0)}`;
-
-            return this.summary.amounts.map(amount => `${amount.sign || amount.code} ${Utils.separatorNumber(amount[key] || 0)}`).join(" · ");
+            return Utils.formatCurrencyTotals(this.summary.amounts, key);
         },
         money(account, value) {
-            return `${account.currency?.sign || account.currency?.code || ""} ${Utils.separatorNumber(value || 0)}`.trim();
+            return Utils.formatCurrencyAmount(value, account.currency);
         },
         formatDate(value) {
             if(!value) return "Sin fecha";

@@ -165,11 +165,11 @@ final class PurchaseHeader extends Model {
 
         }
 
-        $ordered = Numbers::sum($this->items->pluck("quantity"));
+        $ordered = Numbers::sumText($this->items->pluck("quantity"));
 
-        $received = Numbers::sum($this->items->pluck("received_quantity"));
+        $received = Numbers::sumText($this->items->pluck("received_quantity"));
 
-        return $ordered > 0
+        return Numbers::compare($ordered, 0) > 0
             ? Numbers::proportion($received, 100, $ordered)
             : 0;
 

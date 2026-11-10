@@ -3,9 +3,9 @@
 namespace App\Exports;
 
 use App\Helpers\System\{Numbers};
-use Maatwebsite\Excel\Concerns\{FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings};
+use Maatwebsite\Excel\Concerns\{FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings, WithStrictNullComparison};
 
-class SaleExport implements FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings {
+class SaleExport implements FromCollection, WithColumnFormatting, WithColumnWidths, WithHeadings, WithStrictNullComparison {
 
     protected $data;
 

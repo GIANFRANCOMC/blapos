@@ -8,13 +8,13 @@ use App\Helpers\System\{Numbers};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Support\{Collection};
-use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison};
 use Maatwebsite\Excel\Events\{AfterSheet};
 use PhpOffice\PhpSpreadsheet\Cell\{Cell, DataType, DefaultValueBinder};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
-final class InventoryReportExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles {
+final class InventoryReportExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison {
 
     private int $currentRow = 1;
 
@@ -165,13 +165,14 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         if($this->view === "stock") {
 
-            $stock = (float) ($record->stock_quantity ?? 0);
-            $minimum = (float) ($record->minimum_stock ?? 0);
-            $status = $stock <= 0
+            $stock = $record->stock_quantity ?? 0;
+            $minimum = $record->minimum_stock ?? 0;
+            $isLow = Numbers::compare($stock, $minimum) <= 0;
+            $status = Numbers::compare($stock, 0) <= 0
                 ? "Sin existencias"
-                : ($stock <= $minimum ? "Stock bajo" : "Stock saludable");
+                : ($isLow ? "Stock bajo" : "Stock saludable");
 
-            if($stock <= $minimum) {
+            if($isLow) {
 
                 $this->attentionRows[] = $this->currentRow;
 
@@ -182,8 +183,8 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->barcode,
                 $record->name,
                 $record->measurementUnit?->abbreviation,
-                $stock,
-                $minimum,
+                Numbers::spreadsheetNumber($stock),
+                Numbers::spreadsheetNumber($minimum),
                 $this->warehouseBreakdownText($record->warehouse_breakdown ?? [], $record->measurementUnit),
                 (int) ($record->alert_warehouses_count ?? 0),
                 $status,
@@ -202,11 +203,11 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $record->item?->measurementUnit?->abbreviation,
                 $this->movementLabel((string) $record->movement_type),
                 $this->originLabel((string) $record->origin_type),
-                (float) $record->quantity_change,
-                (float) $record->unit_cost,
-                (float) $record->value_before,
-                (float) $record->value_change,
-                (float) $record->value_after,
+                Numbers::spreadsheetNumber($record->quantity_change),
+                Numbers::spreadsheetNumber($record->unit_cost),
+                Numbers::spreadsheetNumber($record->value_before),
+                Numbers::spreadsheetNumber($record->value_change),
+                Numbers::spreadsheetNumber($record->value_after),
                 $record->reason,
                 $record->reference,
                 $record->user?->name ?? "Proceso del sistema",
@@ -247,9 +248,9 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             $record->item?->measurementUnit?->abbreviation,
             $this->movementLabel((string) $record->movement_type),
             $this->originLabel((string) $record->origin_type),
-            (float) $record->quantity_before,
-            (float) $record->quantity_change,
-            (float) $record->quantity_after,
+            Numbers::spreadsheetNumber($record->quantity_before),
+            Numbers::spreadsheetNumber($record->quantity_change),
+            Numbers::spreadsheetNumber($record->quantity_after),
             $record->reason,
             $record->reference,
             $record->user?->name ?? "Proceso del sistema",
@@ -302,7 +303,10 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             default => ["A", "B", "C", "D", "E", "F", "G", "H", "L", "M", "N"]
         };
 
-        if($cell->getRow() > 1 && in_array($cell->getColumn(), $textColumns, true)) {
+        $consolidatedAsText = $this->view === "stock"
+            && in_array($cell->getColumn(), ["E", "F"], true) && is_string($value);
+
+        if($cell->getRow() > 1 && (in_array($cell->getColumn(), $textColumns, true) || $consolidatedAsText)) {
 
             $cell->setValueExplicit((string) ($value ?? ""), DataType::TYPE_STRING);
 

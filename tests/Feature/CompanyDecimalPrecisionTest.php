@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Exports\System\Catalogs\Products\{ProductListExport};
 use App\Exports\System\Warehouses\{StockAlertsExport};
 use App\Helpers\System\{Numbers};
 use App\Http\Middleware\{EnsureAuthenticatedSession, EnsureOperationalScope, EnsureTenantSession, ResolveTenant, TrustHosts};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{User};
-use App\Services\System\Finance\{CommercialDocumentSettlementService};
+use App\Models\System\Sales\{SaleHeader};
+use App\Services\System\Catalogs\Products\{ProductService};
+use App\Services\System\Customers\Tracking\{TrackingCustomerBusinessService};
+use App\Services\System\Essentials\{DashboardService};
+use App\Services\System\Finance\{AccountsPayableService, AccountsReceivableService, CommercialCreditAccountService, CommercialDocumentSettlementService, FinancialSettlementReportService};
 use App\Services\System\General\{MasterDataService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService, CompanySettingService};
-use App\Services\System\Purchases\{PurchaseService};
+use App\Services\System\Purchases\{PurchaseService, SupplierService};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService, StockManagementService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
@@ -103,6 +108,25 @@ final class CompanyDecimalPrecisionTest extends TestCase {
         $rules = ["amount" => Numbers::numericRules(required: true)];
         $this->assertTrue(Validator::make(["amount" => "999999999999.999"], $rules)->passes());
         $this->assertFalse(Validator::make(["amount" => "1000000000000.000"], $rules)->passes());
+        $this->assertSame("999999999999.999", Numbers::inputConfig()["maxValue"]);
+        $this->assertSame("10999999999999.989", Numbers::sumText(array_fill(0, 11, "999999999999.999")));
+        $this->assertSame("10999999999999.989", Numbers::spreadsheetNumber("10999999999999.989"));
+        $this->assertSame(999999999999.999, Numbers::spreadsheetNumber("999999999999.999"));
+        $this->assertSame("0.001", Numbers::subtractText("10999999999999.989", "10999999999999.988"));
+        $this->assertSame(1.005, Numbers::average(["1.00", null, "1.01"]));
+        $this->assertSame("999999999999.999", Numbers::spreadsheetDecimal(999999999999.999, allowZero: false));
+        $this->assertNull(Numbers::spreadsheetDecimal(0.0004, allowZero: false));
+        $nestedRules = ["items.*.amount" => $rules["amount"]];
+        $validator = Numbers::prepareValidator(Validator::make(["items" => [
+            ["amount" => 999999999999.999], ["amount" => 1e-3],
+        ]], $nestedRules));
+        $this->assertSame(["items" => [
+            ["amount" => "999999999999.999"], ["amount" => "0.001"],
+        ]], $validator->validate());
+        $this->assertTrue(Numbers::prepareValidator(Validator::make(
+            ["items" => [["amount" => 0.0004], ["amount" => "999999999999.99901"]]],
+            $nestedRules
+        ))->fails());
 
         $this->savePrecision(2);
         $itemId = $this->createItem();
@@ -158,6 +182,15 @@ final class CompanyDecimalPrecisionTest extends TestCase {
         ]);
         $this->assertSame(1, StockManagementService::getPaginatedList($sourceId, 10, "PREC-1", "empty", ["minimum_status" => "unconfigured"])->total());
         $this->assertSame(1, StockManagementService::stockAlertsReportQuery($sourceId, "PREC-1", "unconfigured")->count());
+
+        DB::table("warehouse_items")->insert([
+            "warehouse_id" => $destinationId, "item_id" => $itemId, "status" => "active",
+            "quantity" => "0.004", "minimum_stock" => "0.004", "inventory_value" => 0,
+        ]);
+        $product = ProductService::getPaginatedList(["filter_by" => "all", "word" => "PREC-1"])->items()[0];
+        $this->assertSame("0.01", $product->total_stock_quantity);
+        $this->assertSame(0.01, (new ProductListExport())->map($product)[10]);
+        $this->assertSame("0.01", StockManagementService::getConsolidatedStock("PREC-1")->first()->stock_quantity);
 
         $this->savePrecision(3);
         $this->assertSame(0, StockManagementService::getPaginatedList($sourceId, 10, "PREC-1", "empty")->total());
@@ -241,6 +274,84 @@ final class CompanyDecimalPrecisionTest extends TestCase {
         $this->assertEquals(3, $purchase->items->sum("allocated_expense_total"));
         $this->assertEquals(11, $purchase->receipts->flatMap->items->sum("total_cost"));
         $this->assertEquals(4, DB::table("warehouse_items")->where("item_id", $details[0]["item_id"])->value("inventory_value"));
+
+        $overdue = $installments->first(fn($installment) => (int) $installment->pending_amount > 0);
+        $overdue->update(["due_date" => now()->subDay()->toDateString()]);
+        $summary = app(AccountsPayableService::class)->summary($userId, ["status" => "overdue"]);
+
+        $this->assertSame(1, $summary["overdue_accounts"]);
+        $this->assertSame($overdue->pending_amount, $summary["amounts"][0]["overdue"]);
+        $this->assertSame($purchase->accountPayable->pending_amount, $summary["amounts"][0]["pending"]);
+        $this->assertGreaterThan((int) $summary["amounts"][0]["overdue"], (int) $summary["amounts"][0]["pending"]);
+
+    }
+
+    public function test_financial_reports_and_customer_history_group_exact_amounts_by_currency(): void {
+
+        $this->savePrecision(3);
+        $date = now()->toDateString();
+        $supplierId = DB::table("suppliers")->insertGetId(["name" => "Proveedor de dos monedas"]);
+        $customerId = DB::table("customers")->insertGetId([
+            "name" => "Cliente de dos monedas", "document_number" => "98765432",
+            "identity_document_type_id" => DB::table("identity_document_types")->where("code", "dni")->value("id"),
+        ]);
+        $warehouseId = DB::table("warehouses")->value("id");
+        $sellerId = DB::table("users")->value("id");
+        $seriesId = DB::table("series")->value("id");
+        DB::table("currencies")->insertOrIgnore([
+            "code" => "USD", "sign" => "US$", "singular_name" => "Dólar", "plural_name" => "Dólares",
+        ]);
+        $currencyIds = DB::table("currencies")->whereIn("code", ["PEN", "USD"])->pluck("id", "code");
+        $expected = ["PEN" => "123.456", "USD" => "789.012"];
+        $sequence = 900110;
+
+        foreach($expected as $code => $total) {
+
+            $currencyId = $currencyIds[$code];
+            $purchaseId = DB::table("purchase_headers")->insertGetId([
+                "supplier_id" => $supplierId, "warehouse_id" => $warehouseId, "currency_id" => $currencyId,
+                "issue_date" => $date, "reference" => "PREC-".$code, "total" => $total,
+            ]);
+            DB::table("purchase_payments")->insert([
+                "purchase_header_id" => $purchaseId, "name" => "Efectivo", "amount" => $total,
+            ]);
+            DB::table("purchase_taxes")->insert([
+                "purchase_header_id" => $purchaseId, "name" => "Tributo de prueba", "amount" => $total,
+            ]);
+            DB::table("sales_header")->insert([
+                "serie_id" => $seriesId, "sequential" => $sequence++, "holder_id" => $customerId,
+                "seller_id" => $sellerId, "currency_id" => $currencyId, "issue_date" => $date, "total" => $total,
+            ]);
+
+        }
+
+        foreach(["taxes", "payments"] as $type) {
+
+            $this->assertSame($expected, FinancialSettlementReportService::summarize($type, "purchase", $date, $date)
+                ->where("name", $type === "taxes" ? "Tributo de prueba" : "Efectivo")
+                ->pluck("amount", "code")->sortKeys()->all());
+
+        }
+
+        $supplier = SupplierService::paginate("Proveedor de dos monedas", 10)->items()[0];
+        $this->assertSame($expected, $supplier->purchase_amounts->pluck("total", "code")->all());
+        $this->assertSame($expected, DashboardService::getDashboardData($date)["sales"]["net"]["amounts"]
+            ->pluck("total", "code")->all());
+        $tracking = app(TrackingCustomerBusinessService::class)->get([
+            "customer_id" => $customerId, "options" => ["information" => ["sales"]],
+        ]);
+        $this->assertSame($expected, $tracking["tracking"]["summary"]["active_sales_amounts"]->pluck("total", "code")->all());
+
+        $sale = SaleHeader::query()->where("holder_id", $customerId)->where("currency_id", $currencyIds["PEN"])->firstOrFail();
+        $sale->update(["payment_modality" => "installments", "balance_due" => $sale->total, "payment_status" => "unpaid"]);
+        $account = CommercialCreditAccountService::createReceivable($sale, collect(), 2, now()->addMonth()->toDateString(), (int) $sellerId);
+        $firstInstallment = $account->installments()->orderBy("due_date")->firstOrFail();
+        $firstInstallment->update(["due_date" => now()->subDay()->toDateString()]);
+        $summary = app(AccountsReceivableService::class)->summary((int) $sellerId, ["status" => "overdue"]);
+
+        $this->assertSame(1, $summary["overdue_accounts"]);
+        $this->assertSame($firstInstallment->pending_amount, $summary["amounts"][0]["overdue"]);
+        $this->assertSame($account->pending_amount, $summary["amounts"][0]["pending"]);
 
     }
 

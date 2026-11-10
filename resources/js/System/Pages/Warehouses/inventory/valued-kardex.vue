@@ -136,7 +136,7 @@
                                                 <td class="text-end">
                                                     <StockDifference :current="movement.quantity_change" :unit="movement.item?.measurement_unit || movement.item"/>
                                                 </td>
-                                                <td class="text-end">{{ currencyNumber(movement.unit_cost, 4) }}</td>
+                                                <td class="text-end">{{ currencyNumber(movement.unit_cost) }}</td>
                                                 <td :class="['text-end br-amount-inline__amount', Number(movement.value_change) >= 0 ? 'text-success' : 'text-danger']">
                                                     {{ signedCurrency(movement.value_change) }}
                                                 </td>

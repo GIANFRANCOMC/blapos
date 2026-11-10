@@ -9,7 +9,7 @@
                 <slot name="inputGroupPrepend"></slot>
                 <input
                     type="text"
-                    :value="isEditing ? modelValue : formattedValue"
+                    :value="isEditing ? localValue : formattedValue"
                     @focus="handleFocus"
                     @blur="handleBlur"
                     @input="handleTyping($event.target.value)"
@@ -34,7 +34,7 @@
             <slot name="inputGroupPrepend"></slot>
             <input
                 type="text"
-                :value="isEditing ? modelValue : formattedValue"
+                :value="isEditing ? localValue : formattedValue"
                 @focus="handleFocus"
                 @blur="handleBlur"
                 @input="handleTyping($event.target.value)"
@@ -53,7 +53,7 @@
 
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
-import {commitNumberInput, isNumberInputKey, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
+import {commitNumberInput, editableNumber, isNumberInputKey, numberInputDraft, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 export default {
     name: "InputNumber",
@@ -182,13 +182,16 @@ export default {
     },
     data() {
         return {
-            isEditing: false
+            isEditing: false,
+            localValue: ""
         };
     },
     computed: {
         formattedValue() {
 
-            return separatorNumber(this.modelValue, this.decimalPlaces);
+            return this.modelValue === "" || this.modelValue == null
+                ? ""
+                : separatorNumber(this.modelValue, this.decimalPlaces);
 
         },
         decimalPlaces() {
@@ -218,18 +221,17 @@ export default {
     methods: {
         handleTyping(value) {
 
-            // Update without validation
-            this.emitValue({reset: false, result: value})
+            this.localValue = value;
+            this.emitValue({reset: false, result: numberInputDraft(value, this.hasNegative)});
 
         },
         updateValue(value) {
 
-            if(this.hasNegative && value === "-") return;
-
             const bounds = numericBounds(this);
             const options = {...bounds, hasNegative: this.hasNegative, decimals: this.decimalPlaces};
-            const result = commitNumberInput(value, options) ?? commitNumberInput(bounds.min, options);
+            const result = commitNumberInput(value, options);
 
+            this.localValue = editableNumber(result);
             this.emitValue({reset: false, result});
 
         },
@@ -257,21 +259,24 @@ export default {
         handleFocus() {
 
             this.isEditing = true;
+            this.localValue = editableNumber(this.modelValue);
 
         },
         handleBlur() {
 
+            this.updateValue(this.localValue);
             this.isEditing = false;
-            this.updateValue(this.modelValue);
 
         },
         handleEnterKey() {
 
-            this.updateValue(this.modelValue);
+            this.updateValue(this.localValue);
             this.$emit("enterKeyPressed");
 
         },
         handleKeyDown(event) {
+
+            if(event.ctrlKey || event.metaKey || event.isComposing) return;
 
             if(!isNumberInputKey(event.key, {hasNegative: this.hasNegative, decimals: this.decimalPlaces})) {
 

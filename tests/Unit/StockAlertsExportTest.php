@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Exports\System\Warehouses\StockAlertsExport;
+use App\Exports\SaleExport;
 use App\Helpers\System\{Numbers};
 use App\Services\System\Warehouses\StockManagement\StockAlertsPdfRenderer;
 use App\Services\System\Warehouses\StockManagement\StockManagementService;
 use Illuminate\Support\LazyCollection;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
 
 final class StockAlertsExportTest extends TestCase {
@@ -111,6 +114,30 @@ final class StockAlertsExportTest extends TestCase {
 
         $this->assertStringStartsWith("%PDF", $pdf);
         $this->assertStringContainsString("%%EOF", $pdf);
+
+    }
+
+    public function test_excel_keeps_zero_amount_distinct_from_a_missing_value(): void {
+
+        $export = new SaleExport(collect([
+            ["B001-1", "Cliente", "05/11/2026", 0.0, "PEN", "Activa"],
+            ["B001-2", "Cliente", "05/11/2026", null, "PEN", "Activa"],
+        ]));
+        $path = tempnam(sys_get_temp_dir(), "blapos-xlsx-");
+
+        try {
+
+            file_put_contents($path, Excel::raw($export, \Maatwebsite\Excel\Excel::XLSX));
+            $sheet = IOFactory::load($path)->getActiveSheet();
+            $this->assertContains($sheet->getCell("D2")->getValue(), [0, 0.0]);
+            $this->assertSame("0.00", $sheet->getCell("D2")->getFormattedValue());
+            $this->assertNull($sheet->getCell("D3")->getValue());
+
+        }finally {
+
+            unlink($path);
+
+        }
 
     }
 

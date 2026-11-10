@@ -9,12 +9,12 @@ use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Services\{ServiceService};
 use App\Services\System\Catalogs\Subscriptions\{SubscriptionService};
 use Illuminate\Database\Eloquent\{Builder};
-use Maatwebsite\Excel\Concerns\{FromQuery, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromQuery, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison};
 use PhpOffice\PhpSpreadsheet\Cell\{Cell, DataType, DefaultValueBinder};
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
-final class OfferingListExport extends DefaultValueBinder implements FromQuery, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles {
+final class OfferingListExport extends DefaultValueBinder implements FromQuery, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison {
 
     public function __construct(
         private readonly string $type,
@@ -67,9 +67,9 @@ final class OfferingListExport extends DefaultValueBinder implements FromQuery, 
             $item->description,
             $categories,
             $item->currency?->sign ?? $item->currency?->code,
-            (float) $item->price,
-            $item->min_price !== null ? (float) $item->min_price : null,
-            $item->max_price !== null ? (float) $item->max_price : null,
+            Numbers::spreadsheetNumber($item->price),
+            $item->min_price !== null ? Numbers::spreadsheetNumber($item->min_price) : null,
+            $item->max_price !== null ? Numbers::spreadsheetNumber($item->max_price) : null,
         ];
 
         $specific = $this->type === Item::TYPE_SERVICE
@@ -88,7 +88,7 @@ final class OfferingListExport extends DefaultValueBinder implements FromQuery, 
             $item->capacity_control_enabled ? $item->available_capacity : null,
             $item->expires_at?->format("Y-m-d"),
             $item->commission_type ?? "none",
-            $item->commission_value !== null ? (float) $item->commission_value : null,
+            $item->commission_value !== null ? Numbers::spreadsheetNumber($item->commission_value) : null,
             $this->yesNo($item->igv_exempt),
             $this->yesNo($item->price_includes_tax),
             $this->yesNo((bool) $item->see_my_web),

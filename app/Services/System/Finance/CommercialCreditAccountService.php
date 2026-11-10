@@ -8,6 +8,7 @@ use App\Helpers\System\{Numbers};
 use App\Models\System\Purchases\{PurchaseAccountPayable, PurchaseHeader, PurchasePayableInstallment, PurchasePayablePayment};
 use App\Models\System\Sales\{SaleAccountReceivable, SaleHeader, SaleReceivableInstallment, SaleReceivablePayment};
 use Carbon\{Carbon};
+use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\{Collection};
 
 final class CommercialCreditAccountService {
@@ -17,6 +18,51 @@ final class CommercialCreditAccountService {
     public const CASH_ON_DELIVERY = "cash_on_delivery";
 
     public const INSTALLMENTS = "installments";
+
+    public static function overdueInstallments(Builder $installments): Builder {
+
+        return $installments
+            ->whereIn("status", ["pending", "partial", "overdue"])
+            ->whereRaw(Numbers::sqlRound("pending_amount")." > 0")
+            ->where("due_date", "<", now()->toDateString());
+
+    }
+
+    public static function summarize(Builder $accounts): array {
+
+        $accounts = (clone $accounts)->where("status", "!=", "canceled");
+        $model = $accounts->getModel();
+        $relation = $model->installments();
+        $foreignKey = $relation->getForeignKeyName();
+        $installments = self::overdueInstallments($relation->getRelated()->newQuery())
+            ->select($foreignKey)
+            ->selectRaw("SUM(pending_amount) AS overdue_amount")
+            ->groupBy($foreignKey);
+
+        $groups = $accounts
+            ->leftJoinSub($installments, "overdue_installments", "overdue_installments.".$foreignKey, "=", $model->qualifyColumn("id"))
+            ->selectRaw("currency_id, COUNT(*) AS accounts, COUNT(overdue_installments.overdue_amount) AS overdue_accounts")
+            ->selectRaw("SUM(total_amount) AS total_amount, SUM(paid_amount) AS paid_amount, SUM(pending_amount) AS pending_amount")
+            ->selectRaw("SUM(overdue_installments.overdue_amount) AS overdue_amount")
+            ->with("currency:id,code,sign")
+            ->groupBy("currency_id")
+            ->get();
+
+        return [
+            "accounts" => $groups->sum("accounts"),
+            "overdue_accounts" => $groups->sum("overdue_accounts"),
+            "amounts" => $groups->map(fn($row) => [
+                "currency_id" => (int) $row->currency_id,
+                "code" => $row->currency?->code ?? "",
+                "sign" => $row->currency?->sign ?? "",
+                "total" => Numbers::storage($row->getRawOriginal("total_amount")),
+                "paid" => Numbers::storage($row->getRawOriginal("paid_amount")),
+                "pending" => Numbers::storage($row->getRawOriginal("pending_amount")),
+                "overdue" => Numbers::storage($row->overdue_amount ?? 0),
+            ])->values(),
+        ];
+
+    }
 
     public static function normalizePaymentModality(?string $modality, string $default = self::PAID_NOW): string {
 
@@ -58,8 +104,8 @@ final class CommercialCreditAccountService {
         $isInstallmentCredit = $sale->payment_modality === self::INSTALLMENTS;
 
         $receivablePrincipal = $isInstallmentCredit
-            ? Numbers::round($sale->balance_due - (float) $sale->installment_extra_amount)
-            : Numbers::round($sale->total - (float) $sale->installment_extra_amount);
+            ? Numbers::subtract($sale->balance_due, $sale->installment_extra_amount)
+            : Numbers::subtract($sale->total, $sale->installment_extra_amount);
 
         $receivableTotal = $isInstallmentCredit ? $sale->balance_due : $sale->total;
         $receivablePaid = $isInstallmentCredit ? 0 : $sale->paid_amount;
@@ -117,7 +163,7 @@ final class CommercialCreditAccountService {
             "issue_date" => $purchase->issue_date,
             "due_date" => $dueDate,
             "payment_modality" => $purchase->payment_modality,
-            "original_amount" => Numbers::round($purchase->total - (float) $purchase->installment_extra_amount),
+            "original_amount" => Numbers::subtract($purchase->total, $purchase->installment_extra_amount),
             "extra_percentage" => $purchase->installment_extra_percentage,
             "extra_amount" => $purchase->installment_extra_amount,
             "total_amount" => $purchase->total,

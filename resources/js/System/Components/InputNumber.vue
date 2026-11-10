@@ -54,7 +54,7 @@
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
 import {isDefined} from "../Helpers/Utils.js";
-import {commitNumberInput, editableNumber, isNumberInputKey, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
+import {commitNumberInput, editableNumber, isNumberInputKey, numberInputDraft, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 export default {
     name: "InputNumber",
@@ -253,27 +253,13 @@ export default {
 
             this.localValue = value;
 
-            // If value is completely empty, emit null
-            const trimmedValue = String(value ?? "").trim();
-
-            if(trimmedValue === "") {
-
-                this.emitValue({reset: false, result: null});
-                return;
-
-            }
-
-            // Allow typing "-" or "." while editing (will be validated on blur)
-            // Update without validation (will be validated on blur)
-            this.emitValue({reset: false, result: value});
+            this.emitValue({reset: false, result: numberInputDraft(value, this.hasNegative)});
 
         },
         updateValue(value) {
 
             const bounds = numericBounds(this);
-            const parsed = commitNumberInput(value, {...bounds, hasNegative: this.hasNegative, decimals: this.decimalPlaces});
-            const text = editableNumber(value);
-            const result = ["", "-", "."].includes(text) ? null : (parsed ?? this.modelValue ?? null);
+            const result = commitNumberInput(value, {...bounds, hasNegative: this.hasNegative, decimals: this.decimalPlaces});
 
             this.localValue = editableNumber(result);
             this.emitValue({reset: false, result});
@@ -319,6 +305,8 @@ export default {
 
         },
         handleKeyDown(event) {
+
+            if(event.ctrlKey || event.metaKey || event.isComposing) return;
 
             if(!isNumberInputKey(event.key, {hasNegative: this.hasNegative, decimals: this.decimalPlaces})) {
 

@@ -2,7 +2,7 @@ const defaults = {
     round: 2,
     maxDecimals: 3,
     minValue: 0,
-    maxValue: 999999999999.999,
+    maxValue: "999999999999.999",
     maxSize: 4096
 };
 
@@ -14,6 +14,7 @@ let settings;
 export function numericInputConfig() {
     if(!settings) {
         settings = {...defaults, ...globalThis.window?.numericInputConfig};
+        settings.maxDecimals = maximumPrecision(settings.maxDecimals);
         settings.round = normalizePrecision(settings.round, settings.maxDecimals);
     }
 
@@ -22,7 +23,7 @@ export function numericInputConfig() {
 
 export function applyNumericInputConfig({round, maxDecimals, minValue, maxValue, maxSize} = {}) {
     const config = numericInputConfig();
-    config.maxDecimals = maxDecimals ?? config.maxDecimals;
+    config.maxDecimals = maximumPrecision(maxDecimals ?? config.maxDecimals);
     config.round = normalizePrecision(round ?? config.round, config.maxDecimals);
     config.minValue = minValue ?? config.minValue;
     config.maxValue = maxValue ?? config.maxValue;
@@ -38,7 +39,11 @@ export function normalizePrecision(value, maximum = numericInputConfig().maxDeci
 
     return Number.isInteger(precision)
         ? Math.max(0, Math.min(maximum, precision))
-        : defaults.round;
+        : Math.min(maximum, defaults.round);
+}
+
+function maximumPrecision(value) {
+    return Number.isInteger(value) && value >= 0 ? Math.min(defaults.maxDecimals, value) : defaults.maxDecimals;
 }
 
 export function precisionOptions() {
@@ -85,49 +90,54 @@ export function normalizeNumber(value) {
 export function isNumber({value, minValue = 0, maxValue = null, allowEmpty = false}) {
     if(editableNumber(value) === "") return allowEmpty;
 
-    const number = parseNumber(value);
-    const minimum = parseNumber(minValue) ?? 0;
-    const maximum = parseNumber(maxValue);
+    const number = parseDecimal(value);
+    const minimum = decimal(minValue);
+    const maximum = parseDecimal(maxValue);
 
-    return number !== null && number >= minimum
-        && (maxValue == null || maxValue === "" || (maximum !== null && number <= maximum));
+    return number !== null && compare(number, minimum) >= 0
+        && (maxValue == null || maxValue === "" || (maximum !== null && compare(number, maximum) <= 0));
 }
 
 export function numericBounds({minValue = null, maxValue = null, hasNegative = false} = {}) {
     const config = numericInputConfig();
-    const maximum = parseNumber(maxValue) ?? config.maxValue;
+    const maximum = parseDecimal(maxValue) === null ? config.maxValue : maxValue;
+    let minimum = minValue;
 
-    return {
-        min: parseNumber(minValue) ?? (hasNegative ? -maximum : config.minValue),
-        max: maximum
-    };
+    if(parseDecimal(minimum) === null) {
+        const {coefficient, scale} = decimal(maximum);
+        minimum = hasNegative ? fixedUnits(-coefficient, scale) : config.minValue;
+    }
+
+    return {min: minimum, max: maximum};
+}
+
+export function numberInputDraft(value, hasNegative = false) {
+    const editable = editableNumber(value);
+    const validFormat = /^-?(?:\d+(?:\.\d*)?|\.\d+)$/.test(editable);
+
+    if(!validFormat || (!hasNegative && editable.startsWith("-")) || !numericText(editable)) return null;
+
+    return editable;
 }
 
 export function commitNumberInput(value, {min, max, hasNegative = false, decimals = null}) {
-    const editable = editableNumber(value);
-    const validFormat = /^-?\d+(?:\.\d*)?$/.test(editable);
+    const editable = numberInputDraft(value, hasNegative);
+    const precision = resolveDecimals(decimals);
+    if(editable === null || (precision === 0 && editable.endsWith("."))) return null;
 
-    if(!validFormat || (!hasNegative && editable.startsWith("-"))
-        || (resolveDecimals(decimals) === 0 && editable.endsWith("."))) return null;
+    const minUnits = ratioUnits(decimal(min), one, precision, "ceiling");
+    const maxUnits = ratioUnits(decimal(max), one, precision, "floor");
+    if(minUnits > maxUnits) return null;
 
-    const number = parseNumber(editable);
-    if(number === null) return null;
+    const units = ratioUnits(decimal(editable), one, precision);
+    const bounded = units < minUnits ? minUnits : (units > maxUnits ? maxUnits : units);
 
-    const bounded = number < min ? min : (number > max ? max : editable);
-    let rounded = roundNumber(bounded, decimals);
-
-    if(rounded > max) {
-        rounded = roundNumber(rounded - decimalStep(decimals), decimals);
-    }else if(rounded < min) {
-        rounded = roundNumber(rounded + decimalStep(decimals), decimals);
-    }
-
-    return rounded >= min && rounded <= max ? rounded : null;
+    return Number(fixedUnits(bounded, precision));
 }
 
 export function isNumberInputKey(key, {hasNegative = false, decimals = null} = {}) {
     return /^\d$/.test(key)
-        || ["ArrowLeft", "ArrowRight", "Backspace", "Tab"].includes(key)
+        || ["ArrowLeft", "ArrowRight", "Backspace", "Delete", "Home", "End", "Tab", "Enter", "Escape"].includes(key)
         || (hasNegative && key === "-")
         || (resolveDecimals(decimals) > 0 && key === ".");
 }
@@ -136,9 +146,9 @@ function power(exponent) {
     return 10n ** BigInt(exponent);
 }
 
-function decimal(value) {
+function parseDecimal(value) {
     const parts = numericText(value);
-    if(!parts) return zero;
+    if(!parts) return null;
 
     const [, sign, whole, fraction = "", exponent = 0] = parts;
     const scale = fraction.length - Number(exponent);
@@ -147,6 +157,22 @@ function decimal(value) {
     return scale < 0
         ? {coefficient: coefficient * power(-scale), scale: 0}
         : {coefficient, scale};
+}
+
+function decimal(value) {
+    return parseDecimal(value) ?? zero;
+}
+
+function compare(left, right) {
+    const scale = Math.max(left.scale, right.scale);
+    const leftUnits = left.coefficient * power(scale - left.scale);
+    const rightUnits = right.coefficient * power(scale - right.scale);
+
+    return leftUnits < rightUnits ? -1 : (leftUnits > rightUnits ? 1 : 0);
+}
+
+export function compareNumbers(left, right) {
+    return compare(decimal(left), decimal(right));
 }
 
 function add(left, right) {
@@ -162,18 +188,24 @@ function product(left, right) {
     return {coefficient: left.coefficient * right.coefficient, scale: left.scale + right.scale};
 }
 
-function ratioUnits(value, divisor, precision) {
+function ratioUnits(value, divisor, precision, direction = "nearest") {
     const shift = precision + divisor.scale - value.scale;
     const numerator = value.coefficient * power(Math.max(0, shift));
     const denominator = divisor.coefficient * power(Math.max(0, -shift));
     const units = numerator / denominator;
     const remainder = numerator % denominator;
+    if(remainder === 0n) return units;
+
+    const sign = (numerator < 0n) === (denominator < 0n) ? 1n : -1n;
+    if(direction === "floor") return sign < 0n ? units - 1n : units;
+    if(direction === "ceiling") return sign > 0n ? units + 1n : units;
+
     const absoluteRemainder = remainder < 0n ? -remainder : remainder;
     const absoluteDenominator = denominator < 0n ? -denominator : denominator;
 
     if(absoluteRemainder * 2n < absoluteDenominator) return units;
 
-    return units + ((numerator < 0n) === (denominator < 0n) ? 1n : -1n);
+    return units + sign;
 }
 
 const one = {coefficient: 1n, scale: 0};
@@ -188,16 +220,18 @@ function fixedUnits(units, precision) {
     return `${sign}${digits.slice(0, -precision)}.${digits.slice(-precision)}`;
 }
 
-function decimalResult(value, divisor = one, decimals = null) {
+function decimalText(value, divisor = one, decimals = null) {
     const precision = resolveDecimals(decimals);
 
-    return Number(fixedUnits(ratioUnits(value, divisor, precision), precision));
+    return fixedUnits(ratioUnits(value, divisor, precision), precision);
+}
+
+function decimalResult(value, divisor = one, decimals = null) {
+    return Number(decimalText(value, divisor, decimals));
 }
 
 export function fixedNumber(value, decimals = null) {
-    const precision = resolveDecimals(decimals);
-
-    return fixedUnits(ratioUnits(decimal(value), one, precision), precision);
+    return decimalText(decimal(value), one, decimals);
 }
 
 export function separatorNumber(value, decimals = null, locale = "en-US") {
@@ -212,30 +246,61 @@ export function separatorNumber(value, decimals = null, locale = "en-US") {
 
     const key = `${locale}:${precision}`;
     if(!formatters.has(key)) {
-        formatters.set(key, new Intl.NumberFormat(locale, {
+        const formatter = new Intl.NumberFormat(locale, {
             minimumFractionDigits: precision,
             maximumFractionDigits: precision
-        }));
+        });
+        const digitFormatter = new Intl.NumberFormat(locale, {useGrouping: false});
+        const digits = Array.from({length: 10}, (_, digit) => digitFormatter.format(digit));
+        formatters.set(key, {formatter, digits});
     }
 
-    return formatters.get(key).format(precision === 0 ? BigInt(formatted) : Number(formatted));
+    const {formatter, digits} = formatters.get(key);
+    const [whole, fraction] = formatted.split(".");
+    const integer = whole === "-0" ? -0 : BigInt(whole);
+
+    return formatter.formatToParts(integer).map(part => part.type === "fraction"
+        ? [...fraction].map(digit => digits[digit]).join("")
+        : part.value).join("");
 }
 
 export function roundNumber(value, decimals = null) {
     return Number(fixedNumber(value, decimals));
 }
 
-export function sum(values) {
+export function formatCurrencyAmount(value, currency = null) {
+    const sign = currency?.sign || currency?.code;
+
+    return [sign, separatorNumber(value)].filter(Boolean).join(" ");
+}
+
+export function formatCurrencyTotals(amounts = [], field = "total") {
+    return amounts.map(amount => formatCurrencyAmount(amount[field], amount)).join(" · ") || separatorNumber(0);
+}
+
+function sumParts(values) {
     let total = zero;
     for(const value of values) total = add(total, decimal(value));
 
-    return decimalResult(total);
+    return total;
+}
+
+export function sum(values) {
+    return decimalResult(sumParts(values));
+}
+
+export function sumText(values) {
+    return decimalText(sumParts(values));
+}
+
+export function subtractText(left, right) {
+    const other = decimal(right);
+
+    return decimalText(add(decimal(left), {...other, coefficient: -other.coefficient}));
 }
 
 export function subtract(left, right) {
-    const other = decimal(right);
-
-    return decimalResult(add(decimal(left), {...other, coefficient: -other.coefficient}));
+    return Number(subtractText(left, right));
 }
 
 export function multiply(left, right) {

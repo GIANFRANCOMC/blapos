@@ -38,11 +38,12 @@ final class FinancialSettlementReportService {
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
+            ->join("currencies as currency", "currency.id", "=", "header.currency_id")
             ->where("detail.status", "active")
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
-            ->groupBy("detail.tax_id", "detail.name", "detail.calculation_type", "detail.operation_type")
-            ->selectRaw("? as scope, detail.tax_id, detail.name, detail.calculation_type, detail.operation_type, COUNT(DISTINCT header.id) as documents, SUM(detail.quantity) as quantity, {$baseAmount} as base_amount, {$amount} as amount", [$scope])
+            ->groupBy("detail.tax_id", "detail.name", "detail.calculation_type", "detail.operation_type", "currency.id", "currency.code", "currency.sign")
+            ->selectRaw("? as scope, detail.tax_id, detail.name, detail.calculation_type, detail.operation_type, currency.id as currency_id, currency.code, currency.sign, COUNT(DISTINCT header.id) as documents, SUM(detail.quantity) as quantity, {$baseAmount} as base_amount, {$amount} as amount", [$scope])
             ->get();
 
     }
@@ -56,11 +57,12 @@ final class FinancialSettlementReportService {
 
         return DB::table("{$detailTable} as detail")
             ->join("{$headerTable} as header", "header.id", "=", "detail.{$foreignKey}")
+            ->join("currencies as currency", "currency.id", "=", "header.currency_id")
             ->where("detail.status", "active")
             ->when($from, fn($query) => $query->where("header.{$dateColumn}", ">=", Utilities::startOfDay($from)))
             ->when($to, fn($query) => $query->where("header.{$dateColumn}", "<=", Utilities::endOfDay($to)))
-            ->groupBy("detail.payment_method_id", "detail.name")
-            ->selectRaw("? as scope, detail.payment_method_id, detail.name, COUNT(DISTINCT header.id) as documents, {$amount} as amount", [$scope])
+            ->groupBy("detail.payment_method_id", "detail.name", "currency.id", "currency.code", "currency.sign")
+            ->selectRaw("? as scope, detail.payment_method_id, detail.name, currency.id as currency_id, currency.code, currency.sign, COUNT(DISTINCT header.id) as documents, {$amount} as amount", [$scope])
             ->get();
 
     }

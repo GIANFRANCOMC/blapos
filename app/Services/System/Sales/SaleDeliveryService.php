@@ -224,7 +224,7 @@ final class SaleDeliveryService {
                 ->get()
                 ->keyBy("id");
 
-            $totalDeliveredNow = 0.0;
+            $deliveredQuantities = [];
             $event = SaleDeliveryEvent::create([
                 "sale_delivery_id" => (int) $delivery->id,
                 "warehouse_id" => (int) $warehouse->id,
@@ -303,11 +303,13 @@ final class SaleDeliveryService {
                     "created_at" => now(),
                 ]);
 
-                $totalDeliveredNow += $quantity;
+                $deliveredQuantities[] = $quantity;
 
             }
 
-            if($totalDeliveredNow <= 0) {
+            $totalDeliveredNow = Numbers::sumText($deliveredQuantities);
+
+            if(Numbers::compare($totalDeliveredNow, 0) <= 0) {
 
                 $event->delete();
                 throw new DomainException("No se registró ninguna cantidad entregada.");
@@ -315,7 +317,7 @@ final class SaleDeliveryService {
             }
 
             $event->update([
-                "total_quantity" => Numbers::round($totalDeliveredNow),
+                "total_quantity" => $totalDeliveredNow,
             ]);
 
             self::refreshDeliveryStatus($delivery, $userId, (int) $warehouse->id);

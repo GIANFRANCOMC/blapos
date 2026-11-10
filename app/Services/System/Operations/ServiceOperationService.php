@@ -1056,17 +1056,8 @@ final class ServiceOperationService {
 
         });
 
-        $commissionTotal = 0.0;
-
-        $sessions->each(function(ServiceSession $session) use (&$commissionTotal) {
-
-            $session->items->each(function(ServiceSessionItem $detail) use (&$commissionTotal) {
-
-                $commissionTotal += self::calculateDetailCommission($detail);
-
-            });
-
-        });
+        $details = $sessions->flatMap->items;
+        $commissionTotal = Numbers::sumText($details->map(self::calculateDetailCommission(...)));
 
         return [
             "period" => [
@@ -1078,17 +1069,17 @@ final class ServiceOperationService {
                 "open_sessions" => $sessions->whereIn("status", [self::STATUS_PENDING, self::STATUS_IN_PROGRESS])->count(),
                 "completed_sessions" => $completed->count(),
                 "canceled_sessions" => $sessions->where("status", self::STATUS_CANCELED)->count(),
-                "average_duration_minutes" => Numbers::round($completed->avg("duration_minutes")),
+                "average_duration_minutes" => Numbers::average($completed->pluck("duration_minutes")),
                 "sla_late_sessions" => $late->count(),
                 "sla_compliance_rate" => $withSla->count()
                     ? Numbers::proportion($withSla->count() - $late->count(), 100, $withSla->count())
                     : null,
-                "commission_total" => Numbers::round($commissionTotal),
+                "commission_total" => $commissionTotal,
             ],
             "by_branch" => self::reportGroup($sessions, "branch", "Sucursal"),
             "by_station" => self::reportGroup($sessions, "station", "Estación"),
             "by_responsible" => self::reportGroup($sessions, "assignedUser", "Responsable"),
-            "by_service" => self::reportItemsGroup($sessions),
+            "by_service" => self::reportItemsGroup($details),
         ];
 
     }
@@ -1324,7 +1315,7 @@ final class ServiceOperationService {
                     "name" => $related?->name ?? "Sin {$fallback}",
                     "total_sessions" => $records->count(),
                     "completed_sessions" => $completed->count(),
-                    "average_duration_minutes" => Numbers::round($completed->avg("duration_minutes")),
+                    "average_duration_minutes" => Numbers::average($completed->pluck("duration_minutes")),
                 ];
 
             })
@@ -1333,9 +1324,8 @@ final class ServiceOperationService {
 
     }
 
-    private static function reportItemsGroup($sessions): array {
+    private static function reportItemsGroup($details): array {
 
-        $details = $sessions->flatMap(fn(ServiceSession $session) => $session->items);
 
         return $details
             ->groupBy("item_id")
@@ -1350,7 +1340,7 @@ final class ServiceOperationService {
                     "quantity" => Numbers::sum($records->pluck("quantity")),
                     "total" => Numbers::sumProducts($records->map(fn(ServiceSessionItem $detail) => [$detail->quantity, $detail->unit_price])),
                     "commission_total" => $commission,
-                    "average_duration_minutes" => Numbers::round($records->avg("duration_minutes")),
+                    "average_duration_minutes" => Numbers::average($records->pluck("duration_minutes")),
                 ];
 
             })

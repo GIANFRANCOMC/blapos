@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
-import {roundNumber} from "../../resources/js/Shared/Numbers.js";
+import {applyNumericInputConfig, compareNumbers, subtractText} from "../../resources/js/Shared/Numbers.js";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
@@ -26,11 +26,8 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
     const script = descriptor.script.content
         .replace(/^import .*;\s*$/gm, "")
         .replace("export default", "return");
-    const component = new Function("QuantityValue", "normalizeNumber", "roundNumber", script)(
-        {},
-        value => Number(value || 0),
-        value => roundNumber(value, 3)
-    );
+    applyNumericInputConfig({round: 3});
+    const component = new Function("QuantityValue", "compareNumbers", "subtractText", script)({}, compareNumbers, subtractText);
     const present = (current, minimum) => {
         const instance = {current, minimum, unit: {abbreviation: "UND"}};
         Object.defineProperty(instance, "difference", {get: () => component.computed.difference.call(instance)});
@@ -40,8 +37,9 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
         };
     };
 
-    assert.deepEqual(present(19, 9), {tone: "is-positive", value: 10});
-    assert.deepEqual(present(1, 9), {tone: "is-negative", value: -8});
-    assert.deepEqual(present(9, 9), {tone: "is-neutral", value: 0});
-    assert.deepEqual(present(0, 0.0004), {tone: "is-neutral", value: 0});
+    assert.deepEqual(present(19, 9), {tone: "is-positive", value: "10.000"});
+    assert.deepEqual(present(1, 9), {tone: "is-negative", value: "-8.000"});
+    assert.deepEqual(present(9, 9), {tone: "is-neutral", value: "0.000"});
+    assert.deepEqual(present(0, 0.0004), {tone: "is-neutral", value: "0.000"});
+    assert.deepEqual(present("10999999999999.989", "10999999999999.988"), {tone: "is-positive", value: "0.001"});
 });

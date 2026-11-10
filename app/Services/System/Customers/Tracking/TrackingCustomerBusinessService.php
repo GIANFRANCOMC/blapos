@@ -8,6 +8,7 @@ use App\Helpers\System\{Numbers, Utilities};
 use App\Models\System\Customers\{Attendance, Customer, Subscription};
 use App\Models\System\Sales\{SaleHeader};
 use Carbon\{Carbon};
+use Illuminate\Support\{Collection};
 
 /**
  * Business Service for Customer Tracking Operations
@@ -208,8 +209,8 @@ class TrackingCustomerBusinessService {
         $attendances = $response["tracking"]["attendances"] ?? collect();
         $response["tracking"]["summary"] = [
             "sales_count" => $sales->count(),
-            "active_sales_total" => Numbers::sum($sales->where("status", "active")->pluck("total")),
-            "canceled_sales_total" => Numbers::sum($sales->where("status", "canceled")->pluck("total")),
+            "active_sales_amounts" => self::salesAmounts($sales->where("status", "active")),
+            "canceled_sales_amounts" => self::salesAmounts($sales->where("status", "canceled")),
             "active_subscriptions" => $subscriptions->where("status", "active")->count(),
             "attendances" => $attendances->whereIn("status", ["active", "finalized"])->count(),
         ];
@@ -218,6 +219,23 @@ class TrackingCustomerBusinessService {
         $response["msg"] = "Información encontrada";
 
         return $response;
+
+    }
+
+    private static function salesAmounts(Collection $sales): Collection {
+
+        return $sales->groupBy("currency_id")->map(function($records) {
+
+            $currency = $records->first()->currency;
+
+            return [
+                "currency_id" => $currency?->id,
+                "code" => $currency?->code,
+                "sign" => $currency?->sign,
+                "total" => Numbers::sumText($records->map(fn(SaleHeader $sale) => $sale->getRawOriginal("total"))),
+            ];
+
+        })->sortBy("code")->values();
 
     }
 

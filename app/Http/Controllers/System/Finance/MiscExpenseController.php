@@ -97,7 +97,7 @@ final class MiscExpenseController extends BaseController {
             "max" => "Supera la longitud permitida.",
         ]);
 
-        if($validator->fails()) {
+        if(Numbers::prepareValidator($validator)->fails()) {
 
             return response()->json(["bool" => false, "errors" => $validator->errors()], 422);
 

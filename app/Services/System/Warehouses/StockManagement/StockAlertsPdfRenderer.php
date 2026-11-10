@@ -161,14 +161,15 @@ final class StockAlertsPdfRenderer {
 
         }
 
-        $quantity = $alert->quantity;
-        $minimum = $alert->minimum_stock;
+        $quantity = Numbers::storage($alert->quantity);
+        $minimum = Numbers::storage($alert->minimum_stock);
+        $shortage = Numbers::subtractText($minimum, $quantity);
         $unit = trim((string) ($alert->unit_abbreviation ?? ""));
         $suffix = $unit === "" ? "" : " ".$unit;
         $values = [
             Numbers::formatDecimal($quantity).$suffix,
             Numbers::formatDecimal($minimum).$suffix,
-            Numbers::formatDecimal(max(0, Numbers::subtract($minimum, $quantity))).$suffix,
+            Numbers::formatDecimal(Numbers::compare($shortage, 0) < 0 ? 0 : $shortage).$suffix,
         ];
 
         $x = self::LEFT + self::COLUMNS[0] + self::COLUMNS[1];

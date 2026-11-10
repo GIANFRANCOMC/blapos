@@ -6,6 +6,7 @@ namespace App\Services\System\Essentials;
 
 use App\Helpers\System\{Numbers};
 use Carbon\{CarbonImmutable};
+use Illuminate\Database\Query\{Builder};
 use Illuminate\Support\Facades\{DB};
 
 final class DashboardService {
@@ -32,17 +33,13 @@ final class DashboardService {
             ->join("series", "series.id", "=", "sales_header.serie_id")
             ->when($branchId, fn($query) => $query->where("series.branch_id", $branchId));
 
-        $netSales = (clone $salesBase)
+        $netSales = self::salesSummary((clone $salesBase)
             ->where("sales_header.status", "active")
-            ->whereBetween("sales_header.issue_date", [$dayStart, $dayEnd])
-            ->selectRaw("COUNT(sales_header.id) as count, COALESCE(SUM(sales_header.total), 0) as total")
-            ->first();
+            ->whereBetween("sales_header.issue_date", [$dayStart, $dayEnd]));
 
-        $canceledSales = (clone $salesBase)
+        $canceledSales = self::salesSummary((clone $salesBase)
             ->where("sales_header.status", "canceled")
-            ->whereBetween("sales_header.canceled_at", [$dayStart, $dayEnd])
-            ->selectRaw("COUNT(sales_header.id) as count, COALESCE(SUM(sales_header.total), 0) as total")
-            ->first();
+            ->whereBetween("sales_header.canceled_at", [$dayStart, $dayEnd]));
 
         $attendances = DB::table("attendances")
             ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
@@ -64,8 +61,8 @@ final class DashboardService {
             "timezone" => $timezone,
             "branch_id" => $branchId,
             "sales" => [
-                "net" => ["count" => (int) $netSales->count, "total" => Numbers::round($netSales->total)],
-                "canceled" => ["count" => (int) $canceledSales->count, "total" => Numbers::round($canceledSales->total)],
+                "net" => $netSales,
+                "canceled" => $canceledSales,
             ],
             "attendances" => ["count" => $attendances],
             "expiring_subscriptions" => [
@@ -82,6 +79,28 @@ final class DashboardService {
                     ->where("status", "active")
                     ->count(),
             ],
+        ];
+
+    }
+
+    private static function salesSummary(Builder $sales): array {
+
+        $currencies = $sales
+            ->join("currencies", "currencies.id", "=", "sales_header.currency_id")
+            ->select("currencies.id as currency_id", "currencies.code", "currencies.sign")
+            ->selectRaw("COUNT(*) AS count, SUM(sales_header.total) AS total")
+            ->groupBy("currencies.id", "currencies.code", "currencies.sign")
+            ->orderBy("currencies.code")
+            ->get();
+
+        return [
+            "count" => $currencies->sum("count"),
+            "amounts" => $currencies->map(fn($currency) => [
+                "currency_id" => (int) $currency->currency_id,
+                "code" => $currency->code,
+                "sign" => $currency->sign,
+                "total" => Numbers::storage($currency->total),
+            ]),
         ];
 
     }

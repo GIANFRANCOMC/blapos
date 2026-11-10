@@ -6,6 +6,8 @@ namespace App\Helpers\System;
 
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use Brick\Math\{BigDecimal, BigRational, RoundingMode};
+use Illuminate\Support\{Arr};
+use Illuminate\Validation\{Validator};
 
 final class Numbers {
 
@@ -88,8 +90,8 @@ final class Numbers {
         return [
             "round" => self::decimalPrecision(),
             "maxDecimals" => self::MAX_PRECISION,
-            "minValue" => (float) self::minValue(),
-            "maxValue" => (float) self::maxValue(),
+            "minValue" => self::minValue(),
+            "maxValue" => self::maxValue(),
             "maxSize" => self::maxFileSizeKb(),
         ];
 
@@ -97,7 +99,7 @@ final class Numbers {
 
     public static function decimalRule(?int $precision = null): string {
 
-        return "decimal:0,".($precision ?? self::decimalPrecision());
+        return "decimal:0,".self::resolvePrecision($precision);
 
     }
 
@@ -137,6 +139,45 @@ final class Numbers {
 
     }
 
+    public static function prepareValidator(Validator $validator): Validator {
+
+        $data = $validator->getData();
+        $changed = false;
+
+        foreach($validator->getRules() as $attribute => $rules) {
+
+            $value = Arr::get($data, $attribute);
+
+            if(!is_float($value) || !is_finite($value)) {
+
+                continue;
+
+            }
+
+            foreach($rules as $rule) {
+
+                if(is_string($rule) && str_starts_with($rule, "decimal:")) {
+
+                    Arr::set($data, $attribute, (string) self::decimal($value));
+                    $changed = true;
+                    break;
+
+                }
+
+            }
+
+        }
+
+        if($changed) {
+
+            $validator->setData($data);
+
+        }
+
+        return $validator;
+
+    }
+
     public static function spreadsheetDecimal(mixed $value, bool $allowZero): ?string {
 
         if(!is_int($value) && !is_float($value) && !is_string($value)) {
@@ -145,7 +186,9 @@ final class Numbers {
 
         }
 
-        $number = str_replace(",", ".", trim((string) $value));
+        $number = is_float($value) && is_finite($value)
+            ? (string) self::decimal($value)
+            : str_replace(",", ".", trim((string) $value));
         $precision = self::decimalPrecision();
         $pattern = $precision === 0 ? '/^\d+$/D' : '/^\d+(?:\.\d{1,'.$precision.'})?$/D';
 
@@ -169,7 +212,7 @@ final class Numbers {
 
     public static function decimalScale(?int $precision = null): int {
 
-        return 10 ** ($precision ?? self::decimalPrecision());
+        return 10 ** self::resolvePrecision($precision);
 
     }
 
@@ -180,6 +223,38 @@ final class Numbers {
     }
 
     public static function sum(iterable $values): float {
+
+        return self::round(self::sumDecimals($values));
+
+    }
+
+    public static function sumText(iterable $values): string {
+
+        return (string) self::quantize(self::sumDecimals($values));
+
+    }
+
+    public static function average(iterable $values): float {
+
+        $total = BigDecimal::zero();
+        $count = 0;
+
+        foreach($values as $value) {
+
+            if($value !== null) {
+
+                $total = $total->plus(self::decimal($value));
+                $count++;
+
+            }
+
+        }
+
+        return $count === 0 ? 0 : self::divide($total, $count);
+
+    }
+
+    private static function sumDecimals(iterable $values): BigDecimal|BigRational {
 
         $total = BigDecimal::zero();
 
@@ -197,13 +272,25 @@ final class Numbers {
 
         }
 
-        return self::round($total);
+        return $total;
+
+    }
+
+    public static function compare(mixed $left, mixed $right): int {
+
+        return self::decimal($left)->compareTo(self::decimal($right));
 
     }
 
     public static function subtract(mixed $left, mixed $right): float {
 
-        return self::round(self::decimal($left)->minus(self::decimal($right)));
+        return (float) self::subtractText($left, $right);
+
+    }
+
+    public static function subtractText(mixed $left, mixed $right): string {
+
+        return self::storage(self::decimal($left)->minus(self::decimal($right)));
 
     }
 
@@ -331,7 +418,13 @@ final class Numbers {
 
     private static function quantize(BigDecimal|BigRational $value, ?int $precision = null): BigDecimal {
 
-        return $value->toScale($precision ?? self::decimalPrecision(), RoundingMode::HALF_UP);
+        return $value->toScale(self::resolvePrecision($precision), RoundingMode::HALF_UP);
+
+    }
+
+    private static function resolvePrecision(?int $precision): int {
+
+        return $precision === null ? self::decimalPrecision() : max(0, min(self::MAX_PRECISION, $precision));
 
     }
 
@@ -392,6 +485,15 @@ final class Numbers {
         $integerFormat = $groupThousands ? "#,##0" : "0";
 
         return $precision === 0 ? $integerFormat : $integerFormat.".".str_repeat("0", $precision);
+
+    }
+
+    public static function spreadsheetNumber(mixed $value): float|string {
+
+        $decimal = self::storage($value);
+        $significantDigits = trim(str_replace(["-", "."], "", $decimal), "0");
+
+        return strlen($significantDigits) <= 15 ? (float) $decimal : $decimal;
 
     }
 

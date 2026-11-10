@@ -1525,7 +1525,7 @@
                             </article>
                             <article>
                                 <span><i class="fa-solid fa-coins" aria-hidden="true"></i> Total comprado</span>
-                                <strong v-text="`S/ ${separatorNumber(customerHistorySummary.activeSalesTotal)}`"></strong>
+                                <strong v-text="customerHistorySummary.activeSalesAmountLabel"></strong>
                             </article>
                             <article>
                                 <span><i class="fa-solid fa-id-card" aria-hidden="true"></i> Membresías activas</span>
@@ -1559,7 +1559,7 @@
                                                         <span v-text="record?.serie?.legible_serie ?? record?.serie?.serie ?? 'Venta'"></span>
                                                         <small v-if="record?.status" class="d-block text-muted text-capitalize" v-text="record.status"></small>
                                                     </td>
-                                                    <td class="text-end fw-medium" v-text="`S/ ${separatorNumber(record.total ?? 0)}`"></td>
+                                                    <td class="text-end fw-medium" v-text="formatCurrencyAmount(record.total, record.currency)"></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -3465,6 +3465,7 @@ export default {
             return Utils.fixedNumber(value, decimals);
 
         },
+        formatCurrencyAmount: Utils.formatCurrencyAmount,
         separatorNumber(value) {
 
             return Utils.separatorNumber(value);
@@ -3669,7 +3670,7 @@ export default {
 
             return {
                 salesCount: Number(summary.sales_count ?? this.customerHistorySales.length ?? 0),
-                activeSalesTotal: Number(summary.active_sales_total ?? 0),
+                activeSalesAmountLabel: Utils.formatCurrencyTotals(summary.active_sales_amounts),
                 activeSubscriptions: Number(summary.active_subscriptions ?? this.customerHistorySubscriptions.filter(record => record?.status === "active").length ?? 0)
             };
 
@@ -3786,7 +3787,7 @@ export default {
 
             const quotation = this.forms[this.entity].createUpdate.data.quotation?.data || {};
             const holder = quotation?.holder?.name || this.forms[this.entity].createUpdate.data.holder?.data?.name || "Cliente";
-            const total = quotation?.total != null ? ` · S/ ${this.separatorNumber(quotation.total)}` : "";
+            const total = quotation?.total != null ? ` · ${Utils.formatCurrencyAmount(quotation.total, quotation.currency)}` : "";
 
             return `${holder}${total}`;
 
@@ -3972,7 +3973,7 @@ export default {
 
             return (this.options?.quotations?.records || []).map(record => ({
                 code: record.id,
-                label: `${record.reference} - ${record.holder?.name || "Cliente"} - S/ ${this.separatorNumber(record.total)}`,
+                label: `${record.reference} - ${record.holder?.name || "Cliente"} - ${Utils.formatCurrencyAmount(record.total, record.currency)}`,
                 data: record
             }));
 
@@ -4092,17 +4093,9 @@ export default {
         },
         saleExtraTaxTotal() {
 
-            const total = (this.saleTaxBreakdown || []).reduce((sum, tax) => {
+            const taxes = (this.saleTaxBreakdown || []).filter(tax => !this.isIgvTax(this.taxById(tax.id)));
 
-                const taxConfig = this.taxById(tax.id);
-
-                if(this.isIgvTax(taxConfig)) return sum;
-
-                return sum + Number(tax.totalImpact || 0);
-
-            }, 0);
-
-            return this.fixedNumber(total);
+            return this.fixedNumber(Utils.sum(taxes.map(tax => tax.totalImpact)));
 
         },
         saleSubtotal: function() {

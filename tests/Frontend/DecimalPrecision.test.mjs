@@ -37,6 +37,25 @@ test("el análisis y los límites de los campos usan la configuración compartid
     assert.equal(numbers.isNumberInputKey(".", {decimals: 3}), true);
 });
 
+test("los límites, importes grandes y formatos regionales conservan la fracción exacta", () => {
+    numbers.applyNumericInputConfig({round: 3});
+    const maxValue = "999999999999.999";
+    assert.equal(numbers.isNumber({value: maxValue, maxValue}), true);
+    assert.equal(numbers.isNumber({value: "999999999999.99901", maxValue}), false);
+    assert.equal(numbers.isNumber({value: "-999999999999.99901", minValue: "-999999999999.999"}), false);
+    assert.equal(numbers.commitNumberInput("-2", {min: "-1.005", max: 0, hasNegative: true, decimals: 2}), -1);
+    assert.equal(numbers.commitNumberInput("0", {min: "-2", max: "-1.005", hasNegative: true, decimals: 2}), -1.01);
+    assert.equal(numbers.commitNumberInput("1.001", {min: "1.001", max: "1.005", decimals: 2}), null);
+    assert.equal(numbers.numberInputDraft(".5"), ".5");
+    assert.equal(numbers.numberInputDraft("12x"), null);
+    assert.equal(numbers.numberInputDraft("-"), null);
+    const total = numbers.sumText(Array(11).fill(maxValue));
+    assert.equal(total, "10999999999999.989");
+    assert.equal(numbers.separatorNumber(total, 3, "de-DE"), "10.999.999.999.999,989");
+    assert.equal(numbers.separatorNumber("-0.123", 3, "de-DE"), "-0,123");
+    assert.equal(numbers.formatCurrencyTotals([{sign: "S/", total}, {code: "USD", total: "5.012"}]), "S/ 10,999,999,999,999.989 · USD 5.012");
+});
+
 test("los empates se redondean igual en inputs, cantidades y montos", () => {
     assert.equal(system.fixedNumber("1.005", 2), "1.01");
     assert.equal(system.quantityWithUnit(-1.005, {abbreviation: "UND"}, 2), "-1.01 UND");

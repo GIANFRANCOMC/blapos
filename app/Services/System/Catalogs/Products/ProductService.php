@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Catalogs\Products;
 
+use App\Casts\System\{ConfigurableDecimal};
 use App\Helpers\System\{TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Models\System\General\MeasurementUnit;
@@ -354,6 +355,8 @@ class ProductService {
 
         $query = Item::query()
             ->where("type", "product")
+            ->withSum("warehouseItems as total_stock_quantity", "quantity")
+            ->withCasts(["total_stock_quantity" => ConfigurableDecimal::class])
             ->with([
                 "brand",
                 "currency",

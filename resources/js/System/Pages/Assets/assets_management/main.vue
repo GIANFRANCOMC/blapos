@@ -1108,7 +1108,7 @@ export default {
 
                 }else if(["unit"].includes(form?.branchAsset?.asset?.management_type)) {
 
-                    let totalQuantity = form.assignments.reduce((acumulator, currentValue) => acumulator + Number(currentValue?.quantity), 0);
+                    const totalQuantity = Utils.sum(form.assignments.map(assignment => assignment.quantity));
 
                     if(totalQuantity == 0) {
 

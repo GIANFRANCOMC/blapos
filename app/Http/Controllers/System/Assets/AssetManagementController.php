@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Assets;
 
-use App\Helpers\System\{Utilities};
+use App\Helpers\System\{Numbers, Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Assets\AssetManagements\{AssignAssetToBranchRequest, AssignAssetToUserRequest, UnassignAssetFromBranchRequest, UnassignAssetFromUserRequest, UpdateAssetInBranchRequest};
 use App\Services\System\Assets\{AssetManagementConfigService, AssetManagementService};
@@ -265,15 +265,9 @@ class AssetManagementController extends BaseController {
 
             }
 
-            $assetQuantity = floatval($branchAsset->quantity);
+            $totalQuantity = Numbers::sumText(array_column($data["assignments"], "quantity"));
 
-            $totalQuantity = array_reduce($data["assignments"], function($accumulator, $currentValue) {
-
-                return $accumulator + floatval($currentValue["quantity"] ?? 0);
-
-            }, 0);
-
-            if($totalQuantity > $assetQuantity) {
+            if(Numbers::compare($totalQuantity, $branchAsset->quantity) > 0) {
 
                 return $this->errorResponse("quantity_exceeds_limit");
 
