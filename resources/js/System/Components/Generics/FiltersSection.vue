@@ -56,14 +56,11 @@
                 xl="5"
                 lg="5">
                 <template v-slot:input>
-                    <button
+                    <SearchButton
                         v-if="showSearchButton"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-search waves-effect"
+                        class="br-btn-sm"
                         @click="$emit('search')"
-                        :disabled="loading">
-                        <span v-text="searchButtonText"></span>
-                    </button>
+                        :disabled="loading"/>
                     <button
                         v-if="showAddButton"
                         type="button"
@@ -126,7 +123,7 @@
                         data-bs-placement="top"
                         :title="downloadButtonTooltip"
                         :aria-label="downloadButtonTooltip">
-                        <i v-if="downloadButtonClass !== 'br-btn-search'" :class="downloadButtonIcon" aria-hidden="true"></i>
+                        <i :class="downloadButtonIcon" aria-hidden="true"></i>
                         <span class="br-btn-action-export__label" v-text="downloadButtonText"></span>
                     </button>
                     <slot name="secondaryActions"></slot>
@@ -137,12 +134,14 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     name: "FiltersSection",
     components: {
+        SearchButton,
         SelectNoOptions,
         SearchInput
     },
@@ -181,11 +180,6 @@ export default {
             type: String,
             required: false,
             default: "Búsqueda"
-        },
-        searchButtonText: {
-            type: String,
-            required: false,
-            default: "Buscar"
         },
         showSearchInput: {
             type: Boolean,

@@ -15,7 +15,6 @@
                 :loading="entityList.extras.loading"
                 :filter-by-title="MODULE.texts.filters.filterBy"
                 :search-title="MODULE.texts.filters.search"
-                :search-button-text="MODULE.texts.actions.search"
                 :add-button-text="MODULE.texts.actions.add"
                 :show-add-button="true"
                 :show-download-button="true"
@@ -204,9 +203,7 @@
                                 lg="6">
                                 <template v-slot:inputGroupPrepend>
                                     <template v-if="isDocumentTypeSearchable">
-                                        <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
-                                            <span>Buscar</span>
-                                        </button>
+                                        <SearchButton @click="searchDocumentNumber"/>
                                     </template>
                                 </template>
                             </InputText>
@@ -422,6 +419,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
@@ -564,7 +562,6 @@ const TEXTS = {
         emergencyContactPhone: "Celular de emergencia",
         medicalNotes: "Observaciones médicas",
         status: "Estado",
-        searchDocumentTooltip: "Buscar N° documento",
         customer: "Cliente",
         biometricDevice: "Dispositivo biométrico",
         deviceUserId: "ID de usuario en el dispositivo",
@@ -588,7 +585,7 @@ const MODULE = {
 export default {
     mixins: [InitialPageMixin],
     name: "CustomersMain",
-    components: {CatalogFormTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
+    components: {SearchButton, CatalogFormTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({

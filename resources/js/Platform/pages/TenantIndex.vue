@@ -33,7 +33,7 @@
                         <select v-model="filters.status" class="form-select platform-filter">
                             <option value="">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option><option value="suspended">Suspendidos</option><option value="maintenance">Mantenimiento</option><option value="provisioning">En preparación</option><option value="provisioning_failed">Preparación fallida</option>
                         </select>
-                        <button class="btn platform-btn-primary platform-action-button text-white" type="button" :disabled="loading" @click="searchTenants">Buscar</button>
+                        <SearchButton button-class="btn platform-btn-primary platform-action-button text-white" :disabled="loading" @click="searchTenants"/>
                     </div>
 
                     <Loader v-if="loading" label="Cargando clientes"/>
@@ -100,6 +100,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import api, {errorMessage} from "../api";
 import Loader from "@System/Components/Loader.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
@@ -108,7 +109,7 @@ const emptyForm = () => ({slug: "", commercial_name: "", legal_name: "", documen
 
 export default {
     mixins: [InitialPageMixin],
-    components: {Loader},
+    components: {SearchButton, Loader},
     name: "TenantIndex",
     props: {apiBase: {type: String, required: true}},
     emits: ["open", "notify"],

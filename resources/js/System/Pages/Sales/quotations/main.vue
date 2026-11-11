@@ -40,13 +40,10 @@
                             xl="4"
                             lg="12">
                             <template #input>
-                                <button
-                                    type="button"
-                                    class="br-btn br-btn-sm br-btn-search"
+                                <SearchButton
+                                    class="br-btn-sm"
                                     :disabled="loading.list"
-                                    @click="listQuotations({applyFilters: true})">
-                                    <span>Buscar</span>
-                                </button>
+                                    @click="listQuotations({applyFilters: true})"/>
                                 <a :href="createUrl" class="br-btn br-btn-sm br-btn-primary">
                                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                                     <span>Nueva cotización</span>
@@ -203,13 +200,13 @@
                                                 :clearable="false"
                                                 :searchable="true"
                                                 :filterable="false"
-                                                :loading="commercialSelection.customers.loading"
-                                                @open="openCommercialOptions('customers')"
-                                                @search="searchCommercialOptions('customers', $event)"
+                                                :loading="remoteOptions.customers.loading"
+                                                @open="openOptions('customers')"
+                                                @search="searchOptions('customers', $event)"
                                                 placeholder="Seleccione cliente">
                                                 <template #list-footer>
-                                                    <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                                    <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
+                                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
                                                     </li>
                                                 </template>
                                                 <template #no-options>Sin clientes para esta búsqueda.</template>
@@ -256,15 +253,15 @@
                                                             :clearable="false"
                                                             :searchable="true"
                                                             :filterable="false"
-                                                            :loading="commercialSelection.items.loading"
-                                                            @open="openCommercialOptions('items')"
-                                                            @search="searchCommercialOptions('items', $event)"
+                                                            :loading="remoteOptions.items.loading"
+                                                            @open="openOptions('items')"
+                                                            @search="searchOptions('items', $event)"
                                                             append-to-body
                                                             placeholder="Seleccione ítem"
                                                             @option:selected="syncDetailItem(detail)">
                                                             <template #list-footer>
-                                                                <li v-if="commercialSelection.items.hasMore" class="px-2 py-1">
-                                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('items')">Cargar más ítems</button>
+                                                                <li v-if="remoteOptions.items.hasMore" class="px-2 py-1">
+                                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('items')">Cargar más ítems</button>
                                                                 </li>
                                                             </template>
                                                             <template #no-options>Sin ítems para esta búsqueda.</template>
@@ -393,12 +390,13 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import { generalConfig } from "../../../Helpers/Constants.js";
 import * as Alerts from "../../../Helpers/Alerts.js";
 import * as Requests from "../../../Helpers/Requests.js";
 import * as Utils from "../../../Helpers/Utils.js";
-import commercialSelection from "../commercialSelection.js";
+import {createOptionSearch} from "@/Shared/Options.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const MODULE = {
@@ -407,8 +405,8 @@ const MODULE = {
 };
 
 export default {
-    components: {SearchInput},
-    mixins: [InitialPageMixin, commercialSelection],
+    components: {SearchButton, SearchInput},
+    mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
     name: "SalesQuotationsMain",
     data() {
         return {
@@ -418,7 +416,7 @@ export default {
                 messages: generalConfig.messages
             },
             options: {},
-            commercialSelectionEntity: "quotations",
+            optionOrigin: "quotations-create",
             loading: {
                 init: false,
                 list: false,

@@ -191,6 +191,7 @@ Criterios prácticos:
 - Usar labels sutiles, no grandes ni demasiado oscuros.
 - Los botones deben diferenciar intención: buscar, crear, editar, importar, descargar, cancelar, confirmar y peligro.
 - Los botones de los layouts compartidos usan el efecto Waves al presionarse. La inicialización de `main.js` también registra los botones incorporados después de cargar la página, como los de Vue y SweetAlert.
+- Usar `SearchButton` para ejecutar búsquedas en barras de filtros, formularios y modales. El botón muestra la lupa de Font Awesome y usa «Buscar» como tooltip y nombre accesible. El tooltip aparece con el cursor o el foco del teclado y se oculta al pulsar el botón.
 - Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa la escoba `fa-broom` de Font Awesome y comparte por defecto los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
 - Al terminar el restablecimiento, `Alerts.showFiltersCleared()` muestra el aviso informativo «Se limpiaron los filtros correctamente.» mediante Toastr. El botón oculta su tooltip al pulsarlo y lo vuelve a mostrar al pasar el cursor por encima.
 - Los icon buttons requieren `aria-label` y tooltip.
@@ -225,10 +226,13 @@ System, Guest y Platform muestran un skeleton durante la carga inicial. El skele
 - Ejecutar `await this.loadInitialParams(() => this.initParams(...))` o liberar `initialLoading` en el `finally` de la consulta inicial. El listado dependiente comienza después de los parámetros y presenta su loader habitual. Las pantallas cuyo primer dato remoto es un listado, como tenants y proveedores, mantienen el skeleton durante esa primera consulta. Las búsquedas y la paginación posteriores usan el estado de carga del listado.
 - `initParams` muestra su avance dentro de la página. Reservar Swal para confirmaciones, errores, guardados y exportaciones.
 - Construir el skeleton en Vue y su CSS de pantalla o componente reutilizable. Compartir variantes cuando varias pantallas tengan la misma estructura. Usar alturas y tokens `--br-*` de los controles reales, un estado accesible (`role="status"` y texto legible para lectores de pantalla) y desactivar la animación con `prefers-reduced-motion`.
+- Las cinco vistas de Inventario usan `InventorySkeleton` con la distribución de filtros y acciones de cada vista. La tabla conserva las cabeceras, los anchos y el contenedor responsive del listado correspondiente durante la carga inicial.
 - Envolver el skeleton y su rama de contenido en `InitialLoadTransition` de `Components/Generics`. El fundido simultáneo de opacidad comparte una celda de grid: las dos ramas no se apilan ni duplican la altura durante el relevo. Usar exclusivamente `--br-initial-load-duration` y `--br-initial-load-easing` de `00-tokens.css` (180 ms de base); no añadir tiempos por pantalla, desplazamientos, esperas mínimas ni retrasar peticiones para animar. La rama que sale queda inerte y oculta para lectores de pantalla; `prefers-reduced-motion` desactiva la transición. Las modales y otros elementos ajenos a la carga permanecen fuera del componente.
 - En todo listado, activar `loading` antes de solicitar datos y liberarlo en `finally`, también ante errores. Mantener ocultos el paginador y el contador mientras ese estado esté activo.
 
 ## Formularios
+
+Las búsquedas remotas de selectores usan `Options.js` y `GET /options/{origin}/{entity}`. `entity` identifica el catálogo y `origin` identifica la pantalla que decide qué registros y campos devuelve. Registrar la combinación en `OptionController` y asignar el módulo en `config/permissions.php`. El controlador delega la consulta al servicio de dominio dentro del tenant activo y devuelve `records`, `page` y `has_more`. Usar el mismo cliente para Vue Select y Select2. Las listas fijas y las referencias que ya forman parte de `initParams` pueden resolverse localmente.
 
 Todos los formularios deben reutilizar componentes y patrones existentes:
 

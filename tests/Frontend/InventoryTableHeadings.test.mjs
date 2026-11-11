@@ -11,6 +11,7 @@ const directory = "resources/js/System/Pages/Warehouses/inventory";
 test("las tablas de inventario centran las cabeceras de texto y Kardex alinea a la derecha las numéricas", () => {
     const styles = read("resources/css/System/br-branding/82-inventory.css");
     assert.match(styles, /body\.br-layout \.br-inventory-table-headings > thead > tr > th \{\s*text-align: center !important;/);
+    assert.match(styles, /\.br-inventory__table--single-warehouse > thead > tr > th:last-child \{\s*position: relative;/);
 
     for(const file of ["stock", "transfers", "guides", "kardex", "valued-kardex", "StockAlertsModal", "InventorySkeleton"]) {
         const source = read(`${directory}/${file}.vue`);
@@ -27,15 +28,10 @@ test("las tablas de inventario centran las cabeceras de texto y Kardex alinea a 
     assert.match(styles, /\.br-inventory__kardex-table > thead > tr > th:nth-child\(n\+3\) \{\s*text-align: end !important;/);
 });
 
-test("el skeleton reutiliza la distribución de las tablas de stock y kardex", () => {
-    const skeleton = read(directory + "/InventorySkeleton.vue");
+test("Kardex conserva su distribución de columnas y los importes en una línea", () => {
     const styles = read("resources/css/System/br-branding/82-inventory.css");
 
-    assert.match(skeleton, /:class="\{'text-nowrap px-0': page === 'stock' && heading === 'Estado del stock'\}"/);
-    assert.match(skeleton, /'br-inventory__kardex-table': isKardex/);
-    assert.match(skeleton, /'br-inventory__kardex-table--valued': page === 'valued'/);
     const commonHeadings = ["Producto", "Movimiento", "Variación"];
-    assert.match(skeleton, /const kardexHeadings = \["Producto", "Movimiento", "Variación"\]/);
     for(const [view, remaining] of [
         ["kardex.vue", ["Saldo"]],
         ["valued-kardex.vue", ["Costo unitario", "Valor movimiento", "Valor resultante"]]
@@ -44,7 +40,6 @@ test("el skeleton reutiliza la distribución de las tablas de stock y kardex", (
         const headers = [...page.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map(match => match[1]);
         assert.deepEqual(headers, [...commonHeadings, ...remaining], view);
         assert.equal(page.split('colspan="' + headers.length + '"').length - 1, 2, view);
-        assert.ok(skeleton.includes("[...kardexHeadings, " + remaining.map(label => JSON.stringify(label)).join(", ") + "]"), view);
         assert.match(page, /<td>\s*<ProductIdentity variant="expandable" :product="movement\.item"\/>\s*<\/td>\s*<td>\s*<KardexMovementDetails\b[^>]*\/>\s*<\/td>\s*<td class="text-end">\s*<StockDifference\b/);
     }
     assert.match(styles, /body\.br-layout \.br-inventory__difference \{[^}]*white-space: nowrap;/);

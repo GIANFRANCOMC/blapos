@@ -38,9 +38,7 @@
                         </select>
                     </div>
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-search" @click="searchExpenses" :disabled="loading">
-                            <span>Buscar</span>
-                        </button>
+                        <SearchButton @click="searchExpenses" :disabled="loading"/>
                     </div>
                 </section>
 
@@ -181,6 +179,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -190,7 +189,7 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {InputNumber, SearchInput},
+    components: {SearchButton, InputNumber, SearchInput},
     data() {
         return {
             routes: Requests.config({entity: "misc_expenses"}).routes,

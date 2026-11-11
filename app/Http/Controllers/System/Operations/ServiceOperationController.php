@@ -63,25 +63,6 @@ final class ServiceOperationController extends BaseController {
 
     }
 
-    public function options(Request $request): JsonResponse {
-
-        $data = $request->validate([
-            "resource" => ["required", "in:customers,items"],
-            "search" => ["nullable", "string", "max:100"],
-            "item_type" => ["nullable", "in:product,service,subscription"],
-        ]);
-
-        return response()->json([
-            "bool" => true,
-            "data" => ServiceOperationService::options(
-                (string) $data["resource"],
-                trim((string) ($data["search"] ?? "")),
-                $data["item_type"] ?? null
-            ),
-        ]);
-
-    }
-
     public function floors(Request $request): JsonResponse {
 
         $request->validate(["branch_id" => ["required", "integer"]]);

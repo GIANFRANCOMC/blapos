@@ -20,13 +20,13 @@ final class SeederInitializationTest extends TestCase {
 
     }
 
-    public function test_sales_purchases_and_cash_are_disabled_in_the_initial_navigation_catalog(): void {
+    public function test_purchases_and_cash_are_disabled_in_the_initial_navigation_catalog(): void {
 
         $worlds = (new ReflectionClass(SystemNavigationSeeder::class))
             ->getReflectionConstant("DISABLED_BY_DEFAULT_WORLD_SLUGS")
             ->getValue();
 
-        $this->assertSame(["sc_sales", "sc_purchases", "sc_cash"], $worlds);
+        $this->assertSame(["sc_purchases", "sc_cash"], $worlds);
 
     }
 

@@ -15,7 +15,6 @@
                 :loading="entityList.extras.loading"
                 filter-by-title="Filtrar por"
                 search-title="Búsqueda"
-                search-button-text="Buscar"
                 add-button-text="Agregar marca"
                 :show-add-button="true"
                 :show-download-button="true"

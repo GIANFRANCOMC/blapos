@@ -17,7 +17,7 @@ La estructura visible se obtiene de los catálogos existentes de base de datos:
 
 `menu_categories` continúa disponible para ordenamiento y configuración interna, pero sus categorías no se muestran en la navegación.
 
-El primer mundo se denomina `Inicio` y reúne Mi espacio y Mi cuenta bajo el grupo Mi espacio. Menú y favoritos permanece en Administración. Dashboard y Reportes se muestran solo cuando están habilitados. Los demás mundos son Ventas, Compras, Caja, Clientes y Catálogo e inventario. Todos los submódulos de Ventas, Compras y Caja se insertan deshabilitados por defecto; los mundos desaparecen del menú hasta que se active alguna de sus opciones para la empresa.
+El primer mundo se denomina `Inicio` y reúne Mi espacio y Mi cuenta bajo el grupo Mi espacio. Menú y favoritos permanece en Administración. Dashboard y Reportes se muestran solo cuando están habilitados. Los demás mundos son Ventas, Compras, Caja, Clientes y Catálogo e inventario. Ventas se aprovisiona con sus ocho submódulos habilitados. Compras y Caja se insertan deshabilitados por defecto y aparecen cuando la empresa habilita alguno de sus submódulos. En bases existentes, `2026_11_11_000001_enable_sales_navigation` activa Ventas para la empresa y actualiza los valores iniciales del catálogo y los perfiles de negocio.
 
 ## Mi espacio y accesos frecuentes
 

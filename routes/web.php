@@ -70,6 +70,7 @@ Route::middleware(["auth", "verified", "module.permission", "resource.scope", "n
     Route::prefix("/workspace")->group($systemRoute."/Essentials/Workspace.php");
     Route::prefix("/dashboard")->group($systemRoute."/Essentials/Dashboard.php");
     Route::prefix("/helpers")->group($systemRoute."/Essentials/Helper.php");
+    Route::prefix("/options")->group($systemRoute."/Essentials/Option.php");
     Route::prefix("/master-data")->group($systemRoute."/General/MasterData.php");
     Route::prefix("/home")->group($systemRoute."/Essentials/Home.php");
     Route::prefix("/reports")->group($systemRoute."/Essentials/Report.php");

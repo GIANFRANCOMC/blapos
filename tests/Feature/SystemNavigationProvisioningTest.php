@@ -139,7 +139,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $this->assertSame(51, $catalogCount);
         $disabledRoutes = [
-            "home.index", "dashboard.index", "reports.index", "restaurant_pos.index",
+            "home.index", "dashboard.index", "reports.index", "service_sessions.index", "customers.index",
             "tracking_customers.index", "tracking_subscriptions.index", "tracking_attendances.index",
             "tracking_notifications.index", "book_complaints.index", "recipes.index",
             "assets.index", "assets_management.index", "biometric_devices.index", "user_attendances.index",
@@ -148,10 +148,10 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
         $disabledIds = DB::table("sub_sections")
             ->whereIn("dom_route", $disabledRoutes)
-            ->orWhereIn("section_id", [3, 9, 10])
+            ->orWhereIn("section_id", [9, 10])
             ->pluck("id");
 
-        $this->assertCount(32, $disabledIds);
+        $this->assertCount(26, $disabledIds);
         $this->assertSame($catalogCount - $disabledIds->count(), $companyCount);
         $this->assertSame($catalogCount, $adminCount);
         $this->assertSame(
@@ -165,13 +165,23 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
-    public function test_sales_purchases_and_cash_worlds_are_disabled_by_default(): void {
+    public function test_sales_is_enabled_and_purchases_and_cash_are_disabled_by_default(): void {
+
+        $sales = DB::table("sub_sections")->where("section_id", 3)->get(["id", "is_enabled_by_default"]);
+
+        $this->assertCount(8, $sales);
+        $this->assertTrue($sales->every(fn(object $module) => (bool) $module->is_enabled_by_default));
+        $this->assertSame(8, DB::table("companies_sub_sections")
+            ->where("company_id", 1)
+            ->whereIn("sub_section_id", $sales->pluck("id"))
+            ->where("status", "active")
+            ->count());
 
         $modules = DB::table("sub_sections")
-            ->whereIn("section_id", [3, 9, 10])
+            ->whereIn("section_id", [9, 10])
             ->get(["id", "is_enabled_by_default"]);
 
-        $this->assertCount(18, $modules);
+        $this->assertCount(10, $modules);
         $this->assertTrue($modules->every(fn(object $module) => !(bool) $module->is_enabled_by_default));
         $this->assertSame(0, DB::table("companies_sub_sections")
             ->where("company_id", 1)
@@ -182,6 +192,23 @@ final class SystemNavigationProvisioningTest extends TestCase {
             ->whereIn("sub_section_id", $modules->pluck("id"))
             ->where("is_enabled_by_default", true)
             ->count());
+
+    }
+
+    public function test_sales_navigation_migration_activates_existing_tenant_modules(): void {
+
+        $sales = DB::table("sub_sections")->where("section_id", 3)->pluck("id");
+        DB::table("sub_sections")->whereIn("id", $sales)->update(["is_enabled_by_default" => false]);
+        DB::table("companies_sub_sections")->whereIn("sub_section_id", $sales)->update(["status" => "inactive"]);
+        DB::table("business_industry_module_sets")->whereIn("sub_section_id", $sales)->update(["is_enabled_by_default" => false]);
+
+        $migration = require database_path("migrations/2026_11_11_000001_enable_sales_navigation.php");
+        $migration->up();
+
+        $this->assertSame(8, DB::table("sub_sections")->whereIn("id", $sales)->where("is_enabled_by_default", true)->count());
+        $this->assertSame(8, DB::table("companies_sub_sections")->whereIn("sub_section_id", $sales)->where("status", "active")->count());
+        $this->assertSame(24, DB::table("business_industry_module_sets")->whereIn("sub_section_id", $sales)->where("is_enabled_by_default", true)->count());
+        $this->assertSame(0, DB::table("sub_sections")->whereIn("section_id", [9, 10])->where("is_enabled_by_default", true)->count());
 
     }
 
@@ -714,7 +741,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
         );
 
         $this->assertFalse(
-            \App\Services\System\Organizations\Roles\RolePermissionService::canAccessRoute($user, "sales.create")
+            \App\Services\System\Organizations\Roles\RolePermissionService::canAccessRoute($user, "purchases.create")
         );
 
         $this->assertTrue(
@@ -1021,7 +1048,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $response->assertSee("id=\"brNavigationContext\"", false);
         $response->assertSee("data-navigation-panel=\"5\"", false);
         $response->assertSee("id=\"menu-parent-items\"", false);
-        $response->assertDontSee("id=\"menu-parent-sales\"", false);
+        $response->assertSee("id=\"menu-parent-sales\"", false);
         $response->assertDontSee("id=\"menu-parent-purchases\"", false);
         $response->assertDontSee("id=\"menu-parent-cash\"", false);
         $response->assertDontSee("id=\"brNavigationPreview\"", false);

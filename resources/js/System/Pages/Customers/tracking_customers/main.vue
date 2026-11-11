@@ -14,9 +14,7 @@
                     lg="12">
                     <template v-slot:input>
                         <template v-if="isDefined({value: customerCurrent?.customer})">
-                            <button type="button" class="br-btn br-btn-sm br-btn-search waves-effect" @click="modalCreateUpdateEntity({})">
-                                <span>Buscar</span>
-                            </button>
+                            <SearchButton class="br-btn-sm" @click="modalCreateUpdateEntity({})"/>
                             <button type="button" class="btn btn-info-1 btn-sm waves-effect" @click="getTrackingCustomers({refresh: true})">
                                 <i class="fa fa-sync"></i>
                                 <span class="ms-2">Refrescar expediente</span>
@@ -185,9 +183,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-search waves-effect" @click="getTrackingCustomers({refresh: false})">
-                        <span>Buscar</span>
-                    </button>
+                    <SearchButton @click="getTrackingCustomers({refresh: false})"/>
                 </div>
             </div>
         </div>
@@ -195,6 +191,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -204,6 +201,7 @@ import * as Utils     from "@System/Helpers/Utils.js";
 export default {
     mixins: [InitialPageMixin],
     components: {
+        SearchButton,
         //
     },
     mounted: async function() {

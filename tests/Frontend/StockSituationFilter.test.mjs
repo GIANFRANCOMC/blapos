@@ -11,7 +11,6 @@ test("Estado del stock filtra el control de stock antes de paginar en ambos ámb
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const service = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
     const exportClass = read("app/Exports/System/Warehouses/InventoryReportExport.php");
-    const skeleton = read("resources/js/System/Pages/Warehouses/inventory/InventorySkeleton.vue");
 
     assert.match(page, /<label for="stockSituation"[^>]*>Estado del stock<\/label>[\s\S]*?v-model="filters\.stockSituation"/);
     assert.match(state, /\{code: "", label: "Todos los estados"\}/);
@@ -29,7 +28,6 @@ test("Estado del stock filtra el control de stock antes de paginar en ambos ámb
     assert.match(exportClass, /getConsolidatedStock\([\s\S]*?"situation"[\s\S]*?getStockReport\([\s\S]*?"situation"/);
     assert.match(exportClass, /"Estado del stock"/);
     assert.match(exportClass, /StockStatus::fromLevels\(\$stock, \$minimum\)/);
-    assert.match(skeleton, /v-if="hasStockFilters" class="col-12 col-md-6 col-lg-2 col-xl-2"/);
 });
 
 test("los estados comparten etiquetas y priorizan el stock agotado", () => {

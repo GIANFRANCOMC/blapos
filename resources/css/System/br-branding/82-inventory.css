@@ -79,6 +79,11 @@ body.br-layout .br-inventory__table--single-warehouse > thead > tr > th:nth-chil
     text-align: right !important;
 }
 
+/* El texto accesible de Acciones queda dentro del scroll de la tabla. */
+.br-inventory__table--single-warehouse > thead > tr > th:last-child {
+    position: relative;
+}
+
 body.br-layout .br-inventory__kardex-table > thead > tr > th:nth-child(n+3) {
     text-align: end !important;
 }

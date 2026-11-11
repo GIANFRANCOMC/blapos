@@ -15,7 +15,6 @@
                 :loading="entityList.extras.loading"
                 :filter-by-title="MODULE.texts.filters.filterBy"
                 :search-title="MODULE.texts.filters.search"
-                :search-button-text="MODULE.texts.actions.search"
                 :add-button-text="MODULE.texts.actions.add"
                 :show-add-button="true"
                 :title-class="[config.forms.classes.title]"

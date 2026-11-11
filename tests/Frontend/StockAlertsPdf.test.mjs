@@ -34,7 +34,7 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.doesNotMatch(modal, /<Loader\s*\/>/);
     assert.match(modal, /<thead class="visually-hidden">[\s\S]*?scope="col"/);
     assert.match(modal, /<\/section>[\s\S]*?<Paginator[^>]*:pagination="alerts"[^>]*:loading="loading"/);
-    assert.match(modal, /@click="\$emit\('search'\)">Buscar<\/button>[\s\S]*?class="dropdown br-inventory-alerts__actions"[\s\S]*?class="br-btn br-btn-actions"[\s\S]*?Descargar PDF[\s\S]*?Descargar Excel/);
+    assert.match(modal, /<SearchButton\b[^>]*@click="\$emit\('search'\)"\/>[\s\S]*?class="dropdown br-inventory-alerts__actions"[\s\S]*?class="br-btn br-btn-actions"[\s\S]*?Descargar PDF[\s\S]*?Descargar Excel/);
     assert.equal((modal.match(/:disabled="loading \|\| downloading \|\| !alerts\.total"/g) || []).length, 3);
     assert.doesNotMatch(modal, /<template #footer>/);
     assert.match(modal, /@click="\$emit\('download', 'pdf'\)"[\s\S]*?@click="\$emit\('download', 'excel'\)"/);

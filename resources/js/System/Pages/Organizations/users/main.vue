@@ -15,7 +15,6 @@
             :loading="entityList.extras.loading"
             :filter-by-title="MODULE.texts.filters.filterBy"
             :search-title="MODULE.texts.filters.search"
-            :search-button-text="MODULE.texts.actions.search"
             :add-button-text="MODULE.texts.actions.add"
             :show-add-button="true"
             :show-download-button="true"
@@ -200,13 +199,10 @@
                                 xl="2"
                                 lg="2">
                                 <template #input>
-                                    <button
-                                        type="button"
-                                        class="br-btn br-btn-sm br-btn-search"
+                                    <SearchButton
+                                        class="br-btn-sm"
                                         :disabled="authenticationEvents.loading"
-                                        @click="listAuthenticationEvents({})">
-                                        <span>Filtrar</span>
-                                    </button>
+                                        @click="listAuthenticationEvents({})"/>
                                 </template>
                             </InputSlot>
                         </div>
@@ -442,9 +438,7 @@
                                 lg="6">
                                 <template v-slot:inputGroupPrepend v-if="!isUpdate">
                                     <template v-if="isDocumentTypeSearchable">
-                                        <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
-                                            <span>Buscar</span>
-                                        </button>
+                                        <SearchButton @click="searchDocumentNumber"/>
                                     </template>
                                 </template>
                             </InputText>
@@ -588,6 +582,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
@@ -736,7 +731,6 @@ const TEXTS = {
         status: "Estado",
         password: "Contraseña",
         changePassword: "Cambiar contraseña",
-        searchDocumentTooltip: "Buscar N° documento"
     }
 };
 
@@ -753,7 +747,7 @@ const MODULE = {
 
 export default {
     name: "UsersMain",
-    components: {InitialLoadTransition, CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
+    components: {SearchButton, InitialLoadTransition, CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({

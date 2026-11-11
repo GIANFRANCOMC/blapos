@@ -343,7 +343,9 @@
                                     :clearable="false"
                                     :searchable="true"
                                     :filterable="false"
-                                    @search="searchItems"
+                                    :loading="remoteOptions.items.loading"
+                                    @open="openOptions('items')"
+                                    @search="searchOptions('items', $event)"
                                     placeholder="Seleccionar"/>
                             </div>
                             <div class="br-service-detail__field">
@@ -579,7 +581,7 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label class="form-label colon-at-end">Cliente</label>
-                            <v-select v-model="sessionForm.customer" :options="customerOptions" :clearable="true" :searchable="true" :filterable="false" @search="searchCustomers" placeholder="Cliente general"/>
+                            <v-select v-model="sessionForm.customer" :options="customerOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.customers.loading" @open="openOptions('customers')" @search="searchOptions('customers', $event)" placeholder="Cliente general"/>
                         </div>
                         <div class="form-group col-md-6">
                             <label class="form-label colon-at-end">Responsable</label>
@@ -587,7 +589,7 @@
                         </div>
                         <div class="form-group" :class="sessionForm.item ? 'col-md-8' : 'col-12'">
                             <label class="form-label colon-at-end">{{ isRestaurant ? 'Primer producto o servicio' : 'Servicio inicial' }}</label>
-                            <v-select v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" @search="searchItems" placeholder="Opcional · puedes agregarlo después"/>
+                            <v-select v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.items.loading" @open="openOptions('items')" @search="searchOptions('items', $event)" placeholder="Opcional · puedes agregarlo después"/>
                         </div>
                         <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="quantityStep" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
                         <div class="col-12">
@@ -626,6 +628,7 @@
 </template>
 
 <script>
+import {createOptionSearch} from "@/Shared/Options.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -644,19 +647,20 @@ const SESSION_FORM_TABS = [
 const SESSION_STATUS_VARIANTS = {pending: "warning", in_progress: "primary", completed: "success", canceled: "danger"};
 
 export default {
-    mixins: [InitialPageMixin],
+    mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
     components: {CatalogFormTabs, CopyButton, FormModal, StatusBadge, TableActionsDropdown},
     data() {
         const isRestaurant = window.location.pathname.includes("/restaurant");
 
         return {
             isRestaurant,
+            optionOrigin: isRestaurant ? "restaurant" : "service-sessions",
             config: Requests.config({entity: "service_operations"}),
             options: {
                 branches: [],
                 users: [],
-                customers: [],
-                items: [],
+                customers: {records: []},
+                items: {records: []},
                 stationTypes: [],
                 stationColors: [],
                 stationShapes: [],
@@ -674,8 +678,6 @@ export default {
             loading: false,
             sessionsRequestSequence: 0,
             reportsRequestSequence: 0,
-            optionSearchTimers: {customers: null, items: null},
-            optionSearchSequence: {customers: 0, items: 0},
             saving: false,
             now: Date.now(),
             timer: null,
@@ -737,14 +739,10 @@ export default {
             return this.options.users.map(record => ({...record, label: record.name}));
         },
         customerOptions() {
-            return this.options.customers.map(record => ({...record, label: record.name}));
+            return this.options.customers.records.map(record => ({...record, label: record.name}));
         },
         itemOptions() {
-            const records = this.isRestaurant
-                ? this.options.items
-                : this.options.items.filter(record => record.type === "service");
-
-            return records.map(record => ({
+            return this.options.items.records.map(record => ({
                 ...record,
                 label: `${record.name} · S/ ${this.money(record.price)}`
             }));
@@ -760,19 +758,22 @@ export default {
         }
     },
     async mounted() {
-        Utils.navbarItem("menu-parent-customers", {addClass: "open"});
+        Utils.navbarItem(this.isRestaurant ? "menu-parent-sales" : "menu-parent-workspace", {addClass: "open"});
         Utils.navbarItem(this.isRestaurant ? "menu-restaurant-pos" : "menu-service-sessions", {addClass: "active"});
         this.timer = window.setInterval(() => { this.now = Date.now(); }, 30000);
         const initialized = await this.loadInitialParams(() => this.initParams());
         if(initialized) {
             await this.refresh();
-            this.$nextTick(() => this.preloadOperationOptions());
+            this.$nextTick(() => {
+                this.openOptions("customers");
+                this.openOptions("items");
+            });
         }
     },
     beforeUnmount() {
         window.clearInterval(this.timer);
-        window.clearTimeout(this.optionSearchTimers.customers);
-        window.clearTimeout(this.optionSearchTimers.items);
+
+
         this.removeStationDragListeners();
     },
     methods: {
@@ -789,7 +790,7 @@ export default {
                 return;
             }
 
-            this.options = result.data.config;
+            this.options = {...result.data.config, customers: {records: []}, items: {records: []}};
             this.selectedBranch = this.branchOptions[0] || null;
             this.selectedStatus = this.statusOptions[0] || null;
             this.stationForm.type = this.stationTypeOptions.find(type => type.code === "table") || this.stationTypeOptions[0] || null;
@@ -872,39 +873,6 @@ export default {
             this.selectedFloor = floor;
             this.selectedSession = null;
             await this.getStations();
-        },
-        preloadOperationOptions() {
-            this.loadOperationOptions("customers", "");
-            this.loadOperationOptions("items", "");
-        },
-        searchCustomers(search, toggleLoading) {
-            this.scheduleOptionSearch("customers", search, toggleLoading);
-        },
-        searchItems(search, toggleLoading) {
-            this.scheduleOptionSearch("items", search, toggleLoading);
-        },
-        scheduleOptionSearch(resource, search, toggleLoading) {
-            window.clearTimeout(this.optionSearchTimers[resource]);
-            toggleLoading?.(true);
-            this.optionSearchTimers[resource] = window.setTimeout(async () => {
-                await this.loadOperationOptions(resource, search);
-                toggleLoading?.(false);
-            }, 250);
-        },
-        async loadOperationOptions(resource, search) {
-            const sequence = ++this.optionSearchSequence[resource];
-            const result = await Requests.get({
-                route: this.config.routes.options,
-                data: {
-                    resource,
-                    search: search || "",
-                    item_type: resource === "items" && !this.isRestaurant ? "service" : null
-                }
-            });
-
-            if(sequence !== this.optionSearchSequence[resource] || !Requests.valid({result})) return;
-
-            this.options[resource] = result.data.data || [];
         },
         async getSessions(url = null) {
             url = typeof url === "object" ? url?.url : url;

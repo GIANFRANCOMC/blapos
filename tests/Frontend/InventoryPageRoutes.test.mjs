@@ -180,7 +180,7 @@ test("stock places warehouse, search and actions in order", () => {
     );
 
     assert.doesNotMatch(component, /br-inventory__page-heading|br-operational-scope/);
-    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<span>Buscar<\/span>[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel[\s\S]*?Registrar traslado[\s\S]*?Registrar operación[\s\S]*?Ver alertas/);
+    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>[\s\S]*?class="br-btn br-btn-sm br-btn-actions"[\s\S]*?Acciones[\s\S]*?br-btn-actions-menu[\s\S]*?Descargar Excel[\s\S]*?Registrar traslado[\s\S]*?Registrar operación[\s\S]*?Ver alertas/);
     assert.doesNotMatch(context, /inputGroupPrepend|br-inventory-search__prefix|fa-barcode/);
     assert.match(inventoryCss, /\.br-layout \.br-inventory__context > \.form-group \{\s*margin-bottom: 0 !important;/);
     assert.doesNotMatch(component, /br-inventory__toolbar/);
@@ -247,7 +247,7 @@ test("operation and transfer dialogs choose their own warehouses without changin
     const component = readInventory();
     const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
     const registerOperationButton = component.slice(
-        component.indexOf('v-if="activeView === \'stock\'"', component.indexOf('class="br-btn br-btn-sm br-btn-search"')),
+        component.indexOf('v-if="activeView === \'stock\'"', component.indexOf('<SearchButton')),
         component.indexOf('data-bs-target="#inventoryMovementModal"')
     );
     const operationModal = component.slice(component.indexOf('id="inventoryMovementModal"'));
@@ -342,7 +342,7 @@ test("stock matches the Kardex filter widths and groups all toolbar actions", ()
     assert.match(stockFilters, /col-lg-3 col-xl-3 br-inventory__warehouse/);
     assert.match(stockFilters, /xl="3"\s+lg="3"\s+md="6"/);
     assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-2 col-xl-2"\s*>\s*<label for="stockSituation"/);
-    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>[\s\S]*?class="vr align-self-center"[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?aria-label="Ver alertas"/);
+    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>[\s\S]*?<span>Acciones<\/span>[\s\S]*?class="vr align-self-center"[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?aria-label="Ver alertas"/);
     assert.doesNotMatch(component, /br-inventory__alerts-action/);
     assert.match(component, /<ProductIdentity variant="expandable" :product="record"\/>/);
     assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
@@ -360,7 +360,7 @@ test("inventory loads the first warehouse and waits for Buscar to apply filters"
     const mounted = component.slice(component.indexOf('async mounted() {'), component.indexOf('    data() {'));
 
     assert.equal((component.match(/@click="searchCurrentView"/g) || []).length, 5);
-    assert.equal((component.match(/<span>Buscar<\/span>/g) || []).length, 5);
+    assert.equal((component.match(/<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>/g) || []).length, 5);
     assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*this\.appliedFilters = \{\.\.\.this\.filters\};\s*await this\.listCurrentView\(\{\}\);/);
     assert.doesNotMatch(watcher, /"filters\.|alertMinimumStatus\(\)|this\.invalidateListing\(\)/);
     assert.match(component, /focusProductSearch\(\) \{[\s\S]*?this\.\$refs\.productSearch\?\.focus\(\);/);

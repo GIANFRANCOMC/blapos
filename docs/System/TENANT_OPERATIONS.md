@@ -37,7 +37,7 @@ Los controladores no reciben `company_id` ni `companyId`. Los catálogos maestro
 
 La administración de módulos y permisos tampoco recibe el ID raíz: `CompanySectionService` y `RolePermissionService` trabajan sobre la conexión activa. El ID solo se materializa dentro de las consultas de las cuatro relaciones estructurales.
 
-Las asociaciones explícitas de rutas y acciones en `config/permissions.php` usan claves planas como `sales.options`. `RolePermissionService` las consulta como claves exactas del arreglo, no con notación de puntos anidados; así un endpoint de Nueva venta no hereda por accidente el permiso de un módulo hermano como POS o listado.
+Las asociaciones explícitas de rutas y acciones en `config/permissions.php` usan claves planas como `options.sales-create`. `RolePermissionService` las consulta como claves exactas del arreglo. Cada origen de opciones conserva los permisos de su módulo.
 
 El aprovisionador tampoco recibe ni devuelve el ID raíz. `createOrUpdate()`, `enable()` y `ensureAdminUser()` operan sobre la conexión tenant activa; los catálogos, perfiles de negocio y permisos iniciales se escriben en lotes idempotentes para reducir consultas.
 

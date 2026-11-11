@@ -14,7 +14,6 @@
                 :loading="loading"
                 filter-by-title="Filtrar por"
                 search-title="Búsqueda"
-                search-button-text="Buscar"
                 add-button-text="Agregar receta"
                 :show-add-button="true"
                 @search="searchRecipes"

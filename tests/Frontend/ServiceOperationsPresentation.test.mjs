@@ -11,6 +11,7 @@ test("servicios en curso conserva sus acciones y distingue su interfaz de restau
 
     assert.equal(parse(source, {filename: "service_operations/main.vue"}).errors.length, 0);
     assert.match(source, /br-service-page--sessions/);
+    assert.match(source, /this\.isRestaurant \? "menu-parent-sales" : "menu-parent-workspace"/);
     assert.match(source, /class="br-entity-list br-service-list"/);
     assert.match(source, /class="br-table-header-surface"/);
     assert.match(source, /<TableActionsDropdown/);

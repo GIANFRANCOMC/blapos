@@ -70,9 +70,7 @@
                                 lg="6">
                                 <template v-slot:inputGroupPrepend v-if="!isUpdate">
                                     <template v-if="isDocumentTypeSearchable">
-                                        <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
-                                            <span>Buscar</span>
-                                        </button>
+                                        <SearchButton @click="searchDocumentNumber"/>
                                     </template>
                                 </template>
                             </InputText>
@@ -229,6 +227,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -319,7 +318,6 @@ const TEXTS = {
         emergencyContactPhone: "Celular de emergencia",
         medicalNotes: "Observaciones médicas",
         status: "Estado",
-        searchDocumentTooltip: "Buscar N° documento"
     },
     modal: {
         close: "Cerrar",
@@ -339,6 +337,7 @@ const MODULE = {
 export default {
     name: "AddCustomer",
     components: {
+        SearchButton,
         InputDate,
         InputSlot,
         InputText,

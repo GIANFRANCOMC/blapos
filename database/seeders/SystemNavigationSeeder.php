@@ -10,14 +10,13 @@ use RuntimeException;
 
 final class SystemNavigationSeeder extends Seeder {
 
-    private const DISABLED_BY_DEFAULT_WORLD_SLUGS = ["sc_sales", "sc_purchases", "sc_cash"];
+    private const DISABLED_BY_DEFAULT_WORLD_SLUGS = ["sc_purchases", "sc_cash"];
 
     private const DISABLED_BY_DEFAULT_ROUTES = [
         "service_sessions.index",
         "home.index",
         "dashboard.index",
         "reports.index",
-        "restaurant_pos.index",
         "tracking_customers.index",
         "tracking_subscriptions.index",
         "tracking_attendances.index",

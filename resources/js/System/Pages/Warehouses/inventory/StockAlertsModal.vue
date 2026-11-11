@@ -40,7 +40,7 @@
                             :searchable="false"
                             @update:model-value="$emit('update:minimumStatus', $event)"/>
                     </div>
-                    <button type="button" class="br-btn br-btn-search" :disabled="loading || !warehouse?.code" @click="$emit('search')">Buscar</button>
+                    <SearchButton :disabled="loading || !warehouse?.code" @click="$emit('search')"/>
                     <div class="dropdown br-inventory-alerts__actions">
                         <button
                             type="button"
@@ -162,6 +162,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
@@ -173,7 +174,7 @@ import {fromLevels, labels} from "../../../../Shared/StockStatus.js";
 
 export default {
     name: "StockAlertsModal",
-    components: {FormModal, ProductIdentity, QuantityValue, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
+    components: {SearchButton, FormModal, ProductIdentity, QuantityValue, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
     emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "edit"],
     props: {
         alerts: {type: Object, required: true},

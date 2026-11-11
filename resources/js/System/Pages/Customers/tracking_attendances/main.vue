@@ -140,9 +140,7 @@
                     lg="12">
                     <template v-slot:input>
                         <template v-if="forms.entity.createUpdate.config.viewFilters">
-                            <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
-                                <span>Filtrar</span>
-                            </button>
+                            <SearchButton @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
                         </template>
                         <button type="button" class="btn btn-primary waves-effect" @click="selectModeEntity('manual', true)" :disabled="lists.entity.extras.loading">
                             <i class="fa fa-check"></i>
@@ -724,6 +722,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -736,6 +735,7 @@ let doughnutChartInstance = null;
 export default {
     mixins: [InitialPageMixin],
     components: {
+        SearchButton,
         //
     },
     mounted: async function() {

@@ -322,9 +322,7 @@
                         </div>
                         <div class="form-group col-xl-4 col-lg-4 col-md-12">
                             <div class="br-filter-bar__actions">
-                                <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listPurchases({applyFilters: true})">
-                                    <span>Buscar</span>
-                                </button>
+                                <SearchButton class="br-btn-sm" @click="listPurchases({applyFilters: true})"/>
                                 <button
                                     v-if="activeMode === 'list'"
                                     type="button"
@@ -482,6 +480,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -492,7 +491,7 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {ProductIdentity, SearchInput},
+    components: {SearchButton, ProductIdentity, SearchInput},
     async mounted() {
         this.activeMode = this.initialModeFromPath();
         Utils.navbarItem("menu-parent-purchases", {addClass: "open"});

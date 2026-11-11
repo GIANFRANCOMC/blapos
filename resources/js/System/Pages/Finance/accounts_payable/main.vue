@@ -57,9 +57,7 @@
                         <input v-model="filters.date_to" type="date" class="form-control">
                     </label>
                     <div class="br-filter-bar__actions">
-                        <button type="button" class="br-btn br-btn-search" @click="searchAccounts" :disabled="loading.list">
-                            <span>Buscar</span>
-                        </button>
+                        <SearchButton @click="searchAccounts" :disabled="loading.list"/>
                         <ClearFiltersButton button-class="br-btn br-btn-cancel" :disabled="!hasFilters" @clear="clearFilters">
                             <span>Limpiar</span>
                         </ClearFiltersButton>
@@ -151,6 +149,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -160,7 +159,7 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {ClearFiltersButton, SearchInput},
+    components: {SearchButton, ClearFiltersButton, SearchInput},
     name: "AccountsPayableMain",
     data() {
         return {

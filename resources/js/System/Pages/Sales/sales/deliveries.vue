@@ -38,19 +38,19 @@
                                 v-model="filters.holder"
                                 :options="holders"
                                 :filterable="false"
-                                :loading="commercialSelection.customers.loading"
+                                :loading="remoteOptions.customers.loading"
                                 :class="config.forms.classes.select2"
                                 :clearable="true"
                                 append-to-body
                                 placeholder="Todos los clientes"
-                                @open="openCommercialOptions('customers')"
-                                @search="searchCommercialOptions('customers', $event)">
+                                @open="openOptions('customers')"
+                                @search="searchOptions('customers', $event)">
                                 <template #selected-option="{ label }">
                                     <span class="br-select-selected-text" :title="label">{{ label }}</span>
                                 </template>
                                 <template #list-footer>
-                                    <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                    <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
+                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
                                     </li>
                                 </template>
                                 <template #no-options>Sin clientes para esta búsqueda.</template>
@@ -87,9 +87,7 @@
                         xl="5"
                         lg="5">
                         <template #input>
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({applyFilters: true})">
-                                <span>Buscar</span>
-                            </button>
+                            <SearchButton class="br-btn-sm" :disabled="loading" @click="listDeliveries({applyFilters: true})"/>
                             <ClearFiltersButton button-class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @clear="clearFilters">
                                 <span>Limpiar</span>
                             </ClearFiltersButton>
@@ -291,20 +289,21 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import commercialSelection from "../commercialSelection.js";
+import {createOptionSearch} from "@/Shared/Options.js";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
-    components: {ClearFiltersButton, ProductIdentity, SearchInput},
-    mixins: [InitialPageMixin, commercialSelection],
+    components: {SearchButton, ClearFiltersButton, ProductIdentity, SearchInput},
+    mixins: [InitialPageMixin, createOptionSearch("customers")],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
@@ -319,7 +318,7 @@ export default {
     },
     data() {
         return {
-            commercialSelectionRoute: `${Requests.config({entity: "sales", type: "consult"})}/customer-options`,
+            optionOrigin: "sales-deliveries",
             loading: false,
             saving: false,
             records: {
@@ -380,7 +379,6 @@ export default {
             this.options.branches = response.data?.config?.branches;
             this.options.warehouses = response.data?.config?.warehouses;
             this.options.customers = {records: []};
-            this.options.holders = this.options.customers;
             this.options.saleDeliveries = response.data?.config?.saleDeliveries;
 
             return Requests.valid({result: response});
@@ -526,7 +524,7 @@ export default {
             }));
         },
         holders() {
-            return (this.options?.holders?.records ?? []).map(holder => ({
+            return (this.options?.customers?.records ?? []).map(holder => ({
                 code: holder.id,
                 label: `${holder.document_number} - ${holder.name}`,
                 data: holder

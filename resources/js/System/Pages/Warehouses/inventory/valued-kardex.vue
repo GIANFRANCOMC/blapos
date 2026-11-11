@@ -69,13 +69,10 @@
                     </template>
                     <div class="col-12 col-lg-3">
                         <div class="br-filter-bar__actions br-inventory__context-actions gap-lg-1">
-                            <button
-                                type="button"
-                                class="br-btn br-btn-sm br-btn-search px-lg-2"
+                            <SearchButton
+                                class="br-btn-sm"
                                 :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                                @click="searchCurrentView">
-                                <span>Buscar</span>
-                            </button>
+                                @click="searchCurrentView"/>
                             <ClearFiltersButton
                                 :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                                 @clear="clearFilters"/>

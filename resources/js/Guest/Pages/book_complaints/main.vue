@@ -116,10 +116,7 @@
                         <label>Código de seguimiento</label>
                         <input v-model.trim="trackingCode" class="form-control" type="text" maxlength="20" placeholder="Ej. ABC123XYZ789" @keyup.enter="consultStatus">
                     </div>
-                    <button type="button" class="br-guest-btn br-guest-btn-secondary" :disabled="consulting || !normalizedTrackingCode" @click="consultStatus">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <span>{{ consulting ? "Consultando" : "Consultar" }}</span>
-                    </button>
+                    <SearchButton button-class="br-guest-btn br-guest-btn-secondary" :disabled="consulting || !normalizedTrackingCode" @click="consultStatus" :aria-busy="consulting"/>
                 </div>
 
                 <div class="br-guest-result" v-if="statusResult">
@@ -137,6 +134,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "../../Helpers/Alerts.js";
 import * as Constants from "../../Helpers/Constants.js";
@@ -158,6 +156,7 @@ const emptyBookComplaintForm = () => ({
 });
 
 export default {
+    components: {SearchButton},
     mixins: [InitialPageMixin],
     data() {
         return {

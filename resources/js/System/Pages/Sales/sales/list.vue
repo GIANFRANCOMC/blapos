@@ -76,13 +76,13 @@
                                 v-model="lists.entity.filters.holder"
                                 :options="holders"
                                 :filterable="false"
-                                :loading="commercialSelection.customers.loading"
+                                :loading="remoteOptions.customers.loading"
                                 :class="config.forms.classes.select2"
                                 :clearable="true"
                                 append-to-body
                                 placeholder="Todos los clientes"
-                                @open="openCommercialOptions('customers')"
-                                @search="searchCommercialOptions('customers', $event)">
+                                @open="openOptions('customers')"
+                                @search="searchOptions('customers', $event)">
                                 <template #option="{ label }">
                                     <span v-text="truncate({value: label, length: 50})" class="d-block"></span>
                                 </template>
@@ -90,8 +90,8 @@
                                     <span class="br-select-selected-text" :title="label">{{ label }}</span>
                                 </template>
                                 <template #list-footer>
-                                    <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                    <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
+                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
                                     </li>
                                 </template>
                                 <template #no-options>Sin clientes para esta búsqueda.</template>
@@ -119,9 +119,7 @@
                         xl="5"
                         lg="6">
                         <template #input>
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
-                                <span>Buscar</span>
-                            </button>
+                            <SearchButton class="br-btn-sm" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
                             <ClearFiltersButton button-class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="lists.entity.extras.loading" @clear="clearFilters">
                                 <span>Limpiar</span>
                             </ClearFiltersButton>
@@ -259,13 +257,14 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
-import commercialSelection from "../commercialSelection.js";
+import {createOptionSearch} from "@/Shared/Options.js";
 import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
@@ -281,8 +280,8 @@ const MODULE = {
 };
 
 export default {
-    components: {ClearFiltersButton, SearchInput},
-    mixins: [InitialPageMixin, commercialSelection],
+    components: {SearchButton, ClearFiltersButton, SearchInput},
+    mixins: [InitialPageMixin, createOptionSearch("customers")],
     mounted: async function() {
 
         Utils.navbarItem("menu-parent-sales", {addClass: "open"});
@@ -300,7 +299,7 @@ export default {
     },
     data() {
         return {
-            commercialSelectionRoute: `${Requests.config({entity: "sales", type: "consult"})}/customer-options`,
+            optionOrigin: "sales-list",
             lists: {
                 entity: {
                     extras: {
@@ -373,7 +372,6 @@ export default {
 
             this.options.branches    = initParams.data?.config?.branches;
             this.options.customers   = {records: []};
-            this.options.holders     = this.options.customers;
             this.options.salesHeader = initParams.data?.config?.salesHeader;
 
             return Requests.valid({result: initParams});
@@ -683,7 +681,7 @@ export default {
         },
         holders: function() {
 
-            return (this.options?.holders?.records ?? []).map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
+            return (this.options?.customers?.records ?? []).map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
 
         },
         statuses: function() {

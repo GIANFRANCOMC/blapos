@@ -35,7 +35,7 @@
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <SearchInput v-model.trim="searchTerm" placeholder="Buscar dato automático" aria-label="Buscar dato automático"/>
                         </div>
-                        <button type="button" class="br-btn br-btn-sm br-btn-search" @click="applySearch">Buscar</button>
+                        <SearchButton class="br-btn-sm" @click="applySearch"/>
                         <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                     </div>
                     <Loader v-if="loading"/>
@@ -62,7 +62,7 @@
                                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                 <SearchInput v-model.trim="searchTerm" placeholder="Buscar registro" aria-label="Buscar registro"/>
                             </div>
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="applySearch">Buscar</button>
+                            <SearchButton class="br-btn-sm" @click="applySearch"/>
                             <span>{{ filteredRecords.length }} registro{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                         </div>
 
@@ -186,6 +186,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -360,7 +361,7 @@ const RESOURCES = [
 ];
 
 export default {
-    components: {InitialLoadTransition, CatalogFormTabs, SearchInput, MasterDataSkeleton},
+    components: {SearchButton, InitialLoadTransition, CatalogFormTabs, SearchInput, MasterDataSkeleton},
     data() {
         return {
             resources: RESOURCES,

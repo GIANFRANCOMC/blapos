@@ -124,13 +124,18 @@ final class ServiceOperationPerformanceTest extends TestCase {
             \App\Http\Middleware\EnsureOperationalScope::class,
         ]);
 
-        $this->getJson(route("sales.options", ["resource" => "items", "search" => "SERVICE-40"]))
+        $this->getJson(route("options.sales-create", ["entity" => "items", "search" => "SERVICE-40"]))
             ->assertOk()
             ->assertJsonPath("data.records.0.name", "Servicio 40");
 
-        $this->getJson(route("quotations.options", ["resource" => "customers", "search" => "Cliente 40"]))
+        $this->getJson(route("options.quotations-create", ["entity" => "customers", "search" => "Cliente 40"]))
             ->assertOk()
             ->assertJsonPath("data.records.0.name", "Cliente 40");
+
+        $this->getJson(route("options.sales-create", ["entity" => "items", "page" => 0]))
+            ->assertUnprocessable();
+        $this->getJson("/options/sales-list/items")->assertNotFound();
+        $this->getJson("/options/unknown/customers")->assertNotFound();
 
         $salesIndexId = (int) DB::table("sub_sections")
             ->where("dom_route", "sales.index")
@@ -142,7 +147,7 @@ final class ServiceOperationPerformanceTest extends TestCase {
             ->where("document_number", "00000040")
             ->update(["status" => "inactive"]);
 
-        $customerOptions = $this->getJson(route("sales.customerOptions", ["search" => "Cliente 40"]))
+        $customerOptions = $this->getJson(route("options.sales-list", ["entity" => "customers", "search" => "Cliente 40"]))
             ->assertOk()
             ->assertJsonPath("data.records.0.name", "Cliente 40");
 
@@ -151,10 +156,10 @@ final class ServiceOperationPerformanceTest extends TestCase {
             array_keys($customerOptions->json("data.records.0"))
         );
 
-        $this->getJson(route("sales.options", ["resource" => "items"]))
+        $this->getJson(route("options.sales-create", ["entity" => "items"]))
             ->assertForbidden();
 
-        $this->getJson(route("quotations.options", ["resource" => "customers"]))
+        $this->getJson(route("options.quotations-create", ["entity" => "customers"]))
             ->assertForbidden();
 
         $deliveriesId = (int) DB::table("sub_sections")
@@ -163,12 +168,44 @@ final class ServiceOperationPerformanceTest extends TestCase {
 
         BusinessProfileService::updateModules([$deliveriesId], $this->userId);
 
-        $this->getJson(route("sales.customerOptions", ["search" => "Cliente 40"]))
+        $this->getJson(route("options.sales-deliveries", ["entity" => "customers", "search" => "Cliente 40"]))
             ->assertOk()
             ->assertJsonPath("data.records.0.name", "Cliente 40");
 
-        $this->getJson(route("sales.options", ["resource" => "items"]))
+        $this->getJson(route("options.sales-list", ["entity" => "customers"]))
             ->assertForbidden();
+        $this->getJson(route("options.sales-create", ["entity" => "items"]))
+            ->assertForbidden();
+
+    }
+
+    public function test_operation_option_origins_enforce_independent_permissions_and_item_types(): void {
+
+        $this->seedOperationOptions(2);
+        DB::table("items")->where("internal_code", "SERVICE-1")->update(["type" => "product"]);
+        Auth::login(User::query()->findOrFail($this->userId));
+        $this->withoutMiddleware([
+            \App\Http\Middleware\ResolveTenant::class,
+            \App\Http\Middleware\TrustHosts::class,
+            \App\Http\Middleware\EnsureTenantSession::class,
+            \App\Http\Middleware\EnsureAuthenticatedSession::class,
+        ]);
+
+        $restaurant = route("options.restaurant", ["entity" => "items", "search" => "SERVICE-1"]);
+        $services = route("options.service-sessions", ["entity" => "items", "search" => "SERVICE-1"]);
+
+        $this->getJson($restaurant)->assertOk()->assertJsonPath("data.records.0.type", "product");
+        $this->getJson($services)->assertForbidden();
+
+        $serviceModuleId = (int) DB::table("sub_sections")->where("dom_route", "service_sessions.index")->value("id");
+        BusinessProfileService::updateModules([$serviceModuleId], $this->userId);
+
+        $this->getJson($restaurant)->assertForbidden();
+        $this->getJson($services)->assertOk()->assertJsonPath("data.records", []);
+        $this->getJson(route("options.service-sessions", ["entity" => "items", "search" => "SERVICE-2"]))
+            ->assertOk()
+            ->assertJsonPath("data.records.0.type", "service")
+            ->assertJsonPath("data.has_more", false);
 
     }
 

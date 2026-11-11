@@ -20,9 +20,7 @@
                             <input v-model="filters.weekStart" type="date" class="form-control">
                         </div>
                         <div class="col-xl-2 col-md-6 d-flex gap-2">
-                            <button type="button" class="br-btn br-btn-search flex-grow-1" @click="searchAttendance" :disabled="loading">
-                                <span>Consultar</span>
-                            </button>
+                            <SearchButton @click="searchAttendance" :disabled="loading"/>
                             <button
                                 type="button"
                                 class="br-btn br-btn-action-export"
@@ -186,12 +184,14 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
 export default {
+    components: {SearchButton},
     mixins: [InitialPageMixin],
     data() {
         return {

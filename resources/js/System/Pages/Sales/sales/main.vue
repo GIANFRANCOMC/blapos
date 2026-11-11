@@ -115,9 +115,9 @@
                                             :disabled="hasQuotationApplied"
                                             :searchable="true"
                                             :filterable="false"
-                                            :loading="commercialSelection.customers.loading"
-                                            @open="openCommercialOptions('customers')"
-                                            @search="searchCommercialOptions('customers', $event)"
+                                            :loading="remoteOptions.customers.loading"
+                                            @open="openOptions('customers')"
+                                            @search="searchOptions('customers', $event)"
                                             placeholder="Seleccione">
                                             <template #selected-option="option">
                                                 <span class="br-document-holder-option">
@@ -132,8 +132,8 @@
                                                 </span>
                                             </template>
                                             <template #list-footer>
-                                                <li v-if="commercialSelection.customers.hasMore" class="px-2 py-1">
-                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('customers')">Cargar más clientes</button>
+                                                <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
+                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
                                                 </li>
                                             </template>
                                             <template #no-options>Sin clientes para esta búsqueda.</template>
@@ -1115,9 +1115,9 @@
                                     :disabled="isModalDetailUpdate"
                                     :searchable="true"
                                     :filterable="false"
-                                    :loading="commercialSelection.items.loading"
-                                    @open="openCommercialOptions('items')"
-                                    @search="searchCommercialOptions('items', $event)"
+                                    :loading="remoteOptions.items.loading"
+                                    @open="openOptions('items')"
+                                    @search="searchOptions('items', $event)"
                                     append-to-body
                                     placeholder="Seleccione">
                                     <template #selected-option="{ label }">
@@ -1168,8 +1168,8 @@
                                         </div>
                                     </template>
                                     <template #list-footer>
-                                        <li v-if="commercialSelection.items.hasMore" class="px-2 py-1">
-                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreCommercialOptions('items')">Cargar más ítems</button>
+                                        <li v-if="remoteOptions.items.hasMore" class="px-2 py-1">
+                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('items')">Cargar más ítems</button>
                                         </li>
                                     </template>
                                     <template #no-options>Sin ítems para esta búsqueda.</template>
@@ -1658,7 +1658,7 @@ import { initCrudModule }  from "@System/Helpers/ModuleFactory.js";
 import * as Requests       from "@System/Helpers/Requests.js";
 import * as Utils          from "@System/Helpers/Utils.js";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
-import commercialSelection from "../commercialSelection.js";
+import {createOptionSearch} from "@/Shared/Options.js";
 
 const IS_POS_MODE = window.location.pathname.split("?")[0].endsWith("/sales/pos");
 
@@ -1738,7 +1738,7 @@ const MODULE = {
 };
 
 export default {
-    mixins: [InitialPageMixin, commercialSelection],
+    mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
     components: {TableActionsDropdown},
     name: "SalesMain",
     data() {
@@ -1867,7 +1867,7 @@ export default {
 
         return {
             ...crudModule,
-            commercialSelectionEntity: "sales",
+            optionOrigin: "sales-create",
             MODULE: MODULE,
             selectedCatalogInfoExpanded: false,
             syncingDetailModal: false
@@ -3924,7 +3924,7 @@ export default {
         },
         holders: function() {
 
-            return this.options?.holders?.records.map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
+            return this.options?.customers?.records.map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
 
         },
         currencies: function() {

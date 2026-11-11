@@ -5,6 +5,7 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import * as StockStatus from "../../../../Shared/StockStatus.js";
+import SearchButton from "@/Shared/SearchButton.vue";
 import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
@@ -106,7 +107,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuantityValue, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
+    components: {InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuantityValue, SearchButton, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
     props: {
         page: {
             type: String,

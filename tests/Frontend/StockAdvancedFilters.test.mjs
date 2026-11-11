@@ -25,8 +25,8 @@ test("los filtros adicionales de stock comparten consulta, paginación y exporta
     assert.match(page, /<StockAdvancedFilters\s+v-if="activeView === 'stock'"/);
     assert.doesNotMatch(page, /<StockAdvancedFilters[^>]*\bv-show=|Más filtros|stockAdvancedOpen/);
     assert.ok(page.indexOf('for="stockSituation"') < page.indexOf('<StockAdvancedFilters'));
-    assert.ok(page.indexOf('<StockAdvancedFilters') < page.indexOf('class="br-btn br-btn-sm br-btn-search"'));
-    assert.match(page, /<div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">\s*<div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">\s*<button[^>]*>\s*<span>Buscar<\/span>\s*<\/button>\s*<ClearFiltersButton\b[^>]*\/>\s*<button[^>]*data-bs-toggle="dropdown"[^>]*>\s*<span>Acciones<\/span>[\s\S]*?<ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">[\s\S]*?<\/ul>\s*<\/div>\s*<div[^>]*class="[^"]*\bms-auto">\s*<span[^>]*class="vr align-self-center" aria-hidden="true">/);
+    assert.ok(page.indexOf('<StockAdvancedFilters') < page.indexOf('<SearchButton'));
+    assert.match(page, /<div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">\s*<div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">\s*<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>\s*<ClearFiltersButton\b[^>]*\/>\s*<button[^>]*data-bs-toggle="dropdown"[^>]*>\s*<span>Acciones<\/span>[\s\S]*?<ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">[\s\S]*?<\/ul>\s*<\/div>\s*<div[^>]*class="[^"]*\bms-auto">\s*<span[^>]*class="vr align-self-center" aria-hidden="true">/);
     assert.match(styles, /\.br-inventory__context \.vr \{\s*color: var\(--br-border-muted\);/);
     assert.match(config, /"stock_categories"[\s\S]*?Category::query\(\)->active\(\)/);
     assert.match(config, /"stock_brands"[\s\S]*?Brand::query\(\)->active\(\)/);
@@ -68,7 +68,7 @@ test("ambos Kardex muestran los mismos filtros de producto y conservan los filtr
         assert.match(page, /col-lg-2 col-xl-2">\s*<label for="movementType"[^>]*>Movimiento<\/label>/);
         assert.match(page, /col-lg-2 col-xl-2">\s*<label for="inventoryDateFrom"[\s\S]*?col-lg-2 col-xl-2">\s*<label for="inventoryDateTo"[\s\S]*?<StockAdvancedFilters/);
         assert.match(page, /<template #before-filters>\s*<div class="col-12 col-md-6 col-lg-3 col-xl-3">\s*<label for="movementUser"[^>]*>Realizado por<\/label>[\s\S]*?v-model="filters\.movementUser"/);
-        assert.match(page, /<StockAdvancedFilters\s+v-model:category="filters\.stockCategory"\s+v-model:brand="filters\.stockBrand"[\s\S]*?<span>Buscar<\/span>[\s\S]*?<\/StockAdvancedFilters>/);
+        assert.match(page, /<StockAdvancedFilters\s+v-model:category="filters\.stockCategory"\s+v-model:brand="filters\.stockBrand"[\s\S]*?<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>[\s\S]*?<\/StockAdvancedFilters>/);
         assert.match(page, /<div class="col-12 col-lg-3">\s*<div class="br-filter-bar__actions br-inventory__context-actions gap-lg-1">/);
         assert.doesNotMatch(page, /stockMinimumStatus|stockInactiveDays/);
         assert.doesNotMatch(page, /Más filtros|stockAdvancedOpen/);

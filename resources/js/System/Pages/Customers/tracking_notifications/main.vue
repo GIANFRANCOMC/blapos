@@ -31,13 +31,10 @@
                             xl="9"
                             lg="9">
                             <template #input>
-                                <button
-                                    type="button"
-                                    class="br-btn br-btn-sm br-btn-search"
+                                <SearchButton
+                                    class="br-btn-sm"
                                     :disabled="lists.entity.extras.loading"
-                                    @click="listEntity({applyFilters: true})">
-                                    <span>Buscar</span>
-                                </button>
+                                    @click="listEntity({applyFilters: true})"/>
                             </template>
                         </InputSlot>
                     </div>
@@ -181,6 +178,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -195,6 +193,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default {
+    components: {SearchButton},
     mixins: [InitialPageMixin],
     name: "TrackingNotificationsMain",
     mounted: async function() {

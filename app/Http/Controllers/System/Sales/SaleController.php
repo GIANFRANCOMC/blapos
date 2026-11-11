@@ -9,7 +9,7 @@ use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Sales\{CancelSaleRequest, StoreSaleDeliveryRequest, StoreSaleRequest};
 use App\Models\System\Sales\{SaleDelivery};
 use App\Services\System\Organizations\{AccessScopeService};
-use App\Services\System\Sales\{CommercialSelectionService, SaleConfigService, SaleDeliveryService, SaleService};
+use App\Services\System\Sales\{SaleConfigService, SaleDeliveryService, SaleService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class SaleController extends BaseController {
@@ -29,42 +29,6 @@ class SaleController extends BaseController {
         $page = $this->getPage($request);
 
         return SaleConfigService::getInitParams($page, $this->getUserId());
-
-    }
-
-    public function options(Request $request): JsonResponse {
-
-        $data = $request->validate([
-            "resource" => ["required", "in:customers,items"],
-            "search" => ["nullable", "string", "max:100"],
-            "page" => ["nullable", "integer", "min:1", "max:10000"],
-        ]);
-
-        return response()->json([
-            "bool" => true,
-            "data" => CommercialSelectionService::search(
-                $data["resource"],
-                $data["search"] ?? "",
-                (int) ($data["page"] ?? 1)
-            ),
-        ]);
-
-    }
-
-    public function customerOptions(Request $request): JsonResponse {
-
-        $data = $request->validate([
-            "search" => ["nullable", "string", "max:100"],
-            "page" => ["nullable", "integer", "min:1", "max:10000"],
-        ]);
-
-        return response()->json([
-            "bool" => true,
-            "data" => CommercialSelectionService::searchCustomerFilters(
-                $data["search"] ?? "",
-                (int) ($data["page"] ?? 1)
-            ),
-        ]);
 
     }
 

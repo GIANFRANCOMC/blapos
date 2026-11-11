@@ -67,13 +67,10 @@
 
                 <div :class="contextActionColumns">
                     <div class="br-filter-bar__actions br-inventory__context-actions">
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-search"
+                        <SearchButton
+                            class="br-btn-sm"
                             :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                            @click="searchCurrentView">
-                            <span>Buscar</span>
-                        </button>
+                            @click="searchCurrentView"/>
                         <ClearFiltersButton
                             :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                             @clear="clearFilters"/>

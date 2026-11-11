@@ -18,14 +18,13 @@
                     search-title="Búsqueda rápida"
                     :show-search-input="reportUsesQuickSearch"
                     :show-add-button="false"
-                    :show-search-button="false"
-                    :show-download-button="true"
-                    :download-button-text="primaryActionLabel"
-                    :download-button-tooltip="primaryActionTooltip"
-                    :download-button-icon="primaryActionIcon"
-                    :download-button-class="primaryActionClass"
+                    :show-search-button="selectedReportCode === 'settlements'"
+                    :show-download-button="selectedReportCode !== 'settlements'"
+                    download-button-text="Exportar"
+                    download-button-tooltip="Exportar reporte"
                     :title-class="[config.forms.classes.title]"
                     :select-class="config.forms.classes.select2"
+                    @search="exportReport({})"
                     @download="exportReport({})">
                     <template #extraFilters>
                         <template v-if="selectedReportCode === 'customers'">
@@ -517,24 +516,6 @@ export default {
         },
         selectedReportCode() {
             return this.forms.entity.createUpdate.data.report?.code;
-        },
-        primaryActionLabel() {
-            return this.selectedReportCode === "settlements" ? "Consultar" : "Exportar";
-        },
-        primaryActionIcon() {
-            return this.selectedReportCode === "settlements"
-                ? "fa-solid fa-chart-simple"
-                : "fa-solid fa-file-excel";
-        },
-        primaryActionTooltip() {
-            return this.selectedReportCode === "settlements"
-                ? "Consultar resumen financiero"
-                : "Exportar reporte";
-        },
-        primaryActionClass() {
-            return this.selectedReportCode === "settlements"
-                ? "br-btn-search"
-                : "br-btn-action-export";
         },
         quickSearchPlaceholder() {
             return {

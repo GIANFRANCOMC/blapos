@@ -101,9 +101,7 @@
                     xl="12"
                     lg="12">
                     <template v-slot:input>
-                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
-                            <span>Filtrar</span>
-                        </button>
+                        <SearchButton @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
                         <button type="button" class="br-btn br-btn-action-create waves-effect" @click="createManualEntity">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             <span>Agregar membresía</span>
@@ -261,6 +259,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -269,6 +268,7 @@ import * as Utils     from "@System/Helpers/Utils.js";
 import {STATUS_BADGE_CUSTOM_SUBSCRIPTION} from "@System/Helpers/ModuleConstants.js";
 
 export default {
+    components: {SearchButton},
     mixins: [InitialPageMixin],
     mounted: async function() {
 

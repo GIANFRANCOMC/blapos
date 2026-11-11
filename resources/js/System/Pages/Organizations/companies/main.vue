@@ -50,9 +50,7 @@
                             lg="6">
                             <template v-slot:inputGroupAppend>
                                 <template v-if="isDocumentTypeSearchable">
-                                    <button class="br-btn br-btn-search waves-effect" type="button" @click="searchDocumentNumber" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.searchDocumentTooltip">
-                                        <span>Buscar</span>
-                                    </button>
+                                    <SearchButton @click="searchDocumentNumber"/>
                                 </template>
                             </template>
                         </InputText>
@@ -287,6 +285,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
@@ -382,7 +381,6 @@ const TEXTS = {
         loginImage: "Imagen de login",
         slug: "Acceso MI WEB",
         tokenApiMisc: "Token API - Misc",
-        searchDocumentTooltip: "Buscar N° documento"
     },
     actions: {
         save: "Guardar información"
@@ -401,7 +399,7 @@ const MODULE = {
 
 export default {
     name: "CompaniesMain",
-    components: {InitialLoadTransition, CompanySettingsSkeleton},
+    components: {SearchButton, InitialLoadTransition, CompanySettingsSkeleton},
     data() {
 
         const crudModule = initCrudModule({

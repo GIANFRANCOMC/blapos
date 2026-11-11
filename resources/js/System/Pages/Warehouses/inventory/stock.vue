@@ -92,13 +92,10 @@
 
                 <div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">
                     <div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-search"
+                        <SearchButton
+                            class="br-btn-sm"
                             :disabled="!filters.warehouse?.code || isCurrentViewLoading"
-                            @click="searchCurrentView">
-                            <span>Buscar</span>
-                        </button>
+                            @click="searchCurrentView"/>
                         <ClearFiltersButton
                             :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                             @clear="clearFilters"/>

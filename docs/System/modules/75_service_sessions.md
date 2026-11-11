@@ -13,7 +13,7 @@ Controla atenciones con inicio y fin reales para barberías, salones, clínicas,
 - Reportes agregados: `GET /service_operations/reports`.
 - Edición operativa: `PATCH /service_operations/floors/{id}` y `PATCH /service_operations/stations/{id}`.
 - Tablero compuesto: `GET /service_operations/board` devuelve pisos y estaciones en una sola llamada.
-- Catálogos remotos: `GET /service_operations/options` busca clientes e ítems con alcance de empresa y un máximo de 30 resultados.
+- Los catálogos remotos usan `GET /options/service-sessions/{entity}` para clientes y servicios. POS restaurante usa `GET /options/restaurant/{entity}`. Cada origen aplica los permisos de su módulo y devuelve hasta 30 resultados por búsqueda dentro del tenant.
 
 ## Reglas
 

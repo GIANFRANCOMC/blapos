@@ -1,35 +1,54 @@
-.br-inventory-skeleton { pointer-events: none; }
+.br-inventory-skeleton {
+    pointer-events: none;
+}
+
+.br-inventory-skeleton__label {
+    display: inline-block;
+}
+
+.br-inventory-skeleton__control {
+    display: flex;
+    align-items: center;
+    min-block-size: var(--br-control-height);
+}
+
+.br-inventory-skeleton__line {
+    display: block;
+    inline-size: min(55%, 6rem);
+    block-size: 0.5rem;
+    border-radius: var(--br-radius-sm);
+}
 
 .br-inventory-skeleton__line,
-.br-inventory-skeleton__control {
-    display: block;
-    max-width: 100%;
-    border-radius: var(--br-radius-sm, .25rem);
-    background: color-mix(in srgb, var(--br-primary-soft) 55%, var(--br-border));
+.br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
+    background: color-mix(in srgb, var(--br-primary-soft) 65%, var(--br-border));
     animation: br-inventory-skeleton-pulse 1.7s ease-in-out infinite;
 }
 
-.br-inventory-skeleton__label { width: 6rem; height: .58rem; margin-bottom: .35rem; }
-
-.br-inventory-skeleton__control {
-    height: var(--br-control-height, 2.5rem);
-    border: 1px solid var(--br-border);
-    background: var(--br-white);
+.br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
+    border-color: transparent;
+    box-shadow: none;
 }
 
-.br-inventory-skeleton__actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: var(--br-grid-gap-2); }
-.br-inventory-skeleton__button { width: 5.2rem; height: var(--br-control-height, 2.5rem); }
-.br-inventory-skeleton__button--create { width: 9.5rem; }
-.br-inventory-skeleton__clear { width: var(--br-control-height); height: var(--br-control-height); align-self: flex-end; }
+.br-inventory-skeleton__button > * {
+    visibility: hidden;
+}
 
-@keyframes br-inventory-skeleton-pulse { 50% { opacity: .55; } }
+.br-inventory-skeleton .br-btn.br-inventory-skeleton__button--icon {
+    flex: none;
+    inline-size: var(--br-control-height);
+    block-size: var(--br-control-height);
+    min-block-size: var(--br-control-height);
+    padding: 0;
+}
 
-@media (max-width: 991.98px) {
-    .br-inventory-skeleton__actions { justify-content: flex-start; }
-    .br-inventory-skeleton .br-inventory__table:not(.br-inventory__table--single-warehouse) { min-width: 45rem; }
+@keyframes br-inventory-skeleton-pulse {
+    50% { opacity: 0.65; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .br-inventory-skeleton__line,
-    .br-inventory-skeleton__control { animation: none; }
+    .br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
+        animation: none;
+    }
 }

@@ -28,9 +28,7 @@
                     xl="6"
                     lg="5">
                     <template v-slot:input>
-                        <button type="button" class="br-btn br-btn-search waves-effect" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
-                            <span>Buscar</span>
-                        </button>
+                        <SearchButton @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
                     </template>
                 </InputSlot>
             </div>
@@ -324,6 +322,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -332,6 +331,7 @@ import * as Utils     from "@System/Helpers/Utils.js";
 import {STATUS_BADGE_CUSTOM_ASSET_MAINTENANCE_PRIMARY} from "@System/Helpers/ModuleConstants.js";
 
 export default {
+    components: {SearchButton},
     mixins: [InitialPageMixin],
     mounted: async function() {
 

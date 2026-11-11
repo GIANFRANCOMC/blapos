@@ -17,9 +17,7 @@
                         lg="8"/>
                     <div class="form-group col-xl-4 col-lg-4">
                         <div class="br-filter-bar__actions">
-                            <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listRoles({applyFilters: true})">
-                                <span>Buscar</span>
-                            </button>
+                            <SearchButton class="br-btn-sm" @click="listRoles({applyFilters: true})"/>
                             <button
                                 type="button"
                                 class="br-btn br-btn-sm br-btn-action-open-create"
@@ -280,6 +278,7 @@
 </template>
 
 <script>
+import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -292,7 +291,7 @@ import RolesSkeleton from "./RolesSkeleton.vue";
 
 
 export default {
-    components: {InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
+    components: {SearchButton, InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
     async mounted() {
         Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
         Utils.navbarItem("menu-configuration-roles", {});

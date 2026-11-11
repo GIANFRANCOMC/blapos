@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import test from "node:test";
+import {parse} from "@vue/compiler-sfc";
+import {compile, h} from "vue";
+import {renderToString} from "vue/server-renderer";
 
 const root = process.cwd();
 const read = path => readFileSync(join(root, path), "utf8");
@@ -29,21 +32,49 @@ test("las cinco secciones de inventario tienen una vista y entrada JS propias", 
     }
 });
 
-test("Control de stock usa el loader dentro del skeleton durante initParams", () => {
+test("Inventario cambia del skeleton al listado al terminar initParams", () => {
     const state = read(`${inventory}inventoryState.js`);
-    const skeleton = read(`${inventory}InventorySkeleton.vue`);
     const css = read("resources/css/System/Pages/Warehouses/inventory/skeleton.css");
 
     assert.match(state, /try \{[\s\S]*?await this\.initParams\(\);[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false;[\s\S]*?await this\.listCurrentView\(\{\}\);/);
     assert.doesNotMatch(state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts(")), /listStockAlerts/);
-    assert.match(skeleton, /br-table-state[\s\S]*?<Loader\/>/);
-    assert.match(skeleton, /class="col-12 col-md-6 col-lg-3 col-xl-3"/);
-    assert.match(skeleton, /page === 'guides' \? 'col-lg-2' : 'col-lg-3'/);
-    assert.match(skeleton, /v-if="hasStockFilters" class="col-12 col-md-6 col-lg-2 col-xl-2"/);
-    assert.match(skeleton, /<template v-if="page === 'stock'">\s*<div v-for="field in 2" :key="field" class="col-12 col-sm-6 col-lg-2"[\s\S]*?<template v-if="hasStockFilters">\s*<div v-for="field in 2" :key="field" class="col-12 col-sm-6 col-lg-3"/);
-    assert.match(skeleton, /v-if="page === 'stock'" class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">\s*<div class="br-inventory-skeleton__actions gap-2">\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__clear"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button"><\/span>\s*<\/div>\s*<div class="br-inventory-skeleton__actions gap-2 ms-auto">\s*<span class="vr align-self-center"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button br-inventory-skeleton__button--create"><\/span>\s*<span class="br-inventory-skeleton__line br-inventory-skeleton__button"/);
-    assert.doesNotMatch(skeleton, /br-inventory__alerts-action/);
-    assert.match(skeleton, /role="status" aria-live="polite"/);
-    assert.match(skeleton, /headingsByPage = \{[\s\S]*?stock:[\s\S]*?transfers:[\s\S]*?guides:[\s\S]*?kardex:[\s\S]*?valued:/);
     assert.match(css, /prefers-reduced-motion: reduce/);
+});
+
+test("cada skeleton conserva el orden de filtros, acciones y columnas de su listado", async () => {
+    const {descriptor, errors} = parse(read(`${inventory}InventorySkeleton.vue`));
+    assert.deepEqual(errors, []);
+    const script = descriptor.script.content.replace(/^import .*;\s*$/m, "").replace("export default", "return");
+    const options = new Function("Loader", script)({render: () => h("div", {class: "br-loader"})});
+    const skeleton = {...options, render: compile(descriptor.template.content)};
+    const warehouse = "Almacén de trabajo";
+    const kardexFilters = [warehouse, "Producto", "Movimiento", "Desde", "Hasta", "Realizado por", "Categoría", "Marca"];
+
+    for(const [page, filters, actions] of [
+        ["stock", [warehouse, "Producto", "Estado del stock", "Stock mínimo", "Último movimiento", "Categoría", "Marca"], ["Acciones", "Registrar operación"]],
+        ["transfers", [warehouse, "Producto"], ["Registrar traslado", "Acciones"]],
+        ["guides", [warehouse, "Tipo de guía", "Desde", "Hasta"], ["Acciones"]],
+        ["kardex", kardexFilters, ["Acciones"]],
+        ["valued", kardexFilters, ["Acciones"]]
+    ]) {
+        const html = await renderToString(h(skeleton, {page}));
+        const view = read(`${inventory}${page === "valued" ? "valued-kardex" : page}.vue`);
+        const tableClass = options.computed.tableClass.call({page}).split(" ").at(-1);
+        const table = [...view.matchAll(/<table\b[^>]*>[\s\S]*?<\/table>/g)].map(([source]) => source)
+            .find(source => source.match(/^<table class="([^"]+)"/)?.[1].split(" ").includes(tableClass));
+        assert.ok(table, page);
+
+        const headings = source => [...source.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/g)]
+            .map(([, heading]) => heading.replace(/<[^>]*>/g, "").trim());
+        const columns = source => [...source.matchAll(/<col class="([^"]+)"/g)].map(([, column]) => column);
+        assert.deepEqual(headings(html), headings(table), page);
+        assert.deepEqual(columns(html), columns(table), page);
+        assert.match(html, new RegExp(`<table class="[^"]*\\b${tableClass}\\b`), page);
+        assert.match(html, new RegExp(`<tr class="br-table-state"><td colspan="${headings(table).length}" class="py-4"><div class="br-loader">`), page);
+        assert.deepEqual([...html.matchAll(/br-inventory-skeleton__label">([^<]+)<\/span>/g)].map(([, label]) => label), filters, page);
+        assert.deepEqual([...html.matchAll(/<span>(Acciones|Registrar operación|Registrar traslado)<\/span>/g)].map(([, label]) => label), actions, page);
+        assert.equal([...html.matchAll(/br-inventory-skeleton__button--icon/g)].length, page === "stock" ? 3 : 2, page);
+        assert.match(html, /role="status" aria-live="polite"/, page);
+        assert.doesNotMatch(html, /<button|<input|<select|br-list-footer/, page);
+    }
 });
