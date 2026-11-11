@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\Inventory;
 
-use App\Helpers\System\{Numbers, Utilities};
+use App\Helpers\System\{Numbers, StockStatus, Utilities};
 use App\Mail\{InventoryStockAlertMail};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{User};
@@ -646,14 +646,14 @@ final class InventoryMovementService {
 
         $quantity = (float) $warehouseItem->quantity;
         $minimum = (float) $warehouseItem->minimum_stock;
-        $isLow = $quantity <= 0 || ($minimum > 0 && $quantity <= $minimum);
+        $requiresAttention = StockStatus::fromLevels($warehouseItem->quantity, $warehouseItem->minimum_stock) !== StockStatus::Healthy;
         $openAlert = InventoryStockAlert::query()
             ->where("warehouse_item_id", $warehouseItem->id)
             ->where("status", "open")
             ->latest("id")
             ->first();
 
-        if($isLow) {
+        if($requiresAttention) {
 
             if($openAlert) {
 

@@ -8,7 +8,7 @@
         :keyboard="false"
         close-button-text="Cerrar">
         <template #header>
-            <ProductIdentity v-if="product" class="mt-1" :product="product"/>
+            <ProductIdentity v-if="product" variant="expandable" class="mt-1" :product="product"/>
         </template>
         <template #body>
             <p class="br-operational-scope mb-3">

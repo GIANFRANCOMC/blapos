@@ -31,7 +31,6 @@
                         <col class="br-entity-table__col-identification">
                         <col class="br-entity-table__col-product">
                         <col class="br-entity-table__col-price">
-                        <col class="br-entity-table__col-inventory">
                         <col class="br-entity-table__col-status">
                         <col class="br-entity-table__col-actions">
                     </colgroup>
@@ -40,14 +39,13 @@
                             <th>Identificación</th>
                             <th class="text-center">Producto</th>
                             <th class="text-center">Precio</th>
-                            <th>Inventario</th>
                             <th class="text-center">Estado</th>
                             <th><span class="visually-hidden">Acciones</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="br-table-state">
-                            <td colspan="6" class="py-4"><Loader/></td>
+                            <td colspan="5" class="py-4"><Loader/></td>
                         </tr>
                     </tbody>
                 </table>

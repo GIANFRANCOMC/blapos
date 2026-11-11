@@ -25,7 +25,7 @@
                                 Inventario
                             </p>
                             <h1 style="margin:0;font-size:20px;line-height:1.3;color:#1a1a35;">
-                                Stock bajo o en el mínimo
+                                {{ $stockStatus }}
                             </h1>
                         </td>
                     </tr>

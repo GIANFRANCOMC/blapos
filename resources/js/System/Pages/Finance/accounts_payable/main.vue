@@ -60,10 +60,9 @@
                         <button type="button" class="br-btn br-btn-search" @click="searchAccounts" :disabled="loading.list">
                             <span>Buscar</span>
                         </button>
-                        <button type="button" class="br-btn br-btn-cancel" :disabled="!hasFilters" @click="clearFilters">
-                            <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                        <ClearFiltersButton button-class="br-btn br-btn-cancel" :disabled="!hasFilters" @clear="clearFilters">
                             <span>Limpiar</span>
-                        </button>
+                        </ClearFiltersButton>
                     </div>
                 </section>
 
@@ -153,13 +152,15 @@
 
 <script>
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
+import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchInput},
+    components: {ClearFiltersButton, SearchInput},
     name: "AccountsPayableMain",
     data() {
         return {

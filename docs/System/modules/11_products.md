@@ -40,11 +40,11 @@ El archivo incluye:
 - código interno y código de barras preservados como texto;
 - producto, marca, categorías y descripción comercial;
 - moneda, precio de venta, mínimo y máximo;
-- stock total, cantidad de almacenes y almacenes con stock bajo;
+- stock total, cantidad de almacenes y almacenes con alerta;
 - estado y detalle del inventario por sucursal/almacén;
 - visibilidad para clientes, visibilidad del precio y estado del producto.
 
-El encabezado utiliza secondary navy y un acento primary. Las filas con inventario que requiere atención resaltan las columnas de alerta con fondo rojo suave; el inventario saludable usa verde suave. La primera fila queda fija y el reporte incorpora autofiltro.
+El encabezado utiliza secondary navy y un acento primary. Las filas con inventario que requiere atención resaltan las columnas de alerta con fondo rojo suave; el stock saludable usa verde suave. La primera fila queda fija y el reporte incorpora autofiltro.
 
 La descarga frontend usa `Requests.download()`, helper genérico que solicita un `blob`, respeta el nombre enviado por `Content-Disposition`, libera el objeto temporal del navegador y normaliza respuestas de error JSON aunque lleguen como `Blob`.
 
@@ -99,7 +99,7 @@ El mínimo se guarda por almacén y no de forma general. Una sucursal puede tene
 
 Existe una restricción única para `warehouse_id + item_id`, evitando duplicar el inventario de un producto dentro del mismo almacén.
 
-En el listado, la columna Inventario muestra el total y un botón contextual junto al valor: advertencia amarilla cuando al menos un almacén está en el mínimo o por debajo; caja abierta azul cuando no hay alertas. El botón no adquiere fondo al pasar el cursor; solo destaca el icono, igual que Copiar en Identificación. Ambos estados abren la misma modal de solo lectura. La modal resume el producto y el stock total, y muestra por sucursal y almacén el stock actual, el mínimo y su estado. Incluye «Cerrar» en el pie y no permite modificar cantidades: los movimientos siguen correspondiendo al módulo Inventario. Se alimenta de `warehouseItems.warehouse.branch`, relación ya incluida en la consulta paginada; no solicita datos adicionales ni crea otra ruta. Si aún no hay registros por almacén, presenta un estado vacío.
+El botón de inventario se ubica a la izquierda del nombre del producto. Muestra una advertencia amarilla cuando al menos un almacén está en el mínimo o por debajo, y una caja abierta verde para la consulta general. Ambos estados abren la misma modal de solo lectura. La modal resume el producto y el stock total, y muestra por sucursal y almacén el stock actual, el mínimo y su estado. Usa la relación `warehouseItems.warehouse.branch` de la consulta paginada. Si aún no hay registros por almacén, presenta un estado vacío.
 
 ## Relación con recetas y platillos
 
@@ -170,10 +170,9 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 
 ## Interfaz
 
-- Tabla compacta con producto, identificación, precio, inventario, estado y acción.
+- Tabla compacta con identificación, producto, precio, estado y acciones. El icono al inicio del nombre abre la consulta de inventario por almacén.
 - Código interno y código de barras se muestran como identificadores distintos; el formato EAN-13 se explica únicamente como ayuda técnica en tooltips y documentación.
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
-- La marca aparece debajo de **Cód. barras** en la columna **Identificación**, como texto con la etiqueta **Marca** y la misma escala visual de los códigos. La fila se muestra cuando el producto tiene una marca.
 - La descripción, si existe, aparece debajo del nombre del producto.
 - El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; Producto activa la variante descriptiva de `CatalogFormTabs`, mientras Servicios y Membresías conservan por ahora la variante compacta.
 - Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
@@ -290,8 +289,8 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - La tabla de Productos se adapta al ancho disponible en escritorio; el ancho mínimo y scroll horizontal se reservan para resoluciones de hasta `991.98px`.
 - La barra de filtros no usa divisor inferior para mantener una composición minimalista.
 - Venta, Mínimo y Máximo se alinean en un bloque de tres filas; únicamente los rótulos Mínimo y Máximo usan acentos discretos danger/success.
-- La alerta de stock muestra un icono warning junto al total de unidades; su tooltip accesible indica “N almacén/almacenes con stock bajo”.
-- El inventario sin alertas muestra únicamente el total de unidades; el icono warning aparece solo cuando algún almacén tiene stock bajo.
+- El icono de inventario aparece junto al nombre. Su tooltip indica el estado del stock y, cuando hay alertas, cuántos almacenes requieren atención.
+- La caja verde indica Stock saludable. La advertencia amarilla da acceso al detalle para Agotado o Stock bajo.
 - Edición y consulta reutilizan `ProductWarehouseInventory`: mismo orden, cifras y semántica por almacén. La creación permite escribir stock inicial y mínimo; la edición solo modifica el mínimo; la consulta no ofrece controles.
 - El almacén es el dato principal de cada fila y la sucursal queda como contexto. Solo se muestra el estado cuando el stock requiere atención o falta registrarlo; los estados saludables no añaden una etiqueta repetida.
 - Las filas usan separadores neutros y una marca warning mínima en lugar de pintar los controles o toda la superficie. El encabezado deja de reutilizar la banda azul del listado para no competir con los datos.

@@ -158,7 +158,7 @@
                                                 <td>
                                                     <strong>{{ (guide.items || []).length }} producto{{ (guide.items || []).length === 1 ? "" : "s" }}</strong>
                                                     <div v-for="line in (guide.items || []).slice(0, 2)" :key="line.id" class="mt-2">
-                                                        <ProductIdentity :product="line.item"/>
+                                                        <ProductIdentity variant="expandable" :product="line.item"/>
                                                         <span class="br-inventory__meta">Cantidad: <QuantityValue :value="line.quantity" :unit="line.item?.measurement_unit || line.item"/></span>
                                                     </div>
                                                 </td>

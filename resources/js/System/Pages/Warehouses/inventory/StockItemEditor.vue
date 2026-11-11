@@ -9,7 +9,7 @@
         submit-button-text="Guardar cambios"
         @submit="save">
         <template #header>
-            <ProductIdentity v-if="record" class="mt-1" :product="record"/>
+            <ProductIdentity v-if="record" variant="expandable" class="mt-1" :product="record"/>
         </template>
         <template #body>
             <p class="br-operational-scope mb-3">

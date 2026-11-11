@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Warehouses;
 
-use App\Helpers\System\{Numbers};
+use App\Helpers\System\{Numbers, StockStatus};
 use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Support\{Collection};
@@ -167,12 +167,9 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
             $stock = $record->stock_quantity ?? 0;
             $minimum = $record->minimum_stock ?? 0;
-            $isLow = Numbers::compare($stock, $minimum) <= 0;
-            $status = Numbers::compare($stock, 0) <= 0
-                ? "Sin existencias"
-                : ($isLow ? "Stock bajo" : "Stock saludable");
+            $status = StockStatus::fromLevels($stock, $minimum);
 
-            if($isLow) {
+            if($status !== StockStatus::Healthy) {
 
                 $this->attentionRows[] = $this->currentRow;
 
@@ -187,7 +184,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 Numbers::spreadsheetNumber($minimum),
                 $this->warehouseBreakdownText($record->warehouse_breakdown ?? [], $record->measurementUnit),
                 (int) ($record->alert_warehouses_count ?? 0),
-                $status,
+                $status->label(),
             ];
 
         }

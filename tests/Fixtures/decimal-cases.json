@@ -12,10 +12,33 @@
     "arithmetic": [
         ["multiply", 2, ["1.15", "0.10"], "0.12"],
         ["multiply", 3, ["0.105", "0.1"], "0.011"],
+        ["lineTotal", 0, ["0.5", "1.5"], "2"],
+        ["lineTotal", 2, ["1.005", "2"], "2.02"],
+        ["lineTotal", 3, ["0.9995", "0.4995"], "0.500"],
+        ["taxAmount", 2, ["100", {"rate": "18.005", "calculation_type": "percentage"}], "18.01"],
+        ["taxAmount", 2, ["0", {"rate": "0.005", "calculation_type": "fixed", "operation_type": "subtraction"}, 0], "-0.01"],
         ["percentage", 2, ["1.15", "10"], "0.12"],
         ["divide", 2, ["2", "3"], "0.67"],
         ["baseFromGross", 2, ["100", "18"], "84.75"],
         ["subtract", 3, ["999999999999.999", "999999999999.998"], "0.001"],
         ["sum", 3, [["999999999999.999", "-999999999999.998", "0.001"]], "0.002"]
+    ],
+    "documentTax": [
+        [
+            2,
+            {"rate": "18.005", "calculation_type": "percentage"},
+            [
+                {"total": "118.01", "includesTax": true},
+                {"total": "100", "includesTax": false},
+                {"total": "50", "includesTax": false, "exempt": true}
+            ],
+            {"baseAmount": 200.0, "amount": 36.02, "totalImpact": 18.01}
+        ],
+        [
+            3,
+            {"rate": "0.1245", "calculation_type": "fixed", "operation_type": "subtraction"},
+            [],
+            {"baseAmount": 0.0, "amount": -0.125, "totalImpact": -0.125}
+        ]
     ]
 }

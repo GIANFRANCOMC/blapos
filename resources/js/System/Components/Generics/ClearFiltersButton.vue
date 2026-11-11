@@ -2,7 +2,8 @@
     <button
         ref="button"
         type="button"
-        class="br-filter-clear waves-effect waves-light"
+        class="waves-effect waves-light"
+        :class="buttonClass"
         :disabled="disabled"
         aria-label="Limpiar filtros"
         title="Limpiar filtros"
@@ -10,7 +11,8 @@
         data-bs-placement="top"
         data-bs-trigger="hover"
         @click="clear">
-        <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+        <i class="fa-solid fa-broom" aria-hidden="true"></i>
+        <slot></slot>
     </button>
 </template>
 
@@ -19,7 +21,13 @@ import {createTooltip} from "@System/Helpers/Alerts.js";
 
 export default {
     name: "ClearFiltersButton",
-    props: {disabled: Boolean},
+    props: {
+        disabled: Boolean,
+        buttonClass: {
+            type: String,
+            default: "br-filter-clear"
+        }
+    },
     emits: ["clear"],
     mounted() {
         createTooltip(this.$refs.button);

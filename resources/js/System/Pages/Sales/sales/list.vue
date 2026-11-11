@@ -122,10 +122,9 @@
                             <button type="button" class="br-btn br-btn-sm br-btn-search" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading">
                                 <span>Buscar</span>
                             </button>
-                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="clearFilters" :disabled="lists.entity.extras.loading">
-                                <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                            <ClearFiltersButton button-class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="lists.entity.extras.loading" @clear="clearFilters">
                                 <span>Limpiar</span>
-                            </button>
+                            </ClearFiltersButton>
                         </template>
                     </InputSlot>
                 </div>
@@ -267,6 +266,7 @@ import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
 import commercialSelection from "../commercialSelection.js";
+import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const MODULE = {
@@ -281,7 +281,7 @@ const MODULE = {
 };
 
 export default {
-    components: {SearchInput},
+    components: {ClearFiltersButton, SearchInput},
     mixins: [InitialPageMixin, commercialSelection],
     mounted: async function() {
 

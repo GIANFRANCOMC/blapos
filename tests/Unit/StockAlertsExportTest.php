@@ -75,11 +75,12 @@ final class StockAlertsExportTest extends TestCase {
             9.5,
             "UND",
             "05/11/2026 10:00",
-            "Abierta",
+            "Stock bajo",
         ], (new StockAlertsExport(1))->map($row));
 
         $row->detected_at = null;
-        $this->assertSame("—", (new StockAlertsExport(1))->map($row)[7]);
+        $row->quantity = 0;
+        $this->assertSame(["—", "Agotado"], array_slice((new StockAlertsExport(1))->map($row), 7));
 
     }
 
@@ -130,7 +131,7 @@ final class StockAlertsExportTest extends TestCase {
             file_put_contents($path, Excel::raw($export, \Maatwebsite\Excel\Excel::XLSX));
             $sheet = IOFactory::load($path)->getActiveSheet();
             $this->assertContains($sheet->getCell("D2")->getValue(), [0, 0.0]);
-            $this->assertSame("0.00", $sheet->getCell("D2")->getFormattedValue());
+            $this->assertSame(Numbers::formatDecimal(0), $sheet->getCell("D2")->getFormattedValue());
             $this->assertNull($sheet->getCell("D3")->getValue());
 
         }finally {

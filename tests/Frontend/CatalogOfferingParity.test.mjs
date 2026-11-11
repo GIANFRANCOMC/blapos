@@ -8,13 +8,13 @@ const modules = [
     {name: "membresía", path: "resources/js/System/Pages/Catalogs/subscriptions/main.vue", ownFields: ["duration_value", "attendance_limit_per_day", "benefits_text", "restrictions_text"]}
 ];
 
-test("precio principal e inventario comparten la escala tipográfica de tablas", () => {
+test("el precio principal usa la escala tipográfica compartida de tablas", () => {
 
     const tokens = readFileSync(new URL("../../resources/css/System/br-branding/00-tokens.css", import.meta.url), "utf8");
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
 
     assert.match(tokens, /--br-table-value-font-size: var\(--br-font-size-082\)/);
-    assert.match(branding, /\.br-entity-stock,\s*\.br-entity-price-row\.is-sale strong \{[^}]*font-size: var\(--br-table-value-font-size\);[^}]*font-weight: var\(--br-font-weight-value\);/);
+    assert.match(branding, /\.br-entity-price-row\.is-sale strong \{[^}]*font-size: var\(--br-table-value-font-size\);[^}]*font-weight: var\(--br-font-weight-value\);/);
 
 });
 
@@ -31,8 +31,7 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\)/);
     assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. interno/);
     assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. barras/);
-    assert.match(product, /Cód\. barras[\s\S]*?<div v-if="record\.brand\?\.name" class="br-entity-identifier">\s*<span class="br-entity-identifier__label colon-at-end">Marca<\/span>\s*<span class="br-entity-identifier__value">\s*<span class="br-entity-code" v-text="record\.brand\.name"><\/span>\s*<\/span>\s*<\/div>/);
-    assert.equal((product.match(/record\.brand\.name/g) || []).length, 1);
+    assert.doesNotMatch(product, /record\.brand\??\.name/);
     assert.match(branding, /\.br-entity-identifiers--plain \{\s*grid-template-columns: max-content minmax\(0, 1fr\)/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier \{\s*display: contents/);
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);

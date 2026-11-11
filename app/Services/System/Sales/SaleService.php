@@ -59,45 +59,13 @@ class SaleService {
      */
     private static function calculateTotal(array $details): float {
 
-        return Numbers::sum(array_map(fn(array $detail) => Numbers::multiply($detail["quantity"], $detail["price"]), $details));
+        return Numbers::sum(array_map(fn(array $detail) => Numbers::lineTotal($detail["quantity"], $detail["price"]), $details));
 
     }
 
     private static function normalizeCommissionType(?string $type): string {
 
         return in_array($type, self::COMMISSION_TYPES, true) ? $type : "none";
-
-    }
-
-    private static function normalizeCommissionValue(string $type, mixed $value): float {
-
-        $normalized = is_numeric($value) ? max(0, (float) $value) : 0.0;
-
-        if($type === "percentage") {
-
-            return min($normalized, 100);
-
-        }
-
-        return $type === "fixed" ? $normalized : 0.0;
-
-    }
-
-    private static function calculateCommissionAmount(float $quantity, float $price, string $type, float $value): float {
-
-        if($type === "percentage") {
-
-            return Numbers::percentage($quantity, $value, $price);
-
-        }
-
-        if($type === "fixed") {
-
-            return Numbers::multiply($quantity, $value);
-
-        }
-
-        return 0.0;
 
     }
 
@@ -139,19 +107,16 @@ class SaleService {
 
             }
 
-            $value = self::normalizeCommissionValue(
+            $commission = Numbers::commission(
+                $detail["quantity"] ?? 0,
+                $detail["price"] ?? 0,
                 $type,
                 $detail["commission_value"] ?? $item?->commission_value ?? $fallbackRate
             );
 
             $detail["commission_type"] = $type;
-            $detail["commission_value"] = $value;
-            $detail["commission_amount"] = self::calculateCommissionAmount(
-                (float) ($detail["quantity"] ?? 0),
-                (float) ($detail["price"] ?? 0),
-                $type,
-                $value
-            );
+            $detail["commission_value"] = $commission["value"];
+            $detail["commission_amount"] = $commission["amount"];
 
             return $detail;
 
@@ -343,7 +308,7 @@ class SaleService {
             ? false
             : filter_var($detail["price_includes_tax"] ?? true, FILTER_VALIDATE_BOOL);
 
-        $saleBody->total = Numbers::multiply($saleBody->quantity, $saleBody->price);
+        $saleBody->total = Numbers::lineTotal($saleBody->quantity, $saleBody->price);
         $saleBody->commission_type = $detail["commission_type"] ?? "none";
         $saleBody->commission_value = $detail["commission_value"] ?? 0;
         $saleBody->commission_amount = $detail["commission_amount"] ?? 0;
@@ -776,11 +741,7 @@ class SaleService {
             // Calculate totals
             $grossSubtotal = self::calculateTotal($data["details"]);
 
-            $commissionTotal = Numbers::round(array_reduce($data["details"], function($carry, $detail) {
-
-                return $carry + (float) ($detail["commission_amount"] ?? 0);
-
-            }, 0));
+            $commissionTotal = Numbers::sumText(array_column($data["details"], "commission_amount"));
 
             $selectedTaxIds = collect($data["taxes"] ?? [])
                 ->pluck("tax_id")

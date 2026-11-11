@@ -54,6 +54,8 @@ test("los límites, importes grandes y formatos regionales conservan la fracció
     assert.equal(numbers.separatorNumber(total, 3, "de-DE"), "10.999.999.999.999,989");
     assert.equal(numbers.separatorNumber("-0.123", 3, "de-DE"), "-0,123");
     assert.equal(numbers.formatCurrencyTotals([{sign: "S/", total}, {code: "USD", total: "5.012"}]), "S/ 10,999,999,999,999.989 · USD 5.012");
+    assert.equal(numbers.formatSignedCurrencyAmount("-10999999999999.989", {sign: "S/"}), "-S/ 10,999,999,999,999.989");
+    assert.equal(numbers.formatSignedCurrencyAmount("0.0004", {sign: "S/"}), "S/ 0.000");
 });
 
 test("los empates se redondean igual en inputs, cantidades y montos", () => {
@@ -74,6 +76,14 @@ test("el contrato decimal compartido coincide con los cálculos del backend", ()
         numbers.applyNumericInputConfig({round: precision});
         assert.equal(numbers.fixedNumber(numbers[operation](...args)), expected);
     }
+
+    for(const [precision, tax, lines, expected] of cases.documentTax) {
+        numbers.applyNumericInputConfig({round: precision});
+        assert.deepEqual(numbers.documentTax(tax, lines), expected);
+    }
+
+    numbers.applyNumericInputConfig({round: 2});
+    assert.equal(numbers.calculateTotal({item: {quantity: "1.005", price: "2"}}), "2.02");
 });
 
 test("el cálculo de venta aplica el impuesto por línea después de redondear su importe", () => {

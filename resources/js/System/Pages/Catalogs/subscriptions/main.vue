@@ -78,7 +78,7 @@
                             </td>
                             <td>
                                 <span v-text="record.name" class="br-entity-table__name"></span>
-                                <span v-if="record.description" v-text="record.description" class="br-entity-table__description"></span>
+                                <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
                             </td>
                             <td>
                                 <div class="br-entity-offering-details">
@@ -481,6 +481,7 @@
 </template>
 
 <script>
+import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
@@ -681,7 +682,7 @@ const MODULE = {
 export default {
     name: "SubscriptionsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton},
+    components: {ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({

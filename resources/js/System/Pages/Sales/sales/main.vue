@@ -234,52 +234,36 @@
                                                             </span>
                                                         </td>
                                                         <td class="text-center">
-                                                            <div
-                                                                class="br-sale-detail-actions-tooltip"
-                                                                data-bs-toggle="tooltip"
-                                                                data-bs-placement="left"
-                                                                title="Acciones del ítem">
-                                                                <div class="dropdown br-sale-detail-actions">
-                                                                <button
-                                                                    class="br-sale-detail-actions__trigger waves-effect"
-                                                                    type="button"
-                                                                    data-bs-toggle="dropdown"
-                                                                    data-bs-boundary="viewport"
-                                                                    data-bs-config='{"popperConfig":{"strategy":"fixed"}}'
-                                                                    aria-expanded="false"
-                                                                    aria-label="Acciones del ítem"
-                                                                    @click="hideDetailActionsTooltip">
-                                                                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-                                                                </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end br-sale-detail-actions__menu">
-                                                                    <li>
-                                                                        <button type="button" class="dropdown-item" @click="modalEditDetail({record, keyRecord})">
-                                                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                                            <span>Editar</span>
-                                                                        </button>
-                                                                    </li>
-                                                                    <li v-if="!isSubscription(record?.type)">
-                                                                        <button type="button" class="dropdown-item" @click="duplicateDetail({record, keyRecord})">
-                                                                            <i class="fa-solid fa-copy" aria-hidden="true"></i>
-                                                                            <span>Duplicar</span>
-                                                                        </button>
-                                                                    </li>
-                                                                    <li v-else>
-                                                                        <button type="button" class="dropdown-item" @click="viewDetail({record, keyRecord})">
-                                                                            <i :class="record?.extras?.showDetail ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" aria-hidden="true"></i>
-                                                                            <span v-text="record?.extras?.showDetail ? 'Ocultar detalle' : 'Ver detalle'"></span>
-                                                                        </button>
-                                                                    </li>
-                                                                    <li><hr class="dropdown-divider"></li>
-                                                                    <li>
-                                                                        <button type="button" class="dropdown-item br-sale-detail-actions__delete" @click="deleteDetail({record, keyRecord})">
-                                                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                                                                            <span>Eliminar</span>
-                                                                        </button>
-                                                                    </li>
-                                                                </ul>
-                                                                </div>
-                                                            </div>
+                                                            <TableActionsDropdown
+                                                                class="br-sale-detail-actions"
+                                                                label="Acciones del ítem"
+                                                                menu-class="br-sale-detail-actions__menu">
+                                                                <li>
+                                                                    <button type="button" class="dropdown-item" @click="modalEditDetail({record, keyRecord})">
+                                                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                                        <span>Editar</span>
+                                                                    </button>
+                                                                </li>
+                                                                <li v-if="!isSubscription(record?.type)">
+                                                                    <button type="button" class="dropdown-item" @click="duplicateDetail({record, keyRecord})">
+                                                                        <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                                                                        <span>Duplicar</span>
+                                                                    </button>
+                                                                </li>
+                                                                <li v-else>
+                                                                    <button type="button" class="dropdown-item" @click="viewDetail({record, keyRecord})">
+                                                                        <i :class="record?.extras?.showDetail ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" aria-hidden="true"></i>
+                                                                        <span v-text="record?.extras?.showDetail ? 'Ocultar detalle' : 'Ver detalle'"></span>
+                                                                    </button>
+                                                                </li>
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                <li>
+                                                                    <button type="button" class="dropdown-item br-sale-detail-actions__delete" @click="deleteDetail({record, keyRecord})">
+                                                                        <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                                                        <span>Eliminar</span>
+                                                                    </button>
+                                                                </li>
+                                                            </TableActionsDropdown>
                                                         </td>
                                                     </tr>
                                                     <template v-if="record?.extras?.showDetail">
@@ -1673,6 +1657,7 @@ import * as Constants      from "@System/Helpers/Constants.js";
 import { initCrudModule }  from "@System/Helpers/ModuleFactory.js";
 import * as Requests       from "@System/Helpers/Requests.js";
 import * as Utils          from "@System/Helpers/Utils.js";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import commercialSelection from "../commercialSelection.js";
 
 const IS_POS_MODE = window.location.pathname.split("?")[0].endsWith("/sales/pos");
@@ -1754,6 +1739,7 @@ const MODULE = {
 
 export default {
     mixins: [InitialPageMixin, commercialSelection],
+    components: {TableActionsDropdown},
     name: "SalesMain",
     data() {
 
@@ -2892,20 +2878,6 @@ export default {
 
             Alerts.tooltips({show: false, time: 0});
             setTimeout(() => Alerts.tooltips({show: true}), 140);
-
-        },
-        hideDetailActionsTooltip(event) {
-
-            const button = event?.currentTarget;
-            const trigger = button?.closest(".br-sale-detail-actions-tooltip");
-            const tooltip = trigger ? window.bootstrap?.Tooltip?.getInstance(trigger) : null;
-
-            if(!tooltip) return;
-
-            tooltip.disable();
-            tooltip.hide();
-
-            button?.closest(".dropdown")?.addEventListener("hidden.bs.dropdown", () => tooltip.enable(), {once: true});
 
         },
         normalizeSubscriptionsResponse(response) {

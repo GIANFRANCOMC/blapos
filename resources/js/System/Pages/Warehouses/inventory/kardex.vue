@@ -122,7 +122,7 @@
                                         <template v-else-if="kardexRecords.total > 0">
                                             <tr v-for="movement in kardexRecords.data" :key="movement.id">
                                                 <td>
-                                                    <ProductIdentity :product="movement.item"/>
+                                                    <ProductIdentity variant="expandable" :product="movement.item"/>
                                                 </td>
                                                 <td>
                                                     <KardexMovementDetails

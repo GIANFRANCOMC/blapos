@@ -7,7 +7,7 @@ import {renderToString} from "vue/server-renderer";
 
 globalThis.window ??= {location: {protocol: "http:", hostname: "localhost"}};
 
-const {normalizeNumber, quantityParts, quantityWithUnit} = await import("../../resources/js/Shared/Numbers.js");
+const {compareNumbers, quantityParts, quantityWithUnit} = await import("../../resources/js/Shared/Numbers.js");
 
 test("las cantidades muestran la abreviatura registrada sin inventar unidades", () => {
     assert.equal(quantityWithUnit(19, {abbreviation: "UND"}, 0), "19 UND");
@@ -22,12 +22,13 @@ test("QuantityValue conserva la cantidad y separa la abreviatura para su estilo"
     assert.deepEqual(errors, []);
     const script = descriptor.script.content.replace(/^import .*;\s*$/m, "").replace("export default", "return");
     const component = {
-        ...new Function("normalizeNumber", "quantityParts", script)(normalizeNumber, quantityParts),
+        ...new Function("compareNumbers", "quantityParts", script)(compareNumbers, quantityParts),
         render: compile(descriptor.template.content)
     };
     const render = props => renderToString(createSSRApp({render: () => h(component, props)}));
     const withUnit = await render({value: 201654, unit: {abbreviation: "UND"}, signed: true});
     assert.match(withUnit, /\+201,654\.00<small class="br-quantity-value__unit"> UND<\/small>/);
+    assert.doesNotMatch(await render({value: "0.004", signed: true}), /\+0\.00/);
     assert.doesNotMatch(await render({value: -1, unit: null}), /<small/);
 });
 

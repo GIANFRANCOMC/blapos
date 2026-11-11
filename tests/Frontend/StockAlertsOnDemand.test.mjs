@@ -200,13 +200,14 @@ test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas
     const listStock = state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts("));
 
     assert.doesNotMatch(listStock, /listStockAlerts|type: "alerts"/);
-    assert.doesNotMatch(page, /openStockAlerts|br-inventory-alerts__list|Productos en mínimo o sin existencias/);
-    assert.match(page, /<span>Ver alertas<\/span>[\s\S]*?<StockAlertsModal/);
-    assert.match(page, /<button[\s\S]*?class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"[\s\S]*?fa-bell fa-shake[\s\S]*?<span>Ver alertas<\/span>[\s\S]*?<\/button>/);
-    const alertsButton = page.slice(page.indexOf('class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"'), page.indexOf("</button>", page.indexOf('class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"')));
+    assert.doesNotMatch(page, /openStockAlerts|br-inventory-alerts__list|Productos agotados o con stock bajo/);
+    assert.match(page, /aria-label="Ver alertas"[\s\S]*?<StockAlertsModal/);
+    const alertsButton = page.match(/<button\b[^>]*class="[^"]*\bbr-inventory__alerts-button\b[^"]*"[^>]*>[\s\S]*?<\/button>/)?.[0] ?? "";
+    assert.match(alertsButton, /\bv-tooltip\b[^>]*aria-label="Ver alertas"[^>]*title="Ver alertas"[^>]*data-bs-toggle="tooltip"/);
     assert.match(alertsButton, /:disabled="!canViewStockAlerts"/);
-    assert.doesNotMatch(alertsButton, /data-bs-toggle|data-bs-target/);
-    assert.match(alertsButton, /@click="listStockAlerts\(\{showModal: true\}\)"/);
+    assert.doesNotMatch(alertsButton, /data-bs-target/);
+    assert.match(alertsButton, /@click="viewStockAlerts">\s*<i class="fa-solid fa-bell fa-shake" aria-hidden="true"><\/i>\s*<\/button>/);
+    assert.match(page, /viewStockAlerts\(event\) \{\s*dismissTooltip\(event\.currentTarget\);\s*return this\.listStockAlerts\(\{showModal: true\}\);/);
     assert.match(state, /async listStockAlerts\(\{url = null, showModal = false\} = \{\}\)[\s\S]*?type: "alerts"[\s\S]*?status: "open"/);
     assert.match(modal, /v-for="alert in alerts\.data"[\s\S]*?alert\.warehouse_item\?\.item\?\.name/);
     assert.match(modal, /<Paginator[\s\S]*?:links="alerts\.links"[\s\S]*?@clickPage=/);

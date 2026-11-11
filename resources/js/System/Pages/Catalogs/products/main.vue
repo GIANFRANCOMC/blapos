@@ -50,7 +50,6 @@
                             <col class="br-entity-table__col-identification">
                             <col class="br-entity-table__col-product">
                             <col class="br-entity-table__col-price">
-                            <col class="br-entity-table__col-inventory">
                             <col class="br-entity-table__col-status">
                             <col class="br-entity-table__col-actions">
                         </colgroup>
@@ -59,7 +58,6 @@
                                 <th>Identificación</th>
                                 <th class="text-center">Producto</th>
                                 <th class="text-center">Precio</th>
-                                <th>Inventario</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">
                                     <span class="visually-hidden">Acciones</span>
@@ -68,7 +66,7 @@
                         </thead>
                         <tbody>
                             <tr class="br-table-state" v-if="entityList.extras.loading">
-                                <td colspan="6" class="py-4">
+                                <td colspan="5" class="py-4">
                                     <Loader/>
                                 </td>
                             </tr>
@@ -102,17 +100,25 @@
                                                     </span>
                                                 </span>
                                             </div>
-                                            <div v-if="record.brand?.name" class="br-entity-identifier">
-                                                <span class="br-entity-identifier__label colon-at-end">Marca</span>
-                                                <span class="br-entity-identifier__value">
-                                                    <span class="br-entity-code" v-text="record.brand.name"></span>
-                                                </span>
-                                            </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="br-entity-table__name" v-text="record.name"></span>
-                                        <span v-if="record.description" class="br-entity-table__description" v-text="record.description"></span>
+                                        <div class="br-entity-product-cell">
+                                            <button
+                                                type="button"
+                                                :class="['br-entity-stock-trigger', {'is-alert': stockByProduct[record.id].code !== 'healthy'}]"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                :title="stockInventoryActionText(record)"
+                                                :aria-label="stockInventoryActionText(record)"
+                                                @click="openInventoryModal(record)">
+                                                <i :class="stockByProduct[record.id].code !== 'healthy' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'" aria-hidden="true"></i>
+                                            </button>
+                                            <div>
+                                                <span class="br-entity-table__name" v-text="record.name"></span>
+                                                <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="text-end">
                                         <div class="br-entity-prices">
@@ -133,21 +139,6 @@
                                                 <strong>{{ record.currency?.sign }} {{ separatorNumber(record.max_price) }}</strong>
                                             </span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span class="br-entity-stock-row">
-                                            <QuantityValue class="br-entity-stock" :value="stockSummary(record).total" :unit="record.measurement_unit"/>
-                                            <button
-                                                type="button"
-                                                :class="['br-entity-stock-trigger', {'is-alert': stockSummary(record).alerts > 0}]"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                :title="stockInventoryActionText(record)"
-                                                :aria-label="stockInventoryActionText(record)"
-                                                @click="openInventoryModal(record)">
-                                                <i :class="stockSummary(record).alerts > 0 ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'" aria-hidden="true"></i>
-                                            </button>
-                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <StatusBadge
@@ -175,7 +166,7 @@
                                 </tr>
                             </template>
                             <tr class="br-table-state" v-else>
-                                <td colspan="6" class="py-4">
+                                <td colspan="5" class="py-4">
                                     <WithoutData
                                         class="br-entity-empty-state"
                                         type="image"/>
@@ -194,6 +185,7 @@
 </template>
 
 <script>
+import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
@@ -202,11 +194,11 @@ import * as Utils from "@System/Helpers/Utils.js";
 import BarcodeDownloadButton from "@System/Components/BarcodeDownloadButton.vue";
 import ProductImportModal from "@System/Components/Catalogs/Products/ProductImportModal.vue";
 import ProductInventoryModal from "@System/Components/Catalogs/Products/ProductInventoryModal.vue";
-import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import AddProduct from "@System/Components/Catalogs/Products/AddProduct.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
 import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
+import * as StockStatus from "../../../../Shared/StockStatus.js";
 import ProductsSkeleton from "./ProductsSkeleton.vue";
 
 
@@ -240,11 +232,11 @@ const MODULE = {
 export default {
     name: "ProductsMain",
     components: {
+        ExpandableText,
         InitialLoadTransition,
         BarcodeDownloadButton,
         ProductImportModal,
         ProductInventoryModal,
-        QuantityValue,
         AddProduct,
         TableActionsDropdown,
         ProductsSkeleton
@@ -437,18 +429,14 @@ export default {
             this.$refs.productInventoryModal?.open(record);
 
         },
-        stockSummary(record) {
-
-            return summarizeProductStock(record);
-
-        },
         stockInventoryActionText(record) {
 
-            const count = this.stockSummary(record).alerts;
+            const {code, alerts} = this.stockByProduct[record.id];
+            const status = StockStatus.labels[code];
 
-            return count > 0
-                ? `Ver inventario · ${count} ${count === 1 ? "almacén con stock bajo" : "almacenes con stock bajo"}`
-                : "Ver inventario por almacén";
+            return alerts > 0
+                ? `Ver inventario · ${status} · ${alerts} ${alerts === 1 ? "almacén con alerta" : "almacenes con alerta"}`
+                : `Ver inventario · ${status}`;
 
         },
         isDefined(value) {
@@ -476,6 +464,14 @@ export default {
         entityList() {
 
             return this.lists[this.entity];
+
+        },
+        stockByProduct() {
+
+            return Object.fromEntries((this.entityList.records.data ?? []).map(record => {
+                const {total, alerts} = summarizeProductStock(record);
+                return [record.id, {code: StockStatus.forProduct(total, alerts > 0), alerts}];
+            }));
 
         },
         breadcrumbTitles() {

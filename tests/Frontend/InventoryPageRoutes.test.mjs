@@ -33,7 +33,7 @@ test("stock paints the full situation cell without an icon while entities keep t
 
     assert.match(stock, /<td :class="\['br-inventory__situation', stockStatus\(record\)\.cellClass\]">\{\{ stockStatus\(record\)\.label \}\}<\/td>/);
     assert.doesNotMatch(stock, /stockStatus\(record\)\.icon|stockStatus\(record\)\.badgeClass/);
-    assert.match(component, /br-inventory__situation--empty[\s\S]*?br-inventory__situation--low[\s\S]*?br-inventory__situation--healthy/);
+    assert.match(component, /StockStatus\.fromLevels\(stock, minimum\)[\s\S]*?cellClass: `br-inventory__situation--\$\{code\}`/);
     assert.match(inventoryCss, /td\.br-inventory__situation \{[\s\S]*?background-color: var\(--br-situation-bg\) !important;[\s\S]*?box-shadow: none !important;/);
     assert.match(inventoryCss, /br-inventory__situation--empty \{[\s\S]*?var\(--br-danger-soft\)[\s\S]*?br-inventory__situation--low \{[\s\S]*?var\(--br-warning-soft\)[\s\S]*?br-inventory__situation--healthy \{[\s\S]*?var\(--br-success-soft\)/);
     assert.match(badge, /<span :class="badgeClasses" v-text="displayStatus"><\/span>/);
@@ -342,9 +342,9 @@ test("stock matches the Kardex filter widths and groups all toolbar actions", ()
     assert.match(stockFilters, /col-lg-3 col-xl-3 br-inventory__warehouse/);
     assert.match(stockFilters, /xl="3"\s+lg="3"\s+md="6"/);
     assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-2 col-xl-2"\s*>\s*<label for="stockSituation"/);
-    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>[\s\S]*?class="vr align-self-center"[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?<span>Ver alertas<\/span>/);
+    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?<span>Buscar<\/span>[\s\S]*?<span>Acciones<\/span>[\s\S]*?class="vr align-self-center"[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?aria-label="Ver alertas"/);
     assert.doesNotMatch(component, /br-inventory__alerts-action/);
-    assert.match(component, /<ProductIdentity :product="record"\/>/);
+    assert.match(component, /<ProductIdentity variant="expandable" :product="record"\/>/);
     assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
     assert.match(component, /isReportView\(\) \{[\s\S]*?"kardex", "valued", "guides"/);
     assert.match(component, /if\(this\.isReportView\) return "col-12 col-md-6 col-lg-3 col-xl-3";/);

@@ -90,10 +90,9 @@
                             <button type="button" class="br-btn br-btn-sm br-btn-search" :disabled="loading" @click="listDeliveries({applyFilters: true})">
                                 <span>Buscar</span>
                             </button>
-                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @click="clearFilters">
-                                <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                            <ClearFiltersButton button-class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="loading" @clear="clearFilters">
                                 <span>Limpiar</span>
-                            </button>
+                            </ClearFiltersButton>
                         </template>
                     </InputSlot>
                 </div>
@@ -300,10 +299,11 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import commercialSelection from "../commercialSelection.js";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
+import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
-    components: {ProductIdentity, SearchInput},
+    components: {ClearFiltersButton, ProductIdentity, SearchInput},
     mixins: [InitialPageMixin, commercialSelection],
     mounted: async function() {
 

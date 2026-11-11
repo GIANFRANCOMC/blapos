@@ -25,9 +25,9 @@
                                 <td v-text="indexRecord + 1"></td>
                                 <td class="text-start">
                                     <div class="d-flex justify-content-start mb-1">
-                                        <span class="badge bg-danger" v-if="record.branch_asset_quantity <= 0">Sin existencias</span>
-                                        <span class="badge bg-warning" v-else-if="record.branch_asset_quantity < 5">Hay pocas existencias</span>
-                                        <span class="badge bg-success" v-else-if="record.branch_asset_quantity >= 5">Con existencias disponibles</span>
+                                        <span class="badge bg-danger" v-if="record.branch_asset_quantity <= 0">Agotado</span>
+                                        <span class="badge bg-warning" v-else-if="record.branch_asset_quantity < 5">Stock bajo</span>
+                                        <span class="badge bg-success" v-else-if="record.branch_asset_quantity >= 5">Stock saludable</span>
                                     </div>
                                     <span v-text="record.asset_name" class="text-dark fw-bold d-block"></span>
                                     <span v-text="record.asset_internal_code" class="fst-italic d-block small"></span>

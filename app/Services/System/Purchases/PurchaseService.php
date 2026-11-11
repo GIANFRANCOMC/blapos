@@ -41,7 +41,7 @@ final class PurchaseService {
                 $weight = match ($method) {
                     "quantity" => (float) $detail["quantity"],
                     "equal" => 1.0,
-                    default => Numbers::multiply($detail["quantity"], $detail["unit_cost"])
+                    default => Numbers::lineTotal($detail["quantity"], $detail["unit_cost"])
                 };
 
                 return [(int) $detail["item_id"] => max(0, $weight)];
@@ -225,7 +225,7 @@ final class PurchaseService {
                 "quantity" => Numbers::round($detail["quantity"]),
                 "unit_cost" => Numbers::round($detail["unit_cost"]),
             ] + $detail, $data["items"]);
-            $subtotal = Numbers::sum(array_map(fn($item) => Numbers::multiply($item["quantity"], $item["unit_cost"]), $details));
+            $subtotal = Numbers::sum(array_map(fn($item) => Numbers::lineTotal($item["quantity"], $item["unit_cost"]), $details));
 
             $selectedTaxIds = collect($data["taxes"] ?? [])
                 ->pluck("tax_id")
@@ -385,7 +385,7 @@ final class PurchaseService {
                     "unit_cost" => $unitCost,
                     "allocated_expense_total" => $allocatedExpense,
                     "inventory_unit_cost" => $inventoryUnitCost,
-                    "subtotal" => Numbers::multiply($quantity, $unitCost),
+                    "subtotal" => Numbers::lineTotal($quantity, $unitCost),
                     "status" => "pending",
                     "created_at" => now(),
                     "created_by" => $userId,

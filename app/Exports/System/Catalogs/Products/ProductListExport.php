@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Catalogs\Products;
 
-use App\Helpers\System\{Numbers};
+use App\Helpers\System\{Numbers, StockStatus};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Products\{ProductService};
 use Illuminate\Database\Eloquent\{Builder};
@@ -50,8 +50,8 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
             "Precio máximo",
             "Stock total",
             "Almacenes",
-            "Almacenes con stock bajo",
-            "Estado de inventario",
+            "Almacenes con alerta",
+            "Estado del stock",
             "Detalle por almacén",
             "Visible para clientes",
             "Precio visible",
@@ -67,12 +67,12 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
 
         $warehouseItems = $item->warehouseItems;
         $alertCount = $warehouseItems
-            ->filter(fn($warehouseItem) => Numbers::compare($warehouseItem->quantity, $warehouseItem->minimum_stock) <= 0)
+            ->filter(fn($warehouseItem) => StockStatus::fromLevels($warehouseItem->quantity, $warehouseItem->minimum_stock) !== StockStatus::Healthy)
             ->count();
 
-        $requiresAttention = $warehouseItems->isEmpty() || $alertCount > 0;
+        $status = StockStatus::forProduct($item->total_stock_quantity, $alertCount > 0);
 
-        if($requiresAttention) {
+        if($status !== StockStatus::Healthy) {
 
             $this->alertRows[] = $this->currentRow;
 
@@ -97,8 +97,9 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
                 $location = $branchName ? "{$branchName} / {$warehouseName}" : $warehouseName;
                 $quantity = Numbers::formatDecimal($warehouseItem->quantity);
                 $minimum = Numbers::formatDecimal($warehouseItem->minimum_stock);
+                $status = StockStatus::fromLevels($warehouseItem->quantity, $warehouseItem->minimum_stock)->label();
 
-                return "{$location}: {$quantity} (mín. {$minimum})";
+                return "{$location}: {$quantity} (mín. {$minimum}) · {$status}";
 
             })
             ->implode(" | ");
@@ -117,9 +118,7 @@ final class ProductListExport extends DefaultValueBinder implements FromQuery, W
             Numbers::spreadsheetNumber($item->total_stock_quantity),
             $warehouseItems->count(),
             $alertCount,
-            $warehouseItems->isEmpty()
-                ? "Sin almacenes configurados"
-                : ($alertCount > 0 ? "Requiere atención" : "Inventario saludable"),
+            $status->label(),
             $inventoryDetail,
             $item->see_my_web ? "Sí" : "No",
             $item->see_my_web && $item->see_my_web_price ? "Sí" : "No",

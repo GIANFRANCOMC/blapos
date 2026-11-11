@@ -986,9 +986,9 @@ export default {
             return new Date(value).toLocaleString("es-PE");
         },
         differenceClass(value) {
-            const amount = Number(value || 0);
-            if(amount > 0) return "text-success";
-            if(amount < 0) return "text-danger";
+            const sign = Utils.compareNumbers(value, 0);
+            if(sign > 0) return "text-success";
+            if(sign < 0) return "text-danger";
             return "text-muted";
         },
         movementTypeLabel(type) {

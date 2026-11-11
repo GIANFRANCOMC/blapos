@@ -119,9 +119,12 @@
                                     <template v-else-if="alerts.data?.length">
                                         <tr v-for="alert in alerts.data" :key="alert.id">
                                             <td>
-                                                <ProductIdentity :product="alert.warehouse_item?.item"/>
+                                                <ProductIdentity variant="expandable" :product="alert.warehouse_item?.item"/>
                                             </td>
-                                            <td class="text-end"><QuantityValue class="br-inventory__stock-current" :value="alert.quantity" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
+                                            <td class="text-end">
+                                                <QuantityValue class="br-inventory__stock-current" :value="alert.quantity" :unit="alert.warehouse_item?.item?.measurement_unit"/>
+                                                <small class="br-entity-table__meta">{{ stockStatusLabel(alert) }}</small>
+                                            </td>
                                             <td class="text-end"><QuantityValue :value="alert.minimum_stock" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
                                             <td class="text-end"><StockDifference :current="alert.quantity" :minimum="alert.minimum_stock" :unit="alert.warehouse_item?.item?.measurement_unit"/></td>
                                             <td class="text-center">{{ formatDate(alert.detected_at) }}</td>
@@ -166,6 +169,7 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StockDifference from "./StockDifference.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import {fromLevels, labels} from "../../../../Shared/StockStatus.js";
 
 export default {
     name: "StockAlertsModal",
@@ -185,6 +189,9 @@ export default {
         error: {type: String, default: ""}
     },
     methods: {
+        stockStatusLabel(alert) {
+            return labels[fromLevels(alert.quantity, alert.minimum_stock)];
+        },
         formatDate(value) {
             if(!value) return "—";
             return new Intl.DateTimeFormat("es-PE", {dateStyle: "short", timeStyle: "short"}).format(new Date(value));

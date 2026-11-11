@@ -123,7 +123,6 @@ test("todos los mensajes de estado usan iconos completos y ancho ampliable sin a
     }
     assert.match(alerts, /function setMessageWidth\(popup, width\)[\s\S]*?Number\.isFinite\(width\)[\s\S]*?--br-swal-alert-width/);
     assert.match(alerts, /export function showMessage\(\{[^}]*width = null\} = \{\}\)[\s\S]*?willOpen: popup => setMessageWidth\(popup, width\)/);
-    assert.match(alerts, /export function showFiltersCleared\(\) \{\s*return showMessage\(\{type: "success", title: "Se limpiaron los filtros correctamente\."\}\);\s*\}/);
     assert.match(alerts, /export function generateAlert\(\{[^}]*width = null\} = \{\}\)[\s\S]*?willOpen\s*: popup => setMessageWidth\(popup, width\)/);
     assert.match(alerts, /popup: `br-swal-alert br-swal-alert--message br-swal-alert--\$\{type\}`/);
     assert.match(alerts, /const SUCCESS_MESSAGE_ICON = '<svg[^']*viewBox="2 5 20 16"[^']*pathLength="1"[^']*<\/svg>'/);
@@ -131,4 +130,17 @@ test("todos los mensajes de estado usan iconos completos y ancho ampliable sin a
     assert.match(alerts, /iconHtml\s*: type === "success" \? SUCCESS_MESSAGE_ICON : undefined/);
     assert.match(docs, /### Mensajes de estado SweetAlert[\s\S]*?éxito, advertencia, información, error y pregunta[\s\S]*?width: 520/);
     assert.match(docs, /misma escala tipográfica que el cuerpo de una confirmación/);
+});
+
+test("limpiar filtros muestra el aviso informativo de Toastr y usa el botón compartido", () => {
+    const alerts = read("resources/js/System/Helpers/Alerts.js");
+    const button = read("resources/js/System/Components/Generics/ClearFiltersButton.vue");
+
+    assert.match(alerts, /export function showFiltersCleared\(\) \{\s*toastrs\(\{type: "info", title: "Se limpiaron los filtros correctamente\."\}\);\s*\}/);
+    assert.match(button, /class="fa-solid fa-broom"/);
+    for(const page of ["Sales/sales/list.vue", "Sales/sales/deliveries.vue", "Finance/accounts_receivable/main.vue", "Finance/accounts_payable/main.vue"]) {
+        const source = read(`resources/js/System/Pages/${page}`);
+        assert.match(source, /<ClearFiltersButton[^>]*@clear="clearFilters"/);
+        assert.match(source, /Alerts\.showFiltersCleared\(\)/);
+    }
 });

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\System\Warehouses\StockManagement;
 
 use App\Casts\System\{ConfigurableDecimal};
-use App\Helpers\System\{Numbers};
+use App\Helpers\System\{Numbers, StockStatus};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{InventoryStockAlert, Warehouse, WarehouseItem};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
@@ -158,7 +158,7 @@ class StockManagementService {
                 "branch_name" => $warehouseItem->warehouse?->branch?->name,
                 "quantity" => $quantity,
                 "minimum_stock" => $minimum,
-                "requires_attention" => $quantity <= 0 || ($minimum > 0 && $quantity <= $minimum),
+                "requires_attention" => StockStatus::fromLevels($warehouseItem->quantity, $warehouseItem->minimum_stock) !== StockStatus::Healthy,
             ];
 
         })->values();

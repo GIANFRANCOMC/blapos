@@ -78,7 +78,7 @@ Orden de carga recomendado:
 
 - Crear o agregar usa `br-btn-action-create` en azul primario. Editar usa `br-btn-action-update` o `br-btn-action-edit` en amarillo de advertencia con texto blanco. La distinción debe mantenerse también en hover, foco y estado activo; no resolverla con colores locales del módulo.
 - El botón principal de una modal debe nombrar el objeto que se guarda: «Guardar producto», «Guardar colaborador», «Guardar sucursal», etc. `FormModal` deriva el nombre de los títulos «AGREGAR…» y «EDITAR…» cuando no recibe `submitButtonText`; las acciones especiales pueden indicar el texto explícitamente.
-- Los listados usan acciones secundarias en el menú compartido y el botón de copiar se muestra como icono primario sin recuadro mediante el componente `CopyButton`.
+- Las acciones de fila usan `TableActionsDropdown` con tres puntos verticales del color de Acciones y el tooltip «Acciones», visible con el cursor o el foco del teclado. El área del botón es transparente y sin borde en reposo. Un fondo suave indica cuando el cursor pasa por encima, se presiona el botón o se abre el menú. El botón de copiar se muestra como icono primario sin recuadro mediante `CopyButton`.
 - Mantener la lectura de permisos como información tabular: nombre y contexto en una sola celda; módulos, colaboradores y estado en columnas separadas. En la edición, agrupar permisos por sección con divisores discretos y mostrar las acciones sin tarjetas anidadas.
 
 Los layouts deben declarar `data-assets-path` con una URL absoluta generada por Laravel, por ejemplo `{{ asset('System/assets') }}/`. Los scripts heredados de la plantilla (`helpers.js`, `template-customizer.js`, `config.js`, `main.js` y vistas demo que usen `assetsPath`) dependen de ese atributo para cargar CSS dinámico, imágenes y JSON. `config.js` normaliza cualquier valor relativo antiguo, pero no se deben volver a introducir rutas como `../System/assets/` porque fallan en páginas profundas.
@@ -126,7 +126,7 @@ Stock actual y Diferencia comparten `--br-stock-quantity-font-size` (`0.8rem` de
 
 Para mostrar una cantidad con unidad en System, reutilizar `QuantityValue`. El número hereda el tamaño de su contexto y la abreviatura registrada usa el paso compartido `--br-font-size-066`. **Saldo** y **Variación** comparten el rol de cantidad de stock. **Variación** mantiene el signo, el número y la unidad en una línea.
 
-Reutilizar `ProductIdentity` al presentar un producto con su nombre e identificadores en el mismo bloque. Pasar el objeto con `name`, `internal_code` y `barcode`. El componente conserva la presentación de Control de stock y muestra el código de barras cuando está disponible.
+Reutilizar `ProductIdentity` al presentar un producto con su nombre e identificadores en el mismo bloque. Pasar el objeto con `name`, `internal_code` y `barcode`. La variante predeterminada `full` muestra los códigos desde el inicio. Control de stock y las demás vistas de Inventario usan `expandable`, que muestra el nombre con un botón «+» para abrir los códigos disponibles. El botón cambia a «−» para cerrarlos y admite foco y activación por teclado. Agregar futuras variantes en el mismo componente.
 
 Modificar la regla fuente del componente y eliminar declaraciones redundantes antes de aumentar la especificidad. No resolver conflictos entre estilos propios añadiendo clases o `!important`. Las excepciones de librerías y los ajustes responsive deben consumir los mismos tokens. Los tamaños de documentos exportados, correos y dibujos de canvas se definen según su formato de salida, fuera de la escala de interfaz.
 
@@ -149,6 +149,18 @@ Modificar el alias global para ajustar un rol; no redefinirlo en módulos ni cap
 ### Convención tipográfica de tablas
 
 Todas las celdas de cabecera, cuerpo y pie se centran verticalmente mediante la regla compartida de `01-typography.css`. Los módulos definen la alineación horizontal según el contenido de cada columna.
+
+Usar `ExpandableText` para descripciones que deben ocupar una línea en tablas. El componente mide el espacio disponible y ofrece «Ver más» cuando el texto se recorta. «Ver menos» vuelve a compactar la descripción.
+
+### Estado del stock
+
+Usar los mismos tres estados en tablas, filtros, consultas por almacén, reportes Excel y PDF y correos de alerta. Las etiquetas se definen en `resources/stock-statuses.json` y se consumen desde `StockStatus.php` y `StockStatus.js`.
+
+- **Agotado** cuando el stock actual es cero o negativo.
+- **Stock bajo** cuando el stock actual es positivo y está en el mínimo o por debajo.
+- **Stock saludable** cuando el stock actual es positivo y supera el mínimo.
+
+En el resumen del catálogo, clasificar como **Agotado** si el total del producto es cero o negativo. Si el total es positivo y algún almacén tiene una alerta, mostrar **Stock bajo**. La etiqueta **Stock saludable** corresponde al total positivo con todos sus almacenes sin alertas.
 
 Los aliases compartidos se declaran en `resources/css/System/br-branding/00-tokens.css`, referencian la escala de `Shared/typography-tokens.css` y se aplican desde los parciales de `br-branding`; no repetir tamaños literales por pantalla. Se usan `rem` para respetar el tamaño base del navegador:
 
@@ -179,8 +191,8 @@ Criterios prácticos:
 - Usar labels sutiles, no grandes ni demasiado oscuros.
 - Los botones deben diferenciar intención: buscar, crear, editar, importar, descargar, cancelar, confirmar y peligro.
 - Los botones de los layouts compartidos usan el efecto Waves al presionarse. La inicialización de `main.js` también registra los botones incorporados después de cargar la página, como los de Vue y SweetAlert.
-- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa el icono de borrador `fa-eraser` y comparte los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
-- Para confirmar el restablecimiento de los filtros, llamar a `Alerts.showFiltersCleared()` al terminar. El aviso de éxito muestra únicamente el título «Se limpiaron los filtros correctamente.». El botón oculta su tooltip al pulsarlo y lo vuelve a mostrar al pasar el cursor por encima.
+- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa la escoba `fa-broom` de Font Awesome y comparte por defecto los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
+- Al terminar el restablecimiento, `Alerts.showFiltersCleared()` muestra el aviso informativo «Se limpiaron los filtros correctamente.» mediante Toastr. El botón oculta su tooltip al pulsarlo y lo vuelve a mostrar al pasar el cursor por encima.
 - Los icon buttons requieren `aria-label` y tooltip.
 - La integración compartida de SweetAlert oculta los tooltips de la página al abrir una alerta y durante el retorno de foco. Una vez cerrada, el tooltip vuelve a responder a una nueva interacción con su disparador. Los formularios y listados reutilizan este comportamiento en sus llamadas a `Swal.fire`.
 - En desktop, botones secundarios de descarga pueden mostrarse sólo con icono si el tooltip es claro; en móvil deben mostrar icono y texto.
@@ -268,6 +280,7 @@ Reglas:
 - Los límites se comparan como decimales exactos. La validación convierte los números nativos de JSON a su representación decimal antes de aplicar las reglas de escala. Las plantillas de inventario hacen lo mismo con las celdas numéricas. Se rechaza el exceso de decimales donde el formulario o la plantilla aplica validación estricta.
 - Para totales acumulados, usar `sumText()` y `subtractText()` cuando el resultado vaya a una vista, un reporte o una respuesta JSON. Así se conserva toda la precisión aunque el total supere el rango seguro de un valor binario. Si el total se calcula en SQL sobre columnas decimales, usar `Numbers::storage()` sobre el resultado. Cuando Excel pueda conservar todas las cifras, `Numbers::spreadsheetNumber()` permite una celda numérica. Los consolidados que exceden sus 15 cifras significativas se escriben como texto.
 - En reportes con varias monedas, agrupar por moneda y conservar su signo o código. El saldo vencido de una cuenta corresponde a la suma pendiente de sus cuotas vencidas.
+- Ventas, cotizaciones y compras usan `lineTotal()` para cuantizar cantidad y precio unitario antes de multiplicar y redondear el importe de la línea. `taxAmount()` y `documentTax()` concentran el cálculo de tributos en ambos lenguajes. El servicio de documentos determina qué tributos y exoneraciones corresponden a cada línea. `Numbers::commission()` aplica los mismos límites y fórmulas en ventas y operaciones de servicio.
 - Las escrituras por lote de importes y cantidades usan `Numbers::storage()` o `Numbers::storageRow()` porque Laravel no aplica casts a `insert` o `upsert`. Los valores históricos se redondean al presentar el registro, con independencia de su estado. El límite de almacenamiento de `DECIMAL(15,3)` es `999999999999.999`.
 - En tareas programadas, resolver el tenant antes de leer la configuración numérica. Los jobs reutilizan `UseTenantConnection`, que limpia el contexto al terminar. Los correos de alertas capturan los importes ya formateados mientras la empresa está activa.
 - Los casts Eloquent usan `ConfigurableDecimal`. La escala técnica de las columnas se mantiene para soportar el máximo permitido. En cálculos con distribución, la suma de los importes redondeados debe coincidir con el total.

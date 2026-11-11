@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import {normalizeNumber, quantityParts} from "../../../Shared/Numbers.js";
+import {compareNumbers, quantityParts} from "../../../Shared/Numbers.js";
 
 export default {
     props: {
@@ -16,7 +16,7 @@ export default {
             return quantityParts(this.value, this.unit);
         },
         amount() {
-            const sign = this.signed && normalizeNumber(this.value) > 0 ? "+" : "";
+            const sign = this.signed && compareNumbers(this.parts.amount, 0) > 0 ? "+" : "";
             return sign + this.parts.amount;
         }
     }

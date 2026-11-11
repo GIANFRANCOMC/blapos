@@ -278,6 +278,14 @@ export function formatCurrencyTotals(amounts = [], field = "total") {
     return amounts.map(amount => formatCurrencyAmount(amount[field], amount)).join(" · ") || separatorNumber(0);
 }
 
+export function formatSignedCurrencyAmount(value, currency = null) {
+    const rounded = fixedNumber(value);
+    const sign = compareNumbers(rounded, 0);
+    const amount = formatCurrencyAmount(sign < 0 ? rounded.slice(1) : rounded, currency);
+
+    return (sign < 0 ? "-" : sign > 0 ? "+" : "") + amount;
+}
+
 function sumParts(values) {
     let total = zero;
     for(const value of values) total = add(total, decimal(value));
@@ -323,14 +331,22 @@ export function baseFromGross(gross, rate) {
     return decimalResult(product(decimal(gross), hundred), add(hundred, decimal(rate)));
 }
 
+function lineTotalText(quantity, unitPrice) {
+    const precision = resolveDecimals();
+    const roundedQuantity = {coefficient: ratioUnits(decimal(quantity), one, precision), scale: precision};
+    const roundedPrice = {coefficient: ratioUnits(decimal(unitPrice), one, precision), scale: precision};
+
+    return decimalText(product(roundedQuantity, roundedPrice), one, precision);
+}
+
 export function lineTotal(quantity, unitPrice) {
-    return multiply(roundNumber(quantity), roundNumber(unitPrice));
+    return Number(lineTotalText(quantity, unitPrice));
 }
 
 export function taxAmount(base, tax, quantity = 1) {
-    const rate = tax.rate ?? 0;
+    const rate = fixedNumber(tax.rate);
     const amount = tax.calculation_type === "fixed"
-        ? multiply(rate, quantity)
+        ? multiply(rate, Math.max(1, quantity))
         : percentage(base, rate);
 
     return tax.operation_type === "subtraction" && amount !== 0 ? -amount : amount;
@@ -345,12 +361,13 @@ export function documentTax(tax, lines, quantity = 1) {
     const baseAmounts = [];
     const amounts = [];
     const impacts = [];
-    const rate = normalizeNumber(tax.rate);
+    const rate = fixedNumber(tax.rate);
+    const canBeIncluded = tax.operation_type !== "subtraction" && compareNumbers(rate, 0) > 0;
 
     for(const line of lines) {
-        if(line.exempt || line.total <= 0) continue;
+        if(line.exempt || compareNumbers(line.total, 0) <= 0) continue;
 
-        if(line.includesTax && tax.operation_type !== "subtraction" && rate > 0) {
+        if(line.includesTax && canBeIncluded) {
             const base = baseFromGross(line.total, rate);
             baseAmounts.push(base);
             amounts.push(subtract(line.total, base));
@@ -381,7 +398,6 @@ export function quantityWithUnit(value, measurementUnit = null, decimals = null)
 export function calculateTotal({item}) {
     const quantity = isNumber({value: item?.quantity}) ? item.quantity : 0;
     const price = isNumber({value: item?.price}) ? item.price : 0;
-    const precision = resolveDecimals();
 
-    return fixedUnits(ratioUnits(product(decimal(quantity), decimal(price)), one, precision), precision);
+    return lineTotalText(quantity, price);
 }

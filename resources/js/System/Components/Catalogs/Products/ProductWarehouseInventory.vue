@@ -9,11 +9,11 @@
         <div
             v-for="item in displayRows"
             :key="item.inventory.warehouse_id"
-            :class="['br-entity-inventory__row', item.status.className]">
+            :class="['br-entity-inventory__row', item.status?.className]">
             <div class="br-entity-inventory__warehouse">
                 <strong v-text="item.inventory.warehouse_name"></strong>
                 <span v-text="item.inventory.branch_name"></span>
-                <small v-if="item.status.className === 'is-alert'" class="br-entity-inventory-status is-alert">
+                <small v-if="item.status" :class="['br-entity-inventory-status', item.status.className]">
                     <i :class="item.status.icon" aria-hidden="true"></i>
                     <span v-text="item.status.text"></span>
                 </small>

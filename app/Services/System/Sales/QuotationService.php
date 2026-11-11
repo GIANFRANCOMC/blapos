@@ -85,7 +85,7 @@ final class QuotationService {
                     "price_includes_tax" => filter_var($detail["igv_exempt"] ?? $item->igv_exempt ?? false, FILTER_VALIDATE_BOOL)
                         ? false
                         : filter_var($detail["price_includes_tax"] ?? $item->price_includes_tax ?? true, FILTER_VALIDATE_BOOL),
-                    "total" => Numbers::multiply($quantity, $price),
+                    "total" => Numbers::lineTotal($quantity, $price),
                     "observation" => $detail["observation"] ?? null,
                 ];
 

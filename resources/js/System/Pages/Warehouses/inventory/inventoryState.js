@@ -4,6 +4,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import * as StockStatus from "../../../../Shared/StockStatus.js";
 import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
@@ -53,12 +54,7 @@ const GUIDE_TYPES = [
     {code: "exit", label: "Salida"}
 ];
 
-const STOCK_SITUATIONS = [
-    {code: "", label: "Todos los estados"},
-    {code: "empty", label: "Sin existencias"},
-    {code: "low", label: "Stock bajo"},
-    {code: "healthy", label: "Stock saludable"}
-];
+const ALL_STOCK_STATUSES = {code: "", label: "Todos los estados"};
 
 const STOCK_MINIMUM_OPTIONS = [
     {code: "", label: "Todos los productos"},
@@ -77,7 +73,7 @@ function createInventoryFilters(warehouse = null) {
     return {
         warehouse,
         productSearch: "",
-        stockSituation: STOCK_SITUATIONS[0],
+        stockSituation: ALL_STOCK_STATUSES,
         stockCategory: null,
         stockBrand: null,
         stockMinimumStatus: STOCK_MINIMUM_OPTIONS[0],
@@ -945,11 +941,9 @@ export default {
             });
         },
         stockStatus(record) {
-            const stock = Number(record.stock_quantity || 0);
-            const minimum = Number(record.minimum_stock || 0);
-            if(stock <= 0) return {label: "Sin existencias", cellClass: "br-inventory__situation--empty"};
-            if(stock <= minimum) return {label: "Stock bajo", cellClass: "br-inventory__situation--low"};
-            return {label: "Stock saludable", cellClass: "br-inventory__situation--healthy"};
+            const {stock_quantity: stock, minimum_stock: minimum} = record;
+            const code = StockStatus.fromLevels(stock, minimum);
+            return {label: StockStatus.labels[code], cellClass: `br-inventory__situation--${code}`};
         },
         movementTypeLabel(type) {
             return MOVEMENT_TYPES.find(record => record.code === type)?.label || type;
@@ -982,12 +976,11 @@ export default {
             const normalized = typeof value === "string" && value.length <= 10 ? `${value}T00:00:00` : value;
             return new Intl.DateTimeFormat("es-PE").format(new Date(normalized));
         },
-        currencyNumber(value, decimals = null) {
-            return `S/ ${Utils.separatorNumber(value || 0, decimals)}`;
+        currencyNumber(value) {
+            return Utils.formatCurrencyAmount(value, {sign: "S/"});
         },
         signedCurrency(value) {
-            const number = Number(value || 0);
-            return `${number > 0 ? "+" : number < 0 ? "-" : ""}${this.currencyNumber(Math.abs(number))}`;
+            return Utils.formatSignedCurrencyAmount(value, {sign: "S/"});
         },
         firstError(error) {
             return Array.isArray(error) ? error[0] : error;
@@ -1043,7 +1036,7 @@ export default {
             return MOVEMENT_TYPES;
         },
         stockSituations() {
-            return STOCK_SITUATIONS;
+            return [ALL_STOCK_STATUSES, ...Object.entries(StockStatus.labels).map(([code, label]) => ({code, label}))];
         },
         movementUsers() {
             return [

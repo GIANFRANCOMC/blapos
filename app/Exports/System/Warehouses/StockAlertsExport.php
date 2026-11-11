@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports\System\Warehouses;
 
-use App\Helpers\System\{Numbers};
+use App\Helpers\System\{Numbers, StockStatus};
 use App\Services\System\Warehouses\StockManagement\StockManagementService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
@@ -30,7 +30,7 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
 
     public function headings(): array {
 
-        return ["Producto", "Código interno", "Código de barras", "Stock actual", "Stock mínimo", "Faltante", "Unidad", "Detectada", "Estado"];
+        return ["Producto", "Código interno", "Código de barras", "Stock actual", "Stock mínimo", "Faltante", "Unidad", "Detectada", "Estado del stock"];
 
     }
 
@@ -49,7 +49,7 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
             Numbers::spreadsheetNumber(Numbers::compare($shortage, 0) < 0 ? 0 : $shortage),
             $alert->unit_abbreviation,
             $alert->detected_at ? Carbon::parse($alert->detected_at)->format("d/m/Y H:i") : "—",
-            "Abierta",
+            StockStatus::fromLevels($quantity, $minimum)->label(),
         ];
 
     }
@@ -85,7 +85,7 @@ final class StockAlertsExport extends DefaultValueBinder implements FromQuery, W
 
     public function columnWidths(): array {
 
-        return ["A" => 48, "B" => 19, "C" => 23, "D" => 17, "E" => 17, "F" => 17, "G" => 13, "H" => 21, "I" => 14];
+        return ["A" => 48, "B" => 19, "C" => 23, "D" => 17, "E" => 17, "F" => 17, "G" => 13, "H" => 21, "I" => 20];
 
     }
 

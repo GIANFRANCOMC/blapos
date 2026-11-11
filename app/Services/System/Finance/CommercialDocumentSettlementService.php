@@ -32,8 +32,14 @@ final class CommercialDocumentSettlementService {
         array $selectedTaxQuantities = []
     ): Collection {
 
+        $lines = array_map(fn(array $detail) => [
+            "total" => Numbers::lineTotal($detail["quantity"] ?? 0, $detail["price"] ?? 0),
+            "includesTax" => filter_var($detail["price_includes_tax"] ?? true, FILTER_VALIDATE_BOOL),
+            "exempt" => filter_var($detail["igv_exempt"] ?? false, FILTER_VALIDATE_BOOL),
+        ], $details);
+
         return self::activeTaxCatalog("sale", $selectedTaxIds)
-            ->map(fn(Tax $tax) => self::saleTaxLine($tax, $details, $userId, self::taxQuantity($tax, $selectedTaxQuantities)))
+            ->map(fn(Tax $tax) => self::taxLine($tax, 0, $userId, self::taxQuantity($tax, $selectedTaxQuantities), $lines))
             ->values();
 
     }
@@ -198,39 +204,7 @@ final class CommercialDocumentSettlementService {
 
     }
 
-    private static function taxLine(Tax $tax, float $baseAmount, int $userId, int $quantity = 1): array {
-
-        $rate = Numbers::round($tax->rate);
-        $base = Numbers::round($baseAmount);
-        $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
-            ? $tax->calculation_type
-            : "percentage";
-
-        $operationType = in_array($tax->operation_type, ["addition", "subtraction"], true)
-            ? $tax->operation_type
-            : "addition";
-
-        $amount = self::taxAmount($base, $rate, $calculationType, $operationType, $quantity);
-
-        return [
-            "tax_id" => $tax->id,
-            "name" => (string) $tax->name,
-            "description" => $tax->description,
-            "rate" => $rate,
-            "calculation_type" => $calculationType,
-            "operation_type" => $operationType,
-            "is_required" => (bool) $tax->is_required,
-            "quantity" => $calculationType === "fixed" ? $quantity : 1,
-            "base_amount" => $base,
-            "amount" => $amount,
-            "status" => "active",
-            "created_at" => now(),
-            "created_by" => $userId,
-        ];
-
-    }
-
-    private static function saleTaxLine(Tax $tax, array $details, int $userId, int $quantity = 1): array {
+    private static function taxLine(Tax $tax, float $baseAmount, int $userId, int $quantity, ?array $saleLines = null): array {
 
         $rate = Numbers::round($tax->rate);
         $calculationType = in_array($tax->calculation_type, ["percentage", "fixed"], true)
@@ -241,56 +215,25 @@ final class CommercialDocumentSettlementService {
             ? $tax->operation_type
             : "addition";
 
-        $isIgvTax = self::isIgvTax($tax);
-        $base = 0.0;
-        $amount = 0.0;
-        $totalImpact = 0.0;
+        $formula = ["rate" => $rate, "calculation_type" => $calculationType, "operation_type" => $operationType];
+        if($saleLines === null) {
 
-        if($calculationType === "fixed") {
-
-            $amount = self::taxAmount(0, $rate, $calculationType, $operationType, $quantity);
-            $totalImpact = $amount;
+            $base = Numbers::round($baseAmount);
+            $amount = Numbers::taxAmount($base, $formula, $quantity);
+            $impact = [];
 
         }else {
 
-            foreach($details as $detail) {
+            if(!self::isIgvTax($tax)) {
 
-                $lineTotal = Numbers::multiply($detail["quantity"] ?? 0, $detail["price"] ?? 0);
-
-                if($lineTotal <= 0) {
-
-                    continue;
-
-                }
-
-                if($isIgvTax && filter_var($detail["igv_exempt"] ?? false, FILTER_VALIDATE_BOOL)) {
-
-                    continue;
-
-                }
-
-                $priceIncludesTax = filter_var($detail["price_includes_tax"] ?? true, FILTER_VALIDATE_BOOL);
-
-                $taxIsIncluded = $priceIncludesTax && $operationType === "addition" && $rate > 0;
-
-                if($taxIsIncluded) {
-
-                    $lineBase = Numbers::baseFromGross($lineTotal, $rate);
-                    $lineAmount = Numbers::subtract($lineTotal, $lineBase);
-                    $base = Numbers::sum([$base, $lineBase]);
-                    $amount = Numbers::sum([$amount, $lineAmount]);
-
-                    continue;
-
-                }
-
-                $lineAmount = self::taxAmount($lineTotal, $rate, $calculationType, $operationType);
-
-                $base = Numbers::sum([$base, $lineTotal]);
-                $amount = Numbers::sum([$amount, $lineAmount]);
-                $totalImpact = Numbers::sum([$totalImpact, $lineAmount]);
+                $saleLines = array_map(fn(array $line) => [...$line, "exempt" => false], $saleLines);
 
             }
+
+            $result = Numbers::documentTax($formula, $saleLines, $quantity);
+            $base = $result["baseAmount"];
+            $amount = $result["amount"];
+            $impact = ["_total_impact" => $result["totalImpact"]];
 
         }
 
@@ -303,26 +246,13 @@ final class CommercialDocumentSettlementService {
             "operation_type" => $operationType,
             "is_required" => (bool) $tax->is_required,
             "quantity" => $calculationType === "fixed" ? $quantity : 1,
-            "base_amount" => Numbers::round($base),
-            "amount" => Numbers::round($amount),
-            "_total_impact" => Numbers::round($totalImpact),
+            "base_amount" => $base,
+            "amount" => $amount,
+            ...$impact,
             "status" => "active",
             "created_at" => now(),
             "created_by" => $userId,
         ];
-
-    }
-
-    private static function taxAmount(float $base, float $rate, string $calculationType, string $operationType, int $quantity = 1): float {
-
-        $quantity = max(1, $quantity);
-
-        $amount = match ($calculationType) {
-            "fixed" => Numbers::multiply($rate, $quantity),
-            default => Numbers::percentage($base, $rate)
-        };
-
-        return $operationType === "subtraction" && $amount !== 0.0 ? -$amount : $amount;
 
     }
 

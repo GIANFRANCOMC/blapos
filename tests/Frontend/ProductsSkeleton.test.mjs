@@ -22,8 +22,9 @@ test("el skeleton de Productos conserva filtros y columnas con el loader real de
     assert.equal(parse(skeleton, {filename: "ProductsSkeleton.vue"}).errors.length, 0);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando productos"/);
     assert.match(skeleton, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?br-entity-table/);
-    assert.match(skeleton, /br-entity-table__col-identification[\s\S]*?br-entity-table__col-product[\s\S]*?br-entity-table__col-price[\s\S]*?br-entity-table__col-inventory[\s\S]*?br-entity-table__col-status[\s\S]*?br-entity-table__col-actions/);
-    assert.match(skeleton, /colspan="6" class="py-4"><Loader\/>/);
+    assert.match(skeleton, /br-entity-table__col-identification[\s\S]*?br-entity-table__col-product[\s\S]*?br-entity-table__col-price[\s\S]*?br-entity-table__col-status[\s\S]*?br-entity-table__col-actions/);
+    assert.doesNotMatch(skeleton, /<th[^>]*>Inventario<\/th>/);
+    assert.match(skeleton, /colspan="5" class="py-4"><Loader\/>/);
     assert.match(styles, /height: var\(--br-control-height\)/);
     assert.match(styles, /@media \(max-width: 991\.98px\)/);
     assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);

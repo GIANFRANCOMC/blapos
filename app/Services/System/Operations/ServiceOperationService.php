@@ -84,32 +84,18 @@ final class ServiceOperationService {
     private static function calculateDetailCommission(ServiceSessionItem $detail): float {
 
         $item = $detail->item;
-        $quantity = (float) $detail->quantity;
-        $unitPrice = (float) $detail->unit_price;
         $type = $item?->commission_type ?? "none";
-        $value = (float) ($item?->commission_value ?? 0);
-        $legacyRate = (float) ($item?->commission_rate ?? 0);
+        $value = $item?->commission_value ?? 0;
+        $legacyRate = $item?->commission_rate ?? 0;
 
-        if($type === "none" && $legacyRate > 0) {
+        if($type === "none" && Numbers::compare($legacyRate, 0) > 0) {
 
             $type = "percentage";
             $value = $legacyRate;
 
         }
 
-        if($type === "percentage") {
-
-            return Numbers::percentage($quantity, min($value, 100), $unitPrice);
-
-        }
-
-        if($type === "fixed") {
-
-            return Numbers::multiply($quantity, max($value, 0));
-
-        }
-
-        return 0.0;
+        return Numbers::commission($detail->quantity, $detail->unit_price, $type, $value)["amount"];
 
     }
 

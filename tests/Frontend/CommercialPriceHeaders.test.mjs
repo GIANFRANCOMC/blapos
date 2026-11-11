@@ -36,8 +36,7 @@ test("la columna de precio ocupa el mismo ancho en productos, servicios y membre
         return Number(match[1]);
     };
 
-    assert.equal(widthOf("identification") + widthOf("product") + 20 + widthOf("inventory") + widthOf("status") + widthOf("actions"), 100);
-    assert.equal(widthOf("product"), 27);
+    assert.equal(widthOf("identification") + widthOf("product") + 20 + widthOf("status") + widthOf("actions"), 100);
     assert.equal(widthOf("code") + widthOf("offering") + widthOf("detail") + 20 + widthOf("status") + widthOf("actions"), 100);
 });
 

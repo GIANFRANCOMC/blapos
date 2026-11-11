@@ -1,4 +1,11 @@
-import {compareNumbers, sumText} from "../../../../Shared/Numbers.js";
+import {sumText} from "../../../../Shared/Numbers.js";
+import {fromLevels, labels} from "../../../../Shared/StockStatus.js";
+
+const statusStyles = {
+    empty: {className: "is-empty", icon: "fa-solid fa-circle-exclamation"},
+    low: {className: "is-alert", icon: "fa-solid fa-triangle-exclamation"},
+    healthy: {className: "is-healthy", icon: "fa-solid fa-circle-check"}
+};
 
 export function summarizeProductStock(record) {
 
@@ -6,43 +13,17 @@ export function summarizeProductStock(record) {
 
     return {
         total: record?.total_stock_quantity ?? sumText(warehouseItems.map(item => item.quantity)),
-        alerts: warehouseItems.filter(item => compareNumbers(item.quantity, item.minimum_stock) <= 0).length
+        alerts: warehouseItems.filter(item => fromLevels(item.quantity, item.minimum_stock) !== "healthy").length
     };
 
 }
 
 export function inventoryStockStatus(inventory) {
 
-    const hasCurrentStock = inventory?.initial_stock !== "" && inventory?.initial_stock != null;
-    const hasMinimumStock = inventory?.minimum_stock !== "" && inventory?.minimum_stock != null;
+    const quantity = inventory?.initial_stock;
+    if(quantity === "" || quantity == null) return null;
 
-    if(!hasCurrentStock && !hasMinimumStock) {
-
-        return {
-            className: "is-alert",
-            icon: "fa-solid fa-triangle-exclamation",
-            text: "Pendiente de registrar"
-        };
-
-    }
-
-    const currentStock = inventory?.initial_stock ?? 0;
-    const minimumStock = inventory?.minimum_stock ?? 0;
-
-    if(compareNumbers(currentStock, minimumStock) <= 0) {
-
-        return {
-            className: "is-alert",
-            icon: "fa-solid fa-triangle-exclamation",
-            text: "Stock bajo o en el mínimo"
-        };
-
-    }
-
-    return {
-        className: "is-healthy",
-        icon: "fa-solid fa-circle-check",
-        text: "Inventario saludable"
-    };
+    const code = fromLevels(quantity, inventory?.minimum_stock);
+    return {...statusStyles[code], text: labels[code]};
 
 }

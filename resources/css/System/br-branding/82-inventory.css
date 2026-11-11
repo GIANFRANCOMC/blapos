@@ -19,6 +19,12 @@
     color: var(--br-border-muted);
 }
 
+.br-inventory__alerts-button {
+    flex: none;
+    inline-size: var(--br-control-height);
+    padding-inline: 0;
+}
+
 .br-inventory__alerts-button .fa-bell {
     font-size: var(--br-font-size-090);
     --fa-animation-duration: 3s;

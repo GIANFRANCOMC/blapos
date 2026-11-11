@@ -105,6 +105,13 @@ final class CompanyDecimalPrecisionTest extends TestCase {
 
         }
 
+        foreach($cases["documentTax"] as [$precision, $tax, $lines, $expected]) {
+
+            $this->savePrecision($precision);
+            $this->assertSame($expected, Numbers::documentTax($tax, $lines));
+
+        }
+
         $rules = ["amount" => Numbers::numericRules(required: true)];
         $this->assertTrue(Validator::make(["amount" => "999999999999.999"], $rules)->passes());
         $this->assertFalse(Validator::make(["amount" => "1000000000000.000"], $rules)->passes());
@@ -129,6 +136,10 @@ final class CompanyDecimalPrecisionTest extends TestCase {
         ))->fails());
 
         $this->savePrecision(2);
+        $this->assertSame(
+            ["value" => "100.00", "amount" => 2.02],
+            Numbers::commission("1.005", "2", "percentage", "101")
+        );
         $itemId = $this->createItem();
         $item = Item::findOrFail($itemId);
         $item->status = "inactive";

@@ -255,7 +255,7 @@ export function showMessage({title = "", text = "", type = "info", width = null}
 
 export function showFiltersCleared() {
 
-    return showMessage({type: "success", title: "Se limpiaron los filtros correctamente."});
+    toastrs({type: "info", title: "Se limpiaron los filtros correctamente."});
 
 }
 

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
-import {compile, createSSRApp, h} from "vue";
+import {compile, createRenderer, createSSRApp, h, nextTick, ref, useId} from "vue";
 import {renderToString} from "vue/server-renderer";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
@@ -45,7 +45,7 @@ test("el skeleton reutiliza la distribución de las tablas de stock y kardex", (
         assert.deepEqual(headers, [...commonHeadings, ...remaining], view);
         assert.equal(page.split('colspan="' + headers.length + '"').length - 1, 2, view);
         assert.ok(skeleton.includes("[...kardexHeadings, " + remaining.map(label => JSON.stringify(label)).join(", ") + "]"), view);
-        assert.match(page, /<td>\s*<ProductIdentity :product="movement\.item"\/>\s*<\/td>\s*<td>\s*<KardexMovementDetails\b[^>]*\/>\s*<\/td>\s*<td class="text-end">\s*<StockDifference\b/);
+        assert.match(page, /<td>\s*<ProductIdentity variant="expandable" :product="movement\.item"\/>\s*<\/td>\s*<td>\s*<KardexMovementDetails\b[^>]*\/>\s*<\/td>\s*<td class="text-end">\s*<StockDifference\b/);
     }
     assert.match(styles, /body\.br-layout \.br-inventory__difference \{[^}]*white-space: nowrap;/);
     assert.match(styles, /\.br-inventory__kardex-table--valued tbody td:nth-child\(n\+3\) \{\s*white-space: nowrap;\s*overflow-wrap: normal;/);
@@ -78,22 +78,94 @@ test("el detalle de movimiento conserva la autoría y los datos disponibles", as
     assert.match(await renderMovement({user_id: 2}), /Usuario no disponible/);
 });
 
-test("los listados de inventario reutilizan la identificación de Control de stock", async () => {
+function productIdentityComponent() {
     const identity = read("resources/js/System/Components/Generics/ProductIdentity.vue");
     const {descriptor, errors} = parse(identity);
     assert.deepEqual(errors, []);
-    const render = compile(descriptor.template.content);
-    const component = {props: ["product"], render};
-    const renderProduct = product => renderToString(createSSRApp({
-        render: () => h(component, {product})
+    const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
+    return {...new Function("useId", script)(useId), render: compile(descriptor.template.content)};
+}
+
+test("Control de stock e Inventario usan la variante desplegable de producto", async () => {
+    const component = productIdentityComponent();
+    const renderProduct = (product, variant) => renderToString(createSSRApp({
+        render: () => h(component, {product, variant})
     }));
     const withCodes = await renderProduct({name: "Producto A", internal_code: "PR-001", barcode: "001234"});
     assert.match(withCodes, /Producto A[\s\S]*?Cód\. interno[\s\S]*?PR-001[\s\S]*?Cód\. barras[\s\S]*?001234/);
+    assert.doesNotMatch(withCodes, /<button/);
     const withoutProduct = await renderProduct(null);
     assert.match(withoutProduct, /Producto sin nombre[\s\S]*?Cód\. interno[\s\S]*?—/);
     assert.doesNotMatch(withoutProduct, /Cód\. barras/);
 
-    for(const file of ["stock", "kardex", "valued-kardex", "transfers", "guides", "StockAlertsModal", "StockTraceabilityModal", "StockItemEditor"]) {
-        assert.match(read(directory + "/" + file + ".vue"), /<ProductIdentity\b/);
+    for(const file of ["stock", "StockAlertsModal", "StockTraceabilityModal", "StockItemEditor", "kardex", "valued-kardex", "transfers", "guides"]) {
+        assert.match(read(directory + "/" + file + ".vue"), /<ProductIdentity\b[^>]*variant="expandable"/);
     }
+    for(const file of ["Catalogs/products/main.vue", "Catalogs/recipes/main.vue", "Sales/sales/main.vue", "Sales/sales/deliveries.vue", "Sales/pos/main.vue", "Purchases/purchases/main.vue"]) {
+        assert.doesNotMatch(read("resources/js/System/Pages/" + file), /<ProductIdentity\b[^>]*variant="expandable"/);
+    }
+    const withoutCodes = await renderProduct({name: "Producto sin códigos"}, "expandable");
+    assert.match(withoutCodes, /Producto sin códigos/);
+    assert.doesNotMatch(withoutCodes, /<button|br-product-identity__codes/);
+});
+
+test("el botón de producto alterna los códigos por instancia y se cierra al cambiar de producto", async () => {
+    const component = productIdentityComponent();
+    const node = tag => ({tag, props: {}, children: [], style: {display: ""}});
+    const renderer = createRenderer({
+        createElement: node,
+        createText: value => ({value}),
+        createComment: node,
+        patchProp: (element, name, previous, value) => { element.props[name] = value; },
+        setText: (element, value) => { element.value = value; },
+        setElementText: (element, value) => { element.value = value; },
+        parentNode: element => element.parent,
+        nextSibling: element => element.parent?.children[element.parent.children.indexOf(element) + 1],
+        insert(element, parent, anchor) {
+            element.parent = parent;
+            parent.children.splice(anchor ? parent.children.indexOf(anchor) : parent.children.length, 0, element);
+        },
+        remove(element) {
+            const siblings = element.parent.children;
+            siblings.splice(siblings.indexOf(element), 1);
+        }
+    });
+    const product = ref({id: 1, name: "Producto A", internal_code: "PR-001", barcode: "001234"});
+    const container = node("root");
+    renderer.createApp({
+        render: () => h("div", [
+            h(component, {product: product.value, variant: "expandable"}),
+            h(component, {product: product.value, variant: "expandable"})
+        ])
+    }).mount(container);
+    const [first, second] = container.children[0].children;
+    const [button, codes] = first.children;
+    const [otherButton, otherCodes] = second.children;
+    assert.equal(button.props["aria-controls"], codes.props.id);
+    assert.notEqual(codes.props.id, otherCodes.props.id);
+    assert.equal(button.props["aria-expanded"], false);
+    assert.equal(codes.style.display, "none");
+    assert.equal(codes.children.some(child => child.tag === "span"), false);
+    let blurCount = 0;
+    button.blur = () => blurCount++;
+    const click = (detail = 0) => button.props.onClick({detail, currentTarget: button, stopPropagation() {}});
+    click(1);
+    await nextTick();
+    assert.equal(button.props["aria-expanded"], true);
+    assert.equal(blurCount, 1);
+    assert.equal(codes.style.display, "");
+    const identification = codes.children.filter(child => child.tag === "span");
+    assert.deepEqual(identification.map(child => child.children[0].value), ["Cód. interno", "Cód. barras"]);
+    assert.equal(identification[1].children[1].value, "001234");
+    assert.equal(otherButton.props["aria-expanded"], false);
+    click();
+    await nextTick();
+    assert.equal(codes.style.display, "none");
+    assert.equal(blurCount, 1);
+    click();
+    await nextTick();
+    product.value = {id: 2, name: "Producto B", internal_code: "PR-002"};
+    await nextTick();
+    assert.equal(button.props["aria-expanded"], false);
+    assert.equal(codes.style.display, "none");
 });

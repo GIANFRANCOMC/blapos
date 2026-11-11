@@ -300,6 +300,101 @@ final class Numbers {
 
     }
 
+    public static function lineTotal(mixed $quantity, mixed $unitPrice): float {
+
+        $amount = self::quantize(self::decimal($quantity))->multipliedBy(self::quantize(self::decimal($unitPrice)));
+
+        return self::quantize($amount)->toFloat();
+
+    }
+
+    public static function taxAmount(mixed $base, array $tax, int $quantity = 1): float {
+
+        $rate = self::storage($tax["rate"] ?? 0);
+        $amount = ($tax["calculation_type"] ?? null) === "fixed"
+            ? self::multiply($rate, max(1, $quantity))
+            : self::percentage($base, $rate);
+
+        return ($tax["operation_type"] ?? null) === "subtraction" && $amount !== 0.0 ? -$amount : $amount;
+
+    }
+
+    public static function commission(mixed $quantity, mixed $unitPrice, string $type, mixed $value): array {
+
+        $rate = self::decimal($value);
+        if($rate->isNegative() || !in_array($type, ["fixed", "percentage"], true)) {
+
+            $rate = BigDecimal::zero();
+
+        }elseif($type === "percentage" && $rate->isGreaterThan(100)) {
+
+            $rate = BigDecimal::of(100);
+
+        }
+
+        $rate = self::quantize($rate);
+        $quantity = self::quantize(self::decimal($quantity));
+        $amount = match ($type) {
+            "percentage" => self::percentage($quantity, $rate, self::quantize(self::decimal($unitPrice))),
+            "fixed" => self::multiply($quantity, $rate),
+            default => 0.0,
+        };
+
+        return ["value" => (string) $rate, "amount" => $amount];
+
+    }
+
+    public static function documentTax(array $tax, iterable $lines, int $quantity = 1): array {
+
+        if(($tax["calculation_type"] ?? null) === "fixed") {
+
+            $amount = self::taxAmount(0, $tax, $quantity);
+
+            return ["baseAmount" => 0.0, "amount" => $amount, "totalImpact" => $amount];
+
+        }
+
+        $rate = self::storage($tax["rate"] ?? 0);
+        $isSubtraction = ($tax["operation_type"] ?? null) === "subtraction";
+        $canBeIncluded = !$isSubtraction && self::compare($rate, 0) > 0;
+        $baseAmounts = [];
+        $amounts = [];
+        $impacts = [];
+
+        foreach($lines as $line) {
+
+            $total = $line["total"] ?? 0;
+            if(($line["exempt"] ?? false) || self::compare($total, 0) <= 0) {
+
+                continue;
+
+            }
+
+            if($canBeIncluded && ($line["includesTax"] ?? false)) {
+
+                $base = self::baseFromGross($total, $rate);
+                $baseAmounts[] = $base;
+                $amounts[] = self::subtract($total, $base);
+
+            }else {
+
+                $amount = self::taxAmount($total, $tax);
+                $baseAmounts[] = $total;
+                $amounts[] = $amount;
+                $impacts[] = $amount;
+
+            }
+
+        }
+
+        return [
+            "baseAmount" => self::sum($baseAmounts),
+            "amount" => self::sum($amounts),
+            "totalImpact" => self::sum($impacts),
+        ];
+
+    }
+
     public static function sumProducts(iterable $pairs): float {
 
         $total = BigDecimal::zero();

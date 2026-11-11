@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Warehouses\StockManagement;
 
-use App\Helpers\System\{Numbers};
+use App\Helpers\System\{Numbers, StockStatus};
 use Dompdf\Adapter\CPDF;
 use Illuminate\Support\Carbon;
 
@@ -25,6 +25,7 @@ final class StockAlertsPdfRenderer {
     private const SURFACE = [0.95, 0.97, 0.99];
     private const WHITE = [1.0, 1.0, 1.0];
     private const WARNING = [0.66, 0.35, 0.03];
+    private const DANGER = [0.68, 0.12, 0.16];
 
     private CPDF $canvas;
     private string $regularFont;
@@ -90,7 +91,7 @@ final class StockAlertsPdfRenderer {
         }
 
         $this->rightText(self::RIGHT, 26, "Alertas de stock", 20, self::NAVY, true);
-        $this->rightText(self::RIGHT, 56, "Productos en mínimo o sin existencias · ".$generatedAt->format("d/m/Y H:i"), 7.8, self::MUTED);
+        $this->rightText(self::RIGHT, 56, "Productos agotados o con stock bajo · ".$generatedAt->format("d/m/Y H:i"), 7.8, self::MUTED);
 
         $this->summaryCard(self::LEFT, 87, 226, "SEDE", $branch);
         $this->summaryCard(self::LEFT + 234, 87, 294, "ALMACÉN", $warehouse);
@@ -122,7 +123,7 @@ final class StockAlertsPdfRenderer {
     private function drawTableHeader(float $top): void {
 
         $this->canvas->filled_rectangle(self::LEFT, $top, self::RIGHT - self::LEFT, 25, self::HEADER);
-        $labels = ["#", "PRODUCTO E IDENTIFICACIÓN", "STOCK ACTUAL", "STOCK MÍNIMO", "FALTANTE", "DETECTADA", "ESTADO"];
+        $labels = ["#", "PRODUCTO E IDENTIFICACIÓN", "STOCK ACTUAL", "STOCK MÍNIMO", "FALTANTE", "DETECTADA", "ESTADO DEL STOCK"];
         $x = self::LEFT;
 
         foreach(self::COLUMNS as $index => $width) {
@@ -181,8 +182,9 @@ final class StockAlertsPdfRenderer {
         }
 
         $detectedAt = $alert->detected_at ? Carbon::parse($alert->detected_at)->format("d/m/Y H:i") : "—";
+        $status = StockStatus::fromLevels($quantity, $minimum);
         $this->centerText($x, $top + 11, self::COLUMNS[5], $detectedAt, 7.5, self::TEXT);
-        $this->centerText($x + self::COLUMNS[5], $top + 11, self::COLUMNS[6], "Abierta", 7.5, self::WARNING, true);
+        $this->centerText($x + self::COLUMNS[5], $top + 11, self::COLUMNS[6], $status->label(), 7.5, $status === StockStatus::Empty ? self::DANGER : self::WARNING, true);
 
     }
 

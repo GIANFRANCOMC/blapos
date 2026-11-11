@@ -146,12 +146,16 @@
                         </button>
                         <button
                             v-if="activeView === 'stock'"
+                            v-tooltip
                             type="button"
-                            class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button"
+                            class="br-btn br-btn-sm br-btn-warning br-inventory__alerts-button waves-effect waves-light"
                             :disabled="!canViewStockAlerts"
-                            @click="listStockAlerts({showModal: true})">
+                            aria-label="Ver alertas"
+                            title="Ver alertas"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            @click="viewStockAlerts">
                             <i class="fa-solid fa-bell fa-shake" aria-hidden="true"></i>
-                            <span>Ver alertas</span>
                         </button>
                     </div>
                 </div>
@@ -190,7 +194,7 @@
                                             :key="record.id"
                                             :class="{ 'br-inventory__scanned-row': scannedProductId === Number(record.id) }">
                                             <td>
-                                                <ProductIdentity :product="record"/>
+                                                <ProductIdentity variant="expandable" :product="record"/>
                                             </td>
                                             <td class="text-end"><QuantityValue class="br-inventory__stock-current" :value="record.stock_quantity" :unit="record.measurement_unit || record"/></td>
                                             <td class="text-end"><QuantityValue :value="record.minimum_stock" :unit="record.measurement_unit || record"/></td>
@@ -488,7 +492,26 @@
 </template>
 
 <script>
+import {createTooltip, dismissTooltip} from "@System/Helpers/Alerts.js";
 import inventoryPage from "./inventoryState.js";
 
-export default inventoryPage;
+export default {
+    extends: inventoryPage,
+    directives: {
+        tooltip: {
+            mounted(button) {
+                createTooltip(button);
+            },
+            beforeUnmount(button) {
+                window.bootstrap?.Tooltip?.getInstance(button)?.dispose();
+            }
+        }
+    },
+    methods: {
+        viewStockAlerts(event) {
+            dismissTooltip(event.currentTarget);
+            return this.listStockAlerts({showModal: true});
+        }
+    }
+};
 </script>

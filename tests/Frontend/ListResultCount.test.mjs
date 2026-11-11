@@ -21,12 +21,51 @@ test("el scroll horizontal de las tablas se mantiene local incluso con el menú 
     for(const entry of [system, platform]) {
         assert.match(entry, /@import "\.\.\/Shared\/responsive-tables\.css";/);
     }
-    for(const component of [actions, sales]) {
-        assert.match(component, /data-bs-config='\{"popperConfig":\{"strategy":"fixed"\}\}'/);
-    }
+    assert.match(actions, /data-bs-config='\{"popperConfig":\{"strategy":"fixed"\}\}'/);
+    assert.match(sales, /<TableActionsDropdown[\s\S]*?class="br-sale-detail-actions"/);
     for(const file of ["40-buttons-quick-create.css", "70-visual-density-brand-refresh.css"]) {
         assert.doesNotMatch(read(`resources/css/System/br-branding/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
     }
+});
+
+test("el tooltip Acciones se oculta cuando se abre el menú de la fila", () => {
+    const {descriptor} = parse(read("resources/js/System/Components/Generics/TableActionsDropdown.vue"));
+    assert.match(descriptor.template.content, /<div[^>]+title="Acciones"[^>]+data-bs-toggle="tooltip">\s*<button[^>]+data-bs-toggle="dropdown"/);
+
+    const listeners = new Map();
+    const trigger = {
+        addEventListener: (name, listener) => listeners.set(name, listener),
+        removeEventListener: name => listeners.delete(name)
+    };
+    let opened = false;
+    let hidden = 0;
+    let disposed = false;
+    const button = {getAttribute: () => String(opened)};
+    const tooltip = {hide: () => hidden++, dispose: () => { disposed = true; }};
+    const window = {bootstrap: {Tooltip: {getInstance: element => element === trigger ? tooltip : null}}};
+    const script = descriptor.script.content.replace(/^import .*;\s*$/m, "").replace("export default", "return");
+    const component = new Function("createTooltip", "window", script)(
+        element => assert.equal(element, trigger), window
+    );
+    const instance = {$refs: {tooltip: trigger, button}, disabled: false};
+    for(const [name, method] of Object.entries(component.methods)) instance[name] = method.bind(instance);
+    component.mounted.call(instance);
+
+    let prevented = false;
+    const showTooltip = () => listeners.get("show.bs.tooltip")({
+        target: trigger,
+        preventDefault: () => { prevented = true; }
+    });
+    showTooltip();
+    assert.equal(prevented, false);
+    listeners.get("show.bs.dropdown")({target: button});
+    assert.equal(hidden, 1);
+    opened = true;
+    showTooltip();
+    assert.equal(prevented, true);
+    component.beforeUnmount.call(instance);
+    assert.equal(disposed, true);
+    assert.equal(listeners.size, 0);
 });
 
 test("control de stock muestra el total filtrado a la derecha del paginador", () => {

@@ -322,7 +322,7 @@
                                                     <span class="br-inventory__meta">{{ movement.user?.name || "Proceso del sistema" }}</span>
                                                 </td>
                                                 <td>
-                                                    <ProductIdentity :product="movement.item"/>
+                                                    <ProductIdentity variant="expandable" :product="movement.item"/>
                                                 </td>
                                                 <td>
                                                     <strong>{{ movement.transfer_source_warehouse?.name || "No disponible" }}</strong>
