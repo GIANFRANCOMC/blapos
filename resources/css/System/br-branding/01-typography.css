@@ -74,6 +74,19 @@ button,
   font-weight: var(--br-font-weight-label);
 }
 
+.br-entity-switch {
+  font-size: var(--br-ui-font-size);
+  font-weight: var(--br-font-weight-body);
+}
+
+.br-entity-switch strong {
+  font-weight: var(--br-font-weight-label);
+}
+
+.br-entity-switch small {
+  font-size: var(--br-font-size-066);
+}
+
 .modal-title,
 .card-title,
 .card-subtitle {
@@ -85,7 +98,6 @@ button,
 .br-status-label,
 .br-inventory-status,
 .br-inventory-movement,
-.br-entity-inventory-status,
 .br-purchase-status,
 .br-receivables-status,
 .platform-status {
@@ -93,7 +105,8 @@ button,
   font-weight: var(--br-font-weight-body);
 }
 
-.table {
+.table,
+.br-entity-inventory {
   font-size: var(--br-font-size-table);
   font-weight: var(--br-font-weight-body);
 }
@@ -106,7 +119,8 @@ body table :is(th, td) {
   font-weight: var(--br-font-weight-value);
 }
 
-body .table > thead > tr > th {
+body .table > thead > tr > th,
+.br-entity-inventory__head {
   font-size: var(--br-table-heading-font-size);
   font-weight: var(--br-font-weight-table-heading);
 }

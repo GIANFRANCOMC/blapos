@@ -24,7 +24,7 @@ test("los tooltips del menú conservan su clase al reconstruirse", async () => {
     assert.equal(tooltipOptionsFor({dataset: {bsTrigger: "hover"}}, body).trigger, "hover");
 
     const alerts = readFileSync(new URL("../../resources/js/System/Helpers/Alerts.js", import.meta.url), "utf8");
-    const navigation = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
+    const navigation = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
 
     assert.match(alerts, /new Bootstrap\.Tooltip\(element, tooltipOptionsFor\(element\)\)/);
     assert.match(navigation, /window\.bootstrap\?\.Tooltip\?\.getInstance\(moduleButton\)\?\.hide\(\)/);

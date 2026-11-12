@@ -1,4 +1,5 @@
 
+import {navbarItem} from "@System/Layout/Menu.js";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -116,8 +117,8 @@ export default {
         }
     },
     async mounted() {
-        Utils.navbarItem("menu-parent-items", {addClass: "open"});
-        Utils.navbarItem(this.activeMenuId(), {});
+        navbarItem("menu-parent-items", {addClass: "open"});
+        navbarItem(this.activeMenuId(), {});
         let initialized;
         try {
             initialized = await this.initParams();

@@ -5,7 +5,7 @@ import test from "node:test";
 test("un mundo de página única navega y los demás muestran su menú lateral", () => {
 
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
-    const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
+    const behavior = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/51-two-level-navigation.css", import.meta.url), "utf8");
 
     assert.match(layout, /@vite\("resources\/js\/System\/Layout\/main\.js"\)/);
@@ -17,7 +17,7 @@ test("un mundo de página única navega y los demás muestran su menú lateral",
     assert.match(layout, /@foreach\(\$navigationSections as \$section\)[\s\S]*data-navigation-panel="\{\{ \$section->id \}\}"/);
     assert.match(behavior, /panel\.hidden = !visible/);
     assert.match(behavior, /panel\.classList\.toggle\("is-entering", visible && !alreadyVisible\)/);
-    assert.match(behavior, /var hasSubmenu = Number\(selectedModule\.dataset\.navigationCount\) > 1/);
+    assert.match(behavior, /const hasSubmenu = Number\(selectedModule\.dataset\.navigationCount\) > 1/);
     assert.match(behavior, /if\(moduleButton\.tagName === "A"\) return;/);
     assert.doesNotMatch(behavior, /content\.hidden|preview\.hidden|br-navigation-previewing/);
     assert.match(behavior, /selectWorld\(currentSectionId\)/);
@@ -60,7 +60,7 @@ test("un mundo de página única navega y los demás muestran su menú lateral",
     assert.doesNotMatch(layout, /@if\(\$isActivePage\)\s*<i class="fa-solid fa-chevron-right"/);
     assert.doesNotMatch(layout, /br-navigation__page-icon/);
     assert.match(styles, /\.br-navigation__pages\s*\{[^}]*gap: 0;/);
-    assert.match(styles, /\.br-navigation__page\s*\{[^}]*gap: var\(--br-grid-gap-3\);[^}]*min-height: var\(--br-btn-height-sm\);[^}]*padding: 0\.28rem 0\.52rem 0\.28rem 1\.08rem;[^}]*font-size: var\(--br-font-size-061\);/);
+    assert.match(styles, /\.br-navigation__page\s*\{[^}]*gap: var\(--br-grid-gap-3\);[^}]*min-height: var\(--br-btn-height-xs\);[^}]*padding: 0\.2rem 0\.52rem 0\.2rem 1\.08rem;[^}]*font-size: var\(--br-font-size-061\);/);
     assert.match(styles, /\.br-navigation__page::before\s*\{[^}]*border: 1px solid[^}]*background: transparent;/);
     assert.match(styles, /\.br-navigation__page\.active\s*\{[^}]*color: var\(--br-primary-active\);/);
     assert.doesNotMatch(styles, /\.br-navigation__group\.is-current/);
@@ -71,10 +71,9 @@ test("un mundo de página única navega y los demás muestran su menú lateral",
     const groupHeading = layout.match(/<h3 class="br-navigation__group-title">([\s\S]*?)<\/h3>/)?.[1] ?? "";
     assert.doesNotMatch(groupHeading, /fa-chevron-right/);
     assert.doesNotMatch(layout, /\$menuGroupItems->count\(\) > 1/);
-    assert.match(styles, /\.br-navigation__group\s*\{\s*padding-bottom: 0\.2rem;\s*\}/);
     assert.doesNotMatch(styles, /\.br-navigation__group\s*\{[^}]*border-bottom:/);
-    assert.match(styles, /\.br-navigation__group \+ \.br-navigation__group\s*\{\s*margin-top: var\(--br-grid-gap-3\);/);
-    assert.match(styles, /\.br-navigation__group \+ \.br-navigation__group::before\s*\{[^}]*margin: 0 0\.52rem var\(--br-grid-gap-3\);[^}]*border-top: 1px solid/);
+    assert.match(styles, /\.br-navigation__group \+ \.br-navigation__group\s*\{\s*margin-block-start: var\(--br-grid-gap-4\);/);
+    assert.doesNotMatch(styles, /\.br-navigation__group \+ \.br-navigation__group::before/);
     assert.match(styles, /@media \(min-width: 1200px\)\s*\{\s*html\.br-navigation-without-context body\.br-layout \.br-navbar-menu-toggle\s*\{\s*display: none !important;/);
     assert.match(styles, /@media \(max-width: 1199\.98px\)\s*\{\s*\.br-layout\s*\{\s*--br-navigation-rail-width: 3\.9rem;/);
     assert.match(styles, /@media \(max-width: 575\.98px\)\s*\{\s*\.br-layout\s*\{\s*--br-navigation-rail-width: 3\.65rem;/);
@@ -91,7 +90,7 @@ test("un mundo de página única navega y los demás muestran su menú lateral",
 test("el riel de mundos permanece compacto con tooltips", () => {
 
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
-    const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
+    const behavior = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/51-two-level-navigation.css", import.meta.url), "utf8");
 
     assert.match(layout, /\$navigationLogomarkUrl = app\(\\App\\Services\\System\\Organizations\\Companies\\CompanyLogomarkService::class\)->url\(\$company->logomark\);/);
@@ -125,7 +124,7 @@ test("Mi cuenta comparte Inicio con Mi espacio y los accesos sin grupo van prime
 test("favoritos depende automáticamente del módulo Menú y favoritos", () => {
 
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
-    const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
+    const behavior = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
     const automatic = readFileSync(new URL("../../app/Services/System/General/AutomaticMasterDataService.php", import.meta.url), "utf8");
     const profile = readFileSync(new URL("../../resources/js/System/Pages/Organizations/business_profile/main.vue", import.meta.url), "utf8");
 

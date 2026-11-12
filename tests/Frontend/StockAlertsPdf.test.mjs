@@ -10,10 +10,11 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     const page = read("resources/js/System/Pages/Warehouses/inventory/stock.vue");
     const state = read("resources/js/System/Pages/Warehouses/inventory/inventoryState.js");
     const styles = read("resources/css/System/br-branding/82-inventory.css");
+    const sharedStyles = read("resources/css/System/br-branding/81-core-roles-entities.css");
 
     assert.equal(parse(modal).errors.length, 0);
     assert.match(modal, /<span class="form-label">Almacén de trabajo<\/span>[\s\S]*?warehouse\?\.displayLabel \|\| warehouse\?\.label/);
-    assert.match(modal, /<header class="br-inventory-alerts__summary">[\s\S]*?br-inventory-alerts__location[\s\S]*?<\/header>[\s\S]*?<div class="br-inventory-alerts__toolbar">/);
+    assert.match(modal, /<header class="br-inventory-alerts__summary">\s*<div class="br-field-summary">[\s\S]*?<strong class="br-field-summary__value"[\s\S]*?<\/header>\s*<div class="br-inventory-alerts__toolbar">/);
     assert.doesNotMatch(modal, /fa-warehouse/);
     assert.match(modal, /modal-size="modal-xl"/);
     assert.match(modal, /<div class="br-inventory-alerts__toolbar">[\s\S]*?<div class="br-inventory-alerts__filters"[\s\S]*?br-inventory-alerts__product-filter[\s\S]*?inventoryAlertMinimumStatus[\s\S]*?@click="\$emit\('search'\)"/);
@@ -38,14 +39,15 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.equal((modal.match(/:disabled="loading \|\| downloading \|\| !alerts\.total"/g) || []).length, 3);
     assert.doesNotMatch(modal, /<template #footer>/);
     assert.match(modal, /@click="\$emit\('download', 'pdf'\)"[\s\S]*?@click="\$emit\('download', 'excel'\)"/);
-    assert.match(styles, /body\.br-layout \.br-inventory-alerts \.br-inventory-alerts__warehouse-name \{[^}]*font-size: var\(--br-stock-quantity-font-size\);[^}]*font-weight: var\(--br-font-weight-emphasis\);/);
+    assert.match(sharedStyles, /\.br-field-summary \{[^}]*flex-direction: column;/);
+    assert.match(sharedStyles, /\.br-field-summary > \.br-field-summary__value \{[^}]*font-size: var\(--br-stock-quantity-font-size\);[^}]*font-weight: var\(--br-font-weight-emphasis\);/);
     assert.match(styles, /\.br-inventory-alerts__table-head \{[\s\S]*?overflow-y: hidden;[\s\S]*?scrollbar-gutter: stable;[\s\S]*?background: var\(--br-table-thead-bg\);/);
     assert.match(styles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;[\s\S]*?scrollbar-gutter: stable;/);
     assert.match(styles, /\.br-inventory-alerts__toolbar \{[\s\S]*?display: flex;[\s\S]*?justify-content: space-between;/);
     assert.match(modal, /class="col-12 col-sm-6 br-inventory-alerts__product-filter"/);
     assert.doesNotMatch(styles.match(/\.br-inventory-alerts__product-filter \{[^}]*\}/)?.[0], /(?:^|[;{\s])(?:flex|width):/);
     assert.match(styles, /\.br-inventory-alerts__table-head \.table > thead > tr > th \{[\s\S]*?background: var\(--br-table-thead-bg\) !important;/);
-    assert.doesNotMatch(styles.slice(styles.indexOf('.br-inventory-alerts__summary {'), styles.indexOf('.br-inventory-alerts__location {')), /border:|background:/);
+    assert.doesNotMatch(styles.match(/\.br-inventory-alerts__summary \{[^}]*\}/)?.[0], /border:|background:/);
     assert.match(state, /this\.stockAlerts = Requests\.emptyPagination\(\);/);
     assert.match(state, /searchStockAlerts\(value = this\.alertProductSearch\)[\s\S]*?this\.alertProductSearch = String[\s\S]*?listStockAlerts\(\{\}\)/);
     assert.match(state, /async listStockAlerts[\s\S]*?Alerts\.loading\(\{message: "Consultando alertas de stock"\}\)[\s\S]*?Requests\.get[\s\S]*?Alerts\.close\(\)/);

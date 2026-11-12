@@ -7,7 +7,7 @@ test("el navbar presenta favoritos, avisos y usuario autenticado sin alterar sus
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/60-dashboard-sales.css", import.meta.url), "utf8");
     const typography = readFileSync(new URL("../../resources/css/System/br-branding/01-typography.css", import.meta.url), "utf8");
-    const behavior = readFileSync(new URL("../../resources/js/System/Layout/main.js", import.meta.url), "utf8");
+    const behavior = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
 
     assert.match(layout, /@if\(\$favoritesEnabled\)[\s\S]*?id="brFabFavoritesToggle"/);
     assert.match(layout, /id="brFabFavoritesToggle"[\s\S]*?<i class="fa-regular fa-star"/);

@@ -182,7 +182,7 @@ Centraliza:
 ## Módulos impactados
 
 - Ventas: subtotal, tributos por nombre, total, pagos, modalidad, saldo y cuenta por cobrar.
-- Venta POS: usa el mismo contrato de venta, por lo que hereda modalidad y variantes.
+- POS venta: usa el mismo contrato de venta, por lo que hereda modalidad y variantes.
 - Compras: subtotal, tributos por nombre, total, pagos, modalidad, saldo y cuenta por pagar.
 - Caja: los pagos iniciales siguen alimentando movimientos de caja cuando existe sesión abierta.
 - Configuración: el backend expone `taxes`, `payment-methods`, `payment-method-variants` y `company-settings` mediante `/master-data/{resource}` con validación, auditoría e invalidación de caché.

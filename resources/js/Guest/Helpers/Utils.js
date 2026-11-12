@@ -18,24 +18,6 @@ export function getEssential() {
 
 }
 
-export function navbarItem(id, {type = "active", addClass = null}) {
-
-    try {
-
-        document.getElementById(id).classList.add(type);
-
-        if(isDefined({value: addClass})) {
-
-            document.getElementById(id).classList.add(addClass);
-
-        }
-
-    }catch(e) {
-
-    }
-
-}
-
 export function isDefined({value}) {
 
     return value != "" && value != null && value != undefined;

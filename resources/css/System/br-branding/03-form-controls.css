@@ -215,3 +215,26 @@ body .select2-container.select2-container--default .select2-search--dropdown .se
   font-family: inherit;
   line-height: var(--br-ui-line-height);
 }
+
+/* Vue Select reserva aria-selected para la opción enfocada en el menú. */
+:is(body .vs__dropdown-menu .vs__dropdown-option--selected,
+    body .select2-container--default .select2-results__option[aria-selected="true"]) {
+  position: relative;
+  padding-inline-end: 2rem;
+  background-color: var(--br-primary-soft);
+  color: var(--br-primary-active);
+}
+
+:is(body .vs__dropdown-menu .vs__dropdown-option--selected,
+    body .select2-container--default .select2-results__option[aria-selected="true"])::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 0.85rem;
+  inline-size: 0.33rem;
+  block-size: 0.57rem;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-60%) rotate(45deg);
+  pointer-events: none;
+}

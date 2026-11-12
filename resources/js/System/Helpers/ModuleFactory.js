@@ -3,6 +3,7 @@
  * Simplifica la creación de nuevos módulos con configuración mínima
  */
 
+import {navbarItem} from "@System/Layout/Menu.js";
 import * as Requests from "./Requests.js";
 import * as Constants from "./Constants.js";
 import * as Utils from "./Utils.js";
@@ -196,10 +197,10 @@ export function initVueModule(config = {}) {
             const { parentMenuId, menuId } = config;
 
             if (parentMenuId) {
-                Utils.navbarItem(parentMenuId, { addClass: "open" });
+                navbarItem(parentMenuId, { addClass: "open" });
             }
 
-            Utils.navbarItem(menuId || moduleConfig.config.entity.page.menu.id, {});
+            navbarItem(menuId || moduleConfig.config.entity.page.menu.id, {});
             const initParams = await this.loadInitialParams(() => this.initParams({}));
             const initOthers = await this.initOthers({});
 

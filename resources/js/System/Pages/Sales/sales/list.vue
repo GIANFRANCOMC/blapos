@@ -257,6 +257,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
@@ -284,8 +285,8 @@ export default {
     mixins: [InitialPageMixin, createOptionSearch("customers")],
     mounted: async function() {
 
-        Utils.navbarItem("menu-parent-sales", {addClass: "open"});
-        Utils.navbarItem(this.config.entity.page.menu.id, {});
+        navbarItem("menu-parent-sales", {addClass: "open"});
+        navbarItem(this.config.entity.page.menu.id, {});
 
         let initParams = await this.loadInitialParams(() => this.initParams({})),
             initOthers = await this.initOthers({});

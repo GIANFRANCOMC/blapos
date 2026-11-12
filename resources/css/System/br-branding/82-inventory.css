@@ -132,6 +132,7 @@ body.br-layout .br-inventory__difference {
     text-align: center;
 }
 
+body.br-layout .br-entity-inventory__status.br-inventory__situation,
 body.br-layout .br-inventory__table > tbody > tr > td.br-inventory__situation {
     --bs-table-accent-bg: transparent;
     background-color: var(--br-situation-bg) !important;
@@ -171,30 +172,6 @@ body.br-layout .br-entity-modal.br-inventory-alerts .modal-body.br-entity-modal_
 .br-inventory-alerts__summary {
     margin-bottom: 0.9rem;
     flex-shrink: 0;
-}
-
-.br-inventory-alerts__location {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.2rem;
-    min-width: 0;
-}
-
-.br-inventory-alerts__location .form-label {
-    margin: 0;
-}
-
-body.br-layout .br-inventory-alerts .br-inventory-alerts__warehouse-name {
-    display: block;
-    max-width: 100%;
-    overflow: hidden;
-    color: var(--br-secondary);
-    font-size: var(--br-stock-quantity-font-size);
-    font-weight: var(--br-font-weight-emphasis);
-    line-height: 1.35;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
 .br-inventory-alerts__toolbar {

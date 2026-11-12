@@ -114,6 +114,7 @@
 </template>
 
 <script>
+import {navbarItem, updateMenuPreferences} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import {markRaw} from "vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -121,7 +122,6 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
-const PREFERENCES_UPDATED_EVENT = "br:preferences-updated";
 const HIDDEN_HOME_DIRECTORY_SLUGS = new Set(["sc_home", "sc_dashboard"]);
 
 const PAGE_CONFIG = {
@@ -230,7 +230,7 @@ export default {
     mixins: [InitialPageMixin],
     async mounted() {
 
-        Utils.navbarItem(this.page.menu.id, {});
+        navbarItem(this.page.menu.id, {});
 
         await this.loadInitialParams(() => this.initParams({}));
 
@@ -427,11 +427,7 @@ export default {
                 ...this.config.essential,
                 preferences
             };
-            window.preferences = preferences;
-
-            window.dispatchEvent(new CustomEvent(PREFERENCES_UPDATED_EVENT, {
-                detail: {preferences}
-            }));
+            updateMenuPreferences(preferences);
 
         },
         async saveGlobalPreferences() {

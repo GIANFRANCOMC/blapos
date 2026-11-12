@@ -110,7 +110,7 @@ El catálogo contiene solo los tamaños de Control de stock. Al migrar una panta
 | Rol de interfaz | Tamaño estándar existente | Uso |
 | --- | --- | --- |
 | Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales. Los inputs y botones parten de este tamaño. |
-| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-066` en las etiquetas de campos. |
+| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-068` en las etiquetas de campos. |
 | Ayuda o descripción breve | `--br-table-caption-font-size` | Contexto subordinado al dato principal; no reducirlo por pantalla. |
 | Dato secundario | `--br-ui-font-size` | Desgloses comparables y valores secundarios. |
 | Dato principal destacado | `--br-table-value-font-size` | Precios y métricas que requieren mayor jerarquía. |
@@ -119,6 +119,8 @@ El catálogo contiene solo los tamaños de Control de stock. Al migrar una panta
 | Títulos de página, diálogo y sección | `--br-table-value-font-size` | Los títulos destacados comparten este paso. Los títulos de modales compactas heredan el tamaño operativo. |
 
 Los elementos del mismo rol comparten tamaño y peso. Al reutilizar un control, etiqueta o tabla, retirar del CSS de la pantalla las declaraciones de tipografía que ya aporta el estilo común. Los textos internos heredan el tamaño y el peso de su contenedor. Las ayudas y los datos destacados usan su alias de rol. Los códigos internos y de barras comparten los tamaños de etiquetas y valores de Control de stock.
+
+Las opciones con `br-entity-switch` usan el tamaño operativo y el peso de etiqueta para el título. Su descripción `small` usa el tamaño compacto `--br-font-size-066` y el peso del texto base.
 
 Para ampliar toda la tipografía, cambiar `--br-font-scale` de `1` a `1.1` (10 % más). Los iconos en `em` siguen el tamaño de su texto. Para cambiar un rol, apuntar su alias en `00-tokens.css` a otro paso existente para todos sus consumidores.
 
@@ -206,6 +208,7 @@ Criterios prácticos:
 - Los tooltips que se descartan al abrir una modal se restauran globalmente al cerrarla desde `Alerts.js`; los módulos no deben repetir esta restauración para los disparadores de la página.
 - Las modales conservan `modal-dialog-centered`. Apertura y cierre comparten duración y curva para el diálogo, la superficie y el fondo; respetar `prefers-reduced-motion`.
 - Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono se alinea a la izquierda del título y la descripción. Cada tab conserva un contorno tenue; el activo usa un borde azul claro, un icono en recuadro primary y una línea inferior fina, sin el borde grueso de la variante compacta. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
+- Los paneles con `role="tabpanel"` usan el fundido de `02-loading-transitions.css`. Cuando varias pestañas comparten un panel, indicar su ID mediante `sharedControlsId` en `CatalogFormTabs` para repetir el fundido y conservar montados los campos. Las pestañas y su desplazamiento horizontal respetan `prefers-reduced-motion`.
 - Las modales comparten `--br-modal-chrome-surface` para encabezado y pie (gris azulado suave) y `--br-modal-surface` para el cuerpo (casi blanco). Ajustar estos tokens en `br-branding/00-tokens.css` para mantener contraste uniforme; no crear paletas de modal por módulo.
 
 ### Consultas de tablas y limpieza de registros
@@ -250,6 +253,8 @@ Los controles compuestos se tratan como una sola unidad visual. El hover, el foc
 System, Guest y Platform comparten las métricas de `03-form-controls.css`. Los campos de una línea usan `--br-control-height`, `--br-font-size-ui` y peso regular. El placeholder, la búsqueda y el valor seleccionado usan el mismo tamaño. Los textos e iconos se centran verticalmente y los valores arrancan con el mismo padding. Las áreas de texto y las selecciones múltiples pueden crecer según su contenido.
 
 En los selectores, el fondo se pinta en la superficie redondeada del campo, como `.vs__dropdown-toggle` o `.select2-selection`. El contenedor externo queda transparente para que las esquinas muestren el fondo de la página.
+
+En Vue Select y Select2, cada opción elegida que aparece al reabrir el desplegable lleva un fondo suave y una marca de selección. El estilo vive en `03-form-controls.css` y usa el estado de selección de cada biblioteca tanto para selección única como múltiple. El foco por cursor o teclado se distingue de la selección mediante la marca.
 
 Errores de campo:
 

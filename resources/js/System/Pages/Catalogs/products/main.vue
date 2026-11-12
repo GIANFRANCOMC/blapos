@@ -184,6 +184,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -261,8 +262,8 @@ export default {
     },
     async mounted() {
 
-        Utils.navbarItem("menu-parent-items", {addClass: "open"});
-        Utils.navbarItem(this.config.entity.page.menu.id, {});
+        navbarItem("menu-parent-items", {addClass: "open"});
+        navbarItem(this.config.entity.page.menu.id, {});
 
         let initialized;
 

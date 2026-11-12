@@ -1651,6 +1651,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts         from "@System/Helpers/Alerts.js";
 import * as Constants      from "@System/Helpers/Constants.js";
@@ -1665,7 +1666,7 @@ const IS_POS_MODE = window.location.pathname.split("?")[0].endsWith("/sales/pos"
 const MODULE_CONFIG = {
     entity: "sales",
     menuId: IS_POS_MODE ? "menu-sales-pos" : "menu-sales-create",
-    pageTitle: IS_POS_MODE ? "Venta POS" : "Nueva venta",
+    pageTitle: IS_POS_MODE ? "POS venta" : "Nueva venta",
     breadcrumbParent: "Ventas",
     parentMenuId: "menu-parent-sales"
 };
@@ -1876,8 +1877,8 @@ export default {
     },
     mounted: async function() {
 
-        Utils.navbarItem(MODULE.config.parentMenuId, {addClass: "open"});
-        Utils.navbarItem(this.config.entity.page.menu.id, {});
+        navbarItem(MODULE.config.parentMenuId, {addClass: "open"});
+        navbarItem(this.config.entity.page.menu.id, {});
 
         const initParams = await this.loadInitialParams(() => this.initParams({}));
         const initOthers = await this.initOthers({});

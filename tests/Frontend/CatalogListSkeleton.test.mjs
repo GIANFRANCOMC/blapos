@@ -32,7 +32,11 @@ test("el skeleton compartido conserva los encabezados y el loader de cada catál
     assert.equal(parse(component, {filename: "CatalogListSkeleton.vue"}).errors.length, 0);
     assert.match(component, /role="status" aria-live="polite"/);
     assert.match(component, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?br-entity-table/);
-    for(const route of routes.map(([name]) => name)) assert.match(component, new RegExp(`${route}: \\[`, "m"));
+    assert.match(component, /services: offeringColumns\("Servicio"\)/);
+    assert.match(component, /subscriptions: offeringColumns\("Membresía"\)/);
+    assert.match(component, /:class="column.className"/);
+    assert.match(component, /className: "br-entity-table__col-offering-price"/);
+    for(const route of ["categories", "brands"]) assert.match(component, new RegExp(`${route}: \\[`, "m"));
     assert.match(component, /:colspan="columns.length" class="py-4"><Loader\/>/);
     assert.doesNotMatch(component, /rowCount|skeleton__pagination/);
     assert.match(styles, /height: var\(--br-control-height\)/);

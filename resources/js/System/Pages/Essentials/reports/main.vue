@@ -217,6 +217,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -253,7 +254,7 @@ const SETTLEMENT_SCOPE = [
 export default {
     mixins: [InitialPageMixin],
     mounted: async function() {
-        Utils.navbarItem(this.config.entity.page.menu.id, {});
+        navbarItem(this.config.entity.page.menu.id, {});
 
         const initialized = await this.loadInitialParams(() => this.initParams({}));
         if(initialized) await this.initOthers({});

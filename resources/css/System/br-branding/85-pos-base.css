@@ -1,4 +1,4 @@
-/* --- [br-pos] Venta POS --- */
+/* --- [br-pos] POS venta --- */
 .br-pos {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);

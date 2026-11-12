@@ -683,6 +683,11 @@
   margin-bottom: 0.16rem;
 }
 
+.form-label + .br-quick-create-trigger--link {
+  margin-bottom: 0;
+  vertical-align: baseline;
+}
+
 .br-quick-create-trigger i {
   display: inline-flex;
   align-items: center;

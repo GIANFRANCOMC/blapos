@@ -230,14 +230,6 @@ body.br-layout .table > tbody > tr > td,
   object-fit: contain;
 }
 
-.br-entity-modal .br-entity-form-section {
-  animation: none;
-}
-
-.br-entity-modal--tabbed .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
-  transition: none;
-}
-
 .br-layout .card,
 .br-layout .br-cash__panel,
 .br-layout .br-pos-ticket,

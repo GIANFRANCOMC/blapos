@@ -2,7 +2,6 @@
  * Utilidades comunes generales
  */
 
-import { isDefined } from "./ValidationUtils.js";
 import { getStatusLabelClasses } from "./ModuleConstants.js";
 
 /**
@@ -17,26 +16,6 @@ export function getEssential() {
         sections: window?.sections ?? [],
         preferences: window?.preferences ?? []
     };
-}
-
-/**
- * Actualiza el estado de un item del navbar
- * @param {string} id - ID del elemento
- * @param {Object} options - {type: string, addClass: string}
- */
-export function navbarItem(id, {type = "active", addClass = null}) {
-    try {
-        $(`.${id}`).addClass(type);
-        const element = document.getElementById(id);
-        if (element) {
-            element.classList.add(type);
-            if (isDefined({value: addClass})) {
-                element.classList.add(addClass);
-            }
-        }
-    } catch (e) {
-        // Silently fail if element doesn't exist
-    }
 }
 
 /**

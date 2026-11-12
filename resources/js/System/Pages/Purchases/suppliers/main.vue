@@ -223,6 +223,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -235,8 +236,8 @@ export default {
     mixins: [InitialPageMixin],
     components: {SearchButton, SearchInput},
     async mounted() {
-        Utils.navbarItem("menu-parent-purchases", {addClass: "open"});
-        Utils.navbarItem("menu-purchases-suppliers", {});
+        navbarItem("menu-parent-purchases", {addClass: "open"});
+        navbarItem("menu-purchases-suppliers", {});
         await this.loadInitialParams(() => this.listSuppliers({}));
     },
     data() {

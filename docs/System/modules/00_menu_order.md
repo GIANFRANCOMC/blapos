@@ -55,7 +55,7 @@ La cabecera contextual reúne únicamente el icono ya definido para el mundo y s
 ### Ventas
 
 - **Registro y consulta**: Nueva venta, Listado de ventas.
-- **Punto de venta**: Venta POS, POS restaurante.
+- **Punto de venta**: POS venta, POS restaurante.
 - **Cotizaciones**: Nueva cotización, Cotizaciones registradas.
 - **Despacho y cobranza**: Entregas pendientes, Cuentas por cobrar.
 

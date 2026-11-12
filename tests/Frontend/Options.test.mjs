@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import test from "node:test";
 import axios from "axios";
 import {createOptionSearch, fetchOptions, select2Ajax} from "../../resources/js/Shared/Options.js";
+
+test("Vue Select y Select2 marcan la selección persistente con un indicador distinto del foco", () => {
+    const controls = readFileSync(new URL("../../resources/css/System/br-branding/03-form-controls.css", import.meta.url), "utf8");
+    const selection = /:is\(body \.vs__dropdown-menu \.vs__dropdown-option--selected,\s*body \.select2-container--default \.select2-results__option\[aria-selected="true"\]\)/;
+    assert.match(controls, new RegExp(`${selection.source} \\{[^}]*background-color: var\\(--br-primary-soft\\);`));
+    assert.match(controls, new RegExp(`${selection.source}::after \\{[^}]*content: "";`));
+});
 
 test("las opciones solicitan la entidad en su origen y Select2 conserva los datos de cada opción", async ({mock}) => {
     const request = mock.method(axios, "get", async () => ({data: {

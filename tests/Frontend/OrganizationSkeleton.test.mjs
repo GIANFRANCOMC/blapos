@@ -30,8 +30,13 @@ test("Sucursales y Usuarios muestran su tabla esqueleto hasta terminar initParam
         const page = read(`resources/js/System/Pages/Organizations/${route}/main.vue`);
         const entry = read(`resources/js/System/Pages/Organizations/${route}/main.js`);
 
-        assert.equal(parse(page, {filename: `${route}/main.vue`}).errors.length, 0, route);
+        const {descriptor, errors} = parse(page, {filename: `${route}/main.vue`});
+        assert.equal(errors.length, 0, route);
         assert.ok(page.includes(`<CatalogListSkeleton v-if="initialLoading" kind="${route}" label="${label}"/>`), route);
+        const transition = descriptor.template.ast.children.find(node => node.tag === "InitialLoadTransition");
+        const branches = transition.children.filter(node => node.type === 1);
+        assert.deepEqual(branches.map(node => node.tag), ["CatalogListSkeleton", "main"], route);
+        assert.ok(branches[1].props.some(prop => prop.type === 7 && prop.name === "else"), route);
         assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
         assert.match(page, /this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{\}\)\)/, route);
         assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);

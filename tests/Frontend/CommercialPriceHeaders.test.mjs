@@ -28,7 +28,8 @@ test("la columna de precio ocupa el mismo ancho en productos, servicios y membre
     const sharedPrice = styles.match(/\.br-entity-table__col-price,\s*\.br-entity-table__col-offering-price\s*\{\s*width:\s*(\d+)%;/);
 
     assert.ok(sharedPrice, "El ancho de precio debe definirse en una sola regla para los tres listados");
-    assert.equal(Number(sharedPrice[1]), 20);
+    const priceWidth = Number(sharedPrice[1]);
+    assert.equal(priceWidth, 15);
 
     const widthOf = name => {
         const match = styles.match(new RegExp(`\\.br-entity-table__col-${name}\\s*\\{\\s*width:\\s*(\\d+)%`));
@@ -36,8 +37,8 @@ test("la columna de precio ocupa el mismo ancho en productos, servicios y membre
         return Number(match[1]);
     };
 
-    assert.equal(widthOf("identification") + widthOf("product") + 20 + widthOf("status") + widthOf("actions"), 100);
-    assert.equal(widthOf("code") + widthOf("offering") + widthOf("detail") + 20 + widthOf("status") + widthOf("actions"), 100);
+    assert.equal(widthOf("identification") + widthOf("product") + priceWidth + widthOf("status") + widthOf("actions"), 100);
+    assert.equal(widthOf("code") + widthOf("offering") + widthOf("detail") + priceWidth + widthOf("status") + widthOf("actions"), 100);
 });
 
 test("todas las cabeceras del catálogo comercial se centran sin modificar las celdas", () => {

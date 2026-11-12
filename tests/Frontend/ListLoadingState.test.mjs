@@ -198,7 +198,7 @@ for(const path of ["Catalogs/brands", "Catalogs/categories", "Catalogs/products"
         const started = deferred();
         const events = [];
         const run = method(root + path + "/main.vue", "mounted", {
-            Utils: {navbarItem: noop}, Alerts: {tooltips: noop, swals: options => events.push(options)},
+            navbarItem: noop, Alerts: {tooltips: noop, swals: options => events.push(options)},
             document: {getElementById: () => null}
         });
         const load = () => { started.resolve(); return list.promise; };

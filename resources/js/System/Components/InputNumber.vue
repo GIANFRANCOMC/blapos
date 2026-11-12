@@ -15,6 +15,7 @@
                     @input="handleTyping($event.target.value)"
                     @keydown="handleKeyDown"
                     :class="[...inputClass]"
+                    :aria-label="ariaLabel || undefined"
                     :placeholder="placeholder"
                     :disabled="disabled"
                     @keyup.enter="handleEnterKey"/>
@@ -40,6 +41,7 @@
                 @input="handleTyping($event.target.value)"
                 @keydown="handleKeyDown"
                 :class="[...inputClass]"
+                :aria-label="ariaLabel || undefined"
                 :placeholder="placeholder"
                 :disabled="disabled"
                 @keyup.enter="handleEnterKey"/>
@@ -53,7 +55,6 @@
 
 <script>
 import { generalConfig } from "../Helpers/Constants.js";
-import {isDefined} from "../Helpers/Utils.js";
 import {commitNumberInput, editableNumber, isNumberInputKey, numberInputDraft, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 export default {
@@ -133,6 +134,10 @@ export default {
             required: false,
             default: ""
         },
+        ariaLabel: {
+            type: String,
+            default: ""
+        },
         disabled: {
             type: Boolean,
             required: false,
@@ -195,7 +200,7 @@ export default {
         },
         formattedValue() {
 
-            if(!isDefined({value: this.modelValue})) {
+            if(this.modelValue == null || this.modelValue === "") {
 
                 return "";
 

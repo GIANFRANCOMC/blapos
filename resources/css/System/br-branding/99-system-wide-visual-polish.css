@@ -925,8 +925,7 @@ body > .vs__dropdown-menu,
  * ------------------------------------------------------------------------- */
 .br-layout .badge,
 .br-layout .br-status-label,
-.br-layout .br-status-surface,
-.br-entity-inventory-status {
+.br-layout .br-status-surface {
   letter-spacing: 0;
 }
 
@@ -1118,7 +1117,6 @@ body > .vs__dropdown-menu,
   color: var(--br-text-muted) !important;
   box-shadow: none;
   text-align: center;
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
@@ -1190,19 +1188,9 @@ body > .vs__dropdown-menu,
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .br-entity-modal--tabbed .br-catalog-form-tabs .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
-    transition: none;
-  }
-}
-
 /* Pestañas descriptivas compartidas por productos, servicios y membresías. */
 .br-entity-modal--tabbed:has(.br-catalog-form-tabs--descriptive) {
   --br-entity-modal-tabs-content-space-y: 0.7rem;
-}
-
-.br-entity-modal--tabbed:has(.br-catalog-form-tabs--descriptive) .br-entity-form-section {
-  animation: none;
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive {
@@ -1232,7 +1220,6 @@ body > .vs__dropdown-menu,
   background: color-mix(in srgb, var(--br-white) 82%, var(--br-modal-chrome-surface)) !important;
   color: var(--br-secondary) !important;
   text-align: left;
-  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
 }
 
 .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link:hover:not(.active):not(.is-active) {
@@ -1366,12 +1353,6 @@ body > .vs__dropdown-menu,
     min-width: 10.25rem;
     height: 3.12rem;
     min-height: 3.12rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .br-entity-modal--tabbed .br-catalog-form-tabs--descriptive .br-entity-tabs.nav-pills .br-entity-tab.nav-link {
-    transition: none;
   }
 }
 

@@ -134,7 +134,7 @@
                     </div>
 
                     <form class="br-recipe-form" @submit.prevent="saveRecipe">
-                        <section v-show="activeTab === 'general'" class="br-entity-form-section">
+                        <section v-show="activeTab === 'general'" class="br-entity-form-section br-tab-panel">
                             <div class="row g-3">
                                 <InputSlot
                                     hasDiv
@@ -213,7 +213,7 @@
                             </div>
                         </section>
 
-                        <section v-show="activeTab === 'components'" class="br-entity-form-section">
+                        <section v-show="activeTab === 'components'" class="br-entity-form-section br-tab-panel">
                             <div class="br-recipe-section-toolbar">
                                 <div>
                                     <h3>Insumos base</h3>
@@ -236,7 +236,7 @@
                             </div>
                         </section>
 
-                        <section v-show="activeTab === 'toppings'" class="br-entity-form-section">
+                        <section v-show="activeTab === 'toppings'" class="br-entity-form-section br-tab-panel">
                             <div class="br-recipe-section-toolbar">
                                 <div>
                                     <h3>Toppings y extras</h3>
@@ -275,7 +275,7 @@
                             </div>
                         </section>
 
-                        <section v-show="activeTab === 'options'" class="br-entity-form-section mb-0">
+                        <section v-show="activeTab === 'options'" class="br-entity-form-section br-tab-panel mb-0">
                             <div class="br-recipe-section-toolbar">
                                 <div>
                                     <h3>Sabores y variantes</h3>

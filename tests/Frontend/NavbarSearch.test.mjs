@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
-import {rankNavigationItems} from "../../resources/js/System/Layout/navbar-search.js";
+import {rankNavigationItems} from "../../resources/js/System/Layout/Menu.js";
 
 test("el buscador prioriza nombres y reconoce acentos, mundos y descripciones", () => {
     const items = [
@@ -20,7 +20,7 @@ test("el buscador prioriza nombres y reconoce acentos, mundos y descripciones", 
 test("el navbar usa la navegación autorizada y conserva avisos y empresa", () => {
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/60-dashboard-sales.css", import.meta.url), "utf8");
-    const behavior = readFileSync(new URL("../../resources/js/System/Layout/navbar-search.js", import.meta.url), "utf8");
+    const behavior = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
 
     assert.match(layout, /id="brNavbarSearchInput"[\s\S]*?aria-controls="brNavbarSearchPanel"/);
     assert.match(layout, /@foreach\(\$navigationSections as \$section\)[\s\S]*?@foreach\(\$section->subSections as \$subSection\)[\s\S]*?data-br-search-item/);

@@ -457,6 +457,11 @@
                             role="tabpanel">
                             <div v-if="productForm.errors?.inventory" class="alert alert-danger py-2" v-text="firstError(productForm.errors.inventory)"></div>
 
+                            <div class="br-field-summary mb-3">
+                                <span class="form-label">Producto</span>
+                                <strong class="br-field-summary__value" :title="productName || undefined">{{ productName || 'Sin nombre' }}</strong>
+                            </div>
+
                             <ProductWarehouseInventory
                                 v-if="productForm.data.inventory.length"
                                 v-model:rows="productForm.data.inventory"
@@ -1033,6 +1038,11 @@ export default {
         productForm() {
 
             return this.forms[this.entity].createUpdate;
+
+        },
+        productName() {
+
+            return this.productForm.data.name?.trim() || "";
 
         },
         modalId() {

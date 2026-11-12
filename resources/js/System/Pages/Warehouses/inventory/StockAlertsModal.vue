@@ -9,9 +9,9 @@
         close-button-text="Cerrar">
         <template #body>
             <header class="br-inventory-alerts__summary">
-                <div class="br-inventory-alerts__location">
+                <div class="br-field-summary">
                     <span class="form-label">Almacén de trabajo</span>
-                    <strong class="br-inventory-alerts__warehouse-name" :title="warehouse?.displayLabel || warehouse?.label || ''">{{ warehouse?.displayLabel || warehouse?.label || 'Almacén no seleccionado' }}</strong>
+                    <strong class="br-field-summary__value" :title="warehouse?.displayLabel || warehouse?.label || ''">{{ warehouse?.displayLabel || warehouse?.label || 'Almacén no seleccionado' }}</strong>
                 </div>
             </header>
 

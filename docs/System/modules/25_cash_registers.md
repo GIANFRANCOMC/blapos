@@ -53,7 +53,7 @@ La vista se monta desde:
 - Menú `Cajas > Resumen` con acceso `cash_summary.index`.
 - Acción `Agregar caja`: permite crear varias cajas por sucursal desde el módulo Caja. El código interno puede dejarse vacío y se genera automáticamente con prefijo `CAJ-`.
 - Las acciones `Abrir caja` y `Cerrar caja` se muestran por cada caja del listado. No existen botones globales para evitar abrir o cerrar una caja equivocada.
-- Entrada `Venta POS` dentro de ventas usando el flujo de nueva venta, pero con título y menú propios.
+- Entrada `POS venta` dentro de ventas usando el flujo de nueva venta, pero con título y menú propios.
 - Vistas independientes de Caja:
   - `Cajas`: estado de cada caja, sesion activa y monto esperado.
   - `Aperturas y cierres`: historial de sesiones, esperado, contado y diferencia.
@@ -93,7 +93,7 @@ La vista se monta desde:
 
 - `cash_registers.store` crea una caja asociada a una sucursal activa.
 - Si el codigo interno se deja vacio, `CashRegisterService` genera un codigo unico con prefijo `CAJ-`.
-- Al crear una caja se invalidan las caches operativas de Caja y Venta POS para que la nueva caja quede disponible sin esperar al TTL.
+- Al crear una caja se invalidan las caches operativas de Caja y POS venta para que la nueva caja quede disponible sin esperar al TTL.
 
 ## Estado de mejoras
 
@@ -109,5 +109,5 @@ La vista se monta desde:
 - La cabecera muestra `br-operational-scope` con caja y sucursal activas para que aperturas, cierres, movimientos y resúmenes no parezcan globales.
 - Un colaborador sin selección propia hereda el perfil; no obtiene acceso total automáticamente.
 - Solo puede listar, abrir, cerrar o usar cajas incluidas en `role_cash_registers`/`user_cash_registers` y en sus sucursales permitidas.
-- Venta POS reutiliza esta misma restricción para evitar que un usuario cobre en una caja de una sucursal que no le corresponde.
+- POS venta reutiliza esta misma restricción para evitar que un usuario cobre en una caja de una sucursal que no le corresponde.
 - Los accesos `Cajas`, `Aperturas y cierres`, `Movimientos` y `Resumen` conservan permisos por acción independientes aunque compartan controlador.

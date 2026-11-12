@@ -87,7 +87,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - El stock inicial de Productos se registra como entrada `product_opening`.
 - Editar precio, descripción, marca, categorías o stock mínimo no genera kardex.
 - Las salidas manuales no permiten saldo negativo.
-- Ventas y Venta POS/Caja consultan `company_settings.inventory.allow_negative_stock_on_sale`. Por defecto es `false`, por lo que no se confirma una venta si algún producto queda por debajo de cero en el almacén seleccionado.
+- Ventas y POS venta/Caja consultan `company_settings.inventory.allow_negative_stock_on_sale`. Por defecto es `false`, por lo que no se confirma una venta si algún producto queda por debajo de cero en el almacén seleccionado.
 - Cada movimiento sincroniza `inventory_stock_alerts`: si el saldo queda menor o igual al stock mínimo se abre o actualiza una alerta; si vuelve a estar por encima del mínimo, la alerta se resuelve.
 - Si `company_settings.inventory.stock_alert_email_enabled` está activo, al abrir una nueva alerta se envía un correo al destinatario configurado en `stock_alert_email_to` o al correo de la empresa. Las actualizaciones de una alerta abierta no reenvían correo.
 

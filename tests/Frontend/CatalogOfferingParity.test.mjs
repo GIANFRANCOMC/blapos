@@ -96,8 +96,13 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
     const tabConfig = config.split("export const FORM_FIELDS")[0];
     const tabs = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8");
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/99-system-wide-visual-polish.css", import.meta.url), "utf8");
+    const motion = readFileSync(new URL("../../resources/css/System/br-branding/02-loading-transitions.css", import.meta.url), "utf8");
 
     assert.match(product, /<CatalogFormTabs[\s\S]*?variant="descriptive"/);
+    const inventoryPanel = product.match(/<section\s+v-show="activeFormTab === 'inventory'"[\s\S]*?<\/section>/)?.[0];
+    assert.equal((product.match(/class="br-field-summary\b/g) || []).length, 1);
+    assert.match(inventoryPanel, /<div class="br-field-summary mb-3">\s*<span class="form-label">Producto<\/span>\s*<strong class="br-field-summary__value" :title="productName \|\| undefined">\{\{ productName \|\| 'Sin nombre' \}\}<\/strong>\s*<\/div>\s*<ProductWarehouseInventory/);
+    assert.match(product, /productName\(\)\s*\{\s*return this\.productForm\.data\.name\?\.trim\(\)/);
     assert.match(tabs, /variant: \{type: String, default: "compact"\}/);
     assert.match(tabs, /<small v-if="variant === 'descriptive' && tab\.description">/);
     assert.match(tabs, /class="br-entity-tab__icon" aria-hidden="true"/);
@@ -110,7 +115,8 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
     assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 5);
     assert.match(branding, /\.br-catalog-form-tabs--descriptive[\s\S]*?scroll-snap-type: x proximity/);
     assert.doesNotMatch(branding, /:has\(\.br-catalog-form-tabs--descriptive\) \.modal-dialog-centered/);
-    assert.match(branding, /:has\(\.br-catalog-form-tabs--descriptive\) \.br-entity-form-section\s*\{[^}]*animation: none/);
+    assert.match(motion, /@media \(prefers-reduced-motion: no-preference\) \{\s*:is\(\[role="tabpanel"\], \.br-tab-panel\):not\(\.br-tab-panel-restart\) \{[^}]*animation: brTabPanelIn/);
+    assert.match(tabs, /restartSharedPanelAnimation\(\) \{[\s\S]*?prefers-reduced-motion: reduce[\s\S]*?getElementById\(this\.sharedControlsId\)[\s\S]*?classList\.add\("br-tab-panel-restart"\)[\s\S]*?classList\.remove\("br-tab-panel-restart"\)/);
 
     for(const module of modules) {
 

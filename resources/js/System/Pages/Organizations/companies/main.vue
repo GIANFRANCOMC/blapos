@@ -285,6 +285,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -424,8 +425,8 @@ export default {
     },
     mounted: async function() {
 
-        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
-        Utils.navbarItem(this.config.entity.page.menu.id, {});
+        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem(this.config.entity.page.menu.id, {});
 
         let initialized;
 

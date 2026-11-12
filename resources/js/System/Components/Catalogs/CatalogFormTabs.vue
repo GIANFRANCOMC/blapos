@@ -76,6 +76,7 @@ export default {
 
             this.$nextTick(() => {
 
+                this.restartSharedPanelAnimation();
                 const tabList = this.$refs.tabList;
                 const selected = tabList?.querySelector('[aria-selected="true"]');
 
@@ -97,6 +98,19 @@ export default {
         }
     },
     methods: {
+        restartSharedPanelAnimation() {
+
+            if(!this.sharedControlsId || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+            const panel = document.getElementById(this.sharedControlsId);
+            if(!panel) return;
+
+            panel.classList.add("br-tab-panel-restart");
+            // Aplicar el reinicio antes de volver a animar el mismo panel montado.
+            void window.getComputedStyle(panel).animationName;
+            panel.classList.remove("br-tab-panel-restart");
+
+        },
         selectAdjacentTab(direction) {
 
             const nextIndex = this.activeIndex + direction;
@@ -108,7 +122,7 @@ export default {
             }
 
             this.selectTab(this.tabs[nextIndex].id);
-            this.$nextTick(() => this.$refs.tabList?.querySelector('[aria-selected="true"]')?.focus());
+            this.$nextTick(() => this.$refs.tabList?.querySelector('[aria-selected="true"]')?.focus({preventScroll: true}));
 
         },
         selectTab(tabId) {
@@ -138,7 +152,7 @@ export default {
 
             this.$nextTick(() => {
 
-                this.$refs.tabList?.querySelector('[aria-selected="true"]')?.focus();
+                this.$refs.tabList?.querySelector('[aria-selected="true"]')?.focus({preventScroll: true});
 
             });
 

@@ -53,7 +53,7 @@ test("todas las confirmaciones System muestran cierre accesible y evitan respues
 
 test("los títulos de confirmación formulan preguntas con verbo y sustantivo", () => {
     let confirmations = 0;
-    const scripts = [...systemScripts("resources/js/System/Pages"), "resources/js/System/Layout/main.js"];
+    const scripts = [...systemScripts("resources/js/System/Pages"), "resources/js/System/Layout/Menu.js"];
 
     for(const path of scripts) {
         const source = read(path);

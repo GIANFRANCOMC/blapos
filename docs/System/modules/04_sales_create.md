@@ -42,7 +42,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 
 ## Estado de mejoras
 
-- La venta normal y Venta POS/Caja consultan `company_settings.inventory.allow_negative_stock_on_sale`; por defecto no permiten confirmar si algún producto supera el stock disponible del almacén seleccionado.
+- La venta normal y POS venta/Caja consultan `company_settings.inventory.allow_negative_stock_on_sale`; por defecto no permiten confirmar si algún producto supera el stock disponible del almacén seleccionado.
 - La anulación aplica `company_settings.inventory.restore_stock_on_sale_cancellation`; por defecto no repone productos automáticamente. Si se requiere devolver mercadería, debe registrarse una devolución de cliente o entrada manual desde Inventario.
 - `serie_id` debe pertenecer a la sucursal seleccionada y estar activo; si no coincide, la venta se rechaza antes de generar correlativo.
 - El correlativo está protegido contra concurrencia mediante `lockForUpdate()` y la unicidad `serie_id + sequential`.
@@ -78,7 +78,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - `sales_body.commission_type`, `sales_body.commission_value` y `sales_body.commission_amount` guardan la foto de la comision aplicada a cada detalle.
 - `sales_header.commission_total` guarda la suma de comisiones de toda la venta para reportes, liquidaciones y comisiones por colaborador.
 - La comision es informacion interna de la empresa: no modifica subtotal, impuestos ni total cobrado al cliente.
-- La venta normal permite ajustar la comision por detalle antes de agregarlo. Venta POS toma la regla configurada en el item para mantener rapidez operativa.
+- La venta normal permite ajustar la comision por detalle antes de agregarlo. POS venta toma la regla configurada en el item para mantener rapidez operativa.
 
 ## Actualizacion: IGV incluido, almacen de venta y caja
 
@@ -97,7 +97,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - Si el precio incluye IGV, el resumen muestra el IGV contenido sin aumentar el total. Si el precio no incluye IGV, el IGV se suma al total.
 - Los tributos fijos de venta, como ICBP, son cargos de documento: no dependen de la base porcentual y se calculan al estar obligatorios o seleccionados.
 - Los tributos fijos opcionales de venta permiten indicar cantidad entera. Ejemplo: si la venta usa 2 bolsas, el usuario marca `ICBP` y coloca cantidad 2. Al quitar el check, el campo se oculta y no se envia el tributo.
-- La venta normal y Venta POS respetan `taxes.min_apply_quantity` y `taxes.max_apply_quantity` para tributos fijos opcionales. El frontend normaliza la cantidad con `InputNumber` y el backend recalcula el importe final para evitar diferencias.
+- La venta normal y POS venta respetan `taxes.min_apply_quantity` y `taxes.max_apply_quantity` para tributos fijos opcionales. El frontend normaliza la cantidad con `InputNumber` y el backend recalcula el importe final para evitar diferencias.
 - `sales_header.warehouse_id` guarda el almacen afectado por la venta.
 - El frontend muestra el selector de almacen junto a Sucursal y Tipo de comprobante. Si la sucursal solo tiene un almacen, lo selecciona automaticamente.
 - Nueva venta muestra `br-operational-scope` con sucursal, almacen y serie activos para que el usuario identifique el alcance antes de confirmar.
@@ -141,7 +141,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - Si `delivery_mode = pending`, el backend crea `sale_deliveries` y `sale_delivery_items`, no descuenta stock al confirmar la venta y deja el despacho para `Ventas > Entregas pendientes`.
 - Cada entrega registrada crea `sale_delivery_events`, `sale_delivery_event_items` y movimientos de inventario con origen `sale_delivery`. La venta puede quedar `partial` hasta completar todas las cantidades.
 - Al anular una venta, las entregas pendientes se cancelan. Si la empresa tiene activa la reposición automática por anulación, también se consideran los movimientos originados por entregas parciales ya realizadas.
-# Venta POS
+# POS venta
 
 - `sales.pos` se muestra bajo la cabecera `Ventas`, antes de `Nuevo` y `Listado`, porque genera una venta real y comparte validaciones, caja, pagos, tributos e inventario con el flujo principal.
 - `sales.pos` usa una vista propia tipo mostrador: categorias superiores, buscador de productos, cards de productos y ticket lateral.
@@ -175,7 +175,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - El POS muestra cada tributo por nombre, por ejemplo `IGV`, y soporta tributos porcentuales, fijos, de suma o de resta usando la misma regla de backend.
 - En venta normal y POS, el bloque `Impuestos extras` muestra solo tributos opcionales, como `ICBP`. Los obligatorios, como `IGV`, no se seleccionan; se calculan automáticamente y aparecen en el resumen.
 - Si existe una sesion de caja abierta, POS puede asociar la venta a `cash_session_id` para alimentar movimientos de caja.
-## Venta POS - pagos y confirmación
+## POS venta - pagos y confirmación
 
 - La vista principal del POS se enfoca en seleccionar catálogo, caja y revisar el detalle de la venta.
 - Los métodos de pago se revisan y editan únicamente en la modal **Confirmar venta**. Por defecto se muestra un resumen legible; si el pago será mixto, el usuario puede usar **Cambiar método de pago** y ajustar importes antes de confirmar.
@@ -185,11 +185,11 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - El botón **Confirmar venta** dentro de la modal se mantiene visible y solo se bloquea si el detalle está vacío; las validaciones de cliente, caja y pagos se comunican al confirmar.
 - El botón principal de la vista se mantiene como **Revisar venta** para reforzar que la venta se confirma en un segundo paso.
 - Las cajas disponibles se limitan por las sucursales permitidas del colaborador. Si el usuario no tiene sucursales configuradas, mantiene acceso a todas las sucursales de la empresa.
-- Los ítems con estado `inactive` no se cargan para Venta POS ni para el flujo transaccional de ventas.
+- Los ítems con estado `inactive` no se cargan para POS venta ni para el flujo transaccional de ventas.
 
 ## Integración con atenciones de servicio
 
-- Venta POS admite `service_session_id` para cobrar una mesa o servicio previamente iniciado.
+- POS venta admite `service_session_id` para cobrar una mesa o servicio previamente iniciado.
 - Al abrir POS desde Restaurante POS o Servicios en curso, se precargan sucursal, cliente y detalles vigentes de la atención.
 - La sesión debe pertenecer a la misma empresa, estar pendiente o en curso y ser accesible para el usuario por sucursal.
 - La venta y el cierre de la sesión ocurren dentro de la misma transacción. Si falla comprobante, pago, stock, impuesto o caja, la atención permanece abierta.

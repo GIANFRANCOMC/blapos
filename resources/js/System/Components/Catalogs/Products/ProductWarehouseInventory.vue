@@ -1,22 +1,24 @@
 <template>
     <div class="br-entity-inventory">
         <div class="br-entity-inventory__head">
+            <span>Sede</span>
             <span>Almacén</span>
             <span>{{ currentLabel }}</span>
             <span>Stock mínimo</span>
+            <span>Estado del stock</span>
         </div>
 
         <div
             v-for="item in displayRows"
             :key="item.inventory.warehouse_id"
-            :class="['br-entity-inventory__row', item.status?.className]">
-            <div class="br-entity-inventory__warehouse">
-                <strong v-text="item.inventory.warehouse_name"></strong>
+            class="br-entity-inventory__row">
+            <div class="br-entity-inventory__branch">
+                <span class="br-entity-inventory__mobile-label">Sede</span>
                 <span v-text="item.inventory.branch_name"></span>
-                <small v-if="item.status" :class="['br-entity-inventory-status', item.status.className]">
-                    <i :class="item.status.icon" aria-hidden="true"></i>
-                    <span v-text="item.status.text"></span>
-                </small>
+            </div>
+            <div class="br-entity-inventory__warehouse">
+                <span class="br-entity-inventory__mobile-label">Almacén</span>
+                <span v-text="item.inventory.warehouse_name"></span>
             </div>
 
             <div class="br-entity-inventory__field">
@@ -24,6 +26,8 @@
                     v-if="mode === 'edit' && !isUpdate"
                     :model-value="item.inventory.initial_stock"
                     :title="currentLabel"
+                    :placeholder="currentLabel"
+                    :aria-label="`${currentLabel} · ${item.inventory.branch_name} · ${item.inventory.warehouse_name}`"
                     :titleClass="['br-entity-inventory__mobile-label']"
                     :minValue="0"
                     hasTextBottom
@@ -35,7 +39,7 @@
                     :aria-label="currentLabel"
                     :title="mode === 'edit' && isUpdate ? 'El stock actual se modifica desde Inventario.' : null">
                     <span class="br-entity-inventory__mobile-label" v-text="currentLabel"></span>
-                    <strong><QuantityValue :value="item.inventory.initial_stock" :unit="measurementUnit"/></strong>
+                    <QuantityValue class="br-inventory__stock-current" :value="item.inventory.initial_stock" :unit="measurementUnit"/>
                 </span>
             </div>
 
@@ -44,6 +48,8 @@
                     v-if="mode === 'edit'"
                     :model-value="item.inventory.minimum_stock"
                     title="Stock mínimo"
+                    placeholder="Stock mínimo"
+                    :aria-label="`Stock mínimo · ${item.inventory.branch_name} · ${item.inventory.warehouse_name}`"
                     :titleClass="['br-entity-inventory__mobile-label']"
                     :minValue="0"
                     hasTextBottom
@@ -51,8 +57,14 @@
                     @update:modelValue="updateRow(item.index, 'minimum_stock', $event)"/>
                 <span v-else class="br-entity-readonly-metric" aria-label="Stock mínimo">
                     <span class="br-entity-inventory__mobile-label">Stock mínimo</span>
-                    <strong><QuantityValue :value="item.inventory.minimum_stock" :unit="measurementUnit"/></strong>
+                    <QuantityValue :value="item.inventory.minimum_stock" :unit="measurementUnit"/>
                 </span>
+            </div>
+
+            <div class="br-entity-inventory__status" :class="item.status && ['br-inventory__situation', `br-inventory__situation--${item.status.code}`]">
+                <span class="br-entity-inventory__mobile-label">Estado del stock</span>
+                <span v-if="item.status" v-text="item.status.text"></span>
+                <span v-else class="text-muted" aria-label="Estado del stock pendiente">—</span>
             </div>
         </div>
     </div>

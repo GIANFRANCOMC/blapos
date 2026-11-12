@@ -74,6 +74,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -106,8 +107,8 @@ export default {
         }
     },
     async mounted() {
-        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
-        Utils.navbarItem("menu-configuration-business-profile", {addClass: "active"});
+        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-configuration-business-profile", {addClass: "active"});
         await this.loadInitialParams(() => this.load());
     },
     methods: {

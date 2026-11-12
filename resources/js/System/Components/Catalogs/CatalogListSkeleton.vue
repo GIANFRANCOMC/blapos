@@ -24,7 +24,7 @@
             <div class="table-responsive">
                 <table :class="['table', 'br-entity-table', 'mb-0', {'br-entity-table--offering': isOffering, 'br-entity-table--directory': isDirectory, 'br-entity-table--catalog-usage': isCatalogUsage, 'br-entity-table--commercial-headings': isOffering || isCatalogUsage}]">
                     <colgroup>
-                        <col v-for="column in columns" :key="column.title" :style="{width: column.width}">
+                        <col v-for="column in columns" :key="column.title" :class="column.className" :style="{width: column.width}">
                     </colgroup>
                     <thead class="br-table-header-surface">
                         <tr>
@@ -52,23 +52,18 @@ const COMMON_IDENTITY = {title: "Identificación"};
 const COMMON_STATUS = {title: "Estado", align: "text-center"};
 const COMMON_ACTIONS = {title: "", align: "text-center"};
 
+const offeringColumns = title => [
+    {...COMMON_IDENTITY, className: "br-entity-table__col-code"},
+    {title, className: "br-entity-table__col-offering"},
+    {title: "Detalles", className: "br-entity-table__col-detail"},
+    {title: "Precio", className: "br-entity-table__col-offering-price", align: "text-center"},
+    {...COMMON_STATUS, className: "br-entity-table__col-status"},
+    {...COMMON_ACTIONS, className: "br-entity-table__col-actions"}
+];
+
 const COLUMNS = {
-    services: [
-        {...COMMON_IDENTITY, width: "22%"},
-        {title: "Servicio", width: "25%"},
-        {title: "Detalles", width: "22%"},
-        {title: "Precio", width: "17%", align: "text-end"},
-        {...COMMON_STATUS, width: "8%"},
-        {...COMMON_ACTIONS, width: "6%"}
-    ],
-    subscriptions: [
-        {...COMMON_IDENTITY, width: "22%"},
-        {title: "Membresía", width: "25%"},
-        {title: "Detalles", width: "22%"},
-        {title: "Precio", width: "17%", align: "text-end"},
-        {...COMMON_STATUS, width: "8%"},
-        {...COMMON_ACTIONS, width: "6%"}
-    ],
+    services: offeringColumns("Servicio"),
+    subscriptions: offeringColumns("Membresía"),
     categories: [
         {...COMMON_IDENTITY, width: "20%"},
         {title: "Categoría", width: "34%"},

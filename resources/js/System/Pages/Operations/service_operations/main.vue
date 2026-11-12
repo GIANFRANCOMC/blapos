@@ -628,6 +628,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import {createOptionSearch} from "@/Shared/Options.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -758,8 +759,8 @@ export default {
         }
     },
     async mounted() {
-        Utils.navbarItem(this.isRestaurant ? "menu-parent-sales" : "menu-parent-workspace", {addClass: "open"});
-        Utils.navbarItem(this.isRestaurant ? "menu-restaurant-pos" : "menu-service-sessions", {addClass: "active"});
+        navbarItem(this.isRestaurant ? "menu-parent-sales" : "menu-parent-workspace", {addClass: "open"});
+        navbarItem(this.isRestaurant ? "menu-restaurant-pos" : "menu-service-sessions", {addClass: "active"});
         this.timer = window.setInterval(() => { this.now = Date.now(); }, 30000);
         const initialized = await this.loadInitialParams(() => this.initParams());
         if(initialized) {

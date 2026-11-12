@@ -58,7 +58,7 @@ La ruta actual es la fuente principal para determinar:
 
 La resolución se realiza en el servidor con el nombre almacenado en `sub_sections.dom_route`. Esto permite refrescar o abrir directamente cualquier URL sin depender del último clic.
 
-Se conservan los `dom_id` y clases históricas para que los componentes Vue que todavía llaman a `Utils.navbarItem()` sigan funcionando. El estado activo principal se aplica únicamente a la página actual; los padres utilizan un tratamiento visual más tenue.
+Los componentes Vue marcan el mundo y la página con `navbarItem()` de `Menu.js`. El estado activo principal se aplica a la página actual y los padres utilizan un tratamiento visual más tenue.
 
 ## Colapsado y responsive
 
@@ -69,7 +69,7 @@ Se conservan los `dom_id` y clases históricas para que los componentes Vue que 
 
 Los submódulos sin `menu_group_id` aparecen juntos al inicio del panel contextual, sin encabezado. Luego aparecen los grupos por `menu_groups.order`; dentro de cada grupo se conserva el orden de las opciones habilitadas para la empresa.
 
-Las opciones del panel contextual se colocan en filas consecutivas de altura mínima `--br-btn-height-sm`. El estilo compartido alinea los textos de los encabezados y las opciones. Usa `--br-grid-gap-3` entre icono y texto y a ambos lados del separador entre grupos.
+Las opciones del panel contextual se colocan en filas consecutivas de altura mínima `--br-btn-height-xs`. El estilo compartido alinea los textos de los encabezados y las opciones y usa `--br-grid-gap-3` entre icono y texto. Los grupos consecutivos se distinguen por su encabezado y un margen vertical de `--br-grid-gap-4`.
 
 El título del módulo, la descripción, los encabezados de grupo y las opciones comparten `--br-font-size-061`. El peso y el color distinguen cada nivel.
 
@@ -87,11 +87,12 @@ El botón existente del navbar continúa controlando el colapsado mediante la in
 - Cerrar sesión, tanto desde el avatar como desde el riel, solicita confirmación antes de enviar el formulario `POST` protegido con CSRF.
 - El acceso de salida usa una señal visual roja tenue en reposo y el tratamiento danger completo al pasar el cursor.
 
-El seguimiento captura el nombre de ruta y la URL solicitada antes de ejecutar el controlador. Antes de incrementar el contador comprueba que ambas correspondan exactamente, evitando que una vista compartida —por ejemplo Nueva venta y Venta POS— registre otra página del catálogo.
+El seguimiento captura el nombre de ruta y la URL solicitada antes de ejecutar el controlador. Antes de incrementar el contador comprueba que ambas correspondan exactamente, evitando que una vista compartida —por ejemplo Nueva venta y POS venta— registre otra página del catálogo.
 
 ## Archivos principales
 
 - `resources/views/System/layouts/main.blade.php`: resolución y marcado accesible.
+- `resources/js/System/Layout/Menu.js` reúne el cambio de mundo, la búsqueda del navbar, los favoritos, el marcado de la página activa y la salida de sesión.
 - `resources/css/System/br-branding/51-two-level-navigation.css`: diseño responsive de dos niveles.
 - `app/Services/System/Organizations/Companies/CompanySectionService.php`: permisos y módulos disponibles.
 - `database/seeders/SystemNavigationSeeder.php`: catálogo de módulos, secciones y páginas.

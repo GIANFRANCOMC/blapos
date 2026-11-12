@@ -278,6 +278,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -293,8 +294,8 @@ import RolesSkeleton from "./RolesSkeleton.vue";
 export default {
     components: {SearchButton, InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
     async mounted() {
-        Utils.navbarItem("menu-parent-configuration", {addClass: "open"});
-        Utils.navbarItem("menu-configuration-roles", {});
+        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-configuration-roles", {});
 
         try {
             await this.initParams();

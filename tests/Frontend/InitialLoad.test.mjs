@@ -19,7 +19,7 @@ function inventory(page, events) {
     }
     dependencies.Alerts = {swals: options => events.push(options)};
     dependencies.Requests = {config: () => ({})};
-    dependencies.Utils = {navbarItem() {}};
+    dependencies.navbarItem = () => {};
     const component = new Function(...Object.keys(dependencies), source
         .replace(/^import .*;\s*$/gm, "")
         .replace("export default", "return"))(...Object.values(dependencies));

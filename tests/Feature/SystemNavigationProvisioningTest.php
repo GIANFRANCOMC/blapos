@@ -170,6 +170,7 @@ final class SystemNavigationProvisioningTest extends TestCase {
         $sales = DB::table("sub_sections")->where("section_id", 3)->get(["id", "is_enabled_by_default"]);
 
         $this->assertCount(8, $sales);
+        $this->assertDatabaseHas("sub_sections", ["dom_route" => "sales.pos", "dom_label" => "POS venta"]);
         $this->assertTrue($sales->every(fn(object $module) => (bool) $module->is_enabled_by_default));
         $this->assertSame(8, DB::table("companies_sub_sections")
             ->where("company_id", 1)

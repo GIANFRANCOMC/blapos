@@ -72,7 +72,7 @@ Cada movimiento conserva empresa, almacén, producto, usuario, tipo, origen, mot
 
 - Bloqueo backend de ventas sin serie activa.
 - Bloqueo backend de ventas sin almacén activo.
-- Mensajes accionables en Venta y Venta POS.
+- Mensajes accionables en Venta y POS venta.
 - Protección transaccional y unicidad del correlativo.
 - Historial de emisión y anulación mediante `series_correlative_movements`.
 - Historial de movimientos físicos mediante `inventory_movements`.

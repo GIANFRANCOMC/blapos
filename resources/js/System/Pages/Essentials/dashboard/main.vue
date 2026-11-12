@@ -171,6 +171,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -268,7 +269,7 @@ export default {
     },
     mounted: async function() {
 
-        Utils.navbarItem(this.config.entity.page.menu.id, {});
+        navbarItem(this.config.entity.page.menu.id, {});
 
         let initParams = await this.loadInitialParams(() => this.initParams());
 

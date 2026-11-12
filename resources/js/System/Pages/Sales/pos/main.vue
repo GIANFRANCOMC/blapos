@@ -282,7 +282,7 @@
             <div class="modal-content">
                 <div class="modal-header br-entity-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Venta POS</p>
+                        <p class="br-entity-modal__eyebrow mb-1">POS venta</p>
                         <h2 id="brPosSaleConfirmationModalTitle" class="modal-title br-entity-modal__title">
                             Confirmar venta
                         </h2>
@@ -492,6 +492,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -550,7 +551,7 @@ export default {
     },
     computed: {
         breadcrumbTitles() {
-            return [{title: "Ventas"}, {title: "Venta POS", active: true}];
+            return [{title: "Ventas"}, {title: "POS venta", active: true}];
         },
         branchOptions() {
             return this.branches.map(branch => ({...branch, label: branch.name}));
@@ -730,8 +731,8 @@ export default {
         }
     },
     async mounted() {
-        Utils.navbarItem("menu-parent-sales", {addClass: "open"});
-        Utils.navbarItem("menu-sales-pos", {addClass: "active"});
+        navbarItem("menu-parent-sales", {addClass: "open"});
+        navbarItem("menu-sales-pos", {addClass: "active"});
         const initialized = await this.loadInitialParams(() => this.initParams());
         if(initialized) await this.preloadServiceSession();
     },
@@ -1170,7 +1171,7 @@ export default {
                 holder_id: this.selectedCustomer?.id,
                 currency_id: this.currencies[0]?.id || this.cart[0]?.item?.currency_id,
                 issue_date: this.today(),
-                observation: "Venta POS",
+                observation: "POS venta",
                 details: this.cart.map(line => ({
                     item_id: line.item.id,
                     type: line.item.type,

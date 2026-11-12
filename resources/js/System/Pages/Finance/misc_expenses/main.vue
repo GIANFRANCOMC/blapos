@@ -179,6 +179,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -204,8 +205,8 @@ export default {
         };
     },
     async mounted() {
-        Utils.navbarItem("menu-parent-cash", {addClass: "open"});
-        Utils.navbarItem("menu-misc-expenses", {addClass: "active"});
+        navbarItem("menu-parent-cash", {addClass: "open"});
+        navbarItem("menu-misc-expenses", {addClass: "active"});
         const initialized = await this.loadInitialParams(() => this.initialize());
         if(initialized) await this.loadExpenses();
     },

@@ -390,6 +390,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import { generalConfig } from "../../../Helpers/Constants.js";
@@ -552,8 +553,8 @@ export default {
         }
     },
     async mounted() {
-        Utils.navbarItem("menu-parent-sales", {addClass: "open"});
-        Utils.navbarItem(this.isCreatePage ? "menu-quotations-create" : "menu-quotations-list", {});
+        navbarItem("menu-parent-sales", {addClass: "open"});
+        navbarItem(this.isCreatePage ? "menu-quotations-create" : "menu-quotations-list", {});
         const initialized = await this.loadInitialParams(() => this.initParams());
         if(initialized) {
             if(this.isListPage) await this.listQuotations({});

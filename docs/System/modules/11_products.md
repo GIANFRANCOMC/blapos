@@ -182,22 +182,21 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El estado se selecciona mediante el selector reutilizable `vue-select`, con las mismas reglas visuales y de interacción que el resto de selectores del sistema.
 - El selector de estado ocupa cuatro columnas en escritorio para evitar opciones innecesariamente anchas.
 - Detalle reúne descripción comercial adicional, marca, categorías y visibilidad para clientes; Impuestos contiene los dos controles de IGV; Configuración agrupa disponible hasta y la comisión.
-- Inventario conserva el stock inicial o actual y el mínimo por almacén.
+- Inventario conserva el stock inicial o actual y el mínimo por almacén. La tabla usa la misma tipografía que Control de stock y centra los encabezados Sede y Almacén. La celda de estado muestra el mismo color de fondo y texto que Control de stock para Agotado, Stock bajo y Stock saludable.
 - La sección `Visibilidad para clientes` explica expresamente que publicar el producto o mostrar su precio controla la información visible fuera de la plataforma y no modifica el estado interno Activo o Inactivo.
-- Marca y Categorías incluyen una acción contextual `Agregar` presentada como enlace azul primary, acompañada por un icono circular de suma alineado verticalmente con el texto. Cada acción abre un modal rápido sin cerrar ni limpiar el formulario de Producto.
+- Marca y Categorías incluyen un enlace azul `Agregar` alineado con la línea base de su etiqueta. Cada enlace abre un modal rápido y conserva el formulario de Producto.
 - Al crear una Marca o Categoría, el registro se incorpora a las opciones disponibles sin reemplazar ni ampliar automáticamente la selección actual del producto.
 - Las altas rápidas no vuelven a solicitar todo `initParams`: actualizan de forma reactiva `options.brands.records` u `options.categories.records`; el backend ya invalida `ProductConfigService` para futuras cargas.
 - El selector de Marca permite limpiar la relación y muestra únicamente marcas activas.
 - Los selectores reutilizan una `X` tipográfica compacta y centrada ópticamente con la flecha para limpiar valores, evitando deformaciones del SVG y manteniendo un área clicable cómoda.
 - Las cinco pestañas comparten el ancho del modal. El icono acompaña al título y la descripción ocupa la línea completa, permitiendo mayor separación entre pestañas. Cada una tiene un contorno tenue; la activa usa borde e icono primary sin fondo circular y una sombra breve. En anchos reducidos, el grupo se desplaza horizontalmente sin comprimir ni truncar títulos.
-- El modal permanece centrado y utiliza el desplazamiento natural de Bootstrap, sin `modal-dialog-scrollable`; la navegación `nav-pills` permanece en el flujo del formulario para impedir que los campos pasen visualmente por detrás. Con la variante descriptiva, el contenido de cada pestaña aparece sin animación para agilizar el cambio de sección.
+- El modal permanece centrado y utiliza el desplazamiento natural de Bootstrap. La navegación `nav-pills` permanece en el flujo del formulario. Al cambiar de pestaña, el panel aparece con una transición breve que respeta la preferencia de movimiento reducido.
+- En la pestaña Inventario, justo encima de la tabla de almacenes, la etiqueta `Producto:` y el nombre en la línea siguiente usan los estilos compartidos de `br-field-summary`, igual que `Almacén de trabajo` en Alertas de stock. El resumen muestra el nombre ingresado en el formulario o `Sin nombre` si el campo está vacío.
 - Al existir errores, se marca la pestaña afectada y se abre automáticamente la primera que requiere corrección.
 - Cada apertura reemplaza completamente los datos del formulario y genera nuevos códigos al crear, evitando mezclar información entre creación y edición.
 - El cierre, Cancelar y el evento `hidden.bs.modal` limpian datos, errores y pestaña activa.
-- Los campos de stock reutilizan el componente `InputNumber`.
-- Las sucursales y almacenes se muestran juntos para evitar ambigüedad.
-- En móvil, cada fila de inventario pasa a disposición vertical.
-- En móvil, al ocultarse el encabezado tabular, cada control conserva su label visible (`Stock inicial`, `Stock actual` o `Stock mínimo`) y se agrupa en una superficie neutral para mantener el contexto.
+- Los campos de stock reutilizan `InputNumber`. Muestran «Stock inicial» o «Stock mínimo» cuando están vacíos y ocultan el placeholder al recibir el foco.
+- Sede, Almacén y Estado del stock tienen columnas propias. En móvil, cada fila muestra primero Sede y Almacén, luego las cantidades y al final el estado, con sus etiquetas visibles.
 - Los controles y estados usan los tokens `--br-*` del branding.
 - Los botones de generación y edición usan iconos con tooltip.
 - Los generadores de código interno y código de barras permanecen disponibles tanto al agregar como al editar. Esto evita exigir que el usuario conozca los formatos válidos; al utilizarlos, reemplazan el valor actual y las reglas backend vuelven a comprobar formato y unicidad.
@@ -372,7 +371,7 @@ El CSV no informa marcas ni categorías: el seeder no inventa asociaciones. Los 
 El seeder es idempotente por `type + internal_code`: si se vuelve a ejecutar, conserva el stock operativo ya registrado.
 ## Estado y disponibilidad operativa
 
-- El estado `active` permite que el producto, servicio o membresía participe en ventas, Venta POS, compras e inventario.
+- El estado `active` permite que el producto, servicio o membresía participe en ventas, POS venta, compras e inventario.
 - El estado `inactive` conserva el registro en catálogo para consulta o edición, pero lo excluye de operaciones nuevas.
 - Esta regla evita vender, comprar o mover inventario de ítems deshabilitados sin borrar información histórica.
 

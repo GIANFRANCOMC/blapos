@@ -480,6 +480,7 @@
 </template>
 
 <script>
+import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -494,8 +495,8 @@ export default {
     components: {SearchButton, ProductIdentity, SearchInput},
     async mounted() {
         this.activeMode = this.initialModeFromPath();
-        Utils.navbarItem("menu-parent-purchases", {addClass: "open"});
-        Utils.navbarItem({
+        navbarItem("menu-parent-purchases", {addClass: "open"});
+        navbarItem({
             new: "menu-purchases-new",
             receipts: "menu-purchases-receipts",
             list: "menu-purchases-list"

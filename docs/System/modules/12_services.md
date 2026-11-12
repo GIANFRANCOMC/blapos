@@ -40,5 +40,5 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 - `expires_at` es opcional. Al vencer, el backend inactiva el servicio al listar catalogo o referencias comerciales y bloquea ventas con datos obsoletos.
 - El listado muestra cupos disponibles como dato compacto: ilimitado o disponibles contra limite.
 - El formulario permite activar cupos y definir fecha de vencimiento. Si cupos esta apagado, el limite queda deshabilitado para evitar datos que no aplican.
-- Ventas y Venta POS solo reciben servicios `active`, no vencidos y con cupos disponibles cuando el control esta activo.
+- Ventas y POS venta solo reciben servicios `active`, no vencidos y con cupos disponibles cuando el control esta activo.
 - Cada venta consume cupos segun la cantidad vendida. La anulacion de una venta repone esos cupos para servicios y membresias.
