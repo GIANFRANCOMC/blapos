@@ -11,7 +11,7 @@
                     v-bind="$attrs"
                     :type="inputType"
                     :value="modelValue"
-                    @input="updateValue($event.target.value)"
+                    @input="updateValue($event.target)"
                     :class="[...inputClass]"
                     :aria-label="ariaLabel || undefined"
                     :placeholder="placeholder"
@@ -38,7 +38,7 @@
                 v-bind="$attrs"
                 :type="inputType"
                 :value="modelValue"
-                @input="updateValue($event.target.value)"
+                @input="updateValue($event.target)"
                 :class="[...inputClass]"
                 :aria-label="ariaLabel || undefined"
                 :placeholder="placeholder"
@@ -63,6 +63,7 @@ export default {
     inheritAttrs: false,
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
+        noWhitespace: Boolean,
         modelValue: {
             type: [String, Number],
             default: ""
@@ -181,7 +182,10 @@ export default {
             this.$refs.inputElement?.focus();
 
         },
-        updateValue(value) {
+        updateValue(input) {
+            const value = this.noWhitespace ? input.value.replace(/[\s\p{Z}]/gu, "") : input.value;
+            if(input.value !== value) input.value = value;
+
             this.$emit("update:modelValue", value);
             this.$emit("input", value);
             this.$emit("change", value);

@@ -9,7 +9,7 @@ use App\Services\System\Base\{InternalCodeService};
 use App\Services\System\Catalogs\Brands\{BrandService};
 use App\Services\System\Catalogs\Categories\{CategoryService};
 use Illuminate\Support\Facades\{DB, Validator};
-use Illuminate\Support\{Collection, Str};
+use Illuminate\Support\Collection;
 use Illuminate\Validation\{Rule, ValidationException};
 use InvalidArgumentException;
 use Maatwebsite\Excel\Concerns\{SkipsEmptyRows, ToCollection, WithHeadingRow};
@@ -89,10 +89,9 @@ final class CatalogReferenceImport implements SkipsEmptyRows, ToCollection, With
 
     private function normalizeRow(array $row): array {
 
-        $entity = $this->type === "brands" ? "brand" : "category";
-        $code = trim((string) ($row["codigo_interno"] ?? ""));
+        $code = (string) ($row["codigo_interno"] ?? "");
         $base = [
-            "internal_code" => InternalCodeService::applyPrefix($entity, $code !== "" ? $code : $this->generateCode($entity)),
+            "internal_code" => $code,
             "name" => trim((string) ($row["nombre"] ?? "")),
             "description" => $this->optionalString($row["descripcion"] ?? null),
             "status" => $this->normalizeStatus($row["estado"] ?? null),
@@ -115,7 +114,7 @@ final class CatalogReferenceImport implements SkipsEmptyRows, ToCollection, With
         $table = $this->type;
 
         $rules = [
-            "internal_code" => ["required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/", Rule::unique($table, "internal_code")],
+            "internal_code" => ["bail", "required", "string", "max:50", 'regex:/\A[A-Za-z0-9._-]+\z/', InternalCodeService::prefixRule($table === "brands" ? "brand" : "category"), Rule::unique($table, "internal_code")],
             "name" => ["required", "string", "max:".($this->type === "brands" ? 100 : 50), Rule::unique($table, "name")],
             "description" => ["nullable", "string", "max:".($this->type === "brands" ? 250 : 100)],
             "status" => ["required", Rule::in(["active", "inactive"])],
@@ -130,20 +129,6 @@ final class CatalogReferenceImport implements SkipsEmptyRows, ToCollection, With
         }
 
         return $rules;
-
-    }
-
-    private function generateCode(string $entity): string {
-
-        $model = $this->type === "brands" ? Brand::class : Category::class;
-
-        do {
-
-            $code = InternalCodeService::applyPrefix($entity, Str::upper(Str::random(7)));
-
-        } while($model::query()->where("internal_code", $code)->exists());
-
-        return $code;
 
     }
 

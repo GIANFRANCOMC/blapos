@@ -32,6 +32,9 @@ test("el skeleton compartido conserva los encabezados y el loader de cada catál
     assert.equal(parse(component, {filename: "CatalogListSkeleton.vue"}).errors.length, 0);
     assert.match(component, /role="status" aria-live="polite"/);
     assert.match(component, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?br-entity-table/);
+    assert.match(component, /const COMMON_INTERNAL_CODE = \{title: "Código interno", align: "text-center"\}/);
+    assert.match(component, /const offeringColumns = title => \[\s*\{\.\.\.COMMON_INTERNAL_CODE, className: "br-entity-table__col-code"\}/);
+    assert.match(component, /categories: \[\s*\{\.\.\.COMMON_INTERNAL_CODE,[^}]+\}[\s\S]*?brands: \[\s*\{\.\.\.COMMON_INTERNAL_CODE,/);
     assert.match(component, /services: offeringColumns\("Servicio"\)/);
     assert.match(component, /subscriptions: offeringColumns\("Membresía"\)/);
     assert.match(component, /:class="column.className"/);

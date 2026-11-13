@@ -28,6 +28,8 @@ Agrupa entidades técnicas de soporte usadas por múltiples módulos.
 - Entrada de menú: Administración -> Ajustes -> Maestros internos.
 - Recursos administrables: configuraciones, tributos, métodos de pago, documentos de identidad, tipos de comprobante y monedas.
 - El apartado **Automáticos** muestra el valor actual, su condición y su origen. No ofrece edición.
+- En **Configuraciones**, `subscriptions.default_attendance_limit_per_day` define el límite que se guarda al dejar vacío el campo de asistencias de un plan. Su valor inicial es `1`. Admite un entero de `1` a `1000` o un valor vacío que se guarda como `null`.
+- En `internal_code_prefixes`, cada clave indica el prefijo de su entidad. El valor se guarda en mayúsculas y sin espacios internos. Si queda vacío, se guarda como `null` y el editor oculta el prefijo. Los cambios se aplican a códigos nuevos o editados explícitamente. Cada código histórico se conserva al guardar otros datos del registro.
 - Cada recurso muestra tipo, alcance e impacto antes de editar o inactivar.
 - La inactivación usa confirmación accesible con descripción del alcance operativo y del impacto esperado.
 - Los `vue-select` de esta pantalla muestran `Sin opciones disponibles` para evitar textos residuales de librería.

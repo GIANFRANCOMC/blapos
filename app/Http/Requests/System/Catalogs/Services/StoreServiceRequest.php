@@ -6,13 +6,13 @@ namespace App\Http\Requests\System\Catalogs\Services;
 
 use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class StoreServiceRequest extends CompanyFormRequest {
 
-    use AppliesInternalCodePrefix;
+    use ValidatesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
 
@@ -22,7 +22,7 @@ class StoreServiceRequest extends CompanyFormRequest {
 
     protected function normalizedStringFields(): array {
 
-        return ["internal_code", "name", "description"];
+        return ["name", "description"];
 
     }
 
@@ -42,7 +42,7 @@ class StoreServiceRequest extends CompanyFormRequest {
         $maxValue = is_numeric($maximumPrice) && (float) $maximumPrice > 0 ? $maximumPrice : $companyMaximum;
 
         $validations = [
-            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", null, ["type" => "service"], "código interno")],
+            "internal_code" => ["bail", "required", "string", "max:50", $this->internalCodeWhitespaceRule(), $this->internalCodePrefixRule(), new UniqueInTenant("items", "internal_code", null, ["type" => "service"], "código interno")],
             "name" => "required|string|max:100",
             "description" => "nullable|string|max:100",
             "price" => "required|numeric|min:$minValue|max:$maxValue|$decimalRule",

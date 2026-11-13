@@ -253,7 +253,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Las ayudas de campo reutilizan `br-field-help`; los controles compartidos residen en `br-branding.css` y no dependen del módulo Productos.
 - El campo Estado se mantiene como select2 no buscable para conservar consistencia con los formularios existentes.
 - Los prefijos de moneda reutilizan `br-currency-prefix`, con fondo blanco integrado al input, símbolo compacto tipo icono, color secondary suavizado y borde compartido.
-- El código interno usa `company_settings.internal_code_prefixes.product` (`PRO` por defecto). El prefijo se presenta integrado al inicio del input y el backend lo normaliza mediante `InternalCodeService`.
+- El código interno usa `company_settings.internal_code_prefixes.product` (`PROD` por defecto). El prefijo se muestra fijo al inicio del campo y el backend guarda el código completo mediante `InternalCodeService`.
 - Al crear, stock inicial y stock mínimo comienzan vacíos para permitir escritura directa; el payload normaliza los campos no informados a cero. Mientras ambos estén vacíos, el almacén muestra discretamente la advertencia `Pendiente de registrar`.
 - Las altas rápidas de Marca y Categoría usan modales Bootstrap reales. El loader SweetAlert se muestra por encima de toda la interfaz y bloquea la interacción durante el guardado.
 - Los errores inline son breves; los resúmenes frontend/backend muestran el nombre del campo mediante `Forms.getDescriptiveErrors`.
@@ -338,7 +338,7 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Las pestañas mantienen una separación intermedia de `0.48rem`, suficiente para distinguir cada etapa sin fragmentar visualmente el flujo.
 - En pantallas de hasta `767.98px`, `br-entity-modal` elimina el límite intermedio de Bootstrap y usa casi todo el ancho disponible, dejando únicamente `0.375rem` por lado.
 - `AddCategory` y `AddBrand` reutilizan `QuickCreateCatalogEntity` y `QuickCreateTrigger`. El disparador admite modos `link`, `button` e `icon`, además de texto, icono, título, clases y estado deshabilitado parametrizables.
-- El alta rápida solicita únicamente Nombre y Descripción. El código interno no se expone: se genera automáticamente con los prefijos `MAR-` o `CAT-`, y una nota informa que el registro se creará activo.
+- El alta rápida solicita Nombre y Descripción y genera el valor del código automáticamente. El FormRequest añade el prefijo vigente de Marcas o Categorías. Una nota indica que el registro se creará activo.
 - Presionar Enter desde Nombre o Descripción ejecuta el alta. Al completarse, un SweetAlert success confirma que el registro quedó activo y disponible para seleccionarlo, sin alterar la selección existente.
 - Mientras se registra una Marca o Categoría, el loader global bloquea el resto de acciones y el botón permanece deshabilitado para evitar solicitudes duplicadas.
 - Los SweetAlert de validación y resultado usan la capa global máxima `br-swal-backdrop`, por encima de la modal rápida de Marca o Categoría y de la modal principal de Producto.

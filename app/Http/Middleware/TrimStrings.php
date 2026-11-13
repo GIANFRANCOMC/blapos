@@ -15,6 +15,8 @@ class TrimStrings extends Middleware {
         "current_password",
         "password",
         "password_confirmation",
+        "internal_code",
+        "barcode",
     ];
 
 }

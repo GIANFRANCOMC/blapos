@@ -38,6 +38,7 @@ Esta lógica es independiente de `user_attendances`, que controla jornadas labor
 - La asistencia activa se bloquea dentro de la transacción antes de registrar la salida para impedir cierres concurrentes.
 - Checkout debe ser posterior al ingreso y al menos dos minutos después.
 - El límite diario se obtiene de `subscriptions.attendance_limit_per_day`.
+- Si el límite guardado es `null`, se rechaza un nuevo ingreso y se indica que la membresía carece de límite diario configurado.
 - `exceedsLimit` bloquea un nuevo check-in cuando las asistencias finalizadas del día alcanzan dicho límite.
 - El conteo diario considera estados `active` y `finalized`; ignora registros cancelados o inactivos.
 - Tipos: `manual_form`, `qr_camera`, `qr_scanner`, `qr_public`, `biometric`.

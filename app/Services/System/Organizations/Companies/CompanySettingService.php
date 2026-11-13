@@ -19,6 +19,10 @@ final class CompanySettingService {
 
     public const SUBSCRIPTIONS = "subscriptions";
 
+    public const DEFAULT_ATTENDANCE_LIMIT_PER_DAY_KEY = "default_attendance_limit_per_day";
+
+    public const DEFAULT_ATTENDANCE_LIMIT_PER_DAY = 1;
+
     public const CASH = "cash";
 
     public const SALES = "sales";
@@ -64,6 +68,7 @@ final class CompanySettingService {
     private const DEFAULT_SUBSCRIPTIONS = [
         "overlap_policy" => "block",
         "send_welcome_email_on_sale" => true,
+        self::DEFAULT_ATTENDANCE_LIMIT_PER_DAY_KEY => self::DEFAULT_ATTENDANCE_LIMIT_PER_DAY,
     ];
 
     private const DEFAULT_CASH = [

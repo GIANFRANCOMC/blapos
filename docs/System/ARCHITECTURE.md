@@ -98,7 +98,7 @@ Los maestros activos se reutilizan durante seis horas mediante `MasterReferenceD
 - `CompanySettingService` entrega valores por grupo y mantiene defaults de compatibilidad.
 - `BaseConfigService::internalCodePrefixes()` expone el mismo contrato a los módulos que lo requieren.
 - `InternalCodeService` es la autoridad para aplicar el prefijo en backend. La presentación Vue no reemplaza esta validación.
-- `AppliesInternalCodePrefix` evita repetir la preparación del código en los FormRequests equivalentes.
+- `AppliesInternalCodePrefix` centraliza la preparación del código que cada FormRequest llama antes de validar. El código completo se guarda en `items.internal_code`, `brands.internal_code`, `categories.internal_code`, `branches.internal_code` o `assets.internal_code`, según la entidad. Recetas y platillos muestra el código del ítem asociado.
 - Un valor nulo o vacío desactiva el prefijo para esa entidad y empresa.
 
 `GET|POST|PATCH /master-data/company-settings` permite administrar estas claves por empresa. Las mutaciones usan permisos de Mi empresa, auditoría empresarial e invalidación centralizada de `initParams`.

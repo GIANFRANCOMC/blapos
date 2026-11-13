@@ -15,7 +15,7 @@ Agrupa productos, servicios y membresías por empresa.
 
 ## Interfaz
 
-- El listado muestra identificación, nombre, cantidad de ítems activos asociados y estado.
+- El listado muestra código interno centrado y copiable, nombre, cantidad de ítems activos asociados y estado.
 - El formulario conserva código interno, nombre, descripción y estado. La descripción ocupa ocho columnas y el estado cuatro en escritorio.
 
 ## Carga y descarga

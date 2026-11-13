@@ -50,7 +50,7 @@
                 </colgroup>
                 <thead class="br-table-header-surface">
                     <tr>
-                        <th>Identificación</th>
+                        <th class="text-center">Código interno</th>
                         <th>Categoría</th>
                         <th class="text-center">En uso</th>
                         <th class="text-center">Estado</th>
@@ -65,18 +65,8 @@
                     </tr>
                     <template v-else-if="entityList.records.total > 0">
                         <tr v-for="record in entityList.records.data" :key="record.id">
-                            <td class="br-entity-table__identification-cell">
-                                <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                    <div class="br-entity-identifier">
-                                        <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                        <span class="br-entity-identifier__value">
-                                            <span class="br-entity-code" v-text="record.internal_code"></span>
-                                            <span class="br-entity-identifier__actions">
-                                                <CopyButton :value="record.internal_code" label="Código interno"/>
-                                            </span>
-                                        </span>
-                                    </div>
-                                </div>
+                            <td class="text-center">
+                                <InternalCodeValue :value="record.internal_code"/>
                             </td>
                             <td>
                                 <span class="br-entity-table__name" v-text="record.name"></span>
@@ -126,18 +116,19 @@
                         <div class="row g-3">
                             <InputText
                                 v-model="forms[entity].createUpdate.data.internal_code"
+                                no-whitespace
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                :maxlength="internalCodeEditableMaxlength"
+                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="4"
                                 lg="4">
-                                <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
+                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
+                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
                                 </template>
                                 <template v-if="!isUpdate" v-slot:inputGroupAppend>
                                     <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
@@ -206,7 +197,7 @@ import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
-import CopyButton from "@System/Components/CopyButton.vue";
+import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
@@ -292,7 +283,7 @@ const MODULE = {
 export default {
     name: "CategoriesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, CopyButton, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -462,7 +453,7 @@ export default {
                 const statusOption = this.statuses.find(e => e.code === record?.status);
 
                 entityForms.data.id            = record.id;
-                entityForms.data.internal_code = this.stripInternalCodePrefix(record.internal_code);
+                entityForms.data.internal_code = this.setEditableInternalCode(record.internal_code);
                 entityForms.data.name          = record.name;
                 entityForms.data.description   = record.description;
                 entityForms.data.status        = statusOption;
@@ -515,6 +506,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
+                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
                 const id            = preparedData.id;
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";

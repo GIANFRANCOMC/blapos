@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Organizations\Branches;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Rules\System\Defaults\{UniqueInTenant};
 
 class UpdateBranchRequest extends CompanyFormRequest {
 
-    use AppliesInternalCodePrefix;
+    use ValidatesInternalCodePrefix;
+
 
     protected function internalCodeEntity(): string {
 
@@ -21,7 +22,6 @@ class UpdateBranchRequest extends CompanyFormRequest {
     protected function normalizedStringFields(): array {
 
         return [
-            "internal_code",
             "name",
             "address",
             "reference",
@@ -42,7 +42,7 @@ class UpdateBranchRequest extends CompanyFormRequest {
         $branchId = (int) $this->route("id");
 
         $validations = [
-            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("branches", "internal_code", $branchId, [], "código interno")],
+            "internal_code" => ["bail", "required", "string", "max:50", $this->internalCodeWhitespaceRule(), $this->internalCodePrefixRule(), new UniqueInTenant("branches", "internal_code", $branchId, [], "código interno")],
             "name" => "required|string|max:50",
             "address" => "nullable|string|max:100",
             "reference" => "nullable|string|max:100",

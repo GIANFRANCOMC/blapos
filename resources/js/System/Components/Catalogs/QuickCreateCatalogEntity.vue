@@ -82,10 +82,14 @@
                                 @enterKeyPressed="saveEntity"/>
                         </div>
 
+                        <div class="br-field-summary mt-3">
+                            <span class="form-label">Código interno</span>
+                            <strong class="br-field-summary__value" :title="completeInternalCode" v-text="completeInternalCode"></strong>
+                        </div>
                         <p class="br-quick-create-dialog__note">
                             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                             <span>
-                                Se generará automáticamente un código interno asociado y se registrará con estado activo.
+                                El registro se creará con el código mostrado y estado activo.
                             </span>
                         </p>
                     </form>
@@ -114,6 +118,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {composeInternalCode, internalCodePrefixLabel} from "@System/Helpers/InternalCodes.js";
 
 let quickCreateSequence = 0;
 
@@ -183,6 +188,7 @@ export default {
             type: Number,
             default: 50
         },
+        internalCodePrefix: {type: String, default: ""},
         descriptionMaxlength: {
             type: Number,
             default: 250
@@ -194,10 +200,6 @@ export default {
         internalCodePatternMessage: {
             type: String,
             default: "El código interno contiene caracteres no permitidos."
-        },
-        internalCodePrefix: {
-            type: String,
-            default: ""
         },
         disabled: {
             type: Boolean,
@@ -232,6 +234,9 @@ export default {
 
             return ["form-label", "colon-at-end"];
 
+        },
+        completeInternalCode() {
+            return composeInternalCode(this.form.internal_code, internalCodePrefixLabel(this.internalCodePrefix));
         },
         errorLabels() {
 
@@ -328,18 +333,10 @@ export default {
 
             this.form = {
                 ...Utils.cloneJson(FORM_DEFAULTS),
-                internal_code: this.buildInternalCode()
+                internal_code: Utils.generateCode({length: 7})
             };
             this.errors = {};
             this.generalError = "";
-
-        },
-        buildInternalCode() {
-
-            const code = Utils.generateCode({length: 7});
-            const prefix = String(this.internalCodePrefix ?? "").trim().toUpperCase();
-
-            return prefix ? `${prefix}-${code}` : code;
 
         },
         showValidationSummary(errors) {
@@ -360,7 +357,7 @@ export default {
             this.generalError = "";
 
             const validation = Forms.validateFormData(
-                this.form,
+                {...this.form, internal_code: this.completeInternalCode},
                 this.validationRules,
                 {
                     isDescriptive: false,
@@ -385,7 +382,7 @@ export default {
             try {
 
                 const data = Forms.prepareFormData(
-                    Utils.cloneJson(this.form),
+                    {...this.form, internal_code: this.completeInternalCode},
                     {
                         internal_code: {trim: true},
                         name: {trim: true},

@@ -153,6 +153,14 @@ class SaleService {
 
             }
 
+            $isSubscriptionDetail = ($detail["type"] ?? null) === Item::TYPE_SUBSCRIPTION;
+
+            if($isSubscriptionDetail !== ($item->type === Item::TYPE_SUBSCRIPTION)) {
+
+                throw new Exception("El tipo del detalle de venta no coincide con la membresía del catálogo.");
+
+            }
+
             if(!$item->isAvailableForSale()) {
 
                 throw new Exception("{$item->name} no está disponible para la venta.");
@@ -395,10 +403,11 @@ class SaleService {
      * @param  SaleHeader  $saleHeader Sale header instance
      * @param  SaleBody  $saleBody Sale body instance
      * @param  array  $detail Sale detail data
+     * @param  Item  $catalogItem Item del catálogo bloqueado para la venta
      * @param  int  $branchId Branch ID
      * @param  int  $userId User ID
      */
-    private static function createSubscription(SaleHeader $saleHeader, SaleBody $saleBody, array $detail, int $branchId, int $userId): ?Subscription {
+    private static function createSubscription(SaleHeader $saleHeader, SaleBody $saleBody, array $detail, Item $catalogItem, int $branchId, int $userId): ?Subscription {
 
         if(!in_array($saleBody->type, ["subscription"])) {
 
@@ -431,7 +440,7 @@ class SaleService {
         $subscription->end_date = $extras->end_date;
         $subscription->set_end_of_day = $extras->set_end_of_day;
         $subscription->force = $extras->force;
-        $subscription->attendance_limit_per_day = max(1, (int) ($detail["attendance_limit_per_day"] ?? 1));
+        $subscription->attendance_limit_per_day = $catalogItem->attendance_limit_per_day;
         $subscription->observation = $extras->observation;
         $subscription->motive = null;
         $subscription->type = "sale";
@@ -449,9 +458,7 @@ class SaleService {
             TrackingSubscriptionService::queueWelcomeEmail(
                 $subscription,
                 $subscription->customer,
-                Item::query()
-                    ->whereKey((int) $saleBody->item_id)
-                    ->first(),
+                $catalogItem,
                 $userId
             );
 
@@ -902,8 +909,9 @@ class SaleService {
                 }
 
                 // Create subscription for subscription items
-                self::createSubscription($saleHeader, $saleBody, $detail, $data["branch_id"], $userId);
-                self::consumeItemCapacity($catalogItems->get((int) $detail["item_id"]), $saleBody, $userId);
+                $catalogItem = $catalogItems->get((int) $detail["item_id"]);
+                self::createSubscription($saleHeader, $saleBody, $detail, $catalogItem, $data["branch_id"], $userId);
+                self::consumeItemCapacity($catalogItem, $saleBody, $userId);
 
             }
 

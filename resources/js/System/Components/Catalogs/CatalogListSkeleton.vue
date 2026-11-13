@@ -49,11 +49,12 @@
 import Loader from "@System/Components/Loader.vue";
 
 const COMMON_IDENTITY = {title: "Identificación"};
+const COMMON_INTERNAL_CODE = {title: "Código interno", align: "text-center"};
 const COMMON_STATUS = {title: "Estado", align: "text-center"};
 const COMMON_ACTIONS = {title: "", align: "text-center"};
 
 const offeringColumns = title => [
-    {...COMMON_IDENTITY, className: "br-entity-table__col-code"},
+    {...COMMON_INTERNAL_CODE, className: "br-entity-table__col-code"},
     {title, className: "br-entity-table__col-offering"},
     {title: "Detalles", className: "br-entity-table__col-detail"},
     {title: "Precio", className: "br-entity-table__col-offering-price", align: "text-center"},
@@ -65,14 +66,14 @@ const COLUMNS = {
     services: offeringColumns("Servicio"),
     subscriptions: offeringColumns("Membresía"),
     categories: [
-        {...COMMON_IDENTITY, width: "20%"},
+        {...COMMON_INTERNAL_CODE, width: "20%"},
         {title: "Categoría", width: "34%"},
         {title: "En uso", width: "26%", align: "text-center"},
         {...COMMON_STATUS, width: "13%"},
         {...COMMON_ACTIONS, width: "7%"}
     ],
     brands: [
-        {...COMMON_IDENTITY, width: "20%"},
+        {...COMMON_INTERNAL_CODE, width: "20%"},
         {title: "Marca", width: "22%"},
         {title: "Sitio oficial", width: "14%"},
         {title: "En uso", width: "25%", align: "text-center"},

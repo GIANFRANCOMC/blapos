@@ -21,17 +21,18 @@ Lista y administra membresias reales asignadas a clientes. Estas pueden originar
 - `end_date`
 - `duration_type`
 - `duration_value`
-- `attendance_limit_per_day`
+- `attendance_limit_per_day` admite `null` para membresías sin registro de asistencias.
 - `type`
 - `status`
 
 ## Reglas
 
-- Una membresia vigente permite registrar asistencia.
+- Una membresía vigente con límite diario configurado permite registrar asistencias hasta ese límite.
 - La membresia debe pertenecer a empresa y sucursal.
 - Cancelar requiere motivo.
 - Si viene de venta, la anulacion de venta tambien la cancela.
 - Cuando una venta crea una membresía, el detalle puede enviar `customer_id` para indicar el cliente beneficiario. Si no se envía, se usa el titular de la venta.
+- En la venta, `subscriptions.attendance_limit_per_day` guarda una copia de `items.attendance_limit_per_day` del plan. Los cambios posteriores al plan se aplican a las siguientes ventas.
 - `TrackingSubscriptionConfigService` carga únicamente sucursales y clientes activos.
 - `TrackingSubscriptionConfigService` también carga membresías activas del catálogo para altas manuales.
 - Cancelar una membresía no invalida `initParams`, porque no modifica esas opciones.

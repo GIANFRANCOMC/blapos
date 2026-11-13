@@ -6,13 +6,21 @@ namespace App\Http\Requests\System\Catalogs\Products;
 
 use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Rules\System\Catalogs\{ValidEan13};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
-use App\Services\System\Base\{InternalCodeService};
 use Illuminate\Validation\{Validator};
 
 abstract class ProductRequest extends CompanyFormRequest {
+
+    use ValidatesInternalCodePrefix;
+
+    protected function internalCodeEntity(): string {
+
+        return "product";
+
+    }
 
     public function rules(): array {
 
@@ -21,7 +29,7 @@ abstract class ProductRequest extends CompanyFormRequest {
         $maxValue = $this->numericMaxValue();
 
         return [
-            "internal_code" => ["bail", "required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "product"], "código interno")],
+            "internal_code" => ["bail", "required", "string", "max:50", 'regex:/\A[A-Za-z0-9._-]+\z/', $this->internalCodePrefixRule(), new UniqueInTenant("items", "internal_code", $itemId, ["type" => "product"], "código interno")],
             "barcode" => ["bail", "required", "string", new ValidEan13(), new UniqueInTenant("items", "barcode", $itemId, [], "código de barras")],
             "name" => ["bail", "required", "string", "max:100"],
             "description" => ["nullable", "string", "max:100"],
@@ -111,8 +119,6 @@ abstract class ProductRequest extends CompanyFormRequest {
     protected function normalizedStringFields(): array {
 
         return [
-            "internal_code",
-            "barcode",
             "name",
             "description",
         ];
@@ -124,10 +130,6 @@ abstract class ProductRequest extends CompanyFormRequest {
         parent::prepareForValidation();
 
         $this->merge([
-            "internal_code" => InternalCodeService::applyPrefix(
-                "product",
-                $this->input("internal_code")
-            ),
             "brand_id" => $this->filled("brand_id") ? (int) $this->input("brand_id") : null,
             "price" => $this->normalizeDecimalInput($this->input("price")),
             "min_price" => $this->normalizeOptionalNumber($this->input("min_price")),

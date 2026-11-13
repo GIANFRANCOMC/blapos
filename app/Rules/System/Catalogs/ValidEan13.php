@@ -13,7 +13,7 @@ class ValidEan13 implements ValidationRule {
 
         $barcode = (string) $value;
 
-        if(!preg_match("/^\d{13}$/", $barcode)) {
+        if(!preg_match('/\A[0-9]{13}\z/', $barcode)) {
 
             $fail("El código de barras debe contener exactamente 13 dígitos.");
 

@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Services\System\Customers\Tracking\{TrackingAttendanceBusinessService};
 use App\Services\System\Organizations\Users\{UserAttendanceService};
+use App\Services\System\Sales\{SaleService};
 use Carbon\{Carbon};
 use DomainException;
 use Illuminate\Foundation\Testing\{RefreshDatabase};
@@ -127,6 +128,80 @@ final class AttendanceFlowsTest extends TestCase {
 
         $this->assertFalse($result["bool"]);
         $this->assertStringContainsString("límite diario", $result["msg"]);
+        $this->assertDatabaseCount("attendances", 1);
+
+    }
+
+    public function test_sales_copy_the_plan_limit_and_null_blocks_new_attendance(): void {
+
+        $itemId = (int) DB::table("items")->insertGetId([
+            "internal_code" => "MEM-ATT-SALE",
+            "name" => "Membresía semanal",
+            "price" => 10,
+            "currency_id" => $this->currencyId,
+            "type" => "subscription",
+            "attendance_limit_per_day" => 2,
+            "status" => "active",
+        ]);
+        $saleData = [
+            "branch_id" => $this->branchId,
+            "serie_id" => $this->seriesId,
+            "holder_id" => $this->customerId,
+            "currency_id" => $this->currencyId,
+            "issue_date" => "2026-07-01",
+            "details" => [[
+                "item_id" => $itemId,
+                "currency_id" => $this->currencyId,
+                "type" => "subscription",
+                "name" => "Membresía semanal",
+                "price" => 10,
+                "quantity" => 1,
+                "attendance_limit_per_day" => 99,
+                "extras" => [
+                    "duration_type" => "day",
+                    "duration_value" => 7,
+                    "start_date" => "2026-07-01 00:00:00",
+                    "end_date" => "2026-07-07 23:59:59",
+                ],
+            ]],
+        ];
+
+        $firstSale = SaleService::create($saleData, $this->userId);
+        $this->assertDatabaseHas("subscriptions", [
+            "sale_header_id" => $firstSale->id,
+            "attendance_limit_per_day" => 2,
+        ]);
+
+        DB::table("items")->where("id", $itemId)->update(["attendance_limit_per_day" => null]);
+        $saleData["source_channel"] = "pos";
+        $saleData["issue_date"] = "2026-07-08";
+        $saleData["details"][0]["extras"]["start_date"] = "2026-07-08 00:00:00";
+        $saleData["details"][0]["extras"]["end_date"] = "2026-07-14 23:59:59";
+        $nextSale = SaleService::create($saleData, $this->userId);
+        $this->assertDatabaseHas("subscriptions", [
+            "sale_header_id" => $nextSale->id,
+            "attendance_limit_per_day" => null,
+        ]);
+        $this->assertDatabaseHas("subscriptions", [
+            "sale_header_id" => $firstSale->id,
+            "attendance_limit_per_day" => 2,
+        ]);
+
+        $service = app(TrackingAttendanceBusinessService::class);
+        $checkIn = [
+            "branch_id" => $this->branchId,
+            "customer_id" => $this->customerId,
+            "user_id" => $this->userId,
+            "type" => "manual_form",
+            "action" => "checkin",
+        ];
+        $result = $service->validateAndCreateAttendance($checkIn + ["start_date" => Carbon::parse("2026-07-08 08:00:00")]);
+        $this->assertFalse($result["bool"]);
+        $this->assertStringContainsString("no permite registrar asistencias", $result["msg"]);
+        $this->assertDatabaseCount("attendances", 0);
+
+        $result = $service->validateAndCreateAttendance($checkIn + ["start_date" => Carbon::parse("2026-07-02 08:00:00")]);
+        $this->assertTrue($result["bool"], $result["msg"]);
         $this->assertDatabaseCount("attendances", 1);
 
     }

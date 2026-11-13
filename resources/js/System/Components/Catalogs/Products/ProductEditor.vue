@@ -24,18 +24,19 @@
                             <div class="row g-3">
                                 <InputText
                                     v-model="productForm.data.internal_code"
+                                    no-whitespace
                                     hasDiv
                                     :title="MODULE.texts.form.internalCode"
                                     :titleClass="[config.forms.classes.title]"
                                     isRequired
-                                    :maxlength="internalCodeEditableMaxlength"
+                                    maxlength="50"
                                     :showCharCounter="false"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.internal_code"
                                     xl="3"
                                     lg="3">
-                                    <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
+                                    <template v-if="internalCodeDisplayedPrefix(productForm.data.id, productForm.data.internal_code)" v-slot:inputGroupPrepend>
+                                        <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(productForm.data.id, productForm.data.internal_code)"></span>
                                     </template>
                                     <template v-slot:defaultAppend>
                                         <button
@@ -64,6 +65,7 @@
 
                                 <InputText
                                     v-model="productForm.data.barcode"
+                                    no-whitespace
                                     hasDiv
                                     :title="MODULE.texts.form.barcode"
                                     :titleClass="[config.forms.classes.title]"
@@ -221,11 +223,11 @@
                                     lg="4">
                                     <template #defaultAppend>
                                         <AddCategory
+                                            :internal-code-prefix="internalCodePrefixes.category"
                                             trigger-mode="link"
                                             trigger-text="Agregar"
                                             trigger-icon=""
                                             :trigger-tooltip="false"
-                                            :internal-code-prefix="internalCodePrefixes.category"
                                             :disabled="isSaving"
                                             @created="handleCategoryCreated"/>
                                     </template>
@@ -269,11 +271,11 @@
                                     lg="4">
                                     <template #defaultAppend>
                                         <AddBrand
+                                            :internal-code-prefix="internalCodePrefixes.brand"
                                             trigger-mode="link"
                                             trigger-text="Agregar"
                                             trigger-icon=""
                                             :trigger-tooltip="false"
-                                            :internal-code-prefix="internalCodePrefixes.brand"
                                             :disabled="isSaving"
                                             @created="handleBrandCreated"/>
                                     </template>
@@ -664,7 +666,7 @@ export default {
 
                 Object.assign(this.productForm.data, {
                     id: record.id,
-                    internal_code: this.stripInternalCodePrefix(record.internal_code),
+                    internal_code: this.setEditableInternalCode(record.internal_code),
                     barcode: record.barcode,
                     name: record.name,
                     description: record.description,
@@ -835,6 +837,7 @@ export default {
                 }
 
                 const preparedData = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
+                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
                 if(preparedData.igv_exempt) {
 
                     preparedData.price_includes_tax = false;

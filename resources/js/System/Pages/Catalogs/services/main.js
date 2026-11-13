@@ -6,7 +6,6 @@ import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 
 import Breadcrumb     from "@System/Components/Breadcrumb.vue";
-import CopyButton     from "@System/Components/CopyButton.vue";
 import InputDate      from "@System/Components/InputDate.vue";
 import InputNumber    from "@System/Components/InputNumber.vue";
 import InputSelect    from "@System/Components/InputSelect.vue";
@@ -25,7 +24,6 @@ import "../../../../../css/System/Components/Catalogs/catalog-list-skeleton.css"
 createApp(App)
 .component("v-select", VueSelect)
 .component("Breadcrumb", Breadcrumb)
-.component("CopyButton", CopyButton)
 .component("InputDate", InputDate)
 .component("InputNumber", InputNumber)
 .component("InputSelect", InputSelect)

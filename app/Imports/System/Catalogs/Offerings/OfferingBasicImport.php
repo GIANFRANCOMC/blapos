@@ -119,7 +119,7 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
 
     private function normalizeRow(array $row): array {
 
-        $providedCode = trim((string) ($row["codigo_interno"] ?? ""));
+        $providedCode = (string) ($row["codigo_interno"] ?? "");
         $durationType = Str::lower(trim((string) ($row["duracion_tipo"] ?? "")));
         $estimatedDuration = $row["duracion_estimada_minutos"] ?? null;
         $durationTypes = [
@@ -128,9 +128,7 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
         ];
 
         return [
-            "internal_code" => $providedCode !== ""
-                ? InternalCodeService::applyPrefix($this->type, $providedCode)
-                : $this->generateInternalCode(),
+            "internal_code" => $providedCode,
             "name" => trim((string) ($row["nombre"] ?? "")),
             "description" => trim((string) ($row["descripcion"] ?? "")) ?: null,
             "price" => Numbers::normalizeDecimalInput($row["precio"] ?? null),
@@ -145,7 +143,8 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
 
         $rules = [
             "internal_code" => [
-                "required", "string", "max:50", "regex:/^[A-Za-z0-9._-]+$/",
+                "bail", "required", "string", "max:50", 'regex:/\A[A-Za-z0-9._-]+\z/',
+                InternalCodeService::prefixRule($this->type),
                 Rule::unique("items", "internal_code")->where("type", $this->type),
             ],
             "name" => ["required", "string", "max:100"],
@@ -165,18 +164,6 @@ final class OfferingBasicImport implements SkipsEmptyRows, ToCollection, WithHea
         }
 
         return $rules;
-
-    }
-
-    private function generateInternalCode(): string {
-
-        do {
-
-            $code = InternalCodeService::applyPrefix($this->type, Str::upper(Str::random(7)));
-
-        }while(Item::query()->where("type", $this->type)->where("internal_code", $code)->exists());
-
-        return $code;
 
     }
 

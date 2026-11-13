@@ -5,10 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Catalogs\Categories;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Rules\System\Defaults\{UniqueInTenant};
-use App\Services\System\Base\{InternalCodeService};
 
 abstract class CategoryRequest extends CompanyFormRequest {
+
+    use ValidatesInternalCodePrefix;
+
+    protected function internalCodeEntity(): string {
+
+        return "category";
+
+    }
 
     public function rules(): array {
 
@@ -16,9 +24,12 @@ abstract class CategoryRequest extends CompanyFormRequest {
 
         return [
             "internal_code" => [
+                "bail",
                 "required",
                 "string",
                 "max:50",
+                $this->internalCodeWhitespaceRule(),
+                $this->internalCodePrefixRule(),
                 new UniqueInTenant("categories", "internal_code", $categoryId, [], "código interno"),
             ],
             "name" => [
@@ -47,24 +58,11 @@ abstract class CategoryRequest extends CompanyFormRequest {
     protected function normalizedStringFields(): array {
 
         return [
-            "internal_code",
             "name",
             "description",
         ];
 
     }
 
-    protected function prepareForValidation(): void {
-
-        parent::prepareForValidation();
-
-        $this->merge([
-            "internal_code" => InternalCodeService::applyPrefix(
-                "category",
-                $this->input("internal_code")
-            ),
-        ]);
-
-    }
 
 }

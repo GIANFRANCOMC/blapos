@@ -6,6 +6,7 @@
 
 ## Flujo actual
 
+- El listado muestra el código interno centrado y copiable. El código de barras, cuando existe, se muestra junto al nombre del platillo con su botón de copiar.
 - El usuario selecciona el item vendible que representa el platillo.
 - Define rendimiento y merma esperada.
 - Registra insumos base del platillo, por ejemplo pollo, masa, queso o condimentos.

@@ -18,7 +18,7 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 
 ## Interfaz
 
-- El listado usa la misma escala de tabla, identificación sin recuadro, copia discreta, precios y estado de Productos. Muestra duración estimada, cupos y comisión sin abrir la modal.
+- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. En Detalles, la duración estimada, los cupos y la comisión se muestran en etiquetas compactas que se acomodan al ancho disponible.
 - La modal compartida conserva cabecera, cuerpo y pie del catálogo. Sus pestañas descriptivas son `SERVICIO`, `DETALLE`, `IMPUESTOS` y `CONFIGURACIÓN`; admiten teclado y desplazamiento en móvil. No aparece Inventario porque no aplica a servicios.
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.
 - El formulario permite definir duración estimada en minutos, tipo de comisión (`Sin comisión`, `Porcentaje` o `Monto fijo por unidad`) y valor.
@@ -38,7 +38,7 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 - Servicios no usa `barcode`, `brand_id` ni `warehouse_items`: no tiene codigo de barras, marca comercial ni inventario fisico por unidades.
 - `capacity_control_enabled`, `capacity_limit` y `capacity_used` controlan cupos opcionales. Si el control esta apagado, el servicio es ilimitado.
 - `expires_at` es opcional. Al vencer, el backend inactiva el servicio al listar catalogo o referencias comerciales y bloquea ventas con datos obsoletos.
-- El listado muestra cupos disponibles como dato compacto: ilimitado o disponibles contra limite.
+- En Detalles, Cupos muestra `Ilimitados` si el control está desactivado o el límite entero configurado en el servicio.
 - El formulario permite activar cupos y definir fecha de vencimiento. Si cupos esta apagado, el limite queda deshabilitado para evitar datos que no aplican.
 - Ventas y POS venta solo reciben servicios `active`, no vencidos y con cupos disponibles cuando el control esta activo.
 - Cada venta consume cupos segun la cantidad vendida. La anulacion de una venta repone esos cupos para servicios y membresias.

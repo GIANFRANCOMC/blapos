@@ -1,4 +1,9 @@
+import {composeInternalCode, internalCodePrefixFor, internalCodePrefixLabel} from "../Helpers/InternalCodes.js";
+
 export default {
+    data() {
+        return {originalInternalCode: "", initialEditableInternalCode: ""};
+    },
     computed: {
         internalCodeEntityKey() {
 
@@ -14,16 +19,7 @@ export default {
         },
         internalCodePrefixLabel() {
 
-            const prefix = String(
-                this.internalCodePrefixes[this.internalCodeEntityKey] ?? ""
-            ).trim().replace(/-+$/, "");
-
-            return prefix ? `${prefix}-` : "";
-
-        },
-        internalCodeEditableMaxlength() {
-
-            return Math.max(1, 50 - this.internalCodePrefixLabel.length);
+            return internalCodePrefixLabel(this.internalCodePrefixes[this.internalCodeEntityKey]);
 
         }
     },
@@ -33,10 +29,28 @@ export default {
             const code = String(value ?? "");
             const prefix = this.internalCodePrefixLabel;
 
-            return prefix && code.toUpperCase().startsWith(prefix.toUpperCase())
+            return prefix && code.startsWith(prefix)
                 ? code.slice(prefix.length)
                 : code;
 
+        },
+        setEditableInternalCode(value) {
+            this.originalInternalCode = String(value ?? "");
+            this.initialEditableInternalCode = this.stripInternalCodePrefix(value);
+
+            return this.initialEditableInternalCode;
+        },
+        internalCodeDisplayedPrefix(id, value) {
+            if(id && value === this.initialEditableInternalCode) {
+                return this.originalInternalCode.slice(0, this.originalInternalCode.length - value.length);
+            }
+
+            return internalCodePrefixFor(value, this.internalCodePrefixLabel);
+        },
+        internalCodeForSave(id, value) {
+            return id && value === this.initialEditableInternalCode
+                ? this.originalInternalCode
+                : composeInternalCode(value, this.internalCodePrefixLabel);
         }
     }
 };

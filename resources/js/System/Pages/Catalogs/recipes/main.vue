@@ -23,7 +23,7 @@
                 <table class="table table-hover br-entity-table br-entity-table--directory mb-0">
                     <thead class="br-table-header-surface">
                         <tr>
-                            <th style="width: 23%;">Identificación</th>
+                            <th class="text-center" style="width: 23%;">Código interno</th>
                             <th style="width: 25%;">Platillo</th>
                             <th style="width: 20%;">Fórmula</th>
                             <th style="width: 16%;">Operación</th>
@@ -39,18 +39,13 @@
                         </tr>
                         <template v-else-if="records.total > 0">
                             <tr v-for="record in records.data" :key="record.id">
-                                <td class="br-entity-table__identification-cell">
-                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
+                                <td class="text-center">
+                                    <InternalCodeValue :value="record.item?.internal_code"/>
+                                </td>
+                                <td>
+                                    <strong class="d-block">{{ record.item?.name }}</strong>
+                                    <div v-if="record.item?.barcode" class="br-entity-identifiers br-entity-identifiers--plain">
                                         <div class="br-entity-identifier">
-                                            <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                            <span class="br-entity-identifier__value">
-                                                <span class="br-entity-code" v-text="record.item?.internal_code || '—'"></span>
-                                                <span v-if="record.item?.internal_code" class="br-entity-identifier__actions">
-                                                    <CopyButton :value="record.item.internal_code" label="Código interno"/>
-                                                </span>
-                                            </span>
-                                        </div>
-                                        <div v-if="record.item?.barcode" class="br-entity-identifier">
                                             <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
                                             <span class="br-entity-identifier__value">
                                                 <span class="br-entity-barcode" v-text="record.item.barcode"></span>
@@ -60,9 +55,6 @@
                                             </span>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <strong class="d-block">{{ record.item?.name }}</strong>
                                 </td>
                                 <td>
                                     <span class="br-recipe-pill">{{ record.components_count }} insumos</span>
@@ -328,6 +320,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import {decimalStep} from "../../../../Shared/Numbers.js";
 import CopyButton from "@System/Components/CopyButton.vue";
+import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
 
 const CONFIG = {
     entity: "recipes",
@@ -350,7 +343,7 @@ const uid = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default {
     mixins: [InitialPageMixin],
-    components: {CopyButton},
+    components: {CopyButton, InternalCodeValue},
     data() {
         return {
             breadcrumbTitles: [{title: "Catálogo e inventario"}, {title: "Recetas y platillos"}],

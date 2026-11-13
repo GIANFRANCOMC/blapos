@@ -390,7 +390,15 @@ class TrackingAttendanceBusinessService {
 
         $subscription = $subscriptions->first();
 
-        $limitPerDay = intval($subscription->attendance_limit_per_day);
+        if($subscription->attendance_limit_per_day === null) {
+
+            $response["msg"] = "$customer->name: Su membresía no permite registrar asistencias porque no tiene un límite diario configurado.";
+
+            return $response;
+
+        }
+
+        $limitPerDay = (int) $subscription->attendance_limit_per_day;
 
         // Check attendance limits
         $check = $this->checkAttendanceLimits($branchId, $customer->id, $startDate, $limitPerDay);

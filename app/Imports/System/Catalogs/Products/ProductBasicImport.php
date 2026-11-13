@@ -10,7 +10,7 @@ use App\Rules\System\Catalogs\{ValidEan13};
 use App\Services\System\Base\{InternalCodeService};
 use App\Services\System\Catalogs\Products\{ProductService};
 use Illuminate\Support\Facades\{DB, Validator};
-use Illuminate\Support\{Collection, Str};
+use Illuminate\Support\Collection;
 use Illuminate\Validation\{Rule, ValidationException};
 use Maatwebsite\Excel\Concerns\{SkipsEmptyRows, ToCollection, WithHeadingRow};
 
@@ -94,13 +94,11 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
 
     private function normalizeRow(array $row): array {
 
-        $internalCode = trim((string) ($row["codigo_interno"] ?? ""));
-        $barcode = preg_replace("/\D+/", "", (string) ($row["codigo_de_barras"] ?? ""));
+        $internalCode = (string) ($row["codigo_interno"] ?? "");
+        $barcode = (string) ($row["codigo_de_barras"] ?? "");
 
         return [
-            "internal_code" => $internalCode !== ""
-                ? InternalCodeService::applyPrefix("product", $internalCode)
-                : $this->generateInternalCode(),
+            "internal_code" => $internalCode,
             "barcode" => $barcode !== "" ? $barcode : $this->generateBarcode(),
             "name" => trim((string) ($row["nombre"] ?? "")),
             "description" => trim((string) ($row["descripcion"] ?? "")) ?: null,
@@ -115,10 +113,12 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
 
         return Validator::make($data, [
             "internal_code" => [
+                "bail",
                 "required",
                 "string",
                 "max:50",
-                "regex:/^[A-Za-z0-9._-]+$/",
+                'regex:/\A[A-Za-z0-9._-]+\z/',
+                InternalCodeService::prefixRule("product"),
                 Rule::unique("items", "internal_code")
                     ->where("type", "product"),
             ],
@@ -143,24 +143,6 @@ final class ProductBasicImport implements SkipsEmptyRows, ToCollection, WithHead
             "unique" => "Ya existe un producto con este valor.",
             "regex" => "Contiene caracteres no permitidos.",
         ]);
-
-    }
-
-    private function generateInternalCode(): string {
-
-        do {
-
-            $code = InternalCodeService::applyPrefix(
-                "product",
-                Str::upper(Str::random(7))
-            );
-
-        } while(Item::query()
-            ->where("type", "product")
-            ->where("internal_code", $code)
-            ->exists());
-
-        return $code;
 
     }
 

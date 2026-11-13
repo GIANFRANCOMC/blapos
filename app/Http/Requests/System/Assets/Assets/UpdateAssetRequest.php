@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Assets\Assets;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 
 final class UpdateAssetRequest extends CompanyFormRequest {
 
-    use AppliesInternalCodePrefix;
+    use ValidatesInternalCodePrefix;
+
 
     protected function internalCodeEntity(): string {
 
@@ -20,7 +21,7 @@ final class UpdateAssetRequest extends CompanyFormRequest {
 
     protected function normalizedStringFields(): array {
 
-        return ["internal_code", "patrimonial_code", "serial_number", "name", "description"];
+        return ["patrimonial_code", "serial_number", "name", "description"];
 
     }
 
@@ -29,7 +30,7 @@ final class UpdateAssetRequest extends CompanyFormRequest {
         $assetId = (int) $this->route("id");
 
         return [
-            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("assets", "internal_code", $assetId, [], "código interno")],
+            "internal_code" => ["bail", "required", "string", "max:50", $this->internalCodeWhitespaceRule(), $this->internalCodePrefixRule(), new UniqueInTenant("assets", "internal_code", $assetId, [], "código interno")],
             "asset_category_id" => ["nullable", "integer", new ExistsInTenant("asset_categories", ["status" => "active"])],
             "patrimonial_code" => ["nullable", "string", "max:100", new UniqueInTenant("assets", "patrimonial_code", $assetId)],
             "serial_number" => ["nullable", "string", "max:150", new UniqueInTenant("assets", "serial_number", $assetId)],

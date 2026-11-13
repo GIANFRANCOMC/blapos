@@ -201,18 +201,19 @@
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
+                                no-whitespace
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                :maxlength="internalCodeEditableMaxlength"
+                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="4"
                                 lg="4">
-                                <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
+                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
+                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
                                 </template>
                                 <template v-slot:inputGroupAppend v-if="!isUpdate">
                                     <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
@@ -664,7 +665,7 @@ export default {
                 const statusOption = this.statuses.find(s => s.code === record.status);
 
                 entityForms.data.id            = record.id;
-                entityForms.data.internal_code = this.stripInternalCodePrefix(record.internal_code);
+                entityForms.data.internal_code = this.setEditableInternalCode(record.internal_code);
                 entityForms.data.name          = record.name;
                 entityForms.data.address       = record.address;
                 entityForms.data.reference     = record.reference;
@@ -726,6 +727,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
+                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
                 const id            = preparedData.id;
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";

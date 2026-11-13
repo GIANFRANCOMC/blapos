@@ -8,7 +8,7 @@ use App\Helpers\System\{Numbers};
 use App\Models\System\Finance\{PaymentMethod, PaymentMethodVariant, Tax};
 use App\Models\System\General\{Currency, DocumentType, IdentityDocumentType};
 use App\Models\System\Organizations\{CompanySetting};
-use App\Services\System\Base\{InitParamsCacheInvalidationService, MasterReferenceDataService};
+use App\Services\System\Base\{InitParamsCacheInvalidationService, InternalCodeService, MasterReferenceDataService};
 use App\Services\System\Organizations\Companies\{CompanySettingService};
 use App\Services\System\Tenancy\{TenantCompanyContext, TenantStoragePath};
 use DomainException;
@@ -82,6 +82,7 @@ final class MasterDataService {
                 if($settings !== null) {
 
                     $data = self::validateDecimalPrecisionSetting($record, $data);
+                    self::validateDefaultAttendanceLimitSetting($data);
 
                 }
 
@@ -148,6 +149,14 @@ final class MasterDataService {
                         $data["value"] ?? null,
                         (string) $data["value_type"]
                     );
+
+                    if($data["group"] === CompanySettingService::INTERNAL_CODE_PREFIXES && $data["value"] !== null) {
+                        $prefix = trim($data["value"], " \t\n\r\0\x0B-");
+                        if(preg_match(InternalCodeService::WHITESPACE_PATTERN, $prefix)) {
+                            throw ValidationException::withMessages(["value" => "Ingresa el prefijo sin espacios o deja el valor vacío."]);
+                        }
+                        $data["value"] = $prefix === "" ? null : strtoupper($prefix);
+                    }
 
                 }
 
@@ -337,6 +346,34 @@ final class MasterDataService {
         $data["value"] = $precision;
 
         return $data;
+
+    }
+
+    private static function validateDefaultAttendanceLimitSetting(array $data): void {
+
+        if($data["group"] !== CompanySettingService::SUBSCRIPTIONS ||
+            $data["key"] !== CompanySettingService::DEFAULT_ATTENDANCE_LIMIT_PER_DAY_KEY) {
+
+            return;
+
+        }
+
+        if($data["value_type"] !== "integer") {
+
+            throw ValidationException::withMessages(["value_type" => "El límite diario debe usar un valor entero."]);
+
+        }
+
+        $value = $data["value"] ?? null;
+
+        if($value === null || $value === "") return;
+
+        if((!is_int($value) && !is_string($value)) ||
+            filter_var($value, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 1000]]) === false) {
+
+            throw ValidationException::withMessages(["value" => "Deja el límite diario vacío o ingresa un entero entre 1 y 1000."]);
+
+        }
 
     }
 

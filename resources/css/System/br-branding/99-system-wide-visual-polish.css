@@ -727,7 +727,7 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
 
 .br-layout .character-counter {
   color: var(--br-text-muted);
-  font-size: var(--br-control-affix-font-size);
+  font-size: var(--br-font-size-061);
   font-weight: var(--br-font-weight-body);
 }
 

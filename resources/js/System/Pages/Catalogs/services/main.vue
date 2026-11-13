@@ -48,7 +48,7 @@
                 </colgroup>
                 <thead class="br-table-header-surface">
                     <tr>
-                        <th>Identificación</th>
+                        <th class="text-center">Código interno</th>
                         <th>Servicio</th>
                         <th>Detalles</th>
                         <th class="text-center">Precio</th>
@@ -64,18 +64,8 @@
                     </tr>
                     <template v-else-if="entityList.records.total > 0">
                         <tr v-for="record in entityList.records.data" :key="record.id">
-                            <td class="br-entity-table__identification-cell">
-                                <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                    <div class="br-entity-identifier">
-                                        <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                        <span class="br-entity-identifier__value">
-                                            <span class="br-entity-code" v-text="record.internal_code"></span>
-                                            <span class="br-entity-identifier__actions">
-                                                <CopyButton :value="record.internal_code" label="Código interno"/>
-                                            </span>
-                                        </span>
-                                    </div>
-                                </div>
+                            <td class="text-center">
+                                <InternalCodeValue :value="record.internal_code"/>
                             </td>
                             <td>
                                 <span v-text="record.name" class="br-entity-table__name"></span>
@@ -140,18 +130,19 @@
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
+                                no-whitespace
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                :maxlength="internalCodeEditableMaxlength"
+                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="3"
                                 lg="3">
-                                <template v-if="internalCodePrefixLabel" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodePrefixLabel"></span>
+                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
+                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
                                 </template>
                                 <template v-slot:inputGroupAppend>
                                     <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
@@ -355,11 +346,11 @@
                                 lg="4">
                                 <template #defaultAppend>
                                     <AddCategory
+                                        :internal-code-prefix="internalCodePrefixes.category"
                                         trigger-mode="link"
                                         trigger-text="Agregar"
                                         trigger-icon=""
                                         :trigger-tooltip="false"
-                                        :internal-code-prefix="internalCodePrefixes.category"
                                         :disabled="isSaving"
                                         @created="handleCategoryCreated"/>
                                 </template>
@@ -440,11 +431,13 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
+import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import OfferingImportModal from "@System/Components/Catalogs/Offerings/OfferingImportModal.vue";
+import {capacityLabel} from "@System/Components/Catalogs/Offerings/capacityLabel.js";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
@@ -616,7 +609,7 @@ const MODULE = {
 export default {
     name: "ServicesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton},
+    components: {ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
     data() {
 
         const crudModule = initCrudModule({
@@ -791,7 +784,7 @@ export default {
                       statusOption   = this.statuses.find(e => e.code === record?.status);
 
                 entityForms.data.id               = record.id;
-                entityForms.data.internal_code    = this.stripInternalCodePrefix(record.internal_code);
+                entityForms.data.internal_code    = this.setEditableInternalCode(record.internal_code);
                 entityForms.data.name             = record.name;
                 entityForms.data.description      = record.description;
                 entityForms.data.price            = record.price;
@@ -886,6 +879,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
+                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
                 if(preparedData.igv_exempt) preparedData.price_includes_tax = false;
                 if(!preparedData.capacity_control_enabled) preparedData.capacity_limit = null;
                 if(!preparedData.see_my_web) preparedData.see_my_web_price = false;
@@ -1028,16 +1022,7 @@ export default {
             return "Sin comisión";
 
         },
-        capacityLabel(record) {
-
-            if(!record?.capacity_control_enabled) return "Cupos ilimitados";
-
-            const available = Number(record?.available_capacity ?? 0);
-            const limit = Number(record?.capacity_limit ?? 0);
-
-            return `${available} disponibles de ${limit}`;
-
-        },
+        capacityLabel,
         focusFirstErrorTab(errors = {}) {
 
             const fields = Object.keys(errors);

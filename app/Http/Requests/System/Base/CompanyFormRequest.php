@@ -150,6 +150,7 @@ abstract class CompanyFormRequest extends FormRequest {
         return [
             "required" => "Campo obligatorio.",
             "string" => "Ingresa un texto válido.",
+            "internal_code.regex" => "El código interno debe escribirse sin espacios.",
             "numeric" => "Ingresa un número válido.",
             "integer" => "Ingresa un número entero válido.",
             "boolean" => "Selecciona una opción válida.",

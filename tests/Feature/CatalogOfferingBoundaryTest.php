@@ -9,6 +9,8 @@ use App\Imports\System\Catalogs\Offerings\{OfferingBasicImport};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Services\{ServiceService};
 use App\Services\System\Catalogs\Subscriptions\{SubscriptionService};
+use App\Services\System\General\{MasterDataService};
+use App\Services\System\Organizations\Companies\{CompanySettingService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{DB};
@@ -109,7 +111,69 @@ final class CatalogOfferingBoundaryTest extends TestCase {
 
         $this->assertSame(1, $import->importedCount());
         $this->assertSame("month", $item->duration_type);
+        $this->assertSame(1, $item->attendance_limit_per_day);
         $this->assertSame(0, $item->warehouseItems()->count());
+
+    }
+
+    public function test_membership_attendance_limit_defaults_to_the_company_setting_and_preserves_null(): void {
+
+        $setting = DB::table("company_settings")
+            ->where("group", CompanySettingService::SUBSCRIPTIONS)
+            ->where("key", CompanySettingService::DEFAULT_ATTENDANCE_LIMIT_PER_DAY_KEY)
+            ->first();
+        $this->assertNotNull($setting);
+        $this->assertSame("1", $setting->value);
+
+        $attributes = [
+            "internal_code" => "MEM-DEFAULT-LIMIT-01",
+            "name" => "Membresía semanal",
+            "price" => 100,
+            "currency_id" => $this->currencyId(),
+            "duration_type" => "day",
+            "duration_value" => 7,
+            "attendance_limit_per_day" => null,
+        ];
+        $membership = SubscriptionService::create($attributes, $this->userId());
+        $this->assertSame(1, $membership->attendance_limit_per_day);
+
+        $saveSetting = fn($value) => MasterDataService::save($this->userId(), "company-settings", [
+            "group" => $setting->group, "key" => $setting->key, "value" => $value,
+            "value_type" => "integer", "status" => "active",
+        ], $setting->id);
+
+        $saveSetting("3");
+        $membership = SubscriptionService::update($membership, ["attendance_limit_per_day" => null], $this->userId());
+        $this->assertSame(3, $membership->attendance_limit_per_day);
+        $this->assertSame(7, (int) $membership->duration_value);
+
+        $saved = $saveSetting("");
+        $this->assertNull($saved->value);
+        $membership = SubscriptionService::update($membership, ["name" => "Plan semanal"], $this->userId());
+        $this->assertSame(3, $membership->attendance_limit_per_day);
+        $membership = SubscriptionService::update($membership, ["attendance_limit_per_day" => null], $this->userId());
+        $this->assertNull($membership->attendance_limit_per_day);
+
+        $attributes["internal_code"] = "MEM-DEFAULT-LIMIT-02";
+        $withoutLimit = SubscriptionService::create($attributes, $this->userId());
+        $this->assertNull($withoutLimit->fresh()->attendance_limit_per_day);
+
+        $membership = SubscriptionService::update($membership, ["attendance_limit_per_day" => 2], $this->userId());
+        $this->assertSame(2, $membership->attendance_limit_per_day);
+
+        foreach([0, 1001, "2.5", true] as $invalid) {
+            try {
+                $saveSetting($invalid);
+                $this->fail("El maestro debe rechazar el límite fuera de rango o que no sea entero.");
+            } catch(ValidationException $exception) {
+                $this->assertArrayHasKey("value", $exception->errors());
+            }
+        }
+
+        DB::table("company_settings")->where("id", $setting->id)->delete();
+        CompanySettingService::clearCache();
+        $membership = SubscriptionService::update($membership, ["attendance_limit_per_day" => null], $this->userId());
+        $this->assertSame(1, $membership->attendance_limit_per_day);
 
     }
 

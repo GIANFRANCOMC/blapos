@@ -6,14 +6,14 @@ namespace App\Http\Requests\System\Catalogs\Subscriptions;
 
 use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{AppliesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Rules\System\Catalogs\{DelimitedArrayTextLength};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class UpdateSubscriptionRequest extends CompanyFormRequest {
 
-    use AppliesInternalCodePrefix;
+    use ValidatesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
 
@@ -23,7 +23,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
 
     protected function normalizedStringFields(): array {
 
-        return ["internal_code", "name", "description"];
+        return ["name", "description"];
 
     }
 
@@ -44,7 +44,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
         $maxValue = is_numeric($maximumPrice) && (float) $maximumPrice > 0 ? $maximumPrice : $companyMaximum;
 
         $validations = [
-            "internal_code" => ["required", "string", "max:50", new UniqueInTenant("items", "internal_code", $itemId, ["type" => "subscription"], "código interno")],
+            "internal_code" => ["bail", "required", "string", "max:50", $this->internalCodeWhitespaceRule(), $this->internalCodePrefixRule(), new UniqueInTenant("items", "internal_code", $itemId, ["type" => "subscription"], "código interno")],
             "name" => "required|string|max:100",
             "description" => "nullable|string|max:100",
             "duration_value" => "required|integer|min:1|max:$maxValue",

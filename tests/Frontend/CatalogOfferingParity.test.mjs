@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
+import {capacityLabel} from "../../resources/js/System/Components/Catalogs/Offerings/capacityLabel.js";
 
 const modules = [
     {name: "servicio", path: "resources/js/System/Pages/Catalogs/services/main.vue", ownFields: ["estimated_duration_minutes", "capacity_limit"]},
@@ -48,19 +49,10 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
 
 });
 
-test("servicios y membresías registran el mismo botón de copia que productos", () => {
-
-    for(const module of modules) {
-
-        const page = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
-        const entry = readFileSync(new URL(`../../${module.path.replace("main.vue", "main.js")}`, import.meta.url), "utf8");
-
-        assert.match(page, /<CopyButton :value="record\.internal_code" label="Código interno"\/>/);
-        assert.match(entry, /import CopyButton\s+from "@System\/Components\/CopyButton\.vue"/);
-        assert.match(entry, /\.component\("CopyButton", CopyButton\)/);
-
-    }
-
+test("el valor de código interno compartido incluye un botón de copia", () => {
+    const source = readFileSync(new URL("../../resources/js/System/Components/Catalogs/InternalCodeValue.vue", import.meta.url), "utf8");
+    assert.equal(parse(source, {filename: "InternalCodeValue.vue"}).errors.length, 0);
+    assert.match(source, /<span class="text-break" v-text="value \|\| '—'"><\/span>\s*<CopyButton v-if="value" :value="value" label="Código interno"\/>/);
 });
 
 test("los tres editores comparten pestañas accesibles y navegables en móvil", () => {
@@ -126,20 +118,23 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
         assert.equal([...source.matchAll(/description: "/g)].length >= 4, true);
         assert.equal([...source.matchAll(/icon: "fa-solid/g)].length, 4);
         assert.match(source, /entityForms\.errors = validation\.errors/);
-        assert.match(source, /br-entity-identifiers br-entity-identifiers--plain/);
-        assert.match(source, /br-entity-identifier__label colon-at-end">Cód\. interno/);
         assert.match(source, /shared-controls-id="(?:service|subscription)-form-panel"/);
-        assert.match(source, /<strong class="colon-at-end">Duración<\/strong>/);
-        assert.match(source, /<strong class="colon-at-end">Cupos<\/strong>/);
-        assert.match(source, /<strong class="colon-at-end">Comisión<\/strong>/);
+        const details = source.match(/<div class="br-entity-offering-details">[\s\S]*?<\/div>/)?.[0];
+        const detailLabels = [...details.matchAll(/<strong class="colon-at-end">([^<]+)<\/strong>/g)].map(match => match[1]);
+        assert.deepEqual(detailLabels, ["Duración", "Cupos", "Comisión"]);
 
         if(module.name === "membresía") {
-
-            assert.match(source, /<strong class="colon-at-end">Asistencias<\/strong>/);
-
+            assert.match(details, /<button\s+v-if="record\.attendance_limit_per_day > 0"\s+v-attendance-tooltip="attendanceLimitTooltip\(record\.attendance_limit_per_day\)"[\s\S]*?:aria-label="attendanceLimitTooltip\(record\.attendance_limit_per_day\)"[\s\S]*?<\/button>\s*<strong class="colon-at-end">Duración<\/strong>/);
         }
 
+        assert.match(details, /<strong class="colon-at-end">Cupos<\/strong> \{\{ capacityLabel\(record\) \}\}/);
+        assert.match(source, /import \{capacityLabel\} from "@System\/Components\/Catalogs\/Offerings\/capacityLabel\.js"/);
+
     }
+
+    assert.equal(capacityLabel({capacity_control_enabled: false}), "Ilimitados");
+    assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: 2, available_capacity: 0}), "2");
+    assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: null}), "—");
 
 });
 

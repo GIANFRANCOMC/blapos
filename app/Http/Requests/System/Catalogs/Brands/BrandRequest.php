@@ -5,10 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Requests\System\Catalogs\Brands;
 
 use App\Http\Requests\System\Base\{CompanyFormRequest};
+use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
 use App\Rules\System\Defaults\{UniqueInTenant};
-use App\Services\System\Base\{InternalCodeService};
 
 abstract class BrandRequest extends CompanyFormRequest {
+
+    use ValidatesInternalCodePrefix;
+
+    protected function internalCodeEntity(): string {
+
+        return "brand";
+
+    }
 
     public function rules(): array {
 
@@ -19,7 +27,8 @@ abstract class BrandRequest extends CompanyFormRequest {
                 "required",
                 "string",
                 "max:50",
-                "regex:/^[A-Za-z0-9._-]+$/",
+                'regex:/\A[A-Za-z0-9._-]+\z/',
+                $this->internalCodePrefixRule(),
                 new UniqueInTenant("brands", "internal_code", $brandId, [], "código interno"),
             ],
             "name" => [
@@ -57,7 +66,6 @@ abstract class BrandRequest extends CompanyFormRequest {
     protected function normalizedStringFields(): array {
 
         return [
-            "internal_code",
             "name",
             "description",
             "website_url",
@@ -65,17 +73,5 @@ abstract class BrandRequest extends CompanyFormRequest {
 
     }
 
-    protected function prepareForValidation(): void {
-
-        parent::prepareForValidation();
-
-        $this->merge([
-            "internal_code" => InternalCodeService::applyPrefix(
-                "brand",
-                $this->input("internal_code")
-            ),
-        ]);
-
-    }
 
 }

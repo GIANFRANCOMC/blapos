@@ -7,6 +7,7 @@ namespace App\Imports\System\Warehouses;
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Warehouses\{WarehouseItem};
 use App\Helpers\System\{Numbers};
+use App\Services\System\Base\{InternalCodeService};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
 use Illuminate\Support\{Collection};
 use Illuminate\Validation\{ValidationException};
@@ -64,7 +65,7 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
         }
 
         $codes = $enteredRows
-            ->map(fn(Collection $row): string => trim((string) $row->get("codigo_interno", "")))
+            ->map(fn(Collection $row): string => (string) $row->get("codigo_interno", ""))
             ->filter()
             ->values()
             ->all();
@@ -87,7 +88,13 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
         foreach($enteredRows as $index => $row) {
 
             $rowNumber = $index + 2;
-            $code = trim((string) $row->get("codigo_interno", ""));
+            $code = (string) $row->get("codigo_interno", "");
+            $barcode = (string) $row->get("codigo_de_barras", "");
+            if(preg_match(InternalCodeService::WHITESPACE_PATTERN, $code) ||
+                preg_match(InternalCodeService::WHITESPACE_PATTERN, $barcode)) {
+                throw ValidationException::withMessages(["file" => ["Fila {$rowNumber}: escribe el código interno y el código de barras sin espacios."]]);
+            }
+
             $product = $products->get(mb_strtolower($code));
 
             if(!$product) {
@@ -95,8 +102,6 @@ class InventoryOperationPreviewImport implements SkipsEmptyRows, ToCollection, W
                 throw ValidationException::withMessages(["file" => ["Fila {$rowNumber}: el código interno no corresponde a un producto activo."]]);
 
             }
-
-            $barcode = trim((string) $row->get("codigo_de_barras", ""));
 
             if($barcode !== "" && $barcode !== (string) ($product->barcode ?? "")) {
 

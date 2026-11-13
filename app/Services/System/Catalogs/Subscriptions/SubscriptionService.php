@@ -7,6 +7,7 @@ namespace App\Services\System\Catalogs\Subscriptions;
 use App\Helpers\System\{Numbers, TranslationHelper, Utilities};
 use App\Models\System\Catalogs\{Item};
 use App\Services\System\Catalogs\Categories\{CategoryItemService};
+use App\Services\System\Organizations\Companies\{CompanySettingService};
 use Illuminate\Contracts\Pagination\{LengthAwarePaginator};
 use Illuminate\Database\Eloquent\{Builder};
 use Illuminate\Support\Facades\{DB};
@@ -242,6 +243,7 @@ class SubscriptionService {
      */
     public static function create(array $data, int $userId): ?Item {
 
+        $data["attendance_limit_per_day"] ??= self::defaultAttendanceLimitPerDay();
         $item = null;
 
         DB::transaction(function() use ($data, $userId, &$item) {
@@ -277,6 +279,12 @@ class SubscriptionService {
      */
     public static function update(Item $item, array $data, int $userId): Item {
 
+        if(array_key_exists("attendance_limit_per_day", $data)) {
+
+            $data["attendance_limit_per_day"] ??= self::defaultAttendanceLimitPerDay();
+
+        }
+
         DB::transaction(function() use ($item, $data, $userId) {
 
             // Prepare update data with only changed fields
@@ -303,6 +311,15 @@ class SubscriptionService {
         });
 
         return $item->fresh(["currency", "categoryItems"]);
+
+    }
+
+    private static function defaultAttendanceLimitPerDay(): ?int {
+
+        return CompanySettingService::value(
+            CompanySettingService::SUBSCRIPTIONS,
+            CompanySettingService::DEFAULT_ATTENDANCE_LIMIT_PER_DAY_KEY
+        );
 
     }
 

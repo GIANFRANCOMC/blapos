@@ -244,6 +244,13 @@ final class CompanyProvisioningService {
             ["group" => "customer_attendance", "key" => "auto_close_end_time", "value" => "23:50", "description" => "Hora local usada como salida tecnica cuando una asistencia quedo abierta sin checkout.", "value_type" => "string"],
             ["group" => "customer_attendance", "key" => "retention_months", "value" => "5", "description" => "Cantidad de meses que se conservan asistencias de clientes finalizadas, anuladas, inactivas o ausentes antes de permitir su depuracion.", "value_type" => "integer"],
             ["group" => "subscriptions", "key" => "send_welcome_email_on_sale", "value" => "true", "description" => "Encola un correo de agradecimiento cuando una venta genera una membresia para un cliente.", "value_type" => "boolean"],
+            [
+                "group" => CompanySettingService::SUBSCRIPTIONS,
+                "key" => CompanySettingService::DEFAULT_ATTENDANCE_LIMIT_PER_DAY_KEY,
+                "value" => (string) CompanySettingService::DEFAULT_ATTENDANCE_LIMIT_PER_DAY,
+                "description" => "Límite diario de asistencias que se guarda cuando el plan de membresía deja el campo vacío. Deja este valor vacío para guardar el plan sin límite configurado.",
+                "value_type" => "integer",
+            ],
             ["group" => "loyalty", "key" => "enabled", "value" => "false", "description" => "Activa el calculo de puntos para clientes en ventas confirmadas. Requiere reglas activas en loyalty_point_rules.", "value_type" => "boolean"],
             ["group" => "loyalty", "key" => "reverse_points_on_sale_cancellation", "value" => "true", "description" => "Revierte puntos ganados cuando se anula la venta que los origino.", "value_type" => "boolean"],
             ["group" => "reports", "key" => "sale_share_ttl_minutes", "value" => "4320", "description" => "Tiempo de vigencia, en minutos, de los enlaces firmados para compartir o imprimir comprobantes de venta fuera de la sesion autenticada.", "value_type" => "integer"],
