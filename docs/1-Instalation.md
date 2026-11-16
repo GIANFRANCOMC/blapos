@@ -302,8 +302,8 @@ php artisan help tenant:suspend
 
 | Comando | Uso |
 |---|---|
-| `php artisan notifications:send-subscriptions` | Envía notificaciones de suscripciones. |
-| `php artisan subscriptions:cancel-expired` | Cancela suscripciones vencidas. |
+| `php artisan notifications:send-subscriptions` | Envía notificaciones de membresías. |
+| `php artisan subscriptions:cancel-expired` | Cancela membresías vencidas. |
 | `php artisan attendances:close-stale-customers` | Cierra asistencias antiguas. |
 | `php artisan attendances:prune-customers` | Depura asistencias según retención. |
 

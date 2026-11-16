@@ -59,8 +59,8 @@ export const FORM_FIELDS = {
 };
 
 export const FORM_FIELD_CONFIG = {
-    internal_code: {trim: true},
-    barcode: {trim: true},
+    internal_code: {trim: false},
+    barcode: {trim: false},
     name: {trim: true},
     description: {normalize: true},
     price: {toNumber: true, minValue: 0},

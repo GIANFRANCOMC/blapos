@@ -28,6 +28,7 @@ return [
 
     "route_actions" => [
         "stocks_management.levels.update" => "operate",
+        "stocks_management.transfers.availability" => "create",
         "home.update" => "view",
         "products.import.template" => "import",
         "services.import.template" => "import",
@@ -175,6 +176,7 @@ return [
         "stocks_management.operations.store" => ["stocks_management.stock.index"],
         "stocks_management.levels.update" => ["stocks_management.stock.index"],
         "stocks_management.transfers.store" => ["stocks_management.transfers.index"],
+        "stocks_management.transfers.availability" => ["stocks_management.transfers.index"],
         "stocks_management.export" => [
             "stocks_management.stock.index",
             "stocks_management.kardex.index",

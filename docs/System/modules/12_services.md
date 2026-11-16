@@ -18,10 +18,11 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 
 ## Interfaz
 
-- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. En Detalles, la duración estimada, los cupos y la comisión se muestran en etiquetas compactas que se acomodan al ancho disponible.
+- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. Detalles muestra una etiqueta por línea. La etiqueta de comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
 - La modal compartida conserva cabecera, cuerpo y pie del catálogo. Sus pestañas descriptivas son `SERVICIO`, `DETALLE`, `IMPUESTOS` y `CONFIGURACIÓN`; admiten teclado y desplazamiento en móvil. No aparece Inventario porque no aplica a servicios.
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.
 - El formulario permite definir duración estimada en minutos, tipo de comisión (`Sin comisión`, `Porcentaje` o `Monto fijo por unidad`) y valor.
+- El campo Valor de comisión comparte `CommissionValueInput` con Productos y Membresías. Muestra `%` o el símbolo de la moneda al inicio. Para porcentaje o monto fijo muestra un asterisco y exige un valor mayor que cero. El porcentaje admite hasta 100 %.
 - Si la comisión está en `Sin comisión`, el valor queda deshabilitado para evitar montos huérfanos.
 - La duración sirve como base para agenda, servicios en curso, SLA y medición del tiempo real del responsable.
 
@@ -29,7 +30,7 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 
 `Cargar masivamente` y `Descargar Excel` están en el menú `Acciones`, como en Productos. La descarga confirma la operación y exporta todos los servicios que coinciden con el filtro actual, sin limitarse a la página visible. Incluye precios, duración, cupos, impuestos, publicación, comisión y estado; nunca columnas de stock.
 
-`GET /services/import` descarga la plantilla básica. `POST /services/import` acepta Excel o CSV con nombre y precio obligatorios, código interno y descripción opcionales, y duración estimada en minutos opcional. Si el código está vacío, se genera con el prefijo configurado. La moneda es la de la empresa, el servicio se crea activo y no publicado; el resto se configura desde el editor. Máximo 500 filas, validación por fila y transacción única: un error revierte toda la carga. La modal bloquea cerrar/cancelar mientras se procesa. El tamaño permitido del archivo depende de la configuración de la empresa.
+`GET /services/import` descarga la plantilla básica. `POST /services/import` acepta Excel o CSV con nombre, precio y código interno completo obligatorios. El código incluye el prefijo vigente cuando la empresa lo configura. La descripción y la duración estimada en minutos son opcionales. La moneda es la de la empresa y el servicio se crea activo con publicación desactivada. El editor permite completar el resto. Se aceptan hasta 500 filas. Un error revierte toda la carga. La modal desactiva sus controles de cierre durante el proceso. El tamaño permitido del archivo depende de la configuración de la empresa.
 
 `GET /services/export` reutiliza la consulta filtrada del listado. Los archivos se generan dentro del tenant autenticado; ninguna ruta masiva existe en Guest.
 
@@ -38,7 +39,8 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 - Servicios no usa `barcode`, `brand_id` ni `warehouse_items`: no tiene codigo de barras, marca comercial ni inventario fisico por unidades.
 - `capacity_control_enabled`, `capacity_limit` y `capacity_used` controlan cupos opcionales. Si el control esta apagado, el servicio es ilimitado.
 - `expires_at` es opcional. Al vencer, el backend inactiva el servicio al listar catalogo o referencias comerciales y bloquea ventas con datos obsoletos.
-- En Detalles, Cupos muestra `Ilimitados` si el control está desactivado o el límite entero configurado en el servicio.
+- En Detalles, la etiqueta Cupos aparece cuando el control de cupos está activado y muestra el límite entero configurado en el servicio.
+- Al activar el control, Cantidad de cupos muestra el asterisco y exige un entero entre 1 y 1 000 000.
 - El formulario permite activar cupos y definir fecha de vencimiento. Si cupos esta apagado, el limite queda deshabilitado para evitar datos que no aplican.
 - Ventas y POS venta solo reciben servicios `active`, no vencidos y con cupos disponibles cuando el control esta activo.
 - Cada venta consume cupos segun la cantidad vendida. La anulacion de una venta repone esos cupos para servicios y membresias.

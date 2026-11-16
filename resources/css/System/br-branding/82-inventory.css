@@ -539,6 +539,10 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 .br-inventory-operation__table.has-unit-cost th:nth-child(2) { width: 20%; }
 .br-inventory-operation__table.has-unit-cost th:nth-child(3) { width: 26%; }
 
+.br-inventory-transfer__items-table th:first-child { width: 49%; }
+.br-inventory-transfer__items-table th:nth-child(2) { width: 19%; }
+.br-inventory-transfer__items-table th:nth-child(3) { width: 24%; }
+
 .br-inventory-operation__table tbody td {
     padding: 0.55rem 0.75rem;
 }

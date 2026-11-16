@@ -51,8 +51,8 @@ El formulario compartido de alta y edición organiza los campos en tres pestaña
 ## Configuración y validación compartida
 
 - El código interno usa `company_settings.internal_code_prefixes.branch`; `SUC` es el valor inicial.
-- El addon visual y la normalización backend se desactivan cuando el valor configurado es nulo o vacío.
-- Store y Update extienden `CompanyFormRequest`, normalizan cadenas y aplican `AppliesInternalCodePrefix`.
+- El editor envía el código completo. Un valor configurado nulo o vacío oculta el prefijo y deja de exigirlo al validar.
+- Store y Update extienden `CompanyFormRequest` y comprueban el código recibido con `ValidatesInternalCodePrefix`.
 - Los resúmenes de validación recuperan el nombre del campo; los mensajes bajo el control permanecen compactos.
 
 ## Pendientes sugeridos

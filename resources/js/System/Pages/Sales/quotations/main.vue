@@ -772,7 +772,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Anular cotización",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",
                     popup: "br-swal-alert br-swal-alert--warning",

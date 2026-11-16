@@ -3,10 +3,17 @@ export function internalCodePrefixLabel(prefix) {
     return value ? `${value}-` : "";
 }
 
-export function internalCodePrefixFor(value, prefixLabel) {
-    return prefixLabel && !String(value ?? "").startsWith(prefixLabel) ? prefixLabel : "";
+export function splitInternalCode(value, prefix) {
+    const code = String(value ?? "");
+    const hasPrefix = Boolean(prefix && code.startsWith(prefix));
+
+    return {hasPrefix, value: hasPrefix ? code.slice(prefix.length) : code};
 }
 
-export function composeInternalCode(value, prefixLabel) {
-    return value ? `${internalCodePrefixFor(value, prefixLabel)}${value}` : "";
+export function internalCodeImportHelp(configuredPrefix) {
+    const prefix = internalCodePrefixLabel(configuredPrefix);
+
+    return prefix
+        ? `Completa el código interno de cada fila con el prefijo ${prefix}.`
+        : "Completa el código interno de cada fila.";
 }

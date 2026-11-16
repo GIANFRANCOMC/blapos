@@ -581,7 +581,7 @@
                     </InputSlot>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar sucursal</button>
                 </div>
             </div>
@@ -619,7 +619,7 @@
                     </InputSlot>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar almacén</button>
                 </div>
             </div>
@@ -704,7 +704,7 @@
                     </div>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Guardar entrega</button>
                 </div>
             </div>
@@ -743,7 +743,7 @@
                     </p>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar cotización</button>
                 </div>
             </div>
@@ -781,7 +781,7 @@
                     </p>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar vendedor</button>
                 </div>
             </div>
@@ -838,7 +838,7 @@
                     </p>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar impuestos</button>
                 </div>
             </div>
@@ -1081,7 +1081,7 @@
                     </section>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Guardar pago</button>
                 </div>
             </div>
@@ -1092,7 +1092,7 @@
             <div class="modal-content br-entity-modal br-modal-shell">
                 <div class="modal-header br-modal-header br-modal-shell__header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="modalDetailsTitle"></h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal">
+                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -1458,7 +1458,7 @@
                     </div>
                 </div>
                 <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary waves-effect" @click="saveInformationSectionModal">
                         <i class="fa fa-save"></i>
                         <span class="ms-2">Guardar información de venta</span>
@@ -1472,7 +1472,7 @@
             <div class="modal-content br-entity-modal br-modal-shell">
                 <div class="modal-header br-modal-header br-modal-shell__header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="MODULE.texts.modal.activeMemberships"></h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal">
+                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -2744,7 +2744,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Limpiar detalle",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "br-btn br-btn-danger waves-effect",
                     cancelButton: "br-btn br-btn-cancel waves-effect ms-3"
@@ -2790,7 +2789,6 @@ export default {
                     showCloseButton: true,
                     closeButtonAriaLabel: "Cerrar confirmación",
                     confirmButtonText: "Eliminar ítem",
-                    cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",
                         cancelButton: "btn btn-secondary waves-effect ms-3"
@@ -2841,7 +2839,6 @@ export default {
                     showCloseButton: true,
                     closeButtonAriaLabel: "Cerrar confirmación",
                     confirmButtonText: "Duplicar ítem",
-                    cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-info-1 waves-effect",
                         cancelButton: "btn btn-secondary waves-effect ms-3"

@@ -592,7 +592,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Inactivar registro",
-                cancelButtonText: "Cancelar",
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 customClass: {

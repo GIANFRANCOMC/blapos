@@ -33,7 +33,7 @@
                 @import="openImportModal"
                 @download="downloadRecords"/>
 
-            <OfferingImportModal ref="importModal" type="subscription" :import-route="routeActions.import" @imported="listEntity({})"/>
+            <OfferingImportModal ref="importModal" type="subscription" :import-route="routeActions.import" :internal-code-prefix="internalCodePrefixes.subscription" @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de membresías">
                 <div class="table-responsive">
@@ -74,19 +74,17 @@
                             <td>
                                 <div class="br-entity-offering-details">
                                     <span>
-                                        <button
-                                            v-if="record.attendance_limit_per_day > 0"
-                                            v-attendance-tooltip="attendanceLimitTooltip(record.attendance_limit_per_day)"
-                                            type="button"
-                                            class="br-field-help ms-0"
-                                            data-bs-toggle="tooltip"
-                                            :aria-label="attendanceLimitTooltip(record.attendance_limit_per_day)">
-                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                                        </button>
-                                        <strong class="colon-at-end">Duración</strong> {{ record.formatted_duration }}
+                                        <strong class="colon-at-end">Duración</strong>
+                                        <span class="br-entity-offering-details__value">{{ record.formatted_duration }}</span>
                                     </span>
-                                    <span><strong class="colon-at-end">Cupos</strong> {{ capacityLabel(record) }}</span>
-                                    <span><strong class="colon-at-end">Comisión</strong> {{ commissionLabel(record) }}</span>
+                                    <span v-if="record.capacity_control_enabled">
+                                        <strong class="colon-at-end">Cupos</strong>
+                                        <span class="br-entity-offering-details__value">{{ capacityLabel(record) }}</span>
+                                    </span>
+                                    <span v-if="commissionLabel(record)">
+                                        <strong class="colon-at-end">Comisión</strong>
+                                        <span class="br-entity-offering-details__value">{{ commissionLabel(record) }}</span>
+                                    </span>
                                 </div>
                             </td>
                             <td class="text-end">
@@ -138,29 +136,25 @@
                 label="Secciones de la membresía"/>
             <form class="br-entity-form-section" @submit.prevent="saveEntity">
                         <div id="subscription-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`subscription-tab-trigger-${activeFormTab}`">
-                            <InputText
+                            <InternalCodeInput
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
-                                no-whitespace
+                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="3"
                                 lg="3">
-                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
-                                </template>
                                 <template v-slot:inputGroupAppend>
                                     <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
-                            </InputText>
+                            </InternalCodeInput>
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.name"
@@ -179,32 +173,28 @@
                                 v-model="forms[entity].createUpdate.data.duration_value"
                                 hasDiv
                                 :title="MODULE.texts.form.durationValue"
+                                :aria-label="MODULE.texts.form.durationValue"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
                                 :decimals="0"
+                                :minValue="1"
                                 hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.duration_value"
-                                xl="3"
-                                lg="3"/>
-                            <InputSlot
-                                v-show="activeFormTab === 'general'"
-                                hasDiv
-                                :title="MODULE.texts.form.durationType"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.duration_type"
+                                :textBottomInfo="forms[entity].createUpdate.errors?.duration_value || forms[entity].createUpdate.errors?.duration_type"
                                 xl="3"
                                 lg="3">
-                                <template v-slot:input>
+                                <template #inputGroupAppend>
                                     <v-select
                                         v-model="forms[entity].createUpdate.data.duration_type"
+                                        class="br-input-unit-select"
                                         :options="durationTypes"
-                                        :class="config.forms.classes.select2"
+                                        :aria-label="MODULE.texts.form.durationType"
                                         :clearable="false"
-                                        :searchable="false"/>
+                                        :searchable="false"
+                                        append-to-body>
+                                        <template #no-options><SelectNoOptions/></template>
+                                    </v-select>
                                 </template>
-                            </InputSlot>
+                            </InputNumber>
                             <InputText
                                 v-show="activeFormTab === 'attributes'"
                                 v-model="forms[entity].createUpdate.data.description"
@@ -226,13 +216,9 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.categories"
                                 xl="6"
                                 lg="6">
-                                <template #defaultAppend>
+                                <template #default>
                                     <AddCategory
                                         :internal-code-prefix="internalCodePrefixes.category"
-                                        trigger-mode="link"
-                                        trigger-text="Agregar"
-                                        trigger-icon=""
-                                        :trigger-tooltip="false"
                                         :disabled="isSaving"
                                         @created="handleCategoryCreated"/>
                                 </template>
@@ -354,18 +340,16 @@
                                         :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"
-                                        @update:modelValue="forms[entity].createUpdate.data.commission_value = ''"/>
+                                        @update:modelValue="resetCatalogCommission(forms[entity].createUpdate)"/>
                                 </template>
                             </InputSlot>
-                            <InputNumber
+                            <CommissionValueInput
                                 v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.commission_value"
-                                hasDiv
+                                :commission-type="forms[entity].createUpdate.data.commission_type?.code"
+                                :currency-sign="forms[entity].createUpdate.data.currency?.data?.sign"
                                 :title="MODULE.texts.form.commissionValue"
                                 :titleClass="[config.forms.classes.title]"
-                                :disabled="forms[entity].createUpdate.data.commission_type?.code === 'none'"
-                                :minValue="0"
-                                :maxValue="forms[entity].createUpdate.data.commission_type?.code === 'percentage' ? 100 : undefined"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
                                 xl="4"
@@ -388,6 +372,7 @@
                                     <input
                                         id="subscription_capacity_control_enabled"
                                         v-model="forms[entity].createUpdate.data.capacity_control_enabled"
+                                        @change="delete forms[entity].createUpdate.errors.capacity_limit"
                                         class="form-check-input"
                                         type="checkbox"
                                         role="switch">
@@ -400,9 +385,11 @@
                                 hasDiv
                                 :title="MODULE.texts.form.capacityLimit"
                                 :titleClass="[config.forms.classes.title]"
+                                :isRequired="forms[entity].createUpdate.data.capacity_control_enabled"
                                 :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
                                 :decimals="0"
                                 :minValue="1"
+                                :maxValue="validationRules.capacity_limit.max"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
                                 xl="4"
@@ -492,14 +479,18 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
+import CommissionValueInput from "@System/Components/Catalogs/CommissionValueInput.vue";
+import {OFFERING_CAPACITY_MAX, resetCatalogCommission, validateCatalogCapacity, validateCatalogCommission} from "@System/Components/Catalogs/catalogFormValidation.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import OfferingImportModal from "@System/Components/Catalogs/Offerings/OfferingImportModal.vue";
 import {capacityLabel} from "@System/Components/Catalogs/Offerings/capacityLabel.js";
+import {commissionLabel} from "@System/Components/Catalogs/Offerings/commissionLabel.js";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
@@ -547,7 +538,7 @@ const FORM_FIELDS = {
 };
 
 const FORM_FIELD_CONFIG = {
-    internal_code: {trim: true},
+    internal_code: {trim: false},
     name: {trim: true},
     description: {normalize: true},
     duration_value: {toNumber: true, minValue: 1},
@@ -583,7 +574,7 @@ const VALIDATION_RULES = {
     max_price: {required: false, number: true, min: 0},
     attendance_limit_per_day: {required: false, number: true, min: 1},
     capacity_control_enabled: {required: false},
-    capacity_limit: {required: false, number: true, min: 1},
+    capacity_limit: {required: false, number: true, min: 1, max: OFFERING_CAPACITY_MAX},
     commission_type: {required: false},
     commission_value: {required: false, number: true, min: 0},
     expires_at: {required: false},
@@ -644,8 +635,8 @@ const TEXTS = {
         internalCode: "Código interno",
         name: "Nombre",
         description: "Descripción comercial adicional",
-        durationValue: "Duración (valor)",
-        durationType: "Duración (tipo)",
+        durationValue: "Duración",
+        durationType: "Unidad de duración",
         price: "Precio de venta",
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
@@ -687,24 +678,7 @@ const MODULE = {
 export default {
     name: "SubscriptionsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
-    directives: {
-        attendanceTooltip: {
-            mounted(button, {value}) {
-                button.title = value;
-                Alerts.createTooltip(button);
-            },
-            updated(button, {value, oldValue}) {
-                if(value === oldValue) return;
-
-                button.title = value;
-                Alerts.createTooltip(button);
-            },
-            beforeUnmount(button) {
-                window.bootstrap?.Tooltip?.getInstance(button)?.dispose();
-            }
-        }
-    },
+    components: {InternalCodeInput, CommissionValueInput, ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
     data() {
 
         const crudModule = initCrudModule({
@@ -745,6 +719,7 @@ export default {
         if(initialized) await this.listEntity({});
     },
     methods: {
+        resetCatalogCommission,
         async initParams() {
 
             const response = await Requests.get({
@@ -895,7 +870,7 @@ export default {
                 entityForms.data.capacity_control_enabled = Boolean(record.capacity_control_enabled ?? false);
                 entityForms.data.capacity_limit = record.capacity_limit ?? "";
                 entityForms.data.commission_type  = this.commissionTypeOptions.find(e => e.code === (record.commission_type || "none")) ?? this.commissionTypeOptions[0];
-                entityForms.data.commission_value = record.commission_value;
+                entityForms.data.commission_value = entityForms.data.commission_type.code === "none" ? "" : record.commission_value;
                 entityForms.data.benefits_text    = this.arrayToText(record.benefits);
                 entityForms.data.restrictions_text = this.arrayToText(record.restrictions);
                 entityForms.data.expires_at       = record.expires_at ? String(record.expires_at).slice(0, 10) : "";
@@ -908,7 +883,7 @@ export default {
             }else {
 
                 // Set defaults for new record
-                entityForms.data.internal_code = this.generateCode({length: 7});
+                entityForms.data.internal_code = this.setEditableInternalCode(this.generateCode({length: 7}), true);
                 entityForms.data.duration_value = 1;
                 entityForms.data.duration_type  = this.durationTypes.length > 0 ? this.durationTypes[0] : null;
                 entityForms.data.currency       = this.currencies.length > 0 ? this.currencies[0] : null;
@@ -982,7 +957,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
-                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
+                Object.assign(preparedData, this.internalCodePayload(preparedData.internal_code));
                 if(preparedData.igv_exempt) preparedData.price_includes_tax = false;
                 if(!preparedData.capacity_control_enabled) preparedData.capacity_limit = null;
                 if(!preparedData.see_my_web) preparedData.see_my_web_price = false;
@@ -1079,12 +1054,8 @@ export default {
 
             }
 
-            if(formData.capacity_control_enabled && !Number(formData.capacity_limit || 0)) {
-
-                result.errors.capacity_limit = ["Indica cuántos cupos estarán disponibles."];
-                result.bool = false;
-
-            }
+            validateCatalogCommission(result, formData);
+            validateCatalogCapacity(result, formData);
 
             return result;
 
@@ -1118,23 +1089,8 @@ export default {
             return Array.isArray(value) ? value.filter(Boolean).join(", ") : "";
 
         },
-        commissionLabel(record) {
-
-            const type = record?.commission_type || "none";
-            const value = Number(record?.commission_value || 0);
-
-            if(type === "percentage") return `${this.separatorNumber(value)}%`;
-            if(type === "fixed") return `${record?.currency?.sign || ""} ${this.separatorNumber(value)}`.trim();
-
-            return "Sin comisión";
-
-        },
+        commissionLabel,
         capacityLabel,
-        attendanceLimitTooltip(limit) {
-
-            return `Límite diario: ${Utils.separatorNumber(limit, 0)} ${Number(limit) === 1 ? "asistencia" : "asistencias"}`;
-
-        },
         focusFirstErrorTab(errors = {}) {
 
             const fields = Object.keys(errors);

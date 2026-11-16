@@ -297,7 +297,7 @@
                     </InputSlot>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="submitRegister">
                         Agregar caja
                     </button>
@@ -343,7 +343,7 @@
                         maxlength="300"/>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="submitOpen">Abrir caja</button>
                 </div>
             </div>
@@ -457,7 +457,7 @@
                         maxlength="300"/>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-update" :disabled="saving" @click="submitClose">Cerrar caja</button>
                 </div>
             </div>
@@ -518,7 +518,7 @@
                         maxlength="300"/>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-update" :disabled="saving" @click="submitMovement">Registrar operación</button>
                 </div>
             </div>

@@ -460,6 +460,52 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: none !important;
 }
 
+.br-layout .input-group:has(> .br-input-unit-select) {
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-surface-elevated);
+  flex-wrap: nowrap;
+}
+
+.br-layout .input-group:has(> .br-input-unit-select):focus-within {
+  border-color: var(--br-primary);
+}
+
+.br-layout .input-group:has(> .br-input-unit-select).is-invalid {
+  border-color: var(--br-danger);
+}
+
+.br-layout .input-group > .br-input-unit-select {
+  flex: 0 1 auto;
+  inline-size: auto;
+  min-inline-size: 6em;
+  max-inline-size: 65%;
+  margin-inline-start: 0;
+}
+
+.br-layout .input-group:has(> .br-input-unit-select) > .form-control,
+.br-layout .input-group > .br-input-unit-select.v-select .vs__dropdown-toggle {
+  min-height: calc(var(--br-control-height) - 2px);
+  height: calc(var(--br-control-height) - 2px);
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.br-layout .input-group:has(> .br-input-unit-select) > .form-control {
+  padding-inline-end: 0;
+}
+
+.br-layout .br-input-unit-select .vs__selected {
+  color: var(--br-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-layout .br-input-unit-select .vs__open-indicator {
+    transition: none;
+  }
+}
+
 .br-currency-prefix {
   min-width: 1.25rem;
   padding-inline: 0.14rem;

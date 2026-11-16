@@ -609,10 +609,31 @@
   color: var(--br-primary-active);
 }
 
+.br-copy-value {
+  display: inline-flex;
+  align-items: center;
+  column-gap: 0.3125rem;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.br-copy-value > :first-child {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.br-copy-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--br-primary-active);
+  line-height: 1;
+  cursor: pointer;
+}
+
 .br-copy-button {
   display: inline-grid;
   flex: 0 0 auto;
-  place-items: center;
+  place-items: center start;
   width: 1.25rem;
   min-width: 1.25rem;
   height: 1.25rem;
@@ -623,9 +644,13 @@
   background: transparent;
   box-shadow: none;
   color: var(--br-primary-active);
-  font-size: var(--br-font-size-074);
   line-height: 1;
   cursor: pointer;
+}
+
+.br-copy-icon > i,
+.br-copy-button > i {
+  font-size: var(--br-font-size-table);
 }
 
 .br-copy-button i {
@@ -642,15 +667,19 @@
   transform: none;
 }
 
+.br-copy-icon:focus-visible,
 .br-copy-button:focus-visible {
   outline: 2px solid var(--br-primary);
   outline-offset: 1px;
 }
 
-.br-copy-button:is(:hover, :focus-visible) i {
+.br-copy-icon:not([aria-disabled="true"]):is(:hover, :focus-visible) i,
+.br-copy-button:enabled:is(:hover, :focus-visible) i {
   filter: brightness(0.78);
+  font-weight: var(--br-font-weight-regular);
 }
 
+.br-copy-icon[aria-disabled="true"],
 .br-copy-button:disabled,
 .br-barcode-download-button:disabled {
   opacity: 0.48;
@@ -733,6 +762,12 @@
   height: 1.65rem;
   margin-left: 0.3rem;
   padding: 0;
+}
+
+.br-quick-create-trigger--field-label {
+  width: 1rem;
+  height: 1rem;
+  margin-inline: 0 0.2rem;
 }
 
 .br-quick-create-dialog {

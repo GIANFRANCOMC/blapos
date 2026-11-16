@@ -43,7 +43,7 @@ test("inventario conserva la abreviatura desde la consulta hasta las vistas y ex
     assert.match(config, /measurementUnit:id,abbreviation/);
     assert.match(state, /unitAbbreviation: product\.measurement_unit\?\.abbreviation/);
     assert.match(stock, /Unidad: \{\{ item\.product\.unitAbbreviation \}\}/);
-    assert.match(transfers, /Unidad: \{\{ item\.product\.unitAbbreviation \}\}/);
+    assert.match(transfers, /<QuantityValue\s[^>]*:value="transferAvailability\[item\.product\.code\]"\s*:unit="item\.product"/);
     assert.match(report, /measurementUnit\?->abbreviation/);
 });
 

@@ -127,11 +127,9 @@
                                         <div class="br-entity-identifiers br-entity-identifiers--plain">
                                             <div class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                                <span class="br-entity-identifier__value">
+                                                <span class="br-copy-value">
                                                     <span class="br-entity-code" v-text="record.internal_code || '—'"></span>
-                                                    <span v-if="record.internal_code" class="br-entity-identifier__actions">
-                                                        <CopyButton :value="record.internal_code" label="Código interno"/>
-                                                    </span>
+                                                    <CopyButton v-if="record.internal_code" :value="record.internal_code" label="Código interno"/>
                                                 </span>
                                             </div>
                                         </div>
@@ -198,29 +196,25 @@
                 label="Secciones de la sucursal"/>
             <form class="br-entity-form-section br-branch-form-section" @submit.prevent="saveEntity">
                 <div id="branch-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`branch-tab-trigger-${activeFormTab}`">
-                            <InputText
+                            <InternalCodeInput
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
-                                no-whitespace
+                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="4"
                                 lg="4">
-                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
-                                </template>
                                 <template v-slot:inputGroupAppend v-if="!isUpdate">
                                     <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
-                            </InputText>
+                            </InternalCodeInput>
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.name"
@@ -353,6 +347,7 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
@@ -386,7 +381,7 @@ const FORM_FIELDS = {
 };
 
 const FORM_FIELD_CONFIG = {
-    internal_code: {trim: true},
+    internal_code: {trim: false},
     name: {trim: true},
     address: {normalize: true},
     reference: {normalize: true},
@@ -473,7 +468,7 @@ const MODULE = {
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {InitialLoadTransition, CatalogFormTabs, CatalogListSkeleton, FormModal},
+    components: {InternalCodeInput, InitialLoadTransition, CatalogFormTabs, CatalogListSkeleton, FormModal},
     data() {
 
         const crudModule = initCrudModule({
@@ -678,7 +673,7 @@ export default {
             }else {
 
                 // Set defaults for new record
-                entityForms.data.internal_code = this.generateCode({length: 7});
+                entityForms.data.internal_code = this.setEditableInternalCode(this.generateCode({length: 7}), true);
                 entityForms.data.status        = this.statuses.length > 0 ? this.statuses[0] : null;
 
             }
@@ -727,7 +722,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
-                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
+                Object.assign(preparedData, this.internalCodePayload(preparedData.internal_code));
                 const id            = preparedData.id;
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";

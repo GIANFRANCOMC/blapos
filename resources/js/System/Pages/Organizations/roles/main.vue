@@ -263,7 +263,7 @@
                 </div>
 
                 <div class="modal-footer br-entity-modal__footer">
-                    <button ref="closeModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button ref="closeModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button
                         type="button"
                         :class="['br-btn', editingId ? 'br-btn-action-update' : 'br-btn-action-create']"
@@ -577,7 +577,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Actualizar perfil",
-                cancelButtonText: "Cancelar",
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 customClass: {
@@ -614,7 +613,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Duplicar perfil",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",
                     popup: "br-swal-alert br-swal-alert--question",

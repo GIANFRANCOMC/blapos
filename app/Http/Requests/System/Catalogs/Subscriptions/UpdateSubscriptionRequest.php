@@ -6,14 +6,14 @@ namespace App\Http\Requests\System\Catalogs\Subscriptions;
 
 use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesCatalogCommission, ValidatesInternalCodePrefix};
 use App\Rules\System\Catalogs\{DelimitedArrayTextLength};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class UpdateSubscriptionRequest extends CompanyFormRequest {
 
-    use ValidatesInternalCodePrefix;
+    use ValidatesCatalogCommission, ValidatesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
 
@@ -55,7 +55,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
             "price_includes_tax" => "nullable|boolean",
             "igv_exempt" => "nullable|boolean",
             "commission_type" => "nullable|in:none,percentage,fixed",
-            "commission_value" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
+            "commission_value" => $this->numericRules(min: 0),
             "currency_id" => ["required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "capacity_control_enabled" => "nullable|boolean",
             "capacity_limit" => "nullable|integer|min:1|max:1000000",
@@ -99,10 +99,7 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
             "price" => $this->normalizeDecimalInput($this->input("price")),
             "min_price" => $this->normalizeDecimalInput($this->input("min_price")),
             "max_price" => $this->normalizeDecimalInput($this->input("max_price")),
-            "commission_type" => $this->input("commission_type") ?: "none",
-            "commission_value" => $this->input("commission_type") === "none"
-                ? 0
-                : ($this->normalizeDecimalInput($this->input("commission_value")) ?? 0),
+            ...$this->normalizedCommission(),
         ]);
 
     }
@@ -118,26 +115,6 @@ class UpdateSubscriptionRequest extends CompanyFormRequest {
         if(!$this->filled("capacity_limit")) {
 
             $validator->errors()->add("capacity_limit", "Indica cuántos cupos estarán disponibles.");
-
-        }
-
-    }
-
-    private function validateCommission(Validator $validator): void {
-
-        if($validator->errors()->hasAny(["commission_type", "commission_value"])) {
-
-            return;
-
-        }
-
-        $type = (string) $this->input("commission_type", "none");
-
-        $value = (float) ($this->input("commission_value") ?? 0);
-
-        if($type === "percentage" && $value > 100) {
-
-            $validator->errors()->add("commission_value", "No puede superar el 100%.");
 
         }
 

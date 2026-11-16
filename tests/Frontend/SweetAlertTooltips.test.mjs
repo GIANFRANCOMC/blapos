@@ -2,6 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {initializeSweetAlertTooltips} from "../../resources/js/Shared/sweetalert-tooltips.js";
 
+test("SweetAlert usa Cerrar en el botón secundario incluso sin Bootstrap", () => {
+    const Swal = {fire: options => options};
+    initializeSweetAlertTooltips({Swal, document: {addEventListener() {}}});
+
+    const alert = Swal.fire({showCancelButton: true, cancelButtonText: "Cancelar", confirmButtonText: "Guardar"});
+    assert.equal(alert.cancelButtonText, "Cerrar");
+    assert.equal(alert.confirmButtonText, "Guardar");
+});
+
 test("SweetAlert oculta tooltips durante la apertura y el retorno de foco", async () => {
     const pageTrigger = {};
     const popupTrigger = {};

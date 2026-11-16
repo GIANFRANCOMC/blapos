@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <footer class="platform-modal__footer">
-                    <div><button class="btn platform-btn-subtle" type="button" :disabled="creating" @click="closeCreateModal">Cancelar</button><button class="btn platform-btn-primary platform-action-button text-white" :disabled="creating"><span v-if="creating" class="spinner-border spinner-border-sm"></span><i v-else class="fa-solid fa-wand-magic-sparkles"></i><span>{{ creating ? "Creando organización…" : "Crear cliente" }}</span></button></div>
+                    <div><button class="btn platform-btn-subtle" type="button" :disabled="creating" @click="closeCreateModal">Cerrar</button><button class="btn platform-btn-primary platform-action-button text-white" :disabled="creating"><span v-if="creating" class="spinner-border spinner-border-sm"></span><i v-else class="fa-solid fa-wand-magic-sparkles"></i><span>{{ creating ? "Creando organización…" : "Crear cliente" }}</span></button></div>
                 </footer>
             </form>
             <div v-if="creating" class="platform-provisioning-lock" role="status" aria-live="assertive">

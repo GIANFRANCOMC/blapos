@@ -213,11 +213,9 @@
                                         <div class="br-entity-identifiers br-entity-identifiers--plain">
                                             <div class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end">Atención</span>
-                                                <span class="br-entity-identifier__value">
+                                                <span class="br-copy-value">
                                                     <span class="br-entity-code">{{ session.reference || '—' }}</span>
-                                                    <span v-if="session.reference" class="br-entity-identifier__actions">
-                                                        <CopyButton :value="session.reference" label="Número de atención"/>
-                                                    </span>
+                                                    <CopyButton v-if="session.reference" :value="session.reference" label="Número de atención"/>
                                                 </span>
                                             </div>
                                         </div>
@@ -488,7 +486,7 @@
                     </div>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="saveFloor">
                         {{ editingFloorId ? 'Editar piso' : 'Agregar piso' }}
                     </button>
@@ -541,7 +539,7 @@
                     </div>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="saveStation">
                         {{ editingStationId ? 'Editar mesa' : 'Agregar mesa' }}
                     </button>

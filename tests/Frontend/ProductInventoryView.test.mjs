@@ -27,6 +27,7 @@ test("el acceso al inventario abre una modal de consulta para alertas y estados 
 
     const page = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
     const modal = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductInventoryModal.vue", import.meta.url), "utf8");
+    const formModal = readFileSync(new URL("../../resources/js/System/Components/Generics/FormModal.vue", import.meta.url), "utf8");
     const editor = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
     const inventory = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductWarehouseInventory.vue", import.meta.url), "utf8");
     const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
@@ -41,7 +42,8 @@ test("el acceso al inventario abre una modal de consulta para alertas y estados 
     assert.match(page, /fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'/);
     assert.doesNotMatch(page, /<th[^>]*>Inventario<\/th>|<QuantityValue\b/);
     assert.match(modal, /:show-submit="false"/);
-    assert.match(modal, /close-button-text="Cerrar"/);
+    assert.match(modal, /<FormModal\b/);
+    assert.match(formModal, /<slot name="footerClose">\s*<button[^>]*data-bs-dismiss="modal">\s*Cerrar\s*<\/button>/);
     assert.match(modal, /record\?\.warehouse_items/);
     assert.match(modal, /<ProductWarehouseInventory v-if="inventoryRows\.length" :rows="inventoryRows" :measurement-unit="record\.measurement_unit"\/>/);
     assert.match(editor, /<ProductWarehouseInventory[\s\S]*?v-model:rows="productForm\.data\.inventory"[\s\S]*?mode="edit"/);
@@ -59,7 +61,10 @@ test("el acceso al inventario abre una modal de consulta para alertas y estados 
     assert.match(inventory, /class="br-entity-inventory__status" :class="item\.status && \['br-inventory__situation', `br-inventory__situation--\$\{item\.status\.code\}`\]"/);
     assert.match(inventory, /<QuantityValue class="br-inventory__stock-current" :value="item\.inventory\.initial_stock"/);
     assert.match(stockStyles, /\.br-entity-inventory__status\.br-inventory__situation,\s*body\.br-layout \.br-inventory__table > tbody > tr > td\.br-inventory__situation \{[^}]*background-color: var\(--br-situation-bg\)/);
-    assert.match(inventory, /<span>Stock mínimo<\/span>\s*<span>Estado del stock<\/span>\s*<\/div>/);
+    assert.match(inventory, /<span>Stock mínimo<\/span>\s*<span>Estado del stock<\/span>\s*<span v-if="mode === 'edit'">/);
+    assert.match(inventory, /<div v-if="mode === 'edit'" class="br-entity-inventory__actions">[\s\S]*?@click="\$emit\('remove-row', item\.index, \$event\)"/);
+    assert.match(editor, /@remove-row="removeInventoryRow"/);
+    assert.match(editor, /@click="restoreInventoryRows"[\s\S]*?Restaurar almacenes/);
     assert.match(inventory, /@update:modelValue="updateRow\(item\.index, 'minimum_stock', \$event\)"[\s\S]*?class="br-entity-inventory__status"\s/);
     assert.match(branding, /\.br-entity-inventory__field \.form-control:focus::placeholder\s*\{\s*opacity: 0;/);
     assert.match(branding, /\.br-entity-stock-trigger \{[^}]*color: var\(--br-success-hover\)/);

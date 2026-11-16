@@ -156,7 +156,7 @@ Estructura:
 - La referencia muestra `Módulo` o `Módulo y acceso` en una superficie neutra y resalta el nombre exacto antes de explicar la consecuencia.
 - Las confirmaciones establecen `allowEnterKey: false`; presionar Enter no agrega ni quita favoritos accidentalmente.
 - El borde superior y el icono usan el color semántico correspondiente: información, advertencia, éxito o error.
-- El botón cancelar usa un hover gris suave y conserva contraste accesible.
+- El botón Cerrar usa un hover gris suave y conserva contraste accesible.
 
 ## Favoritos globales
 

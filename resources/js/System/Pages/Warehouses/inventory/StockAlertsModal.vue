@@ -5,8 +5,7 @@
         modal-class="br-modal-standard br-inventory-alerts"
         modal-size="modal-xl"
         body-class="br-inventory-alerts__body"
-        :show-submit="false"
-        close-button-text="Cerrar">
+        :show-submit="false">
         <template #body>
             <header class="br-inventory-alerts__summary">
                 <div class="br-field-summary">

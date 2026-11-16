@@ -265,7 +265,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.createUpdate.extras.modals.default.titles[forms.entity.createUpdate.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div v-if="['store'].includes(forms.entity.createUpdate.extras.modals.default.type)" class="d-flex flex-wrap justify-content-center align-items-center mb-3 shadow-sm px-4 py-2 border border-1 border-light rounded">
@@ -370,7 +370,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.qrCamera.extras.modals.default.titles[forms.entity.qrCamera.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div v-if="['store'].includes(forms.entity.qrCamera.extras.modals.default.type)" class="d-flex flex-wrap justify-content-center align-items-center mb-3 shadow-sm px-4 py-2 border border-1 border-light rounded">
@@ -528,7 +528,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.qrScanner.extras.modals.default.titles[forms.entity.qrScanner.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div v-if="['store'].includes(forms.entity.qrScanner.extras.modals.default.type)" class="d-flex flex-wrap justify-content-center align-items-center mb-3 shadow-sm px-4 py-2 border border-1 border-light rounded">
@@ -662,7 +662,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.automatic.extras.modals.default.titles[forms.entity.automatic.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
@@ -1341,7 +1341,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Solicitar corrección",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-primary waves-effect",
                     cancelButton: "btn btn-secondary waves-effect ms-3"
@@ -1800,7 +1799,6 @@ export default {
                     showCloseButton: true,
                     closeButtonAriaLabel: "Cerrar confirmación",
                     confirmButtonText: "Quitar cliente",
-                    cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",
                         cancelButton: "btn btn-secondary waves-effect ms-3"
@@ -2107,7 +2105,6 @@ export default {
                     showCloseButton: true,
                     closeButtonAriaLabel: "Cerrar confirmación",
                     confirmButtonText: "Anular asistencia",
-                    cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",
                         cancelButton: "btn btn-secondary waves-effect ms-3"

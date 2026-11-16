@@ -4,8 +4,7 @@
         title="INVENTARIO"
         modal-class="br-modal-standard"
         modal-size="modal-lg"
-        :show-submit="false"
-        close-button-text="Cerrar">
+        :show-submit="false">
         <template #body>
             <div v-if="record" class="br-product-inventory-view">
                 <div class="br-product-inventory-view__summary">

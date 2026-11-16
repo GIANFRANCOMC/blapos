@@ -82,7 +82,7 @@ final class ProductCapacityBoundaryTest extends TestCase {
         ]);
 
         $this->postJson(route("products.store"), [
-            "internal_code" => "PRODUCT-HTTP-TEST",
+            "internal_code" => "PROD-HTTP-TEST",
             "barcode" => "5901234123457",
             "name" => "Producto físico",
             "price" => 10,

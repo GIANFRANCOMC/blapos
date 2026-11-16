@@ -20,5 +20,6 @@ Route::post("/guides", [StockManagementController::class, "storeGuide"])->name("
 Route::post("/movements", [StockManagementController::class, "storeMovement"])->name("$entity.movements.store");
 Route::post("/operations", [StockManagementController::class, "storeOperations"])->name("$entity.operations.store");
 Route::post("/stock-levels", [StockManagementController::class, "updateStockLevels"])->name("$entity.levels.update");
+Route::get("/transfers/availability", [StockManagementController::class, "transferAvailability"])->name("$entity.transfers.availability");
 Route::post("/transfers", [StockManagementController::class, "storeTransfer"])->name("$entity.transfers.store");
 Route::get("/export", [StockManagementController::class, "export"])->name("$entity.export");

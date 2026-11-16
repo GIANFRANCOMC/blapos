@@ -320,7 +320,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Iniciar pausa",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",
                     popup: "br-swal-alert br-swal-alert--question",
@@ -362,7 +361,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: "Solicitar corrección",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",
                     popup: "br-swal-alert br-swal-alert--question",
@@ -412,7 +410,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: approve ? "Aprobar corrección" : "Rechazar corrección",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     container: "br-swal-backdrop",
                     popup: approve ? "br-swal-alert br-swal-alert--question" : "br-swal-alert br-swal-alert--warning",

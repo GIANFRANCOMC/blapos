@@ -44,7 +44,7 @@ Lista y administra membresias reales asignadas a clientes. Estas pueden originar
 - `POST /tracking_subscriptions/{id}/renew` crea una nueva membresía manual y conserva `renewed_from_id`.
 - `POST /tracking_subscriptions/manual` crea una membresía manual inicial sin generar venta.
 - El alta manual puede tomar una membresía del catálogo como referencia de duración, pero siempre guarda una membresía real en `subscriptions`.
-- Si el cliente tiene correo y se solicita, el alta manual registra un `subscription_emails` de tipo `SubscriptionWelcome` para enviar agradecimiento por suscripción mediante el proceso existente de notificaciones.
+- Si el cliente tiene correo y se solicita, el alta manual registra un `subscription_emails` de tipo `SubscriptionWelcome` para enviar agradecimiento por membresía mediante el proceso existente de notificaciones.
 - `company_settings.subscriptions.send_welcome_email_on_sale` permite registrar el mismo correo de agradecimiento cuando la membresía nace desde una venta.
 - La renovación respeta empresa, sucursal, alcance, fechas y política de solapamiento.
 - El modelo expone `remaining_days` y `remaining_time_label` para mostrar cuántos días faltan hasta el vencimiento o cuántos días pasaron desde que venció.

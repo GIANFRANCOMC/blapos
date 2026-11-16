@@ -60,7 +60,7 @@ La tabla `brands`, la relación `items.brand_id`, la subsección de menú y su h
 ## Validaciones
 
 - La petición requiere un usuario autenticado en el tenant actual.
-- Código interno y nombre se recortan antes de validar.
+- El nombre se recorta antes de validar. El código interno se valida tal como llega.
 - Las cadenas vacías se convierten a `null`.
 - El código interno solo admite letras, números, punto, guion y guion bajo.
 - El código interno se valida mediante `UniqueInTenant` y cuenta con una restricción única para proteger concurrencia.
@@ -87,7 +87,8 @@ Esto limpia:
 
 - Barra de filtros reutilizable con búsqueda por código, nombre, descripción o sitio oficial.
 - Tabla con código interno centrado y copiable, nombre, descripción, sitio oficial, estado y edición.
-- Modal compartida `FormModal`, con cierre y botón Cancelar reutilizables y acciones diferenciadas para agregar o editar.
+- La columna Sitio oficial centra el encabezado y el contenido. El enlace `Visitar sitio` abre una pestaña nueva. Las marcas sin URL muestran `Sin sitio oficial` en texto atenuado.
+- Modal compartida `FormModal`, con botón Cerrar y acciones diferenciadas para agregar o editar.
 - Generación opcional de código interno con tooltip.
 - El formulario conserva código interno, nombre, descripción, estado y sitio oficial.
 - Select de estado con el mismo comportamiento y menú flotante que el resto de System.
@@ -98,16 +99,16 @@ Esto limpia:
 - El listado utiliza `FiltersSection`, `TableActionsDropdown` y el mismo encabezado de tabla del catálogo comercial.
 - **Acciones → Descargar Excel** exporta todos los registros que coinciden con los filtros actuales; requiere permiso `export`.
 - **Acciones → Cargar masivamente** utiliza `CatalogReferenceImportModal`, compartida con Categorías. Su plantilla y el envío del archivo requieren permiso `import`.
-- Plantilla: `Nombre` obligatorio; `Código interno`, `Descripción`, `Sitio oficial` y `Estado` opcionales. El código vacío se genera con el prefijo configurado; el estado predeterminado es `Activo`.
+- La plantilla requiere `Nombre` y `Código interno` completo con el prefijo vigente cuando corresponda. `Descripción`, `Sitio oficial` y `Estado` son opcionales. El estado predeterminado es `Activo`.
 - Se aceptan Excel y CSV con hasta 500 filas y el límite de tamaño configurado. Cada fila se valida antes de registrarse; un error revierte todo el lote. No se modifican marcas existentes.
 - La importación reutiliza `BrandService` e invalida las cachés de Marcas y Productos al concluir.
 
 ## Alta rápida reutilizable
 
 - `resources/js/System/Components/Catalogs/AddBrand.vue` permite crear una Marca desde cualquier formulario sin abandonar el flujo actual.
-- El prefijo se obtiene desde `company_settings`; `MAR-` es el valor predeterminado y el backend lo normaliza mediante `InternalCodeService`.
+- El prefijo se obtiene desde `company_settings`. El valor predeterminado se presenta como `MAR-`.
 - La creación contextual utiliza una modal Bootstrap reutilizable y un SweetAlert de carga por encima de toda la interfaz.
-- Reutiliza `QuickCreateCatalogEntity.vue` para generar el valor editable del código. El FormRequest añade el prefijo vigente de Marcas y valida la longitud del código completo.
+- `QuickCreateCatalogEntity.vue` genera y muestra el código completo antes de guardar. El FormRequest valida el prefijo y la longitud del código recibido.
 - El disparador admite los modos `link`, `button` e `icon`, con texto, icono, título, clases y estado deshabilitado configurables mediante propiedades.
 - El formulario rápido solicita únicamente Nombre y Descripción; ambos campos aceptan Enter para registrar.
 - Emite `created` con `{record, response}` y `postAction` con la respuesta completa. Productos usa el registro emitido para actualizar el selector sin sustituir la marca ya elegida.

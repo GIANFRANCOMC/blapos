@@ -80,11 +80,16 @@
                                 xl="12"
                                 lg="12"
                                 @enterKeyPressed="saveEntity"/>
-                        </div>
-
-                        <div class="br-field-summary mt-3">
-                            <span class="form-label">Código interno</span>
-                            <strong class="br-field-summary__value" :title="completeInternalCode" v-text="completeInternalCode"></strong>
+                            <InternalCodeInput
+                                v-model="form.internal_code"
+                                v-bind="internalCodeInputProps(form)"
+                                hasDiv
+                                title="Código interno"
+                                :titleClass="labelClasses"
+                                isRequired
+                                hasTextBottom
+                                :textBottomInfo="errors.internal_code"
+                                @enterKeyPressed="saveEntity"/>
                         </div>
                         <p class="br-quick-create-dialog__note">
                             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
@@ -96,7 +101,7 @@
 
                     <div class="modal-footer br-entity-modal__footer">
                         <button type="button" class="br-btn br-btn-cancel" @click="closeModal">
-                            Cancelar
+                            Cerrar
                         </button>
                         <button
                             type="button"
@@ -118,7 +123,8 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import {composeInternalCode, internalCodePrefixLabel} from "@System/Helpers/InternalCodes.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
+import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 
 let quickCreateSequence = 0;
 
@@ -132,8 +138,10 @@ const FORM_DEFAULTS = {
 export default {
     name: "QuickCreateCatalogEntity",
     components: {
-        QuickCreateTrigger
+        QuickCreateTrigger,
+        InternalCodeInput
     },
+    mixins: [InternalCodePrefixMixin],
     emits: ["created", "postAction"],
     props: {
         entity: {
@@ -235,8 +243,11 @@ export default {
             return ["form-label", "colon-at-end"];
 
         },
-        completeInternalCode() {
-            return composeInternalCode(this.form.internal_code, internalCodePrefixLabel(this.internalCodePrefix));
+        internalCodePrefixes() {
+            return {[this.resourceKey]: this.internalCodePrefix};
+        },
+        internalCodeEntityKey() {
+            return this.resourceKey;
         },
         errorLabels() {
 
@@ -333,7 +344,7 @@ export default {
 
             this.form = {
                 ...Utils.cloneJson(FORM_DEFAULTS),
-                internal_code: Utils.generateCode({length: 7})
+                internal_code: this.setEditableInternalCode(Utils.generateCode({length: 7}), true)
             };
             this.errors = {};
             this.generalError = "";
@@ -355,9 +366,10 @@ export default {
 
             this.errors = {};
             this.generalError = "";
+            const payload = {...this.form, ...this.internalCodePayload(this.form.internal_code)};
 
             const validation = Forms.validateFormData(
-                {...this.form, internal_code: this.completeInternalCode},
+                payload,
                 this.validationRules,
                 {
                     isDescriptive: false,
@@ -382,9 +394,9 @@ export default {
             try {
 
                 const data = Forms.prepareFormData(
-                    {...this.form, internal_code: this.completeInternalCode},
+                    payload,
                     {
-                        internal_code: {trim: true},
+                        internal_code: {trim: false},
                         name: {trim: true},
                         description: {normalize: true},
                         status: {trim: true}

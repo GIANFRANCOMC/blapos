@@ -88,7 +88,7 @@
                             <p class="platform-status-help">Actualmente está <strong>{{ statusLabel(tenant.status).toLowerCase() }}</strong>.</p>
                         </div>
                         <footer class="platform-modal__footer">
-                            <div><button class="btn platform-btn-subtle" type="button" :disabled="savingStatus" @click="closeStatusModal">Cancelar</button><button class="btn platform-btn-primary" :disabled="savingStatus || statusForm === tenant.status"><span v-if="savingStatus" class="spinner-border spinner-border-sm me-1"></span>{{ savingStatus ? "Actualizando…" : "Actualizar estado" }}</button></div>
+                            <div><button class="btn platform-btn-subtle" type="button" :disabled="savingStatus" @click="closeStatusModal">Cerrar</button><button class="btn platform-btn-primary" :disabled="savingStatus || statusForm === tenant.status"><span v-if="savingStatus" class="spinner-border spinner-border-sm me-1"></span>{{ savingStatus ? "Actualizando…" : "Actualizar estado" }}</button></div>
                         </footer>
                     </form>
                 </div>

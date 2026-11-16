@@ -6,7 +6,7 @@
         :keyboard="false"
         :close-disabled="importing">
         <template #body>
-            <p class="br-import-products__intro" v-text="introText"></p>
+            <p class="br-import-products__intro">{{ introText }} {{ internalCodeImportHelp(internalCodePrefix) }}</p>
 
             <button
                 type="button"
@@ -35,7 +35,7 @@
 
         <template #footerClose>
             <button ref="closeButton" type="button" class="br-btn br-btn-cancel" :disabled="importing" data-bs-dismiss="modal">
-                Cancelar
+                Cerrar
             </button>
         </template>
 
@@ -50,6 +50,7 @@
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
+import {internalCodeImportHelp} from "@System/Helpers/InternalCodes.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 
 export default {
@@ -57,6 +58,7 @@ export default {
     components: {FormModal},
     emits: ["imported"],
     props: {
+        internalCodePrefix: {type: String, default: ""},
         type: {type: String, required: true, validator: value => ["service", "subscription"].includes(value)},
         importRoute: {type: String, required: true}
     },
@@ -89,12 +91,13 @@ export default {
         introText() {
 
             return this.type === "service"
-                ? "Completa nombre y precio; la duración estimada es opcional. Los códigos vacíos se generan automáticamente."
-                : "Completa nombre, precio, valor y tipo de duración (hora, día, rutina, mes o año). Los códigos vacíos se generan automáticamente.";
+                ? "Completa el nombre y el precio. La duración estimada es opcional."
+                : "Completa el nombre, el precio y la duración (hora, día, rutina, mes o año).";
 
         }
     },
     methods: {
+        internalCodeImportHelp,
         open() {
 
             this.file = null;

@@ -75,7 +75,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
+                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa fa-times icon-close-modal"></i>
                     </button>
                 </div>

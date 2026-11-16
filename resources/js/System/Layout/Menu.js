@@ -576,7 +576,6 @@ function confirmLogout() {
         showCloseButton: true,
         closeButtonAriaLabel: "Cerrar confirmación",
         confirmButtonText: "Cerrar sesión",
-        cancelButtonText: "Cancelar",
         buttonsStyling: false,
         customClass: {
             popup: "br-swal",

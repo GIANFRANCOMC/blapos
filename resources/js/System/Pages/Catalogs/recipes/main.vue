@@ -47,11 +47,9 @@
                                     <div v-if="record.item?.barcode" class="br-entity-identifiers br-entity-identifiers--plain">
                                         <div class="br-entity-identifier">
                                             <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
-                                            <span class="br-entity-identifier__value">
+                                            <span class="br-copy-value">
                                                 <span class="br-entity-barcode" v-text="record.item.barcode"></span>
-                                                <span class="br-entity-identifier__actions">
-                                                    <CopyButton :value="record.item.barcode" label="Código de barras"/>
-                                                </span>
+                                                <CopyButton :value="record.item.barcode" label="Código de barras"/>
                                             </span>
                                         </div>
                                     </div>
@@ -304,7 +302,7 @@
                     </form>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="saveRecipe">
                         <span>{{ saving ? "Guardando" : (isUpdate ? "Editar receta" : "Agregar receta") }}</span>
                     </button>

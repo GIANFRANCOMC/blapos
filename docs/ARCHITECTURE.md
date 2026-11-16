@@ -104,7 +104,7 @@ Las migraciones principales inicializan grupos funcionales:
 - `create_init_masters_table`: maestros, empresas, secciones, roles, usuarios.
 - `create_init_companies_table`: sucursales, series, items, activos, categorias, clientes, almacenes.
 - `create_init_sales_table`: ventas.
-- `create_init_subscriptions_table`: membresias, asistencias, emails de suscripcion.
+- `create_init_subscriptions_table`: membresias, asistencias, emails de membresía.
 - `create_init_clients_table`: libro de reclamaciones.
 - `create_init_biometrics_table`: dispositivos biometricos y huellas.
 

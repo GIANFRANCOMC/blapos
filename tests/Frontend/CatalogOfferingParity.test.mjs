@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+import {compile} from "@vue/compiler-dom";
 import {parse} from "@vue/compiler-sfc";
+import * as Vue from "vue";
+import {renderToString} from "vue/server-renderer";
 import {capacityLabel} from "../../resources/js/System/Components/Catalogs/Offerings/capacityLabel.js";
+import {commissionLabel} from "../../resources/js/System/Components/Catalogs/Offerings/commissionLabel.js";
+import {commissionRequiresValue, validateCatalogCapacity, validateCatalogCommission} from "../../resources/js/System/Components/Catalogs/catalogFormValidation.js";
+import InternalCodePrefixMixin from "../../resources/js/System/Mixins/InternalCodePrefixMixin.js";
+import {internalCodeImportHelp, internalCodePrefixLabel} from "../../resources/js/System/Helpers/InternalCodes.js";
 
 const modules = [
     {name: "servicio", path: "resources/js/System/Pages/Catalogs/services/main.vue", ownFields: ["estimated_duration_minutes", "capacity_limit"]},
@@ -38,13 +45,16 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
     assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);
     assert.match(branding, /\.br-entity-identifier__label \{[^}]*font-size: var\(--br-product-code-label-font-size\)/);
     assert.doesNotMatch(branding.match(/\.br-entity-identifiers--plain \.br-entity-identifier__label \{[^}]*\}/)?.[0], /font-size/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__value \{\s*display: flex;\s*align-items: baseline/);
+    assert.match(product, /class="br-copy-value">\s*<span[^>]*v-text="record\.internal_code"><\/span>\s*<CopyButton/);
+    assert.match(product, /class="br-copy-value">\s*<span[^>]*v-text="record\.barcode"><\/span>\s*<CopyButton/);
+    assert.match(copyStyles, /\.br-copy-value \{[^}]*column-gap: 0\.3125rem;/);
     assert.match(branding, /\.br-entity-code \{[^}]*font-size: var\(--br-product-code-font-size\)/);
     assert.match(branding, /\.br-entity-barcode \{[^}]*font-size: var\(--br-product-code-font-size\)/);
     assert.doesNotMatch(branding.match(/\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[^}]*\}/)?.[0], /font-size/);
-    assert.match(copyStyles, /\.br-copy-button \{[^}]*width: 1\.25rem;[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--br-primary-active\)/);
+    assert.match(copyStyles, /\.br-copy-button \{[^}]*place-items: center start;[^}]*width: 1\.25rem;[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--br-primary-active\)/);
     assert.match(copyStyles, /\.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
-    assert.match(copyStyles, /\.br-copy-button:is\(:hover, :focus-visible\) i \{\s*filter: brightness\(0\.78\)/);
+    assert.match(copyStyles, /\.br-copy-icon > i,\s*\.br-copy-button > i \{\s*font-size: var\(--br-font-size-table\)/);
+    assert.match(copyStyles, /\.br-copy-button:enabled:is\(:hover, :focus-visible\) i \{[^}]*font-weight: var\(--br-font-weight-regular\)/);
     assert.doesNotMatch(branding, /\.br-entity-identifiers--plain \.br-copy-button/);
 
 });
@@ -52,7 +62,37 @@ test("productos muestra códigos sin recuadro y copia con icono discreto", () =>
 test("el valor de código interno compartido incluye un botón de copia", () => {
     const source = readFileSync(new URL("../../resources/js/System/Components/Catalogs/InternalCodeValue.vue", import.meta.url), "utf8");
     assert.equal(parse(source, {filename: "InternalCodeValue.vue"}).errors.length, 0);
-    assert.match(source, /<span class="text-break" v-text="value \|\| '—'"><\/span>\s*<CopyButton v-if="value" :value="value" label="Código interno"\/>/);
+    assert.match(source, /<span class="br-copy-value">\s*<span v-text="value \|\| '—'"><\/span>\s*<CopyButton v-if="value" :value="value" label="Código interno"\/>/);
+});
+
+test("copiar usa un icono interactivo por defecto y permite un botón explícito", async () => {
+    const source = readFileSync(new URL("../../resources/js/System/Components/CopyButton.vue", import.meta.url), "utf8");
+    const {descriptor} = parse(source);
+    const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
+    const component = new Function(script)();
+    const {code} = compile(descriptor.template.content, {mode: "function", prefixIdentifiers: true});
+    component.render = new Function("Vue", code)(Vue);
+
+    const icon = await renderToString(Vue.h(component, {value: "PROD-1"}));
+    assert.match(icon, /^<span[^>]*class="br-copy-icon"[^>]*role="button"[^>]*tabindex="0"[^>]*title="Copiar"/);
+    assert.match(icon, /fa-solid fa-clipboard/);
+    const nativeButton = await renderToString(Vue.h(component, {type: "button", value: "PROD-1"}));
+    assert.match(nativeButton, /^<button[^>]*class="br-copy-button"[^>]*type="button"/);
+
+    const disabledIcon = await renderToString(Vue.h(component, {disabled: true, value: "PROD-1"}));
+    assert.match(disabledIcon, /aria-disabled="true"/);
+    assert.doesNotMatch(disabledIcon, /tabindex/);
+
+    let copies = 0;
+    let prevented = 0;
+    const control = {isButton: false, disabled: false, copy() { copies++; }};
+    const event = {repeat: false, preventDefault() { prevented++; }};
+    component.methods.activateIcon.call(control, event);
+    component.methods.activateIcon.call(control, {...event, repeat: true});
+    component.methods.activateIcon.call({...control, isButton: true}, event);
+    component.methods.activateIcon.call({...control, disabled: true}, event);
+    assert.equal(copies, 1);
+    assert.equal(prevented, 2);
 });
 
 test("los tres editores comparten pestañas accesibles y navegables en móvil", () => {
@@ -124,15 +164,17 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
         assert.deepEqual(detailLabels, ["Duración", "Cupos", "Comisión"]);
 
         if(module.name === "membresía") {
-            assert.match(details, /<button\s+v-if="record\.attendance_limit_per_day > 0"\s+v-attendance-tooltip="attendanceLimitTooltip\(record\.attendance_limit_per_day\)"[\s\S]*?:aria-label="attendanceLimitTooltip\(record\.attendance_limit_per_day\)"[\s\S]*?<\/button>\s*<strong class="colon-at-end">Duración<\/strong>/);
+            assert.match(details, /Duración<\/strong>\s*<span class="br-entity-offering-details__value">\{\{ record\.formatted_duration \}\}<\/span>/);
+            assert.doesNotMatch(details, /attendance_limit_per_day|<button/);
         }
 
-        assert.match(details, /<strong class="colon-at-end">Cupos<\/strong> \{\{ capacityLabel\(record\) \}\}/);
+        assert.match(details, /<span v-if="record\.capacity_control_enabled">\s*<strong class="colon-at-end">Cupos<\/strong>\s*<span class="br-entity-offering-details__value">\{\{ capacityLabel\(record\) \}\}/);
+        assert.match(details, /<span v-if="commissionLabel\(record\)">\s*<strong class="colon-at-end">Comisión<\/strong>/);
         assert.match(source, /import \{capacityLabel\} from "@System\/Components\/Catalogs\/Offerings\/capacityLabel\.js"/);
+        assert.match(source, /<CommissionValueInput\s+v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.commission_value"\s+:commission-type="forms\[entity\]\.createUpdate\.data\.commission_type\?\.code"\s+:currency-sign="forms\[entity\]\.createUpdate\.data\.currency\?\.data\?\.sign"/);
 
     }
 
-    assert.equal(capacityLabel({capacity_control_enabled: false}), "Ilimitados");
     assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: 2, available_capacity: 0}), "2");
     assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: null}), "—");
 
@@ -210,6 +252,7 @@ for(const module of modules) {
 
         assert.match(source, /class="br-entity-switch br-entity-switch--field"/);
         assert.match(source, /v-model="forms\[entity\]\.createUpdate\.data\.capacity_control_enabled"/);
+        assert.match(source, /:isRequired="forms\[entity\]\.createUpdate\.data\.capacity_control_enabled"/);
         assert.match(source, /capacityControl: "¿Controlar cupos\?"/);
         assert.match(source, /<span>Activar <small>· Límite de cupos<\/small><\/span>/);
 
@@ -291,7 +334,7 @@ test("membresía agrupa cupos, asistencia, disponibilidad y comisión en Configu
 
     assert.match(firstTab, /data\.name"[\s\S]*?xl="3"\s+lg="3"/);
     assert.match(firstTab, /data\.duration_value"[\s\S]*?xl="3"\s+lg="3"/);
-    assert.match(firstTab, /:title="MODULE\.texts\.form\.durationType"[\s\S]*?xl="3"\s+lg="3"[\s\S]*?data\.duration_type"/);
+    assert.match(firstTab, /data\.duration_value"[\s\S]*?<template #inputGroupAppend>\s*<v-select\s+v-model="forms\[entity\]\.createUpdate\.data\.duration_type"\s+class="br-input-unit-select"[\s\S]*?<\/v-select>\s*<\/template>\s*<\/InputNumber>/);
 
     assert.ok(firstTab.indexOf('data.name"') < firstTab.indexOf('data.duration_value"'));
     assert.ok(firstTab.indexOf('data.duration_value"') < firstTab.indexOf('data.duration_type"'));
@@ -302,6 +345,78 @@ test("membresía agrupa cupos, asistencia, disponibilidad y comisión en Configu
     assert.ok(source.indexOf('data.description"') < source.indexOf('data.categories"'));
     assert.ok(source.indexOf('data.categories"') < source.indexOf('data.benefits_text"'));
 
+});
+
+test("la comisión se muestra cuando hay tipo y valor aplicables", () => {
+    assert.equal(commissionLabel({commission_type: "none", commission_value: 3}), null);
+    assert.equal(commissionLabel({commission_type: "fixed", commission_value: 0}), null);
+    assert.equal(commissionLabel({commission_type: "percentage", commission_value: "3"}), "3.00%");
+    assert.equal(commissionLabel({commission_type: "fixed", commission_value: 5, currency: {sign: "S/"}}), "S/ 5.00");
+});
+
+test("comisión y cupos son obligatorios según la configuración de la oferta", () => {
+    const validate = form => {
+        const result = {bool: true, errors: {}};
+        validateCatalogCommission(result, form);
+        validateCatalogCapacity(result, form);
+        return result.errors;
+    };
+
+    assert.equal(commissionRequiresValue("none"), false);
+    assert.equal(commissionRequiresValue("percentage"), true);
+    assert.equal(commissionRequiresValue("fixed"), true);
+    assert.deepEqual(validate({commission_type: "none", capacity_control_enabled: false}), {});
+    assert.deepEqual(validate({commission_type: {code: "percentage"}, commission_value: 100, capacity_control_enabled: true, capacity_limit: 8}), {});
+    assert.deepEqual(validate({commission_type: "fixed", commission_value: 150}), {});
+    assert.ok(validate({commission_type: "fixed", commission_value: 0}).commission_value);
+    assert.ok(validate({commission_type: {code: "percentage"}, commission_value: ""}).commission_value);
+    assert.ok(validate({commission_type: "percentage", commission_value: 101}).commission_value);
+    for(const capacity_limit of ["", 0, 1.5, 1000001]) {
+        assert.ok(validate({capacity_control_enabled: true, capacity_limit}).capacity_limit);
+    }
+});
+
+test("el editor envía el mismo código interno que muestra", () => {
+    const editor = {...InternalCodePrefixMixin.data(), ...InternalCodePrefixMixin.methods};
+    const form = {internal_code: ""};
+    const input = () => editor.internalCodeInputProps(form);
+    const payload = () => editor.internalCodePayload(form.internal_code);
+    const paste = value => {form.internal_code = input().transformValue.call(editor, value);};
+
+    editor.internalCodePrefixLabel = internalCodePrefixLabel(" - memb - ");
+    form.internal_code = editor.setEditableInternalCode("PLAN", true);
+    paste("MEMB-PLAN");
+    assert.equal(form.internal_code, "PLAN");
+    assert.equal(input().usePrefix, true);
+    assert.deepEqual(payload(), {internal_code: "MEMB-PLAN", internal_code_without_prefix: false});
+
+    input().onTogglePrefix();
+    assert.equal(input().usePrefix, false);
+    assert.deepEqual(payload(), {internal_code: "PLAN", internal_code_without_prefix: true});
+    input().onTogglePrefix();
+    assert.equal(input().usePrefix, true);
+    assert.equal(payload().internal_code, "MEMB-PLAN");
+    input().onTogglePrefix();
+    paste("MEMB-PLAN");
+    assert.equal(input().usePrefix, true);
+    assert.equal(form.internal_code, "PLAN");
+    paste("MEMB-");
+    assert.equal(payload().internal_code, "");
+
+    editor.internalCodePrefixLabel = internalCodePrefixLabel("GYM");
+    form.internal_code = editor.setEditableInternalCode("MEMB-PLAN");
+    assert.equal(input().usePrefix, false);
+    assert.equal(payload().internal_code, "MEMB-PLAN");
+    paste("MEMB-NEW");
+    assert.equal(form.internal_code, "MEMB-NEW");
+    assert.equal(payload().internal_code, "GYM-MEMB-NEW");
+
+    editor.internalCodePrefixLabel = internalCodePrefixLabel(null);
+    assert.equal(input().prefix, "");
+    assert.equal(input().usePrefix, false);
+    assert.equal(payload().internal_code, "MEMB-NEW");
+    assert.equal(internalCodeImportHelp("gym"), "Completa el código interno de cada fila con el prefijo GYM-.");
+    assert.equal(internalCodeImportHelp(null), "Completa el código interno de cada fila.");
 });
 
 test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", () => {
@@ -323,10 +438,10 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
     assert.ok(configurationPanel);
     assert.match(configurationPanel, /v-model="productForm\.data\.expires_at"/);
     assert.match(configurationPanel, /v-model="productForm\.data\.commission_type"/);
-    assert.match(configurationPanel, /v-model="productForm\.data\.commission_value"/);
+    assert.match(configurationPanel, /<CommissionValueInput\s+v-model="productForm\.data\.commission_value"\s+:commission-type="productForm\.data\.commission_type"\s+:currency-sign="currencySign"/);
     assertFieldOrder(configurationPanel, "productForm.data", ["expires_at", "commission_type", "commission_value"]);
 
-    for(const [field] of configurationPanel.matchAll(/<(?:InputNumber|InputDate|InputSlot)\b[\s\S]*?>/g)) {
+    for(const [field] of configurationPanel.matchAll(/<(?:CommissionValueInput|InputDate|InputSlot)\b[\s\S]*?>/g)) {
 
         assert.match(field, /xl="4"\s+lg="4"/);
 

@@ -44,7 +44,7 @@
                 <div v-if="showFooter" class="modal-footer br-entity-modal__footer" :class="footerClass">
                     <slot name="footerClose">
                         <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">
-                            {{ closeButtonText }}
+                            Cerrar
                         </button>
                     </slot>
                     <slot name="footer">
@@ -129,10 +129,6 @@ export default {
         submitDisabled: {
             type: Boolean,
             default: false
-        },
-        closeButtonText: {
-            type: String,
-            default: "Cancelar"
         },
         submitButtonText: {
             type: String,

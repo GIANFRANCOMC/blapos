@@ -6,7 +6,7 @@ namespace App\Exports\System\Catalogs\Products;
 
 use App\Helpers\System\{Numbers};
 use Maatwebsite\Excel\Concerns\{FromArray, ShouldAutoSize, WithHeadings, WithStyles};
-use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
+use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class ProductImportTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
@@ -36,6 +36,7 @@ final class ProductImportTemplateExport implements FromArray, ShouldAutoSize, Wi
         $sheet->freezePane("A2");
         $format = Numbers::spreadsheetDecimalFormat(groupThousands: false);
         $sheet->getStyle("B:B")->getNumberFormat()->setFormatCode($format);
+        $sheet->getStyle("C2:D501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("F:G")->getNumberFormat()->setFormatCode($format);
         $sheet->getStyle("A1:G1")->applyFromArray([
             "font" => [

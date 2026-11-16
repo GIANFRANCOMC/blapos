@@ -17,6 +17,7 @@
                     :class="[...inputClass]"
                     :aria-label="ariaLabel || undefined"
                     :placeholder="placeholder"
+                    :aria-required="isRequired || undefined"
                     :disabled="disabled"
                     @keyup.enter="handleEnterKey"/>
                 <slot name="inputGroupAppend"></slot>
@@ -43,6 +44,7 @@
                 :class="[...inputClass]"
                 :aria-label="ariaLabel || undefined"
                 :placeholder="placeholder"
+                :aria-required="isRequired || undefined"
                 :disabled="disabled"
                 @keyup.enter="handleEnterKey"/>
             <slot name="inputGroupAppend"></slot>

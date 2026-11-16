@@ -134,6 +134,7 @@ export default {
     },
     beforeUnmount() {
         this.traceabilityRequest += 1;
+        this.transferAvailabilityRequest += 1;
         if(this.loadingTraceability) Alerts.close();
     },
     data() {
@@ -196,6 +197,10 @@ export default {
                 reason: ""
             },
             transferErrors: {},
+            transferAvailability: {},
+            transferAvailabilityRequest: 0,
+            loadingTransferAvailability: false,
+            transferAvailabilityError: false,
             options: {warehouses: [], products: [], stockCategories: [], stockBrands: [], movementUsers: []},
             config: {
                 ...Constants.generalConfig,
@@ -612,13 +617,12 @@ export default {
         },
         removeMovementItem(index) {
 
-            if(!this.canConfigureMovement) return;
+            if(this.savingMovement || this.confirmingMovement || this.previewingOperation || !this.movementForm.items[index]) return;
 
-            if(this.movementForm.items.length > 1) {
-                this.disposeInventoryModalTooltips("inventoryMovementModal");
-                this.movementForm.items.splice(index, 1);
-                this.refreshInventoryModalTooltips("inventoryMovementModal");
-            }
+            this.disposeInventoryModalTooltips("inventoryMovementModal");
+            this.movementForm.items.splice(index, 1);
+            this.movementErrors = {};
+            this.refreshInventoryModalTooltips("inventoryMovementModal");
         },
         disposeInventoryModalTooltips(modalId) {
             Alerts.tooltips({show: false, time: 0, selector: `#${modalId} [data-bs-toggle='tooltip']`});
@@ -780,7 +784,7 @@ export default {
             });
         },
         async saveMovement() {
-            if(this.savingMovement || this.confirmingMovement || this.previewingOperation || !this.movementForm.warehouse?.code) return;
+            if(this.savingMovement || this.confirmingMovement || this.previewingOperation || !this.movementForm.warehouse?.code || !this.movementForm.items.length) return;
 
             this.movementErrors = {};
             const operation = this.movementForm.operation;
@@ -887,13 +891,12 @@ export default {
         },
         removeTransferItem(index) {
 
-            if(!this.canConfigureTransfer) return;
+            if(this.savingTransfer || !this.transferForm.items[index]) return;
 
-            if(this.transferForm.items.length > 1) {
-                this.disposeInventoryModalTooltips("inventoryTransferModal");
-                this.transferForm.items.splice(index, 1);
-                this.refreshInventoryModalTooltips("inventoryTransferModal");
-            }
+            this.disposeInventoryModalTooltips("inventoryTransferModal");
+            this.transferForm.items.splice(index, 1);
+            this.transferErrors = {};
+            this.refreshInventoryModalTooltips("inventoryTransferModal");
         },
         transferProductOptions(index) {
             const selected = this.transferForm.items
@@ -905,8 +908,29 @@ export default {
         transferItemError(index, field) {
             return this.firstError(this.transferErrors[`items.${index}.${field}`]);
         },
+        async loadTransferAvailability(query) {
+            const request = ++this.transferAvailabilityRequest;
+            this.transferAvailability = {};
+            this.transferAvailabilityError = false;
+            this.loadingTransferAvailability = Boolean(query);
+            if(!query) return;
+
+            const result = await Requests.get({
+                route: Requests.config({entity: "stocks_management", type: "transferAvailability"}),
+                data: query
+            }).catch(() => null);
+
+            if(request !== this.transferAvailabilityRequest) return;
+
+            this.loadingTransferAvailability = false;
+            if(Requests.valid({result})) {
+                this.transferAvailability = result.data.data;
+            }else {
+                this.transferAvailabilityError = true;
+            }
+        },
         async saveTransfer() {
-            if(this.savingTransfer || !this.transferForm.source?.code || !this.transferForm.destination?.code) return;
+            if(this.savingTransfer || !this.canConfigureTransfer || !this.transferForm.items.length) return;
 
             this.transferErrors = {};
             this.savingTransfer = true;
@@ -935,6 +959,7 @@ export default {
             }
 
             this.transferErrors = result?.errors ?? result?.data?.errors ?? {};
+            this.loadTransferAvailability(this.transferAvailabilityQuery);
             Alerts.generateAlert({
                 type: "error",
                 messages: Object.values(this.transferErrors).flat().length
@@ -1020,6 +1045,12 @@ export default {
             if(!this.transferForm.source?.code) return [];
 
             return this.realWarehouses.filter(warehouse => Number(warehouse.code) !== Number(this.transferForm.source?.code));
+        },
+        transferAvailabilityQuery() {
+            const warehouseId = this.transferForm.source?.code;
+            const itemIds = this.transferForm.items.map(item => item.product?.code).filter(Boolean);
+
+            return warehouseId && itemIds.length ? {warehouse_id: warehouseId, item_ids: itemIds} : null;
         },
         realWarehouses() {
             return this.warehouses;
@@ -1129,6 +1160,9 @@ export default {
             if(warehouse?.code !== previous?.code) {
                 this.resetOperationImport({clearItems: true});
             }
+        },
+        transferAvailabilityQuery(query) {
+            this.loadTransferAvailability(query);
         },
         "transferForm.source"() {
             if(!this.destinationWarehouses.some(warehouse => warehouse.code === this.transferForm.destination?.code)) {

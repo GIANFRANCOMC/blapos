@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Exports\System\Catalogs\Offerings\{OfferingImportTemplateExport, OfferingListExport};
+use App\Http\Middleware\{EnsureAuthenticatedSession, EnsureModulePermission, EnsureOperationalScope, EnsureTenantSession, ResolveTenant, TrustHosts};
 use App\Imports\System\Catalogs\Offerings\{OfferingBasicImport};
 use App\Models\System\Catalogs\{Item};
+use App\Models\System\Organizations\{User};
 use App\Services\System\Catalogs\Services\{ServiceService};
 use App\Services\System\Catalogs\Subscriptions\{SubscriptionService};
 use App\Services\System\General\{MasterDataService};
@@ -100,7 +102,7 @@ final class CatalogOfferingBoundaryTest extends TestCase {
             collect([
                 "nombre" => "Membresía cargada",
                 "precio" => 80,
-                "codigo_interno" => "MEM-IMPORT-01",
+                "codigo_interno" => "MEMB-IMPORT-01",
                 "descripcion" => "Acceso mensual",
                 "duracion_valor" => 1,
                 "duracion_tipo" => "mes",
@@ -113,6 +115,62 @@ final class CatalogOfferingBoundaryTest extends TestCase {
         $this->assertSame("month", $item->duration_type);
         $this->assertSame(1, $item->attendance_limit_per_day);
         $this->assertSame(0, $item->warehouseItems()->count());
+
+    }
+
+    public function test_offering_editors_require_an_active_commission_and_capacity(): void {
+
+        $this->actingAs(User::query()->findOrFail($this->userId()))->withoutMiddleware([
+            ResolveTenant::class, TrustHosts::class, EnsureTenantSession::class,
+            EnsureAuthenticatedSession::class, EnsureModulePermission::class, EnsureOperationalScope::class,
+        ]);
+
+        $common = [
+            "name" => "Oferta con comisión y cupos",
+            "status" => "active",
+            "price" => 90,
+            "max_price" => 100,
+            "currency_id" => $this->currencyId(),
+            "see_my_web" => false,
+            "see_my_web_price" => false,
+        ];
+
+        $entities = [
+            "services" => ["internal_code" => "SERV-COMMISSION-CHECK"],
+            "subscriptions" => ["internal_code" => "MEMB-COMMISSION-CHECK", "duration_type" => "month", "duration_value" => 1],
+        ];
+
+        foreach($entities as $route => $fields) {
+            $payload = $common + $fields;
+            $store = route("{$route}.store");
+
+            $this->postJson($store, $payload + ["commission_type" => "none"])
+                ->assertSuccessful()->assertJsonPath("bool", true);
+            $id = Item::query()->where("internal_code", $fields["internal_code"])->value("id");
+            $update = route("{$route}.update", ["id" => $id]);
+
+            foreach(["percentage", "fixed"] as $type) {
+                $this->postJson($store, array_replace($payload, ["internal_code" => $fields["internal_code"]."-NEW", "commission_type" => $type]))
+                    ->assertUnprocessable()->assertJsonValidationErrors("commission_value");
+                $this->patchJson($update, $payload + ["commission_type" => $type, "commission_value" => 0])
+                    ->assertUnprocessable()->assertJsonValidationErrors("commission_value");
+            }
+
+            $this->patchJson($update, $payload + ["commission_type" => "percentage", "commission_value" => 101])
+                ->assertUnprocessable()->assertJsonValidationErrors("commission_value");
+            $this->patchJson($update, $payload + ["capacity_control_enabled" => true])
+                ->assertUnprocessable()->assertJsonValidationErrors("capacity_limit");
+
+            $this->patchJson($update, $payload + [
+                "commission_type" => "fixed", "commission_value" => 150,
+                "capacity_control_enabled" => true, "capacity_limit" => 8,
+            ])->assertSuccessful()->assertJsonPath("bool", true);
+            $this->assertDatabaseHas("items", ["id" => $id, "commission_value" => 150, "capacity_limit" => 8]);
+
+            $this->patchJson($update, $payload + ["commission_type" => "none", "capacity_control_enabled" => false])
+                ->assertSuccessful()->assertJsonPath("bool", true);
+            $this->assertDatabaseHas("items", ["id" => $id, "commission_value" => 0, "capacity_limit" => null]);
+        }
 
     }
 
@@ -184,8 +242,8 @@ final class CatalogOfferingBoundaryTest extends TestCase {
         try {
 
             $import->collection(collect([
-                collect(["nombre" => "Servicio válido", "precio" => 30, "codigo_interno" => "SVC-IMPORT-01"]),
-                collect(["nombre" => "Servicio inválido", "precio" => "", "codigo_interno" => "SVC-IMPORT-02"]),
+                collect(["nombre" => "Servicio válido", "precio" => 30, "codigo_interno" => "SERV-IMPORT-01"]),
+                collect(["nombre" => "Servicio inválido", "precio" => "", "codigo_interno" => "SERV-IMPORT-02"]),
             ]));
 
             $this->fail("La importación debía rechazar la segunda fila.");

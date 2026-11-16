@@ -574,6 +574,29 @@ class StockManagementController extends BaseController {
 
     }
 
+    public function transferAvailability(Request $request): JsonResponse {
+
+        $data = $request->validate([
+            "warehouse_id" => ["required", "integer", "min:1"],
+            "item_ids" => ["required", "array", "min:1", "max:100"],
+            "item_ids.*" => ["required", "integer", "min:1", "distinct"],
+        ]);
+        $warehouseId = (int) $data["warehouse_id"];
+
+        if(!StockManagementService::validateWarehouse($warehouseId)
+            || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
+
+            return $this->errorResponse("warehouse_not_available", [], 403);
+
+        }
+
+        return response()->json([
+            "bool" => true,
+            "data" => (object) StockManagementService::transferAvailability($warehouseId, $data["item_ids"])->all(),
+        ]);
+
+    }
+
     public function storeTransfer(StoreInventoryTransferRequest $request): JsonResponse {
 
         $data = $request->validated();

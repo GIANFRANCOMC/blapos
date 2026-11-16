@@ -106,10 +106,14 @@ test("transfers open the standard modal and save without leaving the list", () =
     assert.match(modal, /class="br-inventory-operation__config"[\s\S]*?transferSource[\s\S]*?transferDestination[\s\S]*?title="Motivo del traslado"/);
     assert.match(modal, /v-model\.trim="transferForm\.reason"[\s\S]*?maxlength="255"[\s\S]*?showCharCounter/);
     assert.match(request, /"reason" => \["required", "string", "max:255"\]/);
-    assert.match(modal, /class="br-inventory-operation__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table mb-0">/);
+    assert.match(modal, /class="br-inventory-operation__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">/);
+    assert.match(modal, /<th scope="col">Producto<\/th>\s*<th scope="col">Stock disponible<\/th>\s*<th scope="col">Cantidad a trasladar<\/th>/);
+    assert.match(modal, /<QuantityValue[\s\S]*?:value="transferAvailability\[item\.product\.code\]"\s+:unit="item\.product"/);
+    assert.match(modal, /v-if="!transferForm\.items\.length" class="br-table-state"/);
+    assert.doesNotMatch(modal, /transferForm\.items\.length === 1/);
     assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.quantity"/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
-    assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cancelar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
+    assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
     assert.doesNotMatch(modal, /br-inventory-transfer__item-row|br-btn-outline-secondary|<textarea/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory-transfer__item-row/);
     assert.match(component, /addTransferItem\(\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryTransferModal"\);[\s\S]*?this\.transferForm\.items\.push\([\s\S]*?this\.refreshInventoryModalTooltips\("inventoryTransferModal"\)/);
@@ -144,7 +148,7 @@ test("stock operation modal uses the standard primary action and a compact produ
     assert.doesNotMatch(modal.slice(modal.indexOf('class="br-inventory-operation__template"'), modal.indexOf('class="table-responsive br-inventory-operation__table-wrap"')), /Agregar producto/);
     assert.match(buttonsCss, /\.br-btn\.br-btn-add-row \{[\s\S]*?background: var\(--br-success\);/);
     assert.doesNotMatch(buttonsCss.match(/\.br-btn\.br-btn-add-row \{[^}]*\}/)?.[0], /min-height|padding|font-size/);
-    assert.match(modal, /class="modal-footer br-entity-modal__footer"[\s\S]*?Cancelar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?Guardar/);
+    assert.match(modal, /class="modal-footer br-entity-modal__footer"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?Guardar/);
     assert.match(modalCss, /\.modal-footer\.br-entity-modal__footer > \.br-entity-modal__footer-actions \{[\s\S]*?margin-left: auto;/);
     assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?display: flex;[\s\S]*?align-items: center;[\s\S]*?min-height: var\(--br-control-height\);[\s\S]*?white-space: nowrap;/);
     assert.match(inventoryCss, /\.br-inventory-operation__items-header \{[\s\S]*?align-items: flex-end;/);
@@ -258,8 +262,8 @@ test("operation and transfer dialogs choose their own warehouses without changin
     assert.match(component, /prepareMovement\(record = null\) \{[\s\S]*?warehouse: null,/);
     assert.match(component, /warehouse_id: this\.movementForm\.warehouse\.code/);
     assert.doesNotMatch(component, /defaultFormWarehouse\(/);
-    assert.match(component, /:disabled="savingMovement \|\| confirmingMovement \|\| previewingOperation \|\| !movementForm\.warehouse\?\.code"/);
-    assert.match(component, /:disabled="savingTransfer \|\| !transferForm\.source\?\.code \|\| !transferForm\.destination\?\.code"/);
+    assert.match(component, /:disabled="savingMovement \|\| confirmingMovement \|\| previewingOperation \|\| !movementForm\.warehouse\?\.code \|\| !movementForm\.items\.length"/);
+    assert.match(component, /:disabled="savingTransfer \|\| !canConfigureTransfer \|\| !transferForm\.items\.length"/);
     assert.match(inventoryCss, /\.br-layout \.br-inventory-operation__reason\.form-group \{\s*grid-column: 1 \/ -1;/);
     assert.doesNotMatch(inventoryCss, /br-inventory-operation__config--movement/);
 

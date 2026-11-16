@@ -73,17 +73,17 @@ final class CatalogReferenceTransferTest extends TestCase {
 
     }
 
-    public function test_brand_import_uses_defaults_and_export_uses_list_filters(): void {
+    public function test_brand_import_keeps_supplied_codes_and_export_uses_list_filters(): void {
 
         $import = new CatalogReferenceImport("brands", $this->userId());
 
         $import->collection(collect([
-            collect(["nombre" => "Marca lote uno", "codigo_interno" => "", "descripcion" => "Primera marca", "sitio_oficial" => "https://marca.example.test", "estado" => "Activo"]),
-            collect(["nombre" => "Marca lote dos", "codigo_interno" => "LOTE-DOS", "estado" => "Inactivo"]),
+            collect(["nombre" => "Marca lote uno", "codigo_interno" => "MAR-LOTE-UNO", "descripcion" => "Primera marca", "sitio_oficial" => "https://marca.example.test", "estado" => "Activo"]),
+            collect(["nombre" => "Marca lote dos", "codigo_interno" => "MAR-LOTE-DOS", "estado" => "Inactivo"]),
         ]));
 
         $this->assertSame(2, $import->importedCount());
-        $this->assertNotEmpty(Brand::query()->where("name", "Marca lote uno")->value("internal_code"));
+        $this->assertSame("MAR-LOTE-UNO", Brand::query()->where("name", "Marca lote uno")->value("internal_code"));
         $this->assertSame("https://marca.example.test", Brand::query()->where("name", "Marca lote uno")->value("website_url"));
         $this->assertSame("inactive", Brand::query()->where("name", "Marca lote dos")->value("status"));
         $this->assertFalse(Schema::hasColumn("brands", "logo_path"));
@@ -131,7 +131,7 @@ final class CatalogReferenceTransferTest extends TestCase {
         $import = new CatalogReferenceImport("categories", $this->userId());
 
         $import->collection(collect([
-            collect(["nombre" => "Categoría lote base", "codigo_interno" => "", "estado" => "Activa"]),
+            collect(["nombre" => "Categoría lote base", "codigo_interno" => "CAT-LOTE-BASE", "estado" => "Activa"]),
         ]));
 
         $category = Category::query()->where("name", "Categoría lote base")->firstOrFail();
@@ -150,8 +150,8 @@ final class CatalogReferenceTransferTest extends TestCase {
         try {
 
             (new CatalogReferenceImport("categories", $this->userId()))->collection(collect([
-                collect(["nombre" => "Categoría transitoria", "codigo_interno" => "TRANSITORIA-1"]),
-                collect(["nombre" => "Categoría transitoria", "codigo_interno" => "TRANSITORIA-2"]),
+                collect(["nombre" => "Categoría transitoria", "codigo_interno" => "CAT-TRANSITORIA-1"]),
+                collect(["nombre" => "Categoría transitoria", "codigo_interno" => "CAT-TRANSITORIA-2"]),
             ]));
 
             $this->fail("La carga con nombres duplicados debe rechazarse.");
@@ -163,6 +163,15 @@ final class CatalogReferenceTransferTest extends TestCase {
         }
 
         $this->assertFalse(Category::query()->where("name", "Categoría transitoria")->exists());
+
+        foreach(["", "SIN-PREFIJO", "CAT- CON-ESPACIO"] as $invalidCode) {
+            try {
+                $import->collection(collect([collect(["nombre" => "Categoría inválida", "codigo_interno" => $invalidCode])]));
+                $this->fail("La carga debe validar el código interno tal como llega.");
+            }catch(ValidationException $exception) {
+                $this->assertStringContainsString("código interno", $exception->errors()["file"][0]);
+            }
+        }
 
         $this->assertSame("import", RolePermissionService::actionForRoute("products.import.template", "GET"));
         $this->assertSame("import", RolePermissionService::actionForRoute("categories.import.template", "GET"));

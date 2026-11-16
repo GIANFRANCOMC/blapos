@@ -208,7 +208,7 @@
                     </div>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button ref="closeModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button ref="closeModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button
                         type="button"
                         :class="['br-btn', editingId ? 'br-btn-action-update' : 'br-btn-action-create']"

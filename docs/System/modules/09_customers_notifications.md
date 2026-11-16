@@ -2,7 +2,7 @@
 
 ## Que hace
 
-Permite revisar emails relacionados a suscripciones y su estado de envio.
+Permite revisar emails relacionados a membresías y su estado de envio.
 
 ## Archivos
 

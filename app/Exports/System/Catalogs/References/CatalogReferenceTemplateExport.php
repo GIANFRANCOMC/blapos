@@ -6,7 +6,7 @@ namespace App\Exports\System\Catalogs\References;
 
 use InvalidArgumentException;
 use Maatwebsite\Excel\Concerns\{FromArray, ShouldAutoSize, WithHeadings, WithStyles};
-use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
+use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class CatalogReferenceTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
@@ -40,6 +40,7 @@ final class CatalogReferenceTemplateExport implements FromArray, ShouldAutoSize,
         $lastColumn = $this->type === "brands" ? "E" : "D";
 
         $sheet->freezePane("A2");
+        $sheet->getStyle("B2:B501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray([
             "font" => ["bold" => true, "color" => ["rgb" => "FFFFFF"]],
             "fill" => ["fillType" => Fill::FILL_SOLID, "startColor" => ["rgb" => "1A1A35"]],

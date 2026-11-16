@@ -10,8 +10,10 @@
                     <span class="visually-hidden">Tipo de documento:</span>
                     <span class="br-workspace__company-document-type">{{ company.document_type || 'Sin información' }}</span>
                     <span class="visually-hidden">Número de documento:</span>
-                    <span class="br-workspace__company-document-number">{{ company.document_number || 'Sin información' }}</span>
-                    <CopyButton v-if="company.document_number" :value="company.document_number" label="Número de documento"/>
+                    <span class="br-copy-value">
+                        <span class="br-workspace__company-document-number">{{ company.document_number || 'Sin información' }}</span>
+                        <CopyButton v-if="company.document_number" :value="company.document_number" label="Número de documento"/>
+                    </span>
                 </p>
                 <p v-if="company.tagline" class="br-workspace__company-tagline">{{ company.tagline }}</p>
             </div>
@@ -30,7 +32,7 @@
                 <span class="br-workspace__company-detail-icon" aria-hidden="true"><i :class="detail.icon"></i></span>
                 <div class="br-workspace__company-detail-content">
                     <dt class="colon-at-end">{{ detail.label }}</dt>
-                    <dd :class="['br-workspace__company-value', {'is-empty': !cleanValue(detail.value)}]">
+                    <dd class="br-workspace__company-value br-copy-value" :class="{'is-empty': !cleanValue(detail.value)}">
                         <span class="br-workspace__company-text">{{ cleanValue(detail.value) || 'Sin información' }}</span>
                         <CopyButton v-if="detail.copyable && cleanValue(detail.value)" :value="detail.value" :label="detail.label"/>
                     </dd>

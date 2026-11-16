@@ -40,7 +40,7 @@
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
 
                 <p style="font-size: 14px; color: #555;">
-                    Información de tu última suscripción:
+                    Información de tu última membresía:
                 </p>
                 <ul style="color: #333; font-size: 14px; padding-left: 20px;">
                     <li>Sede: <strong>{{ $branch->name }}</strong></li>

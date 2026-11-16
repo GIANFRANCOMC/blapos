@@ -365,7 +365,8 @@ const ENTITY_SPECIAL_ROUTES = {
         guides: "guides",
         movements: "movements",
         operations: "operations",
-        transfers: "transfers"
+        transfers: "transfers",
+        transferAvailability: "transfers/availability"
     },
     cash_sessions: {
         open: "open",

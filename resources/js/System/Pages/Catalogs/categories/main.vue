@@ -36,6 +36,7 @@
             resource="categorías"
             template-file-name="plantilla_categorias.xlsx"
             :import-route="routeActions.import"
+            :internal-code-prefix="internalCodePrefixes.category"
             @imported="listEntity({})"/>
 
         <section class="br-entity-list" aria-label="Listado de categorías">
@@ -114,28 +115,24 @@
         <template #body>
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
-                            <InputText
+                            <InternalCodeInput
                                 v-model="forms[entity].createUpdate.data.internal_code"
-                                no-whitespace
+                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="4"
                                 lg="4">
-                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
-                                </template>
                                 <template v-if="!isUpdate" v-slot:inputGroupAppend>
                                     <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                     </button>
                                 </template>
-                            </InputText>
+                            </InternalCodeInput>
                             <InputText
                                 v-model="forms[entity].createUpdate.data.name"
                                 hasDiv
@@ -194,6 +191,7 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
@@ -219,7 +217,7 @@ const FORM_FIELDS = {
 };
 
 const FORM_FIELD_CONFIG = {
-    internal_code: {trim: true},
+    internal_code: {trim: false},
     name: {trim: true},
     description: {normalize: true},
     status: {getCode: true}
@@ -283,7 +281,7 @@ const MODULE = {
 export default {
     name: "CategoriesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {InternalCodeInput, ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -461,7 +459,7 @@ export default {
             }else {
 
                 // Set defaults for new record
-                entityForms.data.internal_code = this.generateCode({length: 7});
+                entityForms.data.internal_code = this.setEditableInternalCode(this.generateCode({length: 7}), true);
                 entityForms.data.status         = this.statuses.length > 0 ? this.statuses[0] : null;
 
             }
@@ -506,7 +504,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
-                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
+                Object.assign(preparedData, this.internalCodePayload(preparedData.internal_code));
                 const id            = preparedData.id;
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";

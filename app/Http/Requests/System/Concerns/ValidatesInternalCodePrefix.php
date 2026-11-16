@@ -12,7 +12,11 @@ trait ValidatesInternalCodePrefix {
     protected function internalCodePrefixRule(): Closure {
 
         $id = $this->route("id");
-        return InternalCodeService::prefixRule($this->internalCodeEntity(), $id ? (int) $id : null);
+        return InternalCodeService::prefixRule(
+            $this->internalCodeEntity(),
+            $id ? (int) $id : null,
+            in_array($this->input("internal_code_without_prefix"), [true, 1, "1"], true)
+        );
 
     }
 

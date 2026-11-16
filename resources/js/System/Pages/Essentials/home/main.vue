@@ -169,8 +169,7 @@ const PAGE_CONFIG = {
             title: "¿Quitar favorito?",
             message: "Dejará de aparecer en favoritos, pero seguirá disponible en el menú principal.",
             confirmText: "Quitar favorito"
-        },
-        cancelText: "Cancelar"
+        }
     }
 };
 
@@ -457,7 +456,6 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 buttonsStyling: false,
                 confirmButtonText: confirmation.confirmText,
-                cancelButtonText: this.page.confirmations.cancelText,
                 customClass: {
                     popup: `br-home-confirmation br-home-confirmation--${shouldFavorite ? "question" : "warning"}`,
                     confirmButton: shouldFavorite

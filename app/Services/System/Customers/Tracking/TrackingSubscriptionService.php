@@ -288,11 +288,11 @@ class TrackingSubscriptionService {
 
         $body = view()->exists("emails.subscriptions.welcome.default")
             ? view("emails.subscriptions.welcome.default", compact("subscription", "customer", "catalogSubscription", "membershipName"))->render()
-            : "<p>Hola {$customer->name},</p><p>Gracias por suscribirte a {$membershipName}. Tu membresía está activa desde {$subscription->start_date} hasta {$subscription->end_date}.</p>";
+            : "<p>Hola {$customer->name},</p><p>Gracias por elegir {$membershipName}. Tu membresía está activa desde {$subscription->start_date} hasta {$subscription->end_date}.</p>";
 
         SubscriptionEmail::create([
             "to" => $customer->email,
-            "subject" => "Gracias por tu suscripción",
+            "subject" => "Gracias por tu membresía",
             "body" => $body,
             "extras_json" => json_encode([
                 "customer" => [

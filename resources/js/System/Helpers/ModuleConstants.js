@@ -30,7 +30,7 @@ export const STATUS_BADGE_VARIANTS = {
     [STATUS.RETIRED]: "danger"
 };
 
-/** Suscripciones en tracking: inactive como primary (no danger). */
+/** Membresías en tracking: inactive como primary (no danger). */
 export const STATUS_BADGE_CUSTOM_SUBSCRIPTION = {
     inactive: "primary"
 };

@@ -170,7 +170,7 @@
                     </div>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="submit">Registrar gasto</button>
                 </div>
             </div>
@@ -262,7 +262,7 @@ export default {
             const confirmation = await Swal.fire({
                 allowEscapeKey: false,
                 title: "¿Anular gasto?", text: "La salida vinculada a caja también quedará anulada.",
-                icon: "warning", showCancelButton: true, showCloseButton: true, closeButtonAriaLabel: "Cerrar confirmación", confirmButtonText: "Anular gasto", cancelButtonText: "Cancelar"
+                icon: "warning", showCancelButton: true, showCloseButton: true, closeButtonAriaLabel: "Cerrar confirmación", confirmButtonText: "Anular gasto"
             });
             if(!confirmation.isConfirmed) return;
             const result = await Requests.patch({route: `${this.routes.consult}/${expense.id}/cancel`});

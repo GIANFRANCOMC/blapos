@@ -123,7 +123,7 @@
                     </div>
 
                     <div class="modal-footer br-entity-modal__footer">
-                        <button type="button" class="br-btn br-btn-cancel" @click="closeModal">Cancelar</button>
+                        <button type="button" class="br-btn br-btn-cancel" @click="closeModal">Cerrar</button>
                         <button type="button" class="br-btn br-btn-action-create" :disabled="isSaving" @click="saveSupplier">
                             <span v-text="isSaving ? 'Agregando' : 'Agregar proveedor'"></span>
                         </button>

@@ -1,15 +1,22 @@
 <template>
-    <button
-        ref="button"
-        type="button"
-        class="br-copy-button"
+    <component
+        :is="isButton ? 'button' : 'span'"
+        ref="control"
+        :class="isButton ? 'br-copy-button' : 'br-copy-icon'"
+        :type="isButton ? 'button' : undefined"
+        :disabled="isButton ? disabled : undefined"
+        :role="isButton ? undefined : 'button'"
+        :tabindex="isButton || disabled ? undefined : 0"
+        :aria-disabled="!isButton && disabled ? 'true' : undefined"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
         :title="tooltipText"
         :aria-label="ariaLabelText"
-        @click="copy">
-        <i class="fa-solid fa-copy" aria-hidden="true"></i>
-    </button>
+        @click="copy"
+        @keydown.enter="activateIcon"
+        @keydown.space="activateIcon">
+        <i class="fa-solid fa-clipboard" aria-hidden="true"></i>
+    </component>
 </template>
 
 <script>
@@ -19,6 +26,11 @@ import {writeClipboard} from "../Helpers/Clipboard.js";
 export default {
     name: "CopyButton",
     props: {
+        type: {
+            type: String,
+            default: "icon",
+            validator: value => ["icon", "button"].includes(value)
+        },
         value: {
             type: [String, Number],
             required: false,
@@ -59,6 +71,9 @@ export default {
 
     },
     computed: {
+        isButton() {
+            return this.type === "button";
+        },
         cleanValue() {
 
             return String(this.value ?? "").trim();
@@ -89,6 +104,15 @@ export default {
 
         }
     },
+    mounted() {
+        this.refreshTooltip();
+    },
+    watch: {
+        type() {
+            this.disposeTooltip();
+            this.$nextTick(() => this.refreshTooltip());
+        }
+    },
     beforeUnmount() {
 
         window.clearTimeout(this.resetTimeout);
@@ -96,9 +120,16 @@ export default {
 
     },
     methods: {
-        async copy() {
+        activateIcon(event) {
+            if(this.isButton || this.disabled) return;
 
-            if(this.disabled || !this.cleanValue) {
+            event.preventDefault();
+            if(!event.repeat) this.copy();
+        },
+        async copy() {
+            if(this.disabled) return;
+
+            if(!this.cleanValue) {
 
                 this.showTooltip(`${this.label} sin valor`);
                 return;
@@ -140,19 +171,17 @@ export default {
         },
         refreshTooltip() {
 
-            const button = this.$refs.button;
-
-            return createTooltip(button, this.tooltipText);
+            return createTooltip(this.$refs.control, this.tooltipText);
 
         },
         disposeTooltip() {
 
-            const button = this.$refs.button;
+            const control = this.$refs.control;
             const Bootstrap = window.bootstrap;
 
-            if(!button || !Bootstrap?.Tooltip) return;
+            if(!control || !Bootstrap?.Tooltip) return;
 
-            Bootstrap.Tooltip.getInstance(button)?.dispose();
+            Bootstrap.Tooltip.getInstance(control)?.dispose();
 
         }
     }

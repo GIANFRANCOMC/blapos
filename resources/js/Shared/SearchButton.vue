@@ -52,7 +52,7 @@ button.br-search-button {
 }
 
 button.br-search-button .fa-magnifying-glass {
-    font-size: var(--br-font-size-090);
+    font-size: var(--br-font-size-082);
     line-height: 1;
 }
 </style>

@@ -64,6 +64,7 @@ export default {
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
         noWhitespace: Boolean,
+        transformValue: Function,
         modelValue: {
             type: [String, Number],
             default: ""
@@ -183,7 +184,8 @@ export default {
 
         },
         updateValue(input) {
-            const value = this.noWhitespace ? input.value.replace(/[\s\p{Z}]/gu, "") : input.value;
+            const text = this.noWhitespace ? input.value.replace(/[\s\p{Z}]/gu, "") : input.value;
+            const value = this.transformValue ? this.transformValue(text) : text;
             if(input.value !== value) input.value = value;
 
             this.$emit("update:modelValue", value);

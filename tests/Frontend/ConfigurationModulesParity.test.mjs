@@ -11,7 +11,7 @@ test("sucursales usa tabla y agrupa auditoría en acciones", () => {
 
     assert.equal(parse(source, {filename: "branches/main.vue"}).errors.length, 0);
     assert.match(source, /class="table br-entity-table br-entity-table--directory mb-0"/);
-    assert.match(source, /<CopyButton :value="record.internal_code" label="Código interno"\/>/);
+    assert.match(source, /<CopyButton v-if="record\.internal_code" :value="record\.internal_code" label="Código interno"\/>/);
     assert.match(source, /<TableActionsDropdown/);
     assert.match(source, /#secondaryActions/);
     assert.match(source, /Auditoría de series/);

@@ -36,6 +36,7 @@
                 resource="marcas"
                 template-file-name="plantilla_marcas.xlsx"
                 :import-route="routeActions.import"
+                :internal-code-prefix="internalCodePrefixes.brand"
                 @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de marcas">
@@ -53,7 +54,7 @@
                             <tr>
                                 <th class="text-center">Código interno</th>
                                 <th>Marca</th>
-                                <th>Sitio oficial</th>
+                                <th class="text-center">Sitio oficial</th>
                                 <th class="text-center">En uso</th>
                                 <th class="text-center">Estado</th>
                                 <th><span class="visually-hidden">Acciones</span></th>
@@ -72,16 +73,11 @@
                                         <span class="br-entity-table__name" v-text="record.name"></span>
                                         <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
                                     </td>
-                                    <td>
-                                        <a
-                                            v-if="record.website_url"
-                                            class="br-entity-table__meta"
-                                            :href="record.website_url"
-                                            target="_blank"
-                                            rel="noopener noreferrer">
-                                            Sitio oficial
+                                    <td class="text-center">
+                                        <a v-if="record.website_url" class="br-link text-nowrap" :href="record.website_url" target="_blank" rel="noopener noreferrer">
+                                            Visitar sitio
                                         </a>
-                                        <span v-else class="br-entity-table__meta">
+                                        <span v-else class="br-entity-table__meta mt-0">
                                             Sin sitio oficial
                                         </span>
                                     </td>
@@ -130,21 +126,17 @@
                     <form @submit.prevent="saveEntity">
                         <section class="br-entity-form-section">
                             <div class="row g-3">
-                                <InputText
+                                <InternalCodeInput
                                     v-model="brandForm.data.internal_code"
-                                    no-whitespace
+                                    v-bind="internalCodeInputProps(brandForm.data)"
                                     hasDiv
                                     title="Código interno"
                                     :titleClass="[config.forms.classes.title]"
                                     isRequired
-                                    maxlength="50"
                                     hasTextBottom
                                     :textBottomInfo="brandForm.errors?.internal_code"
                                     xl="4"
                                     lg="4">
-                                    <template v-if="internalCodeDisplayedPrefix(brandForm.data.id, brandForm.data.internal_code)" #inputGroupPrepend>
-                                        <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(brandForm.data.id, brandForm.data.internal_code)"></span>
-                                    </template>
                                     <template v-if="!isUpdate" #inputGroupAppend>
                                         <button
                                             type="button"
@@ -157,7 +149,7 @@
                                             <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                         </button>
                                     </template>
-                                </InputText>
+                                </InternalCodeInput>
 
                                 <InputText
                                     v-model="brandForm.data.name"
@@ -246,6 +238,7 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
@@ -269,7 +262,7 @@ const MODULE = {
         status: null
     },
     fieldConfig: {
-        internal_code: {trim: true},
+        internal_code: {trim: false},
         name: {trim: true},
         description: {normalize: true},
         website_url: {normalize: true},
@@ -301,7 +294,7 @@ const MODULE = {
 export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {InternalCodeInput, ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({
@@ -489,7 +482,7 @@ export default {
             }else {
 
                 Object.assign(this.brandForm.data, {
-                    internal_code: this.generateCode(),
+                    internal_code: this.setEditableInternalCode(this.generateCode(), true),
                     status: this.statuses[0] ?? null
                 });
 
@@ -545,7 +538,7 @@ export default {
                 }
 
                 const data = Forms.prepareFormData(formData, MODULE.fieldConfig);
-                data.internal_code = this.internalCodeForSave(data.id, data.internal_code);
+                Object.assign(data, this.internalCodePayload(data.internal_code));
                 const id = data.id;
                 const isUpdate = this.isDefined(id);
                 const method = isUpdate ? "patch" : "post";

@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Exports\System\Warehouses\InventoryReportExport;
 use App\Http\Controllers\System\Catalogs\{BrandController, CategoryController, ProductController, RecipeController, ServiceController, SubscriptionController};
 use App\Http\Controllers\System\Warehouses\StockManagementController;
+use App\Http\Middleware\{EnsureAuthenticatedSession, EnsureOperationalScope, EnsureTenantSession, ResolveTenant, TrustHosts};
 use App\Models\System\Organizations\User;
 use Database\Seeders\CommercialCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -93,6 +94,42 @@ final class InventoryPaginationTest extends TestCase {
         $recipes = app(RecipeController::class);
         $this->assertSame(10, $recipes->wasteRecords(Request::create("/recipes/waste"))->getData(true)["data"]["per_page"]);
         $this->assertSame(20, $recipes->wasteRecords(Request::create("/recipes/waste", "GET", ["per_page" => 20]))->getData(true)["data"]["per_page"]);
+
+    }
+
+    public function test_transfer_availability_reads_the_selected_warehouse_and_includes_zero_stock(): void {
+
+        $this->provisionSystemDatabase();
+        $this->actingAs(User::query()->firstOrFail())->withoutMiddleware([
+            ResolveTenant::class, TrustHosts::class, EnsureTenantSession::class,
+            EnsureAuthenticatedSession::class, EnsureOperationalScope::class,
+        ]);
+
+        $source = DB::table("warehouses")->first();
+        $otherWarehouseId = DB::table("warehouses")->insertGetId([
+            "branch_id" => $source->branch_id, "name" => "Otro almacén", "status" => "active",
+        ]);
+        $product = [
+            "price" => 1, "currency_id" => DB::table("currencies")->value("id"),
+            "measurement_unit_id" => DB::table("measurement_units")->value("id"),
+            "type" => "product", "status" => "active",
+        ];
+        $productId = DB::table("items")->insertGetId($product + ["internal_code" => "TR-PERNO", "name" => "Perno"]);
+        $emptyId = DB::table("items")->insertGetId($product + ["internal_code" => "TR-TUERCA", "name" => "Tuerca"]);
+        DB::table("warehouse_items")->insert([
+            ["warehouse_id" => $source->id, "item_id" => $productId, "quantity" => 7.5, "status" => "active"],
+            ["warehouse_id" => $otherWarehouseId, "item_id" => $productId, "quantity" => 23, "status" => "active"],
+        ]);
+
+        $availability = fn(int $warehouseId, array $itemIds) => route("stocks_management.transfers.availability", [
+            "warehouse_id" => $warehouseId, "item_ids" => $itemIds,
+        ]);
+        $this->getJson($availability($source->id, [$productId, $emptyId]))->assertOk()
+            ->assertExactJson(["bool" => true, "data" => [$productId => 7.5, $emptyId => 0]]);
+        $this->getJson($availability($otherWarehouseId, [$productId]))->assertOk()
+            ->assertJsonPath("data.{$productId}", 23);
+        $this->getJson($availability($otherWarehouseId + 1000, [$productId]))->assertForbidden();
+        $this->getJson($availability($source->id, [$productId, $productId]))->assertUnprocessable();
 
     }
 

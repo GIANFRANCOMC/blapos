@@ -71,11 +71,9 @@
                                         <div class="br-entity-identifiers br-entity-identifiers--plain">
                                             <div class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                                <span class="br-entity-identifier__value">
+                                                <span class="br-copy-value">
                                                     <span class="br-entity-code" v-text="record.document_number || '—'"></span>
-                                                    <span v-if="record.document_number" class="br-entity-identifier__actions">
-                                                        <CopyButton :value="record.document_number" label="Número de documento"/>
-                                                    </span>
+                                                    <CopyButton v-if="record.document_number" :value="record.document_number" label="Número de documento"/>
                                                 </span>
                                             </div>
                                         </div>
@@ -83,11 +81,11 @@
                                     <td><span class="br-entity-table__name" v-text="record.name"></span></td>
                                     <td>
                                         <div class="br-customer-table__stack">
-                                            <span v-if="record.email" class="br-customer-table__value">
+                                            <span v-if="record.email" class="br-customer-table__value br-copy-value">
                                                 <span v-text="record.email"></span>
                                                 <CopyButton :value="record.email" label="Correo electrónico"/>
                                             </span>
-                                            <span v-if="record.phone_number" class="br-customer-table__value">
+                                            <span v-if="record.phone_number" class="br-customer-table__value br-copy-value">
                                                 <span v-text="record.phone_number"></span>
                                                 <CopyButton :value="record.phone_number" label="Celular"/>
                                             </span>
@@ -96,9 +94,18 @@
                                     </td>
                                     <td>
                                         <div class="br-entity-offering-details">
-                                            <span v-if="record.formatted_gender"><strong class="colon-at-end">Género</strong> {{ record.formatted_gender }}</span>
-                                            <span v-if="record.birthdate"><strong class="colon-at-end">Nacimiento</strong> {{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
-                                            <span v-if="getEmergencyContactLabel(record)"><strong class="colon-at-end">Emergencia</strong> {{ getEmergencyContactLabel(record) }}</span>
+                                            <span v-if="record.formatted_gender">
+                                                <strong class="colon-at-end">Género</strong>
+                                                <span class="br-entity-offering-details__value">{{ record.formatted_gender }}</span>
+                                            </span>
+                                            <span v-if="record.birthdate">
+                                                <strong class="colon-at-end">Nacimiento</strong>
+                                                <span class="br-entity-offering-details__value">{{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
+                                            </span>
+                                            <span v-if="getEmergencyContactLabel(record)">
+                                                <strong class="colon-at-end">Emergencia</strong>
+                                                <span class="br-entity-offering-details__value">{{ getEmergencyContactLabel(record) }}</span>
+                                            </span>
                                             <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="br-customer-table__muted">Sin datos adicionales</span>
                                         </div>
                                     </td>

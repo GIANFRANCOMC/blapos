@@ -54,7 +54,7 @@
             <p v-if="error" class="text-danger mt-3 mb-0" role="alert">{{ error }}</p>
         </template>
         <template #footerClose>
-            <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal" :disabled="busy">Cancelar</button>
+            <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal" :disabled="busy">Cerrar</button>
         </template>
     </FormModal>
 </template>

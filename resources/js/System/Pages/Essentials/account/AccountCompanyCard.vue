@@ -10,8 +10,10 @@
                     <span class="visually-hidden">Tipo de documento:</span>
                     <span class="br-workspace__company-document-type">{{ company.document_type || 'Sin información' }}</span>
                     <span class="visually-hidden">Número de documento:</span>
-                    <span class="br-workspace__company-document-number">{{ company.document_number || 'Sin información' }}</span>
-                    <CopyButton v-if="company.document_number" :value="company.document_number" label="Número de documento de la empresa"/>
+                    <span class="br-copy-value">
+                        <span class="br-workspace__company-document-number">{{ company.document_number || 'Sin información' }}</span>
+                        <CopyButton v-if="company.document_number" :value="company.document_number" label="Número de documento de la empresa"/>
+                    </span>
                 </p>
             </div>
         </div>

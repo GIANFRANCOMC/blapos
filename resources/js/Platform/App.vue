@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <footer class="platform-modal__footer">
-                    <div><button class="btn platform-btn-subtle" type="button" :disabled="savingProfile" @click="closeProfile">Cancelar</button><button class="btn platform-btn-primary" :disabled="savingProfile"><span v-if="savingProfile" class="spinner-border spinner-border-sm me-1"></span>{{ savingProfile ? "Guardando…" : "Guardar cambios" }}</button></div>
+                    <div><button class="btn platform-btn-subtle" type="button" :disabled="savingProfile" @click="closeProfile">Cerrar</button><button class="btn platform-btn-primary" :disabled="savingProfile"><span v-if="savingProfile" class="spinner-border spinner-border-sm me-1"></span>{{ savingProfile ? "Guardando…" : "Guardar cambios" }}</button></div>
                 </footer>
             </form>
         </div>

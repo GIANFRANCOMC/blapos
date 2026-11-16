@@ -279,7 +279,7 @@
                         <div class="modal-content">
                             <div class="modal-header br-modal-header">
                                 <h5 class="modal-title text-uppercase fw-bold">Cambiar observación</h5>
-                                <button type="button" class="btn-header-modal" data-bs-dismiss="modal">
+                                <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
                                     <i class="fa fa-times icon-close-modal" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -295,7 +295,7 @@
                                     placeholder="Escribe aquí la observación de la compra..."/>
                             </div>
                             <div class="modal-footer br-entity-modal__footer">
-                                <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                                 <button type="button" class="br-btn br-btn-primary" @click="saveObservationsModal">Cambiar observación</button>
                             </div>
                         </div>
@@ -471,7 +471,7 @@
                     </template>
                 </div>
                 <div class="modal-footer br-entity-modal__footer">
-                    <button ref="closeReceiptModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button ref="closeReceiptModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="br-btn br-btn-primary" :disabled="savingReceipt || loadingReceipt" @click="saveReceipt">Confirmar recepción</button>
                 </div>
             </div>

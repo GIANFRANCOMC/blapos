@@ -1,6 +1,6 @@
 <template>
-    <span class="d-inline-flex align-items-center gap-1 mw-100">
-        <span class="text-break" v-text="value || '—'"></span>
+    <span class="br-copy-value">
+        <span v-text="value || '—'"></span>
         <CopyButton v-if="value" :value="value" label="Código interno"/>
     </span>
 </template>

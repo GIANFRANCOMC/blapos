@@ -154,6 +154,12 @@ Todas las celdas de cabecera, cuerpo y pie se centran verticalmente mediante la 
 
 Usar `ExpandableText` para descripciones que deben ocupar una línea en tablas. El componente mide el espacio disponible y ofrece «Ver más» cuando el texto se recorta. «Ver menos» vuelve a compactar la descripción.
 
+Las etiquetas de Detalles usan una separación de `0.25rem` entre el rótulo con dos puntos y el valor. El valor usa `--br-font-size-066` de la escala compartida. Los iconos que explican un valor quedan junto a ese valor dentro de la misma etiqueta.
+
+### Terminología de membresías
+
+Usar «membresía» para el plan del catálogo y para la membresía del cliente. Emplear el mismo término en navegación, formularios, validaciones, reportes y plantillas de correo. Los contratos técnicos conservan las claves existentes, como `subscription` y `subscriptions`.
+
 ### Estado del stock
 
 Usar los mismos tres estados en tablas, filtros, consultas por almacén, reportes Excel y PDF y correos de alerta. Las etiquetas se definen en `resources/stock-statuses.json` y se consumen desde `StockStatus.php` y `StockStatus.js`.
@@ -194,7 +200,7 @@ Criterios prácticos:
 - Los botones deben diferenciar intención: buscar, crear, editar, importar, descargar, cancelar, confirmar y peligro.
 - Los botones de los layouts compartidos usan el efecto Waves al presionarse. La inicialización de `main.js` también registra los botones incorporados después de cargar la página, como los de Vue y SweetAlert.
 - Usar `SearchButton` para ejecutar búsquedas en barras de filtros, formularios y modales. El botón muestra la lupa de Font Awesome y usa «Buscar» como tooltip y nombre accesible. El tooltip aparece con el cursor o el foco del teclado y se oculta al pulsar el botón.
-- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa la escoba `fa-broom` de Font Awesome y comparte por defecto los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
+- Ofrecer «Limpiar filtros» en barras con varios campos mediante `ClearFiltersButton`. El botón usa una adaptación de `fa-brush` de Font Awesome, invertida verticalmente y con el mango alargado. Comparte por defecto los colores de la cabecera de tabla mediante `br-filter-clear`. Se alinea al borde inferior y usa un tooltip de Bootstrap y una etiqueta accesible. Restablecer los campos juntos y conservar el contexto operativo, como el almacén. En filtros aplicados con Buscar, la limpieza solo modifica los campos pendientes. Evitar consultas o invalidaciones parciales de watchers durante el reinicio.
 - Al terminar el restablecimiento, `Alerts.showFiltersCleared()` muestra el aviso informativo «Se limpiaron los filtros correctamente.» mediante Toastr. El botón oculta su tooltip al pulsarlo y lo vuelve a mostrar al pasar el cursor por encima.
 - Los icon buttons requieren `aria-label` y tooltip.
 - La integración compartida de SweetAlert oculta los tooltips de la página al abrir una alerta y durante el retorno de foco. Una vez cerrada, el tooltip vuelve a responder a una nueva interacción con su disparador. Los formularios y listados reutilizan este comportamiento en sus llamadas a `Swal.fire`.
@@ -246,7 +252,7 @@ Todos los formularios deben reutilizar componentes y patrones existentes:
 - `InputSelect` y `InputSelect2` para selección nativa y Select2.
 - `InputSlot` cuando el input necesita prefijos, sufijos, acciones, moneda o contadores.
 - `vue-select` con estilos globales y `SelectNoOptions` para mensajes vacíos en español.
-- `CopyButton` para copiar valores puntuales.
+- `CopyButton` copia valores puntuales. La presentación estándar en Vue y Blade es `type="icon"`, con `fa-solid fa-clipboard`, tooltip y activación por clic, Enter o Espacio. El icono usa `--br-font-size-table` y toma el estilo de contorno al pasar el cursor o recibir foco del teclado. Usar `type="button"` solo cuando el diseño requiera un botón. El valor y el control son hijos directos de `br-copy-value`, que define una separación común de `0.3125rem`.
 - `BarcodeDownloadButton` para códigos de barras descargables.
 
 Los controles compuestos se tratan como una sola unidad visual. El hover, el foco y los estados deshabilitado y de error se aplican al conjunto. En cualquier campo agrupado, los complementos informativos como prefijos, símbolos de moneda y unidades usan el azul de foco `--br-primary` mientras el campo tiene el foco. El valor editable, los fondos y los botones de acción conservan sus propios estilos.
@@ -269,6 +275,7 @@ Errores de campo:
 - Los `FormRequest` deben parsear y normalizar IDs, montos, fechas opcionales y arrays antes de llegar al controlador.
 - Las validaciones transversales viven en `CompanyFormRequest`; cuando una entidad requiera texto propio, debe mantener el mismo estilo corto y accionable.
 - Bajo el campo se muestra solo el error, por ejemplo `Campo obligatorio.`. En resumen o modal se incluye el campo, por ejemplo `Nombre: Campo obligatorio.`.
+- En el catálogo, `CommissionValueInput` muestra el asterisco cuando se selecciona porcentaje o monto fijo. El valor debe ser mayor que cero. Un porcentaje admite hasta 100 %. Servicios y Membresías también exigen una cantidad entera positiva cuando se activa el control de cupos.
 - Pendiente controlado: revisar `resources/lang/es/validation.php` entidad por entidad para reemplazar textos residuales de Laravel/librerías y mantener errores visibles y consistentes en código.
 
 ## Precisión Numérica
@@ -304,15 +311,15 @@ Las modales de System deben usar el patrón global:
 - No cerrar al hacer clic fuera.
 - No cerrar con Escape.
 - Header, body y footer con espaciado estándar.
-- Botón de cerrar visible y consistente.
+- El botón secundario que descarta una modal se llama **Cerrar** en toda la plataforma, incluidas las confirmaciones de SweetAlert. La X del encabezado lleva un nombre accesible que empieza por «Cerrar».
 - Footer con superficie neutral cuando aplique.
 - Nuevas pantallas deben reutilizar `@System/Components/Generics/FormModal.vue` como base. El componente aplica `br-entity-modal`, `br-modal-standard` y `br-modal-shell`, bloquea backdrop/teclado y expone slots `header`, `body`, `footerClose` y `footer`.
-- El footer del componente reserva el cierre/cancelación a la izquierda y las acciones de trabajo a la derecha. No duplicar estructuras `modal-header`, `modal-body` y `modal-footer` directamente salvo migraciones legacy.
+- El footer del componente reserva **Cerrar** a la izquierda y las acciones de trabajo a la derecha. El slot `footerClose` conserva el mismo texto cuando necesita un botón personalizado. No duplicar estructuras `modal-header`, `modal-body` y `modal-footer` directamente salvo migraciones legacy.
 - El header del componente muestra eyebrow opcional, título, subtítulo opcional y X centrada verticalmente; el body usa superficie neutral y el footer `#f7f8fa`.
 
 SweetAlert debe usarse para confirmaciones, errores, success y procesos globales. No introducir delays artificiales con `setTimeout`; si hay trabajo asíncrono, mostrar loader inmediatamente.
 
-Todos los SweetAlert de System y Guest llevan `allowEscapeKey: false`: pulsar Escape nunca debe descartarlos, ni siquiera cuando contienen formularios. Cerrar solo mediante la acción visible prevista (`Cancelar`, `X` o `Entendido`, según corresponda); los loaders se cierran desde el flujo que los inició. Aplicar esta regla también a llamadas directas a `Swal.fire`, no solo a los helpers compartidos.
+Todos los SweetAlert de System y Guest llevan `allowEscapeKey: false`. El cierre se realiza con `Cerrar`, la X o la acción de reconocimiento `Entendido`, según corresponda. Los loaders se cierran desde el flujo que los inició. Estas reglas también aplican a llamadas directas a `Swal.fire`.
 
 ### Confirmaciones SweetAlert
 
@@ -322,8 +329,8 @@ En todos los submódulos, activos o no, las confirmaciones siguen el mismo patr�
 - El título formula una pregunta breve y específica con verbo en infinitivo y sustantivo, entre `¿` y `?`: `¿Anular venta?`, `¿Duplicar perfil?`, `¿Cerrar sesión?`. No usar `¿Deseas…?`, `Confirmar acción` ni títulos vagos. El texto del botón mantiene la acción en afirmativo, sin signos.
 - La cabecera y el pie usan el mismo gris muy tenue (`--br-neutral-panel`), mientras el cuerpo permanece blanco. Una línea separa cabecera y cuerpo; otra separa cuerpo y botones. Conservar esta estructura también cuando haya campos de entrada.
 - El cuerpo no repite el título ni vuelve a preguntar. Explica consecuencias, alcance, datos afectados, irreversibilidad o pasos que el usuario no conoce. Mantenerlo breve y concreto; si hay campos obligatorios, indicar para qué se solicitan.
-- Mostrar `Cancelar` a la izquierda y la acción principal a la derecha. El texto del botón repite la acción específica (`Anular venta`, no `Sí`, `Sí, anular` ni `Continuar`), con mayúscula solo al inicio salvo nombres propios. La acción debe ser visualmente preponderante.
-- Mantener la `X` visible arriba a la derecha con `showCloseButton: true` y `closeButtonAriaLabel: "Cerrar confirmación"`. Debe tener un área de clic de al menos `2rem`, sin fondo, con contraste suficiente y separación del título. La X y `Cancelar` descartan la operación; nunca ejecutan el cambio. No cerrar haciendo clic fuera si se están revisando consecuencias o completando campos.
+- Mostrar `Cerrar` a la izquierda y la acción principal a la derecha. La inicialización compartida de SweetAlert aplica el texto de cierre. El botón principal expresa la acción específica, por ejemplo `Anular venta`, con mayúscula solo al inicio salvo nombres propios. La acción principal debe ser visualmente preponderante.
+- Mantener la `X` visible arriba a la derecha con `showCloseButton: true` y `closeButtonAriaLabel: "Cerrar confirmación"`. Debe tener un área de clic de al menos `2rem`, sin fondo, con contraste suficiente y separación del título. La X y `Cerrar` descartan la confirmación. No cerrar haciendo clic fuera si se están revisando consecuencias o completando campos.
 - Confirmaciones de descarga también siguen el patrón. Los mensajes de éxito, error y el loader no son decisiones de dos botones y conservan su presentación específica.
 
 ### Mensajes de estado SweetAlert

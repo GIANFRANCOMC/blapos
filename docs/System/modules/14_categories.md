@@ -24,6 +24,6 @@ Agrupa productos, servicios y membresías por empresa.
 - El listado y la modal usan los componentes compartidos `FiltersSection`, `TableActionsDropdown` y `FormModal`.
 - **Acciones → Descargar Excel** exporta todos los registros que coinciden con los filtros actuales, no solo la página visible. Requiere permiso `export`.
 - **Acciones → Cargar masivamente** abre la modal compartida `CatalogReferenceImportModal`; la descarga de plantilla y la carga requieren permiso `import`.
-- Plantilla: `Nombre` obligatorio; `Código interno`, `Descripción` y `Estado` opcionales. Valores predeterminados: código generado con el prefijo configurado y estado `Activo`.
+- La plantilla requiere `Nombre` y `Código interno` completo con el prefijo vigente cuando corresponda. `Descripción` y `Estado` son opcionales. El estado predeterminado es `Activo`.
 - Se aceptan Excel y CSV con hasta 500 filas y el límite de tamaño configurado para archivos. El backend valida cada fila, rechaza nombres/códigos duplicados y revierte el lote completo ante un error.
 - La importación usa `CategoryService` y luego invalida las cachés dependientes; no crea un segundo catálogo ni omite el aislamiento de la base tenant.

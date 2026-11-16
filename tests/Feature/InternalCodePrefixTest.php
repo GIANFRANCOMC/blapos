@@ -26,7 +26,7 @@ final class InternalCodePrefixTest extends TestCase {
             EnsureAuthenticatedSession::class, EnsureModulePermission::class, EnsureOperationalScope::class,
         ]);
 
-        $common = ["internal_code" => "ABC123", "name" => "Prueba de prefijo", "status" => "active"];
+        $common = ["name" => "Prueba de prefijo", "status" => "active"];
         $commercial = [
             "price" => 10,
             "currency_id" => DB::table("currencies")->where("code", "PEN")->value("id"),
@@ -47,26 +47,43 @@ final class InternalCodePrefixTest extends TestCase {
         ];
 
         foreach($entities as [$route, $table, $prefix, $fields]) {
-            $payload = $common + $fields;
+            $payload = $common + $fields + ["internal_code" => "{$prefix}-ABC123"];
+            $this->postJson(route("{$route}.store"), array_replace($payload, ["internal_code" => "ABC123"]))
+                ->assertUnprocessable()->assertJsonValidationErrors("internal_code");
             $this->postJson(route("{$route}.store"), array_replace($payload, ["internal_code" => "AB C123"]))
                 ->assertUnprocessable()->assertJsonValidationErrors("internal_code");
             $this->postJson(route("{$route}.store"), $payload)->assertSuccessful()->assertJsonPath("bool", true);
             $id = DB::table($table)->where("internal_code", "{$prefix}-ABC123")->value("id");
             $this->assertNotNull($id, $route);
 
-            $payload["internal_code"] = "XYZ789";
+            $payload["internal_code"] = "{$prefix}-XYZ789";
+            $this->patchJson(route("{$route}.update", ["id" => $id]), $payload)->assertOk();
+            $this->assertDatabaseHas($table, ["id" => $id, "internal_code" => "{$prefix}-XYZ789"]);
+
+            $withoutPrefix = array_replace($payload, ["internal_code" => "XYZ789", "internal_code_without_prefix" => true]);
+            $this->patchJson(route("{$route}.update", ["id" => $id]), $withoutPrefix)->assertOk();
+            $this->assertDatabaseHas($table, ["id" => $id, "internal_code" => "XYZ789"]);
             $this->patchJson(route("{$route}.update", ["id" => $id]), $payload)->assertOk();
             $this->assertDatabaseHas($table, ["id" => $id, "internal_code" => "{$prefix}-XYZ789"]);
         }
 
-        $product = $common + $entities[0][3];
+        $product = $common + $entities[0][3] + ["internal_code" => "PROD-BARCODE-TEST"];
         $product["barcode"] = "5901 234123457";
         $this->postJson(route("products.store"), $product)->assertUnprocessable()->assertJsonValidationErrors("barcode");
 
         $membership = $common + $commercial + ["duration_type" => "day", "duration_value" => 7];
-        foreach(["memb-XYZ789", "MEMB-", " MEMB-TEST", "MEMB- TEST", "TEST\n", "TEST\u{00A0}ABC", ["code" => "XYZ789"], str_repeat("A", 46)] as $invalidCode) {
+        foreach(["memb-XYZ789", "MEMB-", " MEMB-TEST", "MEMB- TEST", "MEMB-TEST\n", "MEMB-TEST\u{00A0}ABC", ["code" => "XYZ789"], "MEMB-".str_repeat("A", 46)] as $invalidCode) {
             $membership["internal_code"] = $invalidCode;
             $this->postJson(route("subscriptions.store"), $membership)->assertUnprocessable()->assertJsonValidationErrors("internal_code");
+        }
+
+        $explicitCode = array_replace($membership, ["internal_code" => "PLAN-SIN-PREFIJO", "internal_code_without_prefix" => true]);
+        $this->postJson(route("subscriptions.store"), $explicitCode)->assertSuccessful()->assertJsonPath("bool", true);
+        $this->assertDatabaseHas("items", ["type" => "subscription", "internal_code" => "PLAN-SIN-PREFIJO"]);
+        $this->postJson(route("subscriptions.store"), $explicitCode)->assertUnprocessable()->assertJsonValidationErrors("internal_code");
+        foreach(["PLAN CON ESPACIO", "MEMB-", "", str_repeat("A", 51)] as $invalidCode) {
+            $this->postJson(route("subscriptions.store"), array_replace($explicitCode, ["internal_code" => $invalidCode]))
+                ->assertUnprocessable()->assertJsonValidationErrors("internal_code");
         }
 
         $id = DB::table("items")->where("type", "subscription")->where("internal_code", "MEMB-XYZ789")->value("id");
@@ -78,12 +95,14 @@ final class InternalCodePrefixTest extends TestCase {
         $membership["internal_code"] = "MEMB-XYZ789";
         $this->patchJson(route("subscriptions.update", ["id" => $id]), $membership)->assertOk();
         $this->assertDatabaseHas("items", ["id" => $id, "internal_code" => "MEMB-XYZ789"]);
-        $membership["internal_code"] = "PLAN-NUEVO";
+        $membership["internal_code"] = "MEMB-PLAN-NUEVO";
+        $this->postJson(route("subscriptions.store"), $membership)->assertUnprocessable()->assertJsonValidationErrors("internal_code");
+        $membership["internal_code"] = "GYM-PLAN-NUEVO";
         $this->postJson(route("subscriptions.store"), $membership)->assertSuccessful()->assertJsonPath("bool", true);
         $this->getJson(route("subscriptions.list", ["filter_by" => "internal_code", "word" => "GYM-PLAN-NUEVO"]))
             ->assertOk()->assertJsonFragment(["internal_code" => "GYM-PLAN-NUEVO"]);
 
-        $membership["internal_code"] = "CODIGO-EDITADO";
+        $membership["internal_code"] = "GYM-CODIGO-EDITADO";
         $this->patchJson(route("subscriptions.update", ["id" => $id]), $membership)->assertOk();
         $this->assertDatabaseHas("items", ["id" => $id, "internal_code" => "GYM-CODIGO-EDITADO"]);
 
@@ -94,6 +113,11 @@ final class InternalCodePrefixTest extends TestCase {
         $membership["internal_code"] = "SIN-PREFIJO";
         $this->postJson(route("subscriptions.store"), $membership)->assertSuccessful()->assertJsonPath("bool", true);
         $this->assertDatabaseHas("items", ["type" => "subscription", "internal_code" => "SIN-PREFIJO"]);
+
+        MasterDataService::save($user->id, "company-settings", $settings + ["value" => ""], $settingId);
+        $membership["internal_code"] = "PLAN2026";
+        $this->postJson(route("subscriptions.store"), $membership)->assertSuccessful()->assertJsonPath("bool", true);
+        $this->assertDatabaseHas("items", ["type" => "subscription", "internal_code" => "PLAN2026"]);
 
     }
 

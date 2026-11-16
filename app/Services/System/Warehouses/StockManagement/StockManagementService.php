@@ -320,6 +320,22 @@ class StockManagementService {
 
     }
 
+    public static function transferAvailability(int $warehouseId, array $itemIds): Collection {
+
+        return Item::query()
+            ->where("items.type", Item::TYPE_PRODUCT)
+            ->where("items.status", "active")
+            ->whereIn("items.id", $itemIds)
+            ->leftJoin("warehouse_items", function($join) use ($warehouseId) {
+                $join->on("warehouse_items.item_id", "=", "items.id")
+                    ->where("warehouse_items.warehouse_id", $warehouseId);
+            })
+            ->toBase()
+            ->pluck("warehouse_items.quantity", "items.id")
+            ->map(fn($quantity) => max(0, Numbers::round($quantity ?? 0)));
+
+    }
+
     /**
      * Update stock for items in a warehouse
      *

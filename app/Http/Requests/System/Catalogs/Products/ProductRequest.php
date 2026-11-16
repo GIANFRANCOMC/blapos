@@ -6,7 +6,7 @@ namespace App\Http\Requests\System\Catalogs\Products;
 
 use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesCatalogCommission, ValidatesInternalCodePrefix};
 use App\Models\System\Catalogs\{Brand, Item};
 use App\Rules\System\Catalogs\{ValidEan13};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
@@ -14,7 +14,7 @@ use Illuminate\Validation\{Validator};
 
 abstract class ProductRequest extends CompanyFormRequest {
 
-    use ValidatesInternalCodePrefix;
+    use ValidatesCatalogCommission, ValidatesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
 
@@ -40,7 +40,7 @@ abstract class ProductRequest extends CompanyFormRequest {
             "min_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "max_price" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
             "commission_type" => ["required", "in:none,percentage,fixed"],
-            "commission_value" => ["nullable", "numeric", "min:0", "max:{$maxValue}", $decimalRule],
+            "commission_value" => $this->numericRules(min: 0),
             "currency_id" => ["bail", "required", "integer", new ExistsInTenant("currencies", ["status" => "active"], "La moneda seleccionada no pertenece a la empresa.")],
             "capacity_control_enabled" => ["prohibited"],
             "capacity_limit" => ["prohibited"],
@@ -134,39 +134,10 @@ abstract class ProductRequest extends CompanyFormRequest {
             "price" => $this->normalizeDecimalInput($this->input("price")),
             "min_price" => $this->normalizeOptionalNumber($this->input("min_price")),
             "max_price" => $this->normalizeOptionalNumber($this->input("max_price")),
-            "commission_type" => $this->input("commission_type") ?: "none",
-            "commission_value" => $this->input("commission_type") === "none"
-                ? 0
-                : ($this->normalizeOptionalNumber($this->input("commission_value")) ?? 0),
+            ...$this->normalizedCommission(),
             "expires_at" => $this->filled("expires_at") ? $this->input("expires_at") : null,
             "inventory" => $this->normalizeInventory(),
         ]);
-
-    }
-
-    private function validateCommission(Validator $validator): void {
-
-        if($validator->errors()->hasAny(["commission_type", "commission_value"])) {
-
-            return;
-
-        }
-
-        $type = (string) $this->input("commission_type", "none");
-
-        $value = (float) ($this->input("commission_value") ?? 0);
-
-        if($type !== "none" && $value <= 0) {
-
-            $validator->errors()->add("commission_value", "Debe ser mayor que 0 cuando el producto tiene comision.");
-
-        }
-
-        if($type === "percentage" && $value > 100) {
-
-            $validator->errors()->add("commission_value", "No puede superar el 100%.");
-
-        }
 
     }
 

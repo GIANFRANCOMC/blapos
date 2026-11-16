@@ -265,8 +265,8 @@ Registrar la huella de un cliente en un dispositivo.
 ### Error "No cuenta con una membresía vigente"
 
 **Posibles causas:**
-- El cliente no tiene una suscripción activa
-- La suscripción no está vigente en la sucursal del dispositivo
+- El cliente no tiene una membresía activa
+- La membresía no está vigente en la sucursal del dispositivo
 - Las fechas de inicio y fin de la membresía no son válidas
 
 **Solución:**

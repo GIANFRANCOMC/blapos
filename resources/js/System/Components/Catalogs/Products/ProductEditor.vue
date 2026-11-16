@@ -22,22 +22,18 @@
                             :aria-labelledby="`${modalId}-tab-trigger-general`"
                             role="tabpanel">
                             <div class="row g-3">
-                                <InputText
+                                <InternalCodeInput
                                     v-model="productForm.data.internal_code"
-                                    no-whitespace
+                                    v-bind="internalCodeInputProps(productForm.data)"
                                     hasDiv
                                     :title="MODULE.texts.form.internalCode"
                                     :titleClass="[config.forms.classes.title]"
                                     isRequired
-                                    maxlength="50"
                                     :showCharCounter="false"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.internal_code"
                                     xl="3"
                                     lg="3">
-                                    <template v-if="internalCodeDisplayedPrefix(productForm.data.id, productForm.data.internal_code)" v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(productForm.data.id, productForm.data.internal_code)"></span>
-                                    </template>
                                     <template v-slot:defaultAppend>
                                         <button
                                             type="button"
@@ -61,7 +57,7 @@
                                             <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                         </button>
                                     </template>
-                                </InputText>
+                                </InternalCodeInput>
 
                                 <InputText
                                     v-model="productForm.data.barcode"
@@ -221,13 +217,9 @@
                                     :textBottomInfo="productForm.errors?.categories"
                                     xl="4"
                                     lg="4">
-                                    <template #defaultAppend>
+                                    <template #default>
                                         <AddCategory
                                             :internal-code-prefix="internalCodePrefixes.category"
-                                            trigger-mode="link"
-                                            trigger-text="Agregar"
-                                            trigger-icon=""
-                                            :trigger-tooltip="false"
                                             :disabled="isSaving"
                                             @created="handleCategoryCreated"/>
                                     </template>
@@ -269,13 +261,9 @@
                                     :textBottomInfo="productForm.errors?.brand_id"
                                     xl="4"
                                     lg="4">
-                                    <template #defaultAppend>
+                                    <template #default>
                                         <AddBrand
                                             :internal-code-prefix="internalCodePrefixes.brand"
-                                            trigger-mode="link"
-                                            trigger-text="Agregar"
-                                            trigger-icon=""
-                                            :trigger-tooltip="false"
                                             :disabled="isSaving"
                                             @created="handleBrandCreated"/>
                                     </template>
@@ -425,29 +413,20 @@
                                             :clearable="false"
                                             :searchable="false"
                                             append-to-body
-                                            @update:modelValue="resetCommissionValue"/>
+                                            @update:modelValue="resetCatalogCommission(productForm)"/>
                                     </template>
                                 </InputSlot>
 
-                                <InputNumber
+                                <CommissionValueInput
                                     v-model="productForm.data.commission_value"
-                                    hasDiv
+                                    :commission-type="productForm.data.commission_type"
+                                    :currency-sign="currencySign"
                                     title="Valor de comisión"
                                     :titleClass="[config.forms.classes.title]"
-                                    :isRequired="productForm.data.commission_type !== 'none'"
-                                    :disabled="productForm.data.commission_type === 'none'"
-                                    :minValue="0"
-                                    :maxValue="productForm.data.commission_type === 'percentage' ? 100 : null"
                                     hasTextBottom
                                     :textBottomInfo="productForm.errors?.commission_value"
                                     xl="4"
-                                    lg="4">
-                                    <template v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-currency-prefix">
-                                            <span class="br-currency-prefix__symbol" v-text="productForm.data.commission_type === 'percentage' ? '%' : currencySign"></span>
-                                        </span>
-                                    </template>
-                                </InputNumber>
+                                    lg="4"/>
                             </div>
                         </section>
 
@@ -469,13 +448,24 @@
                                 v-model:rows="productForm.data.inventory"
                                 mode="edit"
                                 :is-update="isUpdate"
+                                :remove-disabled="isSaving"
                                 :measurement-unit="measurementUnit"
-                                :errors="productForm.errors"/>
+                                :errors="productForm.errors"
+                                @remove-row="removeInventoryRow"/>
 
                             <div v-else class="br-entity-inventory-empty">
                                 <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
-                                <span>No hay almacenes activos. Crea una sucursal con almacén antes de registrar productos.</span>
+                                <span v-if="originalInventoryRows.length">Restaura al menos una fila de almacén para guardar el producto.</span>
+                                <span v-else>No hay almacenes activos. Crea una sucursal con almacén antes de registrar productos.</span>
                             </div>
+                            <button
+                                v-if="productForm.data.inventory.length < originalInventoryRows.length"
+                                type="button"
+                                class="br-btn br-btn-add-row mt-2"
+                                :disabled="isSaving"
+                                @click="restoreInventoryRows">
+                                Restaurar almacenes
+                            </button>
                         </section>
                     </form>
                 </template>
@@ -485,7 +475,7 @@
                         type="button"
                         class="br-btn br-btn-cancel"
                         data-bs-dismiss="modal">
-                        Cancelar
+                        Cerrar
                     </button>
                 </template>
 
@@ -518,6 +508,9 @@ import InputNumber from "@System/Components/InputNumber.vue";
 import InputDate from "@System/Components/InputDate.vue";
 import InputSlot from "@System/Components/InputSlot.vue";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
+import CommissionValueInput from "@System/Components/Catalogs/CommissionValueInput.vue";
+import {resetCatalogCommission, validateCatalogCommission} from "@System/Components/Catalogs/catalogFormValidation.js";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
@@ -538,6 +531,8 @@ export default {
     name: "ProductEditor",
     mixins: [InternalCodePrefixMixin],
     components: {
+        InternalCodeInput,
+        CommissionValueInput,
         AddBrand,
         AddCategory,
         CatalogFormTabs,
@@ -573,6 +568,7 @@ export default {
             MODULE,
             activeFormTab: FORM_TABS[0].id,
             isSaving: false,
+            originalInventoryRows: [],
             measurementUnit: null,
             optionsLoaded: false
         };
@@ -683,14 +679,13 @@ export default {
                     brand: this.resolveBrandOption(record),
                     see_my_web: Boolean(record.see_my_web),
                     see_my_web_price: Boolean(record.see_my_web && record.see_my_web_price),
-                    inventory: this.buildInventory(record),
                     status: this.statuses.find(status => status.code === record.status) ?? null
                 });
 
             }else {
 
                 Object.assign(this.productForm.data, {
-                    internal_code: this.generateRandomCode(7),
+                    internal_code: this.setEditableInternalCode(this.generateRandomCode(7), true),
                     barcode: generateEan13(),
                     currency: this.currencies[0] ?? null,
                     categories: [],
@@ -702,11 +697,13 @@ export default {
                     commission_value: "",
                     see_my_web: true,
                     see_my_web_price: false,
-                    inventory: this.buildInventory(),
                     status: this.statuses[0] ?? null
                 });
 
             }
+
+            this.originalInventoryRows = this.buildInventory(record);
+            this.productForm.data.inventory = [...this.originalInventoryRows];
 
             if(this.productForm.data.commission_type === "none") {
 
@@ -724,6 +721,7 @@ export default {
 
             form.data = Forms.initFormData(Utils.cloneJson(this.MODULE.formFields));
             form.errors = {};
+            this.originalInventoryRows = [];
             this.measurementUnit = null;
             this.activeFormTab = FORM_TABS[0].id;
 
@@ -748,6 +746,26 @@ export default {
 
             });
 
+        },
+        removeInventoryRow(index, event) {
+            if(this.isSaving) return;
+
+            window.bootstrap?.Tooltip?.getInstance(event.currentTarget)?.dispose();
+            this.productForm.data.inventory = this.productForm.data.inventory.filter((row, rowIndex) => rowIndex !== index);
+            this.clearInventoryErrors();
+        },
+        restoreInventoryRows() {
+            if(this.isSaving) return;
+
+            const rows = new Map(this.productForm.data.inventory.map(row => [row.warehouse_id, row]));
+            this.productForm.data.inventory = this.originalInventoryRows.map(row => rows.get(row.warehouse_id) ?? row);
+            this.clearInventoryErrors();
+            this.$nextTick(() => Alerts.tooltips({selector: `#${this.modalId} .br-entity-inventory__actions [data-bs-toggle='tooltip']`}));
+        },
+        clearInventoryErrors() {
+            for(const field of Object.keys(this.productForm.errors)) {
+                if(field === "inventory" || field.startsWith("inventory.")) delete this.productForm.errors[field];
+            }
         },
         resolveBrandOption(record) {
 
@@ -784,12 +802,7 @@ export default {
             Alerts.dismissTooltip(event?.currentTarget);
 
         },
-        resetCommissionValue() {
-
-            this.productForm.data.commission_value = "";
-            delete this.productForm.errors.commission_value;
-
-        },
+        resetCatalogCommission,
         syncPublicationSettings() {
 
             if(!this.productForm.data.see_my_web) {
@@ -837,7 +850,7 @@ export default {
                 }
 
                 const preparedData = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
-                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
+                Object.assign(preparedData, this.internalCodePayload(preparedData.internal_code));
                 if(preparedData.igv_exempt) {
 
                     preparedData.price_includes_tax = false;
@@ -911,23 +924,7 @@ export default {
 
             const result = Forms.validateFormData(formData, this.validationRules, {isDescriptive: true, errorLabels: this.MODULE.errorLabels});
 
-            if(formData.commission_type !== "none" && !result.errors.commission_value) {
-
-                const commissionValue = Number(formData.commission_value);
-
-                if(formData.commission_value === "" || !Number.isFinite(commissionValue) || commissionValue <= 0) {
-
-                    result.errors.commission_value = ["Debe ser mayor que 0 cuando el producto tiene comisión."];
-                    result.bool = false;
-
-                }else if(formData.commission_type === "percentage" && commissionValue > 100) {
-
-                    result.errors.commission_value = ["No puede superar el 100%."];
-                    result.bool = false;
-
-                }
-
-            }
+            validateCatalogCommission(result, formData);
 
             if(!isValidEan13(formData.barcode)) {
 

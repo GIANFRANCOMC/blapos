@@ -3,6 +3,8 @@
         entity="categories"
         resource-key="category"
         singular-label="Categoría"
+        trigger-mode="icon"
+        trigger-class="br-quick-create-trigger--field-label"
         :name-maxlength="50"
         :description-maxlength="100"
         v-bind="$attrs"

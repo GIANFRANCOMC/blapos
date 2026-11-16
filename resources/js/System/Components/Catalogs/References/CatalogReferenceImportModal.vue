@@ -12,7 +12,7 @@
                         <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
                         <span>Descargar plantilla</span>
                     </button>
-                    <small class="br-import-products__intro" v-text="intro"></small>
+                    <small class="br-import-products__intro">{{ intro }} {{ internalCodeImportHelp(internalCodePrefix) }}</small>
                 </div>
                 <div class="col-lg-6 col-12">
                     <label :for="`${modalId}-file`" class="form-label colon-at-end">
@@ -35,7 +35,7 @@
 
         <template #footerClose>
             <button ref="closeButton" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal" :disabled="importing">
-                Cancelar
+                Cerrar
             </button>
         </template>
 
@@ -50,6 +50,7 @@
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
+import {internalCodeImportHelp} from "@System/Helpers/InternalCodes.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 
 export default {
@@ -57,13 +58,14 @@ export default {
     components: {FormModal},
     emits: ["imported"],
     props: {
+        internalCodePrefix: {type: String, default: ""},
         modalId: {type: String, required: true},
         resource: {type: String, required: true},
         templateFileName: {type: String, required: true},
         importRoute: {type: String, required: true},
         intro: {
             type: String,
-            default: "Descarga la plantilla y completa el nombre de cada registro. El código interno vacío se generará automáticamente."
+            default: "Descarga la plantilla y completa el nombre de cada registro."
         },
         help: {
             type: String,
@@ -81,6 +83,7 @@ export default {
 
     },
     methods: {
+        internalCodeImportHelp,
         open() {
 
             this.file = null;

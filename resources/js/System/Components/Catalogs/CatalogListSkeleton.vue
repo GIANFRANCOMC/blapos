@@ -75,7 +75,7 @@ const COLUMNS = {
     brands: [
         {...COMMON_INTERNAL_CODE, width: "20%"},
         {title: "Marca", width: "22%"},
-        {title: "Sitio oficial", width: "14%"},
+        {title: "Sitio oficial", width: "14%", align: "text-center"},
         {title: "En uso", width: "25%", align: "text-center"},
         {...COMMON_STATUS, width: "11%"},
         {...COMMON_ACTIONS, width: "8%"}

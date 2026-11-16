@@ -33,7 +33,7 @@
                 @import="openImportModal"
                 @download="downloadRecords"/>
 
-            <OfferingImportModal ref="importModal" type="service" :import-route="routeActions.import" @imported="listEntity({})"/>
+            <OfferingImportModal ref="importModal" type="service" :import-route="routeActions.import" :internal-code-prefix="internalCodePrefixes.service" @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de servicios">
                 <div class="table-responsive">
@@ -73,9 +73,18 @@
                             </td>
                             <td>
                                 <div class="br-entity-offering-details">
-                                    <span><strong class="colon-at-end">Duración</strong> {{ serviceDurationLabel(record) }}</span>
-                                    <span><strong class="colon-at-end">Cupos</strong> {{ capacityLabel(record) }}</span>
-                                    <span><strong class="colon-at-end">Comisión</strong> {{ commissionLabel(record) }}</span>
+                                    <span>
+                                        <strong class="colon-at-end">Duración</strong>
+                                        <span class="br-entity-offering-details__value">{{ serviceDurationLabel(record) }}</span>
+                                    </span>
+                                    <span v-if="record.capacity_control_enabled">
+                                        <strong class="colon-at-end">Cupos</strong>
+                                        <span class="br-entity-offering-details__value">{{ capacityLabel(record) }}</span>
+                                    </span>
+                                    <span v-if="commissionLabel(record)">
+                                        <strong class="colon-at-end">Comisión</strong>
+                                        <span class="br-entity-offering-details__value">{{ commissionLabel(record) }}</span>
+                                    </span>
                                 </div>
                             </td>
                             <td class="text-end">
@@ -127,29 +136,25 @@
                 label="Secciones del servicio"/>
             <form class="br-entity-form-section" @submit.prevent="saveEntity">
                         <div id="service-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`service-tab-trigger-${activeFormTab}`">
-                            <InputText
+                            <InternalCodeInput
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.internal_code"
-                                no-whitespace
+                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
                                 hasDiv
                                 :title="MODULE.texts.form.internalCode"
                                 :titleClass="[config.forms.classes.title]"
                                 isRequired
-                                maxlength="50"
                                 :showCharCounter="false"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
                                 xl="3"
                                 lg="3">
-                                <template v-if="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)" v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-internal-code-prefix" v-text="internalCodeDisplayedPrefix(forms[entity].createUpdate.data.id, forms[entity].createUpdate.data.internal_code)"></span>
-                                </template>
                                 <template v-slot:inputGroupAppend>
                                     <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
-                            </InputText>
+                            </InternalCodeInput>
                             <InputText
                                 v-show="activeFormTab === 'general'"
                                 v-model="forms[entity].createUpdate.data.name"
@@ -217,18 +222,16 @@
                                         :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"
-                                        @update:modelValue="forms[entity].createUpdate.data.commission_value = ''"/>
+                                        @update:modelValue="resetCatalogCommission(forms[entity].createUpdate)"/>
                                 </template>
                             </InputSlot>
-                            <InputNumber
+                            <CommissionValueInput
                                 v-show="activeFormTab === 'configuration'"
                                 v-model="forms[entity].createUpdate.data.commission_value"
-                                hasDiv
+                                :commission-type="forms[entity].createUpdate.data.commission_type?.code"
+                                :currency-sign="forms[entity].createUpdate.data.currency?.data?.sign"
                                 :title="MODULE.texts.form.commissionValue"
                                 :titleClass="[config.forms.classes.title]"
-                                :disabled="forms[entity].createUpdate.data.commission_type?.code === 'none'"
-                                :minValue="0"
-                                :maxValue="forms[entity].createUpdate.data.commission_type?.code === 'percentage' ? 100 : undefined"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
                                 xl="4"
@@ -239,6 +242,7 @@
                                     <input
                                         id="service_capacity_control_enabled"
                                         v-model="forms[entity].createUpdate.data.capacity_control_enabled"
+                                        @change="delete forms[entity].createUpdate.errors.capacity_limit"
                                         class="form-check-input"
                                         type="checkbox"
                                         role="switch">
@@ -251,9 +255,11 @@
                                 hasDiv
                                 :title="MODULE.texts.form.capacityLimit"
                                 :titleClass="[config.forms.classes.title]"
+                                :isRequired="forms[entity].createUpdate.data.capacity_control_enabled"
                                 :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
                                 :decimals="0"
                                 :minValue="1"
+                                :maxValue="validationRules.capacity_limit.max"
                                 hasTextBottom
                                 :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
                                 xl="4"
@@ -344,13 +350,9 @@
                                 :textBottomInfo="forms[entity].createUpdate.errors?.categories"
                                 xl="4"
                                 lg="4">
-                                <template #defaultAppend>
+                                <template #default>
                                     <AddCategory
                                         :internal-code-prefix="internalCodePrefixes.category"
-                                        trigger-mode="link"
-                                        trigger-text="Agregar"
-                                        trigger-icon=""
-                                        :trigger-tooltip="false"
                                         :disabled="isSaving"
                                         @created="handleCategoryCreated"/>
                                 </template>
@@ -430,14 +432,18 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
+import CommissionValueInput from "@System/Components/Catalogs/CommissionValueInput.vue";
+import {OFFERING_CAPACITY_MAX, resetCatalogCommission, validateCatalogCapacity, validateCatalogCommission} from "@System/Components/Catalogs/catalogFormValidation.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import OfferingImportModal from "@System/Components/Catalogs/Offerings/OfferingImportModal.vue";
 import {capacityLabel} from "@System/Components/Catalogs/Offerings/capacityLabel.js";
+import {commissionLabel} from "@System/Components/Catalogs/Offerings/commissionLabel.js";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
@@ -481,7 +487,7 @@ const FORM_FIELDS = {
 };
 
 const FORM_FIELD_CONFIG = {
-    internal_code: {trim: true},
+    internal_code: {trim: false},
     name: {trim: true},
     description: {normalize: true},
     price: {toNumber: true, minValue: 0},
@@ -513,7 +519,7 @@ const VALIDATION_RULES = {
     max_price: {required: false, number: true, min: 0},
     estimated_duration_minutes: {required: false, number: true, min: 1},
     capacity_control_enabled: {required: false},
-    capacity_limit: {required: false, number: true, min: 1},
+    capacity_limit: {required: false, number: true, min: 1, max: OFFERING_CAPACITY_MAX},
     commission_type: {required: false},
     commission_value: {required: false, number: true, min: 0},
     expires_at: {required: false},
@@ -609,7 +615,7 @@ const MODULE = {
 export default {
     name: "ServicesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
+    components: {InternalCodeInput, CommissionValueInput, ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
     data() {
 
         const crudModule = initCrudModule({
@@ -650,6 +656,7 @@ export default {
         if(initialized) await this.listEntity({});
     },
     methods: {
+        resetCatalogCommission,
         async initParams() {
 
             const response = await Requests.get({
@@ -796,7 +803,7 @@ export default {
                 entityForms.data.capacity_control_enabled = Boolean(record.capacity_control_enabled ?? false);
                 entityForms.data.capacity_limit = record.capacity_limit ?? "";
                 entityForms.data.commission_type  = this.commissionTypeOptions.find(e => e.code === (record.commission_type || "none")) ?? this.commissionTypeOptions[0];
-                entityForms.data.commission_value = record.commission_value;
+                entityForms.data.commission_value = entityForms.data.commission_type.code === "none" ? "" : record.commission_value;
                 entityForms.data.expires_at       = record.expires_at ? String(record.expires_at).slice(0, 10) : "";
                 entityForms.data.currency         = currencyOption;
                 entityForms.data.categories       = this.categories.filter(e => categoryItems.includes(e.code));
@@ -807,7 +814,7 @@ export default {
             }else {
 
                 // Set defaults for new record
-                entityForms.data.internal_code = this.generateCode({length: 7});
+                entityForms.data.internal_code = this.setEditableInternalCode(this.generateCode({length: 7}), true);
                 entityForms.data.currency      = this.currencies.length > 0 ? this.currencies[0] : null;
                 entityForms.data.price_includes_tax = true;
                 entityForms.data.igv_exempt = false;
@@ -879,7 +886,7 @@ export default {
                 }
 
                 const preparedData  = Forms.prepareFormData(formData, this.MODULE.formFieldConfig);
-                preparedData.internal_code = this.internalCodeForSave(preparedData.id, preparedData.internal_code);
+                Object.assign(preparedData, this.internalCodePayload(preparedData.internal_code));
                 if(preparedData.igv_exempt) preparedData.price_includes_tax = false;
                 if(!preparedData.capacity_control_enabled) preparedData.capacity_limit = null;
                 if(!preparedData.see_my_web) preparedData.see_my_web_price = false;
@@ -972,12 +979,8 @@ export default {
 
             }
 
-            if(formData.capacity_control_enabled && !Number(formData.capacity_limit || 0)) {
-
-                result.errors.capacity_limit = ["Indica cuántos cupos estarán disponibles."];
-                result.bool = false;
-
-            }
+            validateCatalogCommission(result, formData);
+            validateCatalogCapacity(result, formData);
 
             return result;
 
@@ -1011,17 +1014,7 @@ export default {
             return rest > 0 ? `${hours} h ${rest} min` : `${hours} h`;
 
         },
-        commissionLabel(record) {
-
-            const type = record?.commission_type || "none";
-            const value = Number(record?.commission_value || 0);
-
-            if(type === "percentage") return `${this.separatorNumber(value)}%`;
-            if(type === "fixed") return `${record?.currency?.sign || ""} ${this.separatorNumber(value)}`.trim();
-
-            return "Sin comisión";
-
-        },
+        commissionLabel,
         capacityLabel,
         focusFirstErrorTab(errors = {}) {
 

@@ -5,8 +5,7 @@
         modal-size="modal-xl"
         :show-submit="false"
         :close-disabled="loading"
-        :keyboard="false"
-        close-button-text="Cerrar">
+        :keyboard="false">
         <template #header>
             <ProductIdentity v-if="product" variant="expandable" class="mt-1" :product="product"/>
         </template>

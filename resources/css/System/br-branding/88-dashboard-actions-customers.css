@@ -311,22 +311,9 @@
 }
 
 .br-customer-table__value {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.14rem;
-  min-width: 0;
   color: var(--br-text);
   font-size: var(--br-ui-font-size);
   line-height: 1.35;
-}
-
-.br-customer-table__value > span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.br-customer-table__value .br-copy-button {
-  flex: 0 0 auto;
 }
 
 .br-customer-table__muted {

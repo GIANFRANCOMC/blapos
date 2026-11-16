@@ -19,6 +19,59 @@ function inventoryComponent(requests = {}, alerts = {}) {
         .replace("export default", "return"))(...Object.values(dependencies));
 }
 
+test("el traslado consulta los productos seleccionados y descarta saldos de un origen anterior", async () => {
+    const requests = [];
+    const component = inventoryComponent({
+        get({data}) { return new Promise(resolve => requests.push({data, resolve})); },
+        valid: ({result}) => Boolean(result?.data?.bool)
+    });
+    const context = component.data.call({page: "transfers"});
+    context.transferForm.source = {code: 1};
+    context.transferForm.items[0].product = {code: 25};
+    const query = () => component.computed.transferAvailabilityQuery.call(context);
+    const load = () => component.methods.loadTransferAvailability.call(context, query());
+
+    const first = load();
+    context.transferForm.source = {code: 2};
+    const current = load();
+    assert.deepEqual(requests.map(request => request.data), [
+        {warehouse_id: 1, item_ids: [25]},
+        {warehouse_id: 2, item_ids: [25]}
+    ]);
+    assert.equal(context.loadingTransferAvailability, true);
+    requests[1].resolve({data: {bool: true, data: {25: 0}}});
+    await current;
+    requests[0].resolve({data: {bool: true, data: {25: 14}}});
+    await first;
+    assert.deepEqual(context.transferAvailability, {25: 0});
+    assert.equal(context.loadingTransferAvailability, false);
+
+    context.transferForm.items = [];
+    await load();
+    assert.deepEqual(context.transferAvailability, {});
+    assert.equal(requests.length, 2);
+});
+
+test("una operación o traslado puede quitar la última fila sin enviar un formulario vacío", async () => {
+    const {methods} = inventoryComponent({post() { assert.fail("No se pueden guardar filas vacías"); }});
+    for(const [form, errors, remove, save] of [
+        ["movementForm", "movementErrors", "removeMovementItem", "saveMovement"],
+        ["transferForm", "transferErrors", "removeTransferItem", "saveTransfer"]
+    ]) {
+        const context = {
+            [form]: {warehouse: {code: 1}, items: [{product: {code: 25}}]},
+            [errors]: {"items.0.quantity": ["Dato inválido"]},
+            canConfigureTransfer: true,
+            disposeInventoryModalTooltips() {},
+            refreshInventoryModalTooltips() {}
+        };
+        methods[remove].call(context, 0);
+        assert.deepEqual(context[form].items, []);
+        assert.deepEqual(context[errors], {});
+        await methods[save].call(context);
+    }
+});
+
 test("editar cualquier filtro de inventario conserva filas y paginación hasta Buscar", () => {
     const component = inventoryComponent();
     for(const page of ["stock", "kardex", "valued", "transfers", "guides"]) {

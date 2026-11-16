@@ -486,7 +486,6 @@ export default {
                     showCloseButton: true,
                     closeButtonAriaLabel: "Cerrar confirmación",
                     confirmButtonText: "Anular venta",
-                    cancelButtonText: "Cancelar",
                     customClass: {
                         confirmButton: "btn btn-danger waves-effect",
                         cancelButton: "btn btn-secondary waves-effect ms-3"

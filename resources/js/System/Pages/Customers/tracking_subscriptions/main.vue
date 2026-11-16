@@ -194,7 +194,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold">Detalle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row justify-content-center g-1">
@@ -478,7 +478,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Agregar membresía",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "br-btn br-btn-action-create",
                     cancelButton: "br-btn br-btn-cancel ms-3"
@@ -609,7 +608,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Renovar membresía",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-primary waves-effect",
                     cancelButton: "btn btn-secondary waves-effect ms-3"
@@ -731,7 +729,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Anular membresía",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-danger waves-effect",
                     cancelButton: "btn btn-secondary waves-effect ms-3"

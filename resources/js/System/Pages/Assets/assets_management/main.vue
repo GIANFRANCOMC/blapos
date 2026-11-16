@@ -87,7 +87,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.assetInBranch.extras.modals.default.titles[isAssign ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
@@ -164,7 +164,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.assignToUser.extras.modals.default.titles.default"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
@@ -490,7 +490,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Agregar activo",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-success waves-effect",
                     cancelButton: "btn btn-secondary waves-effect ms-3"
@@ -581,7 +580,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Quitar activo",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-danger waves-effect",
                     cancelButton: "btn btn-secondary waves-effect ms-3"
@@ -829,7 +827,6 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Retirar asignación",
-                cancelButtonText: "Cancelar",
                 customClass: {
                     confirmButton: "btn btn-danger waves-effect",
                     cancelButton: "btn btn-secondary waves-effect ms-3"

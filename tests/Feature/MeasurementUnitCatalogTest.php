@@ -58,7 +58,7 @@ final class MeasurementUnitCatalogTest extends TestCase {
 
         $import = new ProductBasicImport($currencyId, $warehouseId, $userId);
         $import->collection(collect([collect([
-            "codigo_interno" => "IMPORTED-UNIT-TEST",
+            "codigo_interno" => "PROD-IMPORTED-UNIT-TEST",
             "nombre" => "Producto importado",
             "precio" => 15,
             "stock_inicial" => 0,
@@ -75,9 +75,9 @@ final class MeasurementUnitCatalogTest extends TestCase {
 
         app(CommercialCatalogSeeder::class)->run(10, 2, 5);
 
-        $this->assertSame("PROD-000001", InternalCodeService::applyPrefix("product", "PROD-000001"));
-        $this->assertSame("SERV-000001", InternalCodeService::applyPrefix("service", "SERV-000001"));
-        $this->assertSame("MEMB-00001", InternalCodeService::applyPrefix("subscription", "MEMB-00001"));
+        $this->assertTrue(InternalCodeService::acceptsCode("product", "PROD-000001"));
+        $this->assertTrue(InternalCodeService::acceptsCode("service", "SERV-000001"));
+        $this->assertTrue(InternalCodeService::acceptsCode("subscription", "MEMB-00001"));
         $this->assertSame(10, Item::query()->where("type", Item::TYPE_PRODUCT)->count());
         $this->assertSame(2, Item::query()->where("type", Item::TYPE_SERVICE)->count());
         $this->assertSame(5, Item::query()->where("type", Item::TYPE_SUBSCRIPTION)->count());

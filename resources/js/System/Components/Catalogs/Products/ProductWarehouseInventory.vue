@@ -1,11 +1,12 @@
 <template>
-    <div class="br-entity-inventory">
+    <div class="br-entity-inventory" :class="{'br-entity-inventory--editable': mode === 'edit'}">
         <div class="br-entity-inventory__head">
             <span>Sede</span>
             <span>Almacén</span>
             <span>{{ currentLabel }}</span>
             <span>Stock mínimo</span>
             <span>Estado del stock</span>
+            <span v-if="mode === 'edit'"><span class="visually-hidden">Quitar fila</span></span>
         </div>
 
         <div
@@ -66,6 +67,19 @@
                 <span v-if="item.status" v-text="item.status.text"></span>
                 <span v-else class="text-muted" aria-label="Estado del stock pendiente">—</span>
             </div>
+            <div v-if="mode === 'edit'" class="br-entity-inventory__actions">
+                <button
+                    type="button"
+                    class="br-icon-danger-plain"
+                    :disabled="removeDisabled"
+                    :aria-label="`Quitar fila de ${item.inventory.warehouse_name}`"
+                    title="Quitar fila del formulario"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    @click="$emit('remove-row', item.index, $event)">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -78,11 +92,12 @@ import {inventoryStockStatus} from "./productInventory.js";
 export default {
     name: "ProductWarehouseInventory",
     components: {InputNumber, QuantityValue},
-    emits: ["update:rows"],
+    emits: ["update:rows", "remove-row"],
     props: {
         rows: {type: Array, required: true},
         mode: {type: String, default: "view"},
         isUpdate: {type: Boolean, default: false},
+        removeDisabled: {type: Boolean, default: false},
         measurementUnit: {type: Object, default: null},
         errors: {type: Object, default: () => ({})}
     },

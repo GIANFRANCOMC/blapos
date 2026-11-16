@@ -194,7 +194,8 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - En la pestaña Inventario, justo encima de la tabla de almacenes, la etiqueta `Producto:` y el nombre en la línea siguiente usan los estilos compartidos de `br-field-summary`, igual que `Almacén de trabajo` en Alertas de stock. El resumen muestra el nombre ingresado en el formulario o `Sin nombre` si el campo está vacío.
 - Al existir errores, se marca la pestaña afectada y se abre automáticamente la primera que requiere corrección.
 - Cada apertura reemplaza completamente los datos del formulario y genera nuevos códigos al crear, evitando mezclar información entre creación y edición.
-- El cierre, Cancelar y el evento `hidden.bs.modal` limpian datos, errores y pestaña activa.
+- La X y el botón Cerrar cierran la modal. El evento `hidden.bs.modal` limpia datos, errores y pestaña activa.
+- En la pestaña Inventario, la papelera quita una fila del formulario, incluida la última. **Restaurar almacenes** recupera las filas omitidas con sus valores originales y conserva los cambios de las filas que siguen visibles. El alta o la edición requiere al menos una fila y los almacenes omitidos conservan su configuración guardada.
 - Los campos de stock reutilizan `InputNumber`. Muestran «Stock inicial» o «Stock mínimo» cuando están vacíos y ocultan el placeholder al recibir el foco.
 - Sede, Almacén y Estado del stock tienen columnas propias. En móvil, cada fila muestra primero Sede y Almacén, luego las cantidades y al final el estado, con sus etiquetas visibles.
 - Los controles y estados usan los tokens `--br-*` del branding.
@@ -249,11 +250,11 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El selector reutilizable de filtros conserva una sola línea aunque la opción sea extensa; muestra el contenido completo al mantener el cursor sobre el texto truncado.
 - Los selectores de filtro, Estado y Categorías comparten menú flotante, altura, flecha, colores, elipsis y visualización completa por hover; ninguna opción extensa genera saltos de línea ni scroll horizontal.
 - Los selectores de Productos reutilizan `SelectNoOptions` para comunicar `No hay opciones disponibles.` en español con un estado compacto. `br-branding.css` ofrece el mismo texto como cobertura visual para selectores System todavía no migrados al slot reutilizable.
-- Botón Cancelar con borde gris visible y hover suave mediante `br-btn-cancel`.
+- Botón Cerrar con borde gris visible y hover suave mediante `br-btn-cancel`.
 - Las ayudas de campo reutilizan `br-field-help`; los controles compartidos residen en `br-branding.css` y no dependen del módulo Productos.
 - El campo Estado se mantiene como select2 no buscable para conservar consistencia con los formularios existentes.
 - Los prefijos de moneda reutilizan `br-currency-prefix`, con fondo blanco integrado al input, símbolo compacto tipo icono, color secondary suavizado y borde compartido.
-- El código interno usa `company_settings.internal_code_prefixes.product` (`PROD` por defecto). El prefijo se muestra fijo al inicio del campo y el backend guarda el código completo mediante `InternalCodeService`.
+- El código interno usa `company_settings.internal_code_prefixes.product` (`PROD` por defecto). El formulario muestra y envía el código completo. `InternalCodeService` valida el prefijo recibido.
 - Al crear, stock inicial y stock mínimo comienzan vacíos para permitir escritura directa; el payload normaliza los campos no informados a cero. Mientras ambos estén vacíos, el almacén muestra discretamente la advertencia `Pendiente de registrar`.
 - Las altas rápidas de Marca y Categoría usan modales Bootstrap reales. El loader SweetAlert se muestra por encima de toda la interfaz y bloquea la interacción durante el guardado.
 - Los errores inline son breves; los resúmenes frontend/backend muestran el nombre del campo mediante `Forms.getDescriptiveErrors`.
@@ -315,7 +316,7 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Descargar la plantilla muestra un loading global mientras se genera el archivo y lo cierra al finalizar.
 - Columnas: `Nombre`, `Precio`, `Código interno`, `Código de barras`, `Descripción`, `Stock inicial` y `Stock mínimo`.
 - `Nombre` y `Precio` son obligatorios.
-- Código interno y código de barras son opcionales; si están vacíos se generan automáticamente.
+- El código interno completo es obligatorio e incluye el prefijo vigente cuando la empresa lo configura. El código de barras es opcional y se genera si se deja vacío.
 - El usuario selecciona el almacén al que corresponden el stock inicial y mínimo.
 - Los demás almacenes se crean con saldo y mínimo en cero.
 - Los productos importados se crean activos, no publicados para clientes y con la moneda principal de la empresa.
@@ -327,7 +328,7 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Al terminar se invalida la referencia compartida de items, incluyendo la configuración de Inventario.
 - El botón de carga masiva usa una acción ámbar sólida para diferenciarse visualmente de agregar, buscar y exportar.
 - La modal usa espaciado lateral propio y consistente en escritorio y móvil.
-- Durante la importación, la modal bloquea cerrar, cancelar y la tecla Escape para evitar interrumpir visualmente el proceso.
+- Durante la importación, la modal desactiva los controles de cierre y la tecla Escape.
 - Las pestañas reutilizables mantienen una separación visual moderada entre opciones para facilitar el escaneo sin incrementar su altura.
 - Las pestañas reutilizan `nav-pills`, tienen una separación superior más amplia respecto al encabezado y márgenes laterales alineados con los campos del formulario.
 - La navegación ya no usa posición sticky ni desenfoque: forma parte del flujo normal del modal, evitando superposiciones y filtraciones de texto durante el desplazamiento.
@@ -338,7 +339,7 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Las pestañas mantienen una separación intermedia de `0.48rem`, suficiente para distinguir cada etapa sin fragmentar visualmente el flujo.
 - En pantallas de hasta `767.98px`, `br-entity-modal` elimina el límite intermedio de Bootstrap y usa casi todo el ancho disponible, dejando únicamente `0.375rem` por lado.
 - `AddCategory` y `AddBrand` reutilizan `QuickCreateCatalogEntity` y `QuickCreateTrigger`. El disparador admite modos `link`, `button` e `icon`, además de texto, icono, título, clases y estado deshabilitado parametrizables.
-- El alta rápida solicita Nombre y Descripción y genera el valor del código automáticamente. El FormRequest añade el prefijo vigente de Marcas o Categorías. Una nota indica que el registro se creará activo.
+- El alta rápida se abre con el icono de círculo con signo más antes de Marca o Categorías. Solicita nombre y descripción y muestra el código completo generado antes de guardar. Una nota indica que el registro se creará activo.
 - Presionar Enter desde Nombre o Descripción ejecuta el alta. Al completarse, un SweetAlert success confirma que el registro quedó activo y disponible para seleccionarlo, sin alterar la selección existente.
 - Mientras se registra una Marca o Categoría, el loader global bloquea el resto de acciones y el botón permanece deshabilitado para evitar solicitudes duplicadas.
 - Los SweetAlert de validación y resultado usan la capa global máxima `br-swal-backdrop`, por encima de la modal rápida de Marca o Categoría y de la modal principal de Producto.

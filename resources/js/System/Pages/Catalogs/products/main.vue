@@ -37,6 +37,7 @@
                 ref="productImportModal"
                 :title="MODULE.texts.actions.import"
                 :import-route="routeActions.import"
+                :internal-code-prefix="options.internal_code_prefixes?.product"
                 :warehouses="warehouses"
                 @imported="handleProductsImported"/>
 
@@ -75,28 +76,20 @@
                                         <div class="br-entity-identifiers br-entity-identifiers--plain">
                                             <div class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                                <span class="br-entity-identifier__value">
+                                                <span class="br-copy-value">
                                                     <span
                                                         class="br-entity-code"
                                                         v-text="record.internal_code"></span>
-                                                    <span class="br-entity-identifier__actions">
-                                                        <CopyButton
-                                                            :value="record.internal_code"
-                                                            label="Código interno"/>
-                                                    </span>
+                                                    <CopyButton :value="record.internal_code" label="Código interno"/>
                                                 </span>
                                             </div>
                                             <div class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
-                                                <span class="br-entity-identifier__value">
+                                                <span class="br-copy-value">
                                                     <span
                                                         class="br-entity-barcode"
                                                         v-text="record.barcode"></span>
-                                                    <span class="br-entity-identifier__actions">
-                                                        <CopyButton
-                                                            :value="record.barcode"
-                                                            label="Código de barras"/>
-                                                    </span>
+                                                    <CopyButton :value="record.barcode" label="Código de barras"/>
                                                 </span>
                                             </div>
                                         </div>

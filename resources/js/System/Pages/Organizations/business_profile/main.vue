@@ -128,7 +128,7 @@ export default {
                 allowEscapeKey: false,
                 title: "¿Aplicar rubro?",
                 text: `La selección actual se reemplazará por los módulos recomendados para ${industry.name}.`,
-                icon: "question", showCancelButton: true, showCloseButton: true, closeButtonAriaLabel: "Cerrar confirmación", confirmButtonText: "Aplicar rubro", cancelButtonText: "Cancelar"
+                icon: "question", showCancelButton: true, showCloseButton: true, closeButtonAriaLabel: "Cerrar confirmación", confirmButtonText: "Aplicar rubro"
             });
             if(!confirmation.isConfirmed) return;
             this.saving = true;

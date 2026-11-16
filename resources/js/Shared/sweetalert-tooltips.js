@@ -10,19 +10,21 @@ function alertOptions(title, html, icon) {
 
 export function initializeSweetAlertTooltips({Swal, bootstrap, document}) {
     const Tooltip = bootstrap?.Tooltip;
-    if(!Swal?.fire || !Tooltip) return;
+    if(!Swal?.fire) return;
 
     const fire = Swal.fire;
     let activePopup = null;
 
     function hideTooltips(container) {
+        if(!Tooltip) return;
+
         container.querySelectorAll("[aria-describedby]").forEach(trigger => {
             Tooltip.getInstance(trigger)?.hide();
         });
     }
 
     document.addEventListener("inserted.bs.tooltip", ({target}) => {
-        if(!activePopup || activePopup.contains(target)) return;
+        if(!Tooltip || !activePopup || activePopup.contains(target)) return;
 
         // Bootstrap finishes showing synchronously after insertion. Hiding before
         // paint also resets its hover and focus state for the next interaction.
@@ -38,6 +40,7 @@ export function initializeSweetAlertTooltips({Swal, bootstrap, document}) {
 
         return fire.call(this, {
             ...options,
+            cancelButtonText: "Cerrar",
             willOpen(element) {
                 popup = activePopup = element;
                 hideTooltips(document);

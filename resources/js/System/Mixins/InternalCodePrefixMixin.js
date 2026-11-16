@@ -1,8 +1,8 @@
-import {composeInternalCode, internalCodePrefixFor, internalCodePrefixLabel} from "../Helpers/InternalCodes.js";
+import {internalCodePrefixLabel, splitInternalCode} from "../Helpers/InternalCodes.js";
 
 export default {
     data() {
-        return {originalInternalCode: "", initialEditableInternalCode: ""};
+        return {originalInternalCode: null, internalCodePrefixOverride: null};
     },
     computed: {
         internalCodeEntityKey() {
@@ -24,33 +24,46 @@ export default {
         }
     },
     methods: {
-        stripInternalCodePrefix(value) {
+        setEditableInternalCode(value, isNew = false) {
+            this.originalInternalCode = isNew ? null : String(value ?? "");
+            this.internalCodePrefixOverride = null;
 
-            const code = String(value ?? "");
-            const prefix = this.internalCodePrefixLabel;
-
-            return prefix && code.startsWith(prefix)
-                ? code.slice(prefix.length)
-                : code;
-
+            return splitInternalCode(value, this.internalCodePrefixLabel).value;
         },
-        setEditableInternalCode(value) {
-            this.originalInternalCode = String(value ?? "");
-            this.initialEditableInternalCode = this.stripInternalCodePrefix(value);
+        internalCodeHasPrefix(value) {
+            if(!this.internalCodePrefixLabel) return false;
+            if(this.internalCodePrefixOverride !== null) return this.internalCodePrefixOverride;
+            if(this.originalInternalCode === null) return true;
 
-            return this.initialEditableInternalCode;
+            const original = splitInternalCode(this.originalInternalCode, this.internalCodePrefixLabel);
+            return original.hasPrefix || value !== original.value;
         },
-        internalCodeDisplayedPrefix(id, value) {
-            if(id && value === this.initialEditableInternalCode) {
-                return this.originalInternalCode.slice(0, this.originalInternalCode.length - value.length);
-            }
+        normalizeInternalCodeInput(value) {
+            const parts = splitInternalCode(value, this.internalCodePrefixLabel);
+            if(parts.hasPrefix) this.internalCodePrefixOverride = true;
 
-            return internalCodePrefixFor(value, this.internalCodePrefixLabel);
+            return parts.value;
         },
-        internalCodeForSave(id, value) {
-            return id && value === this.initialEditableInternalCode
-                ? this.originalInternalCode
-                : composeInternalCode(value, this.internalCodePrefixLabel);
+        internalCodeInputProps(form) {
+            return {
+                prefix: this.internalCodePrefixLabel,
+                usePrefix: this.internalCodeHasPrefix(form.internal_code),
+                transformValue: this.normalizeInternalCodeInput,
+                onTogglePrefix: () => {
+                    this.internalCodePrefixOverride = !this.internalCodeHasPrefix(form.internal_code);
+                    if(this.internalCodePrefixOverride) {
+                        form.internal_code = splitInternalCode(form.internal_code, this.internalCodePrefixLabel).value;
+                    }
+                }
+            };
+        },
+        internalCodePayload(value) {
+            const prefix = this.internalCodeHasPrefix(value) ? this.internalCodePrefixLabel : "";
+
+            return {
+                internal_code: value ? `${prefix}${value}` : "",
+                internal_code_without_prefix: Boolean(this.internalCodePrefixLabel && this.internalCodePrefixOverride === false)
+            };
         }
     }
 };

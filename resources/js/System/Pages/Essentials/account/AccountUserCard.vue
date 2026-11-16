@@ -7,8 +7,10 @@
                 <p class="br-workspace__company-document">
                     <span class="visually-hidden">Documento:</span>
                     <span>{{ documentType }}</span>
-                    <span>{{ account.document_number || 'Sin información' }}</span>
-                    <CopyButton v-if="account.document_number" :value="account.document_number" label="Número de documento"/>
+                    <span class="br-copy-value">
+                        <span>{{ account.document_number || 'Sin información' }}</span>
+                        <CopyButton v-if="account.document_number" :value="account.document_number" label="Número de documento"/>
+                    </span>
                 </p>
             </div>
         </div>

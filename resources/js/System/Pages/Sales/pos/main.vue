@@ -477,7 +477,7 @@
                 </div>
 
                 <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Volver</button>
+                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
                     <button
                         type="button"
                         class="br-btn br-btn-success"

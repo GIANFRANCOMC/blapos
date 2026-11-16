@@ -7,7 +7,7 @@ namespace App\Exports\System\Catalogs\Offerings;
 use App\Helpers\System\{Numbers};
 use App\Models\System\Catalogs\{Item};
 use Maatwebsite\Excel\Concerns\{FromArray, ShouldAutoSize, WithHeadings, WithStyles};
-use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
+use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill, NumberFormat};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Worksheet};
 
 final class OfferingImportTemplateExport implements FromArray, ShouldAutoSize, WithHeadings, WithStyles {
@@ -44,6 +44,7 @@ final class OfferingImportTemplateExport implements FromArray, ShouldAutoSize, W
 
         $sheet->freezePane("A2");
         $sheet->getStyle("B:B")->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat(groupThousands: false));
+        $sheet->getStyle("C2:C501")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray([
             "font" => ["bold" => true, "color" => ["rgb" => "FFFFFF"]],
             "fill" => ["fillType" => Fill::FILL_SOLID, "startColor" => ["rgb" => "1A1A35"]],

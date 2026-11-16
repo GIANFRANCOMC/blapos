@@ -137,7 +137,7 @@ test("limpiar filtros muestra el aviso informativo de Toastr y usa el botón com
     const button = read("resources/js/System/Components/Generics/ClearFiltersButton.vue");
 
     assert.match(alerts, /export function showFiltersCleared\(\) \{\s*toastrs\(\{type: "info", title: "Se limpiaron los filtros correctamente\."\}\);\s*\}/);
-    assert.match(button, /class="fa-solid fa-broom"/);
+    assert.match(button, /<svg[^>]*viewBox="0 0 384 560"[^>]*fill="currentColor"[^>]*aria-hidden="true"/);
     for(const page of ["Sales/sales/list.vue", "Sales/sales/deliveries.vue", "Finance/accounts_receivable/main.vue", "Finance/accounts_payable/main.vue"]) {
         const source = read(`resources/js/System/Pages/${page}`);
         assert.match(source, /<ClearFiltersButton[^>]*@clear="clearFilters"/);

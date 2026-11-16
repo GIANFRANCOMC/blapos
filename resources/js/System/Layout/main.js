@@ -9,6 +9,20 @@ initializeMenu(createTooltip);
 
 const copyResetTimers = new WeakMap();
 
+document.querySelectorAll("[data-br-copy-value]").forEach(control => createTooltip(control));
+
+document.addEventListener("keydown", function (event) {
+
+    if(event.key !== "Enter" && event.key !== " ") return;
+
+    const icon = event.target.closest('[data-br-copy-value][role="button"]');
+    if(!icon) return;
+
+    event.preventDefault();
+    if(!event.repeat) icon.click();
+
+});
+
 document.addEventListener("click", async function (event) {
 
     const button = event.target.closest("[data-br-copy-value]");

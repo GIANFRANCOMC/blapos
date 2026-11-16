@@ -199,14 +199,19 @@
                                                         <span class="form-label colon-at-end">Productos incluidos</span>
                                                         <span class="text-danger fw-bold" aria-hidden="true">*</span>
                                                     </div>
+                                                    <small v-if="transferAvailabilityError" class="text-danger">
+                                                        No se pudo consultar el stock.
+                                                        <button type="button" class="btn btn-link p-0" @click="loadTransferAvailability(transferAvailabilityQuery)">Reintentar</button>
+                                                    </small>
                                                 </div>
 
                                                 <div class="table-responsive br-inventory-operation__table-wrap">
-                                                    <table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table mb-0">
+                                                    <table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">
                                                         <thead class="br-table-header-surface">
                                                             <tr>
                                                                 <th scope="col">Producto</th>
-                                                <th scope="col">Cantidad</th>
+                                                                <th scope="col">Stock disponible</th>
+                                                                <th scope="col">Cantidad a trasladar</th>
                                                                 <th scope="col"><span class="visually-hidden">Quitar</span></th>
                                                             </tr>
                                                         </thead>
@@ -218,15 +223,32 @@
                                                                         :disabled="!canConfigureTransfer"
                                                                         :options="transferProductOptions(index)"
                                                                         :select-class="config.forms.classes.select2"/>
-                                                                    <small v-if="item.product?.unitAbbreviation" class="br-inventory-operation__current-stock">
-                                                                        Unidad: {{ item.product.unitAbbreviation }}
-                                                                    </small>
                                                                     <small v-if="transferItemError(index, 'item_id')" class="text-danger">
                                                                         {{ transferItemError(index, "item_id") }}
                                                                     </small>
                                                                 </td>
+                                                                <td class="text-center">
+                                                                    <QuantityValue
+                                                                        v-if="item.product && transferAvailability[item.product.code] != null"
+                                                                        class="text-nowrap"
+                                                                        :value="transferAvailability[item.product.code]"
+                                                                        :unit="item.product"/>
+                                                                    <small v-else-if="item.product && loadingTransferAvailability" class="text-muted">Consultando…</small>
+                                                                    <span v-else class="text-muted" aria-label="Stock disponible no informado">—</span>
+                                                                </td>
                                                                 <td>
-                                                                    <InputNumber v-model="item.quantity" :hasNegative="false" :disabled="!canConfigureTransfer"/>
+                                                                    <InputNumber
+                                                                        v-model="item.quantity"
+                                                                        :hasNegative="false"
+                                                                        :disabled="!canConfigureTransfer"
+                                                                        :aria-label="item.product?.unitAbbreviation ? `Cantidad a trasladar (${item.product.unitAbbreviation})` : 'Cantidad a trasladar'">
+                                                                        <template #inputGroupAppend>
+                                                                            <span
+                                                                                v-if="item.product?.unitAbbreviation"
+                                                                                class="input-group-text br-input-unit-suffix"
+                                                                                aria-hidden="true">{{ item.product.unitAbbreviation }}</span>
+                                                                        </template>
+                                                                    </InputNumber>
                                                                     <small v-if="transferItemError(index, 'quantity')" class="text-danger">
                                                                         {{ transferItemError(index, "quantity") }}
                                                                     </small>
@@ -240,13 +262,16 @@
                                                                         <button
                                                                             type="button"
                                                                             class="br-icon-danger-plain"
-                                                                            :disabled="savingTransfer || !canConfigureTransfer || transferForm.items.length === 1"
+                                                                            :disabled="savingTransfer"
                                                                             :aria-label="`Quitar producto ${index + 1}`"
                                                                             @click="removeTransferItem(index)">
                                                                             <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                                                         </button>
                                                                     </span>
                                                                 </td>
+                                                            </tr>
+                                                            <tr v-if="!transferForm.items.length" class="br-table-state">
+                                                                <td colspan="4" class="text-center text-muted">Agrega un producto al traslado.</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -261,7 +286,7 @@
                                                 class="br-btn br-btn-cancel"
                                                 :disabled="savingTransfer"
                                                 data-bs-dismiss="modal">
-                                                Cancelar
+                                                Cerrar
                                             </button>
                                             <div class="br-entity-modal__footer-actions">
                                                 <button
@@ -274,7 +299,7 @@
                                                 <button
                                                     type="button"
                                                     class="br-btn br-btn-action-create"
-                                                    :disabled="savingTransfer || !transferForm.source?.code || !transferForm.destination?.code"
+                                                    :disabled="savingTransfer || !canConfigureTransfer || !transferForm.items.length"
                                                     @click="saveTransfer">
                                                     Guardar traslado
                                                 </button>

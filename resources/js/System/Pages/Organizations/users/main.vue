@@ -74,11 +74,9 @@
                                     <div class="br-entity-identifiers br-entity-identifiers--plain">
                                         <div class="br-entity-identifier">
                                             <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                            <span class="br-entity-identifier__value">
+                                            <span class="br-copy-value">
                                                 <span class="br-entity-code" v-text="record.document_number || '—'"></span>
-                                                <span v-if="record.document_number" class="br-entity-identifier__actions">
-                                                    <CopyButton :value="record.document_number" label="Número de documento"/>
-                                                </span>
+                                                <CopyButton v-if="record.document_number" :value="record.document_number" label="Número de documento"/>
                                             </span>
                                         </div>
                                     </div>
@@ -96,12 +94,12 @@
                                 </td>
                                 <td>
                                     <div class="br-users-list__stack">
-                                        <span v-if="isDefined(record.email)" class="br-users-list__copy-line">
+                                        <span v-if="isDefined(record.email)" class="br-copy-value">
                                             <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-text="record.email"></a>
                                             <CopyButton :value="record.email" label="Correo electrónico"/>
                                         </span>
                                         <span v-else class="br-entity-table__meta">Sin correo electrónico</span>
-                                        <span v-if="isDefined(record.phone_number)" class="br-users-list__copy-line">
+                                        <span v-if="isDefined(record.phone_number)" class="br-copy-value">
                                             <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-text="record.phone_number"></a>
                                             <CopyButton :value="record.phone_number" label="Celular"/>
                                         </span>
@@ -151,7 +149,7 @@
     </InitialLoadTransition>
 
     <!-- Modal: Authentication events -->
-    <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false" close-button-text="Cerrar">
+    <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false">
         <template #body>
                     <p v-if="authenticationEvents.user" class="br-entity-table__meta mb-3" v-text="authenticationEvents.user.name"></p>
                     <section class="br-filter-bar br-auth-events__filters">

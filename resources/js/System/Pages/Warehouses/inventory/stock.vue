@@ -445,13 +445,16 @@
                                                 <button
                                                     type="button"
                                                     class="br-icon-danger-plain"
-                                                    :disabled="savingMovement || !canConfigureMovement || movementForm.items.length === 1"
+                                                    :disabled="savingMovement || confirmingMovement || previewingOperation"
                                                     :aria-label="`Quitar producto ${index + 1}`"
                                                     @click="removeMovementItem(index)">
                                                     <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                                 </button>
                                             </span>
                                         </td>
+                                    </tr>
+                                    <tr v-if="!movementForm.items.length" class="br-table-state">
+                                        <td :colspan="movementForm.operation?.movementType === 'entry' ? 4 : 3" class="text-center text-muted">Agrega un producto a la operación.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -464,7 +467,7 @@
                         type="button"
                         class="br-btn br-btn-cancel"
                         data-bs-dismiss="modal">
-                        Cancelar
+                        Cerrar
                     </button>
         </template>
         <template #footer>
@@ -479,7 +482,7 @@
                         <button
                             type="button"
                             class="br-btn br-btn-action-create"
-                            :disabled="savingMovement || confirmingMovement || previewingOperation || !movementForm.warehouse?.code"
+                            :disabled="savingMovement || confirmingMovement || previewingOperation || !movementForm.warehouse?.code || !movementForm.items.length"
                             @click="saveMovement">
                             Guardar operación
                         </button>

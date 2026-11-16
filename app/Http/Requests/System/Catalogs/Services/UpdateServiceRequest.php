@@ -6,13 +6,13 @@ namespace App\Http\Requests\System\Catalogs\Services;
 
 use App\Helpers\System\{Numbers};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
-use App\Http\Requests\System\Concerns\{ValidatesInternalCodePrefix};
+use App\Http\Requests\System\Concerns\{ValidatesCatalogCommission, ValidatesInternalCodePrefix};
 use App\Rules\System\Defaults\{ExistsInTenant, UniqueInTenant};
 use Illuminate\Validation\{Validator};
 
 class UpdateServiceRequest extends CompanyFormRequest {
 
-    use ValidatesInternalCodePrefix;
+    use ValidatesCatalogCommission, ValidatesInternalCodePrefix;
 
     protected function internalCodeEntity(): string {
 
@@ -58,7 +58,7 @@ class UpdateServiceRequest extends CompanyFormRequest {
             "expires_at" => "nullable|date",
             "commission_rate" => "nullable|numeric|min:0|max:100|$decimalRule",
             "commission_type" => "nullable|in:none,percentage,fixed",
-            "commission_value" => "nullable|numeric|min:0|max:$maxValue|$decimalRule",
+            "commission_value" => $this->numericRules(min: 0),
             "status" => "required|in:active,inactive",
         ];
 
@@ -94,10 +94,7 @@ class UpdateServiceRequest extends CompanyFormRequest {
             "min_price" => $this->normalizeDecimalInput($this->input("min_price")),
             "max_price" => $this->normalizeDecimalInput($this->input("max_price")),
             "commission_rate" => $this->normalizeDecimalInput($this->input("commission_rate")),
-            "commission_type" => $this->input("commission_type") ?: "none",
-            "commission_value" => $this->input("commission_type") === "none"
-                ? 0
-                : ($this->normalizeDecimalInput($this->input("commission_value")) ?? 0),
+            ...$this->normalizedCommission(),
         ]);
 
     }
@@ -113,26 +110,6 @@ class UpdateServiceRequest extends CompanyFormRequest {
         if(!$this->filled("capacity_limit")) {
 
             $validator->errors()->add("capacity_limit", "Indica cuántos cupos estarán disponibles.");
-
-        }
-
-    }
-
-    private function validateCommission(Validator $validator): void {
-
-        if($validator->errors()->hasAny(["commission_type", "commission_value"])) {
-
-            return;
-
-        }
-
-        $type = (string) $this->input("commission_type", "none");
-
-        $value = (float) ($this->input("commission_value") ?? 0);
-
-        if($type === "percentage" && $value > 100) {
-
-            $validator->errors()->add("commission_value", "No puede superar el 100%.");
 
         }
 

@@ -26,12 +26,16 @@ final class InternalCodeService {
 
     }
 
-    public static function acceptsCode(string $entity, string $code, ?int $id = null): bool {
+    public static function acceptsCode(string $entity, string $code, ?int $id = null, bool $withoutPrefix = false): bool {
 
         $prefix = self::prefix($entity);
-        if($prefix === "" || (str_starts_with($code, "{$prefix}-") && strlen($code) > strlen($prefix) + 1)) {
-            return true;
+        if($prefix === "") return true;
+
+        if(str_starts_with($code, "{$prefix}-")) {
+            return strlen($code) > strlen($prefix) + 1;
         }
+
+        if($withoutPrefix) return true;
 
         if($id === null) return false;
 
@@ -57,10 +61,10 @@ final class InternalCodeService {
 
     }
 
-    public static function prefixRule(string $entity, ?int $id = null): Closure {
+    public static function prefixRule(string $entity, ?int $id = null, bool $withoutPrefix = false): Closure {
 
-        return static function(string $attribute, string $code, Closure $fail) use ($entity, $id): void {
-            if(!self::acceptsCode($entity, $code, $id)) {
+        return static function(string $attribute, mixed $code, Closure $fail) use ($entity, $id, $withoutPrefix): void {
+            if(is_string($code) && !self::acceptsCode($entity, $code, $id, $withoutPrefix)) {
                 $fail(self::prefixValidationMessage($entity));
             }
         };

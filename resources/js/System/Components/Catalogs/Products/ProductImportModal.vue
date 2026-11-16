@@ -8,7 +8,7 @@
         :close-disabled="importing">
         <template #body>
             <p class="br-import-products__intro">
-                Completa la plantilla con el nombre y precio. Los códigos que dejes vacíos se generarán automáticamente.
+                Completa el nombre y el precio. {{ internalCodeImportHelp(internalCodePrefix) }} El código de barras se genera si lo dejas vacío.
             </p>
 
             <button
@@ -65,7 +65,7 @@
                 class="br-btn br-btn-cancel"
                 :disabled="importing"
                 data-bs-dismiss="modal">
-                Cancelar
+                Cerrar
             </button>
         </template>
 
@@ -84,6 +84,7 @@
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
+import {internalCodeImportHelp} from "@System/Helpers/InternalCodes.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 
@@ -92,6 +93,7 @@ export default {
     components: {FormModal, SelectNoOptions},
     emits: ["imported"],
     props: {
+        internalCodePrefix: {type: String, default: ""},
         title: {
             type: String,
             required: true
@@ -121,6 +123,7 @@ export default {
         };
     },
     methods: {
+        internalCodeImportHelp,
         open() {
             this.reset();
             this.form.warehouse = this.warehouseOptions[0] ?? null;

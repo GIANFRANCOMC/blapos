@@ -61,8 +61,8 @@ El sistema combina administracion interna y portal publico por empresa. Internam
 1. El usuario crea una venta en `sales`.
 2. Si un detalle de venta tiene `type = subscription`, `SaleService` crea un registro en `subscriptions`.
 3. La membresia queda asociada al cliente beneficiario, sucursal, venta y detalle de venta. Si el detalle no trae beneficiario, se usa el titular de la venta.
-4. Si se anula la venta, `SaleService::cancel` cancela tambien las suscripciones activas creadas por esa venta.
-5. Si la empresa lo permite, se registra un correo de agradecimiento por suscripcion para el beneficiario.
+4. Si se anula la venta, `SaleService::cancel` cancela tambien las membresías activas creadas por esa venta.
+5. Si la empresa lo permite, se registra un correo de agradecimiento por membresía para el beneficiario.
 
 ### Sistema de puntos
 
