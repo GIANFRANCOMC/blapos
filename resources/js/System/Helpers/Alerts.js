@@ -451,6 +451,43 @@ export function modals({type = "show", id = null, timeout = 0}) {
 
 }
 
+export function showStackedModal({id, parent, onHidden}) {
+    const element = document.getElementById(id);
+    const Modal = window.bootstrap?.Modal;
+    const parentModal = parent && Modal?.getInstance(parent);
+    if(!element || !parentModal || parent.inert || !parent.classList.contains("show")) return;
+
+    prepareModal(element);
+    // La segunda modal oscurece el fondo desde su propia capa para dejar el contenido por encima.
+    element.classList.add("br-modal-stacked");
+    const modal = Modal.getOrCreateInstance(element, {backdrop: false});
+    const scrollbar = modal._scrollBar;
+    const {hide, reset} = scrollbar;
+
+    // El modal padre conserva el bloqueo de desplazamiento mientras se muestra el segundo.
+    scrollbar.hide = scrollbar.reset = () => {};
+    parentModal._focustrap.deactivate();
+    parent.inert = true;
+
+    const restoreParent = () => {
+        Object.assign(scrollbar, {hide, reset});
+        parent.inert = false;
+        if(!parent.classList.contains("show")) return;
+
+        document.body.classList.add("modal-open");
+        parentModal._focustrap.activate();
+        onHidden?.();
+    };
+
+    element.addEventListener("hidden.bs.modal", restoreParent, {once: true});
+    modal.show();
+
+    if(!modal._isShown) {
+        element.removeEventListener("hidden.bs.modal", restoreParent);
+        restoreParent();
+    }
+}
+
 /**
  * Genera un alert de SweetAlert2 con formato optimizado
  * @param {Array} messages - Array de mensajes para mostrar en tabla

@@ -68,6 +68,19 @@ test("los atributos del buscador llegan al input nativo en ambas variantes", () 
 
 });
 
+test("Inventario comparte la indicación de búsqueda de productos entre listados y modales", () => {
+    const inventory = "resources/js/System/Pages/Warehouses/inventory/";
+    assert.match(read(`${inventory}inventoryState.js`), /productSearchPlaceholder: \(\) => "Buscar producto o escanear código"/);
+
+    for(const name of ["stock", "transfers", "guides", "kardex", "valued-kardex"]) {
+        const page = read(`${inventory}${name}.vue`);
+        assert.match(page, /<SearchInput[^>]*v-model\.trim="filters\.productSearch"[^>]*:placeholder="productSearchPlaceholder"/, name);
+        if(name === "stock" || name === "transfers") {
+            assert.match(page, /<ProductSelect[^>]*:placeholder="productSearchPlaceholder"/, name);
+        }
+    }
+});
+
 test("limpiar Producto en alertas solo actualiza el texto y devuelve el foco", () => {
     const {descriptor} = parse(read("resources/js/System/Components/Generics/SearchInput.vue"));
     const component = new Function("InputText", descriptor.script.content

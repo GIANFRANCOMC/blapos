@@ -363,6 +363,11 @@ input.input-number-no-range[type=number] {
     margin: 0;
 }
 
+.br-field-summary--control {
+    justify-content: center;
+    min-block-size: var(--br-control-height);
+}
+
 body.br-layout .br-field-summary > .br-field-summary__value {
     display: block;
     max-width: 100%;

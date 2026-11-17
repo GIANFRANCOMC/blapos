@@ -23,7 +23,7 @@
                     hasDiv
                     title="Producto"
                     :titleClass="[config.forms.classes.title]"
-                    placeholder="Buscar o escanear producto"
+                    :placeholder="productSearchPlaceholder"
                     :inputClass="['form-control']"
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     xl="3"
@@ -238,6 +238,7 @@
         </section>
     </InitialLoadTransition>
     <StockAlertsModal
+        :product-search-placeholder="productSearchPlaceholder"
         :alerts="stockAlerts"
         :warehouse="appliedFilters.warehouse"
         v-model:product-search="alertProductSearch"
@@ -407,6 +408,7 @@
                                                 v-model="item.product"
                                                 :disabled="!canConfigureMovement"
                                                 :options="movementProductOptions(index)"
+                                                :placeholder="productSearchPlaceholder"
                                                 :select-class="config.forms.classes.select2"/>
                                             <small v-if="item.product?.unitAbbreviation && item.currentStock === null" class="br-inventory-operation__current-stock">
                                                 Unidad: {{ item.product.unitAbbreviation }}

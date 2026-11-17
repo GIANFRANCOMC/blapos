@@ -61,7 +61,7 @@ test("ambos Kardex muestran los mismos filtros de producto y conservan los filtr
     for(const view of ["kardex", "valued-kardex"]) {
         const page = read(`resources/js/System/Pages/Warehouses/inventory/${view}.vue`);
         assert.match(page, /col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse">\s*<label for="inventoryWarehouse"/);
-        assert.match(page, /v-model\.trim="filters\.productSearch"[\s\S]*?placeholder="Buscar o escanear producto"[\s\S]*?xl="3"\s*lg="3"/);
+        assert.match(page, /v-model\.trim="filters\.productSearch"[\s\S]*?:placeholder="productSearchPlaceholder"[\s\S]*?xl="3"\s*lg="3"/);
         assert.match(page, /@click="searchCurrentView"/);
         assert.doesNotMatch(page, /<SearchInput[^>]*@search=/);
         assert.doesNotMatch(page, /stockSituation|Estado del stock/);

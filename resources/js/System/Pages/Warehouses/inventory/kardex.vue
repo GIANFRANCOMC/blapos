@@ -21,7 +21,7 @@
                     hasDiv
                     title="Producto"
                     :titleClass="[config.forms.classes.title]"
-                    placeholder="Buscar o escanear producto"
+                    :placeholder="productSearchPlaceholder"
                     :inputClass="['form-control']"
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     xl="3"

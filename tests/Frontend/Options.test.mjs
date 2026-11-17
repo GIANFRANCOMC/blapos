@@ -58,3 +58,32 @@ test("una búsqueda nueva cancela la anterior y la paginación conserva el térm
     assert.equal(page.remoteOptions.customers.loading, false);
     assert.equal(page.remoteOptions.customers.hasMore, false);
 });
+
+test("cerrar un selector remoto cancela la consulta y permite volver a abrirlo", async ({mock}) => {
+    const requests = [];
+    mock.method(axios, "get", (url, config) => new Promise((resolve, reject) => {
+        requests.push({url, config, resolve, reject});
+    }));
+    const mixin = createOptionSearch("items");
+    const page = {optionOrigin: "inventory-transfers", options: {}, ...mixin.data()};
+    for(const [name, method] of Object.entries(mixin.methods)) page[name] = method.bind(page);
+
+    const pending = page.openOptions("items");
+    page.resetOptions("items");
+    assert.equal(requests[0].config.signal.aborted, true);
+    const response = {data: {bool: true, data: {records: [{code: 7, label: "Perno"}], page: 1, has_more: false}}};
+    requests[0].resolve(response);
+    await pending;
+    assert.deepEqual(page.options.items.records, []);
+
+    const failed = page.openOptions("items");
+    assert.equal(requests[1].url, "/options/inventory-transfers/items");
+    requests[1].reject(new Error("Temporal"));
+    await failed;
+    assert.equal(page.remoteOptions.items.error, true);
+    const retry = page.openOptions("items");
+    requests[2].resolve(response);
+    await retry;
+    assert.equal(page.remoteOptions.items.error, false);
+    assert.deepEqual(page.options.items.records, response.data.data.records);
+});

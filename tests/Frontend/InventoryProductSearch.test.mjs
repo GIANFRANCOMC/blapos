@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {reactive} from "vue";
+import * as Numbers from "../../resources/js/Shared/Numbers.js";
 import {emptyPagination} from "../../resources/js/System/Helpers/ListState.js";
 
 const source = readFileSync(new URL("../../resources/js/System/Pages/Warehouses/inventory/inventoryState.js", import.meta.url), "utf8");
@@ -14,10 +15,59 @@ function inventoryComponent(requests = {}, alerts = {}) {
     }
     dependencies.Requests = {emptyPagination, config: () => ({}), ...requests};
     dependencies.Alerts = alerts;
+    dependencies.Numbers = Numbers;
     return new Function(...Object.keys(dependencies), source
         .replace(/^import .*;\s*$/gm, "")
         .replace("export default", "return"))(...Object.values(dependencies));
 }
+
+test("las diez plantillas de traslado copian un motivo editable dentro del límite del campo", () => {
+    const parent = {};
+    let onHidden;
+    let dialogOpen = false;
+    const {computed, methods} = inventoryComponent({}, {
+        showStackedModal({id, parent: transferModal, onHidden: callback}) {
+            assert.equal(id, "transferReasonsDialog");
+            assert.equal(transferModal, parent);
+            dialogOpen = true;
+            onHidden = callback;
+        },
+        modals({type, id}) {
+            assert.equal(type, "hide");
+            assert.equal(id, "transferReasonsDialog");
+            dialogOpen = false;
+            onHidden();
+        }
+    });
+    const options = computed.transferReasonOptions();
+    assert.equal(options.length, 10);
+    assert.equal(new Set(options.map(option => option.label)).size, 10);
+    assert.equal(new Set(options.map(option => option.text)).size, 10);
+    assert.ok(options.every(option => option.text.trim().length > 0 && option.text.length <= 255));
+
+    let focused = false;
+    const trigger = {closest: () => parent, focus() { assert.fail("El foco debe volver al motivo seleccionado"); }};
+    const context = {
+        canConfigureTransfer: true,
+        savingTransfer: false,
+        transferForm: {reason: ""},
+        transferErrors: {reason: ["Campo obligatorio"], items: ["Falta un producto"]},
+        $refs: {transferReason: {focus() { focused = true; }}}
+    };
+
+    methods.openTransferReasons.call(context, {currentTarget: trigger});
+    assert.equal(dialogOpen, true);
+    methods.applyTransferReason.call(context, options[0].text);
+    assert.equal(dialogOpen, false);
+    assert.equal(context.transferForm.reason, options[0].text);
+    assert.deepEqual(context.transferErrors, {items: ["Falta un producto"]});
+    assert.equal(focused, true);
+
+    context.transferForm.reason += " Para el despacho de mañana.";
+    context.savingTransfer = true;
+    methods.applyTransferReason.call(context, options[1].text);
+    assert.equal(context.transferForm.reason, options[0].text + " Para el despacho de mañana.");
+});
 
 test("el traslado consulta los productos seleccionados y descarta saldos de un origen anterior", async () => {
     const requests = [];
@@ -26,11 +76,25 @@ test("el traslado consulta los productos seleccionados y descarta saldos de un o
         valid: ({result}) => Boolean(result?.data?.bool)
     });
     const context = component.data.call({page: "transfers"});
+    Object.defineProperty(context, "canConfigureTransfer", {
+        get: () => component.computed.canConfigureTransfer.call(context)
+    });
     context.transferForm.source = {code: 1};
     context.transferForm.items[0].product = {code: 25};
+    context.transferForm.reason = "Reposición de stock";
     const query = () => component.computed.transferAvailabilityQuery.call(context);
     const load = () => component.methods.loadTransferAvailability.call(context, query());
 
+    await load();
+    assert.equal(context.canConfigureTransfer, false);
+    assert.equal(requests.length, 0);
+
+    context.transferForm.destination = {code: 1};
+    assert.equal(context.canConfigureTransfer, false);
+    assert.equal(query(), null);
+
+    context.transferForm.destination = {code: 3};
+    assert.equal(context.canConfigureTransfer, true);
     const first = load();
     context.transferForm.source = {code: 2};
     const current = load();
@@ -46,10 +110,58 @@ test("el traslado consulta los productos seleccionados y descarta saldos de un o
     assert.deepEqual(context.transferAvailability, {25: 0});
     assert.equal(context.loadingTransferAvailability, false);
 
+    context.transferForm.destination = null;
+    await load();
+    assert.deepEqual(context.transferAvailability, {});
+    assert.equal(context.transferForm.items[0].product.code, 25);
+    assert.equal(context.transferForm.reason, "Reposición de stock");
+
+    context.transferForm.destination = {code: 3};
     context.transferForm.items = [];
     await load();
     assert.deepEqual(context.transferAvailability, {});
     assert.equal(requests.length, 2);
+});
+
+test("el traslado marca cantidades que exceden el saldo conocido con la precisión de la empresa", async () => {
+    const {computed, methods} = inventoryComponent({post() { assert.fail("No se debe enviar una cantidad superior al stock"); }});
+    const item = {product: {code: 25}, quantity: "0.126"};
+    const context = {
+        canConfigureTransfer: true,
+        transferForm: {items: [item]},
+        transferAvailability: {},
+        transferErrors: {},
+        firstError: methods.firstError,
+        transferItemError: methods.transferItemError,
+        transferQuantityExceedsStock: candidate => methods.transferQuantityExceedsStock.call(context, candidate),
+        get hasTransferQuantityOverStock() { return computed.hasTransferQuantityOverStock.call(context); }
+    };
+    const errors = () => methods.transferQuantityErrors.call(context, item, 0);
+    assert.deepEqual(errors(), []);
+
+    const originalPrecision = Numbers.numericInputConfig().round;
+    try {
+        Numbers.applyNumericInputConfig({round: 3});
+        context.transferAvailability = {25: 0.125};
+        assert.deepEqual(errors(), ["La cantidad supera el stock disponible."]);
+        assert.equal(context.hasTransferQuantityOverStock, true);
+        await methods.saveTransfer.call(context);
+
+        item.quantity = "0.125";
+        assert.deepEqual(errors(), []);
+        assert.equal(context.hasTransferQuantityOverStock, false);
+        context.transferAvailability[25] = 0;
+        assert.equal(context.hasTransferQuantityOverStock, true);
+        item.quantity = "";
+        assert.equal(context.hasTransferQuantityOverStock, false);
+        context.transferErrors = {"items.0.quantity": ["Ingresa una cantidad."], "items.0.item_id": ["Revisa el producto."]};
+        assert.deepEqual(errors(), ["Ingresa una cantidad."]);
+        methods.clearTransferQuantityError.call(context, 0);
+        assert.deepEqual(errors(), []);
+        assert.deepEqual(context.transferErrors, {"items.0.item_id": ["Revisa el producto."]});
+    } finally {
+        Numbers.applyNumericInputConfig({round: originalPrecision});
+    }
 });
 
 test("una operación o traslado puede quitar la última fila sin enviar un formulario vacío", async () => {

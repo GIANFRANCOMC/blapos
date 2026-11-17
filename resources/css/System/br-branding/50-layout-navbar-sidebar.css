@@ -939,9 +939,9 @@ body.br-layout .form-check-input:disabled {
 }
 
 /* Tema Vuexy: .input-group:focus-within usa un foco morado heredado; alinear con branding */
-.br-layout .input-group:focus-within .form-control,
-.br-layout .input-group:focus-within .input-group-text,
-.br-layout .input-group:focus-within .br-input-action {
+.br-layout .input-group:not(:where(.is-invalid)):focus-within .form-control,
+.br-layout .input-group:not(:where(.is-invalid)):focus-within .input-group-text,
+.br-layout .input-group:not(:where(.is-invalid)):focus-within .br-input-action {
   border-color: var(--br-primary) !important;
 }
 

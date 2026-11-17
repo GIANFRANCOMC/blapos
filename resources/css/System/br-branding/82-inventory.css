@@ -228,13 +228,18 @@ body.br-layout .br-entity-modal.br-inventory-alerts .modal-body.br-entity-modal_
     scrollbar-gutter: stable;
 }
 
+.br-inventory-transfer__table-scroll,
 .br-inventory-traceability__scroll {
     max-height: var(--br-inventory-modal-table-height);
     overflow: auto;
-    scrollbar-gutter: stable;
     overscroll-behavior: contain;
 }
 
+.br-inventory-traceability__scroll {
+    scrollbar-gutter: stable;
+}
+
+.br-inventory-transfer__table-scroll thead,
 .br-inventory-traceability__scroll thead {
     position: sticky;
     top: 0;
@@ -444,6 +449,48 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     margin-bottom: 0 !important;
 }
 
+.br-inventory-operation__config.br-inventory-transfer__config {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0 0.7rem;
+}
+
+.br-inventory-transfer__warehouse {
+    display: grid;
+    grid-row: 1 / span 3;
+    grid-template-rows: subgrid;
+}
+
+.br-inventory-transfer__direction {
+    display: grid;
+    grid-area: 2 / 2;
+    align-self: center;
+    justify-self: center;
+    place-items: center;
+    inline-size: var(--br-btn-height-sm);
+    block-size: var(--br-btn-height-sm);
+    border-radius: 50%;
+    background: var(--br-dropdown-accent, var(--br-actions-orange));
+    color: var(--br-on-actions);
+    font-size: var(--br-font-size-table);
+}
+
+.br-inventory-transfer__reason {
+    grid-column: 1 / -1;
+    margin-block-start: 0.7rem;
+}
+
+.br-inventory-transfer__reason-action {
+    width: 24%;
+}
+
+.br-inventory-transfer__reasons-table th + th {
+    border-inline-start: 1px solid color-mix(in srgb, var(--br-table-thead-text) 35%, transparent);
+}
+
+.br-inventory-transfer__reasons-table :is(th, td):last-child {
+    white-space: nowrap;
+}
+
 .br-inventory-operation__template {
     min-width: 0;
     margin-bottom: 0.45rem;
@@ -477,10 +524,51 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     }
 }
 
+@media (max-width: 575.98px) and (min-height: 560px) {
+    .br-inventory-operation__config.br-inventory-transfer__config {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0.4rem;
+    }
+
+    .br-inventory-transfer__warehouse {
+        display: block;
+        grid-row: auto;
+    }
+
+    .br-inventory-transfer__direction {
+        grid-area: auto;
+    }
+
+    .br-inventory-transfer__direction i {
+        transform: rotate(90deg);
+    }
+
+    .br-inventory-transfer__reason {
+        margin-block-start: 0.3rem;
+    }
+}
+
 .br-inventory-operation__items {
     display: grid;
     gap: 0.5rem;
     margin-top: 1rem;
+}
+
+.br-entity-modal .modal-dialog-scrollable .modal-body.br-inventory-transfer__body {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    overflow: hidden !important;
+}
+
+.br-inventory-transfer__body > .br-inventory-transfer__config {
+    flex: 0 0 auto;
+}
+
+.br-inventory-operation__items.br-inventory-transfer__items {
+    min-block-size: 0;
+    grid-template-rows: auto minmax(0, 1fr);
+    row-gap: 0.2rem;
 }
 
 .br-inventory-operation__items-header {
@@ -489,6 +577,11 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+.br-inventory-transfer__items > .br-inventory-operation__items-header {
+    align-items: center;
+    row-gap: 0.35rem;
 }
 
 .br-inventory-operation__items-header .form-label {
@@ -538,6 +631,11 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 .br-inventory-operation__table.has-unit-cost th:first-child { width: 46%; }
 .br-inventory-operation__table.has-unit-cost th:nth-child(2) { width: 20%; }
 .br-inventory-operation__table.has-unit-cost th:nth-child(3) { width: 26%; }
+
+.br-inventory-transfer__items-table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+}
 
 .br-inventory-transfer__items-table th:first-child { width: 49%; }
 .br-inventory-transfer__items-table th:nth-child(2) { width: 19%; }

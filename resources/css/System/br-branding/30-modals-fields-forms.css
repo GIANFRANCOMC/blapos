@@ -210,6 +210,37 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: var(--br-focus-ring);
 }
 
+.br-link.br-field-label-action {
+  font-size: var(--br-font-size-label);
+  font-weight: var(--br-font-weight-body);
+  line-height: 1.15;
+}
+
+.br-inline-text-action {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-inline-size: 0;
+  contain: inline-size;
+}
+
+.br-inline-text-action__content {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-inline-text-action__button {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+}
+
 /* -------------------------------------------------------------------------
  * [br] Controles reutilizables de formularios y modales
  * ------------------------------------------------------------------------- */
@@ -414,8 +445,8 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: none !important;
 }
 
-.br-layout .br-form-control-group.is-invalid:focus-within {
-  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-danger) 17%, transparent);
+.br-layout .br-form-control-group.is-invalid > .br-input-unit-suffix {
+  color: var(--br-danger) !important;
 }
 
 .br-layout .br-form-error {
@@ -446,6 +477,10 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 .br-layout .input-group:has(.character-counter):focus-within {
   border-radius: var(--br-radius-sm);
   box-shadow: var(--br-focus-ring);
+}
+
+.br-layout .br-form-control-group.is-invalid:focus-within {
+  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-danger) 17%, transparent);
 }
 
 .br-layout .br-form-control-group > :is(.form-control, .form-select, .br-input-action),

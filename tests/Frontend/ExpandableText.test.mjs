@@ -9,7 +9,9 @@ const {descriptor, errors} = parse(read("resources/js/System/Components/Generics
 test("el catálogo usa el control compartido para las descripciones de sus tablas", () => {
     assert.deepEqual(errors, []);
     assert.match(descriptor.template.content, /v-if="hasOverflow"[\s\S]*?:aria-expanded="expanded"[\s\S]*?expanded \? "Ver menos" : "Ver más"/);
-    assert.match(descriptor.styles[0].content, /text-overflow: ellipsis;\s*white-space: nowrap;/);
+    assert.match(descriptor.template.content, /class="br-inline-text-action__content"/);
+    assert.match(read("resources/css/System/br-branding/30-modals-fields-forms.css"),
+        /\.br-inline-text-action__content\s*\{[^}]*text-overflow: ellipsis;\s*white-space: nowrap;/);
     assert.match(descriptor.styles[0].content, /overflow-wrap: anywhere;\s*white-space: pre-line;/);
     for(const page of ["products", "services", "subscriptions", "categories", "brands"]) {
         assert.match(read(`resources/js/System/Pages/Catalogs/${page}/main.vue`),

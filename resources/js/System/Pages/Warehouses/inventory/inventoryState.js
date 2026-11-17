@@ -5,12 +5,14 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import * as Numbers from "../../../../Shared/Numbers.js";
 import * as StockStatus from "../../../../Shared/StockStatus.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
+import QuickCreateTrigger from "@System/Components/Generics/QuickCreateTrigger.vue";
 import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
@@ -26,6 +28,19 @@ import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdo
 
 const STOCK_PAGE_SIZE = 10;
 const ALL_MOVEMENT_USERS = {code: "", label: "Todos los usuarios"};
+
+const TRANSFER_REASON_OPTIONS = [
+    {label: "Reposición de stock", text: "Reponer existencias en el almacén de destino para mantener la disponibilidad de los productos."},
+    {label: "Atención de un pedido", text: "Abastecer el almacén de destino con los productos necesarios para preparar un pedido de cliente."},
+    {label: "Redistribución de excedentes", text: "Trasladar el excedente del almacén de origen a un almacén con mayor demanda."},
+    {label: "Stock agotado", text: "Restablecer la disponibilidad de productos agotados en el almacén de destino."},
+    {label: "Campaña o temporada", text: "Abastecer el almacén de destino con anticipación para cubrir la demanda prevista de una campaña o temporada."},
+    {label: "Apertura de sucursal", text: "Enviar el inventario inicial al almacén de una nueva sucursal para el inicio de operaciones."},
+    {label: "Consolidación de inventario", text: "Concentrar existencias en un solo almacén para facilitar el almacenamiento y el despacho."},
+    {label: "Liberación de espacio", text: "Reubicar productos para liberar espacio en el almacén de origen y facilitar sus operaciones."},
+    {label: "Control de calidad", text: "Enviar productos al almacén habilitado para su inspección y control de calidad."},
+    {label: "Productos próximos a vencer", text: "Trasladar productos próximos a vencer a un almacén con mayor rotación para priorizar su salida."}
+];
 
 const VIEWS = [
     {code: "stock", title: "Control de stock"},
@@ -108,7 +123,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuantityValue, SearchButton, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
+    components: {InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuickCreateTrigger, QuantityValue, SearchButton, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
     props: {
         page: {
             type: String,
@@ -166,6 +181,7 @@ export default {
             operationFileName: "",
             operationPreviewVersion: 0,
             savingTransfer: false,
+            focusTransferReasonAfterClose: false,
             exporting: false,
             scannedProductId: null,
             stockRecords: {total: 0, data: []},
@@ -877,16 +893,41 @@ export default {
                 items: [this.newTransferItem()],
                 reason: ""
             };
-            this.refreshInventoryModalTooltips("inventoryTransferModal");
+        },
+        openTransferReasons(event) {
+            if(!this.canConfigureTransfer || this.savingTransfer) return;
+
+            const trigger = event.currentTarget;
+            this.focusTransferReasonAfterClose = false;
+            Alerts.showStackedModal({
+                id: "transferReasonsDialog",
+                parent: trigger.closest(".modal"),
+                onHidden: () => {
+                    if(this.focusTransferReasonAfterClose) this.$refs.transferReason?.focus();
+                    else trigger.focus();
+                }
+            });
+        },
+        applyTransferReason(reason) {
+            if(!this.canConfigureTransfer || this.savingTransfer) return;
+
+            this.transferForm.reason = reason;
+            delete this.transferErrors.reason;
+            this.focusTransferReasonAfterClose = true;
+            Alerts.modals({type: "hide", id: "transferReasonsDialog"});
         },
         addTransferItem() {
 
-            if(!this.canConfigureTransfer) return;
+            if(!this.canConfigureTransfer || this.savingTransfer) return;
 
             if(this.transferForm.items.length < 100) {
                 this.disposeInventoryModalTooltips("inventoryTransferModal");
                 this.transferForm.items.push(this.newTransferItem());
                 this.refreshInventoryModalTooltips("inventoryTransferModal");
+                this.$nextTick(() => {
+                    const scroller = this.$refs.transferItemsScroll;
+                    scroller?.scrollTo({top: scroller.scrollHeight, left: 0});
+                });
             }
         },
         removeTransferItem(index) {
@@ -898,15 +939,21 @@ export default {
             this.transferErrors = {};
             this.refreshInventoryModalTooltips("inventoryTransferModal");
         },
-        transferProductOptions(index) {
-            const selected = this.transferForm.items
-                .filter((item, itemIndex) => itemIndex !== index)
-                .map(item => Number(item.product?.code))
-                .filter(Boolean);
-            return this.products.filter(product => !selected.includes(Number(product.code)));
-        },
         transferItemError(index, field) {
             return this.firstError(this.transferErrors[`items.${index}.${field}`]);
+        },
+        transferQuantityExceedsStock(item) {
+            const available = this.transferAvailability[item.product?.code];
+            return available != null && Numbers.compareNumbers(Numbers.fixedNumber(item.quantity), available) > 0;
+        },
+        transferQuantityErrors(item, index) {
+            if(this.transferQuantityExceedsStock(item)) return ["La cantidad supera el stock disponible."];
+
+            const error = this.transferItemError(index, "quantity");
+            return error ? [error] : [];
+        },
+        clearTransferQuantityError(index) {
+            delete this.transferErrors[`items.${index}.quantity`];
         },
         async loadTransferAvailability(query) {
             const request = ++this.transferAvailabilityRequest;
@@ -930,7 +977,7 @@ export default {
             }
         },
         async saveTransfer() {
-            if(this.savingTransfer || !this.canConfigureTransfer || !this.transferForm.items.length) return;
+            if(this.savingTransfer || !this.canConfigureTransfer || !this.transferForm.items.length || this.hasTransferQuantityOverStock) return;
 
             this.transferErrors = {};
             this.savingTransfer = true;
@@ -1017,6 +1064,7 @@ export default {
         }
     },
     computed: {
+        productSearchPlaceholder: () => "Buscar producto o escanear código",
         breadcrumbTitles() {
             return [{title: "Catálogo e inventario"}, this.config.entity.page];
         },
@@ -1046,11 +1094,18 @@ export default {
 
             return this.realWarehouses.filter(warehouse => Number(warehouse.code) !== Number(this.transferForm.source?.code));
         },
+        transferReasonOptions() {
+            return TRANSFER_REASON_OPTIONS;
+        },
+        hasTransferQuantityOverStock() {
+            return this.transferForm.items.some(this.transferQuantityExceedsStock);
+        },
         transferAvailabilityQuery() {
-            const warehouseId = this.transferForm.source?.code;
+            if(!this.canConfigureTransfer) return null;
+
             const itemIds = this.transferForm.items.map(item => item.product?.code).filter(Boolean);
 
-            return warehouseId && itemIds.length ? {warehouse_id: warehouseId, item_ids: itemIds} : null;
+            return itemIds.length ? {warehouse_id: this.transferForm.source.code, item_ids: itemIds} : null;
         },
         realWarehouses() {
             return this.warehouses;
@@ -1139,7 +1194,9 @@ export default {
         },
         canConfigureTransfer() {
 
-            return Boolean(this.transferForm.source?.code && this.transferForm.destination?.code);
+            const {source, destination} = this.transferForm;
+
+            return Boolean(source?.code && destination?.code && Number(source.code) !== Number(destination.code));
 
         },
         canViewStockAlerts() {
@@ -1159,6 +1216,13 @@ export default {
         "movementForm.warehouse"(warehouse, previous) {
             if(warehouse?.code !== previous?.code) {
                 this.resetOperationImport({clearItems: true});
+            }
+        },
+        canConfigureTransfer(ready) {
+            if(ready) {
+                this.refreshInventoryModalTooltips("inventoryTransferModal");
+            }else {
+                this.disposeInventoryModalTooltips("inventoryTransferModal");
             }
         },
         transferAvailabilityQuery(query) {

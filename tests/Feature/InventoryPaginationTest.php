@@ -8,6 +8,7 @@ use App\Exports\System\Warehouses\InventoryReportExport;
 use App\Http\Controllers\System\Catalogs\{BrandController, CategoryController, ProductController, RecipeController, ServiceController, SubscriptionController};
 use App\Http\Controllers\System\Warehouses\StockManagementController;
 use App\Http\Middleware\{EnsureAuthenticatedSession, EnsureOperationalScope, EnsureTenantSession, ResolveTenant, TrustHosts};
+use App\Models\System\General\MeasurementUnit;
 use App\Models\System\Organizations\User;
 use Database\Seeders\CommercialCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -94,6 +95,61 @@ final class InventoryPaginationTest extends TestCase {
         $recipes = app(RecipeController::class);
         $this->assertSame(10, $recipes->wasteRecords(Request::create("/recipes/waste"))->getData(true)["data"]["per_page"]);
         $this->assertSame(20, $recipes->wasteRecords(Request::create("/recipes/waste", "GET", ["per_page" => 20]))->getData(true)["data"]["per_page"]);
+
+    }
+
+    public function test_transfer_product_options_are_paginated_and_do_not_preload_the_catalog(): void {
+
+        $this->provisionSystemDatabase();
+        $this->actingAs(User::query()->firstOrFail())->withoutMiddleware([
+            ResolveTenant::class, TrustHosts::class, EnsureTenantSession::class,
+            EnsureAuthenticatedSession::class, EnsureOperationalScope::class,
+        ]);
+
+        $unit = MeasurementUnit::query()->firstOrFail();
+        $product = [
+            "price" => 1, "currency_id" => DB::table("currencies")->value("id"),
+            "measurement_unit_id" => $unit->id, "type" => "product", "status" => "active",
+        ];
+        $products = array_map(fn(int $number) => $product + [
+            "name" => sprintf("Muestra de inventario %02d", $number),
+            "internal_code" => "TR-MUESTRA-".$number,
+            "barcode" => (string) (7800000000000 + $number),
+        ], range(1, 31));
+        DB::table("items")->insert($products);
+        DB::table("items")->insert(array_replace($product, [
+            "name" => "Muestra de inventario inactiva", "internal_code" => "TR-INACTIVA", "status" => "inactive",
+        ]));
+        DB::table("items")->insert(array_replace($product, [
+            "name" => "Muestra de inventario servicio", "internal_code" => "TR-SERVICIO", "type" => "service",
+        ]));
+
+        $options = fn(array $filters = []) => route("options.inventory-transfers", ["entity" => "items"] + $filters);
+        $firstPage = $this->getJson($options())->assertOk()->assertJsonCount(25, "data.records")
+            ->assertJsonPath("data.page", 1)->assertJsonPath("data.has_more", true)->json("data.records");
+        $secondPage = $this->getJson($options(["page" => 2]))->assertOk()->assertJsonCount(6, "data.records")
+            ->assertJsonPath("data.page", 2)->assertJsonPath("data.has_more", false)->json("data.records");
+        $this->assertSame([], array_intersect(array_column($firstPage, "code"), array_column($secondPage, "code")));
+        $this->assertSame(array_column($products, "name"), array_column([...$firstPage, ...$secondPage], "label"));
+
+        $itemId = (int) DB::table("items")->where("internal_code", "TR-MUESTRA-31")->value("id");
+        foreach(["inventario 31", "TR-MUESTRA-31", "7800000000031"] as $search) {
+            $this->getJson($options(["search" => $search]))->assertOk()->assertExactJson([
+                "bool" => true,
+                "data" => [
+                    "records" => [["code" => $itemId, "label" => "Muestra de inventario 31", "unitAbbreviation" => $unit->abbreviation]],
+                    "page" => 1,
+                    "has_more" => false,
+                ],
+            ]);
+        }
+        $this->getJson("/options/inventory-transfers/customers")->assertNotFound();
+
+        $params = app(StockManagementController::class)->initParams(
+            Request::create("/inventory/initParams", "GET", ["page" => "transfers"])
+        );
+        $this->assertObjectNotHasProperty("products", $params->config);
+        $this->assertNotEmpty($params->config->warehouses->records);
 
     }
 

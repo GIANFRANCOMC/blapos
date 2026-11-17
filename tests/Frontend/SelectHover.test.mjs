@@ -21,7 +21,8 @@ test("select2 y vue-select comparten placeholder recto y hover suave con los inp
     const styles = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");
     const controls = read("resources/css/System/br-branding/03-form-controls.css");
     const legacyStyles = read("resources/css/System/br-branding/81-core-roles-entities.css");
-    const hover = styles.match(/\.br-layout \.form-control:not\(:disabled\):not\(\[readonly\]\):not\(:focus\):hover,[\s\S]*?\{[^}]*\}/)?.[0] || "";
+    const hover = postcss.parse(styles).nodes.find(rule => rule.selector?.startsWith(".br-layout .form-control:not(:disabled)")
+        && rule.selector.includes(".vs__dropdown-toggle:hover"))?.toString() ?? "";
 
     assert.doesNotMatch(legacyStyles, /\.vs__search::placeholder\s*\{[^}]*font-style:\s*italic/);
     assert.match(controls, /::placeholder,\s*body \.select2-container\.select2-container--default \.select2-selection__placeholder \{[^}]*font: inherit;[^}]*font-style: normal/);

@@ -23,7 +23,7 @@
                     hasDiv
                     title="Producto"
                     :titleClass="[config.forms.classes.title]"
-                    placeholder="Buscar o escanear producto"
+                    :placeholder="productSearchPlaceholder"
                     :inputClass="['form-control']"
                     :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                     xl="3"
@@ -128,7 +128,8 @@
                                 data-bs-keyboard="false"
                                 tabindex="-1"
                                 aria-labelledby="inventoryTransferModalTitle"
-                                aria-hidden="true">
+                                aria-hidden="true"
+                                v-on="{ 'hidden.bs.modal': () => resetOptions('items') }">
                                 <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
                                     <div class="modal-content">
                                         <div class="modal-header br-entity-modal__header">
@@ -145,67 +146,89 @@
                                             </button>
                                         </div>
 
-                                        <div class="modal-body br-entity-modal__body">
-                                            <div class="br-inventory-operation__config">
-                                                <div>
-                                                    <label for="transferSource" class="form-label colon-at-end">Almacén de origen</label>
-                                                    <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
-                                                    <WarehouseSelect
-                                                        id="transferSource"
-                                                        v-model="transferForm.source"
-                                                        :options="realWarehouses"
-                                                        :select-class="config.forms.classes.select2"
-                                                        placeholder="Selecciona un almacén"
-                                                        append-to-body/>
-                                                    <small v-if="transferErrors.source_warehouse_id" class="text-danger">
-                                                        {{ firstError(transferErrors.source_warehouse_id) }}
-                                                    </small>
-                                                </div>
+                                        <div class="modal-body br-entity-modal__body br-inventory-transfer__body">
+                                            <div class="br-inventory-operation__config br-inventory-transfer__config">
+                                                <WarehouseSelectionField
+                                                    id="transferSource"
+                                                    v-model="transferForm.source"
+                                                    class="br-inventory-transfer__warehouse"
+                                                    label="Almacén de origen"
+                                                    :options="realWarehouses"
+                                                    :select-class="config.forms.classes.select2"
+                                                    placeholder="Selecciona el almacén que envía"
+                                                    :disabled="savingTransfer"
+                                                    :error="firstError(transferErrors.source_warehouse_id)"
+                                                    required
+                                                    append-to-body/>
 
-                                                <div>
-                                                    <label for="transferDestination" class="form-label colon-at-end">Almacén de destino</label>
-                                                    <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
-                                                    <WarehouseSelect
-                                                        id="transferDestination"
-                                                        v-model="transferForm.destination"
-                                                        :options="destinationWarehouses"
-                                                        :select-class="config.forms.classes.select2"
-                                                        :disabled="!transferForm.source?.code"
-                                                        :placeholder="transferForm.source ? 'Selecciona un almacén' : 'Selecciona primero el origen'"
-                                                        append-to-body/>
-                                                    <small v-if="transferErrors.destination_warehouse_id" class="text-danger">
-                                                        {{ firstError(transferErrors.destination_warehouse_id) }}
-                                                    </small>
-                                                </div>
+                                                <span class="br-inventory-transfer__direction" aria-hidden="true">
+                                                    <i class="fa-solid fa-right-long fa-lg lh-1"></i>
+                                                </span>
 
-                                                <InputText
-                                                    v-model.trim="transferForm.reason"
-                                                    :disabled="!canConfigureTransfer"
-                                                    hasDiv
-                                                    title="Motivo del traslado"
-                                                    :titleClass="[config.forms.classes.title]"
-                                                    :divClass="['br-inventory-operation__reason']"
-                                                    placeholder="Describe por qué se realiza el traslado"
-                                                    maxlength="255"
-                                                    showCharCounter
-                                                    isRequired
-                                                    hasTextBottom
-                                                    :textBottomInfo="transferErrors.reason || []"/>
+                                                <WarehouseSelectionField
+                                                    id="transferDestination"
+                                                    v-model="transferForm.destination"
+                                                    class="br-inventory-transfer__warehouse"
+                                                    label="Almacén de destino"
+                                                    :options="destinationWarehouses"
+                                                    :select-class="config.forms.classes.select2"
+                                                    :disabled="savingTransfer || !transferForm.source?.code"
+                                                    placeholder="Selecciona el almacén que recibe"
+                                                    :error="firstError(transferErrors.destination_warehouse_id)"
+                                                    required
+                                                    append-to-body/>
+
+                                                <div v-if="canConfigureTransfer" class="br-inventory-transfer__reason">
+                                                    <QuickCreateTrigger
+                                                        mode="icon"
+                                                        title="Motivos frecuentes"
+                                                        icon="fa-solid fa-arrow-up-right-from-square"
+                                                        custom-class="br-quick-create-trigger--field-label waves-effect"
+                                                        aria-haspopup="dialog"
+                                                        aria-controls="transferReasonsDialog"
+                                                        :disabled="savingTransfer"
+                                                        @click="openTransferReasons"/>
+                                                    <label for="transferReason" class="form-label colon-at-end">Motivo del traslado</label>
+                                                    <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
+                                                    <InputText
+                                                        id="transferReason"
+                                                        ref="transferReason"
+                                                        v-model.trim="transferForm.reason"
+                                                        :disabled="savingTransfer"
+                                                        aria-required="true"
+                                                        placeholder="Describe por qué se realiza el traslado"
+                                                        maxlength="255"
+                                                        showCharCounter
+                                                        hasTextBottom
+                                                        :textBottomInfo="transferErrors.reason || []"/>
+                                                </div>
                                             </div>
 
-                                            <div class="br-inventory-operation__items">
+                                            <div v-if="canConfigureTransfer" class="br-inventory-operation__items br-inventory-transfer__items">
                                                 <div class="br-inventory-operation__items-header">
                                                     <div class="br-inventory-operation__items-title">
-                                                        <span class="form-label colon-at-end">Productos incluidos</span>
+                                                        <span id="inventoryTransferItemsTitle" class="form-label colon-at-end">Productos incluidos</span>
                                                         <span class="text-danger fw-bold" aria-hidden="true">*</span>
                                                     </div>
                                                     <small v-if="transferAvailabilityError" class="text-danger">
                                                         No se pudo consultar el stock.
                                                         <button type="button" class="btn btn-link p-0" @click="loadTransferAvailability(transferAvailabilityQuery)">Reintentar</button>
                                                     </small>
+                                                    <button
+                                                        type="button"
+                                                        class="br-btn br-btn-add-row ms-auto waves-effect"
+                                                        :disabled="savingTransfer || transferForm.items.length >= 100"
+                                                        @click="addTransferItem">
+                                                        Agregar producto
+                                                    </button>
                                                 </div>
 
-                                                <div class="table-responsive br-inventory-operation__table-wrap">
+                                                <div
+                                                    class="table-responsive br-inventory-operation__table-wrap br-inventory-transfer__table-scroll"
+                                                    ref="transferItemsScroll"
+                                                    role="region"
+                                                    aria-labelledby="inventoryTransferItemsTitle"
+                                                    tabindex="0">
                                                     <table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">
                                                         <thead class="br-table-header-surface">
                                                             <tr>
@@ -220,9 +243,31 @@
                                                                 <td>
                                                                     <ProductSelect
                                                                         v-model="item.product"
-                                                                        :disabled="!canConfigureTransfer"
-                                                                        :options="transferProductOptions(index)"
-                                                                        :select-class="config.forms.classes.select2"/>
+                                                                        :disabled="savingTransfer"
+                                                                        :options="transferProductOptions(item.product)"
+                                                                        :select-class="config.forms.classes.select2"
+                                                                        :loading="remoteOptions.items.loading"
+                                                                        :placeholder="productSearchPlaceholder"
+                                                                        remote
+                                                                        summarize-selection
+                                                                        @open="openTransferProductOptions"
+                                                                        @search="searchOptions('items', $event)">
+                                                                        <template #no-options>
+                                                                            {{ remoteOptions.items.loading ? 'Buscando productos…' : remoteOptions.items.error ? 'No se pudieron consultar los productos.' : 'Sin productos para esta búsqueda.' }}
+                                                                        </template>
+                                                                        <template #list-footer>
+                                                                            <li v-if="remoteOptions.items.hasMore || remoteOptions.items.error" class="px-2 py-1">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="btn btn-link btn-sm w-100 text-start waves-effect"
+                                                                                    :disabled="remoteOptions.items.loading"
+                                                                                    @mousedown.prevent
+                                                                                    @click.stop="loadOptions('items', remoteOptions.items.page + 1)">
+                                                                                    {{ remoteOptions.items.error ? 'Reintentar consulta' : 'Cargar más productos' }}
+                                                                                </button>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ProductSelect>
                                                                     <small v-if="transferItemError(index, 'item_id')" class="text-danger">
                                                                         {{ transferItemError(index, "item_id") }}
                                                                     </small>
@@ -240,7 +285,10 @@
                                                                     <InputNumber
                                                                         v-model="item.quantity"
                                                                         :hasNegative="false"
-                                                                        :disabled="!canConfigureTransfer"
+                                                                        :disabled="savingTransfer"
+                                                                        hasTextBottom
+                                                                        :text-bottom-info="transferQuantityErrors(item, index)"
+                                                                        @input="clearTransferQuantityError(index)"
                                                                         :aria-label="item.product?.unitAbbreviation ? `Cantidad a trasladar (${item.product.unitAbbreviation})` : 'Cantidad a trasladar'">
                                                                         <template #inputGroupAppend>
                                                                             <span
@@ -249,9 +297,6 @@
                                                                                 aria-hidden="true">{{ item.product.unitAbbreviation }}</span>
                                                                         </template>
                                                                     </InputNumber>
-                                                                    <small v-if="transferItemError(index, 'quantity')" class="text-danger">
-                                                                        {{ transferItemError(index, "quantity") }}
-                                                                    </small>
                                                                 </td>
                                                                 <td class="text-center">
                                                                     <span
@@ -288,18 +333,11 @@
                                                 data-bs-dismiss="modal">
                                                 Cerrar
                                             </button>
-                                            <div class="br-entity-modal__footer-actions">
-                                                <button
-                                                    type="button"
-                                                    class="br-btn br-btn-add-row"
-                                                    :disabled="savingTransfer || !canConfigureTransfer || transferForm.items.length >= 100"
-                                                    @click="addTransferItem">
-                                                    Agregar producto
-                                                </button>
+                                            <div v-if="canConfigureTransfer" class="br-entity-modal__footer-actions">
                                                 <button
                                                     type="button"
                                                     class="br-btn br-btn-action-create"
-                                                    :disabled="savingTransfer || !canConfigureTransfer || !transferForm.items.length"
+                                                    :disabled="savingTransfer || !transferForm.items.length || hasTransferQuantityOverStock"
                                                     @click="saveTransfer">
                                                     Guardar traslado
                                                 </button>
@@ -309,6 +347,48 @@
                                 </div>
                             </div>
                         </Teleport>
+
+                        <FormModal
+                            v-if="canConfigureTransfer"
+                            modal-id="transferReasonsDialog"
+                            title="Motivos frecuentes"
+                            modal-size="modal-lg"
+                            modal-class="br-modal-standard"
+                            dialog-class="modal-dialog-scrollable"
+                            :show-submit="false">
+                            <div class="table-responsive">
+                                <table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__reasons-table mb-0">
+                                    <colgroup>
+                                        <col>
+                                        <col class="br-inventory-transfer__reason-action">
+                                    </colgroup>
+                                    <thead class="br-table-header-surface">
+                                        <tr>
+                                            <th scope="col">Motivo</th>
+                                            <th scope="col">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="option in transferReasonOptions" :key="option.label">
+                                            <td>
+                                                {{ option.label }}
+                                                <span class="br-inventory__meta">{{ option.text }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a
+                                                    href="#transferReason"
+                                                    class="br-link"
+                                                    :aria-label="`Seleccionar ${option.label}`"
+                                                    @click.prevent="applyTransferReason(option.text)">
+                                                    <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
+                                                    <span class="ms-1">Seleccionar</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </FormModal>
 
                         <section class="br-entity-list" aria-label="Traslados registrados">
                             <div class="table-responsive">
@@ -391,7 +471,33 @@
 </template>
 
 <script>
+import WarehouseSelectionField from "@System/Components/Generics/WarehouseSelectionField.vue";
+import {createOptionSearch} from "@/Shared/Options.js";
 import inventoryPage from "./inventoryState.js";
 
-export default inventoryPage;
+export default {
+    ...inventoryPage,
+    components: {...inventoryPage.components, WarehouseSelectionField},
+    mixins: [createOptionSearch("items")],
+    computed: {
+        ...inventoryPage.computed,
+        optionOrigin: () => "inventory-transfers",
+        transferSelectedProductIds() {
+            return new Set(this.transferForm.items.map(item => item.product?.code));
+        }
+    },
+    methods: {
+        ...inventoryPage.methods,
+        openTransferProductOptions() {
+            if(this.remoteOptions.items.term) return this.searchOptions("items", "");
+            return this.openOptions("items");
+        },
+        transferProductOptions(selectedProduct) {
+            if(!this.remoteOptions.items.loaded) return [];
+
+            const records = this.options.items?.records ?? [];
+            return records.filter(product => product.code === selectedProduct?.code || !this.transferSelectedProductIds.has(product.code));
+        }
+    }
+};
 </script>

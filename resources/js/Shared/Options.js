@@ -2,6 +2,18 @@ import axios from "axios";
 
 const SEARCH_DELAY = 250;
 
+function optionSearchState() {
+    return {term: "", page: 0, hasMore: false, loaded: false, loading: false, error: false, timer: null, controller: null};
+}
+
+function cancelOptionSearch(state) {
+    clearTimeout(state.timer);
+    const controller = state.controller;
+    state.timer = null;
+    state.controller = null;
+    controller?.abort();
+}
+
 export async function fetchOptions({origin, entity, search = "", page = 1}, signal) {
     const url = `/options/${encodeURIComponent(origin)}/${encodeURIComponent(entity)}`;
     const {data: response} = await axios.get(url, {
@@ -18,20 +30,21 @@ export function createOptionSearch(...entities) {
     return {
         data() {
             return {
-                remoteOptions: Object.fromEntries(entities.map(entity => [entity, {
-                    term: "", page: 0, hasMore: false, loaded: false, loading: false, timer: null, controller: null
-                }]))
+                remoteOptions: Object.fromEntries(entities.map(entity => [entity, optionSearchState()]))
             };
         },
         beforeUnmount() {
             for(const state of Object.values(this.remoteOptions)) {
-                clearTimeout(state.timer);
-                const controller = state.controller;
-                state.controller = null;
-                controller?.abort();
+                cancelOptionSearch(state);
             }
         },
         methods: {
+            resetOptions(entity) {
+                const state = this.remoteOptions[entity];
+                cancelOptionSearch(state);
+                Object.assign(state, optionSearchState());
+                this.options[entity] = {...this.options[entity], records: []};
+            },
             openOptions(entity) {
                 const state = this.remoteOptions[entity];
                 if(!state.loaded && !state.loading) return this.loadOptions(entity, 1);
@@ -41,11 +54,8 @@ export function createOptionSearch(...entities) {
                 const search = String(term ?? "").trim();
                 if(state.term === search && (state.loaded || state.loading)) return;
 
-                clearTimeout(state.timer);
-                const controller = state.controller;
-                state.controller = null;
-                controller?.abort();
-                Object.assign(state, {term: search, page: 0, loaded: false, hasMore: false, loading: true});
+                cancelOptionSearch(state);
+                Object.assign(state, {term: search, page: 0, loaded: false, hasMore: false, loading: true, error: false});
 
                 state.timer = setTimeout(() => {
                     state.timer = null;
@@ -61,17 +71,22 @@ export function createOptionSearch(...entities) {
                 const controller = new AbortController();
                 state.controller = controller;
                 state.loading = true;
+                state.error = false;
 
                 try {
                     const result = await fetchOptions({origin: this.optionOrigin, entity, search: state.term, page}, controller.signal);
-                    if(state.controller !== controller || !result) return;
+                    if(state.controller !== controller) return;
+                    if(!result) {
+                        state.error = true;
+                        return;
+                    }
 
                     const previous = this.options[entity];
                     const records = page === 1 ? result.records : [...(previous?.records ?? []), ...result.records];
                     this.options[entity] = {...previous, records};
                     Object.assign(state, {page: result.page ?? page, loaded: true, hasMore: Boolean(result.has_more)});
-                } catch(error) {
-                    // Mantener las opciones visibles y permitir reintentar al abrir o buscar.
+                } catch {
+                    if(state.controller === controller) state.error = true;
                 } finally {
                     if(state.controller === controller) {
                         state.controller = null;

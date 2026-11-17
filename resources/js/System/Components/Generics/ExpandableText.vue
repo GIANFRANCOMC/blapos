@@ -1,10 +1,10 @@
 <template>
-    <span ref="container" class="br-expandable-text" :class="{'br-expandable-text--expanded': expanded}">
-        <span ref="content" :id="textId" class="br-expandable-text__content" v-text="text"></span>
+    <span ref="container" class="br-expandable-text br-inline-text-action" :class="{'br-expandable-text--expanded': expanded}">
+        <span ref="content" :id="textId" class="br-inline-text-action__content" v-text="text"></span>
         <button
             v-if="hasOverflow"
             type="button"
-            class="br-link br-expandable-text__toggle"
+            class="br-link br-inline-text-action__button"
             :aria-controls="textId"
             :aria-expanded="expanded"
             @click.stop="toggle">
@@ -61,37 +61,11 @@ export default {
 </script>
 
 <style scoped>
-.br-expandable-text {
-    display: flex;
-    align-items: baseline;
-    gap: 0.35rem;
-    min-inline-size: 0;
-    contain: inline-size;
-}
-
-.br-expandable-text__content {
-    flex: 1 1 auto;
-    min-inline-size: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.br-expandable-text__toggle {
-    flex: 0 0 auto;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    font-size: inherit;
-    line-height: inherit;
-    white-space: nowrap;
-}
-
 .br-expandable-text--expanded {
     display: block;
 }
 
-.br-expandable-text--expanded .br-expandable-text__content {
+.br-expandable-text--expanded .br-inline-text-action__content {
     display: block;
     overflow: visible;
     overflow-wrap: anywhere;

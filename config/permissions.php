@@ -110,6 +110,7 @@ return [
         "options.quotations-create" => ["quotations.create"],
         "options.restaurant" => ["restaurant_pos.index"],
         "options.service-sessions" => ["service_sessions.index"],
+        "options.inventory-transfers" => ["stocks_management.transfers.index"],
         "sales.list" => ["sales.index"],
         "sales.cancel" => ["sales.index"],
         "sales.store" => ["sales.create", "sales.pos"],

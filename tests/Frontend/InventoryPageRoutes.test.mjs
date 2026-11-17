@@ -103,18 +103,25 @@ test("transfers open the standard modal and save without leaving the list", () =
     assert.match(component, /data-bs-target="#inventoryTransferModal"[\s\S]*?Registrar traslado/);
     assert.match(modal, /class="modal fade br-entity-modal br-modal-standard"/);
     assert.match(modal, /id="inventoryTransferModalTitle"[\s\S]*?REGISTRAR TRASLADO/);
-    assert.match(modal, /class="br-inventory-operation__config"[\s\S]*?transferSource[\s\S]*?transferDestination[\s\S]*?title="Motivo del traslado"/);
+    assert.match(modal, /class="br-inventory-operation__config br-inventory-transfer__config"[\s\S]*?transferSource[\s\S]*?placeholder="Selecciona el almacén que envía"[\s\S]*?class="br-inventory-transfer__direction"[\s\S]*?fa-right-long[\s\S]*?transferDestination[\s\S]*?Selecciona el almacén que recibe[\s\S]*?for="transferReason"[^>]*>Motivo del traslado<\/label>/);
     assert.match(modal, /v-model\.trim="transferForm\.reason"[\s\S]*?maxlength="255"[\s\S]*?showCharCounter/);
+    assert.match(modal, /<QuickCreateTrigger\s+mode="icon"\s+title="Motivos frecuentes"[^>]*icon="fa-solid fa-arrow-up-right-from-square"[^>]*aria-controls="transferReasonsDialog"/);
+    assert.match(component, /<FormModal\s+v-if="canConfigureTransfer"\s+modal-id="transferReasonsDialog"\s+title="Motivos frecuentes"\s+modal-size="modal-lg"[\s\S]*?<th scope="col">Motivo<\/th>\s*<th scope="col">Acción<\/th>[\s\S]*?v-for="option in transferReasonOptions"[\s\S]*?<a\s+href="#transferReason"[^>]*@click\.prevent="applyTransferReason\(option\.text\)"[^>]*>\s*<i class="fa-solid fa-hand-pointer"[^>]*><\/i>\s*<span[^>]*>Seleccionar<\/span>\s*<\/a>/);
     assert.match(request, /"reason" => \["required", "string", "max:255"\]/);
-    assert.match(modal, /class="br-inventory-operation__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">/);
+    assert.match(modal, /class="br-inventory-operation__items br-inventory-transfer__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">/);
+    assert.match(modal, /class="table-responsive br-inventory-operation__table-wrap br-inventory-transfer__table-scroll"\s+ref="transferItemsScroll"\s+role="region"\s+aria-labelledby="inventoryTransferItemsTitle"/);
+    assert.match(inventoryCss, /\.br-inventory-transfer__table-scroll thead,\s*\.br-inventory-traceability__scroll thead\s*\{\s*position: sticky;\s*top: 0;/);
+    assert.match(modal, /<ProductSelect[^>]*\bsummarize-selection\b/);
     assert.match(modal, /<th scope="col">Producto<\/th>\s*<th scope="col">Stock disponible<\/th>\s*<th scope="col">Cantidad a trasladar<\/th>/);
     assert.match(modal, /<QuantityValue[\s\S]*?:value="transferAvailability\[item\.product\.code\]"\s+:unit="item\.product"/);
     assert.match(modal, /v-if="!transferForm\.items\.length" class="br-table-state"/);
     assert.doesNotMatch(modal, /transferForm\.items\.length === 1/);
     assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.quantity"/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
-    assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
-    assert.doesNotMatch(modal, /br-inventory-transfer__item-row|br-btn-outline-secondary|<textarea/);
+    assert.match(modal, /Productos incluidos[\s\S]*?@click="addTransferItem">\s*Agregar producto[\s\S]*?ref="transferItemsScroll"/);
+    assert.match(modal, /<InputNumber[^>]*v-model="item\.quantity"[^>]*hasTextBottom[^>]*:text-bottom-info="transferQuantityErrors\(item, index\)"/);
+    assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
+    assert.doesNotMatch(modal, /br-inventory-transfer__item-row|<textarea/);
     assert.doesNotMatch(inventoryCss, /\.br-inventory-transfer__item-row/);
     assert.match(component, /addTransferItem\(\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryTransferModal"\);[\s\S]*?this\.transferForm\.items\.push\([\s\S]*?this\.refreshInventoryModalTooltips\("inventoryTransferModal"\)/);
     assert.match(component, /removeTransferItem\(index\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryTransferModal"\);[\s\S]*?this\.transferForm\.items\.splice\(index, 1\);[\s\S]*?this\.refreshInventoryModalTooltips\("inventoryTransferModal"\)/);
@@ -131,7 +138,9 @@ test("stock operation modal uses the standard primary action and a compact produ
     const selectCss = read("resources/css/System/br-branding/10-tables-breadcrumb-filters.css");
     const mount = read("resources/js/System/Pages/Warehouses/inventory/mount.js");
     const request = read("app/Http/Requests/System/Warehouses/StoreInventoryOperationRequest.php");
-    const modal = component.slice(component.indexOf('id="inventoryMovementModal"'));
+    const stock = read(`${inventoryPath}stock.vue`);
+    const start = stock.indexOf('id="inventoryMovementModal"');
+    const modal = stock.slice(start, stock.indexOf("</FormModal>", start));
 
     assert.match(modal, /inventoryOperation[\s\S]*?:selectable="option => !option\.isGroup"[\s\S]*?#option="option"[\s\S]*?br-inventory-operation__option-group/);
     assert.match(modal, /config\.forms\.inputs\.required[\s\S]*?input-id="inventoryOperation"[\s\S]*?aria-required="true"[\s\S]*?placeholder="Selecciona un tipo de operación"/);
@@ -148,7 +157,7 @@ test("stock operation modal uses the standard primary action and a compact produ
     assert.doesNotMatch(modal.slice(modal.indexOf('class="br-inventory-operation__template"'), modal.indexOf('class="table-responsive br-inventory-operation__table-wrap"')), /Agregar producto/);
     assert.match(buttonsCss, /\.br-btn\.br-btn-add-row \{[\s\S]*?background: var\(--br-success\);/);
     assert.doesNotMatch(buttonsCss.match(/\.br-btn\.br-btn-add-row \{[^}]*\}/)?.[0], /min-height|padding|font-size/);
-    assert.match(modal, /class="modal-footer br-entity-modal__footer"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?Guardar/);
+    assert.match(modal, /<template #footerClose>[\s\S]*?Cerrar[\s\S]*?<template #footer>\s*<div class="br-entity-modal__footer-actions">[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?Guardar/);
     assert.match(modalCss, /\.modal-footer\.br-entity-modal__footer > \.br-entity-modal__footer-actions \{[\s\S]*?margin-left: auto;/);
     assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?display: flex;[\s\S]*?align-items: center;[\s\S]*?min-height: var\(--br-control-height\);[\s\S]*?white-space: nowrap;/);
     assert.match(inventoryCss, /\.br-inventory-operation__items-header \{[\s\S]*?align-items: flex-end;/);
@@ -160,7 +169,7 @@ test("stock operation modal uses the standard primary action and a compact produ
     assert.match(modal, /<tr v-for="\(item, index\) in movementForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.amount"/);
     assert.match(modal, /<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?:select-class="config\.forms\.classes\.select2"/);
     const productSelect = read("resources/js/System/Components/Generics/ProductSelect.vue");
-    assert.match(productSelect, /<template #no-options><SelectNoOptions\/><\/template>/);
+    assert.match(productSelect, /<template #no-options><slot name="no-options"><SelectNoOptions\/><\/slot><\/template>/);
     assert.match(mount, /\.component\("SelectNoOptions", SelectNoOptions\)/);
     assert.match(selectCss, /\.br-layout \.vs__no-options,[\s\S]*?min-height: 2\.65rem;[\s\S]*?text-align: center;/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?title="Quitar producto"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
@@ -263,7 +272,7 @@ test("operation and transfer dialogs choose their own warehouses without changin
     assert.match(component, /warehouse_id: this\.movementForm\.warehouse\.code/);
     assert.doesNotMatch(component, /defaultFormWarehouse\(/);
     assert.match(component, /:disabled="savingMovement \|\| confirmingMovement \|\| previewingOperation \|\| !movementForm\.warehouse\?\.code \|\| !movementForm\.items\.length"/);
-    assert.match(component, /:disabled="savingTransfer \|\| !canConfigureTransfer \|\| !transferForm\.items\.length"/);
+    assert.match(component, /:disabled="savingTransfer \|\| !transferForm\.items\.length \|\| hasTransferQuantityOverStock"/);
     assert.match(inventoryCss, /\.br-layout \.br-inventory-operation__reason\.form-group \{\s*grid-column: 1 \/ -1;/);
     assert.doesNotMatch(inventoryCss, /br-inventory-operation__config--movement/);
 
@@ -296,12 +305,13 @@ test("all inventory listings reuse the product loader, empty illustration and ta
     const withoutData = read("resources/js/System/Components/WithoutData.vue");
     const listing = ["stock", "transfers", "guides", "kardex", "valued-kardex"]
         .map(name => read(`${inventoryPath}${name}.vue`)
-            .replace(/<Teleport to="body">[\s\S]*?<\/Teleport>/, ""))
+            .replace(/<Teleport to="body">[\s\S]*?<\/Teleport>/g, "")
+            .replace(/<FormModal\b[\s\S]*?<\/FormModal>/g, ""))
         .join("\n");
     const emptyStates = listing.match(/<WithoutData[\s\S]*?\/>/g) || [];
 
     assert.equal((listing.match(/class="br-entity-list"/g) || []).length, 5);
-    assert.equal((listing.match(/class="br-table-header-surface"/g) || []).length, 6); // Five listings and the stock operation table.
+    assert.equal((listing.match(/class="br-table-header-surface"/g) || []).length, 5);
     assert.equal((listing.match(/class="py-4"><Loader\/>/g) || []).length, 5);
     assert.equal(emptyStates.length, 5);
     assert.equal((listing.match(/image-src=/g) || []).length, 0);
@@ -398,7 +408,7 @@ test("inventory blocks filters and actions while searching", () => {
 
 });
 
-test("inventory forms unlock dependent fields only after their warehouses are selected", () => {
+test("inventory forms gate dependent fields on the required warehouse selections", () => {
 
     const component = readInventory();
     const transferModal = component.slice(
@@ -410,17 +420,16 @@ test("inventory forms unlock dependent fields only after their warehouses are se
     assert.match(component, /prepareMovement\(record = null\) \{[\s\S]*?operation: null,[\s\S]*?warehouse: null,/);
     assert.match(component, /prepareTransfer\(\) \{[\s\S]*?source: null,[\s\S]*?destination: null,/);
     assert.match(component, /canConfigureMovement\(\) \{\s*return Boolean\(this\.movementForm\.warehouse\?\.code\);/);
-    assert.match(component, /canConfigureTransfer\(\) \{\s*return Boolean\(this\.transferForm\.source\?\.code && this\.transferForm\.destination\?\.code\);/);
     assert.match(operationModal, /input-id="inventoryOperation"[\s\S]*?:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /v-model\.trim="movementForm\.reason"[\s\S]*?:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /:upload-disabled="!canConfigureMovement \|\| previewingOperation \|\| downloadingOperation \|\| savingMovement"/);
     assert.match(operationModal, /v-model="item\.product"[\s\S]*?:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /v-model="item\.amount"[^>]*:disabled="!canConfigureMovement"/);
     assert.match(operationModal, /v-model="item\.unitCost"[^>]*:disabled="!canConfigureMovement"/);
-    assert.match(transferModal, /id="transferDestination"[\s\S]*?:disabled="!transferForm\.source\?\.code"/);
-    assert.match(transferModal, /v-model\.trim="transferForm\.reason"[\s\S]*?:disabled="!canConfigureTransfer"/);
-    assert.match(transferModal, /v-model="item\.product"[\s\S]*?:disabled="!canConfigureTransfer"/);
-    assert.match(transferModal, /v-model="item\.quantity"[^>]*:disabled="!canConfigureTransfer"/);
+    assert.match(transferModal, /id="transferDestination"[^>]*:disabled="savingTransfer \|\| !transferForm\.source\?\.code"\s+placeholder="Selecciona el almacén que recibe"/);
+    assert.match(transferModal, /v-if="canConfigureTransfer" class="br-inventory-transfer__reason"[\s\S]*?v-model\.trim="transferForm\.reason"/);
+    assert.match(transferModal, /v-if="canConfigureTransfer" class="br-inventory-operation__items br-inventory-transfer__items"[\s\S]*?Productos incluidos/);
+    assert.match(transferModal, /v-if="canConfigureTransfer" class="br-entity-modal__footer-actions"[\s\S]*?Guardar traslado/);
 
 });
 
@@ -428,12 +437,16 @@ test("the shared work-warehouse selector shows branch and warehouse on every pag
 
     const component = readInventory();
     const warehouseSelect = read("resources/js/System/Components/Generics/WarehouseSelect.vue");
+    const selectionField = read("resources/js/System/Components/Generics/WarehouseSelectionField.vue");
     const warehouseCss = read("resources/css/System/br-branding/12-warehouse-select.css");
     const references = read("app/Services/System/Base/CompanyReferenceDataService.php");
 
     assert.match(component, /v-model="filters\.warehouse"\s+:options="warehouses"/);
-    assert.equal((component.match(/<WarehouseSelect\s/g) || []).length, 8);
+    assert.equal((component.match(/<WarehouseSelect\s/g) || []).length, 6);
+    assert.equal((component.match(/<WarehouseSelectionField\s/g) || []).length, 2);
     assert.match(component, /import WarehouseSelect from "@System\/Components\/Generics\/WarehouseSelect\.vue";/);
+    assert.match(selectionField, /v-if="required"[^>]*>\*<\/span>\s*<button\s+v-if="showSummary"[\s\S]*?Cambiar\s*<\/button>/);
+    assert.match(selectionField, /v-if="showSummary" class="br-field-summary br-field-summary--control"[\s\S]*?class="br-field-summary__value"[\s\S]*?<WarehouseSelect\s+v-else/);
     assert.match(warehouseSelect, /<VueSelect[\s\S]*?:model-value="modelValue"[\s\S]*?:options="options"[\s\S]*?@update:modelValue="\$emit\('update:modelValue', \$event\)"/);
     assert.match(warehouseSelect, /br-warehouse-select[\s\S]*?#selected-option="warehouse"[\s\S]*?#option="warehouse"/);
     assert.match(warehouseSelect, /<strong v-if="warehouse\.branchName" class="br-warehouse-select__branch">[\s\S]*?warehouse\.branchName[\s\S]*?<\/strong>/);
@@ -463,15 +476,16 @@ test("operation form orders warehouse context, type and effect before the full-w
 
 test("ingresos manuales solo admiten entrada manual y devolución de cliente", () => {
 
-    const component = readInventory();
+    const state = read(`${inventoryPath}inventoryState.js`);
+    const operations = state.match(/const INVENTORY_OPERATIONS = \[[\s\S]*?\n\];/)?.[0] ?? "";
     const service = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
     const stockService = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
     const operationRequest = read("app/Http/Requests/System/Warehouses/StoreInventoryOperationRequest.php");
     const movementRequest = read("app/Http/Requests/System/Warehouses/StoreInventoryMovementRequest.php");
 
-    assert.match(component, /\{code: "manual_entry", label: "Entrada manual", amountLabel: "Cantidad de entrada", movementType: "entry"/);
-    assert.match(component, /\{code: "customer_return", label: "Devolución de cliente", amountLabel: "Cantidad devuelta", movementType: "entry"/);
-    assert.doesNotMatch(component, /replenishment|Reposición/);
+    assert.match(operations, /\{code: "manual_entry", label: "Entrada manual", amountLabel: "Cantidad de entrada", movementType: "entry"/);
+    assert.match(operations, /\{code: "customer_return", label: "Devolución de cliente", amountLabel: "Cantidad devuelta", movementType: "entry"/);
+    assert.doesNotMatch(operations, /replenishment|Reposición/);
     assert.match(service, /self::TYPE_ENTRY => \[self::ORIGIN_MANUAL, self::ORIGIN_CUSTOMER_RETURN\]/);
     assert.match(stockService, /if\(!in_array\(\$originType, InventoryMovementService::manualOperationOrigins\(\$movementType\), true\)\)/);
 

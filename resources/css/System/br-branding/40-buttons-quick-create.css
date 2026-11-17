@@ -820,8 +820,13 @@
   font-weight: var(--br-font-weight-emphasis);
 }
 
-.br-quick-create-modal {
+.br-quick-create-modal,
+.modal.br-modal-stacked {
   z-index: 1095 !important;
+}
+
+.modal.br-modal-stacked {
+  background-color: color-mix(in srgb, var(--br-secondary) 24%, transparent);
 }
 
 .modal-backdrop.br-quick-create-backdrop {

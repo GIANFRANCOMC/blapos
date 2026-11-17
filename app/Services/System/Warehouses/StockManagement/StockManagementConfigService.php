@@ -33,7 +33,7 @@ final class StockManagementConfigService extends BaseConfigService {
                 "records" => CompanyReferenceDataService::forUser($userId)->stockWarehouses(),
             ]),
             "products" => self::data([
-                "records" => in_array($page, ["main", "stock", "transfers"], true)
+                "records" => in_array($page, ["main", "stock"], true)
                     ? Item::query()
                         ->where("type", "product")
                         ->where("status", "active")

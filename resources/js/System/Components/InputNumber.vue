@@ -18,12 +18,14 @@
                     :aria-label="ariaLabel || undefined"
                     :placeholder="placeholder"
                     :aria-required="isRequired || undefined"
+                    :aria-invalid="hasError || undefined"
+                    :aria-describedby="showError ? errorId : undefined"
                     :disabled="disabled"
                     @keyup.enter="handleEnterKey"/>
                 <slot name="inputGroupAppend"></slot>
             </div>
-            <div v-if="hasTextBottom">
-                <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
+            <div v-if="showError">
+                <small :id="errorId" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
             </div>
         </div>
     </template>
@@ -45,23 +47,29 @@
                 :aria-label="ariaLabel || undefined"
                 :placeholder="placeholder"
                 :aria-required="isRequired || undefined"
+                :aria-invalid="hasError || undefined"
+                :aria-describedby="showError ? errorId : undefined"
                 :disabled="disabled"
                 @keyup.enter="handleEnterKey"/>
             <slot name="inputGroupAppend"></slot>
         </div>
-        <div v-if="hasTextBottom">
-            <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
+        <div v-if="showError">
+            <small :id="errorId" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
         </div>
     </template>
 </template>
 
 <script>
+import {useId} from "vue";
 import { generalConfig } from "../Helpers/Constants.js";
 import {commitNumberInput, editableNumber, isNumberInputKey, numberInputDraft, numericBounds, resolveDecimals, separatorNumber} from "../../Shared/Numbers.js";
 
 export default {
     name: "InputNumber",
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
+    setup() {
+        return {errorId: `br-number-error-${useId()}`};
+    },
     props: {
         modelValue: {
             type: [String, Number],
@@ -199,6 +207,9 @@ export default {
 
             return Boolean(this.textBottom);
 
+        },
+        showError() {
+            return this.hasError && this.hasTextBottom && this.textBottomType === "first";
         },
         formattedValue() {
 

@@ -60,6 +60,9 @@ class StockManagementController extends BaseController {
         }
 
         $params = StockManagementConfigService::getInitParams($page, $this->getUserId());
+        if($page === "transfers") {
+            unset($params->config->products);
+        }
         $params->config->can_update_stock = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.operations.store", "POST");
 
         if(in_array($page, self::KARDEX_VIEWS, true)) {

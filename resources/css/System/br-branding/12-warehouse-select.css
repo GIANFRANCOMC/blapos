@@ -45,6 +45,18 @@
     font-weight: var(--br-font-weight-body);
 }
 
+.br-warehouse-summary__parts {
+    display: inline-grid;
+    grid-template-columns: minmax(0, max-content) max-content minmax(0, max-content);
+    max-inline-size: 100%;
+}
+
+.br-warehouse-summary__part {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .br-layout .br-warehouse-select .vs__dropdown-option,
 body > .vs__dropdown-menu .vs__dropdown-option:has(.br-warehouse-select__value) {
     padding-block: 0.52rem;

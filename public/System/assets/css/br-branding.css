@@ -1397,6 +1397,18 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
     font-weight: var(--br-font-weight-body);
 }
 
+.br-warehouse-summary__parts {
+    display: inline-grid;
+    grid-template-columns: minmax(0, max-content) max-content minmax(0, max-content);
+    max-inline-size: 100%;
+}
+
+.br-warehouse-summary__part {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .br-layout .br-warehouse-select .vs__dropdown-option,
 body > .vs__dropdown-menu .vs__dropdown-option:has(.br-warehouse-select__value) {
     padding-block: 0.52rem;
@@ -2238,6 +2250,37 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: var(--br-focus-ring);
 }
 
+.br-link.br-field-label-action {
+  font-size: var(--br-font-size-label);
+  font-weight: var(--br-font-weight-body);
+  line-height: 1.15;
+}
+
+.br-inline-text-action {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-inline-size: 0;
+  contain: inline-size;
+}
+
+.br-inline-text-action__content {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-inline-text-action__button {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+}
+
 /* -------------------------------------------------------------------------
  * [br] Controles reutilizables de formularios y modales
  * ------------------------------------------------------------------------- */
@@ -2442,8 +2485,8 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   box-shadow: none !important;
 }
 
-.br-layout .br-form-control-group.is-invalid:focus-within {
-  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-danger) 17%, transparent);
+.br-layout .br-form-control-group.is-invalid > .br-input-unit-suffix {
+  color: var(--br-danger) !important;
 }
 
 .br-layout .br-form-error {
@@ -2474,6 +2517,10 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
 .br-layout .input-group:has(.character-counter):focus-within {
   border-radius: var(--br-radius-sm);
   box-shadow: var(--br-focus-ring);
+}
+
+.br-layout .br-form-control-group.is-invalid:focus-within {
+  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--br-danger) 17%, transparent);
 }
 
 .br-layout .br-form-control-group > :is(.form-control, .form-select, .br-input-action),
@@ -3537,8 +3584,13 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   font-weight: var(--br-font-weight-emphasis);
 }
 
-.br-quick-create-modal {
+.br-quick-create-modal,
+.modal.br-modal-stacked {
   z-index: 1095 !important;
+}
+
+.modal.br-modal-stacked {
+  background-color: color-mix(in srgb, var(--br-secondary) 24%, transparent);
 }
 
 .modal-backdrop.br-quick-create-backdrop {
@@ -4891,9 +4943,9 @@ body.br-layout .form-check-input:disabled {
 }
 
 /* Tema Vuexy: .input-group:focus-within usa un foco morado heredado; alinear con branding */
-.br-layout .input-group:focus-within .form-control,
-.br-layout .input-group:focus-within .input-group-text,
-.br-layout .input-group:focus-within .br-input-action {
+.br-layout .input-group:not(:where(.is-invalid)):focus-within .form-control,
+.br-layout .input-group:not(:where(.is-invalid)):focus-within .input-group-text,
+.br-layout .input-group:not(:where(.is-invalid)):focus-within .br-input-action {
   border-color: var(--br-primary) !important;
 }
 
@@ -11338,6 +11390,11 @@ input.input-number-no-range[type=number] {
     margin: 0;
 }
 
+.br-field-summary--control {
+    justify-content: center;
+    min-block-size: var(--br-control-height);
+}
+
 body.br-layout .br-field-summary > .br-field-summary__value {
     display: block;
     max-width: 100%;
@@ -13751,13 +13808,18 @@ body.br-layout .br-entity-modal.br-inventory-alerts .modal-body.br-entity-modal_
     scrollbar-gutter: stable;
 }
 
+.br-inventory-transfer__table-scroll,
 .br-inventory-traceability__scroll {
     max-height: var(--br-inventory-modal-table-height);
     overflow: auto;
-    scrollbar-gutter: stable;
     overscroll-behavior: contain;
 }
 
+.br-inventory-traceability__scroll {
+    scrollbar-gutter: stable;
+}
+
+.br-inventory-transfer__table-scroll thead,
 .br-inventory-traceability__scroll thead {
     position: sticky;
     top: 0;
@@ -13967,6 +14029,48 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     margin-bottom: 0 !important;
 }
 
+.br-inventory-operation__config.br-inventory-transfer__config {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0 0.7rem;
+}
+
+.br-inventory-transfer__warehouse {
+    display: grid;
+    grid-row: 1 / span 3;
+    grid-template-rows: subgrid;
+}
+
+.br-inventory-transfer__direction {
+    display: grid;
+    grid-area: 2 / 2;
+    align-self: center;
+    justify-self: center;
+    place-items: center;
+    inline-size: var(--br-btn-height-sm);
+    block-size: var(--br-btn-height-sm);
+    border-radius: 50%;
+    background: var(--br-dropdown-accent, var(--br-actions-orange));
+    color: var(--br-on-actions);
+    font-size: var(--br-font-size-table);
+}
+
+.br-inventory-transfer__reason {
+    grid-column: 1 / -1;
+    margin-block-start: 0.7rem;
+}
+
+.br-inventory-transfer__reason-action {
+    width: 24%;
+}
+
+.br-inventory-transfer__reasons-table th + th {
+    border-inline-start: 1px solid color-mix(in srgb, var(--br-table-thead-text) 35%, transparent);
+}
+
+.br-inventory-transfer__reasons-table :is(th, td):last-child {
+    white-space: nowrap;
+}
+
 .br-inventory-operation__template {
     min-width: 0;
     margin-bottom: 0.45rem;
@@ -14000,10 +14104,51 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     }
 }
 
+@media (max-width: 575.98px) and (min-height: 560px) {
+    .br-inventory-operation__config.br-inventory-transfer__config {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0.4rem;
+    }
+
+    .br-inventory-transfer__warehouse {
+        display: block;
+        grid-row: auto;
+    }
+
+    .br-inventory-transfer__direction {
+        grid-area: auto;
+    }
+
+    .br-inventory-transfer__direction i {
+        transform: rotate(90deg);
+    }
+
+    .br-inventory-transfer__reason {
+        margin-block-start: 0.3rem;
+    }
+}
+
 .br-inventory-operation__items {
     display: grid;
     gap: 0.5rem;
     margin-top: 1rem;
+}
+
+.br-entity-modal .modal-dialog-scrollable .modal-body.br-inventory-transfer__body {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    overflow: hidden !important;
+}
+
+.br-inventory-transfer__body > .br-inventory-transfer__config {
+    flex: 0 0 auto;
+}
+
+.br-inventory-operation__items.br-inventory-transfer__items {
+    min-block-size: 0;
+    grid-template-rows: auto minmax(0, 1fr);
+    row-gap: 0.2rem;
 }
 
 .br-inventory-operation__items-header {
@@ -14012,6 +14157,11 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+.br-inventory-transfer__items > .br-inventory-operation__items-header {
+    align-items: center;
+    row-gap: 0.35rem;
 }
 
 .br-inventory-operation__items-header .form-label {
@@ -14061,6 +14211,11 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 .br-inventory-operation__table.has-unit-cost th:first-child { width: 46%; }
 .br-inventory-operation__table.has-unit-cost th:nth-child(2) { width: 20%; }
 .br-inventory-operation__table.has-unit-cost th:nth-child(3) { width: 26%; }
+
+.br-inventory-transfer__items-table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+}
 
 .br-inventory-transfer__items-table th:first-child { width: 49%; }
 .br-inventory-transfer__items-table th:nth-child(2) { width: 19%; }
@@ -19878,11 +20033,11 @@ html.layout-menu-collapsed:not(.layout-menu-hover) body.br-layout .br-menu-brand
   border-radius: var(--br-app-control-radius);
 }
 
-.br-layout .form-control:not(:disabled):not([readonly]):not(:focus):hover,
-.br-layout .form-select:not(:disabled):not([readonly]):not(:focus):hover,
-.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .form-control,
-.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .input-group-text,
-.br-layout .input-group:not(:focus-within):not(:has(:disabled, [readonly])):hover .br-input-action,
+.br-layout .form-control:not(:disabled):not([readonly]):not(:focus):hover:not(:where(.is-invalid, .br-form-control-group.is-invalid > *)),
+.br-layout .form-select:not(:disabled):not([readonly]):not(:focus):hover:not(:where(.is-invalid, .br-form-control-group.is-invalid > *)),
+.br-layout .input-group:not(:where(.is-invalid)):not(:focus-within):not(:has(:disabled, [readonly])):hover .form-control,
+.br-layout .input-group:not(:where(.is-invalid)):not(:focus-within):not(:has(:disabled, [readonly])):hover .input-group-text,
+.br-layout .input-group:not(:where(.is-invalid)):not(:focus-within):not(:has(:disabled, [readonly])):hover .br-input-action,
 .br-layout .v-select:not(.vs--disabled):not(.vs--open):not(:focus-within) .vs__dropdown-toggle:hover,
 .br-layout .select2-container--default:not(.select2-container--disabled):not(.select2-container--focus):not(.select2-container--open) .select2-selection--single:hover,
 .br-layout .select2-container--default:not(.select2-container--disabled):not(.select2-container--focus):not(.select2-container--open) .select2-selection--multiple:hover {

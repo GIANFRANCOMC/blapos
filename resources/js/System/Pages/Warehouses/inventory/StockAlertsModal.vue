@@ -22,7 +22,7 @@
                             id="inventoryAlertProduct"
                             :model-value="productSearch"
                             :input-class="['form-control']"
-                            placeholder="Buscar o escanear producto"
+                            :placeholder="productSearchPlaceholder"
                             :disabled="loading || !warehouse?.code"
                             maxlength="100"
                             @update:model-value="$emit('update:productSearch', $event)"/>
@@ -179,6 +179,7 @@ export default {
         alerts: {type: Object, required: true},
         warehouse: {type: Object, default: null},
         productSearch: {type: String, default: ""},
+        productSearchPlaceholder: {type: String, required: true},
         minimumStatus: {type: Object, default: null},
         minimumOptions: {type: Array, required: true},
         selectClass: {type: [String, Array, Object], default: ""},

@@ -1,6 +1,8 @@
 <template>
     <VueSelect
+        ref="select"
         :id="id"
+        :input-id="inputId"
         :model-value="modelValue"
         :options="options"
         :get-option-key="option => option.code"
@@ -10,7 +12,8 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :append-to-body="appendToBody"
-        @update:modelValue="$emit('update:modelValue', $event)">
+        @update:modelValue="$emit('update:modelValue', $event)"
+        @close="$emit('close')">
         <template #selected-option="warehouse">
             <span class="br-warehouse-select__value" :title="warehouse.displayLabel || warehouse.label">
                 <strong v-if="warehouse.branchName" class="br-warehouse-select__branch">
@@ -46,9 +49,10 @@ import SelectNoOptions from "./SelectNoOptions.vue";
 export default {
     name: "WarehouseSelect",
     components: {VueSelect, SelectNoOptions},
-    emits: ["update:modelValue"],
+    emits: ["update:modelValue", "close"],
     props: {
         id: {type: String, required: true},
+        inputId: {type: String, default: undefined},
         modelValue: {type: Object, default: null},
         options: {type: Array, default: () => []},
         selectClass: {type: [String, Array, Object], default: ""},
@@ -56,6 +60,11 @@ export default {
         disabled: {type: Boolean, default: false},
         placeholder: {type: String, default: ""},
         appendToBody: {type: Boolean, default: false}
+    },
+    methods: {
+        focus() {
+            this.$refs.select?.searchEl?.focus();
+        }
     }
 };
 </script>

@@ -21,6 +21,33 @@ use Illuminate\Support\{Carbon, Collection};
  */
 class StockManagementService {
 
+    public static function searchTransferProducts(string $search, int $page): array {
+
+        $products = Item::query()
+            ->active()
+            ->where("type", Item::TYPE_PRODUCT)
+            ->with("measurementUnit:id,abbreviation")
+            ->when($search !== "", fn(Builder $query) => $query->where(function(Builder $query) use ($search) {
+                $pattern = "%{$search}%";
+                $query->where("name", "like", $pattern)
+                    ->orWhere("internal_code", "like", $pattern)
+                    ->orWhere("barcode", "like", $pattern);
+            }))
+            ->orderBy("name")
+            ->orderBy("id")
+            ->simplePaginate(25, ["id", "name", "measurement_unit_id"], "page", $page);
+
+        return [
+            "records" => $products->getCollection()->map(static fn(Item $product) => [
+                "code" => $product->id,
+                "label" => $product->name,
+                "unitAbbreviation" => $product->measurementUnit?->abbreviation,
+            ])->all(),
+            "page" => $products->currentPage(),
+            "has_more" => $products->hasMorePages(),
+        ];
+    }
+
     /**
      * Get paginated list of items with stock information
      *

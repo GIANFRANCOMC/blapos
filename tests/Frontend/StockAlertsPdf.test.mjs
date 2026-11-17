@@ -23,7 +23,8 @@ test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginac
     assert.match(modal, /<label for="inventoryAlertMinimumStatus"[^>]*>Stock mínimo<\/label>[\s\S]*?:model-value="minimumStatus"[\s\S]*?:options="minimumOptions"/);
     assert.match(page, /v-model:minimum-status="alertMinimumStatus"[\s\S]*?:minimum-options="stockMinimumOptions"/);
     assert.match(modal, /<label for="inventoryAlertProduct"[^>]*>Producto<\/label>[\s\S]*?<SearchInput[\s\S]*?@update:model-value="\$emit\('update:productSearch', \$event\)"/);
-    assert.match(modal, /placeholder="Buscar o escanear producto"/);
+    assert.match(page, /<StockAlertsModal\s+:product-search-placeholder="productSearchPlaceholder"/);
+    assert.match(modal, /:placeholder="productSearchPlaceholder"/);
     assert.doesNotMatch(modal, /br-inventory-alerts__location-icon|br-inventory-alerts__eyebrow|br-btn br-btn-sm br-btn-danger/);
     assert.match(modal, /<ProductIdentity variant="expandable" :product="alert\.warehouse_item\?\.item"\/>/);
     assert.match(modal, /<QuantityValue class="br-inventory__stock-current" :value="alert\.quantity" :unit="alert\.warehouse_item\?\.item\?\.measurement_unit"/);
