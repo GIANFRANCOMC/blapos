@@ -19,7 +19,8 @@ test("los filtros adicionales de stock comparten consulta, paginación y exporta
     assert.doesNotMatch(panel, /class="row\b|br-inventory__advanced-filters/);
     assert.match(panel, /v-if="minimumOptions" class="col-12 col-sm-6 col-lg-2"/);
     assert.match(panel, /v-if="inactivityOptions" class="col-12 col-sm-6 col-lg-2"/);
-    assert.equal(panel.match(/class="col-12 col-sm-6 col-lg-3"/g)?.length, 2);
+    assert.equal(panel.match(/class="col-12 col-sm-6" :class="catalogColumns"/g)?.length, 2);
+    assert.match(panel, /catalogColumns: \{type: String, default: "col-lg-3"\}/);
     assert.match(styles, /\.br-inventory__context-actions \{[\s\S]*?margin-top: var\(--br-grid-gap-2\);/);
     assert.doesNotMatch(page, /Ordenar por|stockSort/);
     assert.match(page, /<StockAdvancedFilters\s+v-if="activeView === 'stock'"/);
@@ -56,7 +57,7 @@ test("los filtros adicionales de stock comparten consulta, paginación y exporta
 
 test("ambos Kardex muestran los mismos filtros de producto y conservan los filtros de movimiento", () => {
     const panel = read("resources/js/System/Pages/Warehouses/inventory/StockAdvancedFilters.vue");
-    assert.match(panel, /<slot name="before-filters"\/>[\s\S]*?<div class="col-12 col-sm-6 col-lg-3">\s*<label for="stockCategory"[\s\S]*?for="stockBrand"[\s\S]*?<slot\/>/);
+    assert.match(panel, /<slot name="before-filters"\/>[\s\S]*?<div class="col-12 col-sm-6" :class="catalogColumns">\s*<label for="stockCategory"[\s\S]*?for="stockBrand"[\s\S]*?<slot\/>/);
 
     for(const view of ["kardex", "valued-kardex"]) {
         const page = read(`resources/js/System/Pages/Warehouses/inventory/${view}.vue`);

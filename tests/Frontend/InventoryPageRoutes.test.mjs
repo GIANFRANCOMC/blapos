@@ -84,7 +84,7 @@ test("inventory labels and paginated listings stay consistent across views", () 
     assert.match(component, /this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
     assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, Utilities::\$per_page_default\)\)\);/);
-    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 6);
+    assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 7);
     assert.match(service, /getPaginatedConsolidatedStock\([\s\S]*?->paginate\(\$perPage\)/);
     assert.match(service, /getConsolidatedStock\([\s\S]*?->get\(\)/);
 
@@ -119,6 +119,7 @@ test("transfers open the standard modal and save without leaving the list", () =
     assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.quantity"/);
     assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
     assert.match(modal, /Productos incluidos[\s\S]*?@click="addTransferItem">\s*Agregar producto[\s\S]*?ref="transferItemsScroll"/);
+    assert.match(modal, /Agregar producto\s*<\/button>\s*<button[^>]*class="br-btn br-btn-xs br-btn-danger waves-effect"[^>]*@click="clearTransferItems">\s*Eliminar productos\s*<\/button>/);
     assert.match(modal, /<InputNumber[^>]*v-model="item\.quantity"[^>]*hasTextBottom[^>]*:text-bottom-info="transferQuantityErrors\(item, index\)"/);
     assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
     assert.doesNotMatch(modal, /br-inventory-transfer__item-row|<textarea/);
@@ -207,7 +208,7 @@ test("transfers show only the product-style table below the controls", () => {
     const transfers = read(`${inventoryPath}transfers.vue`);
 
     assert.doesNotMatch(transfers, /Para registrar un traslado, configura al menos dos almacenes/);
-    assert.match(transfers, /<section class="br-entity-list" aria-label="Traslados registrados">\s*<div class="table-responsive">/);
+    assert.match(transfers, /<section class="br-entity-list" aria-label="Traslados registrados"[^>]*>\s*<div class="table-responsive">/);
     assert.match(transfers, /<table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__table mb-0">/);
     assert.match(transfers, /<thead class="br-table-header-surface">/);
     assert.match(transfers, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\/>/);
@@ -227,11 +228,11 @@ test("transfers list all accessible warehouses without allowing a virtual transf
     );
 
     assert.match(component, /warehouses\(\) \{\s*return \(this\.options\.warehouses \|\| \[\]\)\.map\(record =>/);
-    assert.doesNotMatch(component, /Todos los almacenes/);
+    assert.match(transfers, /placeholder="Todos los almacenes"/);
     assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];/);
-    const registerTransferButton = component.slice(
-        component.indexOf('v-if="activeView === \'transfers\'"'),
-        component.indexOf('data-bs-target="#inventoryTransferModal"')
+    const registerTransferButton = transfers.slice(
+        transfers.indexOf('v-if="canOperateTransfers"'),
+        transfers.indexOf('data-bs-target="#inventoryTransferModal"')
     );
 
     assert.match(registerTransferButton, /:disabled="isCurrentViewLoading"/);
@@ -241,16 +242,24 @@ test("transfers list all accessible warehouses without allowing a virtual transf
     assert.match(component, /prepareTransfer\(\) \{[\s\S]*?source: null,[\s\S]*?destination: null/);
     assert.match(component, /source_warehouse_id: this\.transferForm\.source\.code/);
     assert.match(component, /destinationWarehouses\(\) \{\s*if\(!this\.transferForm\.source\?\.code\) return \[\];\s*return this\.realWarehouses\.filter\(warehouse => Number\(warehouse\.code\) !== Number\(this\.transferForm\.source\?\.code\)\);/);
-    assert.match(transfers, /<th>Almacén origen<\/th>\s*<th>Almacén destino<\/th>/);
-    assert.match(transfers, /movement\.transfer_source_warehouse\?\.name[\s\S]*?movement\.transfer_destination_warehouse\?\.name/);
-    assert.equal((transfers.match(/colspan="7"/g) || []).length, 2);
-    assert.match(inventoryCss, /\.br-inventory-transfer__table \{\s*min-width: 70rem;/);
+    assert.match(transfers, /<th scope="col">Almacén de origen<\/th>\s*<th aria-hidden="true"><\/th>\s*<th scope="col">Almacén de destino<\/th>/);
+    assert.match(transfers, /transfer\.source_warehouse\?\.name[\s\S]*?br-inventory-transfer__direction[\s\S]*?fa-right-long[\s\S]*?transfer\.destination_warehouse\?\.name/);
+    assert.equal((transfers.match(/colspan="8"/g) || []).length, 2);
+    assert.match(transfers, /<th scope="col">Estado<\/th>/);
+    const actions = transfers.match(/<TableActionsDropdown[\s\S]*?<\/TableActionsDropdown>/)[0];
+    assert.match(actions, /Ver detalle/);
+    assert.equal((actions.match(/<li>/g) || []).length, 1);
+    assert.match(read(`${inventoryPath}TransferDetailModal.vue`), /<template #footer>[\s\S]*?:href="printUrl"[\s\S]*?Imprimir/);
+    assert.match(transfers, /v-for="\[field, label\] in transferWarehouseFilters"[\s\S]*?v-model="filters\[field\]"[\s\S]*?v-model\.trim="filters\.transferReference"[\s\S]*?v-model="filters\.dateFrom" type="date"[\s\S]*?v-model="filters\.dateTo" type="date"[\s\S]*?v-model\.trim="filters\.productSearch"[\s\S]*?v-model="filters\.transferStatus"/);
+    assert.doesNotMatch(transfers, /<StockAdvancedFilters|filters\.warehouse|stockCategory|stockBrand/);
+    assert.doesNotMatch(transfers, /stockSituation|stockMinimumStatus|stockInactiveDays/);
+    assert.match(inventoryCss, /\.br-inventory-transfer__table \{\s*min-width: 52rem;/);
     assert.match(movementService, /\$warehouseIds = \$page->getCollection\(\)[\s\S]*?source_warehouse_id[\s\S]*?destination_warehouse_id/);
     assert.match(movementService, /\$warehouseQuery->whereIn\("id", \$filters\["allowed_warehouse_ids"\]\);/);
     assert.match(movementService, /"transfer_source_warehouse" => \$sourceId,[\s\S]*?"transfer_destination_warehouse" => \$destinationId/);
     assert.match(movements, /\$allWarehouses = \(\$filters\["warehouse_id"\] \?\? null\) === "all";/);
     assert.match(movements, /RolePermissionService::canAccessRoute\(\$this->getAuthUser\(\), "stocks_management\.transfers\.index"\)/);
-    assert.match(movements, /\$filters\["origin_types"\] = \["transfer_out", "transfer_in"\];\s*unset\(\$filters\["warehouse_id"\]\);/);
+    assert.match(movements, /\$filters\["origin_types"\] = InventoryMovement::TRANSFER_ORIGINS;\s*unset\(\$filters\["warehouse_id"\]\);/);
     assert.match(movements, /\$filters\["allowed_warehouse_ids"\] = AccessScopeService::allowedIds/);
 
 });
@@ -362,7 +371,6 @@ test("stock matches the Kardex filter widths and groups all toolbar actions", ()
     assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
     assert.match(component, /isReportView\(\) \{[\s\S]*?"kardex", "valued", "guides"/);
     assert.match(component, /if\(this\.isReportView\) return "col-12 col-md-6 col-lg-3 col-xl-3";/);
-    assert.match(component, /if\(this\.activeView === "transfers"\) return "col-12 col-lg-6 col-xl-6";/);
 
 });
 
@@ -371,14 +379,17 @@ test("inventory loads the first warehouse and waits for Buscar to apply filters"
     const component = readInventory();
     const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
     const watcher = component.slice(component.indexOf('watch: {'));
-    const mounted = component.slice(component.indexOf('async mounted() {'), component.indexOf('    data() {'));
+    const state = read(`${inventoryPath}inventoryState.js`);
+    const mounted = state.slice(state.indexOf('async mounted() {'), state.indexOf('    data() {'));
 
     assert.equal((component.match(/@click="searchCurrentView"/g) || []).length, 5);
     assert.equal((component.match(/<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>/g) || []).length, 5);
-    assert.match(mounted, /if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*this\.appliedFilters = \{\.\.\.this\.filters\};\s*await this\.listCurrentView\(\{\}\);/);
+    assert.match(mounted, /if\(initialized && this\.activeView === "transfers"\) \{\s*await this\.listCurrentView\(\{\}\);\s*\}else if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*this\.appliedFilters = \{\.\.\.this\.filters\};\s*await this\.listCurrentView\(\{\}\);/);
     assert.doesNotMatch(watcher, /"filters\.|alertMinimumStatus\(\)|this\.invalidateListing\(\)/);
     assert.match(component, /focusProductSearch\(\) \{[\s\S]*?this\.\$refs\.productSearch\?\.focus\(\);/);
-    assert.match(component, /product_search: applied\.productSearch[\s\S]*?if\(this\.activeView === "transfers"\) \{\s*filters\.origin_types = \["transfer_out", "transfer_in"\];/);
+    assert.match(state, /if\(this\.activeView === "transfers"\) return this\.listTransfers\(\{url\}\);/);
+    assert.match(state, /async listTransfers\([\s\S]*?data: this\.currentReportFilters\(\)/);
+    assert.match(state, /product_search: applied\.productSearch/);
     assert.match(movementService, /\$productSearch = trim\(\(string\) \(\$filters\["product_search"\] \?\? ""\)\);[\s\S]*?whereHas\("item"/);
     assert.match(component, /if\(requestVersion !== this\.requestVersion\) return;/);
 
@@ -403,8 +414,8 @@ test("inventory blocks filters and actions while searching", () => {
     assert.match(toolbar, /class="br-btn br-btn-sm br-btn-actions"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
     assert.match(toolbar, /class="dropdown-item" :disabled="isCurrentViewLoading \|\| exporting/);
     assert.match(component, /isCurrentViewLoading\(\) \{\s*if\(this\.activeView === "stock"\) return this\.loadingStock;/);
-    assert.match(component, /searchCurrentView\(\) \{\s*if\(!this\.filters\.warehouse\?\.code \|\| this\.isCurrentViewLoading\) return Promise\.resolve\(\);/);
-    assert.match(component, /async exportCurrentView\(\) \{\s*if\(!this\.appliedFilters\.warehouse\?\.code \|\| this\.exporting \|\| this\.isCurrentViewLoading\) return;/);
+    assert.match(component, /searchCurrentView\(\) \{\s*const warehouse = this\.filters\.warehouse\?\.code;\s*if\(\(this\.activeView !== "transfers" && !warehouse\) \|\| this\.isCurrentViewLoading\) return Promise\.resolve\(\);/);
+    assert.match(component, /async exportCurrentView\(\) \{\s*if\(\(this\.activeView !== "transfers" && !this\.appliedFilters\.warehouse\?\.code\) \|\| this\.exporting \|\| this\.isCurrentViewLoading\) return;/);
 
 });
 

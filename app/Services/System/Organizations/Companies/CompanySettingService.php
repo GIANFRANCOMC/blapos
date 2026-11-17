@@ -13,6 +13,10 @@ final class CompanySettingService {
 
     public const INTERNAL_CODE_PREFIXES = "internal_code_prefixes";
 
+    public const TRANSFER_REFERENCE_PREFIX_KEY = "inventory_transfer";
+
+    public const DEFAULT_TRANSFER_REFERENCE_PREFIX = "TRAS";
+
     public const INVENTORY_POLICIES = "inventory";
 
     public const CUSTOMER_ATTENDANCE = "customer_attendance";
@@ -36,6 +40,7 @@ final class CompanySettingService {
     public const REPORTS = "reports";
 
     private const DEFAULT_INTERNAL_CODE_PREFIXES = [
+        self::TRANSFER_REFERENCE_PREFIX_KEY => self::DEFAULT_TRANSFER_REFERENCE_PREFIX,
         "product" => "PROD",
         "service" => "SERV",
         "subscription" => "MEMB",

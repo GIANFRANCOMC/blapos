@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\System\Warehouses;
 
+use App\Enums\System\Warehouses\{InventoryTransferStatus};
 use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryReportExport, StockAlertsExport};
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest, UpdateStockLevelsRequest};
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
-use App\Models\System\Warehouses\{Warehouse, WarehouseItem};
+use App\Models\System\Warehouses\{InventoryMovement, InventoryTransfer, Warehouse, WarehouseItem};
 use App\Models\System\Catalogs\{Item};
 use App\Models\System\Organizations\{Company};
 use App\Services\System\Organizations\{AccessScopeService};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
-use App\Services\System\Warehouses\Inventory\{InventoryGuideService, InventoryMovementService};
+use App\Services\System\Warehouses\Inventory\{InventoryGuideService, InventoryMovementService, InventoryTransferService};
 use App\Services\System\Warehouses\StockManagement\{StockAlertsPdfRenderer, StockManagementConfigService, StockManagementService};
 use App\Support\System\Warehouses\{InventoryOperationTemplate};
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\{JsonResponse, Request, Response};
 use Illuminate\Validation\{ValidationException};
+use Illuminate\Validation\Rules\Enum;
 use Maatwebsite\Excel\Facades\{Excel};
 use Symfony\Component\HttpFoundation\{BinaryFileResponse};
 
@@ -26,6 +29,10 @@ class StockManagementController extends BaseController {
 
     private const MAX_LIST_PER_PAGE = 30;
     private const KARDEX_VIEWS = ["kardex", "valued"];
+    private const CATALOG_FILTER_RULES = [
+        "category_id" => ["nullable", "integer", "min:1"],
+        "brand_id" => ["nullable", "integer", "min:1"],
+    ];
 
     /**
      * Translation namespace for stock management module
@@ -62,6 +69,14 @@ class StockManagementController extends BaseController {
         $params = StockManagementConfigService::getInitParams($page, $this->getUserId());
         if($page === "transfers") {
             unset($params->config->products);
+            $params->config->can_operate_transfers = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.transfers.store", "POST");
+            $params->config->transfer_statuses = array_map(fn(InventoryTransferStatus $status) => [
+                "code" => $status->value,
+                "label" => $status->label(),
+                "tone" => $status->tone(),
+                "next" => $status->next()?->value,
+                "can_cancel" => $status->canCancel(),
+            ], InventoryTransferStatus::cases());
         }
         $params->config->can_update_stock = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.operations.store", "POST");
 
@@ -161,7 +176,7 @@ class StockManagementController extends BaseController {
 
             }
 
-            $filters["origin_types"] = ["transfer_out", "transfer_in"];
+            $filters["origin_types"] = InventoryMovement::TRANSFER_ORIGINS;
             unset($filters["warehouse_id"]);
 
         }elseif($warehouseId <= 0 || !AccessScopeService::canAccess($this->getAuthUser(), AccessScopeService::WAREHOUSE, $warehouseId)) {
@@ -407,9 +422,7 @@ class StockManagementController extends BaseController {
 
     private function stockFilters(Request $request): array {
 
-        return $request->validate([
-            "category_id" => ["nullable", "integer", "min:1"],
-            "brand_id" => ["nullable", "integer", "min:1"],
+        return $request->validate(self::CATALOG_FILTER_RULES + [
             "minimum_status" => ["nullable", "in:configured,unconfigured"],
             "inactive_days" => ["nullable", "integer", "in:30,60,90"],
         ]);
@@ -503,6 +516,8 @@ class StockManagementController extends BaseController {
         ]);
         if($view === "stock") {
             $filters = array_merge($filters, $request->only("situation"), $this->stockFilters($request));
+        }elseif($view === "transfers") {
+            $filters = $this->transferFilters($request);
         }elseif(in_array($view, self::KARDEX_VIEWS, true)) {
             $filters = array_merge($filters, $this->kardexFilters($request));
         }
@@ -511,7 +526,7 @@ class StockManagementController extends BaseController {
             AccessScopeService::WAREHOUSE
         );
 
-        if(($filters["warehouse_id"] ?? null) !== "all") {
+        if(($filters["warehouse_id"] ?? ($view === "transfers" ? "all" : null)) !== "all") {
 
             $warehouseId = (int) ($filters["warehouse_id"] ?? 0);
             $warehouse = StockManagementService::validateWarehouse($warehouseId);
@@ -577,6 +592,80 @@ class StockManagementController extends BaseController {
 
     }
 
+    public function transfers(Request $request) {
+        $filters = $this->transferFilters($request);
+        $filters["allowed_warehouse_ids"] = $this->transferWarehouseScope();
+
+        return InventoryTransferService::query($filters)->paginate($this->inventoryPerPage($request));
+    }
+
+    private function transferFilters(Request $request): array {
+        return $request->validate([
+            "warehouse_id" => ["nullable", "regex:/^(all|[1-9][0-9]*)$/"],
+            "source_warehouse_id" => ["nullable", "integer", "min:1"],
+            "destination_warehouse_id" => ["nullable", "integer", "min:1"],
+            "item_id" => ["nullable", "integer", "min:1"],
+            "product_search" => ["nullable", "string", "max:255"],
+            "date_from" => ["nullable", "date_format:Y-m-d"],
+            "date_to" => ["nullable", "date_format:Y-m-d"],
+            "reference" => ["nullable", "string", "max:40"],
+            "transfer_status" => ["nullable", new Enum(InventoryTransferStatus::class)],
+        ]);
+    }
+
+    public function showTransfer(int $transfer): JsonResponse {
+        return response()->json(["data" => $this->authorizedTransfer($transfer)]);
+    }
+
+    public function advanceTransfer(Request $request, int $transfer): JsonResponse {
+        $data = $request->validate([
+            "status" => ["required", new Enum(InventoryTransferStatus::class)],
+            "expected_status" => ["required_if:status,canceled", "nullable", new Enum(InventoryTransferStatus::class)],
+            "cancellation_reason" => ["nullable", "string", "max:255"],
+        ]);
+        $user = $this->getAuthUser();
+        $record = $this->authorizedTransfer($transfer);
+        abort_unless($record->sourceWarehouse && $record->destinationWarehouse
+            && RolePermissionService::canAccessRoute($user, "stocks_management.transfers.advance", "PATCH"), 403);
+
+        try {
+            $reason = trim($data["cancellation_reason"] ?? "");
+            InventoryTransferService::advance(
+                $transfer,
+                InventoryTransferStatus::from($data["status"]),
+                $this->getUserId(),
+                InventoryTransferStatus::tryFrom($data["expected_status"] ?? ""),
+                $reason === "" ? null : $reason
+            );
+        }catch(\DomainException $exception) {
+            return response()->json(["bool" => false, "msg" => $exception->getMessage()], 422);
+        }
+
+        return response()->json(["bool" => true, "data" => $this->authorizedTransfer($transfer)]);
+    }
+
+    public function printTransfer(int $transfer): Response {
+        $record = $this->authorizedTransfer($transfer);
+        $company = Company::query()->first(["legal_name", "commercial_name", "document_number"]);
+
+        return Pdf::loadView("System.pdf.inventory.transfer", ["transfer" => $record, "company" => $company])
+            ->setPaper("a4")
+            ->stream("traslado-{$record->reference}.pdf");
+    }
+
+    private function authorizedTransfer(int $id): InventoryTransfer {
+        return InventoryTransferService::withItems(InventoryTransferService::query([
+            "allowed_warehouse_ids" => $this->transferWarehouseScope(),
+        ]))->findOrFail($id);
+    }
+
+    private function transferWarehouseScope(): ?array {
+        $user = $this->getAuthUser();
+        abort_unless(RolePermissionService::canAccessRoute($user, "stocks_management.transfers.index"), 403);
+
+        return AccessScopeService::allowedIds($user, AccessScopeService::WAREHOUSE);
+    }
+
     public function transferAvailability(Request $request): JsonResponse {
 
         $data = $request->validate([
@@ -615,19 +704,18 @@ class StockManagementController extends BaseController {
 
             }
 
-            $transfer = StockManagementService::transfer([
+            $transfer = InventoryTransferService::register([
                 "source_warehouse_id" => (int) $data["source_warehouse_id"],
                 "destination_warehouse_id" => (int) $data["destination_warehouse_id"],
                 "items" => $data["items"],
                 "reason" => (string) $data["reason"],
+                "status" => $data["status"] ?? InventoryTransferStatus::Accepted->value,
                 "user_id" => $this->getUserId(),
             ]);
 
             return response()->json([
                 "bool" => true,
-                "msg" => count($data["items"]) === 1
-                    ? "Traslado registrado correctamente."
-                    : "Productos trasladados correctamente.",
+                "msg" => "Traslado registrado correctamente.",
                 "data" => $transfer,
             ]);
 

@@ -164,6 +164,34 @@ test("el traslado marca cantidades que exceden el saldo conocido con la precisi�
     }
 });
 
+test("Eliminar productos quita todas las filas y conserva los almacenes y el motivo del traslado", () => {
+    const {methods, computed} = inventoryComponent();
+    const context = {
+        savingTransfer: true,
+        canConfigureTransfer: true,
+        transferForm: {
+            source: {code: 1}, destination: {code: 2}, reason: "Reposición",
+            items: [{product: {code: 25}, quantity: "1"}, {product: {code: 26}, quantity: "2"}]
+        },
+        transferErrors: {items: ["Verifica las filas"], "items.0.quantity": ["Dato inválido"], reason: ["Verifica el motivo"]},
+        disposeInventoryModalTooltips() {},
+        refreshInventoryModalTooltips() {},
+        $nextTick(callback) { callback(); },
+        $refs: {addTransferProduct: {focus() { focused = true; }}}
+    };
+    let focused = false;
+
+    methods.clearTransferItems.call(context);
+    assert.equal(context.transferForm.items.length, 2);
+
+    context.savingTransfer = false;
+    methods.clearTransferItems.call(context);
+    assert.deepEqual(context.transferForm, {source: {code: 1}, destination: {code: 2}, reason: "Reposición", items: []});
+    assert.deepEqual(context.transferErrors, {reason: ["Verifica el motivo"]});
+    assert.equal(computed.transferAvailabilityQuery.call(context), null);
+    assert.equal(focused, true);
+});
+
 test("una operación o traslado puede quitar la última fila sin enviar un formulario vacío", async () => {
     const {methods} = inventoryComponent({post() { assert.fail("No se pueden guardar filas vacías"); }});
     for(const [form, errors, remove, save] of [

@@ -27,6 +27,8 @@ import StockTraceabilityModal from "./StockTraceabilityModal.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 
 const STOCK_PAGE_SIZE = 10;
+const DEFAULT_TRANSFER_STATUS = "accepted";
+const ALL_TRANSFER_STATUSES = {code: "", label: "Todos los estados"};
 const ALL_MOVEMENT_USERS = {code: "", label: "Todos los usuarios"};
 
 const TRANSFER_REASON_OPTIONS = [
@@ -98,6 +100,10 @@ function createInventoryFilters(warehouse = null) {
         movementType: MOVEMENT_TYPES[0],
         movementUser: ALL_MOVEMENT_USERS,
         guideType: GUIDE_TYPES[0],
+        transferStatus: ALL_TRANSFER_STATUSES,
+        sourceWarehouse: null,
+        destinationWarehouse: null,
+        transferReference: "",
         dateFrom: "",
         dateTo: ""
     };
@@ -141,7 +147,9 @@ export default {
             this.initialLoading = false;
         }
 
-        if(initialized && this.realWarehouses.length) {
+        if(initialized && this.activeView === "transfers") {
+            await this.listCurrentView({});
+        }else if(initialized && this.realWarehouses.length) {
             this.filters.warehouse = this.realWarehouses[0];
             this.appliedFilters = {...this.filters};
             await this.listCurrentView({});
@@ -158,6 +166,7 @@ export default {
             initialLoading: true,
             loadingStock: false,
             loadingKardex: false,
+            loadingTransfers: false,
             loadingAlerts: false,
             canUpdateStock: false,
             loadingTraceability: false,
@@ -181,6 +190,7 @@ export default {
             operationFileName: "",
             operationPreviewVersion: 0,
             savingTransfer: false,
+            canOperateTransfers: false,
             focusTransferReasonAfterClose: false,
             exporting: false,
             scannedProductId: null,
@@ -188,6 +198,7 @@ export default {
             stockAlerts: {total: 0, data: []},
             kardexRecords: {total: 0, data: []},
             guideRecords: {total: 0, data: []},
+            transferRecords: {total: 0, data: [], links: []},
             filters: createInventoryFilters(),
             appliedFilters: createInventoryFilters(),
             movementForm: {
@@ -205,6 +216,7 @@ export default {
             transferForm: {
                 source: null,
                 destination: null,
+                status: DEFAULT_TRANSFER_STATUS,
                 items: [{
                     key: `initial-transfer-${Date.now()}`,
                     product: null,
@@ -217,7 +229,7 @@ export default {
             transferAvailabilityRequest: 0,
             loadingTransferAvailability: false,
             transferAvailabilityError: false,
-            options: {warehouses: [], products: [], stockCategories: [], stockBrands: [], movementUsers: []},
+            options: {warehouses: [], products: [], stockCategories: [], stockBrands: [], movementUsers: [], transferStatuses: []},
             config: {
                 ...Constants.generalConfig,
                 entity: {
@@ -246,6 +258,8 @@ export default {
             this.options.stockCategories = result.data?.config?.stock_categories?.records || [];
             this.options.stockBrands = result.data?.config?.stock_brands?.records || [];
             this.options.movementUsers = result.data?.config?.movement_users || [];
+            this.options.transferStatuses = result.data?.config?.transfer_statuses || [];
+            this.canOperateTransfers = Boolean(result.data?.config?.can_operate_transfers);
             this.canUpdateStock = Boolean(result.data?.config?.can_update_stock);
             return Requests.valid({result});
         },
@@ -475,11 +489,29 @@ export default {
                 if(requestVersion === this.requestVersion) this.loadingGuides = false;
             }
         },
+        async listTransfers({url = null} = {}) {
+            const requestVersion = ++this.requestVersion;
+            this.loadingTransfers = true;
+            this.transferRecords = Requests.emptyPagination();
+
+            try {
+                const result = await Requests.get({
+                    route: url || Requests.config({entity: "stocks_management", type: "transfers"}),
+                    data: this.currentReportFilters(),
+                    showAlert: true
+                });
+
+                if(requestVersion === this.requestVersion && result?.bool) this.transferRecords = result.data;
+            } finally {
+                if(requestVersion === this.requestVersion) this.loadingTransfers = false;
+            }
+        },
         searchCurrentView() {
-            if(!this.filters.warehouse?.code || this.isCurrentViewLoading) return Promise.resolve();
+            const warehouse = this.filters.warehouse?.code;
+            if((this.activeView !== "transfers" && !warehouse) || this.isCurrentViewLoading) return Promise.resolve();
 
             const previousWarehouse = this.appliedFilters.warehouse?.code;
-            if(previousWarehouse && previousWarehouse !== this.filters.warehouse.code) this.invalidateListing();
+            if(previousWarehouse && previousWarehouse !== warehouse) this.invalidateListing();
             this.appliedFilters = {...this.filters};
             const exactProduct = this.activeView === "stock" ? this.findExactProduct(this.appliedFilters.productSearch) : null;
             this.scannedProductId = exactProduct ? Number(exactProduct.code) : null;
@@ -518,6 +550,7 @@ export default {
             this.traceabilityError = "";
             this.loadingStock = false;
             this.loadingKardex = false;
+            this.loadingTransfers = false;
             this.loadingAlerts = false;
             this.stockAlertsError = "";
             this.loadingGuides = false;
@@ -526,10 +559,12 @@ export default {
             this.stockAlerts = {total: 0, data: []};
             this.kardexRecords = {total: 0, data: []};
             this.guideRecords = {total: 0, data: []};
+            this.transferRecords = Requests.emptyPagination();
         },
         listCurrentView({url = null} = {}) {
             if(this.activeView === "stock") return this.listStock({url});
-            if(["kardex", "transfers", "valued"].includes(this.activeView)) return this.listKardex({url});
+            if(this.activeView === "transfers") return this.listTransfers({url});
+            if(["kardex", "valued"].includes(this.activeView)) return this.listKardex({url});
             if(this.activeView === "guides") return this.listGuides({url});
             return Promise.resolve();
         },
@@ -543,13 +578,15 @@ export default {
                 date_to: applied.dateTo
             };
 
-            if(this.activeView === "transfers") {
-                filters.origin_types = ["transfer_out", "transfer_in"];
-                filters.movement_type = "";
-            }
-
             if(this.activeView === "guides") {
                 filters.guide_type = applied.guideType?.code || "";
+            }
+
+            if(this.activeView === "transfers") {
+                filters.source_warehouse_id = applied.sourceWarehouse?.code || undefined;
+                filters.destination_warehouse_id = applied.destinationWarehouse?.code || undefined;
+                filters.transfer_status = applied.transferStatus?.code || "";
+                filters.reference = applied.transferReference;
             }
 
             if(this.activeView === "stock") {
@@ -578,7 +615,7 @@ export default {
             return filters;
         },
         async exportCurrentView() {
-            if(!this.appliedFilters.warehouse?.code || this.exporting || this.isCurrentViewLoading) return;
+            if((this.activeView !== "transfers" && !this.appliedFilters.warehouse?.code) || this.exporting || this.isCurrentViewLoading) return;
 
             const confirmed = await Alerts.confirmDownload({resource: `el reporte de ${this.currentView.title.toLocaleLowerCase("es")}`});
 
@@ -890,6 +927,7 @@ export default {
             this.transferForm = {
                 source: null,
                 destination: null,
+                status: DEFAULT_TRANSFER_STATUS,
                 items: [this.newTransferItem()],
                 reason: ""
             };
@@ -939,6 +977,17 @@ export default {
             this.transferErrors = {};
             this.refreshInventoryModalTooltips("inventoryTransferModal");
         },
+        clearTransferItems() {
+            if(this.savingTransfer || !this.transferForm.items.length) return;
+
+            this.disposeInventoryModalTooltips("inventoryTransferModal");
+            this.transferForm.items = [];
+            for(const field of Object.keys(this.transferErrors)) {
+                if(field === "items" || field.startsWith("items.")) delete this.transferErrors[field];
+            }
+            this.refreshInventoryModalTooltips("inventoryTransferModal");
+            this.$nextTick(() => this.$refs.addTransferProduct?.focus());
+        },
         transferItemError(index, field) {
             return this.firstError(this.transferErrors[`items.${index}.${field}`]);
         },
@@ -987,6 +1036,7 @@ export default {
                 data: {
                     source_warehouse_id: this.transferForm.source.code,
                     destination_warehouse_id: this.transferForm.destination?.code,
+                    status: this.transferForm.status,
                     items: this.transferForm.items.map(item => ({
                         item_id: item.product?.code,
                         quantity: item.quantity
@@ -1001,7 +1051,7 @@ export default {
                 this.$refs.closeTransferModal?.click();
                 Alerts.generateAlert({type: "success", msgContent: result.data.msg});
                 this.prepareTransfer();
-                await this.listKardex({});
+                await this.listCurrentView({});
                 return;
             }
 
@@ -1034,6 +1084,7 @@ export default {
                 purchase_cancellation: "Anulación de compra",
                 transfer_out: "Traslado enviado",
                 transfer_in: "Traslado recibido",
+                transfer_cancellation: "Cancelación de traslado",
                 customer_return: "Devolución de cliente",
                 supplier_return: "Devolución a proveedor",
                 physical_count: "Toma física",
@@ -1075,7 +1126,6 @@ export default {
             return ["kardex", "valued", "guides"].includes(this.activeView);
         },
         contextActionColumns() {
-            if(this.activeView === "transfers") return "col-12 col-lg-6 col-xl-6";
             if(this.isReportView) return "col-12 col-md-6 col-lg-3 col-xl-3";
 
             return "col-12 col-md-6 col-lg-9 col-xl-9";
@@ -1096,6 +1146,9 @@ export default {
         },
         transferReasonOptions() {
             return TRANSFER_REASON_OPTIONS;
+        },
+        transferStatusFilters() {
+            return [ALL_TRANSFER_STATUSES, ...this.options.transferStatuses];
         },
         hasTransferQuantityOverStock() {
             return this.transferForm.items.some(this.transferQuantityExceedsStock);
@@ -1177,12 +1230,14 @@ export default {
         },
         currentRecords() {
             if(this.activeView === "stock") return this.stockRecords;
+            if(this.activeView === "transfers") return this.transferRecords;
             if(this.activeView === "guides") return this.guideRecords;
 
             return this.kardexRecords;
         },
         isCurrentViewLoading() {
             if(this.activeView === "stock") return this.loadingStock;
+            if(this.activeView === "transfers") return this.loadingTransfers;
             if(this.activeView === "guides") return this.loadingGuides;
 
             return this.loadingKardex;

@@ -222,6 +222,7 @@ final class CompanyProvisioningService {
         $companyId = $this->rootCompanyId();
         $settings = [
             ["group" => "internal_code_prefixes", "key" => "product", "value" => "PROD", "description" => "Prefijo usado para generar códigos internos de productos. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
+            ["group" => CompanySettingService::INTERNAL_CODE_PREFIXES, "key" => CompanySettingService::TRANSFER_REFERENCE_PREFIX_KEY, "value" => CompanySettingService::DEFAULT_TRANSFER_REFERENCE_PREFIX, "description" => "Prefijo de las referencias de traslado. Si se deja vacío, los nuevos traslados se guardan sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "service", "value" => "SERV", "description" => "Prefijo usado para generar códigos internos de servicios. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "subscription", "value" => "MEMB", "description" => "Prefijo usado para generar códigos internos de membresías. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],
             ["group" => "internal_code_prefixes", "key" => "brand", "value" => "MAR", "description" => "Prefijo usado para generar códigos internos de marcas. Si el valor queda vacío, el código se guarda sin prefijo.", "value_type" => "string"],

@@ -12,21 +12,10 @@
         <div class="modal-dialog modal-dialog-centered" :class="[modalSize, dialogClass]" role="document">
             <div class="modal-content">
                 <div class="modal-header br-entity-modal__header">
-                    <div>
-                        <p
-                            v-if="eyebrow"
-                            class="br-entity-modal__eyebrow mb-1"
-                            v-text="eyebrow"></p>
-                        <h2
-                            :id="titleId"
-                            class="modal-title br-entity-modal__title br-entity-modal__title--form"
-                            v-text="title"></h2>
-                        <small
-                            v-if="subtitle"
-                            class="br-entity-modal__subtitle"
-                            v-text="subtitle"></small>
-                        <slot name="header"></slot>
-                    </div>
+                    <h2
+                        :id="titleId"
+                        class="modal-title br-entity-modal__title br-entity-modal__title--form"
+                        v-text="title"></h2>
                     <button
                         type="button"
                         class="br-modal-close"
@@ -89,14 +78,6 @@ export default {
         title: {
             type: String,
             required: true
-        },
-        eyebrow: {
-            type: String,
-            default: ""
-        },
-        subtitle: {
-            type: String,
-            default: ""
         },
         modalSize: {
             type: String,

@@ -8,10 +8,8 @@
         :submit-disabled="busy || !changed"
         submit-button-text="Guardar cambios"
         @submit="save">
-        <template #header>
-            <ProductIdentity v-if="record" variant="expandable" class="mt-1" :product="record"/>
-        </template>
         <template #body>
+            <ProductIdentity v-if="record" variant="expandable" class="mb-2" :product="record"/>
             <p class="br-operational-scope mb-3">
                 <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
                 <span>{{ warehouse?.displayLabel || warehouse?.label }}</span>

@@ -13929,19 +13929,113 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 }
 
 .br-inventory-transfer__table {
-    min-width: 70rem;
+    min-width: 52rem;
+    table-layout: fixed;
 }
 
-.br-inventory-transfer__col-date { width: 15%; }
-.br-inventory-transfer__col-product { width: 18%; }
+.br-inventory-transfer__col-reference { width: 17%; }
+.br-inventory-transfer__col-date { width: 18%; }
 .br-inventory-transfer__col-source,
-.br-inventory-transfer__col-destination { width: 16%; }
-.br-inventory-transfer__col-movement { width: 12%; }
-.br-inventory-transfer__col-quantity { width: 12%; }
-.br-inventory-transfer__col-reference { width: 11%; }
+.br-inventory-transfer__col-destination { width: 17.5%; }
+.br-inventory-transfer__col-direction { width: 5%; }
+.br-inventory-transfer__col-count { width: 8%; }
+.br-inventory-transfer__col-status { width: 11%; }
 
-.br-inventory-transfer__table td:nth-child(6) {
-    white-space: nowrap;
+.br-inventory-transfer__table td,
+.br-inventory-transfer__reference {
+    overflow-wrap: anywhere;
+}
+
+.br-inventory-transfer__reference {
+    color: var(--br-text);
+    font-size: var(--br-font-size-table);
+    font-weight: var(--br-font-weight-emphasis);
+}
+
+.br-inventory-transfer__detail {
+    display: grid;
+    gap: 1rem;
+    color: var(--br-text);
+    font-size: var(--br-font-size-table);
+}
+
+.br-inventory-transfer__detail-summary {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr 1fr auto;
+    gap: 0.75rem 1rem;
+    align-items: start;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--br-border);
+}
+
+.br-inventory-transfer__detail-route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    align-items: start;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--br-border);
+    border-radius: var(--br-radius-sm);
+    background: var(--br-surface-soft);
+}
+
+.br-inventory-transfer__detail-arrow {
+    align-self: center;
+}
+
+.br-inventory-transfer__detail dt {
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
+    font-weight: var(--br-font-weight-emphasis);
+    margin-bottom: 0.2rem;
+}
+
+.br-inventory-transfer__detail dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.br-inventory-transfer__detail-warehouse {
+    font-weight: var(--br-font-weight-emphasis);
+}
+
+.br-inventory-transfer__detail-reason dd {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.br-inventory-transfer__cancellation {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--br-border);
+    border-inline-start: 3px solid var(--br-danger);
+    border-radius: var(--br-radius-sm);
+    background: var(--br-surface-soft);
+}
+
+.br-inventory-transfer__detail-heading {
+    margin: 0 0 0.42rem;
+    font-size: var(--br-font-size-table);
+    font-weight: var(--br-font-weight-emphasis);
+}
+
+.br-inventory-transfer__detail-table th:last-child {
+    width: 25%;
+}
+
+@media (max-width: 575.98px) {
+    .br-inventory-transfer__detail-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .br-inventory-transfer__detail-route {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.5rem;
+    }
+
+    .br-inventory-transfer__detail-arrow {
+        justify-self: start;
+        transform: rotate(90deg);
+    }
 }
 
 .br-inventory-operation__config {
@@ -14042,22 +14136,29 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 
 .br-inventory-transfer__direction {
     display: grid;
-    grid-area: 2 / 2;
-    align-self: center;
-    justify-self: center;
     place-items: center;
     inline-size: var(--br-btn-height-sm);
     block-size: var(--br-btn-height-sm);
     border-radius: 50%;
-    background: var(--br-dropdown-accent, var(--br-actions-orange));
-    color: var(--br-on-actions);
+    color: var(--br-dropdown-accent, var(--br-actions-orange));
+    background: color-mix(in srgb, currentColor 12%, transparent);
     font-size: var(--br-font-size-table);
 }
 
-.br-inventory-transfer__reason {
-    grid-column: 1 / -1;
+.br-inventory-transfer__config > .br-inventory-transfer__direction {
+    grid-area: 2 / 2;
+    align-self: center;
+    justify-self: center;
+}
+
+.br-inventory-transfer__reason,
+.br-inventory-transfer__form-status {
+    min-inline-size: 0;
     margin-block-start: 0.7rem;
 }
+
+.br-inventory-transfer__reason { grid-column: 1 / 3; }
+.br-inventory-transfer__form-status { grid-column: 3; }
 
 .br-inventory-transfer__reason-action {
     width: 24%;
@@ -14115,15 +14216,17 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
         grid-row: auto;
     }
 
-    .br-inventory-transfer__direction {
+    .br-inventory-transfer__config > .br-inventory-transfer__direction {
         grid-area: auto;
     }
 
-    .br-inventory-transfer__direction i {
+    .br-inventory-transfer__config > .br-inventory-transfer__direction i {
         transform: rotate(90deg);
     }
 
-    .br-inventory-transfer__reason {
+    .br-inventory-transfer__reason,
+    .br-inventory-transfer__form-status {
+        grid-column: 1 / -1;
         margin-block-start: 0.3rem;
     }
 }

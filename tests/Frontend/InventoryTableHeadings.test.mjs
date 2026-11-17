@@ -93,7 +93,7 @@ test("Control de stock e Inventario usan la variante desplegable de producto", a
     assert.match(withoutProduct, /Producto sin nombre[\s\S]*?Cód\. interno[\s\S]*?—/);
     assert.doesNotMatch(withoutProduct, /Cód\. barras/);
 
-    for(const file of ["stock", "StockAlertsModal", "StockTraceabilityModal", "StockItemEditor", "kardex", "valued-kardex", "transfers", "guides"]) {
+    for(const file of ["stock", "StockAlertsModal", "StockTraceabilityModal", "StockItemEditor", "kardex", "valued-kardex", "TransferDetailModal", "guides"]) {
         assert.match(read(directory + "/" + file + ".vue"), /<ProductIdentity\b[^>]*variant="expandable"/);
     }
     for(const file of ["Catalogs/products/main.vue", "Catalogs/recipes/main.vue", "Sales/sales/main.vue", "Sales/sales/deliveries.vue", "Sales/pos/main.vue", "Purchases/purchases/main.vue"]) {

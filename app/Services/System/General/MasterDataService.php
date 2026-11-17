@@ -155,6 +155,9 @@ final class MasterDataService {
                         if(preg_match(InternalCodeService::WHITESPACE_PATTERN, $prefix)) {
                             throw ValidationException::withMessages(["value" => "Ingresa el prefijo sin espacios o deja el valor vacío."]);
                         }
+                        if($data["key"] === CompanySettingService::TRANSFER_REFERENCE_PREFIX_KEY && !preg_match('/\A[A-Z0-9-]{0,20}\z/i', $prefix)) {
+                            throw ValidationException::withMessages(["value" => "Usa hasta 20 letras, números o guiones para el prefijo de traslado."]);
+                        }
                         $data["value"] = $prefix === "" ? null : strtoupper($prefix);
                     }
 

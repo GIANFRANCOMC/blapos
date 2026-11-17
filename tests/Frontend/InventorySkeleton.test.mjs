@@ -48,11 +48,12 @@ test("cada skeleton conserva el orden de filtros, acciones y columnas de su list
     const options = new Function("Loader", script)({render: () => h("div", {class: "br-loader"})});
     const skeleton = {...options, render: compile(descriptor.template.content)};
     const warehouse = "Almacén de trabajo";
+    const stockFilters = [warehouse, "Producto", "Estado del stock", "Stock mínimo", "Último movimiento", "Categoría", "Marca"];
     const kardexFilters = [warehouse, "Producto", "Movimiento", "Desde", "Hasta", "Realizado por", "Categoría", "Marca"];
 
     for(const [page, filters, actions] of [
-        ["stock", [warehouse, "Producto", "Estado del stock", "Stock mínimo", "Último movimiento", "Categoría", "Marca"], ["Acciones", "Registrar operación"]],
-        ["transfers", [warehouse, "Producto"], ["Registrar traslado", "Acciones"]],
+        ["stock", stockFilters, ["Acciones", "Registrar operación"]],
+        ["transfers", ["Almacén de origen", "Almacén de destino", "Referencia", "Desde", "Hasta", "Producto", "Estado del traslado"], ["Acciones", "Registrar traslado"]],
         ["guides", [warehouse, "Tipo de guía", "Desde", "Hasta"], ["Acciones"]],
         ["kardex", kardexFilters, ["Acciones"]],
         ["valued", kardexFilters, ["Acciones"]]

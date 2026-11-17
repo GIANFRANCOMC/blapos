@@ -11,25 +11,21 @@
             </div>
 
             <div :class="actionColumns">
-                <div class="br-inventory__context-actions" :class="actionLayout">
+                <div :class="actionLayout">
                     <span class="br-btn br-btn-sm br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
                     <span class="br-btn br-btn-sm br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
-                    <span v-if="page === 'transfers'" class="br-btn br-btn-sm br-inventory-skeleton__button">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Registrar traslado</span>
-                    </span>
                     <span class="br-btn br-btn-sm br-btn-actions br-inventory-skeleton__button" :class="{'px-lg-2': isKardex}">
                         <span>Acciones</span>
                         <i class="fa-solid fa-chevron-down br-btn-actions__chevron"></i>
                     </span>
                 </div>
-                <div v-if="page === 'stock'" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
+                <div v-if="hasPrimaryActions" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
                     <span class="vr align-self-center"></span>
                     <span class="br-btn br-btn-sm br-inventory-skeleton__button">
                         <i class="fa-solid fa-plus"></i>
-                        <span>Registrar operación</span>
+                        <span>{{ page === 'stock' ? 'Registrar operación' : 'Registrar traslado' }}</span>
                     </span>
-                    <span class="br-btn br-btn-sm br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
+                    <span v-if="page === 'stock'" class="br-btn br-btn-sm br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
                 </div>
             </div>
         </div>
@@ -43,10 +39,11 @@
                         </colgroup>
                         <thead class="br-table-header-surface">
                             <tr>
-                                <th v-for="heading in headings" :key="heading" scope="col"
+                                <th v-for="heading in headings" :key="heading" :scope="heading === null ? null : 'col'"
+                                    :aria-hidden="heading === null ? true : null"
                                     :class="{'text-nowrap px-0': page === 'stock' && heading === 'Estado del stock'}">
                                     <template v-if="heading">{{ heading }}</template>
-                                    <span v-else class="visually-hidden">Acciones</span>
+                                    <span v-else-if="heading === ''" class="visually-hidden">Acciones</span>
                                 </th>
                             </tr>
                         </thead>
@@ -74,11 +71,18 @@ const warehouse = ["Almacén de trabajo", wideField];
 const product = ["Producto", wideField];
 const dates = [["Desde", compactField], ["Hasta", compactField]];
 const catalog = [["Categoría", catalogField], ["Marca", catalogField]];
+const stockFilters = [warehouse, product, ["Estado del stock", compactField], ["Stock mínimo", compactStockField], ["Último movimiento", compactStockField], ...catalog];
 const kardexFilters = [warehouse, product, ["Movimiento", compactField], ...dates, ["Realizado por", wideField], ...catalog];
 
 const filtersByPage = {
-    stock: [warehouse, product, ["Estado del stock", compactField], ["Stock mínimo", compactStockField], ["Último movimiento", compactStockField], ...catalog],
-    transfers: [warehouse, product],
+    stock: stockFilters,
+    transfers: [
+        ["Almacén de origen", catalogField],
+        ["Almacén de destino", catalogField],
+        ...["Referencia", "Desde", "Hasta"].map(label => [label, compactStockField]),
+        ["Producto", catalogField],
+        ["Estado del traslado", compactStockField]
+    ],
     guides: [warehouse, ["Tipo de guía", compactField], ...dates],
     kardex: kardexFilters,
     valued: kardexFilters
@@ -87,7 +91,7 @@ const filtersByPage = {
 const kardexHeadings = ["Producto", "Movimiento", "Variación"];
 const headingsByPage = {
     stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock", ""],
-    transfers: ["Fecha y responsable", "Producto", "Almacén origen", "Almacén destino", "Movimiento", "Cantidad", "Referencia"],
+    transfers: ["Referencia", "Fecha y responsable", "Almacén de origen", null, "Almacén de destino", "Productos", "Estado", ""],
     guides: ["Fecha y número", "Almacén", "Tipo", "Detalle", "Referencia", "Estado"],
     kardex: [...kardexHeadings, "Saldo"],
     valued: [...kardexHeadings, "Costo unitario", "Valor movimiento", "Valor resultante"]
@@ -104,8 +108,8 @@ const tableClasses = {
 const tableColumnsByPage = {
     stock: ["product", "current", "minimum", "difference", "status"]
         .map(column => `br-inventory__col-${column}`).concat("br-entity-table__col-actions"),
-    transfers: ["date", "product", "source", "destination", "movement", "quantity", "reference"]
-        .map(column => `br-inventory-transfer__col-${column}`)
+    transfers: ["reference", "date", "source", "direction", "destination", "count", "status"]
+        .map(column => `br-inventory-transfer__col-${column}`).concat("br-entity-table__col-actions")
 };
 
 const labelsByPage = {
@@ -126,15 +130,15 @@ export default {
         tableColumns() { return tableColumnsByPage[this.page]; },
         viewLabel() { return labelsByPage[this.page]; },
         isKardex() { return this.page === "kardex" || this.page === "valued"; },
+        hasPrimaryActions() { return this.page === "stock" || this.page === "transfers"; },
         actionColumns() {
-            if(this.page === "stock") return "col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2";
-            if(this.page === "transfers") return "col-12 col-lg-6 col-xl-6";
+            if(this.hasPrimaryActions) return "col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2";
             if(this.isKardex) return "col-12 col-lg-3";
             return wideField;
         },
         actionLayout() {
-            if(this.page === "stock") return "d-flex flex-nowrap align-items-stretch gap-2";
-            return this.isKardex ? "br-filter-bar__actions gap-lg-1" : "br-filter-bar__actions";
+            if(this.hasPrimaryActions) return "br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2";
+            return this.isKardex ? "br-inventory__context-actions br-filter-bar__actions gap-lg-1" : "br-inventory__context-actions br-filter-bar__actions";
         }
     }
 };

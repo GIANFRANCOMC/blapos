@@ -627,6 +627,39 @@ return new class extends Migration {
 
         });
 
+        Schema::create("inventory_transfers", function(Blueprint $table) {
+
+            $table->id();
+            $table->string("reference", 40)->unique();
+            $table->enum("status", ["pending", "sent", "accepted", "canceled"])->default("accepted");
+            $table->foreignId("source_warehouse_id")->constrained("warehouses")->restrictOnDelete();
+            $table->foreignId("destination_warehouse_id")->constrained("warehouses")->restrictOnDelete();
+            $table->foreignId("user_id")->nullable()->constrained("users")->nullOnDelete();
+            $table->string("reason", 255);
+            $table->timestamp("created_at")->useCurrent();
+            $table->timestamp("canceled_at")->nullable();
+            $table->foreignId("canceled_by")->nullable()->constrained("users")->nullOnDelete();
+            $table->string("cancellation_reason", 255)->nullable();
+
+            $table->index(["created_at", "id"], "transfers_date_idx");
+            $table->index(["source_warehouse_id", "created_at", "id"], "transfers_source_date_idx");
+            $table->index(["destination_warehouse_id", "created_at", "id"], "transfers_destination_date_idx");
+            $table->index(["status", "created_at", "id"], "transfers_status_date_idx");
+
+        });
+
+        Schema::create("inventory_transfer_items", function(Blueprint $table) {
+
+            $table->id();
+            $table->foreignId("inventory_transfer_id")->constrained()->restrictOnDelete();
+            $table->foreignId("item_id")->constrained("items")->restrictOnDelete();
+            $table->foreignId("outbound_movement_id")->nullable()->unique()->constrained("inventory_movements")->restrictOnDelete();
+            $table->foreignId("inbound_movement_id")->nullable()->unique()->constrained("inventory_movements")->restrictOnDelete();
+            $table->decimal("quantity", 15, 3);
+            $table->unique(["inventory_transfer_id", "item_id"], "transfer_items_transfer_item_uq");
+
+        });
+
         Schema::create("inventory_stock_alerts", function(Blueprint $table) {
 
             $table->id();
@@ -973,6 +1006,8 @@ return new class extends Migration {
         Schema::dropIfExists("inventory_guide_items");
         Schema::dropIfExists("inventory_guides");
         Schema::dropIfExists("inventory_stock_alerts");
+        Schema::dropIfExists("inventory_transfer_items");
+        Schema::dropIfExists("inventory_transfers");
         Schema::dropIfExists("inventory_movements");
         Schema::dropIfExists("warehouse_items");
         Schema::dropIfExists("cash_movements");

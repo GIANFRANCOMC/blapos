@@ -28,6 +28,8 @@ return [
 
     "route_actions" => [
         "stocks_management.levels.update" => "operate",
+        "stocks_management.transfers.print" => "view",
+        "stocks_management.transfers.advance" => "operate",
         "stocks_management.transfers.availability" => "create",
         "home.update" => "view",
         "products.import.template" => "import",
@@ -176,6 +178,10 @@ return [
         "stocks_management.movements.store" => ["stocks_management.stock.index"],
         "stocks_management.operations.store" => ["stocks_management.stock.index"],
         "stocks_management.levels.update" => ["stocks_management.stock.index"],
+        "stocks_management.transfers.list" => ["stocks_management.transfers.index"],
+        "stocks_management.transfers.show" => ["stocks_management.transfers.index"],
+        "stocks_management.transfers.print" => ["stocks_management.transfers.index"],
+        "stocks_management.transfers.advance" => ["stocks_management.transfers.index"],
         "stocks_management.transfers.store" => ["stocks_management.transfers.index"],
         "stocks_management.transfers.availability" => ["stocks_management.transfers.index"],
         "stocks_management.export" => [

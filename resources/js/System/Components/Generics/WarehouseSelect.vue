@@ -7,7 +7,7 @@
         :options="options"
         :get-option-key="option => option.code"
         :class="[selectClass, 'br-warehouse-select']"
-        :clearable="false"
+        :clearable="clearable"
         :searchable="searchable"
         :disabled="disabled"
         :placeholder="placeholder"
@@ -58,6 +58,7 @@ export default {
         selectClass: {type: [String, Array, Object], default: ""},
         searchable: {type: Boolean, default: true},
         disabled: {type: Boolean, default: false},
+        clearable: {type: Boolean, default: false},
         placeholder: {type: String, default: ""},
         appendToBody: {type: Boolean, default: false}
     },

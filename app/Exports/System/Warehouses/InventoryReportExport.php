@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Exports\System\Warehouses;
 
 use App\Helpers\System\{Numbers, StockStatus};
-use App\Services\System\Warehouses\Inventory\{InventoryGuideService};
+use App\Models\System\Warehouses\{Warehouse};
+use App\Services\System\Warehouses\Inventory\{InventoryGuideService, InventoryTransferService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Support\{Collection};
 use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStyles, WithStrictNullComparison};
@@ -74,7 +75,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         if($this->view === "transfers") {
 
-            $filters["origin_types"] = ["transfer_in", "transfer_out"];
+            return InventoryTransferService::withItems(InventoryTransferService::query($filters))->get();
 
         }
 
@@ -138,6 +139,10 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 "Responsable",
             ];
 
+        }
+
+        if($this->view === "transfers") {
+            return ["Referencia", "Fecha", "Responsable", "Almacén de origen", "Almacén de destino", "Productos", "Detalle de productos", "Motivo", "Estado"];
         }
 
         return [
@@ -236,6 +241,24 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
         }
 
+        if($this->view === "transfers") {
+            return [
+                $record->reference,
+                $record->created_at->format("d/m/Y H:i"),
+                $record->user?->name ?? "Proceso del sistema",
+                $this->transferWarehouseLabel($record->sourceWarehouse),
+                $this->transferWarehouseLabel($record->destinationWarehouse),
+                $record->items_count,
+                $record->items->map(function($line): string {
+                    $quantity = Numbers::formatDecimal($line->quantity);
+                    $unit = $line->item->measurementUnit?->abbreviation;
+                    return trim("{$line->item->name} × {$quantity} {$unit}");
+                })->implode("\n"),
+                $record->reason,
+                $record->status->label(),
+            ];
+        }
+
         return [
             optional($record->created_at)->format("d/m/Y H:i"),
             $record->warehouse?->name,
@@ -261,12 +284,13 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "stock" => "I",
             "valued" => "P",
             "guides" => "J",
+            "transfers" => "I",
             default => "N"
         };
         $decimalColumns = match ($this->view) {
             "stock" => "E:F",
             "valued" => "I:M",
-            "guides" => null,
+            "guides", "transfers" => null,
             default => "I:K"
         };
 
@@ -274,6 +298,12 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
             $sheet->getStyle($decimalColumns)->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat());
 
+        }
+
+        if($this->view === "transfers") {
+            $sheet->getColumnDimension("G")->setAutoSize(false)->setWidth(48);
+            $sheet->getColumnDimension("H")->setAutoSize(false)->setWidth(40);
+            $sheet->getStyle("G2:H".max(2, $sheet->getHighestDataRow()))->getAlignment()->setWrapText(true);
         }
 
         $sheet->freezePane("A2");
@@ -297,6 +327,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "stock" => ["A", "B", "C", "D", "G", "I"],
             "valued" => ["A", "B", "C", "D", "E", "F", "G", "H", "N", "O", "P"],
             "guides" => ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+            "transfers" => ["A", "B", "C", "D", "E", "G", "H", "I"],
             default => ["A", "B", "C", "D", "E", "F", "G", "H", "L", "M", "N"]
         };
 
@@ -347,6 +378,12 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
 
     }
 
+    private function transferWarehouseLabel(?Warehouse $warehouse): string {
+        if(!$warehouse) return "Almacén no visible";
+
+        return $warehouse->branch ? "{$warehouse->branch->name} - {$warehouse->name}" : $warehouse->name;
+    }
+
     private function originLabel(string $origin): string {
 
         return [
@@ -358,6 +395,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "purchase_cancellation" => "Anulación de compra",
             "transfer_out" => "Traslado enviado",
             "transfer_in" => "Traslado recibido",
+            "transfer_cancellation" => "Cancelación de traslado",
             "customer_return" => "Devolución de cliente",
             "supplier_return" => "Devolución a proveedor",
             "physical_count" => "Toma física",

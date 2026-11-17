@@ -10,11 +10,17 @@ use Illuminate\Database\Eloquent\{Builder, Model, Relations\BelongsTo};
 
 class InventoryMovement extends Model {
 
+    public const ORIGIN_TRANSFER_OUT = "transfer_out";
+    public const ORIGIN_TRANSFER_IN = "transfer_in";
+    public const ORIGIN_TRANSFER_CANCELLATION = "transfer_cancellation";
+    public const TRANSFER_ORIGINS = [self::ORIGIN_TRANSFER_OUT, self::ORIGIN_TRANSFER_IN, self::ORIGIN_TRANSFER_CANCELLATION];
+
     protected $table = "inventory_movements";
 
     public $timestamps = false;
 
     protected $appends = ["reference"];
+    protected $hidden = ["transfer"];
 
     protected $fillable = [
         "warehouse_id",
@@ -49,8 +55,28 @@ class InventoryMovement extends Model {
 
     public function getReferenceAttribute(): ?string {
 
-        return ($this->metadata ?? [])["reference"] ?? null;
+        return $this->transferHeader()?->reference ?? ($this->metadata ?? [])["reference"] ?? null;
 
+    }
+
+    public function getReasonAttribute(string $value): string {
+        if($this->origin_type === self::ORIGIN_TRANSFER_CANCELLATION) {
+            return $this->transferHeader()?->cancellation_reason ?? "Cancelación de traslado";
+        }
+
+        return $this->transferHeader()?->reason ?? $value;
+    }
+
+    public function getTransferOriginIdAttribute(): ?int {
+        return in_array($this->origin_type, self::TRANSFER_ORIGINS, true) ? $this->origin_id : null;
+    }
+
+    public function transfer(): BelongsTo {
+        return $this->belongsTo(InventoryTransfer::class, "transfer_origin_id");
+    }
+
+    private function transferHeader(): ?InventoryTransfer {
+        return $this->transfer_origin_id !== null ? $this->transfer : null;
     }
 
     public function scopeForWarehouse(Builder $query, int $warehouseId): Builder {

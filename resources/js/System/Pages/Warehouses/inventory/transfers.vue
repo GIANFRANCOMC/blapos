@@ -6,18 +6,46 @@
 
         <section v-else class="br-inventory">
             <div class="row align-items-end g-3 br-inventory__context">
-                <div class="col-12 col-md-6 col-lg-3 col-xl-3 br-inventory__warehouse">
-                    <label for="inventoryWarehouse" class="form-label">Almacén de trabajo</label>
+                <div v-for="[field, label] in transferWarehouseFilters" :key="field" class="col-12 col-sm-6 col-lg-3 br-inventory__warehouse">
+                    <label :for="`transferFilter-${field}`" class="form-label">{{ label }}</label>
                     <WarehouseSelect
-                        id="inventoryWarehouse"
-                        v-model="filters.warehouse"
+                        :id="`transferFilter-${field}-select`"
+                        :input-id="`transferFilter-${field}`"
+                        v-model="filters[field]"
                         :options="warehouses"
                         :disabled="isCurrentViewLoading"
+                        placeholder="Todos los almacenes"
+                        clearable
                         :select-class="config.forms.classes.select2"/>
                 </div>
 
                 <SearchInput
-                    v-if="['stock', 'transfers'].includes(activeView)"
+                    v-model.trim="filters.transferReference"
+                    hasDiv
+                    title="Referencia"
+                    :titleClass="[config.forms.classes.title]"
+                    placeholder="Buscar referencia"
+                    maxlength="40"
+                    :inputClass="['form-control']"
+                    :disabled="isCurrentViewLoading"
+                    xl="2"
+                    lg="2"
+                    md="6"
+                    sm="6"/>
+
+                <div class="col-12 col-sm-6 col-lg-2">
+                    <label for="inventoryDateFrom" class="form-label">Desde</label>
+                    <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control"
+                        :disabled="isCurrentViewLoading">
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-2">
+                    <label for="inventoryDateTo" class="form-label">Hasta</label>
+                    <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control"
+                        :disabled="isCurrentViewLoading">
+                </div>
+
+                <SearchInput
                     ref="productSearch"
                     v-model.trim="filters.productSearch"
                     hasDiv
@@ -25,68 +53,49 @@
                     :titleClass="[config.forms.classes.title]"
                     :placeholder="productSearchPlaceholder"
                     :inputClass="['form-control']"
-                    :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                    :disabled="isCurrentViewLoading"
                     xl="3"
                     lg="3"
-                    md="6"/>
+                    md="6"
+                    sm="6"/>
 
-                <div v-if="['kardex', 'valued'].includes(activeView)" class="col-12 col-md-6 col-lg-2 col-xl-2">
-                    <label for="movementType" class="form-label">Movimiento</label>
-                    <v-select
-                        id="movementType"
-                        v-model="filters.movementType"
-                        :options="movementTypes"
-                        :class="config.forms.classes.select2"
-                        :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                        :clearable="false"
-                        :searchable="false"/>
+                <div class="col-12 col-sm-6 col-lg-2">
+                    <label for="transferStatusFilter" class="form-label">Estado del traslado</label>
+                    <v-select id="transferStatusFilter" v-model="filters.transferStatus" :options="transferStatusFilters"
+                        :class="config.forms.classes.select2" :disabled="isCurrentViewLoading"
+                        :clearable="false" :searchable="false"/>
                 </div>
 
-                <div v-if="activeView === 'guides'" class="col-12 col-md-6 col-lg-2 col-xl-2">
-                    <label for="guideType" class="form-label">Tipo de guía</label>
-                    <v-select
-                        id="guideType"
-                        v-model="filters.guideType"
-                        :options="guideTypes"
-                        :class="config.forms.classes.select2"
-                        :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                        :clearable="false"
-                        :searchable="false"/>
-                </div>
-
-                <template v-if="['kardex', 'valued', 'guides'].includes(activeView)">
-                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
-                        <label for="inventoryDateFrom" class="form-label">Desde</label>
-                        <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
-                        <label for="inventoryDateTo" class="form-label">Hasta</label>
-                        <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control" :disabled="isCurrentViewLoading || !filters.warehouse?.code">
-                    </div>
-                </template>
-
-                <div :class="contextActionColumns">
-                    <div class="br-filter-bar__actions br-inventory__context-actions">
+                <div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">
+                    <div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">
                         <SearchButton
                             class="br-btn-sm"
-                            :disabled="!filters.warehouse?.code || isCurrentViewLoading"
+                            :disabled="isCurrentViewLoading"
                             @click="searchCurrentView"/>
                         <ClearFiltersButton
-                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
+                            :disabled="isCurrentViewLoading"
                             @clear="clearFilters"/>
                         <button
-                            v-if="activeView === 'stock'"
                             type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create"
+                            class="br-btn br-btn-sm br-btn-actions"
                             :disabled="isCurrentViewLoading"
-                            data-bs-toggle="modal"
-                            data-bs-target="#inventoryMovementModal"
-                            @click="prepareMovement()">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Registrar operación</span>
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <span>Acciones</span>
+                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
                         </button>
+                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                            <li>
+                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting" @click="exportCurrentView">
+                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                                    <span>Descargar Excel</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div v-if="canOperateTransfers" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
+                        <span class="vr align-self-center" aria-hidden="true"></span>
                         <button
-                            v-if="activeView === 'transfers'"
                             type="button"
                             class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
                             :disabled="isCurrentViewLoading"
@@ -96,23 +105,6 @@
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             <span>Registrar traslado</span>
                         </button>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-actions"
-                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <span>Acciones</span>
-                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
-                            <li>
-                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
-                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                    <span>Descargar Excel</span>
-                                </button>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -202,6 +194,15 @@
                                                         hasTextBottom
                                                         :textBottomInfo="transferErrors.reason || []"/>
                                                 </div>
+
+                                                <div v-if="canConfigureTransfer" class="br-inventory-transfer__form-status">
+                                                    <label for="transferFormStatus" class="form-label">Estado del traslado</label>
+                                                    <v-select id="transferFormStatus" v-model="transferForm.status" :options="transferRegistrationStatuses"
+                                                        :reduce="status => status.code" :class="config.forms.classes.select2"
+                                                        :clearable="false" :searchable="false" :disabled="savingTransfer"/>
+                                                    <small v-if="transferErrors.status" class="text-danger">{{ firstError(transferErrors.status) }}</small>
+                                                    <small v-else-if="transferForm.status !== 'accepted'" class="br-inventory__meta">El stock se actualizará al aceptar el traslado.</small>
+                                                </div>
                                             </div>
 
                                             <div v-if="canConfigureTransfer" class="br-inventory-operation__items br-inventory-transfer__items">
@@ -214,13 +215,23 @@
                                                         No se pudo consultar el stock.
                                                         <button type="button" class="btn btn-link p-0" @click="loadTransferAvailability(transferAvailabilityQuery)">Reintentar</button>
                                                     </small>
-                                                    <button
-                                                        type="button"
-                                                        class="br-btn br-btn-add-row ms-auto waves-effect"
-                                                        :disabled="savingTransfer || transferForm.items.length >= 100"
-                                                        @click="addTransferItem">
-                                                        Agregar producto
-                                                    </button>
+                                                    <div class="d-inline-flex align-items-center gap-2 ms-auto">
+                                                        <button
+                                                            ref="addTransferProduct"
+                                                            type="button"
+                                                            class="br-btn br-btn-xs br-btn-add-row waves-effect"
+                                                            :disabled="savingTransfer || transferForm.items.length >= 100"
+                                                            @click="addTransferItem">
+                                                            Agregar producto
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            class="br-btn br-btn-xs br-btn-danger waves-effect"
+                                                            :disabled="savingTransfer || !transferForm.items.length"
+                                                            @click="clearTransferItems">
+                                                            Eliminar productos
+                                                        </button>
+                                                    </div>
                                                 </div>
 
                                                 <div
@@ -390,68 +401,89 @@
                             </div>
                         </FormModal>
 
-                        <section class="br-entity-list" aria-label="Traslados registrados">
+                        <TransferDetailModal
+                            :transfer="selectedTransfer"
+                            :loading="loadingTransferDetail"
+                            :error="transferDetailError"
+                            :status="transferStatusInfo(selectedTransfer?.status)"
+                            :next-status="nextTransferStatus"
+                            :can-cancel="canCancelTransfer"
+                            :saving-status="savingTransferStatus"
+                            :status-error="transferStatusError"
+                            :print-url="selectedTransfer ? transferPrintUrl(selectedTransfer) : null"
+                            :format-date="formatDate"
+                            @retry="loadTransferDetail(transferDetailId)"
+                            @advance="changeTransferStatus(nextTransferStatus)"
+                            @cancel="changeTransferStatus('canceled')"
+                            @view-cancellation-reason="viewTransferCancellationReason"/>
+
+                        <section class="br-entity-list" aria-label="Traslados registrados" :aria-busy="loadingTransfers">
                             <div class="table-responsive">
                                 <table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__table mb-0">
                                     <colgroup>
-                                        <col class="br-inventory-transfer__col-date">
-                                        <col class="br-inventory-transfer__col-product">
-                                        <col class="br-inventory-transfer__col-source">
-                                        <col class="br-inventory-transfer__col-destination">
-                                        <col class="br-inventory-transfer__col-movement">
-                                        <col class="br-inventory-transfer__col-quantity">
                                         <col class="br-inventory-transfer__col-reference">
+                                        <col class="br-inventory-transfer__col-date">
+                                        <col class="br-inventory-transfer__col-source">
+                                        <col class="br-inventory-transfer__col-direction">
+                                        <col class="br-inventory-transfer__col-destination">
+                                        <col class="br-inventory-transfer__col-count">
+                                        <col class="br-inventory-transfer__col-status">
+                                        <col class="br-entity-table__col-actions">
                                     </colgroup>
                                     <thead class="br-table-header-surface">
                                         <tr>
-                                            <th>Fecha y responsable</th>
-                                            <th>Producto</th>
-                                            <th>Almacén origen</th>
-                                            <th>Almacén destino</th>
-                                            <th>Movimiento</th>
-                                            <th>Cantidad</th>
-                                            <th>Referencia</th>
+                                            <th scope="col">Referencia</th>
+                                            <th scope="col">Fecha y responsable</th>
+                                            <th scope="col">Almacén de origen</th>
+                                            <th aria-hidden="true"></th>
+                                            <th scope="col">Almacén de destino</th>
+                                            <th scope="col">Productos</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="br-table-state" v-if="loadingKardex">
-                                            <td colspan="7" class="py-4"><Loader/></td>
+                                        <tr class="br-table-state" v-if="loadingTransfers">
+                                            <td colspan="8" class="py-4"><Loader/></td>
                                         </tr>
-                                        <template v-else-if="kardexRecords.total > 0">
-                                            <tr v-for="movement in kardexRecords.data" :key="`transfer-${movement.id}`">
+                                        <template v-else-if="transferRecords.data.length">
+                                            <tr v-for="transfer in transferRecords.data" :key="transfer.id">
+                                                <td class="text-center br-inventory-transfer__reference">{{ transfer.reference }}</td>
                                                 <td>
-                                                    <strong>{{ formatDate(movement.created_at) }}</strong>
-                                                    <span class="br-inventory__meta">{{ movement.user?.name || "Proceso del sistema" }}</span>
+                                                    <span class="text-nowrap">{{ formatDate(transfer.created_at) }}</span>
+                                                    <span class="br-inventory__meta">{{ transfer.user?.name || "Proceso del sistema" }}</span>
                                                 </td>
                                                 <td>
-                                                    <ProductIdentity variant="expandable" :product="movement.item"/>
+                                                    <span>{{ transfer.source_warehouse?.branch?.name || transfer.source_warehouse?.name || "Almacén no visible" }}</span>
+                                                    <span v-if="transfer.source_warehouse?.branch?.name" class="br-inventory__meta">{{ transfer.source_warehouse.name }}</span>
                                                 </td>
-                                                <td>
-                                                    <strong>{{ movement.transfer_source_warehouse?.name || "No disponible" }}</strong>
-                                                    <span v-if="movement.transfer_source_warehouse?.branch_name" class="br-inventory__meta">
-                                                        {{ movement.transfer_source_warehouse.branch_name }}
+                                                <td class="px-0" aria-hidden="true">
+                                                    <span class="br-inventory-transfer__direction mx-auto">
+                                                        <i class="fa-solid fa-right-long fa-lg lh-1"></i>
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <strong>{{ movement.transfer_destination_warehouse?.name || "No disponible" }}</strong>
-                                                    <span v-if="movement.transfer_destination_warehouse?.branch_name" class="br-inventory__meta">
-                                                        {{ movement.transfer_destination_warehouse.branch_name }}
-                                                    </span>
+                                                    <span>{{ transfer.destination_warehouse?.branch?.name || transfer.destination_warehouse?.name || "Almacén no visible" }}</span>
+                                                    <span v-if="transfer.destination_warehouse?.branch?.name" class="br-inventory__meta">{{ transfer.destination_warehouse.name }}</span>
                                                 </td>
-                                                <td>
-                                                    <span :class="['br-inventory-movement', `is-${movement.movement_type}`]">
-                                                        {{ originLabel(movement.origin_type) }}
-                                                    </span>
+                                                <td class="text-center">{{ transfer.items_count }}</td>
+                                                <td class="text-center">
+                                                    <span :class="['br-badge', `br-badge--${transferStatusInfo(transfer.status).tone}`]">{{ transferStatusInfo(transfer.status).label }}</span>
                                                 </td>
-                                                <td class="text-end br-inventory__difference"><QuantityValue :value="movement.quantity_change" :unit="movement.item?.measurement_unit || movement.item" signed/></td>
-                                                <td>
-                                                    <strong>{{ movement.metadata?.reference || movement.reference || "-" }}</strong>
-                                                    <span class="br-inventory__meta">{{ movement.reason }}</span>
+                                                <td class="text-center">
+                                                    <TableActionsDropdown :label="`Acciones de ${transfer.reference}`">
+                                                        <li>
+                                                            <button type="button" class="dropdown-item waves-effect" data-bs-toggle="modal" data-bs-target="#inventoryTransferDetailModal" @click="loadTransferDetail(transfer.id)">
+                                                                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                                                <span>Ver detalle</span>
+                                                            </button>
+                                                        </li>
+                                                    </TableActionsDropdown>
                                                 </td>
                                             </tr>
                                         </template>
                                         <tr class="br-table-state" v-else>
-                                            <td colspan="7" class="py-4">
+                                            <td colspan="8" class="py-4">
                                                 <WithoutData
                                                     class="br-entity-empty-state"
                                                     type="image"/>
@@ -472,22 +504,124 @@
 
 <script>
 import WarehouseSelectionField from "@System/Components/Generics/WarehouseSelectionField.vue";
+import * as Requests from "@System/Helpers/Requests.js";
+import * as Alerts from "@System/Helpers/Alerts.js";
 import {createOptionSearch} from "@/Shared/Options.js";
+import TransferDetailModal from "./TransferDetailModal.vue";
 import inventoryPage from "./inventoryState.js";
 
 export default {
     ...inventoryPage,
-    components: {...inventoryPage.components, WarehouseSelectionField},
+    components: {...inventoryPage.components, TransferDetailModal, WarehouseSelectionField},
     mixins: [createOptionSearch("items")],
+    data() {
+        return {
+            ...inventoryPage.data.call(this),
+            selectedTransfer: null,
+            transferDetailId: null,
+            transferDetailError: "",
+            transferStatusError: "",
+            savingTransferStatus: false,
+            loadingTransferDetail: false,
+            transferDetailRequest: 0
+        };
+    },
     computed: {
         ...inventoryPage.computed,
         optionOrigin: () => "inventory-transfers",
+        transferWarehouseFilters: () => [["sourceWarehouse", "Almacén de origen"], ["destinationWarehouse", "Almacén de destino"]],
+        transferRegistrationStatuses() {
+            return this.options.transferStatuses.filter(status => status.code !== "canceled");
+        },
+        canManageSelectedTransfer() {
+            const transfer = this.selectedTransfer;
+            return Boolean(this.canOperateTransfers && transfer?.source_warehouse && transfer.destination_warehouse);
+        },
+        canCancelTransfer() {
+            return this.canManageSelectedTransfer && this.transferStatusInfo(this.selectedTransfer.status).can_cancel === true;
+        },
+        nextTransferStatus() {
+            return this.canManageSelectedTransfer ? this.transferStatusInfo(this.selectedTransfer.status).next || null : null;
+        },
         transferSelectedProductIds() {
             return new Set(this.transferForm.items.map(item => item.product?.code));
         }
     },
     methods: {
         ...inventoryPage.methods,
+        transferUrl(id) {
+            return `${Requests.config({entity: "stocks_management", type: "transfers"})}/${encodeURIComponent(id)}`;
+        },
+        transferPrintUrl(transfer) {
+            return `${this.transferUrl(transfer.id)}/print`;
+        },
+        transferStatusInfo(code) {
+            return this.options.transferStatuses.find(status => status.code === code) || {label: "—", tone: "neutral"};
+        },
+        viewTransferCancellationReason() {
+            return Alerts.showMessage({
+                title: "Motivo de cancelación",
+                text: this.selectedTransfer?.cancellation_reason,
+                target: "#inventoryTransferDetailModal"
+            });
+        },
+        async changeTransferStatus(status) {
+            const transfer = this.selectedTransfer;
+            if(!status || !this.canManageSelectedTransfer || this.savingTransferStatus) return;
+            if(status === "canceled" && !this.canCancelTransfer) return;
+
+            this.savingTransferStatus = true;
+            this.transferStatusError = "";
+            try {
+                if(status === "accepted" && !await Alerts.confirmAction({
+                    title: "¿Aceptar este traslado?",
+                    text: "Se descontará el stock del almacén de origen y se registrará la entrada en el destino.",
+                    confirmButtonText: "Aceptar traslado"
+                })) return;
+
+                const data = {status};
+                if(status === "canceled") {
+                    const reason = await Alerts.confirmActionWithReason({
+                        title: "¿Cancelar este traslado?",
+                        text: "El traslado quedará registrado como cancelado.",
+                        icon: "warning",
+                        confirmButtonText: "Confirmar cancelación",
+                        target: "#inventoryTransferDetailModal"
+                    });
+                    if(reason === null) return;
+
+                    data.expected_status = transfer.status;
+                    data.cancellation_reason = reason;
+                }
+                const result = await Requests.patch({route: `${this.transferUrl(transfer.id)}/status`, data});
+                if(result?.bool) {
+                    if(this.transferDetailId === transfer.id) this.selectedTransfer = result.data.data;
+                    await this.listCurrentView();
+                }else if(this.transferDetailId === transfer.id) {
+                    this.transferStatusError = result?.data?.msg || "No se pudo actualizar el estado del traslado.";
+                }
+            } finally {
+                this.savingTransferStatus = false;
+            }
+        },
+        async loadTransferDetail(id) {
+            const request = ++this.transferDetailRequest;
+            this.transferDetailId = id;
+            this.selectedTransfer = null;
+            this.transferDetailError = "";
+            this.transferStatusError = "";
+            this.loadingTransferDetail = true;
+
+            try {
+                const result = await Requests.get({route: this.transferUrl(id)});
+                if(request !== this.transferDetailRequest) return;
+
+                if(result?.bool) this.selectedTransfer = result.data.data;
+                else this.transferDetailError = "No se pudo cargar el detalle del traslado.";
+            } finally {
+                if(request === this.transferDetailRequest) this.loadingTransferDetail = false;
+            }
+        },
         openTransferProductOptions() {
             if(this.remoteOptions.items.term) return this.searchOptions("items", "");
             return this.openOptions("items");

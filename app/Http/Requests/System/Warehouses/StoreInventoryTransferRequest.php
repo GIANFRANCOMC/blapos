@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Warehouses;
 
+use App\Enums\System\Warehouses\{InventoryTransferStatus};
 use App\Http\Requests\System\Base\{CompanyFormRequest};
+use Illuminate\Validation\Rule;
 
 final class StoreInventoryTransferRequest extends CompanyFormRequest {
 
@@ -20,6 +22,11 @@ final class StoreInventoryTransferRequest extends CompanyFormRequest {
             "items.*.item_id" => ["required", "integer", "distinct"],
             "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "reason" => ["required", "string", "max:255"],
+            "status" => ["nullable", Rule::in([
+                InventoryTransferStatus::Pending->value,
+                InventoryTransferStatus::Sent->value,
+                InventoryTransferStatus::Accepted->value,
+            ])],
         ];
 
     }

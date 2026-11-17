@@ -184,17 +184,35 @@ export function close() {
 }
 
 /** Confirmación reutilizable para acciones que alteran datos o inician procesos. */
-export async function confirmAction({
+export async function confirmAction(options) {
+    return (await actionConfirmation(options)).isConfirmed;
+}
+
+export async function confirmActionWithReason(options) {
+    const result = await actionConfirmation(options, {
+        input: "textarea",
+        inputLabel: "Motivo de cancelación (opcional)",
+        inputAttributes: {maxlength: "255"},
+        focusCancel: false,
+        focusConfirm: false,
+        didOpen: () => Swal.getInput()?.focus()
+    });
+
+    return result.isConfirmed ? String(result.value ?? "").trim() : null;
+}
+
+function actionConfirmation({
     title = "¿Confirmar operación?",
     text = "",
     icon = "question",
-    confirmButtonText = "Realizar acción"
-} = {}) {
+    confirmButtonText = "Realizar acción",
+    target = document.body
+} = {}, inputOptions = {}) {
 
-    const result = await Swal.fire({
+    return Swal.fire({
         ...SWAL_INSTANT_TRANSITION,
         allowEscapeKey: false,
-        target: document.body,
+        target,
         title,
         text,
         showCancelButton: true,
@@ -211,10 +229,9 @@ export async function confirmAction({
             popup: `br-swal-alert br-swal-alert--${icon}`,
             confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${icon}`,
             cancelButton: "br-btn br-btn-cancel"
-        }
+        },
+        ...inputOptions
     });
-
-    return result.isConfirmed;
 
 }
 
@@ -229,12 +246,12 @@ function setMessageWidth(popup, width) {
 }
 
 /** Mensaje seguro: usa texto plano. `width` opcional, en píxeles, amplía el ancho compacto predeterminado. */
-export function showMessage({title = "", text = "", type = "info", width = null} = {}) {
+export function showMessage({title = "", text = "", type = "info", width = null, target = document.body} = {}) {
 
     return Swal.fire({
         ...SWAL_INSTANT_TRANSITION,
         allowEscapeKey: false,
-        target: document.body,
+        target,
         title,
         text,
         icon: type,

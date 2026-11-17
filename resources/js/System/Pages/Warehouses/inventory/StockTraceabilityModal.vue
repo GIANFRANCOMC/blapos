@@ -6,10 +6,8 @@
         :show-submit="false"
         :close-disabled="loading"
         :keyboard="false">
-        <template #header>
-            <ProductIdentity v-if="product" variant="expandable" class="mt-1" :product="product"/>
-        </template>
         <template #body>
+            <ProductIdentity v-if="product" variant="expandable" class="mb-2" :product="product"/>
             <p class="br-operational-scope mb-3">
                 <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
                 <span>{{ warehouse?.displayLabel || warehouse?.label }}</span>
