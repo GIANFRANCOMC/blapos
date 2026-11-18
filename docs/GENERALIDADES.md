@@ -118,7 +118,7 @@ El catálogo contiene solo los tamaños de Control de stock. Al migrar una panta
 | Rol de interfaz | Tamaño estándar existente | Uso |
 | --- | --- | --- |
 | Texto operativo | `--br-ui-font-size` | Texto común, navegación y celdas normales. Los inputs y botones parten de este tamaño. |
-| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-068` en las etiquetas de campos. |
+| Etiqueta de formulario | `--br-font-size-label` | Usa el paso existente `--br-font-size-0705` en las etiquetas de campos. |
 | Ayuda o descripción breve | `--br-table-caption-font-size` | Contexto subordinado al dato principal; no reducirlo por pantalla. |
 | Dato secundario | `--br-ui-font-size` | Desgloses comparables y valores secundarios. |
 | Dato principal destacado | `--br-table-value-font-size` | Precios y métricas que requieren mayor jerarquía. |
@@ -137,6 +137,8 @@ Stock actual y Diferencia comparten `--br-stock-quantity-font-size` (`0.8rem` de
 Para mostrar una cantidad con unidad en System, reutilizar `QuantityValue`. El número hereda el tamaño de su contexto y la abreviatura registrada usa el paso compartido `--br-font-size-066`. **Saldo** y **Variación** comparten el rol de cantidad de stock. **Variación** mantiene el signo, el número y la unidad en una línea.
 
 Reutilizar `ProductIdentity` al presentar un producto con su nombre e identificadores en el mismo bloque. Pasar el objeto con `name`, `internal_code` y `barcode`. La variante predeterminada `full` muestra los códigos desde el inicio. Control de stock y las demás vistas de Inventario usan `expandable`, que muestra el nombre con un botón «+» para abrir los códigos disponibles. El botón cambia a «−» para cerrarlos y admite foco y activación por teclado. Agregar futuras variantes en el mismo componente.
+
+La referencia del traslado es un identificador: en la tabla y el detalle usa el mismo tamaño, peso normal, color y cifras tabulares que los valores de código interno y código de barras de `ProductIdentity`, reutilizando sus tokens existentes.
 
 Modificar la regla fuente del componente y eliminar declaraciones redundantes antes de aumentar la especificidad. No resolver conflictos entre estilos propios añadiendo clases o `!important`. Las excepciones de librerías y los ajustes responsive deben consumir los mismos tokens. Los tamaños de documentos exportados, correos y dibujos de canvas se definen según su formato de salida, fuera de la escala de interfaz.
 
@@ -224,6 +226,7 @@ Criterios prácticos:
 - Las modales conservan `modal-dialog-centered`. Apertura y cierre comparten duración y curva para el diálogo, la superficie y el fondo; respetar `prefers-reduced-motion`.
 - Las pestañas de formularios comerciales usan `CatalogFormTabs`. Su variante `descriptive` admite `icon` y `description` por sección para formularios largos; activarla por módulo tras revisar el espacio y los textos. El icono se alinea a la izquierda del título y la descripción. Cada tab conserva un contorno tenue; el activo usa un borde azul claro, un icono en recuadro primary y una línea inferior fina, sin el borde grueso de la variante compacta. La variante compacta sigue siendo la predeterminada. Conservar `aria-selected`, navegación por teclado y desplazamiento horizontal accesible.
 - Los paneles con `role="tabpanel"` usan el fundido de `02-loading-transitions.css`. Cuando varias pestañas comparten un panel, indicar su ID mediante `sharedControlsId` en `CatalogFormTabs` para repetir el fundido y conservar montados los campos. Las pestañas y su desplazamiento horizontal respetan `prefers-reduced-motion`.
+- En modales con `CatalogFormTabs`, usar `br-entity-modal--tabbed` y envolver el contenido en `br-entity-form-section` para mantener los márgenes compartidos. Los elementos controlados por `v-show` no deben llevar utilidades de display de Bootstrap (`d-grid`, `d-flex`, etc.): su `!important` impide ocultarlos. Aplicar esas utilidades a un contenedor interior.
 - Las modales comparten `--br-modal-chrome-surface` para encabezado y pie (gris azulado suave) y `--br-modal-surface` para el cuerpo (casi blanco). Ajustar estos tokens en `br-branding/00-tokens.css` para mantener contraste uniforme; no crear paletas de modal por módulo.
 
 ### Consultas de tablas y limpieza de registros
@@ -281,7 +284,7 @@ System, Guest y Platform comparten las métricas de `03-form-controls.css`. Los 
 
 En los selectores, el fondo se pinta en la superficie redondeada del campo, como `.vs__dropdown-toggle` o `.select2-selection`. El contenedor externo queda transparente para que las esquinas muestren el fondo de la página.
 
-En Vue Select y Select2, cada opción elegida que aparece al reabrir el desplegable lleva un fondo suave y una marca de selección. El estilo vive en `03-form-controls.css` y usa el estado de selección de cada biblioteca tanto para selección única como múltiple. El foco por cursor o teclado se distingue de la selección mediante la marca.
+En Vue Select y Select2, cada opción elegida que aparece al reabrir el desplegable lleva un fondo suave, borde lateral primario y una marca de selección. El estilo vive en `03-form-controls.css` y usa el estado de selección de cada biblioteca tanto para selección única como múltiple, incluidos menús flotantes y la opción Todos. Todas las opciones reservan el mismo borde transparente para evitar desplazamientos al seleccionar o enfocar. El hover y el foco por teclado mantienen el fondo azul suave, pero usan un borde lateral gris discreto en opciones no seleccionadas; la opción seleccionada conserva siempre su borde azul y la marca, incluso al pasar el cursor. No duplicar estas reglas en estilos de almacenes u otras entidades.
 
 Errores de campo:
 

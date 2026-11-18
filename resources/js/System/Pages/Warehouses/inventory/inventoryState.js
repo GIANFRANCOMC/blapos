@@ -30,6 +30,7 @@ import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
 const STOCK_PAGE_SIZE = 10;
 const DEFAULT_TRANSFER_STATUS = "awaiting_dispatch";
 const ALL_TRANSFER_STATUSES = {code: "", label: "Todos los estados"};
+const ALL_TRANSFER_WAREHOUSES = {code: "", label: "Todos los almacenes"};
 const ALL_MOVEMENT_USERS = {code: "", label: "Todos los usuarios"};
 
 const TRANSFER_REASON_OPTIONS = [
@@ -102,8 +103,8 @@ function createInventoryFilters(warehouse = null) {
         movementUser: ALL_MOVEMENT_USERS,
         guideType: GUIDE_TYPES[0],
         transferStatus: ALL_TRANSFER_STATUSES,
-        sourceWarehouse: null,
-        destinationWarehouse: null,
+        sourceWarehouse: ALL_TRANSFER_WAREHOUSES,
+        destinationWarehouse: ALL_TRANSFER_WAREHOUSES,
         transferReference: "",
         dateFrom: "",
         dateTo: ""
@@ -1143,6 +1144,9 @@ export default {
                 displayLabel: record.branch?.name ? `${record.branch.name} - ${record.name}` : record.name,
                 label: record.branch?.name ? `${record.branch.name} / ${record.name}` : record.name
             }));
+        },
+        transferWarehouseOptions() {
+            return [ALL_TRANSFER_WAREHOUSES, ...this.warehouses];
         },
         destinationWarehouses() {
             if(!this.transferForm.source?.code) return [];

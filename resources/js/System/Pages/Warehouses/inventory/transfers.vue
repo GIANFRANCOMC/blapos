@@ -12,10 +12,9 @@
                         :id="`transferFilter-${field}-select`"
                         :input-id="`transferFilter-${field}`"
                         v-model="filters[field]"
-                        :options="warehouses"
+                        :options="transferWarehouseOptions"
                         :disabled="isCurrentViewLoading"
-                        placeholder="Todos los almacenes"
-                        clearable
+                        :clearable="false"
                         :select-class="config.forms.classes.select2"/>
                 </div>
 
@@ -143,6 +142,7 @@
                                                         <WarehouseSelectionField
                                                             id="transferSource"
                                                             v-model="transferForm.source"
+                                                            :summarize-selection="false"
                                                             class="br-inventory-transfer__warehouse"
                                                             label="Almacén de origen"
                                                             :options="realWarehouses"
@@ -160,6 +160,7 @@
                                                         <WarehouseSelectionField
                                                             id="transferDestination"
                                                             v-model="transferForm.destination"
+                                                            :summarize-selection="false"
                                                             class="br-inventory-transfer__warehouse"
                                                             label="Almacén de destino"
                                                             :options="destinationWarehouses"

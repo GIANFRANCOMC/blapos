@@ -60,6 +60,7 @@ export default {
         placeholder: {type: String, default: ""},
         disabled: {type: Boolean, default: false},
         appendToBody: {type: Boolean, default: false},
+        summarizeSelection: {type: Boolean, default: true},
         required: {type: Boolean, default: false},
         error: {type: String, default: ""}
     },
@@ -68,7 +69,7 @@ export default {
     },
     computed: {
         showSummary() {
-            return Boolean(this.modelValue?.code) && !this.editing;
+            return this.summarizeSelection && Boolean(this.modelValue?.code) && !this.editing;
         },
         warehouseLabel() {
             const {displayLabel, label, branchName, warehouseName} = this.modelValue ?? {};

@@ -15,6 +15,7 @@ function component(path, dependencies = {}) {
 }
 
 const roadmap = component("resources/js/System/Components/Generics/StatusRoadmap.vue");
+const catalogTabs = component("resources/js/System/Components/Catalogs/CatalogFormTabs.vue");
 const events = [
     {id: 10, label: "Por enviar", tone: "warning", occurred_at: "2026-11-17T09:00:00Z", user_name: "Ana"},
     {id: 11, label: "En tránsito", tone: "info", occurred_at: "2026-11-17T09:05:00Z", user_name: "Luis"},
@@ -48,7 +49,7 @@ function detailComponent() {
     return component("resources/js/System/Pages/Warehouses/inventory/TransferDetailModal.vue", {
         FormModal: {render() { return h("div", this.$slots.body?.()); }},
         ProductIdentity: placeholder, QuantityValue: placeholder, InputText: placeholder, InputNumber: placeholder,
-        Loader: placeholder, StatusRoadmap: roadmap, compareNumbers, normalizeNumber, isNumber,
+        Loader: placeholder, WithoutData: placeholder, StatusRoadmap: roadmap, CatalogFormTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
         uuid: () => `00000000-0000-4000-8000-${String(++key).padStart(12, "0")}`
     });
 }
@@ -69,6 +70,35 @@ test("el detalle distingue creador, responsable de envío y responsables de rece
         assert.match(html, /<dt>Registrado por<\/dt><dd>Creador<\/dd>/);
         assert.ok(html.includes(`<dt>Recepciones registradas por</dt><dd>${expected}</dd>`));
         assert.match(html, /Recorrido del traslado/);
+        assert.match(html, /role="tablist"/);
+        for(const tab of ["summary", "products", "receipts", "history"]) {
+            assert.ok(html.includes(`id="inventory-transfer-detail-tab-trigger-${tab}"`));
+        }
+    }
+});
+
+test("las pestañas descriptivas mantienen el resumen oculto al consultar otros paneles", async () => {
+    const detail = detailComponent();
+    const html = await renderToString(h({...detail, data() { return {...detail.data(), activeTab: "history"}; }}, {
+        transfer: {reference: "TRAS-1", status: "received", items: [], status_history: events},
+        status: {tone: "success", label: "Recibido"}, formatDate: value => value || ""
+    }));
+    const summary = html.match(/<section\b[^>]*aria-label="Resumen del traslado"[^>]*>/)?.[0];
+    assert.ok(summary);
+    assert.match(summary, /style="display:none;"/);
+    // Las utilidades display de Bootstrap usan !important y anularían v-show.
+    assert.doesNotMatch(summary, /class="[^"]*\bd-(?:grid|flex|block)\b/);
+    const header = html.match(/<section\b[^>]*aria-label="Datos del traslado"[^>]*>[\s\S]*?<\/section>/)?.[0];
+    assert.ok(header);
+    assert.doesNotMatch(header, /display:none/);
+    assert.ok(html.indexOf(header) < html.indexOf('role="tablist"'));
+    for(const field of ["Referencia", "TRAS-1", "Almacén de origen", "Almacén de destino", "Estado", "Recibido"]) {
+        assert.ok(header.includes(field), field);
+    }
+    assert.match(html, /br-catalog-form-tabs--descriptive/);
+    assert.equal((html.match(/class="br-entity-tab__icon"/g) || []).length, 4);
+    for(const description of ["Responsables y motivo", "Cantidades y estado", "Ingresos y diferencias", "Fechas y responsables"]) {
+        assert.ok(html.includes(`<small>${description}</small>`));
     }
 });
 
@@ -80,12 +110,16 @@ test("el checkbox completa solo lo pendiente y los reintentos conservan la clave
     for(const [name, method] of Object.entries(options.methods)) vm[name] = method.bind(vm);
     for(const [name, getter] of Object.entries(options.computed)) Object.defineProperty(vm, name, {get: () => getter.call(vm)});
     vm.startMode("receipt");
+    assert.equal(vm.activeTab, "products");
     vm.fillPending(line, true);
     assert.equal(vm.quantities[1], 6);
     assert.equal(vm.isFull(line), true);
     vm.fillPending(line, false);
     assert.equal(vm.quantities[1], 0);
     vm.quantities[1] = 2;
+    vm.activeTab = "history";
+    assert.equal(vm.quantities[1], 2);
+    vm.activeTab = "products";
     vm.submitOperation();
     vm.submitOperation();
     assert.equal(emitted[0][1].data.request_key, emitted[1][1].data.request_key);

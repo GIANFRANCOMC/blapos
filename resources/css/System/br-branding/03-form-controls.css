@@ -216,10 +216,22 @@ body .select2-container.select2-container--default .select2-search--dropdown .se
   line-height: var(--br-ui-line-height);
 }
 
+/* Mismo indicador lateral para selección única y múltiple, también en menús flotantes. */
+body .vs__dropdown-menu .vs__dropdown-option,
+body .select2-container--default .select2-results__option[aria-selected] {
+  border-inline-start: 2px solid transparent;
+}
+
+:is(body .vs__dropdown-menu .vs__dropdown-option--highlight,
+    body .select2-container--default .select2-results__option--highlighted[aria-selected]) {
+  border-inline-start-color: var(--br-border-strong);
+}
+
 /* Vue Select reserva aria-selected para la opción enfocada en el menú. */
 :is(body .vs__dropdown-menu .vs__dropdown-option--selected,
     body .select2-container--default .select2-results__option[aria-selected="true"]) {
   position: relative;
+  border-inline-start-color: var(--br-primary);
   padding-inline-end: 2rem;
   background-color: var(--br-primary-soft);
   color: var(--br-primary-active);

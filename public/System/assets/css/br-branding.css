@@ -215,7 +215,7 @@ strong {
   --br-table-value-font-size: var(--br-font-size-082);
   --br-table-caption-font-size: var(--br-font-size-068);
   --br-font-size-ui: var(--br-ui-font-size);
-  --br-font-size-label: var(--br-font-size-068);
+  --br-font-size-label: var(--br-font-size-0705);
   --br-font-size-table: var(--br-ui-font-size);
   --br-btn-font-size: var(--br-ui-font-size);
 
@@ -829,10 +829,22 @@ body .select2-container.select2-container--default .select2-search--dropdown .se
   line-height: var(--br-ui-line-height);
 }
 
+/* Mismo indicador lateral para selección única y múltiple, también en menús flotantes. */
+body .vs__dropdown-menu .vs__dropdown-option,
+body .select2-container--default .select2-results__option[aria-selected] {
+  border-inline-start: 2px solid transparent;
+}
+
+:is(body .vs__dropdown-menu .vs__dropdown-option--highlight,
+    body .select2-container--default .select2-results__option--highlighted[aria-selected]) {
+  border-inline-start-color: var(--br-border-strong);
+}
+
 /* Vue Select reserva aria-selected para la opción enfocada en el menú. */
 :is(body .vs__dropdown-menu .vs__dropdown-option--selected,
     body .select2-container--default .select2-results__option[aria-selected="true"]) {
   position: relative;
+  border-inline-start-color: var(--br-primary);
   padding-inline-end: 2rem;
   background-color: var(--br-primary-soft);
   color: var(--br-primary-active);
@@ -1418,14 +1430,6 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
 .br-layout .br-warehouse-select .vs__dropdown-option,
 body > .vs__dropdown-menu .vs__dropdown-option:has(.br-warehouse-select__value) {
     padding-block: 0.52rem;
-    border-left: 2px solid transparent;
-}
-
-.br-layout .br-warehouse-select .vs__dropdown-option--highlight,
-.br-layout .br-warehouse-select .vs__dropdown-option--selected,
-body > .vs__dropdown-menu .vs__dropdown-option--highlight:has(.br-warehouse-select__value),
-body > .vs__dropdown-menu .vs__dropdown-option--selected:has(.br-warehouse-select__value) {
-    border-left-color: var(--br-primary);
 }
 
 .br-layout .br-warehouse-select .vs__dropdown-option--highlight .br-warehouse-select__branch,
@@ -13982,13 +13986,13 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
     inset-inline-end: -0.875rem;
     display: grid;
     place-items: center;
-    inline-size: 1.125rem;
-    block-size: 1.125rem;
+    inline-size: 1rem;
+    block-size: 1rem;
     border: 1px solid var(--br-border);
     border-radius: 50%;
     color: var(--br-white);
     background: var(--br-text-muted);
-    font-size: var(--br-table-caption-font-size);
+    font-size: var(--br-font-size-061);
     font-weight: var(--br-font-weight-body);
     line-height: 1;
     white-space: nowrap;
@@ -14000,25 +14004,49 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
 }
 
 .br-inventory-transfer__reference {
-    color: var(--br-text);
-    font-size: var(--br-font-size-table);
-    font-weight: var(--br-font-weight-emphasis);
+    color: var(--br-secondary);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--br-product-code-font-size);
+    font-weight: var(--br-font-weight-body);
 }
 
 .br-inventory-transfer__detail {
-    display: grid;
-    gap: 1rem;
+    min-width: 0;
     color: var(--br-text);
     font-size: var(--br-font-size-table);
+}
+
+.br-inventory-transfer__detail-header {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.2fr) max-content;
+    align-items: start;
+    gap: 1rem 1.25rem;
+    padding-block: var(--br-entity-modal-tabs-content-space-y);
+    border-bottom: 1px solid var(--br-border-subtle);
+}
+
+.br-inventory-transfer__detail-header > *,
+.br-inventory-transfer__detail-route > dl,
+.br-inventory-transfer__detail-overview > * {
+    min-width: 0;
+}
+
+.br-inventory-transfer__detail-header .br-badge {
+    max-inline-size: 10rem;
+    white-space: normal;
+}
+
+.br-inventory-transfer__detail-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 1rem 1.25rem;
 }
 
 .br-inventory-transfer__detail-summary {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem 1rem;
     align-items: start;
-    padding-bottom: 0.9rem;
-    border-bottom: 1px solid var(--br-border);
 }
 
 .br-inventory-transfer__detail-route {
@@ -14026,10 +14054,6 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     gap: 0.75rem 1rem;
     align-items: start;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--br-border);
-    border-radius: var(--br-radius-sm);
-    background: var(--br-surface-soft);
 }
 
 .br-inventory-transfer__detail-arrow {
@@ -14038,9 +14062,9 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
 
 .br-inventory-transfer__detail dt {
     color: var(--br-text-muted);
-    font-size: var(--br-table-caption-font-size);
-    font-weight: var(--br-font-weight-emphasis);
-    margin-bottom: 0.2rem;
+    font-size: var(--br-font-size-label);
+    font-weight: var(--br-font-weight-body);
+    margin-bottom: 0.25rem;
 }
 
 .br-inventory-transfer__detail dd {
@@ -14050,6 +14074,11 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
 
 .br-inventory-transfer__detail-warehouse {
     font-weight: var(--br-font-weight-emphasis);
+}
+
+.br-inventory-transfer__detail-reason {
+    padding-inline-start: 1.25rem;
+    border-inline-start: 1px solid var(--br-border);
 }
 
 .br-inventory-transfer__detail-reason dd {
@@ -14087,9 +14116,58 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
     min-inline-size: 11rem;
 }
 
+.br-inventory-transfer__operation {
+    margin-block-end: 0.5rem;
+    border: 1px solid var(--br-border);
+    border-radius: var(--br-radius-sm);
+}
+
+.br-inventory-transfer__operation > summary {
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+}
+
+.br-inventory-transfer__operation > :not(summary) {
+    margin-inline: 0.75rem;
+    margin-block-end: 0.6rem;
+}
+
+.br-inventory-transfer__history {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--br-border);
+    border-radius: var(--br-radius-sm);
+    background: var(--br-surface-soft);
+}
+
+@media (max-width: 767.98px) {
+    .br-inventory-transfer__detail-header {
+        grid-template-columns: minmax(0, 1fr) max-content;
+    }
+
+    .br-inventory-transfer__detail-header > .br-field-summary:last-child {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .br-inventory-transfer__detail-route {
+        grid-column: 1 / -1;
+    }
+
+    .br-inventory-transfer__detail-overview {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .br-inventory-transfer__detail-reason {
+        padding-block-start: 0.75rem;
+        padding-inline-start: 0;
+        border-block-start: 1px solid var(--br-border);
+        border-inline-start: 0;
+    }
+}
+
 @media (max-width: 575.98px) {
     .br-inventory-transfer__detail-summary {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .br-inventory-transfer__detail-route {

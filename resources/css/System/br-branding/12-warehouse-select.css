@@ -60,14 +60,6 @@
 .br-layout .br-warehouse-select .vs__dropdown-option,
 body > .vs__dropdown-menu .vs__dropdown-option:has(.br-warehouse-select__value) {
     padding-block: 0.52rem;
-    border-left: 2px solid transparent;
-}
-
-.br-layout .br-warehouse-select .vs__dropdown-option--highlight,
-.br-layout .br-warehouse-select .vs__dropdown-option--selected,
-body > .vs__dropdown-menu .vs__dropdown-option--highlight:has(.br-warehouse-select__value),
-body > .vs__dropdown-menu .vs__dropdown-option--selected:has(.br-warehouse-select__value) {
-    border-left-color: var(--br-primary);
 }
 
 .br-layout .br-warehouse-select .vs__dropdown-option--highlight .br-warehouse-select__branch,

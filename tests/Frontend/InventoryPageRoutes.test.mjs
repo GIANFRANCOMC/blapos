@@ -229,7 +229,9 @@ test("transfers list all accessible warehouses without allowing a virtual transf
     );
 
     assert.match(component, /warehouses\(\) \{\s*return \(this\.options\.warehouses \|\| \[\]\)\.map\(record =>/);
-    assert.match(transfers, /placeholder="Todos los almacenes"/);
+    assert.match(transfers, /:options="transferWarehouseOptions"/);
+    assert.doesNotMatch(transfers, /placeholder="Todos los almacenes"/);
+    assert.match(component, /sourceWarehouse: ALL_TRANSFER_WAREHOUSES,\s*destinationWarehouse: ALL_TRANSFER_WAREHOUSES/);
     assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];/);
     const registerTransferButton = transfers.slice(
         transfers.indexOf('v-if="canOperateTransfers"'),
