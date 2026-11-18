@@ -25,5 +25,7 @@ Route::get("/transfers", [StockManagementController::class, "transfers"])->name(
 Route::get("/transfers/{transfer}", [StockManagementController::class, "showTransfer"])->whereNumber("transfer")->name("$entity.transfers.show");
 Route::get("/transfers/{transfer}/print", [StockManagementController::class, "printTransfer"])->whereNumber("transfer")->name("$entity.transfers.print");
 Route::patch("/transfers/{transfer}/status", [StockManagementController::class, "advanceTransfer"])->whereNumber("transfer")->name("$entity.transfers.advance");
+Route::post("/transfers/{transfer}/receipts", [StockManagementController::class, "receiveTransfer"])->whereNumber("transfer")->name("$entity.transfers.receive");
+Route::post("/transfers/{transfer}/resolutions", [StockManagementController::class, "resolveTransfer"])->whereNumber("transfer")->name("$entity.transfers.resolve");
 Route::post("/transfers", [StockManagementController::class, "storeTransfer"])->name("$entity.transfers.store");
 Route::get("/export", [StockManagementController::class, "export"])->name("$entity.export");

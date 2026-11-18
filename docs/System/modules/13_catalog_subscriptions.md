@@ -19,7 +19,7 @@ Administra ítems `subscription` que, al venderse, generan una membresía real p
 
 ## Interfaz
 
-- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. Detalles muestra una etiqueta por línea y Duración presenta el plazo de la membresía. El límite diario de asistencias se consulta en la pestaña Configuración del formulario. La etiqueta de Comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
+- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. La columna **Detalle** muestra una etiqueta por línea y Duración presenta el plazo de la membresía. El límite diario de asistencias se consulta en la pestaña Configuración del formulario. La etiqueta de Comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
 - El editor de Duración agrupa el valor numérico y el selector de unidad a la derecha. Un solo borde y anillo de foco rodean el conjunto. La flecha del selector gira al abrir y cerrar.
 - La modal compartida usa pestañas descriptivas `MEMBRESÍA`, `DETALLE`, `IMPUESTOS` y `CONFIGURACIÓN`, con navegación por teclado y desplazamiento en móvil. No muestra Inventario físico.
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.
@@ -41,6 +41,6 @@ Administra ítems `subscription` que, al venderse, generan una membresía real p
 - Las membresias de catalogo no usan `barcode`, `brand_id` ni `warehouse_items`; su disponibilidad no depende de inventario fisico.
 - `capacity_control_enabled`, `capacity_limit` y `capacity_used` permiten vender membresias con cupos limitados o tratarlas como ilimitadas.
 - `expires_at` es opcional. Cuando vence, el backend inactiva la membresia al listar catalogo o referencias comerciales y la bloquea en ventas.
-- En Detalles, la etiqueta Cupos aparece cuando el control de cupos está activado y muestra el límite entero configurado en la membresía. Comparte el formato del listado de Servicios.
+- En Detalle, la etiqueta Cupos aparece cuando el control de cupos está activado y muestra el límite entero configurado en la membresía. Comparte el formato del listado de Servicios.
 - Al activar el control, Cantidad de cupos muestra el asterisco y exige un entero entre 1 y 1 000 000.
 - Al vender una membresia limitada se consume cupo segun la cantidad vendida. Al anular la venta se repone el cupo consumido.

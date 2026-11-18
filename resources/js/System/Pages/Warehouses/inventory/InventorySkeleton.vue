@@ -14,9 +14,8 @@
                 <div :class="actionLayout">
                     <span class="br-btn br-btn-sm br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
                     <span class="br-btn br-btn-sm br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
-                    <span class="br-btn br-btn-sm br-btn-actions br-inventory-skeleton__button" :class="{'px-lg-2': isKardex}">
-                        <span>Acciones</span>
-                        <i class="fa-solid fa-chevron-down br-btn-actions__chevron"></i>
+                    <span class="br-btn br-btn-sm br-btn-actions br-btn-actions--icon br-inventory-skeleton__button br-inventory-skeleton__button--icon">
+                        <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                     </span>
                 </div>
                 <div v-if="hasPrimaryActions" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
@@ -41,7 +40,11 @@
                             <tr>
                                 <th v-for="heading in headings" :key="heading" :scope="heading === null ? null : 'col'"
                                     :aria-hidden="heading === null ? true : null"
-                                    :class="{'text-nowrap px-0': page === 'stock' && heading === 'Estado del stock'}">
+                                    :class="{
+                                        'text-nowrap px-0': page === 'stock' && heading === 'Estado del stock',
+                                        'text-end': page === 'transfers' && heading === 'Almacén de origen',
+                                        'text-start': page === 'transfers' && heading === 'Almacén de destino'
+                                    }">
                                     <template v-if="heading">{{ heading }}</template>
                                     <span v-else-if="heading === ''" class="visually-hidden">Acciones</span>
                                 </th>
@@ -80,6 +83,7 @@ const filtersByPage = {
         ["Almacén de origen", catalogField],
         ["Almacén de destino", catalogField],
         ...["Referencia", "Desde", "Hasta"].map(label => [label, compactStockField]),
+        ["Registrado por", catalogField],
         ["Producto", catalogField],
         ["Estado del traslado", compactStockField]
     ],
@@ -91,7 +95,7 @@ const filtersByPage = {
 const kardexHeadings = ["Producto", "Movimiento", "Variación"];
 const headingsByPage = {
     stock: ["Producto", "Stock actual", "Stock mínimo", "Diferencia", "Estado del stock", ""],
-    transfers: ["Referencia", "Fecha y responsable", "Almacén de origen", null, "Almacén de destino", "Productos", "Estado", ""],
+    transfers: ["Referencia", "Almacén de origen", null, "Almacén de destino", "Detalle", "Estado", ""],
     guides: ["Fecha y número", "Almacén", "Tipo", "Detalle", "Referencia", "Estado"],
     kardex: [...kardexHeadings, "Saldo"],
     valued: [...kardexHeadings, "Costo unitario", "Valor movimiento", "Valor resultante"]
@@ -108,7 +112,7 @@ const tableClasses = {
 const tableColumnsByPage = {
     stock: ["product", "current", "minimum", "difference", "status"]
         .map(column => `br-inventory__col-${column}`).concat("br-entity-table__col-actions"),
-    transfers: ["reference", "date", "source", "direction", "destination", "count", "status"]
+    transfers: ["reference", "source", "direction", "destination", "detail", "status"]
         .map(column => `br-inventory-transfer__col-${column}`).concat("br-entity-table__col-actions")
 };
 

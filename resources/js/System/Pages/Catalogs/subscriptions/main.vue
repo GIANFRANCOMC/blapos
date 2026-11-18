@@ -50,7 +50,7 @@
                     <tr>
                         <th class="text-center">Código interno</th>
                         <th>Membresía</th>
-                        <th>Detalles</th>
+                        <th>Detalle</th>
                         <th class="text-center">Precio</th>
                         <th class="text-center">Estado</th>
                         <th><span class="visually-hidden">Acciones</span></th>

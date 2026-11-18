@@ -142,7 +142,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
         }
 
         if($this->view === "transfers") {
-            return ["Referencia", "Fecha", "Responsable", "Almacén de origen", "Almacén de destino", "Productos", "Detalle de productos", "Motivo", "Estado"];
+            return ["Referencia", "Fecha de registro", "Registrado por", "Almacén de origen", "Almacén de destino", "Productos", "Detalle de productos", "Motivo", "Estado", "Recepciones registradas por", "Historial de estados", "Valor en tránsito", "Recepciones y diferencias", "Enviado por"];
         }
 
         return [
@@ -250,12 +250,22 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
                 $this->transferWarehouseLabel($record->destinationWarehouse),
                 $record->items_count,
                 $record->items->map(function($line): string {
-                    $quantity = Numbers::formatDecimal($line->quantity);
                     $unit = $line->item->measurementUnit?->abbreviation;
-                    return trim("{$line->item->name} × {$quantity} {$unit}");
+                    return $line->item->name." · Registrada: ".Numbers::formatDecimal($line->quantity)
+                        ." · Enviada: ".Numbers::formatDecimal($line->sent_quantity)
+                        ." · Recibida: ".Numbers::formatDecimal($line->received_quantity)
+                        ." · Pendiente: ".Numbers::formatDecimal($line->pending_quantity)
+                        ." · Resuelta: ".Numbers::formatDecimal($line->resolved_quantity)." {$unit} · ".$line->status->label();
                 })->implode("\n"),
                 $record->reason,
                 $record->status->label(),
+                $record->receiver_name ?? "Sin recepción registrada",
+                $record->statusHistory->map(fn($event) => $event->label." · ".$event->occurred_at->format("d/m/Y H:i")." · ".$event->user_name)->implode("\n"),
+                Numbers::spreadsheetNumber(Numbers::sum($record->items->pluck("transit_value"))),
+                $record->operations->map(fn($operation) => $operation->label." · ".$operation->occurred_at->format("d/m/Y H:i")." · ".$operation->user_name
+                    ." · ".$operation->items->map(fn($line) => $line->transferItem->item->name." × ".Numbers::formatDecimal($line->quantity))->implode("; ")
+                    .($operation->reason ? " · ".$operation->reason : ""))->implode("\n"),
+                $record->sender_name ?? "Sin envío confirmado",
             ];
         }
 
@@ -284,7 +294,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "stock" => "I",
             "valued" => "P",
             "guides" => "J",
-            "transfers" => "I",
+            "transfers" => "N",
             default => "N"
         };
         $decimalColumns = match ($this->view) {
@@ -304,6 +314,11 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             $sheet->getColumnDimension("G")->setAutoSize(false)->setWidth(48);
             $sheet->getColumnDimension("H")->setAutoSize(false)->setWidth(40);
             $sheet->getStyle("G2:H".max(2, $sheet->getHighestDataRow()))->getAlignment()->setWrapText(true);
+            $sheet->getColumnDimension("K")->setAutoSize(false)->setWidth(55);
+            $sheet->getStyle("K2:K".max(2, $sheet->getHighestDataRow()))->getAlignment()->setWrapText(true);
+            $sheet->getColumnDimension("M")->setAutoSize(false)->setWidth(65);
+            $sheet->getStyle("M2:M".max(2, $sheet->getHighestDataRow()))->getAlignment()->setWrapText(true);
+            $sheet->getStyle("L")->getNumberFormat()->setFormatCode(Numbers::spreadsheetDecimalFormat());
         }
 
         $sheet->freezePane("A2");
@@ -396,6 +411,7 @@ final class InventoryReportExport extends DefaultValueBinder implements FromColl
             "transfer_out" => "Traslado enviado",
             "transfer_in" => "Traslado recibido",
             "transfer_cancellation" => "Cancelación de traslado",
+            "transfer_return" => "Devolución de traslado al origen",
             "customer_return" => "Devolución de cliente",
             "supplier_return" => "Devolución a proveedor",
             "physical_count" => "Toma física",

@@ -23,11 +23,7 @@
                 @add="openModal()">
                 <template #secondaryActions>
                     <div class="dropdown">
-                        <button type="button" class="br-btn br-btn-sm br-btn-actions" data-bs-toggle="dropdown" aria-expanded="false" :disabled="entityList.extras.loading">
-                            Acciones
-                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                        <ActionsDropdown :disabled="entityList.extras.loading">
                             <li>
                                 <button type="button" class="dropdown-item" @click="toggleSeriesAudit">
                                     <i class="fa-solid fa-list-check" aria-hidden="true"></i>
@@ -40,7 +36,7 @@
                                     <span>Descargar auditoría</span>
                                 </button>
                             </li>
-                        </ul>
+                        </ActionsDropdown>
                     </div>
                 </template>
             </FiltersSection>
@@ -341,6 +337,7 @@
 <script>
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
+import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -468,7 +465,7 @@ const MODULE = {
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {InternalCodeInput, InitialLoadTransition, CatalogFormTabs, CatalogListSkeleton, FormModal},
+    components: {ActionsDropdown, InternalCodeInput, InitialLoadTransition, CatalogFormTabs, CatalogListSkeleton, FormModal},
     data() {
 
         const crudModule = initCrudModule({

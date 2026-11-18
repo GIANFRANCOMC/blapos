@@ -23,9 +23,8 @@ final class StoreInventoryTransferRequest extends CompanyFormRequest {
             "items.*.quantity" => ["required", "numeric", "gt:0", "max:{$maxValue}", $decimalRule],
             "reason" => ["required", "string", "max:255"],
             "status" => ["nullable", Rule::in([
-                InventoryTransferStatus::Pending->value,
-                InventoryTransferStatus::Sent->value,
-                InventoryTransferStatus::Accepted->value,
+                InventoryTransferStatus::AwaitingDispatch->value,
+                InventoryTransferStatus::InTransit->value,
             ])],
         ];
 

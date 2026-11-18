@@ -18,7 +18,7 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 
 ## Interfaz
 
-- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. Detalles muestra una etiqueta por línea. La etiqueta de comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
+- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. La columna **Detalle** muestra una etiqueta por línea. La etiqueta de comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
 - La modal compartida conserva cabecera, cuerpo y pie del catálogo. Sus pestañas descriptivas son `SERVICIO`, `DETALLE`, `IMPUESTOS` y `CONFIGURACIÓN`; admiten teclado y desplazamiento en móvil. No aparece Inventario porque no aplica a servicios.
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.
 - El formulario permite definir duración estimada en minutos, tipo de comisión (`Sin comisión`, `Porcentaje` o `Monto fijo por unidad`) y valor.
@@ -39,7 +39,7 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 - Servicios no usa `barcode`, `brand_id` ni `warehouse_items`: no tiene codigo de barras, marca comercial ni inventario fisico por unidades.
 - `capacity_control_enabled`, `capacity_limit` y `capacity_used` controlan cupos opcionales. Si el control esta apagado, el servicio es ilimitado.
 - `expires_at` es opcional. Al vencer, el backend inactiva el servicio al listar catalogo o referencias comerciales y bloquea ventas con datos obsoletos.
-- En Detalles, la etiqueta Cupos aparece cuando el control de cupos está activado y muestra el límite entero configurado en el servicio.
+- En Detalle, la etiqueta Cupos aparece cuando el control de cupos está activado y muestra el límite entero configurado en el servicio.
 - Al activar el control, Cantidad de cupos muestra el asterisco y exige un entero entre 1 y 1 000 000.
 - El formulario permite activar cupos y definir fecha de vencimiento. Si cupos esta apagado, el limite queda deshabilitado para evitar datos que no aplican.
 - Ventas y POS venta solo reciben servicios `active`, no vencidos y con cupos disponibles cuando el control esta activo.

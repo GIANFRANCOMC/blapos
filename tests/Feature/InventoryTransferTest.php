@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\System\Warehouses\InventoryTransferStatus;
 use App\Exports\System\Warehouses\InventoryReportExport;
 use App\Http\Controllers\System\Warehouses\StockManagementController;
+use App\Http\Requests\System\Warehouses\StoreTransferOperationRequest;
 use App\Models\System\Organizations\User;
 use App\Services\System\Organizations\Companies\CompanySettingService;
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService, InventoryTransferService};
@@ -13,213 +15,243 @@ use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\Concerns\ProvisionsSystemDatabase;
 use Tests\TestCase;
 
 final class InventoryTransferTest extends TestCase {
-
     use ProvisionsSystemDatabase;
     use RefreshDatabase;
 
-    public function test_transfer_lists_one_header_and_prints_all_positions_while_kardex_keeps_each_movement(): void {
-        $data = $this->transferData();
-        $transfer = InventoryMovementService::transfer($data);
-        $id = $transfer["id"];
-        $source = $data["source_warehouse_id"];
-        $destination = $data["destination_warehouse_id"];
-
-        $this->assertMatchesRegularExpression('/^TRAS-[A-Z0-9]{10}$/', $transfer["reference"]);
-        $this->assertDatabaseHas("inventory_transfers", ["id" => $id, "reference" => $transfer["reference"], "reason" => $data["reason"], "status" => "accepted"]);
-        $this->assertDatabaseCount("inventory_transfer_items", 2);
-        foreach($transfer["movements"] as $pair) {
-            $this->assertDatabaseHas("inventory_transfer_items", [
-                "inventory_transfer_id" => $id, "item_id" => $pair["item_id"],
-                "outbound_movement_id" => $pair["exit"]->id, "inbound_movement_id" => $pair["entry"]->id,
-            ]);
-        }
-        $this->assertSame(4, DB::table("inventory_movements")->where("origin_id", $id)->whereNull("metadata")->where("reason", "")->count());
-        $this->assertEquals(3, DB::table("warehouse_items")->where("warehouse_id", $source)->where("item_id", $data["items"][0]["item_id"])->value("quantity"));
-        $this->assertEquals(2, DB::table("warehouse_items")->where("warehouse_id", $destination)->where("item_id", $data["items"][0]["item_id"])->value("quantity"));
-
-        $controller = app(StockManagementController::class);
-        foreach([$source, $destination, "all"] as $warehouse) {
-            $filters = ["warehouse_id" => $warehouse, "product_search" => "TRANSFER-TEST"];
-            $page = $controller->transfers(Request::create("/stocks_management/transfers", "GET", $filters));
-            $this->assertSame(1, $page->total());
-            $this->assertSame(10, $page->perPage());
-            $this->assertEquals(2, $page->items()[0]->items_count);
-            $this->assertFalse($page->items()[0]->relationLoaded("items"));
-        }
-        $this->assertNull(InventoryTransferService::query(["warehouse_id" => "all", "allowed_warehouse_ids" => []])->find($id));
-        $scoped = InventoryTransferService::query(["allowed_warehouse_ids" => [$source]])->findOrFail($id);
-        $this->assertSame($source, $scoped->sourceWarehouse->id);
-        $this->assertNull($scoped->destinationWarehouse);
-        $this->assertNull(InventoryTransferService::query(["warehouse_id" => $destination, "allowed_warehouse_ids" => [$source]])->find($id));
-
-        $detail = $controller->showTransfer($id)->getData(true)["data"];
-        $this->assertCount(2, $detail["items"]);
-        $this->assertSame($transfer["reference"], $detail["reference"]);
-        $this->assertSame("Perno", $detail["items"][0]["item"]["name"]);
-        $this->assertArrayNotHasKey("reason", $detail["items"][0]);
-
-        $print = $controller->printTransfer($id);
-        $this->assertSame("application/pdf", $print->headers->get("content-type"));
-        $this->assertStringStartsWith("inline;", $print->headers->get("content-disposition"));
-        $this->assertStringStartsWith("%PDF-", $print->getContent());
-
-        $excel = new InventoryReportExport("transfers", ["warehouse_id" => $source, "product_search" => "Tuerca"]);
-        $this->assertCount(1, $excel->collection());
-        $row = $excel->map($excel->collection()->first());
-        $this->assertStringContainsString("Perno", $row[6]);
-        $this->assertStringContainsString("Tuerca", $row[6]);
-
-        $ledger = InventoryMovementService::getKardexQuery(["origin_types" => ["transfer_out", "transfer_in"]])->get();
-        $this->assertCount(4, $ledger);
-        foreach($ledger as $record) {
-            $this->assertSame($transfer["reference"], $record->reference);
-            $this->assertSame($data["reason"], $record->reason);
-        }
+    public function test_registration_is_awaiting_dispatch_and_does_not_move_stock(): void {
+        $data=$this->transferData();
+        $result=InventoryTransferService::register($data);
+        $this->assertSame('awaiting_dispatch',$result['status']);
+        $this->assertDatabaseCount('inventory_movements',0);
+        $this->assertDatabaseCount('inventory_transfer_items',2);
+        $this->assertDatabaseHas('inventory_transfer_status_events',['action'=>'registered','status'=>'awaiting_dispatch']);
+        $this->assertEquals([5,5],DB::table('warehouse_items')->orderBy('item_id')->pluck('quantity')->all());
+        $detail=$this->detail($result['id']);
+        $this->assertNull($detail['receiver_name']);
+        $this->assertTrue($detail['can_dispatch']);
+        $this->assertFalse($detail['can_receive']);
+        $this->assertSame('awaiting_dispatch',$detail['items'][0]['status']);
     }
 
-    public function test_insufficient_stock_on_the_second_position_rolls_back_the_entire_transfer(): void {
-        $data = $this->transferData();
-        $data["items"][1]["quantity"] = 6;
+    public function test_dispatch_deducts_only_the_origin_and_keeps_the_value_in_transit(): void {
+        $data=$this->transferData();
+        $result=InventoryTransferService::register($data+['status'=>'in_transit']);
+        $this->assertSame('in_transit',$result['status']);
+        $this->assertDatabaseCount('inventory_movements',2);
+        $this->assertDatabaseMissing('warehouse_items',['warehouse_id'=>$data['destination_warehouse_id']]);
+        $this->assertEquals([3,3],DB::table('warehouse_items')->orderBy('item_id')->pluck('quantity')->all());
+        $this->assertEquals(12,DB::table('inventory_transfer_items')->sum('transit_value'));
+        $detail=$this->detail($result['id']);
+        $this->assertEquals(2,$detail['items'][0]['pending_quantity']);
+        $this->assertTrue($detail['can_receive']);
+        $this->assertFalse($detail['can_cancel']);
+        InventoryTransferService::advance($result['id'],InventoryTransferStatus::InTransit,$data['user_id'],0);
+        $this->assertDatabaseCount('inventory_movements',2);
+        $this->assertDatabaseCount('inventory_transfer_status_events',2);
+    }
 
-        try {
-            InventoryMovementService::transfer($data);
-            $this->fail("El traslado debía fallar por stock insuficiente.");
-        } catch(DomainException $exception) {
-            $this->assertStringContainsString("supera el stock disponible", $exception->getMessage());
+    public function test_failed_dispatch_rolls_back_all_lines_stock_and_history(): void {
+        $data=$this->transferData();
+        $data['items'][1]['quantity']=6;
+        try { InventoryTransferService::register($data+['status'=>'in_transit']); $this->fail('Debía faltar stock.'); }
+        catch(DomainException $e) { $this->assertStringContainsString('supera el stock',$e->getMessage()); }
+        $this->assertDatabaseCount('inventory_transfers',0);
+        $this->assertDatabaseCount('inventory_transfer_items',0);
+        $this->assertDatabaseCount('inventory_movements',0);
+        $this->assertDatabaseCount('inventory_transfer_status_events',0);
+        $this->assertEquals([5,5],DB::table('warehouse_items')->orderBy('item_id')->pluck('quantity')->all());
+    }
+
+    public function test_partial_receipts_compute_each_line_and_the_header_without_changing_the_shipped_quantity(): void {
+        $data=$this->transferData();
+        $result=InventoryTransferService::register($data+['status'=>'in_transit']);
+        $detail=$this->detail($result['id']);
+        $first=$detail['items'][0]['id']; $second=$detail['items'][1]['id'];
+        $payload=$this->payload($result['id'],[['id'=>$first,'quantity'=>1]]);
+        $request=$this->operationRequest($payload);
+        $response=app(StockManagementController::class)->receiveTransfer($request,$result['id']);
+        $this->assertSame(200,$response->getStatusCode());
+        $detail=$response->getData(true)['data'];
+        $this->assertSame('partially_received',$detail['status']);
+        $this->assertSame('partially_received',$detail['items'][0]['status']);
+        $this->assertSame('awaiting_receipt',$detail['items'][1]['status']);
+        $this->assertEquals(2,$detail['items'][0]['quantity']);
+        $this->assertEquals(1,$detail['items'][0]['received_quantity']);
+        $this->assertEquals(1,$detail['items'][0]['pending_quantity']);
+        InventoryTransferService::operate($result['id'],'receipt',$this->payload($result['id'],[['id'=>$first,'quantity'=>1],['id'=>$second,'quantity'=>2]]),$data['user_id']);
+        $detail=$this->detail($result['id']);
+        $this->assertSame('received',$detail['status']);
+        $this->assertSame(['received','received'],array_column($detail['items'],'status'));
+        $this->assertEquals(0,DB::table('inventory_transfer_items')->sum('transit_value'));
+        $this->assertEquals(4,DB::table('warehouse_items')->where('warehouse_id',$data['destination_warehouse_id'])->sum('quantity'));
+        $this->assertDatabaseCount('inventory_transfer_operations',2);
+        $this->assertDatabaseCount('inventory_transfer_operation_items',3);
+        $this->assertCount(4,$detail['status_history']);
+        $this->assertStringStartsWith('%PDF-',app(StockManagementController::class)->printTransfer($result['id'])->getContent());
+    }
+
+    public function test_repeated_partial_state_events_are_preserved_and_retries_do_not_duplicate_receipts(): void {
+        $data=$this->transferData();
+        $data['items']=[$data['items'][0]]; $data['items'][0]['quantity']=3;
+        DB::table('warehouse_items')->where('item_id',$data['items'][0]['item_id'])->update(['quantity'=>3,'inventory_value'=>10,'average_cost'=>3.33]);
+        $id=InventoryTransferService::register($data+['status'=>'in_transit'])['id'];
+        $line=$this->detail($id)['items'][0]['id'];
+        $first=$this->payload($id,[['id'=>$line,'quantity'=>1]]);
+        $operation=InventoryTransferService::operate($id,'receipt',$first,$data['user_id']);
+        foreach([2,3] as $step) InventoryTransferService::operate($id,'receipt',$this->payload($id,[['id'=>$line,'quantity'=>1]]),$data['user_id']);
+        $retry=InventoryTransferService::operate($id,'receipt',$first,$data['user_id']);
+        $this->assertSame($operation->id,$retry->id);
+        $this->assertDatabaseCount('inventory_transfer_operations',3);
+        $this->assertDatabaseCount('inventory_movements',4);
+        $this->assertSame(['awaiting_dispatch','in_transit','partially_received','partially_received','received'],array_column($this->detail($id)['status_history'],'status'));
+        $this->assertEquals(10,DB::table('inventory_transfer_operation_items')->sum('value'));
+        $this->assertEquals(10,DB::table('warehouse_items')->where('warehouse_id',$data['destination_warehouse_id'])->sum('inventory_value'));
+        $this->assertEquals(0,DB::table('inventory_transfer_items')->sum('transit_value'));
+        try { InventoryTransferService::operate($id,'receipt',array_replace($first,['reason'=>'Distinto']),$data['user_id']); $this->fail('No se puede reutilizar una clave con otro contenido.'); }
+        catch(DomainException $e) { $this->assertSame(409,$e->getCode()); }
+    }
+
+    public function test_receipts_reject_overages_foreign_lines_stale_versions_and_invalid_batches_atomically(): void {
+        $data=$this->transferData();
+        $id=InventoryTransferService::register($data+['status'=>'in_transit'])['id'];
+        $lines=$this->detail($id)['items'];
+        foreach([
+            [['id'=>$lines[0]['id'],'quantity'=>0]],
+            [['id'=>$lines[0]['id'],'quantity'=>-1]],
+            [['id'=>$lines[0]['id'],'quantity'=>3]],
+            [['id'=>999999,'quantity'=>1]],
+            [['id'=>$lines[0]['id'],'quantity'=>1],['id'=>$lines[1]['id'],'quantity'=>3]],
+        ] as $items) {
+            try { InventoryTransferService::operate($id,'receipt',$this->payload($id,$items),$data['user_id']); $this->fail('Se aceptó una recepción inválida.'); }
+            catch(DomainException $e) { $this->assertNotEmpty($e->getMessage()); }
         }
-
-        $this->assertDatabaseCount("inventory_transfers", 0);
-        $this->assertDatabaseCount("inventory_transfer_items", 0);
-        $this->assertSame(0, DB::table("inventory_movements")->whereIn("origin_type", ["transfer_out", "transfer_in"])->count());
-        $this->assertEquals([5, 5], DB::table("warehouse_items")->where("warehouse_id", $data["source_warehouse_id"])->orderBy("item_id")->pluck("quantity")->all());
-        $this->assertDatabaseMissing("warehouse_items", ["warehouse_id" => $data["destination_warehouse_id"]]);
+        $payload=$this->payload($id,[['id'=>$lines[0]['id'],'quantity'=>1]]);
+        $payload['expected_version']=0;
+        try { InventoryTransferService::operate($id,'receipt',$payload,$data['user_id']); $this->fail('Se aceptó una versión antigua.'); }
+        catch(DomainException $e) { $this->assertSame(409,$e->getCode()); }
+        $this->assertDatabaseCount('inventory_transfer_operations',0);
+        $this->assertDatabaseCount('inventory_transfer_operation_items',0);
+        $this->assertDatabaseCount('inventory_movements',2);
+        $this->assertDatabaseCount('inventory_transfer_status_events',2);
     }
 
-    public function test_transfer_status_updates_post_stock_only_on_acceptance_and_can_be_retried(): void {
-        $data = $this->transferData();
-        $transfer = InventoryMovementService::transfer($data + ["status" => "pending"]);
-        $id = $transfer["id"];
-        $controller = app(StockManagementController::class);
-        $change = fn(string $status) => $controller->advanceTransfer(
-            Request::create("/stocks_management/transfers/{$id}/status", "PATCH", ["status" => $status]),
-            $id
-        );
-
-        $this->assertSame("pending", $transfer["status"]);
-        $this->assertSame([], $transfer["movements"]);
-        $this->assertSame(2, DB::table("inventory_transfer_items")->whereNull("outbound_movement_id")->count());
-        $this->assertSame(422, $change("accepted")->getStatusCode());
-        $this->assertSame("sent", $change("sent")->getData(true)["data"]["status"]);
-        $this->assertDatabaseCount("inventory_movements", 0);
-
-        $secondItem = $data["items"][1]["item_id"];
-        $sourceStock = DB::table("warehouse_items")->where("warehouse_id", $data["source_warehouse_id"])->where("item_id", $secondItem);
-        $sourceStock->update(["quantity" => 1]);
-        $this->assertSame(422, $change("accepted")->getStatusCode());
-        $this->assertDatabaseHas("inventory_transfers", ["id" => $id, "status" => "sent"]);
-        $this->assertDatabaseCount("inventory_movements", 0);
-
-        $sourceStock->update(["quantity" => 5]);
-        $this->assertSame("accepted", $change("accepted")->getData(true)["data"]["status"]);
-        $this->assertSame("accepted", $change("accepted")->getData(true)["data"]["status"]);
-        $this->assertDatabaseCount("inventory_movements", 4);
-        $this->assertSame(2, DB::table("inventory_transfer_items")->whereNotNull("inbound_movement_id")->count());
-    }
-
-    public function test_cancellation_preserves_pending_and_sent_transfers_and_records_the_reason_once(): void {
-        $data = $this->transferData();
-        $controller = app(StockManagementController::class);
-        foreach(["pending", "sent"] as $status) {
-            $transfer = InventoryMovementService::transfer($data + ["status" => $status]);
-            $id = $transfer["id"];
-            $otherStatus = $status === "sent" ? "pending" : "sent";
-            $this->assertSame(422, $this->cancelTransfer($controller, $id, $otherStatus)->getStatusCode());
-            $canceled = $this->cancelTransfer($controller, $id, $status, "Selección equivocada")->getData(true)["data"];
-            $this->assertSame("canceled", $canceled["status"]);
-            $this->assertNotNull($canceled["canceled_at"]);
-            $this->assertSame($data["user_id"], $canceled["canceled_by_user"]["id"]);
-            $this->assertSame("Selección equivocada", $canceled["cancellation_reason"]);
-            $this->assertSame(200, $this->cancelTransfer($controller, $id, $status, "Otro motivo")->getStatusCode());
-            $this->assertDatabaseHas("inventory_transfers", ["id" => $id, "cancellation_reason" => "Selección equivocada"]);
+    public function test_cancellation_is_only_allowed_before_dispatch_and_receipt_cannot_be_a_manual_status(): void {
+        $data=$this->transferData();
+        $id=InventoryTransferService::register($data)['id'];
+        InventoryTransferService::advance($id,InventoryTransferStatus::Canceled,$data['user_id'],0,'Error de almacén');
+        InventoryTransferService::advance($id,InventoryTransferStatus::Canceled,$data['user_id'],0,'Otro motivo');
+        $this->assertDatabaseHas('inventory_transfers',['id'=>$id,'cancellation_reason'=>'Error de almacén']);
+        $this->assertSame(['canceled','canceled'],array_column($this->detail($id)['items'],'status'));
+        $this->assertDatabaseCount('inventory_movements',0);
+        $sent=InventoryTransferService::register($data+['status'=>'in_transit'])['id'];
+        foreach([InventoryTransferStatus::Canceled,InventoryTransferStatus::Received] as $status) {
+            try { InventoryTransferService::advance($sent,$status,$data['user_id'],1); $this->fail('Estado inválido.'); }
+            catch(DomainException $e) { $this->assertNotEmpty($e->getMessage()); }
         }
-        $this->assertDatabaseCount("inventory_transfer_items", 4);
-        $this->assertDatabaseCount("inventory_movements", 0);
-        $this->assertEquals([5, 5], DB::table("warehouse_items")->where("warehouse_id", $data["source_warehouse_id"])->orderBy("item_id")->pluck("quantity")->all());
-        $this->assertCount(2, InventoryTransferService::query(["transfer_status" => "canceled"])->get());
+        $this->assertSame('in_transit',$this->detail($sent)['status']);
     }
 
-    public function test_accepted_transfer_cannot_be_canceled_even_if_the_caller_sends_an_old_status(): void {
-        $data = $this->transferData();
-        $transfer = InventoryMovementService::transfer($data);
-        $stock = DB::table("warehouse_items")->orderBy("id")->get();
-
-        foreach(["accepted", "sent", "pending"] as $expected) {
-            $response = $this->cancelTransfer(app(StockManagementController::class), $transfer["id"], $expected);
-            $this->assertSame(422, $response->getStatusCode());
-            $this->assertStringContainsString("Solo se pueden cancelar traslados pendientes o enviados", $response->getData(true)["msg"]);
+    public function test_returns_and_losses_close_differences_without_falsely_receiving_them_and_conserve_value(): void {
+        $data=$this->transferData(); $data['items']=[$data['items'][0]]; $data['items'][0]['quantity']=5;
+        $id=InventoryTransferService::register($data+['status'=>'in_transit'])['id'];
+        $line=$this->detail($id)['items'][0]['id'];
+        foreach([['receipt',2],['return',1],['loss',2]] as [$kind,$quantity]) {
+            $payload=$this->payload($id,[['id'=>$line,'quantity'=>$quantity]]); $payload['reason']='Diferencia verificada';
+            InventoryTransferService::operate($id,$kind,$payload,$data['user_id']);
         }
-        $this->assertDatabaseHas("inventory_transfers", ["id" => $transfer["id"], "status" => "accepted", "canceled_at" => null]);
-        $this->assertDatabaseCount("inventory_movements", 4);
-        $this->assertEquals($stock, DB::table("warehouse_items")->orderBy("id")->get());
+        $detail=$this->detail($id);
+        $this->assertSame('closed_with_differences',$detail['status']);
+        $this->assertSame('resolved',$detail['items'][0]['status']);
+        $this->assertEquals(2,$detail['items'][0]['received_quantity']);
+        $this->assertEquals(3,$detail['items'][0]['resolved_quantity']);
+        $this->assertEquals(0,$detail['items'][0]['pending_quantity']);
+        $this->assertEquals(0,$detail['items'][0]['transit_value']);
+        $this->assertEquals(1,DB::table('warehouse_items')->where('warehouse_id',$data['source_warehouse_id'])->where('item_id',$data['items'][0]['item_id'])->value('quantity'));
+        $this->assertEquals(2,DB::table('warehouse_items')->where('warehouse_id',$data['destination_warehouse_id'])->value('quantity'));
+        $loss=DB::table('inventory_transfer_operations')->where('kind','loss')->value('id');
+        $this->assertDatabaseHas('inventory_transfer_operation_items',['inventory_transfer_operation_id'=>$loss,'quantity'=>2,'value'=>6,'movement_id'=>null]);
+        $this->assertDatabaseHas('inventory_movements',['origin_type'=>'transfer_return','quantity_change'=>1]);
+        $this->assertFalse($detail['can_receive']);
     }
 
-    private function cancelTransfer(StockManagementController $controller, int $id, string $expectedStatus, ?string $reason = null): \Illuminate\Http\JsonResponse {
-        return $controller->advanceTransfer(Request::create("/stocks_management/transfers/{$id}/status", "PATCH", [
-            "status" => "canceled", "expected_status" => $expectedStatus, "cancellation_reason" => $reason,
-        ]), $id);
+    public function test_authors_dates_filters_and_exports_keep_the_original_creator_and_all_receivers(): void {
+        $data=$this->transferData();
+        $receiver=User::firstOrFail()->replicate(); $receiver->name='Recepción'; $receiver->email='receiver@example.test'; $receiver->document_number='87654321'; $receiver->save();
+        $id=InventoryTransferService::register($data)['id'];
+        InventoryTransferService::advance($id,InventoryTransferStatus::InTransit,$receiver->id,0);
+        $items=array_map(fn($line)=>['id'=>$line['id'],'quantity'=>2],$this->detail($id)['items']);
+        InventoryTransferService::operate($id,'receipt',$this->payload($id,$items),$receiver->id);
+        $receiver->update(['name'=>'Nombre actualizado']);
+        $detail=$this->detail($id);
+        $this->assertSame('Recepción',$detail['sender_name']);
+        $this->assertSame('Recepción',$detail['receiver_name']);
+        $this->assertSame(User::findOrFail($data['user_id'])->name,$detail['user']['name']);
+        $filters=['user_id'=>$data['user_id'],'source_warehouse_id'=>$data['source_warehouse_id'],'product_search'=>'Perno'];
+        $this->assertSame([$id],app(StockManagementController::class)->transfers(Request::create('/','GET',$filters))->getCollection()->pluck('id')->all());
+        $export=new InventoryReportExport('transfers',$filters);
+        $this->assertSame([$id],$export->collection()->pluck('id')->all());
+        $row=$export->map($export->collection()->first());
+        $this->assertSame('Recepción',$row[9]);
+        $this->assertStringContainsString('Recepción completa registrada',$row[10]);
+        $this->assertEquals(0,$row[11]);
+        $this->assertSame('Recepción',$row[13]);
+        $this->assertSame(0,InventoryTransferService::query($filters+['allowed_warehouse_ids'=>[]])->count());
+        $this->assertCount(0,InventoryTransferService::getUsers([]));
+        $this->assertSame([$data['user_id']],InventoryTransferService::getUsers(null)->pluck('id')->all());
     }
 
-    public function test_transfer_prefix_is_per_company_and_reference_dates_and_product_filters_combine(): void {
-        $data = $this->transferData();
-        $settings = DB::table("company_settings")->where("group", "internal_code_prefixes")->where("key", "inventory_transfer");
-        $settings->update(["value" => "LOCAL"]);
+    public function test_destination_operator_can_receive_without_access_to_origin_and_cannot_resolve_or_dispatch(): void {
+        $data=$this->transferData();
+        $id=InventoryTransferService::register($data+['status'=>'in_transit'])['id'];
+        $role=\App\Models\System\Organizations\Role::firstOrFail()->replicate();
+        $role->slug='receipt-operator'; $role->name='Recepción de almacén'; $role->is_full_access=false; $role->save();
+        DB::table('role_sub_sections')->insert(['role_id'=>$role->id,'sub_section_id'=>DB::table('sub_sections')->where('dom_route','stocks_management.transfers.index')->value('id'),'actions'=>json_encode(['view','operate']),'status'=>'active']);
+        $actor=User::firstOrFail()->replicate(); $actor->role_id=$role->id; $actor->name='Operador destino'; $actor->email='destination@example.test'; $actor->document_number='87654320'; $actor->warehouse_scope_mode='restricted'; $actor->save();
+        DB::table('user_warehouses')->insert(['user_id'=>$actor->id,'warehouse_id'=>$data['destination_warehouse_id'],'status'=>'active']);
+        $this->actingAs($actor);
+        $detail=$this->detail($id);
+        $this->assertNull($detail['source_warehouse']);
+        $this->assertTrue($detail['can_receive']);
+        $this->assertFalse($detail['can_dispatch']);
+        $this->assertFalse($detail['can_resolve']);
+        $payload=$this->payload($id,[['id'=>$detail['items'][0]['id'],'quantity'=>1]]);
+        $this->assertSame(200,app(StockManagementController::class)->receiveTransfer($this->operationRequest($payload),$id)->getStatusCode());
+        $payload=$this->payload($id,[['id'=>$detail['items'][0]['id'],'quantity'=>1]])+['kind'=>'loss','reason'=>'Prueba de autorización'];
+        try { app(StockManagementController::class)->resolveTransfer($this->operationRequest($payload),$id); $this->fail('Debía restringir la resolución sin acceso al origen.'); }
+        catch(\Symfony\Component\HttpKernel\Exception\HttpException $error) { $this->assertSame(403,$error->getStatusCode()); }
+    }
+
+    public function test_partial_receipts_use_the_company_decimal_precision_for_quantities_and_transit_value(): void {
+        $data=$this->transferData();
+        DB::table('company_settings')->where('group','numeric_validation')->where('key','decimal_precision')->update(['value'=>'3']);
         CompanySettingService::clearCache();
-        $first = InventoryMovementService::transfer($data);
-
-        $settings->update(["value" => null]);
-        CompanySettingService::clearCache();
-        $second = InventoryMovementService::transfer($data + ["status" => "sent"]);
-        $this->assertMatchesRegularExpression('/^LOCAL-[A-Z0-9]{10}$/', $first["reference"]);
-        $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $second["reference"]);
-        $this->assertDatabaseHas("inventory_transfers", ["id" => $first["id"], "reference" => $first["reference"]]);
-        DB::table("inventory_transfers")->where("id", $first["id"])->update(["created_at" => "2026-11-16 23:59:59"]);
-        DB::table("inventory_transfers")->where("id", $second["id"])->update(["created_at" => "2026-11-17 00:00:00"]);
-
-        $filters = [
-            "source_warehouse_id" => $data["source_warehouse_id"],
-            "destination_warehouse_id" => $data["destination_warehouse_id"],
-        ];
-        $this->assertSame([$second["id"], $first["id"]], InventoryTransferService::query($filters + ["product_search" => "Perno"])->pluck("id")->all());
-        $this->assertSame(0, InventoryTransferService::query($filters + ["product_search" => "Sin coincidencias"])->count());
-        $this->assertSame([$first["id"]], InventoryTransferService::query($filters + ["reference" => "LOCAL-"])->pluck("id")->all());
-        $this->assertSame([$second["id"]], InventoryTransferService::query($filters + ["date_from" => "2026-11-17"])->pluck("id")->all());
-
-        $search = $filters + ["reference" => "LOCAL-", "date_from" => "2026-11-16", "date_to" => "2026-11-16", "product_search" => "Perno"];
-        $listing = app(StockManagementController::class)->transfers(Request::create("/stocks_management/transfers", "GET", $search));
-        $this->assertSame([$first["id"]], $listing->getCollection()->pluck("id")->all());
-        $this->assertSame([$first["id"]], (new InventoryReportExport("transfers", $search))->collection()->pluck("id")->all());
+        $data['items']=[$data['items'][0]]; $data['items'][0]['quantity']='0.125';
+        $id=InventoryTransferService::register($data+['status'=>'in_transit'])['id'];
+        $line=$this->detail($id)['items'][0]['id'];
+        foreach(['0.025','0.100'] as $quantity) {
+            $payload=$this->payload($id,[['id'=>$line,'quantity'=>$quantity]]);
+            $response=app(StockManagementController::class)->receiveTransfer($this->operationRequest($payload),$id);
+            $this->assertSame(200,$response->getStatusCode());
+        }
+        $detail=$this->detail($id);
+        $this->assertSame('received',$detail['status']);
+        $this->assertEquals('0.125',$detail['items'][0]['received_quantity']);
+        $this->assertEquals('0.375',DB::table('inventory_transfer_operation_items')->sum('value'));
+        $this->assertEquals(0,$detail['items'][0]['transit_value']);
     }
 
-    public function test_source_and_destination_filters_are_independent_and_respect_warehouse_permissions(): void {
-        $data = $this->transferData();
-        $transfer = InventoryMovementService::transfer($data + ["status" => "pending"]);
-        $id = $transfer["id"];
-        $source = $data["source_warehouse_id"];
-        $destination = $data["destination_warehouse_id"];
-        $controller = app(StockManagementController::class);
-        foreach([[], ["source_warehouse_id" => $source], ["destination_warehouse_id" => $destination], ["source_warehouse_id" => $source, "destination_warehouse_id" => $destination]] as $filters) {
-            $this->assertSame([$id], $controller->transfers(Request::create("/stocks_management/transfers", "GET", $filters))->getCollection()->pluck("id")->all());
-            $this->assertSame([$id], (new InventoryReportExport("transfers", $filters))->collection()->pluck("id")->all());
-        }
-        foreach([["source_warehouse_id" => $destination], ["destination_warehouse_id" => $source]] as $filters) {
-            $this->assertSame(0, InventoryTransferService::query($filters)->count());
-        }
-        $this->assertSame(0, InventoryTransferService::query(["source_warehouse_id" => $source, "allowed_warehouse_ids" => [$destination]])->count());
-        $this->assertSame(0, InventoryTransferService::query(["destination_warehouse_id" => $destination, "allowed_warehouse_ids" => [$source]])->count());
+    private function detail(int $id): array { return app(StockManagementController::class)->showTransfer($id)->getData(true)['data']; }
+    private function payload(int $id,array $items): array { return ['request_key'=>(string) Str::uuid(),'expected_version'=>(int) DB::table('inventory_transfers')->where('id',$id)->value('version'),'items'=>$items]; }
+    private function operationRequest(array $data): StoreTransferOperationRequest {
+        $request=StoreTransferOperationRequest::create('/','POST',$data);
+        $request->setContainer(app())->setRedirector(app('redirect'))->setUserResolver(fn()=>auth()->user());
+        $request->validateResolved();
+        return $request;
     }
 
     private function transferData(): array {

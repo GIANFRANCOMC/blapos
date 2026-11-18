@@ -12,6 +12,7 @@ const bundles = [
             "resources/css/Shared/typography-tokens.css",
             "resources/css/Shared/disabled-controls.css",
             "resources/css/Shared/responsive-tables.css",
+            "resources/css/Shared/modal-results.css",
         ],
         output: "public/System/assets/css/br-branding.css",
         description: "tokens, componentes visuales y estilos de módulos System/Guest",

@@ -165,10 +165,7 @@
                                             xl="12"
                                             lg="12">
                                             <template v-slot:input>
-                                                <button type="button" class="btn btn-sm btn-primary waves-effect" @click="modalActionsEntity({record})">
-                                                    <i class="fa fa-gear"></i>
-                                                    <span class="ms-2">Acciones</span>
-                                                </button>
+                                                <ActionsButton @click="modalActionsEntity({record})"/>
                                             </template>
                                         </InputSlot>
                                     </td>
@@ -261,6 +258,7 @@
 <script>
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
+import ActionsButton from "@System/Components/Generics/ActionsButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -269,7 +267,7 @@ import * as Utils     from "@System/Helpers/Utils.js";
 import {STATUS_BADGE_CUSTOM_SUBSCRIPTION} from "@System/Helpers/ModuleConstants.js";
 
 export default {
-    components: {SearchButton},
+    components: {ActionsButton, SearchButton},
     mixins: [InitialPageMixin],
     mounted: async function() {
 

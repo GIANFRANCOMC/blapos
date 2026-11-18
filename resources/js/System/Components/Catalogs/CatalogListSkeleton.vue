@@ -56,7 +56,7 @@ const COMMON_ACTIONS = {title: "", align: "text-center"};
 const offeringColumns = title => [
     {...COMMON_INTERNAL_CODE, className: "br-entity-table__col-code"},
     {title, className: "br-entity-table__col-offering"},
-    {title: "Detalles", className: "br-entity-table__col-detail"},
+    {title: "Detalle", className: "br-entity-table__col-detail"},
     {title: "Precio", className: "br-entity-table__col-offering-price", align: "text-center"},
     {...COMMON_STATUS, className: "br-entity-table__col-status"},
     {...COMMON_ACTIONS, className: "br-entity-table__col-actions"}

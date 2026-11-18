@@ -8,7 +8,7 @@ import {renderToString} from "vue/server-renderer";
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 const directory = "resources/js/System/Pages/Warehouses/inventory";
 
-test("las tablas de inventario centran las cabeceras de texto y Kardex alinea a la derecha las numéricas", () => {
+test("las tablas de inventario comparten cabeceras y respetan las alineaciones de Kardex y Traslados", () => {
     const styles = read("resources/css/System/br-branding/82-inventory.css");
     assert.match(styles, /body\.br-layout \.br-inventory-table-headings > thead > tr > th \{\s*text-align: center !important;/);
     assert.match(styles, /\.br-inventory__table--single-warehouse > thead > tr > th:last-child \{\s*position: relative;/);
@@ -21,6 +21,16 @@ test("las tablas de inventario centran las cabeceras de texto y Kardex alinea a 
         assert.ok(tables.every(table => table.includes("br-inventory-table-headings")), `${file} debe compartir la regla de cabeceras`);
 
         for(const [, head] of source.matchAll(/<thead\b[^>]*>([\s\S]*?)<\/thead>/g)) {
+            if(file === "InventorySkeleton") {
+                assert.match(head, /'text-end': page === 'transfers' && heading === 'Almacén de origen'/);
+                assert.match(head, /'text-start': page === 'transfers' && heading === 'Almacén de destino'/);
+                continue;
+            }
+            if(file === "transfers" && head.includes("Almacén de origen")) {
+                assert.match(head, /class="text-end">Almacén de origen/);
+                assert.match(head, /class="text-start">Almacén de destino/);
+                continue;
+            }
             assert.doesNotMatch(head, /<th\b[^>]*\btext-end\b/, `${file} debe usar la regla compartida de alineación`);
         }
     }

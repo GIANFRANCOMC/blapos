@@ -353,13 +353,51 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     table-layout: fixed;
 }
 
-.br-inventory-transfer__col-reference { width: 17%; }
-.br-inventory-transfer__col-date { width: 18%; }
+.br-inventory-transfer__col-reference { width: 16%; }
+.br-inventory-transfer__col-detail { width: 20%; }
 .br-inventory-transfer__col-source,
-.br-inventory-transfer__col-destination { width: 17.5%; }
-.br-inventory-transfer__col-direction { width: 5%; }
-.br-inventory-transfer__col-count { width: 8%; }
-.br-inventory-transfer__col-status { width: 11%; }
+.br-inventory-transfer__col-destination { width: 18%; }
+.br-inventory-transfer__col-direction { width: 6%; }
+.br-inventory-transfer__col-status { width: 16%; }
+
+.br-inventory-transfer__table .br-badge,
+.br-inventory-transfer__detail-table .br-badge {
+    max-inline-size: 100%;
+    white-space: normal;
+    overflow-wrap: normal;
+}
+
+body.br-layout .br-inventory-transfer__table > thead > tr > th.text-end {
+    text-align: end !important;
+}
+
+body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
+    text-align: start !important;
+}
+
+.br-inventory-transfer__direction--counted {
+    position: relative;
+    /* Center the arrow and the badge together, including its 0.875rem overhang. */
+    inset-inline-start: -0.4375rem;
+}
+
+.br-inventory-transfer__product-count {
+    position: absolute;
+    inset-block-start: -0.25rem;
+    inset-inline-end: -0.875rem;
+    display: grid;
+    place-items: center;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    border: 1px solid var(--br-border);
+    border-radius: 50%;
+    color: var(--br-white);
+    background: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
+    font-weight: var(--br-font-weight-body);
+    line-height: 1;
+    white-space: nowrap;
+}
 
 .br-inventory-transfer__table td,
 .br-inventory-transfer__reference {
@@ -381,7 +419,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 
 .br-inventory-transfer__detail-summary {
     display: grid;
-    grid-template-columns: 1.25fr 1fr 1fr auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem 1rem;
     align-items: start;
     padding-bottom: 0.9rem;
@@ -438,8 +476,20 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     font-weight: var(--br-font-weight-emphasis);
 }
 
-.br-inventory-transfer__detail-table th:last-child {
-    width: 25%;
+.br-inventory-transfer__detail-table {
+    min-width: 54rem;
+}
+
+.br-inventory-transfer__detail-table th:first-child {
+    width: 30%;
+}
+
+.br-inventory-transfer__detail-table td:nth-child(n+2) {
+    white-space: nowrap;
+}
+
+.br-inventory-transfer__receipt-input {
+    min-inline-size: 11rem;
 }
 
 @media (max-width: 575.98px) {
@@ -543,7 +593,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     margin-bottom: 0 !important;
 }
 
-.br-inventory-operation__config.br-inventory-transfer__config {
+.br-inventory-operation__config.br-inventory-transfer__route-fields {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     gap: 0 0.7rem;
 }
@@ -560,12 +610,12 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
     inline-size: var(--br-btn-height-sm);
     block-size: var(--br-btn-height-sm);
     border-radius: 50%;
-    color: var(--br-dropdown-accent, var(--br-actions-orange));
-    background: color-mix(in srgb, currentColor 12%, transparent);
+    color: var(--br-text-muted);
+    background: var(--br-neutral-soft);
     font-size: var(--br-font-size-table);
 }
 
-.br-inventory-transfer__config > .br-inventory-transfer__direction {
+.br-inventory-transfer__route-fields > .br-inventory-transfer__direction {
     grid-area: 2 / 2;
     align-self: center;
     justify-self: center;
@@ -574,11 +624,12 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 .br-inventory-transfer__reason,
 .br-inventory-transfer__form-status {
     min-inline-size: 0;
-    margin-block-start: 0.7rem;
 }
 
-.br-inventory-transfer__reason { grid-column: 1 / 3; }
-.br-inventory-transfer__form-status { grid-column: 3; }
+.br-inventory-transfer__form-status .v-select.vs--single.vs--open .vs__selected {
+    position: static;
+    opacity: 1;
+}
 
 .br-inventory-transfer__reason-action {
     width: 24%;
@@ -626,7 +677,7 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
 }
 
 @media (max-width: 575.98px) and (min-height: 560px) {
-    .br-inventory-operation__config.br-inventory-transfer__config {
+    .br-inventory-operation__config.br-inventory-transfer__route-fields {
         grid-template-columns: minmax(0, 1fr);
         row-gap: 0.4rem;
     }
@@ -636,19 +687,14 @@ body.br-layout .br-inventory-alerts .br-inventory-alerts__table-head .table > th
         grid-row: auto;
     }
 
-    .br-inventory-transfer__config > .br-inventory-transfer__direction {
+    .br-inventory-transfer__route-fields > .br-inventory-transfer__direction {
         grid-area: auto;
     }
 
-    .br-inventory-transfer__config > .br-inventory-transfer__direction i {
+    .br-inventory-transfer__route-fields > .br-inventory-transfer__direction i {
         transform: rotate(90deg);
     }
 
-    .br-inventory-transfer__reason,
-    .br-inventory-transfer__form-status {
-        grid-column: 1 / -1;
-        margin-block-start: 0.3rem;
-    }
 }
 
 .br-inventory-operation__items {

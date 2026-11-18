@@ -9,6 +9,7 @@ use App\Exports\System\Warehouses\{InventoryOperationTemplateExport, InventoryRe
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Http\Requests\System\Warehouses\{PreviewInventoryOperationRequest, StoreInventoryGuideRequest, StoreInventoryMovementRequest, StoreInventoryOperationRequest, StoreInventoryTransferRequest, UpdateStockLevelsRequest};
+use App\Http\Requests\System\Warehouses\StoreTransferOperationRequest;
 use App\Imports\System\Warehouses\{InventoryOperationPreviewImport};
 use App\Models\System\Warehouses\{InventoryMovement, InventoryTransfer, Warehouse, WarehouseItem};
 use App\Models\System\Catalogs\{Item};
@@ -69,6 +70,7 @@ class StockManagementController extends BaseController {
         $params = StockManagementConfigService::getInitParams($page, $this->getUserId());
         if($page === "transfers") {
             unset($params->config->products);
+            $params->config->movement_users = InventoryTransferService::getUsers($this->transferWarehouseScope());
             $params->config->can_operate_transfers = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.transfers.store", "POST");
             $params->config->transfer_statuses = array_map(fn(InventoryTransferStatus $status) => [
                 "code" => $status->value,
@@ -76,6 +78,7 @@ class StockManagementController extends BaseController {
                 "tone" => $status->tone(),
                 "next" => $status->next()?->value,
                 "can_cancel" => $status->canCancel(),
+                "can_register" => $status->canRegister(),
             ], InventoryTransferStatus::cases());
         }
         $params->config->can_update_stock = RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.operations.store", "POST");
@@ -601,6 +604,7 @@ class StockManagementController extends BaseController {
 
     private function transferFilters(Request $request): array {
         return $request->validate([
+            "user_id" => ["nullable", "integer", "min:1"],
             "warehouse_id" => ["nullable", "regex:/^(all|[1-9][0-9]*)$/"],
             "source_warehouse_id" => ["nullable", "integer", "min:1"],
             "destination_warehouse_id" => ["nullable", "integer", "min:1"],
@@ -620,12 +624,12 @@ class StockManagementController extends BaseController {
     public function advanceTransfer(Request $request, int $transfer): JsonResponse {
         $data = $request->validate([
             "status" => ["required", new Enum(InventoryTransferStatus::class)],
-            "expected_status" => ["required_if:status,canceled", "nullable", new Enum(InventoryTransferStatus::class)],
+            "expected_version" => ["required", "integer", "min:0"],
             "cancellation_reason" => ["nullable", "string", "max:255"],
         ]);
         $user = $this->getAuthUser();
         $record = $this->authorizedTransfer($transfer);
-        abort_unless($record->sourceWarehouse && $record->destinationWarehouse
+        abort_unless($this->transferWarehouseAllowed($record->source_warehouse_id)
             && RolePermissionService::canAccessRoute($user, "stocks_management.transfers.advance", "PATCH"), 403);
 
         try {
@@ -634,11 +638,11 @@ class StockManagementController extends BaseController {
                 $transfer,
                 InventoryTransferStatus::from($data["status"]),
                 $this->getUserId(),
-                InventoryTransferStatus::tryFrom($data["expected_status"] ?? ""),
+                (int) $data["expected_version"],
                 $reason === "" ? null : $reason
             );
         }catch(\DomainException $exception) {
-            return response()->json(["bool" => false, "msg" => $exception->getMessage()], 422);
+            return response()->json(["bool" => false, "msg" => $exception->getMessage()], $exception->getCode() === 409 ? 409 : 422);
         }
 
         return response()->json(["bool" => true, "data" => $this->authorizedTransfer($transfer)]);
@@ -654,9 +658,50 @@ class StockManagementController extends BaseController {
     }
 
     private function authorizedTransfer(int $id): InventoryTransfer {
-        return InventoryTransferService::withItems(InventoryTransferService::query([
+        $record = InventoryTransferService::withItems(InventoryTransferService::query([
             "allowed_warehouse_ids" => $this->transferWarehouseScope(),
         ]))->findOrFail($id);
+        $user = $this->getAuthUser();
+        $source = $this->transferWarehouseAllowed($record->source_warehouse_id);
+        $destination = $this->transferWarehouseAllowed($record->destination_warehouse_id);
+        $advance = $source && RolePermissionService::canAccessRoute($user, "stocks_management.transfers.advance", "PATCH");
+        $record->setAttribute("can_dispatch", $advance && $record->status === InventoryTransferStatus::AwaitingDispatch);
+        $record->setAttribute("can_cancel", $advance && $record->status->canCancel());
+        $record->setAttribute("can_receive", $destination && $record->status->canReceive()
+            && RolePermissionService::canAccessRoute($user, "stocks_management.transfers.receive", "POST"));
+        $record->setAttribute("can_resolve", $source && $destination && $record->status->canReceive()
+            && RolePermissionService::canAccessRoute($user, "stocks_management.transfers.resolve", "POST"));
+        return $record;
+    }
+
+    private function transferWarehouseAllowed(int $id): bool {
+        $ids = AccessScopeService::allowedIds($this->getAuthUser(), AccessScopeService::WAREHOUSE);
+        return $ids === null || in_array($id, $ids, true);
+    }
+
+    public function receiveTransfer(StoreTransferOperationRequest $request, int $transfer): JsonResponse {
+        return $this->processTransferOperation($request, $transfer, "receipt");
+    }
+
+    public function resolveTransfer(StoreTransferOperationRequest $request, int $transfer): JsonResponse {
+        $data = $request->validated();
+        abort_unless(in_array($data["kind"] ?? null, ["return", "loss"], true), 422, "Selecciona cómo resolver la diferencia.");
+        return $this->processTransferOperation($request, $transfer, $data["kind"]);
+    }
+
+    private function processTransferOperation(StoreTransferOperationRequest $request, int $id, string $kind): JsonResponse {
+        $record = $this->authorizedTransfer($id);
+        $receipt = $kind === "receipt";
+        abort_unless(RolePermissionService::canAccessRoute($this->getAuthUser(), "stocks_management.transfers.".($receipt ? "receive" : "resolve"), "POST")
+            && $this->transferWarehouseAllowed($record->destination_warehouse_id)
+            && ($receipt || $this->transferWarehouseAllowed($record->source_warehouse_id)), 403);
+        try {
+            $operation = InventoryTransferService::operate($id, $kind, $request->validated(), $this->getUserId());
+            return response()->json(["bool" => true, "msg" => $receipt ? "Recepción registrada correctamente." : "Diferencia resuelta correctamente.",
+                "operation_id" => $operation->id, "data" => $this->authorizedTransfer($id)]);
+        }catch(\DomainException $exception) {
+            return response()->json(["bool" => false, "msg" => $exception->getMessage()], $exception->getCode() === 409 ? 409 : 422);
+        }
     }
 
     private function transferWarehouseScope(): ?array {
@@ -709,7 +754,7 @@ class StockManagementController extends BaseController {
                 "destination_warehouse_id" => (int) $data["destination_warehouse_id"],
                 "items" => $data["items"],
                 "reason" => (string) $data["reason"],
-                "status" => $data["status"] ?? InventoryTransferStatus::Accepted->value,
+                "status" => $data["status"] ?? InventoryTransferStatus::AwaitingDispatch->value,
                 "user_id" => $this->getUserId(),
             ]);
 

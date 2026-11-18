@@ -1,3 +1,5 @@
+import {prepareModalResult} from "./modal-results.js";
+
 function alertOptions(title, html, icon) {
     if(title && typeof title === "object" && !title.nodeType && !title.jquery) return title;
 
@@ -36,10 +38,12 @@ export function initializeSweetAlertTooltips({Swal, bootstrap, document}) {
 
     Swal.fire = function (title, html, icon) {
         const options = alertOptions(title, html, icon);
+        const modalResult = prepareModalResult({options, document, bootstrap});
         let popup;
 
-        return fire.call(this, {
+        const preparedOptions = {
             ...options,
+            ...(modalResult ? {target: document.body, returnFocus: false} : {}),
             cancelButtonText: "Cerrar",
             willOpen(element) {
                 popup = activePopup = element;
@@ -54,8 +58,14 @@ export function initializeSweetAlertTooltips({Swal, bootstrap, document}) {
                 if(popup) hideTooltips(popup);
                 // SweetAlert has already restored focus on normal close.
                 if(activePopup === popup) activePopup = null;
+                modalResult?.restore();
                 if(typeof options.didDestroy === "function") options.didDestroy.call(this);
             }
+        };
+        if(!modalResult) return fire.call(this, preparedOptions);
+        return modalResult.ready.then(() => fire.call(this, preparedOptions)).catch(error => {
+            modalResult.restore();
+            throw error;
         });
     };
 }

@@ -112,7 +112,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - Los filtros permanecen sobre el fondo de la página y separados de la tabla por un espacio visible. El contenedor de contenido no usa el estilo blanco de tarjeta; únicamente `br-entity-list` delimita el listado.
 - Desde `lg`, ambas vistas de Kardex muestran **Almacén de trabajo**, **Producto**, **Movimiento**, **Desde** y **Hasta** en la primera fila, con 3, 3, 2, 2 y 2 columnas. La segunda fila reúne **Realizado por**, **Categoría**, **Marca** y la botonera, con 3 columnas por grupo. En pantallas menores los campos se distribuyen en más filas.
 - Desde `lg`, la primera fila de Control de stock reúne **Almacén de trabajo**, **Producto**, **Estado del stock**, **Stock mínimo** y **Último movimiento**, con 3, 3, 2, 2 y 2 columnas. **Categoría** y **Marca** siguen en la misma cuadrícula, con 3 columnas cada una. **Buscar**, **Limpiar filtros** y **Acciones** van al inicio de la botonera. **Registrar operación** y **Ver alertas** se alinean a la derecha, precedidos por un separador gris que usa `--br-border-muted`. Los grupos se mantienen juntos al saltar de línea y el skeleton usa la misma distribución.
-- **Traslados** muestra los filtros **Almacén de origen**, **Almacén de destino**, **Referencia**, **Desde**, **Hasta**, **Producto** y **Estado del traslado**, en ese orden. Los almacenes se seleccionan de forma independiente y pueden dejarse vacíos para consultar todos los disponibles. Las fechas incluyen ambos extremos y **Referencia** admite coincidencias parciales. **Buscar** aplica la selección a la tabla y al Excel.
+- **Traslados** muestra los filtros **Almacén de origen**, **Almacén de destino**, **Referencia**, **Desde**, **Hasta**, **Registrado por**, **Producto** y **Estado del traslado**, en ese orden. Registrado por usa el mismo ancho que Almacén de destino y lista los autores de cabeceras en almacenes accesibles, incluidos traslados pendientes sin movimientos de kardex. Ambos almacenes se seleccionan de forma independiente y pueden dejarse vacíos para consultar todos los disponibles. Las fechas incluyen ambos extremos y **Referencia** admite coincidencias parciales. **Buscar** aplica la selección a la tabla y al Excel. Registrado por filtra `inventory_transfers.user_id`, sin alterar la consulta al seleccionar una opción.
 - **Registrar operación** y **Registrar traslado** abren modales estándar con título breve, **Cerrar** y **Guardar**.
 - **Control de stock** muestra siempre la columna **Almacenes**, además de saldo actual, stock mínimo y estado del stock por producto. Con un almacén seleccionado, la columna identifica ese almacén y su cantidad; con **Todos los almacenes**, presenta el desglose por almacén y el contador de almacenes que requieren atención.
 - **Registrar operación** permanece disponible incluso con **Todos los almacenes** seleccionado. Su modal exige elegir expresamente un **Almacén de la operación** real y un **Tipo de operación**; ambos empiezan vacíos y no cambian el filtro del listado. El formulario admite uno o hasta 100 productos. En **Ingresos** solo ofrece entrada manual y devolución de cliente; también permite salida manual, toma física y devolución a proveedor según el grupo correspondiente.
@@ -123,7 +123,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - El selector de operación agrupa las opciones bajo **Actualización**, **Ingresos** y **Salidas** sin alterar los códigos enviados al backend. El efecto presenta título y explicación breve en una sola línea, con la altura del selector. **Productos incluidos** se marca como obligatorio. **Agregar producto** es un botón verde de tamaño normal, sin icono, en el pie de la modal y a la izquierda de **Guardar**. Operaciones y traslados comparten `ProductSelect.vue`, con los mismos estilos y estado vacío de `v-select`.
 - En las tablas de operación y traslado, Producto, Cantidad y Costo unitario respetan el bloqueo del formulario: el selector no ofrece búsqueda si está deshabilitado, los controles pierden el foco al bloquearse y el cursor de escritura no aparece. Al habilitarse, recuperan la interacción normal.
 - **Kardex** muestra fecha, usuario, producto, tipo, variación, saldo anterior/resultante, motivo y origen.
-- **Traslados** mueve uno o varios productos entre almacenes de la misma empresa mediante salidas y entradas atómicas. **Registrar traslado** está disponible con permiso de operar. La modal pide seleccionar almacenes reales de origen y destino. Ambos empiezan vacíos y elegirlos conserva el filtro del listado. La tabla muestra **Producto**, **Stock disponible** en el origen y **Cantidad a trasladar**. El stock se vuelve a consultar al cambiar el origen o los productos y se presenta con la unidad de medida y la precisión de la empresa. El servidor comprueba el saldo al aceptar el traslado. El motivo es obligatorio y admite hasta 255 caracteres.
+- **Traslados** mueve uno o varios productos entre almacenes de la misma empresa mediante salidas y entradas atómicas. **Registrar traslado** está disponible con permiso de operar. La modal pide seleccionar almacenes reales de origen y destino. Ambos empiezan vacíos y elegirlos conserva el filtro del listado. La tabla muestra **Producto**, **Stock disponible** en el origen y **Cantidad a trasladar**. El stock se vuelve a consultar al cambiar el origen o los productos y se presenta con la unidad de medida y la precisión de la empresa. El servidor comprueba nuevamente el saldo al confirmar el envío. El motivo es obligatorio y admite hasta 255 caracteres.
 - En **Registrar operación** y **Registrar traslado**, la papelera también permite quitar la última fila. El formulario vacío ofrece **Agregar producto** y requiere al menos una fila antes de guardar.
 - En **Registrar traslado**, **Eliminar productos** es un botón rojo a la derecha de **Agregar producto**. Quita todas las filas y sus cantidades del borrador y conserva los almacenes y el motivo.
 - En **Registrar traslado**, el campo **Cantidad a trasladar** muestra a la derecha la abreviatura de la unidad del producto seleccionado. Cuando la cantidad supera el stock disponible, el grupo reutiliza el estado inválido de `InputNumber` y muestra en rojo el borde, el foco y la unidad. **Guardar traslado** queda deshabilitado mientras alguna fila supere su saldo. **Agregar producto** está en el encabezado de **Productos incluidos** y desplaza la tabla hasta la fila nueva.
@@ -154,23 +154,81 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - El backend valida todos los registros y los procesa dentro de una sola transacción.
 - `StoreInventoryOperationRequest`, `StoreInventoryMovementRequest` y `StoreInventoryTransferRequest` encapsulan reglas y campos condicionales.
 - Si cualquier producto falla, no se registra ningún movimiento del lote.
-- La operación manual genera un movimiento por producto. Un traslado genera dos movimientos por producto, uno por almacén.
+- La operación manual genera un movimiento por producto. Un traslado genera una salida al enviar y una entrada por cada cantidad recibida; las recepciones parciales pueden generar múltiples entradas.
 
-### Cabecera, posiciones y Kardex de un traslado
+### Cabecera, posiciones, envíos y recepciones de un traslado
 
-| Tabla | Datos que guarda |
+El flujo se centraliza en InventoryTransferService. Crear una cabecera no implica haber recibido mercancía. Los estados de recepción se calculan con las cantidades de todas las posiciones; no se seleccionan manualmente.
+
+| Código | Estado | Significado |
+| --- | --- | --- |
+| awaiting_dispatch | Por enviar | Registro inicial. Todavía no hay salida ni reserva de stock. |
+| in_transit | En tránsito | Salida confirmada del origen; aún no se registró una recepción. |
+| partially_received | Recibido parcialmente | Existe alguna cantidad recibida y quedan cantidades por recibir o resolver. |
+| received | Recibido | Todas las posiciones fueron recibidas completamente, sin diferencias. |
+| closed_with_differences | Cerrado con diferencias | No queda cantidad pendiente, pero hubo devolución o pérdida justificada. No equivale a recepción completa. |
+| canceled | Cancelado | Anulado antes del envío, sin efectos en stock. |
+
+- El valor inicial es **Por enviar**. También se puede elegir **En tránsito** al registrar: se crean el registro y la salida dentro de la misma transacción, con sus eventos reales. **Recibido** y **Recibido parcialmente** solo resultan de confirmar cantidades.
+- Confirmar envío descuenta cada producto del origen y guarda el valor retirado como inventario en tránsito. El destino no aumenta hasta recibir. No se puede cancelar una vez enviado; corresponde recibir, devolver al origen o justificar una pérdida.
+- Cada recepción ingresa únicamente la cantidad confirmada al destino, con fecha y responsable propios. Se pueden registrar múltiples recepciones, incluso del mismo producto. La cantidad registrada originalmente queda inmutable.
+- Para una posición enviada: pendiente = enviada − recibida − resuelta. Antes de enviar, la cantidad enviada es cero. Las posiciones muestran Por enviar, Por recibir, Recibido parcialmente, Recibido, Resuelto con diferencias o Cancelado.
+- La cabecera se determina revisando cada posición; no se suman cantidades de productos con unidades incompatibles. Una posición con cuatro unidades pendientes mantiene abierto el traslado aunque todas las demás estén completas.
+
+| Tabla | Datos y responsabilidad |
 | --- | --- |
-| `inventory_transfers` | Una cabecera por operación con `reference` única, `status`, `created_at`, `user_id`, `source_warehouse_id`, `destination_warehouse_id` y `reason`. |
-| `inventory_transfer_items` | Una posición por producto con `inventory_transfer_id`, `item_id`, `quantity`, `outbound_movement_id` e `inbound_movement_id`. La combinación de cabecera y producto es única. Los vínculos a Kardex quedan pendientes hasta aceptar. |
-| `inventory_movements` | La salida `transfer_out` y la entrada `transfer_in` por posición. `origin_id` apunta a la cabecera. Kardex y Kardex valorizado leen referencia y motivo de esa cabecera. |
+| inventory_transfers | Referencia única, almacenes, creador, motivo, fecha, estado calculado y version para concurrencia. Conserva los datos de cancelación. |
+| inventory_transfer_items | Una posición por producto: quantity original, outbound_movement_id, received_quantity, resolved_quantity, transit_value y estado de posición. sent_quantity y pending_quantity son valores derivados. |
+| inventory_transfer_operations | Documento inmutable por recepción o resolución: kind (receipt, return, loss), request_key, payload_hash, user_id, copia user_name, occurred_at y reason. |
+| inventory_transfer_operation_items | Cantidad y valor de cada posición procesada y vínculo movement_id. Una posición puede aparecer en múltiples documentos. Las pérdidas no generan un movimiento de almacén, porque la mercancía ya salió al enviar. |
+| inventory_transfer_status_events | Cada alta, envío, cancelación, recepción o resolución con action, estado resultante, fecha, responsable y operation_id cuando corresponde. Admite estados repetidos. |
+| inventory_movements | transfer_out al enviar, transfer_in por cada recepción y transfer_return al confirmar una devolución al origen. origin_id referencia la cabecera. |
 
-- **Aceptado** es el valor por defecto de la cabecera y del formulario. Guardar con ese estado aplica la salida y la entrada al registrar. **Pendiente** y **Enviado** guardan la cabecera y las posiciones. Desde el detalle se puede pasar de **Pendiente** a **Enviado** y luego a **Aceptado**. Este último paso actualiza stock y Kardex en una sola transacción. Si falta stock, el traslado sigue **Enviado** y se revierten todos los cambios. Repetir una aceptación conserva los mismos movimientos.
-- **Cancelar traslado** está disponible exclusivamente para **Pendiente** o **Enviado**. El backend vuelve a validar el estado al confirmar. Un SweetAlert permite ingresar el motivo opcional y enviar la cancelación. **Ver motivo** abre ese texto en un SweetAlert. Se conservan la referencia, las posiciones, el motivo original, la fecha y el responsable de la cancelación. **Aceptado** y **Cancelado** son estados finales. Repetir una cancelación ya confirmada devuelve el mismo registro.
-- La salida y la entrada reutilizan `InventoryMovementService::apply` y la precisión decimal de la empresa. La entrada conserva el valor retirado del origen. `PATCH /stocks_management/transfers/{id}/status` requiere permiso de operar Traslados y acceso a ambos almacenes.
-- `GET /stocks_management/transfers` pagina por cabecera con el estándar de 10 traslados por página. La tabla muestra referencia, fecha, responsable, origen, destino, número de productos y estado. El paginador y el contador se ocultan mientras se consulta.
-- **Ver detalle** es la única acción de cada fila. La cabecera de las modales usa el título y el control de cierre. En el cuerpo de esta modal van la referencia, el estado, los almacenes, el motivo y la tabla de productos. **Imprimir** aparece en el detalle y abre `GET /stocks_management/transfers/{id}/print` como PDF A4 en otra pestaña. Listado, detalle y PDF requieren permiso de vista de Traslados y respetan el alcance de almacenes.
-- El parámetro por empresa `internal_code_prefixes.inventory_transfer` se configura en Maestras internas. Su valor inicial es `TRAS`. Admite hasta 20 letras, números o guiones. Con valor vacío o nulo se genera la referencia sin prefijo. Cambiarlo afecta solo a las referencias nuevas.
-- Las tablas `inventory_transfers` e `inventory_transfer_items` se crean en el esquema base del tenant, en `2024_02_11_223124_create_init_companies_table.php`.
+#### Recepción y resolución de diferencias
+
+- El detalle ofrece **Registrar recepción** cuando hay cantidades en tránsito. Por posición, **Recibir todo lo pendiente** completa el input; desmarcar solo vacía la cantidad de esta captura. Nunca revierte recepciones anteriores. Se puede digitar una cantidad menor.
+- La captura compara **Enviada**, **Recibida**, **Pendiente**, **Resuelta** y el estado de cada producto. Antes del envío presenta la cantidad Por enviar. Las cantidades usan InputNumber, QuantityValue y los decimales configurados de la empresa.
+- Confirmar registra solo las cantidades positivas. Se rechazan sobre-recepciones, cantidades negativas, claves de posición ajenas al traslado y productos duplicados. Una recepción inválida no guarda documentos, movimientos ni eventos parciales.
+- **Resolver diferencia** permite **Devolución al origen** o **Pérdida justificada**, con motivo obligatorio. La devolución incrementa el stock del origen por lo efectivamente devuelto. La pérdida reduce el valor que sigue en tránsito y queda documentada; no incrementa ningún almacén. Ambas consumen únicamente lo pendiente, nunca lo recibido.
+- El checkbox facilita la captura; no determina los estados. Los estados de posición y cabecera se calculan en backend. Después de una recepción parcial se pueden continuar recibiendo o resolver las diferencias.
+- **Recepciones y diferencias registradas** presenta los documentos y sus posiciones, fechas, responsables y motivos. El roadmap registra cada operación, incluso si la cabecera continúa Recibido parcialmente. No se editan ni eliminan recepciones confirmadas desde esta pantalla.
+- Registrar, enviar y recibir son acciones distintas. Se conserva el creador en inventory_transfers.user_id; Enviado por corresponde al responsable que confirma el envío. Recepciones registradas por lista los responsables de todas las recepciones. El nombre de cada operación y evento se conserva aunque posteriormente se renombre o elimine al usuario.
+
+#### Stock, valorización e integridad
+
+- Todas las altas, envíos, recepciones, devoluciones y pérdidas son transaccionales. El envío bloquea la cabecera y procesa los productos en orden estable. Si cualquier salida falla, no se modifica ningún saldo del lote. Una recepción fallida conserva lo pendiente y sus valores.
+- El envío valida nuevamente el stock real. Por enviar no reserva mercancía: otros movimientos pueden cambiar el saldo antes de confirmar la salida.
+- Cada posición mantiene transit_value. Una recepción o resolución recibe una proporción del valor restante según la cantidad pendiente; la última porción absorbe el residuo. La suma de lo recibido, devuelto, perdido y aún en tránsito conserva el valor retirado del origen. Se usan exclusivamente Numbers y la precisión configurada (0–3), también para exportación.
+- El stock disponible de cada almacén excluye lo que salió y aún está en tránsito. No se crea un almacén ficticio ni se permite vender esa cantidad desde el destino antes de recibir. El valor en tránsito se consulta en las posiciones del traslado y en su Excel.
+- Cada operación exige request_key UUID y expected_version. La misma clave con el mismo contenido devuelve el mismo documento, incluso después del cierre del traslado. La misma clave con contenido diferente y las versiones antiguas se rechazan con 409.
+- El bloqueo de cabecera serializa recepciones concurrentes. Una versión se incrementa por envío, cancelación o documento confirmado. La unicidad se aplica a (inventory_transfer_id, request_key), no al estado; múltiples recepciones parciales tienen eventos independientes.
+- El origen y el motivo de Kardex se consultan desde la cabecera. Los movimientos de recepción incluyen el identificador de operación; cada posición de operación conserva su vínculo al movimiento. Las pérdidas quedan en el documento de resolución y su valor, sin descontar dos veces del almacén de origen.
+
+#### Endpoints y permisos
+
+- GET /stocks_management/transfers pagina cabeceras (10 por defecto). Listado, detalle, PDF y Excel respetan los almacenes accesibles.
+- POST /stocks_management/transfers registra Por enviar o registra y envía si se eligió En tránsito; requiere permiso de crear y acceso a ambos almacenes.
+- PATCH /stocks_management/transfers/{id}/status solo admite confirmar envío o cancelar, con expected_version. Requiere permiso operate y acceso al origen. Solo se cancela Por enviar.
+- POST /stocks_management/transfers/{id}/receipts confirma una recepción. Requiere operate y acceso al destino; el operador receptor no necesita acceso al origen.
+- POST /stocks_management/transfers/{id}/resolutions resuelve cantidades pendientes por return o loss, con motivo. Requiere operate y acceso a ambos almacenes.
+- El detalle devuelve can_dispatch, can_cancel, can_receive y can_resolve calculados en servidor. La autorización se verifica nuevamente al ejecutar cada acción y se mantiene al reintentar una operación ya confirmada.
+
+#### Presentación y reportes
+
+- Las columnas siguen el orden Referencia, Almacén de origen, flecha, Almacén de destino, Detalle, Estado y acciones. Origen se alinea a la derecha, Destino y Detalle a la izquierda. El contador circular representa productos distintos; no unidades recibidas. Se centra el conjunto flecha-contador con espacio equilibrado. El skeleton mantiene la distribución.
+- Detalle agrupa fecha de registro y autor, con sus iconos a la izquierda y tooltips. Las fechas reutilizan DateUtils.legibleFormatDate, sin coma y con ceros iniciales, por ejemplo 02/11/2026 09:03 AM.
+- Registrar traslado coloca ambos almacenes dentro de col-md-10 y el estado en col-md-2; el motivo ocupa col-12 después de seleccionarlos. El selector de estado usa append-to-body para no recortarse. La botonera de filtros sigue al último filtro cuando hay espacio y conserva su separador.
+- Ver detalle es la única acción de fila. La modal usa modal-xl, cabecera solo con título, tabla responsive con cantidades y estados, historial y documentos de recepción/resolución. Imprimir se ofrece dentro del detalle. Los resultados de guardar siguen el estándar compartido de Swal y modales; los errores conservan la captura.
+- PDF y Excel incluyen cantidades enviadas, recibidas, pendientes y resueltas, responsables de envío/recepción, historial y documentos. El Excel incluye el valor en tránsito y usa Numbers para cantidades y montos.
+- internal_code_prefixes.inventory_transfer conserva el prefijo parametrizable (TRAS inicial, vacío o nulo sin prefijo). Cambiarlo solo afecta referencias nuevas.
+
+#### Esquema inicial y datos anteriores
+
+- El esquema está en el create inicial del tenant, 2024_02_11_223124_create_init_companies_table.php. No se agregan migraciones incrementales para este cambio de desarrollo.
+- La demo fue convertida sin modificar warehouse_items ni inventory_movements. Los antiguos Aceptado pasan a Recibido y sus recepciones se respaldan con los movimientos de entrada existentes. Se preservan los vínculos de posiciones, autores y fechas de esa evidencia.
+- Los antiguos Enviado sin salida en Kardex quedan Por enviar: el flujo anterior no había descontado stock. Su evento se identifica como envío anterior sin salida. Requieren confirmar el envío con la lógica nueva; no se fabrican salidas retroactivas.
+- Una anulación histórica posterior a recepción conserva su recepción y reverso como documentos respaldados por Kardex. Es una excepción histórica de solo lectura; el nuevo flujo impide cancelar después de enviar. Los datos no evidenciados se indican como no registrados.
+- El antiguo inbound_movement_id único se sustituye por los vínculos a movimientos de cada documento. Se verificó la conservación de los saldos y la cantidad de movimientos al convertir la demo.
 
 ## Exportación
 
@@ -207,19 +265,17 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 
 ## Traslados entre almacenes
 
-- El almacén seleccionado en la cabecera funciona como origen.
+- Los almacenes de origen y destino se seleccionan explícitamente en el formulario.
 - **Registrar traslado** abre una modal estándar con origen, destino, productos y motivo. La tabla de movimientos permanece visible en la página; el formulario no ocupa espacio permanente.
 - En Traslados, **Almacén de origen**, **Almacén de destino** y **Producto** ocupan tres columnas desde `lg`. **Referencia**, **Desde**, **Hasta** y **Estado del traslado** ocupan dos. La botonera usa la distribución de Control de stock con **Buscar**, **Limpiar filtros** y **Acciones** a la izquierda, y **Registrar traslado** a la derecha tras el separador gris. En pantallas estrechas, los grupos saltan de fila según el espacio. El skeleton usa la misma distribución. La tabla muestra la flecha de **Registrar traslado** entre el almacén de origen y el de destino.
 - Debajo de los controles solo aparece el listado: usa la superficie `br-entity-list` y la cabecera `br-table-header-surface` de Productos, sin mensajes auxiliares cuando no hay un segundo almacén.
-- El campo **Almacén de origen** de la modal se precarga con el almacén de trabajo para que el usuario confirme desde dónde saldrán los productos. **Cerrar** descarta el formulario. **Guardar** conserva la modal abierta si hay errores y la cierra al registrar correctamente.
+- El formulario inicia sin almacenes seleccionados. El usuario confirma origen y destino. Cerrar descarta la captura; un error de guardado conserva sus datos mediante el estándar compartido de modales.
 - El destino debe ser distinto y pertenecer a la misma empresa.
 - Cada operación admite entre 1 y 100 productos sin duplicados.
 - Cada producto debe estar activo y ser de tipo `product`.
 - Cada cantidad debe ser mayor que cero y no puede superar el saldo disponible del producto en el origen.
 - El motivo es obligatorio.
-- El traslado usa una referencia común y genera, por cada producto, dos movimientos:
-  - `transfer_out`: salida del almacén de origen.
-  - `transfer_in`: entrada al almacén de destino.
+- El traslado usa una referencia común: `transfer_out` descuenta al enviar, `transfer_in` ingresa cada recepción y `transfer_return` registra una devolución al origen. Las pérdidas se justifican en su documento sin duplicar la salida.
 - Todos los productos se procesan dentro de una sola transacción. Si falla cualquier movimiento, ningún saldo del traslado se modifica.
 - El traslado no altera el stock mínimo configurado en ninguno de los almacenes.
 - La interfaz permite agregar y quitar filas, evita seleccionar el mismo producto dos veces y conserva errores asociados a cada fila.

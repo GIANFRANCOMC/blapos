@@ -25,9 +25,10 @@ import StockDifference from "./StockDifference.vue";
 import StockItemEditor from "./StockItemEditor.vue";
 import StockTraceabilityModal from "./StockTraceabilityModal.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
 
 const STOCK_PAGE_SIZE = 10;
-const DEFAULT_TRANSFER_STATUS = "accepted";
+const DEFAULT_TRANSFER_STATUS = "awaiting_dispatch";
 const ALL_TRANSFER_STATUSES = {code: "", label: "Todos los estados"};
 const ALL_MOVEMENT_USERS = {code: "", label: "Todos los usuarios"};
 
@@ -129,7 +130,7 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuickCreateTrigger, QuantityValue, SearchButton, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
+    components: {ActionsDropdown, InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuickCreateTrigger, QuantityValue, SearchButton, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
     props: {
         page: {
             type: String,
@@ -593,7 +594,7 @@ export default {
                 filters.situation = applied.stockSituation?.code || "";
             }
 
-            if(["kardex", "valued"].includes(this.activeView)) {
+            if(["kardex", "valued", "transfers"].includes(this.activeView)) {
                 filters.user_id = applied.movementUser?.code || "";
             }
 
@@ -1085,6 +1086,7 @@ export default {
                 transfer_out: "Traslado enviado",
                 transfer_in: "Traslado recibido",
                 transfer_cancellation: "Cancelación de traslado",
+                transfer_return: "Devolución de traslado al origen",
                 customer_return: "Devolución de cliente",
                 supplier_return: "Devolución a proveedor",
                 physical_count: "Toma física",
@@ -1095,6 +1097,9 @@ export default {
         formatDate(value) {
             if(!value) return "";
             return new Intl.DateTimeFormat("es-PE", {dateStyle: "short", timeStyle: "short"}).format(new Date(value));
+        },
+        formatTransferDate(value) {
+            return value ? Utils.legibleFormatDate({dateString: value, type: "datetime"}) : "";
         },
         formatSimpleDate(value) {
             if(!value) return "";

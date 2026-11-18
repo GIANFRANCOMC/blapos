@@ -13,7 +13,7 @@ class InventoryMovement extends Model {
     public const ORIGIN_TRANSFER_OUT = "transfer_out";
     public const ORIGIN_TRANSFER_IN = "transfer_in";
     public const ORIGIN_TRANSFER_CANCELLATION = "transfer_cancellation";
-    public const TRANSFER_ORIGINS = [self::ORIGIN_TRANSFER_OUT, self::ORIGIN_TRANSFER_IN, self::ORIGIN_TRANSFER_CANCELLATION];
+    public const TRANSFER_ORIGINS = [self::ORIGIN_TRANSFER_OUT, self::ORIGIN_TRANSFER_IN, self::ORIGIN_TRANSFER_CANCELLATION, "transfer_return"];
 
     protected $table = "inventory_movements";
 

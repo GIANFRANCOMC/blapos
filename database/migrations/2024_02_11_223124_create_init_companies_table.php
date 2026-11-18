@@ -631,7 +631,8 @@ return new class extends Migration {
 
             $table->id();
             $table->string("reference", 40)->unique();
-            $table->enum("status", ["pending", "sent", "accepted", "canceled"])->default("accepted");
+            $table->enum("status", ["awaiting_dispatch", "in_transit", "partially_received", "received", "closed_with_differences", "canceled"])->default("awaiting_dispatch");
+            $table->unsignedInteger("version")->default(0);
             $table->foreignId("source_warehouse_id")->constrained("warehouses")->restrictOnDelete();
             $table->foreignId("destination_warehouse_id")->constrained("warehouses")->restrictOnDelete();
             $table->foreignId("user_id")->nullable()->constrained("users")->nullOnDelete();
@@ -654,10 +655,50 @@ return new class extends Migration {
             $table->foreignId("inventory_transfer_id")->constrained()->restrictOnDelete();
             $table->foreignId("item_id")->constrained("items")->restrictOnDelete();
             $table->foreignId("outbound_movement_id")->nullable()->unique()->constrained("inventory_movements")->restrictOnDelete();
-            $table->foreignId("inbound_movement_id")->nullable()->unique()->constrained("inventory_movements")->restrictOnDelete();
             $table->decimal("quantity", 15, 3);
+            $table->decimal("received_quantity", 15, 3)->default(0);
+            $table->decimal("resolved_quantity", 15, 3)->default(0);
+            $table->decimal("transit_value", 15, 3)->default(0);
+            $table->enum("status", ["awaiting_dispatch", "awaiting_receipt", "partially_received", "received", "resolved", "canceled"])->default("awaiting_dispatch");
             $table->unique(["inventory_transfer_id", "item_id"], "transfer_items_transfer_item_uq");
 
+        });
+
+        Schema::create("inventory_transfer_operations", function(Blueprint $table) {
+            $table->id();
+            $table->foreignId("inventory_transfer_id")->constrained()->restrictOnDelete();
+            $table->enum("kind", ["receipt", "return", "loss"]);
+            $table->uuid("request_key");
+            $table->string("payload_hash", 64);
+            $table->foreignId("user_id")->nullable()->constrained("users")->nullOnDelete();
+            $table->string("user_name", 255);
+            $table->string("reason", 255)->nullable();
+            $table->timestamp("occurred_at");
+            $table->unique(["inventory_transfer_id", "request_key"], "transfer_operations_request_uq");
+        });
+
+        Schema::create("inventory_transfer_operation_items", function(Blueprint $table) {
+            $table->id();
+            $table->foreignId("inventory_transfer_operation_id");
+            $table->foreignId("inventory_transfer_item_id");
+            $table->foreign("inventory_transfer_operation_id", "transfer_operation_items_operation_fk")->references("id")->on("inventory_transfer_operations")->restrictOnDelete();
+            $table->foreign("inventory_transfer_item_id", "transfer_operation_items_line_fk")->references("id")->on("inventory_transfer_items")->restrictOnDelete();
+            $table->foreignId("movement_id")->nullable()->unique()->constrained("inventory_movements")->restrictOnDelete();
+            $table->decimal("quantity", 15, 3);
+            $table->decimal("value", 15, 3);
+            $table->unique(["inventory_transfer_operation_id", "inventory_transfer_item_id"], "transfer_operation_items_line_uq");
+        });
+
+        Schema::create("inventory_transfer_status_events", function(Blueprint $table) {
+            $table->id();
+            $table->foreignId("inventory_transfer_id")->constrained()->restrictOnDelete();
+            $table->foreignId("operation_id")->nullable()->unique()->constrained("inventory_transfer_operations")->restrictOnDelete();
+            $table->enum("status", ["awaiting_dispatch", "in_transit", "partially_received", "received", "closed_with_differences", "canceled"]);
+            $table->string("action", 32);
+            $table->foreignId("user_id")->nullable()->constrained("users")->nullOnDelete();
+            $table->string("user_name", 255);
+            $table->timestamp("occurred_at");
+            $table->index(["inventory_transfer_id", "id"], "transfer_status_events_order_idx");
         });
 
         Schema::create("inventory_stock_alerts", function(Blueprint $table) {
@@ -1006,6 +1047,9 @@ return new class extends Migration {
         Schema::dropIfExists("inventory_guide_items");
         Schema::dropIfExists("inventory_guides");
         Schema::dropIfExists("inventory_stock_alerts");
+        Schema::dropIfExists("inventory_transfer_status_events");
+        Schema::dropIfExists("inventory_transfer_operation_items");
+        Schema::dropIfExists("inventory_transfer_operations");
         Schema::dropIfExists("inventory_transfer_items");
         Schema::dropIfExists("inventory_transfers");
         Schema::dropIfExists("inventory_movements");

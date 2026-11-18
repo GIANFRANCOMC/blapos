@@ -19,6 +19,8 @@ use App\Services\System\General\{MasterDataService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService, CompanySettingService};
 use App\Services\System\Purchases\{PurchaseService, SupplierService};
 use App\Services\System\Warehouses\Inventory\{InventoryMovementService};
+use App\Services\System\Warehouses\Inventory\InventoryTransferService;
+use App\Models\System\Warehouses\InventoryMovement;
 use App\Services\System\Warehouses\StockManagement\{StockManagementConfigService, StockManagementService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{DB, Mail, Validator};
@@ -209,15 +211,23 @@ final class CompanyDecimalPrecisionTest extends TestCase {
 
         $this->savePrecision(0);
         DB::table("warehouse_items")->where("id", $stockId)->update(["quantity" => 3, "average_cost" => 2, "inventory_value" => 5]);
-        $movement = InventoryMovementService::transfer([
+        $transfer = InventoryMovementService::transfer([
             "source_warehouse_id" => $sourceId, "destination_warehouse_id" => $destinationId,
             "items" => [["item_id" => $itemId, "quantity" => 3]],
             "reason" => "Prueba de traslado valorizado.",
-        ])["movements"][0];
+            "status" => "in_transit",
+        ]);
+        $line = DB::table("inventory_transfer_items")->where("inventory_transfer_id", $transfer["id"])->first();
+        $exit = InventoryMovement::findOrFail($line->outbound_movement_id);
+        $operation = InventoryTransferService::operate($transfer["id"], "receipt", [
+            "request_key" => (string) \Illuminate\Support\Str::uuid(), "expected_version" => 1,
+            "items" => [["id" => $line->id, "quantity" => 3]],
+        ], null);
+        $entry = InventoryMovement::findOrFail($operation->items()->firstOrFail()->movement_id);
 
-        $this->assertSame("-5", $movement["exit"]->value_change);
-        $this->assertSame("0", $movement["exit"]->value_after);
-        $this->assertSame("5", $movement["entry"]->value_after);
+        $this->assertSame("-5", $exit->value_change);
+        $this->assertSame("0", $exit->value_after);
+        $this->assertSame("5", $entry->value_after);
 
     }
 

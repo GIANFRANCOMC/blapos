@@ -70,17 +70,11 @@
                         <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         <span v-text="addButtonText"></span>
                     </button>
-                    <button
+                    <ActionsDropdown
                         v-if="groupSecondaryActions && (showImportButton || showDownloadButton)"
-                        type="button"
-                        class="br-btn br-btn-sm br-btn-actions"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
+                        :type="secondaryActionsType"
+                        :text="secondaryActionsLabel"
                         :disabled="loading">
-                        <span v-text="secondaryActionsLabel"></span>
-                        <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                    </button>
-                    <ul v-if="groupSecondaryActions && (showImportButton || showDownloadButton)" class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
                         <li v-if="showImportButton">
                             <button type="button" class="dropdown-item" :disabled="loading || importing" @click="$emit('import')">
                                 <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
@@ -93,7 +87,7 @@
                                 <span v-text="downloadButtonText"></span>
                             </button>
                         </li>
-                    </ul>
+                    </ActionsDropdown>
                     <button
                         v-if="showImportButton && !groupSecondaryActions"
                         type="button"
@@ -135,12 +129,14 @@
 
 <script>
 import SearchButton from "@/Shared/SearchButton.vue";
+import ActionsDropdown from "./ActionsDropdown.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     name: "FiltersSection",
     components: {
+        ActionsDropdown,
         SearchButton,
         SelectNoOptions,
         SearchInput
@@ -218,6 +214,11 @@ export default {
         secondaryActionsLabel: {
             type: String,
             default: "Acciones"
+        },
+        secondaryActionsType: {
+            type: String,
+            default: "icon",
+            validator: value => ["icon", "button"].includes(value)
         },
         importButtonText: {
             type: String,

@@ -1,0 +1,4 @@
+.br-modal-result-hidden {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

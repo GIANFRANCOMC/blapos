@@ -2,6 +2,14 @@
 
 Este archivo concentra criterios transversales que aplican a todos los módulos de Blapos. Sirve como memoria común para mantener coherencia funcional, visual y técnica entre `System`, `Guest`, backend, frontend, migraciones y documentación.
 
+## Historial de estados operativos
+
+Los estados con trazabilidad deben registrar la fecha real y el usuario que realizó cada transición dentro de la misma transacción que sus efectos. Conservar una copia del nombre para el historial y evitar duplicar eventos al reintentar. No sustituir al creador del documento por el usuario que confirma un paso posterior ni inventar estados intermedios cuando se registra directamente en un estado avanzado.
+
+Una operación nueva puede conservar el mismo estado: cada recepción parcial de Traslados registra su documento, posiciones, cantidades, fecha y responsable aunque la cabecera siga Recibido parcialmente. La idempotencia usa una clave de petición y su contenido, junto con la versión del documento y el bloqueo transaccional. No imponer unicidad al estado del historial. Los estados de recepción se calculan con las cantidades pendientes de cada posición y no se editan manualmente.
+
+`StatusRoadmap.vue` presenta eventos de solo lectura con `id`, `label`, `tone`, `occurred_at` y `user_name`, usando las fuentes y colores existentes. El orden proviene del backend. El componente no modifica estados ni calcula responsables. Los registros sin historial muestran su ausencia explícitamente. Traslados aplica estas reglas y distingue creador/envío de aceptación/recepción. Ver [Trazabilidad de traslados](System/modules/16_stock_management.md).
+
 ## Propósito
 
 Blapos es una plataforma multiempresa orientada a operaciones comerciales y administrativas. La regla central es separar claramente:
@@ -241,6 +249,18 @@ System, Guest y Platform muestran un skeleton durante la carga inicial. El skele
 - En todo listado, activar `loading` antes de solicitar datos y liberarlo en `finally`, también ante errores. Mantener ocultos el paginador y el contador mientras ese estado esté activo.
 
 ## Formularios
+
+### Botones y menús de acciones
+
+`ActionsButton.vue` centraliza la presentación y el tooltip de acciones. Por defecto usa `type="icon"`, con tres puntos verticales, fondo anaranjado estándar, tooltip «Acciones», área de botón, estados hover/foco/clic y Waves. En las botoneras, su ancho y alto usan `--br-control-height`, igual que Buscar y Limpiar filtros, sin reducir su tamaño al cambiar el icono. Para mostrar el texto «Acciones» y la flecha, solicitar explícitamente `type="button"`. `label` identifica el contexto para lectores de pantalla y `text` permite cambiar el texto de la variante con label. `variant="plain"` conserva la presentación sin recuadro de las acciones de fila; `solid` es la variante predeterminada para botoneras.
+
+Los menús usan `ActionsDropdown.vue`, que reutiliza ese control y recibe las opciones en su slot. `TableActionsDropdown.vue` conserva compatibilidad con las tablas existentes, aplica `variant="plain"` y delega en el mismo menú, incluyendo `type`, `disabled` y `menuClass`. `FiltersSection` usa la variante de icono por defecto y expone `secondaryActionsType` si una pantalla necesita la variante con texto. Evitar botones de acciones y tooltips implementados por pantalla. Los botones que abren una modal de acciones usan `ActionsButton` sin desplegable. Las acciones específicas como Buscar, Agregar o Imprimir conservan su control propio.
+
+### Resultado de operaciones en modales
+
+`Shared/modal-results.js`, integrado con el SweetAlert compartido, coordina los mensajes finales de éxito y error en System, Guest y Platform. En éxito, cierra el formulario activo y espera `hidden.bs.modal` antes de mostrar el Swal; también reconoce un cierre ya iniciado por el módulo. No añadir retrasos por pantalla ni depender de hacer clic en un botón Cerrar que todavía pueda estar deshabilitado.
+
+Durante un resultado se ocultan las modales y sus backdrops para presentar un único mensaje. En error se conserva el formulario y se restaura con sus datos, validaciones y foco al cerrar el aviso. En modales apiladas, un éxito cierra el formulario activo y conserva el formulario padre. La clase compartida `br-modal-result-hidden` está definida en `Shared/modal-results.css`. Confirmaciones, loaders y Swal con campos de entrada conservan su flujo habitual. Los callbacks existentes de SweetAlert y la limpieza global de tooltips deben respetarse.
 
 Las búsquedas remotas de selectores usan `Options.js` y `GET /options/{origin}/{entity}`. `entity` identifica el catálogo y `origin` identifica la pantalla que decide qué registros y campos devuelve. Registrar la combinación en `OptionController` y asignar el módulo en `config/permissions.php`. El controlador delega la consulta al servicio de dominio dentro del tenant activo y devuelve `records`, `page` y `has_more`. Usar el mismo cliente para Vue Select y Select2. Las listas fijas y las referencias que ya forman parte de `initParams` pueden resolverse localmente.
 

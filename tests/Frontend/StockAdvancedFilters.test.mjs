@@ -27,7 +27,7 @@ test("los filtros adicionales de stock comparten consulta, paginación y exporta
     assert.doesNotMatch(page, /<StockAdvancedFilters[^>]*\bv-show=|Más filtros|stockAdvancedOpen/);
     assert.ok(page.indexOf('for="stockSituation"') < page.indexOf('<StockAdvancedFilters'));
     assert.ok(page.indexOf('<StockAdvancedFilters') < page.indexOf('<SearchButton'));
-    assert.match(page, /<div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">\s*<div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">\s*<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>\s*<ClearFiltersButton\b[^>]*\/>\s*<button[^>]*data-bs-toggle="dropdown"[^>]*>\s*<span>Acciones<\/span>[\s\S]*?<ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">[\s\S]*?<\/ul>\s*<\/div>\s*<div[^>]*class="[^"]*\bms-auto">\s*<span[^>]*class="vr align-self-center" aria-hidden="true">/);
+    assert.match(page, /<div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">\s*<div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">\s*<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>\s*<ClearFiltersButton\b[^>]*\/>\s*<ActionsDropdown\b[^>]*>[\s\S]*?<\/ActionsDropdown>\s*<\/div>\s*<div[^>]*class="[^"]*\bms-auto">\s*<span[^>]*class="vr align-self-center" aria-hidden="true">/);
     assert.match(styles, /\.br-inventory__context \.vr \{\s*color: var\(--br-border-muted\);/);
     assert.match(config, /"stock_categories"[\s\S]*?Category::query\(\)->active\(\)/);
     assert.match(config, /"stock_brands"[\s\S]*?Brand::query\(\)->active\(\)/);

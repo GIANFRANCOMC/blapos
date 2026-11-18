@@ -52,11 +52,11 @@ test("cada skeleton conserva el orden de filtros, acciones y columnas de su list
     const kardexFilters = [warehouse, "Producto", "Movimiento", "Desde", "Hasta", "Realizado por", "Categoría", "Marca"];
 
     for(const [page, filters, actions] of [
-        ["stock", stockFilters, ["Acciones", "Registrar operación"]],
-        ["transfers", ["Almacén de origen", "Almacén de destino", "Referencia", "Desde", "Hasta", "Producto", "Estado del traslado"], ["Acciones", "Registrar traslado"]],
-        ["guides", [warehouse, "Tipo de guía", "Desde", "Hasta"], ["Acciones"]],
-        ["kardex", kardexFilters, ["Acciones"]],
-        ["valued", kardexFilters, ["Acciones"]]
+        ["stock", stockFilters, ["Registrar operación"]],
+        ["transfers", ["Almacén de origen", "Almacén de destino", "Referencia", "Desde", "Hasta", "Registrado por", "Producto", "Estado del traslado"], ["Registrar traslado"]],
+        ["guides", [warehouse, "Tipo de guía", "Desde", "Hasta"], []],
+        ["kardex", kardexFilters, []],
+        ["valued", kardexFilters, []]
     ]) {
         const html = await renderToString(h(skeleton, {page}));
         const view = read(`${inventory}${page === "valued" ? "valued-kardex" : page}.vue`);
@@ -74,7 +74,7 @@ test("cada skeleton conserva el orden de filtros, acciones y columnas de su list
         assert.match(html, new RegExp(`<tr class="br-table-state"><td colspan="${headings(table).length}" class="py-4"><div class="br-loader">`), page);
         assert.deepEqual([...html.matchAll(/br-inventory-skeleton__label">([^<]+)<\/span>/g)].map(([, label]) => label), filters, page);
         assert.deepEqual([...html.matchAll(/<span>(Acciones|Registrar operación|Registrar traslado)<\/span>/g)].map(([, label]) => label), actions, page);
-        assert.equal([...html.matchAll(/br-inventory-skeleton__button--icon/g)].length, page === "stock" ? 3 : 2, page);
+        assert.equal([...html.matchAll(/br-inventory-skeleton__button--icon/g)].length, page === "stock" ? 4 : 3, page);
         assert.match(html, /role="status" aria-live="polite"/, page);
         assert.doesNotMatch(html, /<button|<input|<select|br-list-footer/, page);
     }

@@ -76,23 +76,14 @@
                             <ClearFiltersButton
                                 :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                                 @clear="clearFilters"/>
-                            <button
-                                type="button"
-                                class="br-btn br-btn-sm br-btn-actions px-lg-2"
-                                :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <span>Acciones</span>
-                                <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                            <ActionsDropdown :disabled="isCurrentViewLoading || !filters.warehouse?.code">
                                 <li>
                                     <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
                                         <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
                                         <span>Descargar Excel</span>
                                     </button>
                                 </li>
-                            </ul>
+                            </ActionsDropdown>
                         </div>
                     </div>
                 </StockAdvancedFilters>

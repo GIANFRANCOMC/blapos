@@ -184,7 +184,8 @@
   transition: var(--br-transition);
 }
 
-.br-table-actions-trigger .fa-ellipsis-vertical {
+.br-table-actions-trigger .fa-ellipsis-vertical,
+.br-btn-actions .fa-ellipsis-vertical {
   font-size: var(--br-font-size-090);
   -webkit-text-stroke: 0.025em currentColor;
 }
@@ -210,7 +211,15 @@
 }
 
 .br-table-actions-dropdown {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+}
+
+.br-btn.br-btn-actions.br-btn-actions--icon {
+  flex: none;
+  inline-size: var(--br-control-height);
+  block-size: var(--br-control-height);
+  padding: 0;
 }
 
 .br-btn-actions__chevron {

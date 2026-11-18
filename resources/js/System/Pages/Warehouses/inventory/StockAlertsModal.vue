@@ -41,16 +41,7 @@
                     </div>
                     <SearchButton :disabled="loading || !warehouse?.code" @click="$emit('search')"/>
                     <div class="dropdown br-inventory-alerts__actions">
-                        <button
-                            type="button"
-                            class="br-btn br-btn-actions"
-                            :disabled="loading || downloading || !alerts.total"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <span>Acciones</span>
-                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                        <ActionsDropdown :disabled="loading || downloading || !alerts.total">
                             <li>
                                 <button type="button" class="dropdown-item" :disabled="loading || downloading || !alerts.total" @click="$emit('download', 'pdf')">
                                     <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
@@ -63,7 +54,7 @@
                                     <span>Descargar Excel</span>
                                 </button>
                             </li>
-                        </ul>
+                        </ActionsDropdown>
                     </div>
                 </div>
             </div>
@@ -169,11 +160,12 @@ import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import WithoutData from "@System/Components/WithoutData.vue";
 import StockDifference from "./StockDifference.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
 import {fromLevels, labels} from "../../../../Shared/StockStatus.js";
 
 export default {
     name: "StockAlertsModal",
-    components: {SearchButton, FormModal, ProductIdentity, QuantityValue, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
+    components: {ActionsDropdown, SearchButton, FormModal, ProductIdentity, QuantityValue, SearchInput, WithoutData, StockDifference, TableActionsDropdown},
     emits: ["page", "retry", "download", "update:productSearch", "update:minimumStatus", "search", "edit"],
     props: {
         alerts: {type: Object, required: true},

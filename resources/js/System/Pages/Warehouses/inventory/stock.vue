@@ -99,23 +99,14 @@
                         <ClearFiltersButton
                             :disabled="isCurrentViewLoading || !filters.warehouse?.code"
                             @clear="clearFilters"/>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-actions"
-                            :disabled="isCurrentViewLoading || !filters.warehouse?.code"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <span>Acciones</span>
-                            <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end br-btn-actions-menu">
+                        <ActionsDropdown :disabled="isCurrentViewLoading || !filters.warehouse?.code">
                             <li>
                                 <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting || !appliedFilters.warehouse?.code" @click="exportCurrentView">
                                     <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
                                     <span>Descargar Excel</span>
                                 </button>
                             </li>
-                        </ul>
+                        </ActionsDropdown>
                     </div>
                     <div v-if="['stock', 'transfers'].includes(activeView)" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
                         <span v-if="activeView === 'stock'" class="vr align-self-center" aria-hidden="true"></span>

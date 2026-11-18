@@ -13,7 +13,7 @@ test("el scroll horizontal de las tablas se mantiene local incluso con el menú 
     const styles = read("resources/css/Shared/responsive-tables.css");
     const system = read("resources/css/System/platform.css");
     const platform = read("resources/css/Platform/app.css");
-    const actions = read("resources/js/System/Components/Generics/TableActionsDropdown.vue");
+    const actions = read("resources/js/System/Components/Generics/ActionsButton.vue");
     const sales = read("resources/js/System/Pages/Sales/sales/main.vue");
 
     assert.match(styles, /\.table-responsive\s*\{[^}]*inline-size: 100%;[^}]*container-type: inline-size;[^}]*overflow-x: auto;/);
@@ -29,8 +29,8 @@ test("el scroll horizontal de las tablas se mantiene local incluso con el menú 
 });
 
 test("el tooltip Acciones se oculta cuando se abre el menú de la fila", () => {
-    const {descriptor} = parse(read("resources/js/System/Components/Generics/TableActionsDropdown.vue"));
-    assert.match(descriptor.template.content, /<div[^>]+title="Acciones"[^>]+data-bs-toggle="tooltip">\s*<button[^>]+data-bs-toggle="dropdown"/);
+    const {descriptor} = parse(read("resources/js/System/Components/Generics/ActionsButton.vue"));
+    assert.match(descriptor.template.content, /<div[^>]+title="Acciones"[^>]+data-bs-toggle="tooltip">\s*<button[^>]+:data-bs-toggle="dropdown \? 'dropdown' : null"/);
 
     const listeners = new Map();
     const trigger = {

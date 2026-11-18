@@ -2,6 +2,24 @@
 
 Este documento describe la organización vigente del esquema. Las migraciones son la fuente exacta de columnas, índices y claves foráneas.
 
+## Traslados de inventario
+
+| Tabla y columna | Responsabilidad |
+| --- | --- |
+| inventory_transfers.created_at / user_id | Fecha de registro y creador, inmutables durante el flujo. |
+| inventory_transfers.status / version | Estado derivado y versión de concurrencia. |
+| inventory_transfer_items.quantity | Cantidad original de la posición, no se sobrescribe al recibir. |
+| inventory_transfer_items.outbound_movement_id | Salida de origen al confirmar envío. |
+| inventory_transfer_items.received_quantity / resolved_quantity | Recibido acumulado y cantidades resueltas por devolución/pérdida. |
+| inventory_transfer_items.transit_value / status | Valor que sigue en tránsito y estado de posición. |
+| inventory_transfer_operations | Documento inmutable por recepción, devolución o pérdida; tipo, motivo, UUID, huella de contenido, fecha y responsable con nombre histórico. |
+| inventory_transfer_operation_items | Posición original, cantidad, valor y movimiento de recepción/devolución. Una posición puede recibirse en varios documentos. |
+| inventory_transfer_status_events | Alta, envío, recepción, resolución o cancelación; admite repetir un estado por operaciones diferentes. El evento puede vincularse a operation_id. |
+
+La cantidad enviada se deriva de la salida existente y la original; pendiente = enviada − recibida − resuelta. La recepción se identifica en operations.kind=receipt y guarda su usuario, fecha y posiciones. No existe un único receptor por traslado ni un único movimiento de entrada por posición. Los documentos de pérdida no tienen movimiento de almacén, porque su cantidad ya fue descontada al enviar.
+
+InventoryTransferService escribe cabecera, posiciones, operaciones, Kardex y eventos dentro de la transacción correspondiente. La clave única de reintentos es (inventory_transfer_id, request_key). Los saldos y valores se calculan con Numbers y la precisión de la empresa. Ver [Control de stock y traslados](modules/16_stock_management.md).
+
 ## Límite de datos
 
 Cada tenant tiene una base de datos propia y representa exactamente una empresa. Las tablas operativas no repiten `company_id`; su aislamiento proviene de la conexión tenant resuelta.
