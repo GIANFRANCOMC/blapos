@@ -654,7 +654,7 @@ class StockManagementController extends BaseController {
 
         return Pdf::loadView("System.pdf.inventory.transfer", ["transfer" => $record, "company" => $company])
             ->setPaper("a4")
-            ->stream("traslado-{$record->reference}.pdf");
+            ->download("traslado-{$record->reference}.pdf");
     }
 
     private function authorizedTransfer(int $id): InventoryTransfer {

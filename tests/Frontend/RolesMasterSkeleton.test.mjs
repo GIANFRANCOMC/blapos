@@ -43,12 +43,12 @@ test("Datos maestros reserva pestañas, listado y formulario durante el primer l
 });
 
 test("la documentación general define el skeleton inicial como estándar", () => {
-    const general = read("docs/GENERALIDADES.md");
-    const guide = read("docs/System/DEVELOPMENT_GUIDE.md");
+    const general = read("docs/frontend/fundamentos/ESTANDARES_UI.md");
+    const guide = read("docs/frontend/desarrollo/GUIA_SYSTEM.md");
 
     assert.match(general, /### Carga inicial con skeleton/);
     assert.match(general, /InitialPageMixin.*PageSkeleton/);
     assert.match(general, /Loader.*br-table-state/);
     assert.match(general, /liberar `initialLoading` en el `finally`/);
-    assert.match(guide, /GENERALIDADES\.md#carga-inicial-con-skeleton/);
+    assert.match(guide, /ESTANDARES_UI\.md#carga-inicial-con-skeleton/);
 });

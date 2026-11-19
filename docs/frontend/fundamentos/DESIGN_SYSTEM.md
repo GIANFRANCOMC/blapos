@@ -1,0 +1,21 @@
+# Sistema de diseño
+
+Blapos es un ERP SaaS multiempresa y multisectorial. Una persona que recibe mercadería, cobra una venta o registra asistencia necesita identificar el contexto, operar varios registros seguidos y detectar errores a tiempo. La identidad visual se expresa en el marco compacto, las superficies neutras, la escala de Control de stock y los acentos de marca y estado.
+
+## Arquitectura visual
+
+| Capa | Fuente editable y responsabilidad |
+| --- | --- |
+| Fundamentos | [Tokens compartidos](../../../resources/css/Shared/typography-tokens.css) y [branding](../../../resources/css/System/br-branding/00-tokens.css). Definen escala, roles y valores visuales. |
+| Controles y composición | [Parciales de System](../../../resources/css/System/br-branding) y [CSS compartido](../../../resources/css/Shared). Cada regla pertenece al control, patrón o layout que la utiliza. |
+| Componentes y flujos | [Componentes Vue de System](../../../resources/js/System/Components), [comunes](../../../resources/js/Shared) y guías por módulo de [System](../../backend/system/README.md) y [Guest](../../backend/guest/README.md). |
+| Integración | Blade carga los assets por superficie. Vite integra las entradas; `npm run build:css:system` genera las hojas públicas desde los parciales. [CSS System](../../../resources/css/System/README.md). |
+
+System usa Vue 3 y la plantilla Bootstrap/Vuexy. El repositorio también tiene una configuración de Tailwind. Verifica la hoja y el punto de entrada del área antes de elegir sus utilidades. La [auditoría](../calidad/AUDIT.md) registra las versiones encontradas y el alcance de la revisión.
+
+## Extensión y mantenimiento
+
+- Aplica primero el componente por propósito y el token por rol. Ajusta en su parcial de origen. Conserva los estilos de módulo para necesidades propias, como el ancho de una columna o la cuadrícula para una operación.
+- Extrae una variante cuando resuelva una diferencia funcional identificable y pueda preservar el comportamiento de quienes ya consumen el componente. Documenta su caso de uso y verifica un consumidor existente.
+- Prepara los cambios transversales por etapas según la [auditoría](../calidad/AUDIT.md). Conserva las políticas de tenencia, permisos, redondeo y selección remota descritas en [Generalidades](../../backend/desarrollo/GENERALIDADES.md).
+

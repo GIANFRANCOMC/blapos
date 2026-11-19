@@ -43,12 +43,12 @@ Route -> Middleware -> FormRequest -> Controller -> Service -> Model
 
 ## Documentación
 
-- Arquitectura: `docs/ARCHITECTURE.md`
-- Reglas transversales: `docs/GENERALIDADES.md`
-- Guía System: `docs/System/DEVELOPMENT_GUIDE.md`
-- Seguridad: `docs/System/SECURITY_AND_AUTH.md`
-- Multi-tenant: `docs/System/MULTITENANT.md`
-- Tablas: `docs/System/TABLES.md`
-- Criterios visuales: `docs/GENERALIDADES.md` y documentación del módulo afectado.
+- Arquitectura: `docs/backend/arquitectura/ARCHITECTURE.md`
+- Reglas transversales: `docs/backend/desarrollo/GENERALIDADES.md`
+- Guía System: `docs/backend/system/DEVELOPMENT_GUIDE.md`
+- Seguridad: `docs/backend/seguridad/SECURITY_AND_AUTH.md`
+- Multi-tenant: `docs/backend/tenancy/MULTITENANT.md`
+- Tablas: `docs/backend/datos/system/TABLES.md`
+- Criterios visuales: `docs/frontend/fundamentos/ESTANDARES_UI.md` y documentación del módulo afectado.
 
 Las pruebas PHP se crean o ejecutan cuando el usuario las solicita expresamente. Las validaciones rutinarias de esta fase son sintaxis, carga de rutas y consistencia documental.

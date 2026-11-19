@@ -81,7 +81,7 @@ test("los títulos de confirmación formulan preguntas con verbo y sustantivo", 
 test("las confirmaciones tienen presentación común sin icono y guía UX documentada", () => {
     const css = read("resources/css/System/br-branding/95-swal-confirmations.css");
     const bundle = read("public/System/assets/css/br-branding.css");
-    const docs = read("docs/GENERALIDADES.md");
+    const docs = read("docs/frontend/fundamentos/ESTANDARES_UI.md");
     const alerts = read("resources/js/System/Helpers/Alerts.js");
 
     assert.match(css, /\.swal2-cancel\[style\*="display: inline-block"\]/);
@@ -106,7 +106,7 @@ test("las confirmaciones tienen presentación común sin icono y guía UX docume
 test("todos los mensajes de estado usan iconos completos y ancho ampliable sin afectar confirmaciones", () => {
     const css = read("resources/css/System/br-branding/81-core-roles-entities.css");
     const alerts = read("resources/js/System/Helpers/Alerts.js");
-    const docs = read("docs/GENERALIDADES.md");
+    const docs = read("docs/frontend/fundamentos/ESTANDARES_UI.md");
 
     assert.match(css, /\.swal2-popup\.br-swal-alert \{[^}]*width: min\(var\(--br-swal-alert-width, 25rem\), calc\(100vw - 2rem\)\) !important;/);
     assert.match(css, /\.br-swal-alert--message \.swal2-title,\s*\.swal2-popup\.br-swal-alert--message \.swal2-html-container \{\s*font-size: var\(--br-table-value-font-size\) !important;/);

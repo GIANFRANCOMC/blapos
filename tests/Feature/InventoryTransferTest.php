@@ -92,7 +92,10 @@ final class InventoryTransferTest extends TestCase {
         $this->assertDatabaseCount('inventory_transfer_operations',2);
         $this->assertDatabaseCount('inventory_transfer_operation_items',3);
         $this->assertCount(4,$detail['status_history']);
-        $this->assertStringStartsWith('%PDF-',app(StockManagementController::class)->printTransfer($result['id'])->getContent());
+        $pdf = app(StockManagementController::class)->printTransfer($result['id']);
+        $this->assertStringStartsWith('%PDF-', $pdf->getContent());
+        $this->assertStringStartsWith('attachment;', $pdf->headers->get('Content-Disposition'));
+        $this->assertStringContainsString("traslado-{$detail['reference']}.pdf", $pdf->headers->get('Content-Disposition'));
     }
 
     public function test_repeated_partial_state_events_are_preserved_and_retries_do_not_duplicate_receipts(): void {

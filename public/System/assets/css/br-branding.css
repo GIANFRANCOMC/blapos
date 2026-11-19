@@ -14018,46 +14018,49 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
 
 .br-inventory-transfer__detail-header {
     display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.2fr) max-content;
-    align-items: start;
-    gap: 1rem 1.25rem;
-    padding-block: var(--br-entity-modal-tabs-content-space-y);
-    border-bottom: 1px solid var(--br-border-subtle);
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1.4fr)) auto;
+    column-gap: 1.25rem;
+    padding-block: 1rem;
 }
 
-.br-inventory-transfer__detail-header > *,
-.br-inventory-transfer__detail-route > dl,
-.br-inventory-transfer__detail-overview > * {
-    min-width: 0;
-}
-
-.br-inventory-transfer__detail-header .br-badge {
-    max-inline-size: 10rem;
-    white-space: normal;
-}
-
-.br-inventory-transfer__detail-overview {
+.br-inventory-transfer__detail-fields {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-    gap: 1rem 1.25rem;
-}
-
-.br-inventory-transfer__detail-summary {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem 1rem;
-    align-items: start;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+    row-gap: 0.45rem;
+    margin: 0;
 }
 
 .br-inventory-transfer__detail-route {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    gap: 0.75rem 1rem;
-    align-items: start;
+    padding-block-end: 0.7rem;
+    border-block-end: 1px solid var(--br-border-subtle);
 }
 
-.br-inventory-transfer__detail-arrow {
-    align-self: center;
+.br-inventory-transfer__detail-context {
+    padding-block-start: 0.7rem;
+}
+
+.br-inventory-transfer__detail-receivers {
+    grid-column: span 2;
+}
+
+.br-inventory-transfer__detail-fields > div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+}
+
+.br-inventory-transfer__detail-reason,
+.br-inventory-transfer__detail-cancellation {
+    grid-column: 1 / -1;
+}
+
+.br-inventory-transfer__detail-header .br-badge {
+    max-inline-size: 100%;
+    white-space: normal;
 }
 
 .br-inventory-transfer__detail dt {
@@ -14069,43 +14072,49 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
 
 .br-inventory-transfer__detail dd {
     margin: 0;
+    min-inline-size: 0;
     overflow-wrap: anywhere;
 }
 
-.br-inventory-transfer__detail-warehouse {
-    font-weight: var(--br-font-weight-emphasis);
+.br-inventory-transfer__detail-fields dt {
+    flex-shrink: 0;
+    margin: 0;
 }
 
-.br-inventory-transfer__detail-reason {
-    padding-inline-start: 1.25rem;
-    border-inline-start: 1px solid var(--br-border);
+@media (max-width: 1199.98px) {
+    .br-inventory-transfer__detail-header {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .br-inventory-transfer__detail-receivers {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .br-inventory-transfer__detail-header {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .br-inventory-transfer__detail-reason dd {
-    overflow-wrap: anywhere;
     white-space: pre-wrap;
 }
 
-.br-inventory-transfer__cancellation {
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--br-border);
-    border-inline-start: 3px solid var(--br-danger);
-    border-radius: var(--br-radius-sm);
-    background: var(--br-surface-soft);
-}
-
-.br-inventory-transfer__detail-heading {
-    margin: 0 0 0.42rem;
-    font-size: var(--br-font-size-table);
-    font-weight: var(--br-font-weight-emphasis);
-}
-
 .br-inventory-transfer__detail-table {
+    min-width: 42rem;
+}
+
+.br-inventory-transfer__detail-table--entry {
     min-width: 54rem;
 }
 
 .br-inventory-transfer__detail-table th:first-child {
-    width: 30%;
+    width: 34%;
+}
+
+.br-inventory-transfer__detail-table--entry th:first-child {
+    width: 28%;
 }
 
 .br-inventory-transfer__detail-table td:nth-child(n+2) {
@@ -14116,68 +14125,56 @@ body.br-layout .br-inventory-transfer__table > thead > tr > th.text-start {
     min-inline-size: 11rem;
 }
 
-.br-inventory-transfer__operation {
-    margin-block-end: 0.5rem;
-    border: 1px solid var(--br-border);
-    border-radius: var(--br-radius-sm);
+.br-inventory-transfer__operation + .br-inventory-transfer__operation {
+    border-block-start: 1px solid var(--br-border);
 }
 
 .br-inventory-transfer__operation > summary {
-    padding: 0.6rem 0.75rem;
+    padding-block: 0.75rem;
     cursor: pointer;
 }
 
+.br-inventory-transfer__operation-summary {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    inline-size: calc(100% - 1.5rem);
+}
+
+.br-inventory-transfer__operation-summary strong {
+    font-weight: var(--br-font-weight-emphasis);
+}
+
 .br-inventory-transfer__operation > :not(summary) {
-    margin-inline: 0.75rem;
-    margin-block-end: 0.6rem;
+    margin-block-end: 0.75rem;
 }
 
-.br-inventory-transfer__history {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--br-border);
-    border-radius: var(--br-radius-sm);
-    background: var(--br-surface-soft);
-}
-
-@media (max-width: 767.98px) {
-    .br-inventory-transfer__detail-header {
-        grid-template-columns: minmax(0, 1fr) max-content;
+@media (min-width: 768px) and (min-height: 640px) {
+    .br-inventory-transfer__detail {
+        display: flex;
+        flex-direction: column;
     }
 
-    .br-inventory-transfer__detail-header > .br-field-summary:last-child {
-        grid-column: 2;
-        grid-row: 1;
+    .br-inventory-transfer__detail > :not(.br-inventory-transfer__products-panel) {
+        flex-shrink: 0;
     }
 
-    .br-inventory-transfer__detail-route {
-        grid-column: 1 / -1;
+    .br-inventory-transfer__products-panel,
+    .br-inventory-transfer__detail-products {
+        display: flex;
+        flex-direction: column;
+        min-block-size: 0;
     }
 
-    .br-inventory-transfer__detail-overview {
-        grid-template-columns: minmax(0, 1fr);
+    .br-inventory-transfer__products-panel > :not(.br-inventory-transfer__detail-products),
+    .br-inventory-transfer__detail-products > :not(.br-inventory-transfer__table-scroll) {
+        flex-shrink: 0;
     }
 
-    .br-inventory-transfer__detail-reason {
-        padding-block-start: 0.75rem;
-        padding-inline-start: 0;
-        border-block-start: 1px solid var(--br-border);
-        border-inline-start: 0;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .br-inventory-transfer__detail-summary {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .br-inventory-transfer__detail-route {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 0.5rem;
-    }
-
-    .br-inventory-transfer__detail-arrow {
-        justify-self: start;
-        transform: rotate(90deg);
+    .br-inventory-transfer__detail-products > .br-inventory-transfer__table-scroll {
+        min-block-size: 5rem;
     }
 }
 
@@ -14950,53 +14947,47 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 
 /* Source: resources/css/System/br-branding/83-status-roadmap.css */
 .br-status-roadmap {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    width: min(100%, 40rem);
+    margin-inline: auto;
     color: var(--br-text);
     font-size: var(--br-font-size-table);
+    text-align: center;
 }
 
-.br-status-roadmap__item {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(6rem, 0.7fr) minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 0.2rem 0.75rem;
-    padding: 0.45rem 0 0.45rem 1.25rem;
+.br-status-roadmap :is(th, td) {
+    padding: 0.4rem 0.55rem;
     overflow-wrap: anywhere;
 }
 
-.br-status-roadmap__item:not(:last-child)::before {
-    content: "";
-    position: absolute;
-    inset-inline-start: 0.2rem;
-    inset-block: 1rem -1rem;
-    border-inline-start: 1px solid var(--br-border);
+.br-status-roadmap thead {
+    border-bottom: 1px solid var(--br-border);
+    color: var(--br-text-muted);
+}
+
+.br-status-roadmap thead th,
+.br-status-roadmap__label {
+    font-weight: var(--br-font-weight-value);
+}
+
+.br-status-roadmap :is(thead th:first-child, .br-status-roadmap__label) {
+    text-align: start;
+}
+
+.br-status-roadmap__item + .br-status-roadmap__item {
+    border-top: 1px solid var(--br-border-subtle);
 }
 
 .br-status-roadmap__marker {
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-start: 0.8rem;
-    inline-size: 0.5rem;
-    block-size: 0.5rem;
+    display: inline-block;
+    inline-size: 0.42rem;
+    block-size: 0.42rem;
+    margin-inline-end: 0.25rem;
     border-radius: 50%;
     background: currentColor;
 }
 
-.br-status-roadmap__label {
-    font-weight: var(--br-font-weight-emphasis);
-}
-
-.br-status-roadmap time {
-    color: var(--br-text-muted);
-}
-
-@media (max-width: 575.98px) {
-    .br-status-roadmap__item {
-        grid-template-columns: minmax(0, 1fr);
-    }
+.br-status-roadmap__item[aria-current="step"] .br-status-roadmap__label {
+    color: var(--br-primary-active);
 }
 
 /* Source: resources/css/System/br-branding/84-accounts-receivable.css */
@@ -20997,6 +20988,52 @@ body > .vs__dropdown-menu,
     height: 3.12rem;
     min-height: 3.12rem;
   }
+}
+
+/* Navegación de detalle: cada pestaña ocupa el ancho de su contenido. */
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline {
+  padding-block: 0;
+}
+
+.br-catalog-form-tabs--inline .br-catalog-form-tabs__navigation {
+  border-block-end: 1px solid var(--br-border);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs {
+  justify-content: flex-start;
+  gap: 0.25rem;
+  padding-block: 0;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs.nav-pills .br-entity-tab.nav-link,
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 0;
+  height: auto;
+  min-height: 2.55rem;
+  padding: 0.3rem 0.75rem;
+  border: 0;
+  border-radius: 0.35rem 0.35rem 0 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+  box-shadow: inset 0 -2px var(--br-primary);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tab__content {
+  padding-left: 1.4rem;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tab.nav-link .br-entity-tab__icon {
+  left: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
 }
 
 /* Mi empresa reutiliza las pestañas descriptivas del catálogo en una página. */

@@ -252,7 +252,7 @@ test("transfers list all accessible warehouses without allowing a virtual transf
     const actions = transfers.match(/<TableActionsDropdown[\s\S]*?<\/TableActionsDropdown>/)[0];
     assert.match(actions, /Ver detalle/);
     assert.equal((actions.match(/<li>/g) || []).length, 1);
-    assert.match(read(`${inventoryPath}TransferDetailModal.vue`), /<template #footer>[\s\S]*?:href="printUrl"[\s\S]*?Imprimir/);
+    assert.match(read(`${inventoryPath}TransferDetailModal.vue`), /<template #footer>[\s\S]*?:href="pdfUrl" class="br-btn br-btn-danger waves-effect"[\s\S]*?Descargar PDF/);
     assert.match(transfers, /v-for="\[field, label\] in transferWarehouseFilters"[\s\S]*?v-model="filters\[field\]"[\s\S]*?v-model\.trim="filters\.transferReference"[\s\S]*?v-model="filters\.dateFrom" type="date"[\s\S]*?v-model="filters\.dateTo" type="date"[\s\S]*?v-model\.trim="filters\.productSearch"[\s\S]*?v-model="filters\.transferStatus"/);
     assert.doesNotMatch(transfers, /<StockAdvancedFilters|filters\.warehouse|stockCategory|stockBrand/);
     assert.doesNotMatch(transfers, /stockSituation|stockMinimumStatus|stockInactiveDays/);

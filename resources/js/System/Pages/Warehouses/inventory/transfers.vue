@@ -421,7 +421,7 @@
                             :can-cancel="canCancelTransfer"
                             :saving-status="savingTransferStatus"
                             :status-error="transferStatusError"
-                            :print-url="selectedTransfer ? transferPrintUrl(selectedTransfer) : null"
+                            :pdf-url="selectedTransfer ? transferPdfUrl(selectedTransfer) : null"
                             :format-date="formatTransferDate"
                             @retry="loadTransferDetail(transferDetailId)"
                             @advance="changeTransferStatus(nextTransferStatus)"
@@ -573,7 +573,7 @@ export default {
         transferUrl(id) {
             return `${Requests.config({entity: "stocks_management", type: "transfers"})}/${encodeURIComponent(id)}`;
         },
-        transferPrintUrl(transfer) {
+        transferPdfUrl(transfer) {
             return `${this.transferUrl(transfer.id)}/print`;
         },
         transferStatusInfo(code) {

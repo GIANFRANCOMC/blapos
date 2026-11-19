@@ -1356,6 +1356,52 @@ body > .vs__dropdown-menu,
   }
 }
 
+/* Navegación de detalle: cada pestaña ocupa el ancho de su contenido. */
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline {
+  padding-block: 0;
+}
+
+.br-catalog-form-tabs--inline .br-catalog-form-tabs__navigation {
+  border-block-end: 1px solid var(--br-border);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs {
+  justify-content: flex-start;
+  gap: 0.25rem;
+  padding-block: 0;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs.nav-pills .br-entity-tab.nav-link,
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 0;
+  height: auto;
+  min-height: 2.55rem;
+  padding: 0.3rem 0.75rem;
+  border: 0;
+  border-radius: 0.35rem 0.35rem 0 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tabs.nav-pills .br-entity-tab.nav-link.is-active {
+  box-shadow: inset 0 -2px var(--br-primary);
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tab__content {
+  padding-left: 1.4rem;
+}
+
+.br-entity-modal--tabbed .br-catalog-form-tabs--inline .br-entity-tab.nav-link .br-entity-tab__icon {
+  left: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
 /* Mi empresa reutiliza las pestañas descriptivas del catálogo en una página. */
 .br-company-settings {
   margin-top: 0.75rem;

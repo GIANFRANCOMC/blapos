@@ -4,7 +4,7 @@ import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
 import {compile, h} from "vue";
 import {renderToString} from "vue/server-renderer";
-import {compareNumbers, normalizeNumber, isNumber} from "../../resources/js/Shared/Numbers.js";
+import {compareNumbers, normalizeNumber, isNumber, quantityParts} from "../../resources/js/Shared/Numbers.js";
 
 function component(path, dependencies = {}) {
     const {descriptor, errors} = parse(readFileSync(path, "utf8"));
@@ -16,6 +16,7 @@ function component(path, dependencies = {}) {
 
 const roadmap = component("resources/js/System/Components/Generics/StatusRoadmap.vue");
 const catalogTabs = component("resources/js/System/Components/Catalogs/CatalogFormTabs.vue");
+const quantityValue = component("resources/js/System/Components/Generics/QuantityValue.vue", {compareNumbers, quantityParts});
 const events = [
     {id: 10, label: "Por enviar", tone: "warning", occurred_at: "2026-11-17T09:00:00Z", user_name: "Ana"},
     {id: 11, label: "En tránsito", tone: "info", occurred_at: "2026-11-17T09:05:00Z", user_name: "Luis"},
@@ -24,7 +25,8 @@ const events = [
 
 test("el recorrido muestra fechas y responsables de cada evento y señala únicamente el último como actual", async () => {
     const html = await renderToString(h(roadmap, {events, formatDate: value => `Fecha ${value}`}));
-    const entries = [...html.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/g)].map(([entry]) => entry);
+    assert.match(html, /<th scope="col">Fecha de registro<\/th><th scope="col">Responsable<\/th>/);
+    const entries = [...html.matchAll(/<tr\b[^>]*class="br-status-roadmap__item"[^>]*>[\s\S]*?<\/tr>/g)].map(([entry]) => entry);
     assert.equal(entries.length, 3);
     events.forEach((event, index) => {
         assert.ok(entries[index].includes(event.label));
@@ -40,7 +42,7 @@ test("el recorrido no inventa eventos previos y la ausencia de historial es expl
     assert.doesNotMatch(accepted, /Por enviar|En tránsito/);
     const empty = await renderToString(h(roadmap, {events: [], formatDate: value => value}));
     assert.match(empty, /No hay cambios de estado registrados/);
-    assert.doesNotMatch(empty, /<li/);
+    assert.doesNotMatch(empty, /<table/);
 });
 
 function detailComponent() {
@@ -48,8 +50,8 @@ function detailComponent() {
     let key = 0;
     return component("resources/js/System/Pages/Warehouses/inventory/TransferDetailModal.vue", {
         FormModal: {render() { return h("div", this.$slots.body?.()); }},
-        ProductIdentity: placeholder, QuantityValue: placeholder, InputText: placeholder, InputNumber: placeholder,
-        Loader: placeholder, WithoutData: placeholder, StatusRoadmap: roadmap, CatalogFormTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
+        ProductIdentity: placeholder, QuantityValue: quantityValue, InputText: placeholder, InputNumber: placeholder,
+        Loader: placeholder, StatusRoadmap: roadmap, CatalogFormTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
         uuid: () => `00000000-0000-4000-8000-${String(++key).padStart(12, "0")}`
     });
 }
@@ -66,38 +68,46 @@ test("el detalle distingue creador, responsable de envío y responsables de rece
             transfer: {reference: "TRAS-1", status, user: {name: "Creador"}, sender_name: "Ana", receiver_name: receiver, items: [], status_history: []},
             status: {tone: "info", label: status}, formatDate: value => value || ""
         }));
-        assert.match(html, /<dt>Enviado por<\/dt><dd>Ana<\/dd>/);
-        assert.match(html, /<dt>Registrado por<\/dt><dd>Creador<\/dd>/);
-        assert.ok(html.includes(`<dt>Recepciones registradas por</dt><dd>${expected}</dd>`));
+        assert.match(html, /<dt>Enviado por:<\/dt><dd>Ana<\/dd>/);
+        assert.match(html, /<dt>Registrado por:<\/dt><dd>Creador<\/dd>/);
+        assert.ok(html.includes(`<dt>Recepciones registradas por:</dt><dd>${expected}</dd>`));
         assert.match(html, /Recorrido del traslado/);
         assert.match(html, /role="tablist"/);
-        for(const tab of ["summary", "products", "receipts", "history"]) {
+        for(const tab of ["products", "receipts", "history"]) {
             assert.ok(html.includes(`id="inventory-transfer-detail-tab-trigger-${tab}"`));
         }
     }
 });
 
-test("las pestañas descriptivas mantienen el resumen oculto al consultar otros paneles", async () => {
+test("los datos de cabecera siguen visibles al consultar el historial y Productos conserva sus cantidades", async () => {
     const detail = detailComponent();
     const html = await renderToString(h({...detail, data() { return {...detail.data(), activeTab: "history"}; }}, {
-        transfer: {reference: "TRAS-1", status: "received", items: [], status_history: events},
+        transfer: {
+            reference: "TRAS-1", status: "received", status_history: events,
+            items: [{id: 1, sent_quantity: "2.00", received_quantity: "2.00", pending_quantity: "0.00",
+                resolved_quantity: 0, item: {name: "Producto", measurement_unit: {abbreviation: "UND"}}}]
+        },
         status: {tone: "success", label: "Recibido"}, formatDate: value => value || ""
     }));
-    const summary = html.match(/<section\b[^>]*aria-label="Resumen del traslado"[^>]*>/)?.[0];
-    assert.ok(summary);
-    assert.match(summary, /style="display:none;"/);
+    assert.doesNotMatch(html, /inventory-transfer-detail-tab-trigger-summary/);
+    const products = html.match(/<section\b[^>]*aria-label="Productos del traslado"[^>]*>/)?.[0];
+    assert.ok(products);
+    assert.match(products, /style="display:none;"/);
     // Las utilidades display de Bootstrap usan !important y anularían v-show.
-    assert.doesNotMatch(summary, /class="[^"]*\bd-(?:grid|flex|block)\b/);
-    const header = html.match(/<section\b[^>]*aria-label="Datos del traslado"[^>]*>[\s\S]*?<\/section>/)?.[0];
+    assert.doesNotMatch(products, /class="[^"]*\bd-(?:grid|flex|block)\b/);
+    const header = html.match(/<header\b[^>]*aria-label="Datos del traslado"[^>]*>[\s\S]*?<\/header>/)?.[0];
     assert.ok(header);
     assert.doesNotMatch(header, /display:none/);
+    assert.doesNotMatch(header, /fa-right-long|Fecha de registro/);
     assert.ok(html.indexOf(header) < html.indexOf('role="tablist"'));
-    for(const field of ["Referencia", "TRAS-1", "Almacén de origen", "Almacén de destino", "Estado", "Recibido"]) {
+    for(const field of ["Referencia:", "TRAS-1", "Almacén de origen:", "Almacén de destino:", "Estado:", "Recibido", "Motivo del traslado:", "Registrado por:"]) {
         assert.ok(header.includes(field), field);
     }
     assert.match(html, /br-catalog-form-tabs--descriptive/);
-    assert.equal((html.match(/class="br-entity-tab__icon"/g) || []).length, 4);
-    for(const description of ["Responsables y motivo", "Cantidades y estado", "Ingresos y diferencias", "Fechas y responsables"]) {
+    assert.equal((html.match(/class="br-entity-tab__icon"/g) || []).length, 3);
+    assert.equal((html.match(/class="text-muted">—(?:<!--v-if-->)?<\/span>/g) || []).length, 2);
+    assert.equal((html.match(/class="br-quantity-value__unit"> UND<\/small>/g) || []).length, 2);
+    for(const description of ["Cantidades y estado", "Ingresos y diferencias", "Fechas y responsables"]) {
         assert.ok(html.includes(`<small>${description}</small>`));
     }
 });

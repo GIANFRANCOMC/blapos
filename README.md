@@ -13,23 +13,25 @@ Plataforma multiempresa para ventas, POS, clientes, membresías, asistencias, ca
 
 ## Instalación y operación
 
-La fuente canónica para clonar, configurar, desarrollar, desplegar y operar landlord y tenants es la [guía unificada de instalación](docs/1-Instalation.md). Incluye la matriz Desarrollo/Producción, comandos Artisan propios, shell, Tinker, MySQL, colas, scheduler, pruebas y operaciones destructivas.
+La fuente canónica para clonar, configurar, desarrollar, desplegar y operar landlord y tenants es la [guía unificada de instalación](docs/backend/despliegue/INSTALACION.md). Incluye la matriz Desarrollo/Producción, comandos Artisan propios, shell, Tinker, MySQL, colas, scheduler, pruebas y operaciones destructivas.
 
 ## Documentación
 
-Empieza en [docs/README.md](docs/README.md). Las referencias principales son:
+Empieza en [docs/backend/proyecto/README.md](docs/backend/proyecto/README.md). Las referencias principales son:
 
-- [Contexto del proyecto](docs/PROJECT_CONTEXT.md)
-- [Generalidades](docs/GENERALIDADES.md)
-- [Arquitectura System](docs/System/ARCHITECTURE.md)
-- [Multi-tenant](docs/System/MULTITENANT.md)
-- [Instalación y aprovisionamiento](docs/System/DATABASE_INSTALLATION.md)
-- [Instalación y comandos unificados](docs/1-Instalation.md)
-- [Pruebas automatizadas](docs/System/TESTING.md)
-- [Seguridad y autenticación](docs/System/SECURITY_AND_AUTH.md)
-- [Tablas System](docs/System/TABLES.md)
-- [Portal Guest](docs/Guest/README.md)
-- [Pendientes UI/UX](docs/UI_UX_PENDING.md)
+- [Contexto del proyecto](docs/backend/proyecto/PROJECT_CONTEXT.md)
+- [Frontend y sistema de diseño](docs/frontend/README.md)
+- [Backend y reglas técnicas](docs/backend/README.md)
+- [Generalidades](docs/backend/desarrollo/GENERALIDADES.md)
+- [Arquitectura System](docs/backend/system/ARCHITECTURE.md)
+- [Multi-tenant](docs/backend/tenancy/MULTITENANT.md)
+- [Instalación y aprovisionamiento](docs/backend/datos/DATABASE_INSTALLATION.md)
+- [Instalación y comandos unificados](docs/backend/despliegue/INSTALACION.md)
+- [Pruebas automatizadas](docs/backend/desarrollo/TESTING.md)
+- [Seguridad y autenticación](docs/backend/seguridad/SECURITY_AND_AUTH.md)
+- [Tablas System](docs/backend/datos/system/TABLES.md)
+- [Portal Guest](docs/backend/guest/README.md)
+- [Auditoría y plan visual](docs/frontend/calidad/AUDIT.md)
 
 ## Desarrollo
 
