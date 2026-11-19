@@ -556,7 +556,7 @@
         :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar atención'"
         @submit="saveSession">
         <template #body>
-            <CatalogFormTabs
+            <AppTabs
                 v-if="!isRestaurant"
                 v-model="sessionFormTab"
                 :tabs="sessionFormTabs"
@@ -632,7 +632,7 @@ import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import CopyButton from "@System/Components/CopyButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
@@ -647,7 +647,7 @@ const SESSION_STATUS_VARIANTS = {pending: "warning", in_progress: "primary", com
 
 export default {
     mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
-    components: {CatalogFormTabs, CopyButton, FormModal, StatusBadge, TableActionsDropdown},
+    components: {AppTabs, CopyButton, FormModal, StatusBadge, TableActionsDropdown},
     data() {
         const isRestaurant = window.location.pathname.includes("/restaurant");
 

@@ -56,6 +56,6 @@ test("recetas: código interno centrado y código de barras junto al platillo", 
 
     assert.equal(parse(source, {filename: path}).errors.length, 0);
     assert.match(source, /<thead class="br-table-header-surface">\s*<tr>\s*<th class="text-center"[^>]*>Código interno<\/th>/);
-    assert.match(source, /<tr v-for="record in records\.data" :key="record\.id">\s*<td class="text-center">\s*<InternalCodeValue :value="record\.item\?\.internal_code"\/>\s*<\/td>\s*<td>\s*<strong[^>]*>\{\{ record\.item\?\.name \}\}<\/strong>[\s\S]*?<CopyButton :value="record\.item\.barcode"/);
+    assert.match(source, /<tr v-for="record in records\.data" :key="record\.id">\s*<td class="text-center">\s*<InternalCodeValue :value="record\.item\?\.internal_code"\/>\s*<\/td>\s*<td>\s*<span class="br-entity-table__name">\{\{ record\.item\?\.name \}\}<\/span>[\s\S]*?<span class="br-entity-identifier__value" v-text="record\.item\.barcode"/);
 
 });

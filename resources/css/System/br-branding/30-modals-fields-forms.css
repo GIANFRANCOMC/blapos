@@ -216,31 +216,6 @@ body.br-layout .br-modal-shell .br-modal-shell__footer > .btn-secondary:first-ch
   line-height: 1.15;
 }
 
-.br-inline-text-action {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  min-inline-size: 0;
-  contain: inline-size;
-}
-
-.br-inline-text-action__content {
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.br-inline-text-action__button {
-  flex: 0 0 auto;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: inherit;
-  line-height: inherit;
-  white-space: nowrap;
-}
-
 /* -------------------------------------------------------------------------
  * [br] Controles reutilizables de formularios y modales
  * ------------------------------------------------------------------------- */

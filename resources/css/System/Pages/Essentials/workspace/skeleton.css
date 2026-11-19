@@ -1,24 +1,16 @@
 .br-workspace-skeleton {
   display: grid;
   gap: 1.1rem;
-  pointer-events: none;
 }
 
-.br-workspace-skeleton__line {
-  display: block;
-  flex: none;
-  max-width: 100%;
-  border-radius: 0.35rem;
-  background: #e7eef7;
-  animation: br-workspace-skeleton-pulse 1.7s ease-in-out infinite;
-}
+.br-workspace-skeleton .br-skeleton-line { flex: none; }
 
 .br-workspace-skeleton__breadcrumb {
   min-height: 1rem;
   align-items: center;
 }
 
-.br-workspace-skeleton__breadcrumb .br-workspace-skeleton__line {
+.br-workspace-skeleton__breadcrumb .br-skeleton-line {
   height: 0.68rem;
 }
 
@@ -127,12 +119,4 @@
   width: 7.8rem;
   height: 2.65rem;
   background: #d1e4fa;
-}
-
-@keyframes br-workspace-skeleton-pulse {
-  50% { opacity: 0.55; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .br-workspace-skeleton__line { animation: none; }
 }

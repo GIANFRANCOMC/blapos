@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
+const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
+
 test("Mi cuenta monta Vue y mantiene el Blade sin presentación", () => {
     const view = readFileSync(new URL("../../resources/views/System/general/Essentials/account/main.blade.php", import.meta.url), "utf8");
     const entry = readFileSync(new URL("../../resources/js/System/Pages/Essentials/account/main.js", import.meta.url), "utf8");
@@ -93,7 +95,7 @@ test("Mi cuenta comparte la escala compacta de Mi empresa y muestra un skeleton 
     assert.match(styles, /height: calc\(var\(--br-control-height\) - 2px\);/);
     assert.match(skeletonStyles, /height: var\(--br-control-height\)/);
     assert.match(skeletonStyles, /height: var\(--br-btn-height\)/);
-    assert.match(skeletonStyles, /@media \(prefers-reduced-motion: reduce\)/);
+    assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /account\/skeleton\.css/);
     assert.doesNotMatch(page, /<Loader\/>/);
 });

@@ -1,5 +1,5 @@
 <template>
-    <span ref="container" class="br-expandable-text br-inline-text-action" :class="{'br-expandable-text--expanded': expanded}">
+    <span ref="container" class="br-inline-text-action" :class="{'br-inline-text-action--expanded': expanded}">
         <span ref="content" :id="textId" class="br-inline-text-action__content" v-text="text"></span>
         <button
             v-if="hasOverflow"
@@ -59,16 +59,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.br-expandable-text--expanded {
-    display: block;
-}
-
-.br-expandable-text--expanded .br-inline-text-action__content {
-    display: block;
-    overflow: visible;
-    overflow-wrap: anywhere;
-    white-space: pre-line;
-}
-</style>

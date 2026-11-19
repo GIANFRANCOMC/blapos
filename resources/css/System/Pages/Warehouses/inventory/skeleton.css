@@ -1,7 +1,3 @@
-.br-inventory-skeleton {
-    pointer-events: none;
-}
-
 .br-inventory-skeleton__label {
     display: inline-block;
 }
@@ -12,17 +8,14 @@
     min-block-size: var(--br-control-height);
 }
 
-.br-inventory-skeleton__line {
-    display: block;
+.br-inventory-skeleton__control .br-skeleton-line {
     inline-size: min(55%, 6rem);
     block-size: 0.5rem;
-    border-radius: var(--br-radius-sm);
 }
 
-.br-inventory-skeleton__line,
+.br-inventory-skeleton .br-skeleton-line,
 .br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
     background: color-mix(in srgb, var(--br-primary-soft) 65%, var(--br-border));
-    animation: br-inventory-skeleton-pulse 1.7s ease-in-out infinite;
 }
 
 .br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
@@ -40,15 +33,4 @@
     block-size: var(--br-control-height);
     min-block-size: var(--br-control-height);
     padding: 0;
-}
-
-@keyframes br-inventory-skeleton-pulse {
-    50% { opacity: 0.65; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .br-inventory-skeleton__line,
-    .br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
-        animation: none;
-    }
 }

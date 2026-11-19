@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
+const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
+
 test("Workspace usa el skeleton durante su primera consulta", () => {
     const workspace = readFileSync(new URL("../../resources/js/System/Pages/Essentials/workspace/main.vue", import.meta.url), "utf8");
 
@@ -22,6 +24,6 @@ test("el skeleton conserva las proporciones del workspace y respeta movimiento r
     assert.match(skeleton, /v-for="index in 6"/);
     assert.match(skeleton, /<CompanyCardSkeleton\/>/);
     assert.match(companySkeleton, /v-for="index in 3"[\s\S]*?v-for="index in 4"/);
-    assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+    assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /workspace\/skeleton\.css/);
 });

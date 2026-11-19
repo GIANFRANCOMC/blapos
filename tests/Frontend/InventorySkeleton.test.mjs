@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import test from "node:test";
+
+const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
 import {parse} from "@vue/compiler-sfc";
 import {compile, h} from "vue";
 import {renderToString} from "vue/server-renderer";
@@ -38,7 +40,7 @@ test("Inventario cambia del skeleton al listado al terminar initParams", () => {
 
     assert.match(state, /try \{[\s\S]*?await this\.initParams\(\);[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false;[\s\S]*?await this\.listCurrentView\(\{\}\);/);
     assert.doesNotMatch(state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts(")), /listStockAlerts/);
-    assert.match(css, /prefers-reduced-motion: reduce/);
+    assert.match(readSharedSkeleton(), /prefers-reduced-motion: reduce/);
 });
 
 test("cada skeleton conserva el orden de filtros, acciones y columnas de su listado", async () => {

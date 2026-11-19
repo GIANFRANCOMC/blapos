@@ -182,7 +182,7 @@
         modal-size="modal-lg"
         :show-submit="false">
         <template #body>
-            <CatalogFormTabs
+            <AppTabs
                 v-model="activeFormTab"
                 :tabs="formTabs"
                 :has-errors="tabHasErrors"
@@ -346,7 +346,7 @@ import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 
 const FORM_TABS = [
@@ -465,7 +465,7 @@ const MODULE = {
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ActionsDropdown, InternalCodeInput, InitialLoadTransition, CatalogFormTabs, CatalogListSkeleton, FormModal},
+    components: {ActionsDropdown, InternalCodeInput, InitialLoadTransition, AppTabs, CatalogListSkeleton, FormModal},
     data() {
 
         const crudModule = initCrudModule({

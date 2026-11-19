@@ -6,6 +6,8 @@
 
         <main v-else class="br-entity">
             <FiltersSection
+                class="br-filter-bar--compact"
+                show-clear-button
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
                 :filter-word-value="filterWordValue"
@@ -36,13 +38,13 @@
             <OfferingImportModal ref="importModal" type="subscription" :import-route="routeActions.import" :internal-code-prefix="internalCodePrefixes.subscription" @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de membresías">
-                <div class="table-responsive">
+                <div class="table-responsive" tabindex="0">
             <table class="table br-entity-table br-entity-table--offering br-entity-table--commercial-headings mb-0">
                 <colgroup>
                     <col class="br-entity-table__col-code">
                     <col class="br-entity-table__col-offering">
                     <col class="br-entity-table__col-detail">
-                    <col class="br-entity-table__col-offering-price">
+                    <col class="br-entity-table__col-price">
                     <col class="br-entity-table__col-status">
                     <col class="br-entity-table__col-actions">
                 </colgroup>
@@ -88,11 +90,7 @@
                                 </div>
                             </td>
                             <td class="text-end">
-                                <div class="br-entity-prices">
-                                    <span class="br-entity-price-row is-sale"><span>Venta</span><strong>{{ record.currency?.sign }} {{ separatorNumber(record.price) }}</strong></span>
-                                    <span v-if="isDefined(record.min_price)" class="br-entity-price-row is-minimum"><span>Mín.</span><strong>{{ record.currency?.sign }} {{ separatorNumber(record.min_price) }}</strong></span>
-                                    <span v-if="isDefined(record.max_price)" class="br-entity-price-row is-maximum"><span>Máx.</span><strong>{{ record.currency?.sign }} {{ separatorNumber(record.max_price) }}</strong></span>
-                                </div>
+                                <CatalogPriceCell :record="record"/>
                             </td>
                             <td class="text-center">
                                 <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
@@ -106,7 +104,11 @@
                     </template>
                     <tr class="br-table-state" v-else>
                         <td colspan="6" class="py-4">
-                            <WithoutData class="br-entity-empty-state" type="image"/>
+                            <WithoutData
+                                class="br-entity-empty-state"
+                                type="image"
+                                :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
+                                :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
                         </td>
                     </tr>
                 </tbody>
@@ -126,13 +128,13 @@
         modal-size="modal-lg"
         :show-submit="false">
         <template #body>
-            <CatalogFormTabs
+            <AppTabs
                 v-model="activeFormTab"
                 :tabs="formTabs"
                 :has-errors="tabHasErrors"
                 id-prefix="subscription"
                 shared-controls-id="subscription-form-panel"
-                variant="descriptive"
+                variant="descriptive" layout="content"
                 label="Secciones de la membresía"/>
             <form class="br-entity-form-section" @submit.prevent="saveEntity">
                         <div id="subscription-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`subscription-tab-trigger-${activeFormTab}`">
@@ -470,6 +472,7 @@
 </template>
 
 <script>
+import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -485,7 +488,7 @@ import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue
 import CommissionValueInput from "@System/Components/Catalogs/CommissionValueInput.vue";
 import {OFFERING_CAPACITY_MAX, resetCatalogCommission, validateCatalogCapacity, validateCatalogCommission} from "@System/Components/Catalogs/catalogFormValidation.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import OfferingImportModal from "@System/Components/Catalogs/Offerings/OfferingImportModal.vue";
@@ -678,7 +681,7 @@ const MODULE = {
 export default {
     name: "SubscriptionsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {InternalCodeInput, CommissionValueInput, ExpandableText, InitialLoadTransition, FormModal, CatalogFormTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
+    components: {CatalogPriceCell, InternalCodeInput, CommissionValueInput, ExpandableText, InitialLoadTransition, FormModal, AppTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
     data() {
 
         const crudModule = initCrudModule({
@@ -1069,11 +1072,6 @@ export default {
         generateCode({length}) {
 
             return Utils.generateCode({length});
-
-        },
-        separatorNumber(value) {
-
-            return Utils.separatorNumber(value);
 
         },
         textToArray(value) {

@@ -18,7 +18,7 @@ test("clientes comparte tabla, acciones y modales del catálogo sin perder carne
     assert.match(source, /@click="openCarnetModal\(record\)"/);
     assert.match(source, /@click="openRegisterBiometricModal\(record\)"/);
     assert.match(source, /<FormModal/);
-    assert.match(source, /<CatalogFormTabs/);
+    assert.match(source, /<AppTabs/);
     assert.match(source, /variant="descriptive"/);
     assert.match(source, /v-show="activeFormTab === 'client'"/);
     assert.match(source, /v-show="activeFormTab === 'contact'"/);

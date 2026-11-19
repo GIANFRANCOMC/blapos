@@ -79,6 +79,7 @@ export default defineConfig({
                 'resources/js/System/Pages/Catalogs/products/main.js',
                 'resources/js/System/Pages/Catalogs/services/main.js',
                 'resources/js/System/Pages/Catalogs/subscriptions/main.js',
+                'resources/js/System/Pages/Catalogs/recipes/main.js',
 
                 // System Pages - Customers
                 'resources/js/System/Pages/Customers/customers/main.js',

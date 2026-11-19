@@ -11,6 +11,7 @@ Guía de trabajo para construir y revisar interfaces del ERP conservando la iden
 | Elegir color, superficie, borde o sombra | [Paleta](fundamentos/COLOR_PALETTE.md) |
 | Elegir tamaño y peso por función | [Tipografía](fundamentos/TYPOGRAPHY.md) |
 | Encontrar controles y variantes existentes | [Componentes](patrones/COMPONENTS.md) |
+| Mantener listados y formularios del catálogo | [Catálogo comercial](patrones/CATALOGO_COMERCIAL.md) |
 | Componer navegación, listados, detalle o pantallas transaccionales | [Estructuras](patrones/LAYOUTS.md) |
 | Cambiar el menú, los mundos o el navbar | [Navegación tenant](patrones/TENANT_NAVIGATION.md) |
 | Consultar grupos, orden y opciones de menú | [Orden del menú de System](patrones/00_menu_order.md) |

@@ -1,0 +1,40 @@
+.br-skeleton {
+  pointer-events: none;
+}
+
+.br-skeleton-line {
+  display: block;
+  max-inline-size: 100%;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-border);
+  animation: brSkeletonPulse 1.7s ease-in-out infinite;
+}
+
+.br-skeleton-control {
+  display: flex;
+  align-items: center;
+  height: var(--br-control-height);
+  padding: 0 var(--br-control-padding-x);
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-white);
+}
+
+.br-skeleton-tab__label {
+  width: 5.5rem;
+  height: 0.65rem;
+}
+
+.br-skeleton-tab__description {
+  width: 7rem;
+  height: 0.55rem;
+}
+
+@keyframes brSkeletonPulse {
+  50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br-skeleton-line { animation: none; }
+}
+

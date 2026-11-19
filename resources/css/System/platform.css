@@ -7,6 +7,9 @@
 @import "../Shared/disabled-controls.css";
 @import "../Shared/responsive-tables.css";
 @import "../Shared/modal-results.css";
+@import "../Shared/tabs.css";
+@import "../Shared/skeleton.css";
+@import "../Shared/inline-text-action.css";
 @import "./br-branding/00-tokens.css";
 @import "./br-branding/01-typography.css";
 @import "./br-branding/02-loading-transitions.css";

@@ -15,7 +15,7 @@ function component(path, dependencies = {}) {
 }
 
 const roadmap = component("resources/js/System/Components/Generics/StatusRoadmap.vue");
-const catalogTabs = component("resources/js/System/Components/Catalogs/CatalogFormTabs.vue");
+const catalogTabs = component("resources/js/Shared/AppTabs.vue");
 const quantityValue = component("resources/js/System/Components/Generics/QuantityValue.vue", {compareNumbers, quantityParts});
 const events = [
     {id: 10, label: "Por enviar", tone: "warning", occurred_at: "2026-11-17T09:00:00Z", user_name: "Ana"},
@@ -51,7 +51,7 @@ function detailComponent() {
     return component("resources/js/System/Pages/Warehouses/inventory/TransferDetailModal.vue", {
         FormModal: {render() { return h("div", this.$slots.body?.()); }},
         ProductIdentity: placeholder, QuantityValue: quantityValue, InputText: placeholder, InputNumber: placeholder,
-        Loader: placeholder, StatusRoadmap: roadmap, CatalogFormTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
+        Loader: placeholder, StatusRoadmap: roadmap, AppTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
         uuid: () => `00000000-0000-4000-8000-${String(++key).padStart(12, "0")}`
     });
 }
@@ -103,12 +103,12 @@ test("los datos de cabecera siguen visibles al consultar el historial y Producto
     for(const field of ["Referencia:", "TRAS-1", "Almacén de origen:", "Almacén de destino:", "Estado:", "Recibido", "Motivo del traslado:", "Registrado por:"]) {
         assert.ok(header.includes(field), field);
     }
-    assert.match(html, /br-catalog-form-tabs--descriptive/);
-    assert.equal((html.match(/class="br-entity-tab__icon"/g) || []).length, 3);
+    assert.match(html, /br-tabs--descriptive/);
+    assert.equal((html.match(/class="br-tabs__icon"/g) || []).length, 3);
     assert.equal((html.match(/class="text-muted">—(?:<!--v-if-->)?<\/span>/g) || []).length, 2);
     assert.equal((html.match(/class="br-quantity-value__unit"> UND<\/small>/g) || []).length, 2);
     for(const description of ["Cantidades y estado", "Ingresos y diferencias", "Fechas y responsables"]) {
-        assert.ok(html.includes(`<small>${description}</small>`));
+        assert.ok(html.includes(`<small class="br-tabs__description">${description}</small>`));
     }
 });
 

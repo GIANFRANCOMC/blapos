@@ -161,7 +161,7 @@
         :submit-disabled="isSaving"
         @submit="saveEntity">
         <template #body>
-            <CatalogFormTabs
+            <AppTabs
                 v-model="activeFormTab"
                 :tabs="customerFormTabs"
                 :has-errors="tabHasErrors"
@@ -435,7 +435,7 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import CopyButton from "@System/Components/CopyButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
@@ -593,7 +593,7 @@ const MODULE = {
 export default {
     mixins: [InitialPageMixin],
     name: "CustomersMain",
-    components: {SearchButton, CatalogFormTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
+    components: {SearchButton, AppTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({

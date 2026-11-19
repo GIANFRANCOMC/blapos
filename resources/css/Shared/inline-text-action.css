@@ -1,0 +1,35 @@
+.br-inline-text-action {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  contain: inline-size;
+}
+
+.br-inline-text-action__content {
+  display: block;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.br-inline-text-action--expanded {
+  display: block;
+}
+
+.br-inline-text-action--expanded .br-inline-text-action__content {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.br-inline-text-action__button {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+}

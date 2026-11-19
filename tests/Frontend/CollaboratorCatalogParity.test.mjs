@@ -21,7 +21,7 @@ test("colaboradores reutiliza tabla, menú y modal con pestañas sin perder acce
     assert.match(source, /@click="openPasswordModal\(record\)"/);
     assert.match(source, /@click="openAuthenticationEvents\(record\)"/);
     assert.match(source, /<FormModal/);
-    assert.match(source, /<CatalogFormTabs/);
+    assert.match(source, /<AppTabs/);
     assert.match(source, /variant="descriptive"/);
     assert.match(source, /<CatalogReferenceImportModal/);
     assert.match(source, /@download="downloadRecords"/);

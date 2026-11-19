@@ -46,10 +46,10 @@
                         </div>
                     </dl>
                 </header>
-                <CatalogFormTabs v-model="activeTab" :tabs="detailTabs"
+                <AppTabs v-model="activeTab" :tabs="detailTabs"
                     :has-errors="tab => tab === 'products' && Boolean(statusError || quantityError)"
                     id-prefix="inventory-transfer-detail" shared-controls-id="inventory-transfer-detail-panel"
-                    variant="descriptive" class="br-catalog-form-tabs--inline"
+                    variant="descriptive" layout="content"
                     label="Secciones del traslado"/>
                 <section id="inventory-transfer-detail-panel" class="br-entity-form-section" role="tabpanel"
                     :class="{'br-inventory-transfer__products-panel': activeTab === 'products'}"
@@ -172,7 +172,7 @@ import InputNumber from "@System/Components/InputNumber.vue";
 import InputText from "@System/Components/InputText.vue";
 import Loader from "@System/Components/Loader.vue";
 import StatusRoadmap from "@System/Components/Generics/StatusRoadmap.vue";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import {compareNumbers, normalizeNumber, isNumber} from "../../../../Shared/Numbers.js";
 import {uuid} from "@System/Helpers/CommonUtils.js";
 
@@ -183,7 +183,7 @@ const DETAIL_TABS = Object.freeze([
 ]);
 
 export default {
-    components: {FormModal, ProductIdentity, QuantityValue, InputNumber, InputText, Loader, StatusRoadmap, CatalogFormTabs},
+    components: {FormModal, ProductIdentity, QuantityValue, InputNumber, InputText, Loader, StatusRoadmap, AppTabs},
     emits: ["retry", "advance", "cancel", "view-cancellation-reason", "operate"],
     props: {
         transfer: {type: Object, default: null}, loading: {type: Boolean, default: false}, error: {type: String, default: ""},

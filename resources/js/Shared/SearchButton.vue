@@ -48,6 +48,7 @@ button.br-search-button {
     justify-content: center;
     flex: none;
     inline-size: var(--br-control-height, 2rem);
+    min-inline-size: var(--br-control-height, 2rem);
     padding-inline: 0;
 }
 

@@ -6,6 +6,8 @@
 
         <main v-else class="br-entity">
         <FiltersSection
+            class="br-filter-bar--compact"
+            show-clear-button
             :filter-by-value="filterByValue"
             @update:filterByValue="filterByValue = $event"
             :filter-word-value="filterWordValue"
@@ -40,12 +42,12 @@
             @imported="listEntity({})"/>
 
         <section class="br-entity-list" aria-label="Listado de categorías">
-            <div class="table-responsive">
+            <div class="table-responsive" tabindex="0">
             <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
                 <colgroup>
                     <col style="width: 20%;">
-                    <col style="width: 34%;">
-                    <col style="width: 26%;">
+                    <col style="width: 40%;">
+                    <col style="width: 20%;">
                     <col style="width: 13%;">
                     <col style="width: 7%;">
                 </colgroup>
@@ -93,7 +95,11 @@
                     </template>
                     <tr class="br-table-state" v-else>
                         <td colspan="5" class="py-4">
-                            <WithoutData class="br-entity-empty-state" type="image"/>
+                            <WithoutData
+                                class="br-entity-empty-state"
+                                type="image"
+                                :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
+                                :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
                         </td>
                     </tr>
                 </tbody>
@@ -113,8 +119,20 @@
         :submit-disabled="isSaving"
         @submit="saveEntity">
         <template #body>
-                    <form @submit.prevent="saveEntity">
+                    <form class="br-entity-form-section" @submit.prevent="saveEntity">
                         <div class="row g-3">
+                            <InputText
+                                v-model="forms[entity].createUpdate.data.name"
+                                hasDiv
+                                :title="MODULE.texts.form.name"
+                                :titleClass="[config.forms.classes.title]"
+                                isRequired
+                                maxlength="50"
+                                showCharCounter
+                                hasTextBottom
+                                :textBottomInfo="forms[entity].createUpdate.errors?.name"
+                                xl="8"
+                                lg="8"/>
                             <InternalCodeInput
                                 v-model="forms[entity].createUpdate.data.internal_code"
                                 v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
@@ -133,18 +151,6 @@
                                     </button>
                                 </template>
                             </InternalCodeInput>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.name"
-                                hasDiv
-                                :title="MODULE.texts.form.name"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                maxlength="50"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="8"
-                                lg="8"/>
                             <InputText
                                 v-model="forms[entity].createUpdate.data.description"
                                 hasDiv

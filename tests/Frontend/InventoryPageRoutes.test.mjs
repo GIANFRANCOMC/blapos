@@ -327,7 +327,7 @@ test("all inventory listings reuse the product loader, empty illustration and ta
     assert.equal((listing.match(/class="py-4"><Loader\/>/g) || []).length, 5);
     assert.equal(emptyStates.length, 5);
     assert.equal((listing.match(/image-src=/g) || []).length, 0);
-    assert.match(products, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\/>/);
+    assert.match(products, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\s+:text="entityList\.appliedFilters\?\.word\?\.trim\(\) \? 'Sin coincidencias' : undefined"/);
     assert.match(withoutData, /default: "\/System\/assets\/img\/utils\/without_data\/empty_records\.png"/);
     assert.match(withoutData, /default: Constants\.generalConfig\.messages\.withoutResults/);
     assert.match(withoutData, /default: "Aún no hay información para mostrar\."/);

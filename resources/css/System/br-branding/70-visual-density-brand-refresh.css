@@ -179,12 +179,6 @@ body.br-layout .table > tbody > tr > td,
   color: var(--br-secondary);
 }
 
-.br-entity-table__description,
-.br-entity-table__meta,
-.br-entity-table__attribute {
-  line-height: 1.32;
-}
-
 /* Badges Bootstrap heredados; los estados usan .br-badge. */
 .br-layout .badge,
 .br-layout .badge[class*="bg-label-"] {

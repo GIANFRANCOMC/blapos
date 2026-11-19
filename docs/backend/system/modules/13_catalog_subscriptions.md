@@ -15,11 +15,11 @@ Administra ítems `subscription` que, al venderse, generan una membresía real p
 - `igv_exempt` determina si la membresía está exonerada de IGV. Si está activo, ventas y POS no calculan IGV para ese detalle.
 - `commission_type` y `commission_value` permiten configurar comision por membresia vendida; la venta guarda la foto en `sales_body` y suma el total interno en `sales_header.commission_total`.
 - Código, moneda, categorías y pertenencia se validan por empresa.
-- El editor muestra y envía el código completo. El prefijo vigente de `internal_code_prefixes.subscription` (`MEMB` por defecto) puede quitarse o restaurarse desde el campo. El FormRequest valida el código recibido y se guarda en `items.internal_code`. El listado y el botón de copiar muestran ese mismo valor.
+- El editor muestra y envía el código completo. El prefijo vigente de `internal_code_prefixes.subscription` (`MEMB` por defecto) puede quitarse o restaurarse desde el campo. El FormRequest valida el código recibido y se guarda en `items.internal_code`. El listado muestra ese mismo valor.
 
 ## Interfaz
 
-- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. La columna **Detalle** muestra una etiqueta por línea y Duración presenta el plazo de la membresía. El límite diario de asistencias se consulta en la pestaña Configuración del formulario. La etiqueta de Comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
+- El listado muestra el código interno centrado en la primera columna. La columna **Detalle** muestra una etiqueta por línea y Duración presenta el plazo de la membresía. El límite diario de asistencias se consulta en la pestaña Configuración del formulario. La etiqueta de Comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
 - El editor de Duración agrupa el valor numérico y el selector de unidad a la derecha. Un solo borde y anillo de foco rodean el conjunto. La flecha del selector gira al abrir y cerrar.
 - La modal compartida usa pestañas descriptivas `MEMBRESÍA`, `DETALLE`, `IMPUESTOS` y `CONFIGURACIÓN`, con navegación por teclado y desplazamiento en móvil. No muestra Inventario físico.
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.

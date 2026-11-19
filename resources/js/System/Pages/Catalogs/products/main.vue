@@ -2,10 +2,12 @@
     <Breadcrumb :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
-        <ProductsSkeleton v-if="initialLoading"/>
+        <CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"/>
 
         <main v-else class="br-entity">
             <FiltersSection
+                class="br-filter-bar--compact"
+                show-clear-button
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
                 :filter-word-value="filterWordValue"
@@ -44,8 +46,8 @@
             <ProductInventoryModal ref="productInventoryModal"/>
 
             <section class="br-entity-list" :aria-label="MODULE.texts.table.ariaLabel">
-                <div class="table-responsive">
-                    <table class="table br-entity-table br-entity-table--commercial-headings mb-0">
+                <div class="table-responsive" tabindex="0">
+                    <table class="table br-entity-table br-entity-table--catalog-products br-entity-table--commercial-headings mb-0">
                         <colgroup>
                             <col class="br-entity-table__col-identification">
                             <col class="br-entity-table__col-product">
@@ -76,21 +78,11 @@
                                         <div class="br-entity-identifiers br-entity-identifiers--plain">
                                             <div class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                                <span class="br-copy-value">
-                                                    <span
-                                                        class="br-entity-code"
-                                                        v-text="record.internal_code"></span>
-                                                    <CopyButton :value="record.internal_code" label="Código interno"/>
-                                                </span>
+                                                <span class="br-entity-identifier__value" v-text="record.internal_code"></span>
                                             </div>
-                                            <div class="br-entity-identifier">
+                                            <div v-if="record.barcode" class="br-entity-identifier">
                                                 <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
-                                                <span class="br-copy-value">
-                                                    <span
-                                                        class="br-entity-barcode"
-                                                        v-text="record.barcode"></span>
-                                                    <CopyButton :value="record.barcode" label="Código de barras"/>
-                                                </span>
+                                                <span class="br-entity-identifier__value" v-text="record.barcode"></span>
                                             </div>
                                         </div>
                                     </td>
@@ -113,24 +105,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <div class="br-entity-prices">
-                                            <span class="br-entity-price-row is-sale">
-                                                <span>Venta</span>
-                                                <strong>{{ record.currency?.sign }} {{ separatorNumber(record.price) }}</strong>
-                                            </span>
-                                            <span
-                                                v-if="isDefined(record.min_price)"
-                                                class="br-entity-price-row is-minimum">
-                                                <span>Mín.</span>
-                                                <strong>{{ record.currency?.sign }} {{ separatorNumber(record.min_price) }}</strong>
-                                            </span>
-                                            <span
-                                                v-if="isDefined(record.max_price)"
-                                                class="br-entity-price-row is-maximum">
-                                                <span>Máx.</span>
-                                                <strong>{{ record.currency?.sign }} {{ separatorNumber(record.max_price) }}</strong>
-                                            </span>
-                                        </div>
+                                        <CatalogPriceCell :record="record"/>
                                     </td>
                                     <td class="text-center">
                                         <StatusBadge
@@ -146,7 +121,7 @@
                                                     <span v-text="MODULE.texts.actions.edit"></span>
                                                 </button>
                                             </li>
-                                            <li>
+                                            <li v-if="record.barcode">
                                                 <BarcodeDownloadButton
                                                     menu-item
                                                     tooltip="Descargar cód. barras"
@@ -161,7 +136,9 @@
                                 <td colspan="5" class="py-4">
                                     <WithoutData
                                         class="br-entity-empty-state"
-                                        type="image"/>
+                                        type="image"
+                                        :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
+                                        :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -177,6 +154,7 @@
 </template>
 
 <script>
+import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -192,7 +170,7 @@ import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdo
 import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
 import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
 import * as StockStatus from "../../../../Shared/StockStatus.js";
-import ProductsSkeleton from "./ProductsSkeleton.vue";
+import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 
 
 const MODULE_CONFIG = {
@@ -225,6 +203,7 @@ const MODULE = {
 export default {
     name: "ProductsMain",
     components: {
+        CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,
         BarcodeDownloadButton,
@@ -232,7 +211,7 @@ export default {
         ProductInventoryModal,
         AddProduct,
         TableActionsDropdown,
-        ProductsSkeleton
+        CatalogListSkeleton
     },
     data() {
 

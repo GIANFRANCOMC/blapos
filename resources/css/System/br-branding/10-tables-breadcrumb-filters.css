@@ -470,19 +470,23 @@ body > .vs__dropdown-menu .vs__dropdown-option--highlight {
 }
 
 @media (max-width: 575.98px) {
-  .br-filter-bar__actions {
+  .br-filter-bar__actions:not(:where(.br-filter-bar--compact *)) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .br-filter-bar__actions .br-btn {
+  .br-filter-bar__actions:not(:where(.br-filter-bar--compact *)) .br-btn:not(:where(.br-search-button, .br-btn-actions--icon)) {
     width: 100%;
   }
 
-  .br-filter-bar__actions .br-btn-action-export:last-child {
+  .br-filter-bar__actions:not(:where(.br-filter-bar--compact *)) .br-btn-action-export:last-child {
     grid-column: 1 / -1;
   }
 }
+.br-filter-bar--compact .br-filter-bar__actions {
+  align-items: center;
+}
+
 .table > tbody > tr.br-table-state,
 .table > tbody > tr.br-table-state:hover {
   background: transparent;

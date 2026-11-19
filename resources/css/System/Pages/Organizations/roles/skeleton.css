@@ -1,13 +1,3 @@
-.br-roles-skeleton { pointer-events: none; }
-
-.br-roles-skeleton__line {
-  display: block;
-  max-width: 100%;
-  border-radius: 0.25rem;
-  background: color-mix(in srgb, var(--br-primary-soft) 55%, var(--br-border));
-  animation: br-roles-skeleton-pulse 1.7s ease-in-out infinite;
-}
-
 .br-roles-skeleton__filters {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -23,16 +13,6 @@
 
 .br-roles-skeleton__label { width: 5rem; height: 0.58rem; }
 
-.br-roles-skeleton__control {
-  display: flex;
-  align-items: center;
-  height: var(--br-control-height);
-  padding: 0 var(--br-control-padding-x);
-  border: 1px solid var(--br-border);
-  border-radius: var(--br-radius-sm);
-  background: var(--br-white);
-}
-
 .br-roles-skeleton__search-value { width: 28%; height: 0.62rem; }
 
 .br-roles-skeleton__button {
@@ -43,13 +23,7 @@
 
 .br-roles-skeleton__button--add { width: 8.4rem; }
 
-@keyframes br-roles-skeleton-pulse { 50% { opacity: 0.55; } }
-
 @media (max-width: 991.98px) {
   .br-roles-skeleton__filters { grid-template-columns: 1fr; }
   .br-roles-skeleton .br-entity-table { min-width: 45rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .br-roles-skeleton__line { animation: none; }
 }

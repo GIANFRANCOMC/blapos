@@ -263,7 +263,7 @@
         :submit-disabled="isSaving"
         @submit="saveEntity">
         <template #body>
-            <CatalogFormTabs
+            <AppTabs
                 v-model="activeFormTab"
                 :tabs="collaboratorFormTabs"
                 :has-errors="tabHasErrors"
@@ -590,7 +590,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import { validateOnlyDigits } from "@System/Helpers/ValidationHelpers.js";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
@@ -746,7 +746,7 @@ const MODULE = {
 
 export default {
     name: "UsersMain",
-    components: {SearchButton, InitialLoadTransition, CatalogFormTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
+    components: {SearchButton, InitialLoadTransition, AppTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({

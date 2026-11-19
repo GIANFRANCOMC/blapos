@@ -26,43 +26,30 @@ test("el precio principal usa la escala tipográfica compartida de tablas", () =
 
 });
 
-test("productos muestra códigos sin recuadro y copia con icono discreto", () => {
+test("el catálogo muestra códigos como texto y conserva la descarga del código de barras", () => {
 
     const product = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
-    const copyStyles = readFileSync(new URL("../../resources/css/System/br-branding/40-buttons-quick-create.css", import.meta.url), "utf8");
 
     assert.equal(parse(product, {filename: "products/main.vue"}).errors.length, 0);
     assert.match(product, /br-entity-identifiers br-entity-identifiers--plain/);
-    assert.match(product, /<CopyButton[\s\S]*?:value="record\.internal_code"/);
-    assert.match(product, /<CopyButton[\s\S]*?:value="record\.barcode"/);
-    assert.match(branding, /\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\)/);
+    assert.match(product, /class="br-entity-identifier__value" v-text="record\.internal_code"/);
+    assert.match(product, /class="br-entity-identifier__value" v-text="record\.barcode"/);
+    assert.match(product, /<BarcodeDownloadButton[\s\S]*?:value="record\.barcode"/);
     assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. interno/);
     assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. barras/);
     assert.doesNotMatch(product, /record\.brand\??\.name/);
-    assert.match(branding, /\.br-entity-identifiers--plain \{\s*grid-template-columns: max-content minmax\(0, 1fr\)/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier \{\s*display: contents/);
-    assert.match(branding, /\.br-entity-identifiers--plain \.br-entity-identifier__label \{[\s\S]*?overflow: visible/);
-    assert.match(branding, /\.br-entity-identifier__label \{[^}]*font-size: var\(--br-product-code-label-font-size\)/);
-    assert.doesNotMatch(branding.match(/\.br-entity-identifiers--plain \.br-entity-identifier__label \{[^}]*\}/)?.[0], /font-size/);
-    assert.match(product, /class="br-copy-value">\s*<span[^>]*v-text="record\.internal_code"><\/span>\s*<CopyButton/);
-    assert.match(product, /class="br-copy-value">\s*<span[^>]*v-text="record\.barcode"><\/span>\s*<CopyButton/);
-    assert.match(copyStyles, /\.br-copy-value \{[^}]*column-gap: 0\.3125rem;/);
-    assert.match(branding, /\.br-entity-code \{[^}]*font-size: var\(--br-product-code-font-size\)/);
-    assert.match(branding, /\.br-entity-barcode \{[^}]*font-size: var\(--br-product-code-font-size\)/);
-    assert.doesNotMatch(branding.match(/\.br-entity-identifiers--plain :is\(\.br-entity-code, \.br-entity-barcode\) \{[^}]*\}/)?.[0], /font-size/);
-    assert.match(copyStyles, /\.br-copy-button \{[^}]*place-items: center start;[^}]*width: 1\.25rem;[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--br-primary-active\)/);
-    assert.match(copyStyles, /\.br-copy-button i \{\s*transform: translateY\(0\.12em\)/);
-    assert.match(copyStyles, /\.br-copy-icon > i,\s*\.br-copy-button > i \{\s*font-size: var\(--br-font-size-table\)/);
-    assert.match(copyStyles, /\.br-copy-button:enabled:is\(:hover, :focus-visible\) i \{[^}]*font-weight: var\(--br-font-weight-regular\)/);
-    assert.doesNotMatch(branding, /\.br-entity-identifiers--plain \.br-copy-button/);
+    for(const page of ["products", "services", "subscriptions", "categories", "brands", "recipes"]) {
+        const source = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${page}/main.vue`, import.meta.url), "utf8");
+        assert.doesNotMatch(source, /<CopyButton|class="br-copy-value"/, page);
+    }
 
 });
 
-test("el valor de código interno compartido incluye un botón de copia", () => {
+test("el código interno compartido se presenta como texto", () => {
     const source = readFileSync(new URL("../../resources/js/System/Components/Catalogs/InternalCodeValue.vue", import.meta.url), "utf8");
     assert.equal(parse(source, {filename: "InternalCodeValue.vue"}).errors.length, 0);
-    assert.match(source, /<span class="br-copy-value">\s*<span v-text="value \|\| '—'"><\/span>\s*<CopyButton v-if="value" :value="value" label="Código interno"\/>/);
+    assert.match(source, /<span class="br-entity-identifier__value" v-text="value \|\| '—'"><\/span>/);
+    assert.doesNotMatch(source, /CopyButton|role="button"|tabindex/);
 });
 
 test("copiar usa un icono interactivo por defecto y permite un botón explícito", async () => {
@@ -101,23 +88,23 @@ test("los tres editores comparten pestañas accesibles y navegables en móvil", 
         "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
         ...modules.map(module => module.path)
     ];
-    const tabs = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/System/br-branding/99-system-wide-visual-polish.css", import.meta.url), "utf8");
+    const tabs = readFileSync(new URL("../../resources/js/Shared/AppTabs.vue", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/Shared/tabs.css", import.meta.url), "utf8");
 
     for(const path of editorPaths) {
 
         const source = readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
-        assert.match(source, /<CatalogFormTabs\s+v-model="activeFormTab"/);
+        assert.match(source, /<AppTabs\s+v-model="activeFormTab"/);
 
     }
 
-    assert.equal(parse(tabs, {filename: "CatalogFormTabs.vue"}).errors.length, 0);
+    assert.equal(parse(tabs, {filename: "AppTabs.vue"}).errors.length, 0);
     assert.match(tabs, /role="tablist"/);
     assert.match(tabs, /@keydown="handleKeydown"/);
     assert.match(tabs, /tab-trigger-\$\{tab\.id\}/);
     assert.match(tabs, /:aria-controls="sharedControlsId \|\| \(controlsPrefix/);
-    assert.match(branding, /\.br-catalog-form-tabs[\s\S]*?overflow-x: auto/);
+    assert.match(branding, /\.br-tabs__list\s*\{[^}]*overflow-x: auto/);
 
 });
 
@@ -126,35 +113,33 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
     const product = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
     const config = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/productFormConfig.js", import.meta.url), "utf8");
     const tabConfig = config.split("export const FORM_FIELDS")[0];
-    const tabs = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/System/br-branding/99-system-wide-visual-polish.css", import.meta.url), "utf8");
+    const tabs = readFileSync(new URL("../../resources/js/Shared/AppTabs.vue", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/Shared/tabs.css", import.meta.url), "utf8");
     const motion = readFileSync(new URL("../../resources/css/System/br-branding/02-loading-transitions.css", import.meta.url), "utf8");
 
-    assert.match(product, /<CatalogFormTabs[\s\S]*?variant="descriptive"/);
+    assert.match(product, /<AppTabs[\s\S]*?variant="descriptive"/);
     const inventoryPanel = product.match(/<section\s+v-show="activeFormTab === 'inventory'"[\s\S]*?<\/section>/)?.[0];
     assert.equal((product.match(/class="br-field-summary\b/g) || []).length, 1);
     assert.match(inventoryPanel, /<div class="br-field-summary mb-3">\s*<span class="form-label">Producto<\/span>\s*<strong class="br-field-summary__value" :title="productName \|\| undefined">\{\{ productName \|\| 'Sin nombre' \}\}<\/strong>\s*<\/div>\s*<ProductWarehouseInventory/);
     assert.match(product, /productName\(\)\s*\{\s*return this\.productForm\.data\.name\?\.trim\(\)/);
-    assert.match(tabs, /variant: \{type: String, default: "compact"\}/);
-    assert.match(tabs, /<small v-if="variant === 'descriptive' && tab\.description">/);
-    assert.match(tabs, /class="br-entity-tab__icon" aria-hidden="true"/);
-    assert.match(tabs, /<strong>[\s\S]*?class="br-entity-tab__icon"[\s\S]*?\{\{ tab\.label \}\}[\s\S]*?<\/strong>/);
+    assert.match(tabs, /variant: \{type: String, default: "compact"/);
+    assert.match(tabs, /<small v-if="variant === 'descriptive' && tab\.description" class="br-tabs__description">/);
+    assert.match(tabs, /class="br-tabs__icon" aria-hidden="true"/);
+    assert.match(tabs, /class="br-tabs__label">\{\{ tab\.label \}\}/);
     assert.match(tabs, /aria-label="Pestaña anterior"/);
     assert.match(tabs, /aria-label="Pestaña siguiente"/);
-    assert.match(tabs, /selectAdjacentTab\(direction\)/);
-    assert.match(tabs, /scrollTo\(\{left, behavior: "auto"\}\)/);
+    assert.match(tabs, /selectAdjacent\(direction\)/);
+    assert.match(tabs, /focus\(\{preventScroll: true\}\)/);
     assert.equal([...tabConfig.matchAll(/description: "/g)].length, 5);
     assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 5);
-    assert.match(branding, /\.br-catalog-form-tabs--descriptive[\s\S]*?scroll-snap-type: x proximity/);
-    assert.doesNotMatch(branding, /:has\(\.br-catalog-form-tabs--descriptive\) \.modal-dialog-centered/);
-    assert.match(motion, /@media \(prefers-reduced-motion: no-preference\) \{\s*:is\(\[role="tabpanel"\], \.br-tab-panel\):not\(\.br-tab-panel-restart\) \{[^}]*animation: brTabPanelIn/);
-    assert.match(tabs, /restartSharedPanelAnimation\(\) \{[\s\S]*?prefers-reduced-motion: reduce[\s\S]*?getElementById\(this\.sharedControlsId\)[\s\S]*?classList\.add\("br-tab-panel-restart"\)[\s\S]*?classList\.remove\("br-tab-panel-restart"\)/);
+    assert.doesNotMatch(branding, /scroll-snap-type|scroll-behavior: smooth/);
+    assert.match(motion, /@media \(prefers-reduced-motion: no-preference\) \{\s*:is\(\[role="tabpanel"\], \.br-tab-panel\) \{[^}]*animation: brTabPanelIn/);
 
     for(const module of modules) {
 
         const source = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
 
-        assert.match(source, /<CatalogFormTabs[\s\S]*?variant="descriptive"/);
+        assert.match(source, /<AppTabs[\s\S]*?variant="descriptive"/);
         assert.equal([...source.matchAll(/description: "/g)].length >= 4, true);
         assert.equal([...source.matchAll(/icon: "fa-solid/g)].length, 4);
         assert.match(source, /entityForms\.errors = validation\.errors/);
@@ -178,6 +163,36 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
     assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: 2, available_capacity: 0}), "2");
     assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: null}), "—");
 
+});
+
+test("la barra compartida solo se desplaza al revelar una pestaña recortada", () => {
+    const source = readFileSync(new URL("../../resources/js/Shared/AppTabs.vue", import.meta.url), "utf8");
+    const script = parse(source).descriptor.script.content.replace("export default", "return");
+    const tabs = new Function(script)();
+    const movements = [];
+    let bounds = {left: 30, right: 120};
+    const list = {
+        clientWidth: 200,
+        scrollWidth: 480,
+        getBoundingClientRect: () => ({left: 20, right: 220}),
+        scrollBy: movement => movements.push(movement)
+    };
+    const instance = {
+        $refs: {tabList: list},
+        selectedTab: () => ({getBoundingClientRect: () => bounds})
+    };
+
+    tabs.methods.revealSelected.call(instance);
+    assert.deepEqual(movements, []);
+
+    bounds = {left: 180, right: 260};
+    tabs.methods.revealSelected.call(instance);
+    bounds = {left: 10, right: 90};
+    tabs.methods.revealSelected.call(instance);
+    assert.deepEqual(movements, [
+        {left: 40, behavior: "instant"},
+        {left: -10, behavior: "instant"}
+    ]);
 });
 
 test("servicios y membresías comparten acciones masivas y una modal de importación sin inventario", () => {
@@ -426,8 +441,8 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
     const parsed = parse(component, {filename: "ProductEditor.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(component, /<CatalogFormTabs[\s\S]*?:tabs="formTabs"/);
-    assert.match(readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogFormTabs.vue", import.meta.url), "utf8"), /'br-entity-tabs--five': tabs\.length === 5/);
+    assert.match(component, /<AppTabs[\s\S]*?:tabs="formTabs"/);
+    assert.match(component, /layout="content"/);
     assert.match(config, /id: "attributes",\s+label: "DETALLE"/);
     assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",[\s\S]*?fields: \["expires_at", "commission_type", "commission_value"\]/);
     assert.match(config, /expiresAt: "Disponible hasta"/);

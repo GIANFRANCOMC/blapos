@@ -5,13 +5,13 @@
         modal-class="br-entity-modal--tabbed"
         modal-size="modal-lg">
                 <template #body>
-                    <CatalogFormTabs
+                    <AppTabs
                         v-model="activeFormTab"
                         :tabs="formTabs"
                         :has-errors="tabHasErrors"
                         :id-prefix="modalId"
                         :controls-prefix="modalId"
-                        variant="descriptive"
+                        variant="descriptive" layout="content"
                         label="Secciones del producto"/>
 
                     <form @submit.prevent="saveEntity">
@@ -499,7 +499,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import AddBrand from "@System/Components/Catalogs/AddBrand.vue";
 import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import ProductWarehouseInventory from "./ProductWarehouseInventory.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
@@ -535,7 +535,7 @@ export default {
         CommissionValueInput,
         AddBrand,
         AddCategory,
-        CatalogFormTabs,
+        AppTabs,
         ProductWarehouseInventory,
         FormModal,
         SelectNoOptions,

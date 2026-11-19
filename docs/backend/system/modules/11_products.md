@@ -174,7 +174,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Código interno y código de barras se muestran como identificadores distintos; el formato EAN-13 se explica únicamente como ayuda técnica en tooltips y documentación.
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
 - La descripción, si existe, aparece debajo del nombre del producto.
-- El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; Producto activa la variante descriptiva de `CatalogFormTabs`, mientras Servicios y Membresías conservan por ahora la variante compacta.
+- El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; El editor usa la variante descriptiva de `AppTabs`, compartida con Servicios y Membresías.
 - Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
 - Los placeholders heredan el tamaño y el peso del campo en inputs, `vue-select` y Select2.
 - El estado sin registros del listado usa la ilustración compartida `public/System/assets/img/utils/without_data/empty_records.png` mediante `WithoutData`.
@@ -189,7 +189,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Las altas rápidas no vuelven a solicitar todo `initParams`: actualizan de forma reactiva `options.brands.records` u `options.categories.records`; el backend ya invalida `ProductConfigService` para futuras cargas.
 - El selector de Marca permite limpiar la relación y muestra únicamente marcas activas.
 - Los selectores reutilizan una `X` tipográfica compacta y centrada ópticamente con la flecha para limpiar valores, evitando deformaciones del SVG y manteniendo un área clicable cómoda.
-- Las cinco pestañas comparten el ancho del modal. El icono acompaña al título y la descripción ocupa la línea completa, permitiendo mayor separación entre pestañas. Cada una tiene un contorno tenue; la activa usa borde e icono primary sin fondo circular y una sombra breve. En anchos reducidos, el grupo se desplaza horizontalmente sin comprimir ni truncar títulos.
+- Las cinco pestañas se ajustan al contenido. El icono acompaña al título y la descripción. La pestaña activa cambia de color y conserva su posición. Si el ancho es insuficiente, la barra admite desplazamiento horizontal.
 - El modal permanece centrado y utiliza el desplazamiento natural de Bootstrap. La navegación `nav-pills` permanece en el flujo del formulario. Al cambiar de pestaña, el panel aparece con una transición breve que respeta la preferencia de movimiento reducido.
 - En la pestaña Inventario, justo encima de la tabla de almacenes, la etiqueta `Producto:` y el nombre en la línea siguiente usan los estilos compartidos de `br-field-summary`, igual que `Almacén de trabajo` en Alertas de stock. El resumen muestra el nombre ingresado en el formulario o `Sin nombre` si el campo está vacío.
 - Al existir errores, se marca la pestaña afectada y se abre automáticamente la primera que requiere corrección.
@@ -274,16 +274,12 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Todos los `vue-select` de System usan un indicador compacto con superficie neutral; al desplegar rota y adopta el azul de marca.
 - Las acciones de la barra se alinean al inicio para evitar espacios muertos después del campo de búsqueda.
 - La tabla usa `table-layout: fixed` y un `colgroup` con proporciones estables; Precio gana espacio y Producto se compacta para separar mejor los importes de Identificación.
-- Identificación muestra el código interno, el código de barras y la marca en filas etiquetadas.
+- Identificación muestra el código interno y, cuando existe, el código de barras en filas etiquetadas.
 - Identificación usa siempre las etiquetas compactas `Cód. interno` y `Cód. barras`, evitando abreviaciones variables o elipsis confusas.
-- Los valores de identificación usan el estilo compartido de texto plano. El código interno y el código de barras incluyen su botón de copia.
-- Las etiquetas abreviadas de identificación no muestran tooltip; los botones Copiar conservan el suyo.
+- Los valores de identificación usan el estilo compartido de texto seleccionable. Consulta el [patrón de Catálogo comercial](../../../frontend/patrones/CATALOGO_COMERCIAL.md).
 - El loading de persistencia informa la acción actual: `Agregando producto` o `Editando producto`.
-- Código interno y código de barras usan el componente reutilizable `CopyButton`; por defecto muestra `Copiar` y `Copiado`, y puede activar `useLabelInTooltip` para mostrar textos contextuales como `Copiar código interno` y `Código interno copiado`.
 - El menú reutilizable de cada fila agrupa `Editar` y `Descargar cód. barras`. La segunda opción utiliza `BarcodeDownloadButton` para generar un PNG individual; la impresión de etiquetas por lote fue retirada.
-- Las filas de identificación conservan `CopyButton` junto a cada código, sin duplicar la descarga de barras fuera del menú de acciones.
 - En pantallas pequeñas, los identificadores conservan su contenido completo y nunca usan puntos suspensivos. La tabla prioriza exactitud mediante desplazamiento horizontal antes que recortar un código interno o código de barras.
-- El valor y la acción Copiar ocupan columnas independientes con ancho reservado y no pueden superponerse sobre los identificadores.
 - `StatusBadge` añade automáticamente una clase normalizada desde la BD, como `br-status-active` o `br-status-inactive`, además de la variante semántica existente.
 - Las etiquetas de estado son compactas y se perciben como información, no como botones.
 - La tabla de Productos se adapta al ancho disponible en escritorio; el ancho mínimo y scroll horizontal se reservan para resoluciones de hasta `991.98px`.
@@ -295,7 +291,6 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El almacén es el dato principal de cada fila y la sucursal queda como contexto. Solo se muestra el estado cuando el stock requiere atención o falta registrarlo; los estados saludables no añaden una etiqueta repetida.
 - Las filas usan separadores neutros y una marca warning mínima en lugar de pintar los controles o toda la superficie. El encabezado deja de reutilizar la banda azul del listado para no competir con los datos.
 - La modal de consulta identifica el producto con nombre, código interno, código de barras y marca cuando están disponibles; el total y la cantidad de almacenes con alerta quedan separados del detalle.
-- `CopyButton` conserva esa variante compacta al alternar entre `Copiar` y `Copiado`, porque recrea su instancia mediante la configuración centralizada de `Alerts.createTooltip`.
 - Los switches `Publicar producto` y `Mostrar precio` usan verde success al seleccionarse, foco verde suave y estado neutral al desmarcarse o deshabilitarse, sin heredar el morado del tema base.
 - En edición, el stock actual conserva su comportamiento de solo lectura y se presenta como cifra sin recuadro, formateada con `separatorNumber`; no se renderiza como un control deshabilitado porque la cantidad se modifica desde Inventario, no desde Productos. En creación se conserva `InputNumber` para registrar el stock inicial.
 

@@ -17,7 +17,7 @@ test("servicios en curso conserva sus acciones y distingue su interfaz de restau
     assert.match(source, /<TableActionsDropdown/);
     assert.match(source, /<StatusBadge :status="session.status"/);
     assert.match(source, /<CopyButton v-if="session\.reference" :value="session\.reference"/);
-    assert.match(source, /<CatalogFormTabs[\s\S]*variant="descriptive"/);
+    assert.match(source, /<AppTabs[\s\S]*variant="descriptive"/);
     assert.doesNotMatch(source, /br-service-intro/);
     assert.match(source, /<FormModal[\s\S]*modal-id="brServiceSessionModal"/);
     assert.doesNotMatch(source, /config\.forms/);

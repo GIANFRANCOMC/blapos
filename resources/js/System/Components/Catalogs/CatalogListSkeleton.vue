@@ -1,28 +1,36 @@
 <template>
-    <main class="br-entity br-catalog-skeleton" role="status" aria-live="polite" :aria-label="`Cargando ${label}`">
+    <main class="br-entity br-catalog-skeleton br-skeleton" role="status" aria-live="polite" :aria-label="`Cargando ${label}`">
         <span class="visually-hidden">Cargando {{ label }}</span>
 
-        <section class="br-filter-bar br-catalog-skeleton__filters" aria-hidden="true">
+        <section class="br-filter-bar br-catalog-skeleton__filters" :class="{'br-filter-bar--compact': !isDirectory}" aria-hidden="true">
             <div class="br-catalog-skeleton__filter">
-                <span class="br-catalog-skeleton__line br-catalog-skeleton__label"></span>
-                <span class="br-catalog-skeleton__control"><span class="br-catalog-skeleton__line br-catalog-skeleton__select-value"></span></span>
+                <span class="br-skeleton-line br-catalog-skeleton__label"></span>
+                <span class="br-skeleton-control"><span class="br-skeleton-line br-catalog-skeleton__select-value"></span></span>
             </div>
             <div class="br-catalog-skeleton__filter">
-                <span class="br-catalog-skeleton__line br-catalog-skeleton__label"></span>
-                <span class="br-catalog-skeleton__control"><span class="br-catalog-skeleton__line br-catalog-skeleton__search-value"></span></span>
+                <span class="br-skeleton-line br-catalog-skeleton__label"></span>
+                <span class="br-skeleton-control"><span class="br-skeleton-line br-catalog-skeleton__search-value"></span></span>
             </div>
-            <div class="br-catalog-skeleton__filter br-catalog-skeleton__filter--actions">
+            <div class="br-catalog-skeleton__filter">
                 <div class="br-filter-bar__actions">
-                    <span class="br-catalog-skeleton__line br-catalog-skeleton__button"></span>
-                    <span class="br-catalog-skeleton__line br-catalog-skeleton__button br-catalog-skeleton__button--add"></span>
-                    <span class="br-catalog-skeleton__line br-catalog-skeleton__button br-catalog-skeleton__button--more"></span>
+                    <span class="br-skeleton-line br-catalog-skeleton__button" :class="{'br-catalog-skeleton__button--icon': !isDirectory}"></span>
+                    <span v-if="!isDirectory" class="br-skeleton-line br-catalog-skeleton__button br-catalog-skeleton__button--icon"></span>
+                    <span class="br-skeleton-line br-catalog-skeleton__button br-catalog-skeleton__button--add"></span>
+                    <span v-if="kind !== 'recipes'" class="br-skeleton-line br-catalog-skeleton__button" :class="isDirectory ? 'br-catalog-skeleton__button--more' : 'br-catalog-skeleton__button--icon'"></span>
                 </div>
             </div>
         </section>
 
         <section class="br-entity-list" aria-hidden="true">
             <div class="table-responsive">
-                <table :class="['table', 'br-entity-table', 'mb-0', {'br-entity-table--offering': isOffering, 'br-entity-table--directory': isDirectory, 'br-entity-table--catalog-usage': isCatalogUsage, 'br-entity-table--commercial-headings': isOffering || isCatalogUsage}]">
+                <table class="table br-entity-table mb-0" :class="{
+                    'br-entity-table--catalog-products': kind === 'products',
+                    'br-entity-table--offering': isOffering,
+                    'br-entity-table--directory': isDirectory,
+                    'br-entity-table--catalog-usage': isCatalogUsage,
+                    'br-entity-table--catalog-recipes': kind === 'recipes',
+                    'br-entity-table--commercial-headings': !isDirectory
+                }">
                     <colgroup>
                         <col v-for="column in columns" :key="column.title" :class="column.className" :style="{width: column.width}">
                     </colgroup>
@@ -57,28 +65,43 @@ const offeringColumns = title => [
     {...COMMON_INTERNAL_CODE, className: "br-entity-table__col-code"},
     {title, className: "br-entity-table__col-offering"},
     {title: "Detalle", className: "br-entity-table__col-detail"},
-    {title: "Precio", className: "br-entity-table__col-offering-price", align: "text-center"},
+    {title: "Precio", className: "br-entity-table__col-price", align: "text-center"},
     {...COMMON_STATUS, className: "br-entity-table__col-status"},
     {...COMMON_ACTIONS, className: "br-entity-table__col-actions"}
 ];
 
 const COLUMNS = {
+    products: [
+        {...COMMON_IDENTITY, className: "br-entity-table__col-identification"},
+        {title: "Producto", className: "br-entity-table__col-product"},
+        {title: "Precio", className: "br-entity-table__col-price", align: "text-center"},
+        {...COMMON_STATUS, className: "br-entity-table__col-status"},
+        {...COMMON_ACTIONS, className: "br-entity-table__col-actions"}
+    ],
     services: offeringColumns("Servicio"),
     subscriptions: offeringColumns("Membresía"),
     categories: [
         {...COMMON_INTERNAL_CODE, width: "20%"},
-        {title: "Categoría", width: "34%"},
-        {title: "En uso", width: "26%", align: "text-center"},
+        {title: "Categoría", width: "40%"},
+        {title: "En uso", width: "20%", align: "text-center"},
         {...COMMON_STATUS, width: "13%"},
         {...COMMON_ACTIONS, width: "7%"}
     ],
     brands: [
         {...COMMON_INTERNAL_CODE, width: "20%"},
-        {title: "Marca", width: "22%"},
+        {title: "Marca", width: "28%"},
         {title: "Sitio oficial", width: "14%", align: "text-center"},
-        {title: "En uso", width: "25%", align: "text-center"},
+        {title: "En uso", width: "19%", align: "text-center"},
         {...COMMON_STATUS, width: "11%"},
         {...COMMON_ACTIONS, width: "8%"}
+    ],
+    recipes: [
+        {...COMMON_INTERNAL_CODE, width: "18%"},
+        {title: "Platillo", width: "32%"},
+        {title: "Fórmula", width: "18%"},
+        {title: "Operación", width: "16%"},
+        {...COMMON_STATUS, width: "10%"},
+        {...COMMON_ACTIONS, width: "6%"}
     ],
     branches: [
         {...COMMON_IDENTITY, width: "20%"},

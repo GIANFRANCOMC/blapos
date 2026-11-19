@@ -11,7 +11,7 @@ test("sucursales reutiliza la modal y separa alta y edición en tres pestañas",
 
     assert.equal(parsed.errors.length, 0);
     assert.match(source, /<FormModal[\s\S]*?:title="isUpdate \? 'EDITAR SUCURSAL' : 'AGREGAR SUCURSAL'"/);
-    assert.match(source, /<CatalogFormTabs[\s\S]*?v-model="activeFormTab"[\s\S]*?variant="descriptive"/);
+    assert.match(source, /<AppTabs[\s\S]*?v-model="activeFormTab"[\s\S]*?variant="descriptive"/);
 
     for(const [id, fields] of [
         ["general", ["internal_code", "name", "capacity", "status"]],

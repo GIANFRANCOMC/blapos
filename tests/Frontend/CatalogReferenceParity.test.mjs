@@ -77,7 +77,8 @@ test("categorías y marcas presentan el uso por tipo y el skeleton mantiene sus 
 
     const breakdown = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogUsageBreakdown.vue", import.meta.url), "utf8");
     assert.match(breakdown, /this\.enabledTypes\.includes\(type\)/);
-    assert.match(breakdown, /entry\.count \/ total \* 100/);
+    assert.match(breakdown, /<details v-if="total"/);
+    assert.match(breakdown, /Sin uso/);
     assert.match(breakdown, /active_products_count/);
     assert.match(breakdown, /active_services_count/);
     assert.match(breakdown, /active_subscriptions_count/);
@@ -89,7 +90,7 @@ test("categorías y marcas presentan el uso por tipo y el skeleton mantiene sus 
 
 });
 
-test("el desglose conserva los ceros y calcula la distribución solo con módulos visibles", () => {
+test("el desglose conserva los ceros y suma solo los módulos visibles", () => {
 
     const source = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogUsageBreakdown.vue", import.meta.url), "utf8");
     const descriptor = parse(source).descriptor;
@@ -104,7 +105,6 @@ test("el desglose conserva los ceros y calcula la distribución solo con módulo
 
     assert.deepEqual(context.entries.map(({type, count}) => [type, count]), [["product", 3], ["subscription", 1]]);
     assert.equal(context.total, 4);
-    assert.equal(component.computed.summary.call(context), "Productos: 3, Membresías: 1");
 
     context.record = {active_products_count: 0, active_subscriptions_count: 0};
     context.entries = component.computed.entries.call(context);

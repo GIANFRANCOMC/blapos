@@ -1,12 +1,7 @@
 <template>
-    <span class="br-copy-value">
-        <span v-text="value || '—'"></span>
-        <CopyButton v-if="value" :value="value" label="Código interno"/>
-    </span>
+    <span class="br-entity-identifier__value" v-text="value || '—'"></span>
 </template>
 
 <script setup>
-import CopyButton from "@System/Components/CopyButton.vue";
-
 defineProps({value: {type: String, default: ""}});
 </script>

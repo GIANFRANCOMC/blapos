@@ -61,6 +61,7 @@
                         class="br-btn-sm"
                         @click="$emit('search')"
                         :disabled="loading"/>
+                    <ClearFiltersButton v-if="showClearButton" :disabled="loading" @clear="clearFilters"/>
                     <button
                         v-if="showAddButton"
                         type="button"
@@ -130,6 +131,8 @@
 <script>
 import SearchButton from "@/Shared/SearchButton.vue";
 import ActionsDropdown from "./ActionsDropdown.vue";
+import ClearFiltersButton from "./ClearFiltersButton.vue";
+import {showFiltersCleared} from "@System/Helpers/Alerts.js";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
@@ -137,6 +140,7 @@ export default {
     name: "FiltersSection",
     components: {
         ActionsDropdown,
+        ClearFiltersButton,
         SearchButton,
         SelectNoOptions,
         SearchInput
@@ -187,6 +191,7 @@ export default {
             required: false,
             default: true
         },
+        showClearButton: Boolean,
         addButtonText: {
             type: String,
             required: false,
@@ -277,6 +282,11 @@ export default {
         }
     },
     methods: {
+        clearFilters() {
+            this.$emit("update:filterByValue", this.filterByOptions[0] ?? null);
+            this.$emit("update:filterWordValue", "");
+            showFiltersCleared();
+        },
         getOptionLabel(option) {
 
             return option?.label ?? option?.name ?? option?.value ?? "";
@@ -285,6 +295,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-</style>

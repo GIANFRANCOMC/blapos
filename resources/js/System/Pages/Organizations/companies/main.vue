@@ -6,7 +6,7 @@
 
         <main v-else class="br-company-settings br-entity-modal--tabbed">
             <section class="br-company-settings__panel" aria-label="Datos de la empresa">
-                <CatalogFormTabs
+                <AppTabs
                     v-model="activeTabId"
                     :tabs="tabItems"
                     label="Secciones de Mi empresa"

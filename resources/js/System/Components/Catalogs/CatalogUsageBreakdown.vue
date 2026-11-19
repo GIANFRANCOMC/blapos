@@ -1,24 +1,17 @@
 <template>
-    <div v-if="entries.length" class="br-catalog-usage" role="group" :aria-label="summary">
-        <div class="br-catalog-usage__rows">
-            <div v-for="entry in entries" :key="entry.type" class="br-catalog-usage__row">
-                <span class="br-catalog-usage__label">
-                    <span class="br-catalog-usage__dot" :class="`br-catalog-usage__dot--${entry.type}`" aria-hidden="true"></span>
-                    {{ entry.label }}
-                </span>
-                <span class="br-catalog-usage__count">{{ entry.count }}</span>
+    <details v-if="total" class="br-catalog-disclosure">
+        <summary class="br-link br-catalog-disclosure__summary">
+            {{ total }} {{ total === 1 ? "registro activo" : "registros activos" }}
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+        </summary>
+        <dl class="br-catalog-disclosure__values">
+            <div v-for="entry in entries" :key="entry.type" class="br-catalog-disclosure__row">
+                <dt class="colon-at-end">{{ entry.label }}</dt>
+                <dd>{{ entry.count }}</dd>
             </div>
-        </div>
-        <div class="br-catalog-usage__track" aria-hidden="true">
-            <span
-                v-for="entry in entries"
-                :key="entry.type"
-                class="br-catalog-usage__segment"
-                :class="`br-catalog-usage__segment--${entry.type}`"
-                :style="{width: `${total ? entry.count / total * 100 : 0}%`}"></span>
-        </div>
-    </div>
-    <span v-else class="br-entity-table__meta">Sin módulos disponibles</span>
+        </dl>
+    </details>
+    <span v-else class="br-entity-table__meta mt-0 text-center">{{ entries.length ? "Sin uso" : "Sin módulos disponibles" }}</span>
 </template>
 
 <script>
@@ -42,9 +35,6 @@ export default {
         },
         total() {
             return this.entries.reduce((sum, entry) => sum + entry.count, 0);
-        },
-        summary() {
-            return this.entries.map(({label, count}) => `${label}: ${count}`).join(", ");
         }
     }
 };

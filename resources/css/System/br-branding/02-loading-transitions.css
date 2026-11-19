@@ -68,12 +68,8 @@
 
 /* Los paneles entran en el flujo en cuanto se activa su pestaña. */
 @media (prefers-reduced-motion: no-preference) {
-  :is([role="tabpanel"], .br-tab-panel):not(.br-tab-panel-restart) {
+  :is([role="tabpanel"], .br-tab-panel) {
     animation: brTabPanelIn var(--br-initial-load-duration) var(--br-initial-load-easing);
-  }
-
-  .br-catalog-form-tabs [role="tablist"] {
-    scroll-behavior: smooth;
   }
 }
 
@@ -83,13 +79,13 @@
 }
 
 :is(.br-entity-tabs .br-entity-tab, .br-entity-tab__step, .br-entity-tab__icon,
-    .br-entity-tab__content strong, .br-catalog-form-tabs__step-control) {
+    .br-entity-tab__content strong) {
   transition: var(--br-transition);
 }
 
 @media (prefers-reduced-motion: reduce) {
   :is(.br-entity-tabs .br-entity-tab, .br-entity-tab__step, .br-entity-tab__icon,
-      .br-entity-tab__content strong, .br-catalog-form-tabs__step-control) {
+      .br-entity-tab__content strong) {
     transition: none;
   }
 }

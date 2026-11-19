@@ -5,7 +5,7 @@
         <MasterDataSkeleton v-if="initialLoading"/>
 
         <section v-else class="br-master-data">
-            <CatalogFormTabs
+            <AppTabs
                 :model-value="selectedResourceCode"
                 :tabs="resourceTabs"
                 id-prefix="master-data"
@@ -193,7 +193,7 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import {normalizePrecision, precisionOptions} from "../../../../Shared/Numbers.js";
 import MasterDataSkeleton from "./MasterDataSkeleton.vue";
@@ -362,7 +362,7 @@ const RESOURCES = [
 ];
 
 export default {
-    components: {SearchButton, InitialLoadTransition, CatalogFormTabs, SearchInput, MasterDataSkeleton},
+    components: {SearchButton, InitialLoadTransition, AppTabs, SearchInput, MasterDataSkeleton},
     data() {
         return {
             resources: RESOURCES,

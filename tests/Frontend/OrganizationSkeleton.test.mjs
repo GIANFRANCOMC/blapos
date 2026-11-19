@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+
+const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
 import {parse} from "@vue/compiler-sfc";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
@@ -17,9 +19,9 @@ test("Mi empresa conserva pestañas, formulario y botón durante la carga inicia
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.initOthers\(\)/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando empresa"/);
     assert.match(skeleton, /v-for="index in 3"[\s\S]*?v-for="index in 6"[\s\S]*?br-company-settings__footer/);
-    assert.match(styles, /height: var\(--br-control-height\)/);
+    assert.match(readSharedSkeleton(), /height: var\(--br-control-height\)/);
     assert.match(styles, /height: var\(--br-btn-height\)/);
-    assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+    assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /Organizations\/companies\/skeleton\.css/);
 });
 

@@ -86,7 +86,7 @@ Esto limpia:
 ## Interfaz
 
 - Barra de filtros reutilizable con búsqueda por código, nombre, descripción o sitio oficial.
-- Tabla con código interno centrado y copiable, nombre, descripción, sitio oficial, estado y edición.
+- Tabla con código interno centrado, nombre, descripción, sitio oficial, estado y edición.
 - La columna Sitio oficial centra el encabezado y el contenido. El enlace `Visitar sitio` abre una pestaña nueva. Las marcas sin URL muestran `Sin sitio oficial` en texto atenuado.
 - Modal compartida `FormModal`, con botón Cerrar y acciones diferenciadas para agregar o editar.
 - Generación opcional de código interno con tooltip.

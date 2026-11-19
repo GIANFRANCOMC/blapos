@@ -6,6 +6,8 @@
 
         <main v-else class="br-entity">
             <FiltersSection
+                class="br-filter-bar--compact"
+                show-clear-button
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
                 :filter-word-value="filterWordValue"
@@ -40,13 +42,13 @@
                 @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de marcas">
-                <div class="table-responsive">
+                <div class="table-responsive" tabindex="0">
                     <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
                         <colgroup>
                             <col style="width: 20%;">
-                            <col style="width: 22%;">
+                            <col style="width: 28%;">
                             <col style="width: 14%;">
-                            <col style="width: 25%;">
+                            <col style="width: 19%;">
                             <col style="width: 11%;">
                             <col style="width: 8%;">
                         </colgroup>
@@ -103,7 +105,11 @@
                             </template>
                             <tr class="br-table-state" v-else>
                                 <td colspan="6" class="py-4">
-                                    <WithoutData class="br-entity-empty-state" type="image"/>
+                                    <WithoutData
+                                        class="br-entity-empty-state"
+                                        type="image"
+                                        :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
+                                        :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -126,6 +132,19 @@
                     <form @submit.prevent="saveEntity">
                         <section class="br-entity-form-section">
                             <div class="row g-3">
+                                <InputText
+                                    v-model="brandForm.data.name"
+                                    hasDiv
+                                    title="Nombre"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="brandForm.errors?.name"
+                                    xl="8"
+                                    lg="8"/>
+
                                 <InternalCodeInput
                                     v-model="brandForm.data.internal_code"
                                     v-bind="internalCodeInputProps(brandForm.data)"
@@ -150,19 +169,6 @@
                                         </button>
                                     </template>
                                 </InternalCodeInput>
-
-                                <InputText
-                                    v-model="brandForm.data.name"
-                                    hasDiv
-                                    title="Nombre"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    maxlength="100"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.name"
-                                    xl="8"
-                                    lg="8"/>
 
                                 <InputText
                                     v-model="brandForm.data.description"

@@ -20,7 +20,7 @@ import MyDashboardCompany from "@System/Components/Companies/MyDashboardCompany.
 import MyWebCompany  from "@System/Components/Companies/MyWebCompany.vue";
 
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
-import CatalogFormTabs from "@System/Components/Catalogs/CatalogFormTabs.vue";
+import AppTabs from "@/Shared/AppTabs.vue";
 import "../../../../../css/System/Pages/Organizations/companies/skeleton.css";
 
 // App creation and mounted
@@ -40,5 +40,5 @@ createApp(App)
 .component("MyDashboardCompany", MyDashboardCompany)
 .component("MyWebCompany", MyWebCompany)
 .component("StatusBadge", StatusBadge)
-.component("CatalogFormTabs", CatalogFormTabs)
+.component("AppTabs", AppTabs)
 .mount("#app");

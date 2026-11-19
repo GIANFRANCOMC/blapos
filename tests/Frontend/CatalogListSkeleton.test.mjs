@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+
+const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
 import {parse} from "@vue/compiler-sfc";
 
 const routes = [
@@ -38,11 +40,11 @@ test("el skeleton compartido conserva los encabezados y el loader de cada catál
     assert.match(component, /services: offeringColumns\("Servicio"\)/);
     assert.match(component, /subscriptions: offeringColumns\("Membresía"\)/);
     assert.match(component, /:class="column.className"/);
-    assert.match(component, /className: "br-entity-table__col-offering-price"/);
+    assert.match(component, /className: "br-entity-table__col-price"/);
     for(const route of ["categories", "brands"]) assert.match(component, new RegExp(`${route}: \\[`, "m"));
     assert.match(component, /:colspan="columns.length" class="py-4"><Loader\/>/);
     assert.doesNotMatch(component, /rowCount|skeleton__pagination/);
     assert.match(styles, /height: var\(--br-control-height\)/);
     assert.match(styles, /@media \(max-width: 991\.98px\)/);
-    assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+    assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
 });

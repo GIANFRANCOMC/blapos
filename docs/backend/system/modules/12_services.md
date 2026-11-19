@@ -18,7 +18,7 @@ Administra ítems `service`: se venden, no descuentan stock y pueden medirse den
 
 ## Interfaz
 
-- El listado muestra el Código interno centrado en la primera columna con un botón para copiarlo. La columna **Detalle** muestra una etiqueta por línea. La etiqueta de comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
+- El listado muestra el código interno centrado en la primera columna. La columna **Detalle** muestra una etiqueta por línea. La etiqueta de comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
 - La modal compartida conserva cabecera, cuerpo y pie del catálogo. Sus pestañas descriptivas son `SERVICIO`, `DETALLE`, `IMPUESTOS` y `CONFIGURACIÓN`; admiten teclado y desplazamiento en móvil. No aparece Inventario porque no aplica a servicios.
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.
 - El formulario permite definir duración estimada en minutos, tipo de comisión (`Sin comisión`, `Porcentaje` o `Monto fijo por unidad`) y valor.
