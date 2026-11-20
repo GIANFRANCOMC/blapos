@@ -3,12 +3,12 @@
         v-bind="$attrs"
         hasDiv
         :isRequired="commissionRequiresValue(commissionType)"
-        :disabled="commissionType === 'none'"
+        :disabled="disabled || commissionType === 'none'"
         :minValue="0"
         :maxValue="commissionType === 'percentage' ? 100 : null">
         <template #inputGroupPrepend>
-            <span class="input-group-text br-currency-prefix">
-                <span class="br-currency-prefix__symbol" v-text="commissionType === 'percentage' ? '%' : currencySign"></span>
+            <span :class="'fg-field__prefix'">
+                <span :class="'fg-field__prefix'" v-text="commissionType === 'none' ? '—' : commissionType === 'percentage' ? '%' : currencySign"></span>
             </span>
         </template>
     </InputNumber>
@@ -23,6 +23,7 @@ export default {
     components: {InputNumber},
     inheritAttrs: false,
     props: {
+        disabled: Boolean,
         commissionType: {type: String, default: ""},
         currencySign: {type: String, default: ""}
     },

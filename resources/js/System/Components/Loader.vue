@@ -1,11 +1,11 @@
 <template>
     <div
         v-if="type === 'default'"
-        class="br-loader"
+        class="fg-loader"
         role="status"
         aria-live="polite">
-        <i class="fa-solid fa-circle-notch br-loader__icon" aria-hidden="true"></i>
-        <span class="visually-hidden" v-text="label"></span>
+        <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+        <span class="fg-sr-only" v-text="label"></span>
     </div>
 </template>
 

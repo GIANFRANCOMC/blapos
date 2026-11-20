@@ -38,8 +38,9 @@ test("stock paints the full situation cell without an icon while entities keep t
     assert.match(inventoryCss, /br-inventory__situation--empty \{[\s\S]*?var\(--br-danger-soft\)[\s\S]*?br-inventory__situation--low \{[\s\S]*?var\(--br-warning-soft\)[\s\S]*?br-inventory__situation--healthy \{[\s\S]*?var\(--br-success-soft\)/);
     assert.match(badge, /<span :class="badgeClasses" v-text="displayStatus"><\/span>/);
     assert.doesNotMatch(badge, /badgeIcon|<i\b/);
-    assert.match(constants, /STATUS_LABEL_BASE: \["br-badge"\]/);
-    assert.match(css, /\.br-badge--success[\s\S]*?\.br-badge--danger[\s\S]*?\.br-badge--warning/);
+    assert.match(constants, /STATUS_LABEL_BASE: \["fg-badge"\]/);
+    const fgCss = read("resources/css/System/fg/components.css");
+    for(const tone of ["success","danger","warning"]) assert.ok(fgCss.includes(".fg-badge--"+tone));
 
 });
 
@@ -327,7 +328,7 @@ test("all inventory listings reuse the product loader, empty illustration and ta
     assert.equal((listing.match(/class="py-4"><Loader\/>/g) || []).length, 5);
     assert.equal(emptyStates.length, 5);
     assert.equal((listing.match(/image-src=/g) || []).length, 0);
-    assert.match(products, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\s+:text="entityList\.appliedFilters\?\.word\?\.trim\(\) \? 'No encontramos productos con esta búsqueda' : 'Aún no hay productos registrados'"/);
+    assert.match(products, /<FgEmptyState[^>]*No encontramos productos con esta búsqueda[^>]*Aún no hay productos registrados/);
     assert.match(withoutData, /default: "\/System\/assets\/img\/utils\/without_data\/empty_records\.png"/);
     assert.match(withoutData, /default: Constants\.generalConfig\.messages\.withoutResults/);
     assert.match(withoutData, /default: "Aún no hay información para mostrar\."/);

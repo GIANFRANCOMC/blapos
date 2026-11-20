@@ -14,7 +14,7 @@ test("las celdas bloqueadas de control de stock y traslados no conservan cursor 
     assert.equal(parse(numberInput).errors.length, 0);
     assert.match(productSelect, /:searchable="!disabled"/);
     assert.match(productSelect, /:disabled="disabled"/);
-    assert.equal((numberInput.match(/:disabled="disabled"/g) ?? []).length, 2);
+    assert.equal((numberInput.match(/:disabled="disabled"/g) ?? []).length, 1);
     assert.match(styles, /\.v-select\.vs--disabled \.vs__search,[\s\S]*?caret-color: transparent !important;/);
 
     for(const [page, condition] of [["stock", "!canConfigureMovement"], ["transfers", "savingTransfer"]]) {

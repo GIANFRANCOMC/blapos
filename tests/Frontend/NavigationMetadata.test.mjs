@@ -19,8 +19,8 @@ test("descripciones de mundos e iconos de grupos provienen del catálogo de nave
     assert.ok(groups.every(line => /"dom_icon" => "fa-(?:solid|regular) fa-[a-z-]+"/.test(line)));
     assert.match(service, /"dom_icon",\s*"description",/);
     assert.match(service, /subSections\.menuGroup:id,section_id,slug,name,dom_icon,order,status/);
-    assert.match(layout, /\{\{ \$section->description \}\}/);
-    assert.match(layout, /\{\{ \$menuGroup->dom_icon \}\}/);
+    assert.doesNotMatch(layout, /\{\{ \$section->description \}\}/);
+    assert.doesNotMatch(layout, /\{\{ \$menuGroup->dom_icon \}\}/);
     assert.doesNotMatch(layout, /\$section->slug === "sc_workspace"\) \$section->dom_icon/);
 
 });

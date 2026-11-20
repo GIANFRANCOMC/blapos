@@ -1,6 +1,6 @@
 <template>
     <ActionsButton v-bind="$attrs" dropdown>
-        <ul class="dropdown-menu dropdown-menu-end" :class="menuClass">
+        <ul class="dropdown-menu dropdown-menu-end" :class="['fg-menu__panel', menuClass]">
             <slot></slot>
         </ul>
     </ActionsButton>
@@ -14,7 +14,7 @@ export default {
     inheritAttrs: false,
     components: {ActionsButton},
     props: {
-        menuClass: {type: String, default: "br-btn-actions-menu"}
+        menuClass: {type: String, default: ""}
     }
 };
 </script>

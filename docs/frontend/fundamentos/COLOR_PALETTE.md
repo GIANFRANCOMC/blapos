@@ -1,5 +1,8 @@
 # Color y superficies
 
+> Estándar vigente de System: [FG global](../figma/IMPLEMENTACION_FG.md). Sus tokens, componentes y layout sustituyen la apariencia anterior. Las reglas funcionales de esta guía siguen vigentes. Guest y Platform conservan sus límites.
+
+
 El branding vigente se define en [00-tokens.css](../../../resources/css/System/br-branding/00-tokens.css). La propuesta inicial del encargo se usó como contraste conceptual. A continuación se documenta la identidad efectiva de Blapos.
 
 | Función | Tokens de referencia | Uso |

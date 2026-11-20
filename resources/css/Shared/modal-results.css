@@ -1,4 +1,4 @@
-.br-modal-result-hidden {
-    visibility: hidden !important;
-    pointer-events: none !important;
+.modal.fg-modal-result-hidden, .modal-backdrop.fg-modal-result-hidden {
+    visibility: hidden;
+    pointer-events: none;
 }

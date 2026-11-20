@@ -2,41 +2,24 @@
     <FormModal
         :modal-id="modalId"
         title="Inventario del producto"
-        modal-class="br-modal-standard"
+        :modal-class="'fg-modal--inventory'"
         modal-size="modal-lg"
         :show-submit="false">
         <template #body>
-            <div v-if="record" class="br-product-inventory-view">
-                <div class="br-product-inventory-view__summary">
-                    <div class="br-product-inventory-view__identity">
-                        <strong class="br-product-inventory-view__name" v-text="record.name"></strong>
-                        <div class="br-product-inventory-view__meta">
-                            <span v-if="record.internal_code"><span class="colon-at-end">Cód. interno</span> <strong v-text="record.internal_code"></strong></span>
-                            <span v-if="record.barcode"><span class="colon-at-end">Cód. barras</span> <strong v-text="record.barcode"></strong></span>
-                            <span v-if="record.brand?.name"><span class="colon-at-end">Marca</span> <strong v-text="record.brand.name"></strong></span>
-                        </div>
-                    </div>
-                    <div class="br-product-inventory-view__total">
-                        <span>Stock total</span>
-                        <strong><QuantityValue :value="summary.total" :unit="record?.measurement_unit"/></strong>
-                        <small v-if="summary.alerts" class="br-product-inventory-view__alert">
-                            {{ summary.alerts }} {{ summary.alerts === 1 ? "almacén requiere atención" : "almacenes requieren atención" }}
-                        </small>
-                    </div>
-                </div>
-
+                        <div v-if="record" class="fg-stack">
+                <div class="fg-product-summary"><strong class="fg-modal__title">{{ record.name }}</strong><span class="fg-help">{{ record.internal_code }} · Código de barras {{ record.barcode || '—' }}</span><span v-if="record.brand?.name" class="fg-help">Marca: {{ record.brand.name }}</span></div>
+                <div class="fg-stock-summary"><span class="fg-help">{{ inventoryRows.length }} almacenes<span v-if="summary.alerts"> · {{ summary.alerts }} requieren atención</span></span><span class="fg-stock-summary__total"><span class="fg-help">Stock total</span><strong><QuantityValue :value="summary.total" :unit="record.measurement_unit"/></strong></span></div>
                 <ProductWarehouseInventory v-if="inventoryRows.length" :rows="inventoryRows" :measurement-unit="record.measurement_unit"/>
-
-                <div v-else class="br-entity-inventory-empty">
-                    <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
-                    <span>Este producto aún no tiene inventario registrado en almacenes.</span>
-                </div>
+                <FgEmptyState v-else title="Sin existencias registradas" description="Este producto aún no tiene inventario registrado en almacenes."/>
+                <p class="fg-help">Los movimientos se registran desde Inventario.</p>
             </div>
+
         </template>
     </FormModal>
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
@@ -47,7 +30,7 @@ let inventoryModalInstance = 0;
 
 export default {
     name: "ProductInventoryModal",
-    components: {FormModal, ProductWarehouseInventory, QuantityValue},
+    components: {FgEmptyState,FormModal, ProductWarehouseInventory, QuantityValue},
     data() {
 
         return {

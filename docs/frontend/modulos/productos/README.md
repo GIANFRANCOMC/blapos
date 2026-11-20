@@ -1,18 +1,24 @@
-# Productos · Propuesta de experiencia e interfaz
+# Productos · Experiencia e implementación FG
 
-Estado: propuesta de Figma para revisión e implementación posterior. Actualizada el 19 de noviembre de 2026. Esta entrega modifica el diseño y su documentación; no implementa los cambios en Vue, CSS, API ni base de datos.
+Estado: diseño aprobado integrado en el frontend el 20 de noviembre de 2026. Tokens, componentes, navegación y navbar FG se aplican globalmente en System. Consulta la [guía de implementación, etapas y verificaciones](../../figma/IMPLEMENTACION_FG.md). API, permisos y reglas de negocio se conservan. Las notas siguientes registran el historial de Figma.
+
+Biblioteca Componentes 1.0.3 aceptada con autorización del usuario en todas las páginas de Productos: iconos de botones con el mismo color de su etiqueta. Verificados 344 pares de icono o loader y texto sin diferencias de color u opacidad. Consulta el [registro central de actualización](../../figma/REGISTRO_Y_CALIDAD.md).
+
+Biblioteca Componentes 1.0.4 publicada y aceptada con autorización del usuario en todas las páginas: Success, Warning y Danger comparten el texto oscuro #1a1a35; Danger conserva #fee6e7. Verificados 925 badges, incluidos siete Danger, sin diferencias.
+
+Biblioteca Componentes 1.0.5 publicada y aplicada con autorización del usuario: sin registros, sin coincidencias y error se componen con instancias vinculadas de Listado / Estado. El vacío usa una carpeta abierta genérica compartida con el ejemplo de Marcas. Se conservan los cuatro botones originales y sus conexiones; el botón Importar mantiene su ausencia previa de conexión de prototipo. La biblioteca incluye ejemplos de escritorio y de 320 px y documenta Title, Body, permisos y acciones.
 
 ## Ubicación y fuentes
 
 - Organización: **Blapos → Catálogo e inventario → Productos**. Conservar un archivo por submódulo dentro de su mundo.
 - [Archivo Productos en Figma](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=39-54).
-- [Componentes reutilizables Blapos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=131-32426).
+- [Biblioteca Componentes de Blapos](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=15-2) · [Guía central](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=19-2).
 - [Listado y prototipo](https://www.figma.com/proto/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=39-54).
 - [Reglas operativas de Productos](../../../backend/system/modules/11_products.md).
 - [Patrón vigente de catálogo](../../patrones/CATALOGO_COMERCIAL.md), [navegación](../../patrones/TENANT_NAVIGATION.md), [interacciones](../../patrones/INTERACTION_PATTERNS.md) y [calidad](../../calidad/DESIGN_CHECKLIST.md).
 - [Mensajes y SweetAlert de la propuesta](ESTADOS_Y_MENSAJES.md).
 
-La documentación transversal conserva el comportamiento vigente. Este directorio registra la propuesta autorizada para Productos. Adoptar sus patrones en otros módulos requiere comprobar los datos, permisos y operaciones de cada entidad.
+El sistema visual FG es global. La composición de los otros módulos se migrará conservando sus datos, permisos y operaciones.
 
 ## Objetivo y alcance
 
@@ -52,7 +58,7 @@ El menú Acciones ofrece **Importar productos** y **Exportar productos**. El men
 
 El icono junto al nombre consulta el inventario. Se usa el mismo símbolo de caja en todas las filas: neutro para consulta normal y ámbar sobre amarillo suave cuando existe una alerta. Su tooltip y nombre accesible deben indicar “Consultar inventario” o “Consultar inventario: requiere atención”, para no depender únicamente del color. No elimina, traslada ni ajusta existencias.
 
-El orden ahora es un selector: **Nombre A–Z · Ascendente** y **Nombre Z–A · Descendente**. El control cerrado resume Nombre A–Z o Nombre Z–A. Se diferencia del encabezado Productos registrados y conserva los filtros aplicados. En móvil se reutiliza el componente con área táctil de 44 px.
+En Figma se diseñaron A–Z y Z–A. Por decisión del usuario, la implementación conserva **Nombre A–Z** como texto hasta que la API admita Z–A. No se ordenan solo los registros de la página actual.
 
 ### Orden por nombre: propuesta para implementar
 
@@ -212,7 +218,7 @@ Todos comparten altura de 26 px, padding horizontal de 10 px, radio de 6 px y ti
 
 Se reutilizaron los componentes de Activo e Inactivo dentro de la familia para conservar sus referencias. La fila de producto expone el badge anidado; los nuevos consumidores deben configurar Tone y Label explícitamente. No crear otro componente por cada palabra de estado. En Vue, adaptar StatusBadge y su mapa de presentación cuando se implemente: el color de Inactivo cambia, pero su regla operativa no cambia.
 
-También quedan **Blapos / Ordenar listado**, **Blapos / Indicador obligatorio** y **Blapos / Navegación / Mundo**, con tokens semánticos de badge, tooltip, salida y obligatoriedad. El muestrario de Componentes reutilizables está en la página 90 del mismo archivo. Los componentes son locales al archivo Productos; aún no se han publicado como biblioteca compartida de Figma.
+La biblioteca publicada **Blapos → Componentes** es la fuente común de maestros, estilos y tokens. Productos consume sus instancias y conserva sus composiciones específicas en la página 91. Se retiraron los seis estilos tipográficos, dos elevaciones y nueve colecciones locales reemplazadas; aquí solo quedan las cinco anchuras de columna de Productos. La página 04 enlaza la guía, catálogo, diccionario, mensajes y registro centrales. Los títulos, cabeceras, resultados y paginación también reutilizan componentes de la biblioteca. Todo componente compartido nuevo debe registrarse, documentarse y publicarse en Componentes antes de usarse en un submódulo.
 
 Los iconos de botones heredan el color del label mediante currentColor: blancos en primarios, color de acción en enlaces y tono de texto en secundarios. Comprobar también hover, foco y deshabilitado. En Figma se utilizaron símbolos con el color explícito correspondiente para que un intercambio de icono no recuperara el gris de origen.
 
@@ -245,3 +251,23 @@ Pendiente de la implementación: teclado real, lector de pantalla, foco atrapado
 
 Aplicar áreas táctiles de al menos 44 px, incluyendo Agregar y Generar; mantener el indicador de carga con texto accesible y respetar movimiento reducido. No se ejecutó build de la aplicación porque esta entrega no cambia su código.
 
+
+
+## Publicación 1.0.9 · aplicada en Productos
+
+El 20 de noviembre de 2026 el usuario autorizó: «Acepta todos los cambios y realizar las confirmaciones correspondientes de ser neceario». Se publicó Componentes y se aceptaron las actualizaciones en Productos con «Mostrar actualizaciones para todas las páginas» y «Actualizar todo». Figma confirmó «No hay actualizaciones disponibles». La autorización incluye los contadores 1.0.7 y las etiquetas 1.0.8 que antes estaban pendientes.
+
+Recursos publicados: Navegación / Riel de mundos, Archivo / Seleccionar, Formulario / Comisión, Campo con Prefix, las colecciones Primitivos y Color con el amarillo de archivo, y el ajuste pendiente de Listado / Estado. Se conservan los maestros y vínculos remotos.
+
+- Navegación: riel remoto dentro de la composición contextual de Productos; siete mundos centrados, salida abajo y ocho interacciones conservadas. Las vistas explícitas de tooltips se adaptaron al nuevo riel.
+- Archivo: doce botones vinculados; solo su carpeta usa amarillo #b58a00. Se conservaron sus IDs, tamaños y reacciones.
+- Comisión: cuatro formularios de agregar/editar y tres ejemplos adicionales vinculados. Las tres opciones muestran —, % o S/. El menú participa en auto-layout y reserva espacio; en móvil desplaza el valor hacia abajo. La instancia y su contenedor usan altura adaptable.
+- Contadores: 134 campos configurados con límites contractuales; se ocultan en búsqueda sin límite definido, fechas, stock, selección e importes. Producto: nombre/descripción 100, código interno completo 50, EAN-13 13; categoría 50/100 y marca 100/250.
+- Etiquetas: fondo azul suave y texto/símbolo oscuros, vinculados a la biblioteca.
+
+Verificación: doce combinaciones de tipo y formulario sin solapamientos; menú contenido en el grupo, anchos 732/350 y alturas abiertas 197/288. Treinta conexiones de comisión válidas en la biblioteca. Revisión visual de biblioteca, listado, importación y configuración. El prototipo representa datos de ejemplo; teclado, API, guardado real, foco y cálculos deben comprobarse al implementar.
+
+[Componentes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=82-159) · [Productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=39-54). Productos es el consumidor identificado; no se afirma haber actualizado archivos desconocidos. No se modificó código de aplicación.
+
+
+Actualización Figma 1.0.10 (2026-11-20): riel vinculado con indicador azul izquierdo en el mundo activo y tooltips con punta anclada al icono. Salida conserva rojo. Publicación conjunta aplicada con autorización del usuario; revisados únicamente los estados y eventos del menú.

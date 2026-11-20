@@ -1,5 +1,8 @@
 # Navegación tenant
 
+> Estándar vigente de System: [FG global](../figma/IMPLEMENTACION_FG.md). Sus tokens, componentes y layout sustituyen la apariencia anterior. Las reglas funcionales de esta guía siguen vigentes. Guest y Platform conservan sus límites.
+
+
 ## Modelo visual
 
 La navegación de cada tenant utiliza dos niveles permanentes en escritorio:

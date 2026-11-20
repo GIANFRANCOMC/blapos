@@ -1,55 +1,25 @@
 <template>
-    <template v-if="hasDiv">
-        <div :class="[...divClass, divSizeClass]">
-            <slot name="default"></slot>
-            <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
-            <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-            <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
-                <slot name="inputGroupPrepend"></slot>
-                <select
-                    :value="modelValue"
-                    @input="updateValue($event.target.value)"
-                    :class="[...inputClass]"
-                    :disabled="disabled"
-                    @change="handleChange">
-                    <option v-if="hasDefaultOption" :value="defaultOptionValue" v-text="defaultOptionLabel"></option>
-                    <option v-for="(option, index) in options" :value="option.code" v-text="option.label" :key="index"></option>
-                </select>
-                <slot name="inputGroupAppend"></slot>
-            </div>
-            <div v-if="hasTextBottom">
-                <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
-            </div>
-        </div>
-    </template>
-    <template v-else>
-        <slot name="default"></slot>
-        <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
-        <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-        <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
-            <slot name="inputGroupPrepend"></slot>
-            <select
-                :value="modelValue"
-                @input="updateValue($event.target.value)"
-                :class="[...inputClass]"
-                :disabled="disabled"
-                @change="handleChange">
-                <option v-if="hasDefaultOption" :value="defaultOptionValue" v-text="defaultOptionLabel"></option>
-                <option v-for="(option, index) in options" :value="option.code" v-text="option.label" :key="index"></option>
+    <FgField :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null">
+        <template #action><slot name="default"/></template>
+        <div class="fg-field__control">
+            <slot name="inputGroupPrepend"/>
+            <select :id="controlId" class="fg-input" :value="modelValue" :disabled="disabled" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined" :aria-describedby="hasError ? controlId + '-error' : undefined" @input="updateValue($event.target.value)" @change="handleChange">
+                <option v-if="hasDefaultOption" :value="defaultOptionValue">{{ defaultOptionLabel }}</option>
+                <option v-for="(option,index) in options" :key="index" :value="option.code">{{ option.label }}</option>
             </select>
-            <slot name="inputGroupAppend"></slot>
+            <slot name="inputGroupAppend"/>
         </div>
-        <div v-if="hasTextBottom">
-            <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
-        </div>
-    </template>
+    </FgField>
 </template>
-
 <script>
+import FgField from "./Figma/FgField.vue";
+import {useId} from "vue";
 import { generalConfig } from "../Helpers/Constants.js";
 
 export default {
     name: "InputSelect",
+    components: {FgField},
+    setup() {return {controlId: useId()};},
     emits: ["changeEvent", "update:modelValue"],
     props: {
         modelValue: {
@@ -97,7 +67,7 @@ export default {
         titleClass: {
             type: Array,
             required: false,
-            default: ["form-label", "colon-at-end"]
+            default: ["fg-field__label"]
         },
         // Input - Required
         isRequired: {
@@ -113,13 +83,13 @@ export default {
         requiredClass: {
             type: Array,
             required: false,
-            default: ["text-danger", "ms-1", "fw-bold"]
+            default: ["fg-required"]
         },
         // Input - Props
         inputClass:{
             type: Array,
             required: false,
-            default: ["form-select"]
+            default: ["fg-input"]
         },
         disabled: {
             type: Boolean,

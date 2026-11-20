@@ -1,87 +1,16 @@
 <template>
-    <div class="br-entity-inventory" :class="{'br-entity-inventory--editable': mode === 'edit'}">
-        <div class="br-entity-inventory__head">
-            <span>Sede</span>
-            <span>Almacén</span>
-            <span>{{ currentLabel }}</span>
-            <span>Stock mínimo</span>
-            <span>Estado del stock</span>
-            <span v-if="mode === 'edit'"><span class="visually-hidden">Quitar fila</span></span>
-        </div>
-
-        <div
-            v-for="item in displayRows"
-            :key="item.inventory.warehouse_id"
-            class="br-entity-inventory__row">
-            <div class="br-entity-inventory__branch">
-                <span class="br-entity-inventory__mobile-label">Sede</span>
-                <span v-text="item.inventory.branch_name"></span>
-            </div>
-            <div class="br-entity-inventory__warehouse">
-                <span class="br-entity-inventory__mobile-label">Almacén</span>
-                <span v-text="item.inventory.warehouse_name"></span>
-            </div>
-
-            <div class="br-entity-inventory__field">
-                <InputNumber
-                    v-if="mode === 'edit' && !isUpdate"
-                    :model-value="item.inventory.initial_stock"
-                    :title="currentLabel"
-                    :placeholder="currentLabel"
-                    :aria-label="`${currentLabel} · ${item.inventory.branch_name} · ${item.inventory.warehouse_name}`"
-                    :titleClass="['br-entity-inventory__mobile-label']"
-                    :minValue="0"
-                    hasTextBottom
-                    :textBottomInfo="fieldErrors(item.index, 'initial_stock')"
-                    @update:modelValue="updateRow(item.index, 'initial_stock', $event)"/>
-                <span
-                    v-else
-                    class="br-entity-readonly-metric"
-                    :aria-label="currentLabel"
-                    :title="mode === 'edit' && isUpdate ? 'El stock actual se modifica desde Inventario.' : null">
-                    <span class="br-entity-inventory__mobile-label" v-text="currentLabel"></span>
-                    <QuantityValue class="br-inventory__stock-current" :value="item.inventory.initial_stock" :unit="measurementUnit"/>
-                </span>
-            </div>
-
-            <div class="br-entity-inventory__field">
-                <InputNumber
-                    v-if="mode === 'edit'"
-                    :model-value="item.inventory.minimum_stock"
-                    title="Stock mínimo"
-                    placeholder="Stock mínimo"
-                    :aria-label="`Stock mínimo · ${item.inventory.branch_name} · ${item.inventory.warehouse_name}`"
-                    :titleClass="['br-entity-inventory__mobile-label']"
-                    :minValue="0"
-                    hasTextBottom
-                    :textBottomInfo="fieldErrors(item.index, 'minimum_stock')"
-                    @update:modelValue="updateRow(item.index, 'minimum_stock', $event)"/>
-                <span v-else class="br-entity-readonly-metric" aria-label="Stock mínimo">
-                    <span class="br-entity-inventory__mobile-label">Stock mínimo</span>
-                    <QuantityValue :value="item.inventory.minimum_stock" :unit="measurementUnit"/>
-                </span>
-            </div>
-
-            <div class="br-entity-inventory__status" :class="item.status && ['br-inventory__situation', `br-inventory__situation--${item.status.code}`]">
-                <span class="br-entity-inventory__mobile-label">Estado del stock</span>
-                <span v-if="item.status" v-text="item.status.text"></span>
-                <span v-else class="text-muted" aria-label="Estado del stock pendiente">—</span>
-            </div>
-            <div v-if="mode === 'edit'" class="br-entity-inventory__actions">
-                <button
-                    type="button"
-                    class="br-icon-danger-plain"
-                    :disabled="removeDisabled"
-                    :aria-label="`Quitar fila de ${item.inventory.warehouse_name}`"
-                    title="Quitar fila del formulario"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    @click="$emit('remove-row', item.index, $event)">
-                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
+    <div  class="fg-table-scroll">
+        <table class="fg-table fg-stock-table">
+            <thead><tr><th scope="col">Sucursal y almacén</th><th scope="col" class="fg-align-end">{{ currentLabel }}</th><th scope="col" class="fg-align-end">Stock mínimo</th><th scope="col">Estado</th></tr></thead>
+            <tbody><tr v-for="item in displayRows" :key="item.inventory.warehouse_id">
+                <td><div class="fg-stock-location"><strong>{{ item.inventory.branch_name }}</strong><small>{{ item.inventory.warehouse_name }}</small></div></td>
+                <td class="fg-align-end"><InputNumber v-if="mode === 'edit' && !isUpdate" :model-value="item.inventory.initial_stock" :title="currentLabel" :aria-label="currentLabel + ' · ' + item.inventory.branch_name + ' · ' + item.inventory.warehouse_name" :min-value="0" :disabled="disabled" has-text-bottom :text-bottom-info="fieldErrors(item.index, 'initial_stock')" @update:modelValue="updateRow(item.index, 'initial_stock', $event)"/><QuantityValue v-else :value="item.inventory.initial_stock" :unit="measurementUnit"/></td>
+                <td class="fg-align-end"><InputNumber v-if="mode === 'edit'" :model-value="item.inventory.minimum_stock" title="Stock mínimo" :aria-label="'Stock mínimo · ' + item.inventory.branch_name + ' · ' + item.inventory.warehouse_name" :min-value="0" :disabled="disabled" has-text-bottom :text-bottom-info="fieldErrors(item.index, 'minimum_stock')" @update:modelValue="updateRow(item.index, 'minimum_stock', $event)"/><QuantityValue v-else :value="item.inventory.minimum_stock" :unit="measurementUnit"/></td>
+                <td><span v-if="item.status" :class="['fg-badge', item.status.code === 'healthy' ? 'fg-badge--success' : item.status.code === 'low' ? 'fg-badge--warning' : 'fg-badge--danger']">{{ item.status.code === 'healthy' ? 'Disponible' : item.status.text }}</span><span v-else class="fg-help">—</span></td>
+            </tr></tbody>
+        </table>
     </div>
+
 </template>
 
 <script>
@@ -92,8 +21,9 @@ import {inventoryStockStatus} from "./productInventory.js";
 export default {
     name: "ProductWarehouseInventory",
     components: {InputNumber, QuantityValue},
-    emits: ["update:rows", "remove-row"],
+    emits: ["update:rows"],
     props: {
+        disabled: Boolean,
         rows: {type: Array, required: true},
         mode: {type: String, default: "view"},
         isUpdate: {type: Boolean, default: false},

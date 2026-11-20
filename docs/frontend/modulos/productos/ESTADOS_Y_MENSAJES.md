@@ -2,6 +2,8 @@
 
 Propuesta visual y de contenido vinculada a [la guía de Productos](README.md). Reutilizar Alerts y SweetAlert2 existentes. No introducir otra biblioteca ni otro loader.
 
+El patrón transversal y las plantillas reutilizables viven en [Componentes: mensajes](../../figma/MENSAJES.md). Este documento conserva los textos y condiciones específicos de Productos.
+
 ## Secuencia de una operación
 
 1. Validar los campos locales. Un error local se muestra junto al campo y recibe foco; no simular una petición.
@@ -131,3 +133,9 @@ Al implementar, ampliar el helper compartido para permitir el texto de cancelaci
 
 La carga de tabla y la carga global tienen funciones diferentes: buscar no debe abrir un Swal sobre toda la página. Los estados vacíos conservan el total correcto; durante consulta no mostrar el total anterior como resultado vigente.
 
+
+## Stock inicial sin cantidad
+
+Al agregar, vacío, null y cero se presentan como **Agotado**, con el badge rojo y texto oscuro compartido. El estado se actualiza mientras se edita la cantidad; no cambia la validación, el payload ni las existencias persistidas.
+
+El feedback se implementa mediante Helpers/Feedback.js y Alerts.js, con la escala y los iconos de [Componentes de Figma](../../figma/IMPLEMENTACION_FG.md). No volver a añadir estilos globales de la plantilla a SweetAlert2.

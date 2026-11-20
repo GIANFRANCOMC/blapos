@@ -14,16 +14,16 @@
         </template>
         <template #inputGroupPrepend>
             <slot name="inputGroupPrepend"></slot>
-            <span v-if="shouldShowCharCounter && charCounterPosition === 'left'" class="input-group-text character-counter br-character-counter" :class="[isNearLimit ? 'character-counter-warning' : 'character-counter-normal', 'character-counter-left']">
-                <span class="br-character-counter__content">
-                    <span class="counter-number" :class="{ 'counter-update': isUpdating }" :style="{ minWidth: `${maxlengthDigits}ch` }">{{ currentLength }}</span>/{{ maxlengthValue }}
+            <span v-if="shouldShowCharCounter && charCounterPosition === 'left'" :class="'fg-field__counter'">
+                <span :class="'fg-field__counter-content'">
+                    <span :class="'fg-field__counter-number'" :style="{ minWidth: `${maxlengthDigits}ch` }">{{ currentLength + counterOffset }}</span> / {{ maxlengthValue + counterOffset }}
                 </span>
             </span>
         </template>
         <template #inputGroupAppend>
-            <span v-if="shouldShowCharCounter && charCounterPosition === 'right'" class="input-group-text character-counter br-character-counter" :class="[isNearLimit ? 'character-counter-warning' : 'character-counter-normal', 'character-counter-right']">
-                <span class="br-character-counter__content">
-                    <span class="counter-number" :class="{ 'counter-update': isUpdating }" :style="{ minWidth: `${maxlengthDigits}ch` }">{{ currentLength }}</span>/{{ maxlengthValue }}
+            <span v-if="shouldShowCharCounter && charCounterPosition === 'right'" :class="'fg-field__counter'">
+                <span :class="'fg-field__counter-content'">
+                    <span :class="'fg-field__counter-number'" :style="{ minWidth: `${maxlengthDigits}ch` }">{{ currentLength + counterOffset }}</span> / {{ maxlengthValue + counterOffset }}
                 </span>
             </span>
             <slot name="inputGroupAppend"></slot>
@@ -40,6 +40,7 @@ export default {
     inheritAttrs: false,
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
+        counterOffset: {type: Number, default: 0},
         modelValue: {
             type: [String, Number],
             default: ""
@@ -50,7 +51,7 @@ export default {
         },
         showCharCounter: {
             type: Boolean,
-            default: false
+            default: true
         },
         charCounterPosition: {
             type: String,
@@ -58,28 +59,6 @@ export default {
             validator(value) {
                 return ["left", "right"].includes(value);
             }
-        }
-    },
-    data() {
-        return {
-            isUpdating: false
-        };
-    },
-    watch: {
-        currentLength(newValue, oldValue) {
-
-            if(newValue !== oldValue && this.shouldShowCharCounter) {
-
-                this.isUpdating = true;
-
-                setTimeout(() => {
-
-                    this.isUpdating = false;
-
-                }, 150);
-
-            }
-
         }
     },
     computed: {
@@ -108,13 +87,6 @@ export default {
         shouldShowCharCounter() {
 
             return this.showCharCounter && this.hasMaxlength;
-
-        },
-        isNearLimit() {
-
-            if(!this.hasMaxlength) return false;
-
-            return (this.currentLength / this.maxlengthValue) * 100 >= 90;
 
         },
         maxlengthDigits() {
@@ -163,86 +135,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.character-counter {
-    display: inline-flex;
-    align-self: stretch;
-    align-items: center;
-    justify-content: center;
-    min-width: 3.2rem;
-    padding: 0 0.32rem;
-    white-space: nowrap;
-    cursor: default;
-    user-select: none;
-    background-color: var(--br-surface-elevated, #ffffff);
-    transition: border-color 0.2s ease, color 0.2s ease;
-    margin: 0;
-    box-sizing: border-box;
-}
-.character-counter-left {
-    border-right: 1px solid #dee2e6;
-}
-.character-counter-right {
-    border-left: 1px solid #dee2e6;
-}
-
-.character-counter-normal {
-    border-color: var(--bs-border-color, var(--br-border, #dee2e6));
-    background-color: var(--br-surface-elevated, #ffffff);
-}
-
-.character-counter-warning {
-    border-color: color-mix(in srgb, var(--br-warning, #f59e0b) 32%, var(--br-border, #dee2e6));
-    background-color: var(--br-surface-elevated, #ffffff);
-    animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-.br-character-counter__content {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: 1;
-    letter-spacing: 0;
-}
-
-.character-counter-warning .br-character-counter__content {
-    color: var(--br-warning-hover, #d97706);
-    font-weight: var(--br-font-weight-emphasis);
-}
-
-.counter-number {
-    display: inline-block;
-    font-weight: inherit;
-    transition: opacity 0.15s ease;
-    text-align: right;
-}
-
-.counter-update {
-    animation: counter-highlight 0.15s ease;
-}
-
-@keyframes counter-highlight {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes pulse-subtle {
-    0%, 100% {
-        opacity: 0.95;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-</style>

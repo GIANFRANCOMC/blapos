@@ -1387,10 +1387,6 @@ body.br-layout .br-field-summary > .br-field-summary__value {
     flex-shrink: 0;
 }
 
-.swal2-modal.swal2-popup .swal2-title {
-    margin: 0px !important;
-}
-
 /* SYSTEM ENTITY VIEWS */
 .br-entity {
     color: var(--br-secondary);

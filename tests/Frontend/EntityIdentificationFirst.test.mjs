@@ -25,6 +25,11 @@ for(const page of pages) {
             : source;
 
         assert.equal(parse(source, {filename: path}).errors.length, 0);
+        if(page === "Catalogs/products") {
+            assert.match(list, /<thead><tr><th scope="col">Identificación<\/th>/);
+            assert.match(list, /<td><div class="fg-product-codes"><span>\{\{ record\.internal_code \}\}/);
+            return;
+        }
         if(page.startsWith("Catalogs/") && page !== "Catalogs/products") {
             assert.match(list, /<thead class="br-table-header-surface">\s*<tr>\s*<th class="text-center">Código interno<\/th>/);
             assert.match(list, /<tr v-for="record in entityList\.records\.data" :key="record\.id">\s*<td class="text-center">\s*<InternalCodeValue :value="record\.internal_code"\/>\s*<\/td>/);

@@ -19,63 +19,29 @@ test("el botón y la consulta comparten las alertas de stock", () => {
     assert.deepEqual(inventoryStockStatus({initial_stock: "10", minimum_stock: "2"}), {code: "healthy", text: "Stock saludable"});
     assert.deepEqual(inventoryStockStatus({initial_stock: 2, minimum_stock: 2}), {code: "low", text: "Stock bajo"});
     assert.deepEqual(inventoryStockStatus({initial_stock: 0, minimum_stock: 3}), {code: "empty", text: "Agotado"});
-    assert.equal(inventoryStockStatus({initial_stock: "", minimum_stock: 3}), null);
+    for(const initial_stock of ["", null, undefined, 0, "0", "0.00"]) {
+        assert.deepEqual(inventoryStockStatus({initial_stock, minimum_stock: 3}), {code: "empty", text: "Agotado"});
+    }
 
 });
 
 test("el acceso al inventario abre una modal de consulta para alertas y estados saludables", () => {
 
-    const page = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
-    const modal = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductInventoryModal.vue", import.meta.url), "utf8");
-    const formModal = readFileSync(new URL("../../resources/js/System/Components/Generics/FormModal.vue", import.meta.url), "utf8");
-    const editor = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
-    const inventory = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductWarehouseInventory.vue", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
-    const typography = readFileSync(new URL("../../resources/css/System/br-branding/01-typography.css", import.meta.url), "utf8");
-    const stockStyles = readFileSync(new URL("../../resources/css/System/br-branding/82-inventory.css", import.meta.url), "utf8");
-
-    assert.equal(parse(page, {filename: "products/main.vue"}).errors.length, 0);
-    assert.equal(parse(modal, {filename: "ProductInventoryModal.vue"}).errors.length, 0);
-    assert.equal(parse(inventory, {filename: "ProductWarehouseInventory.vue"}).errors.length, 0);
-    assert.match(page, /<ProductInventoryModal ref="productInventoryModal"\/>/);
-    assert.match(page, /<div class="br-entity-product-cell">\s*<button\b[\s\S]*?@click="openInventoryModal\(record\)"[\s\S]*?<\/button>\s*<div>\s*<span class="br-entity-table__name" v-text="record\.name"/);
-    assert.match(page, /fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'/);
-    assert.doesNotMatch(page, /<th[^>]*>Inventario<\/th>|<QuantityValue\b/);
-    assert.match(modal, /:show-submit="false"/);
-    assert.match(modal, /<FormModal\b/);
-    assert.match(formModal, /<slot name="footerClose">\s*<button[^>]*data-bs-dismiss="modal">\s*Cerrar\s*<\/button>/);
-    assert.match(modal, /record\?\.warehouse_items/);
-    assert.match(modal, /<ProductWarehouseInventory v-if="inventoryRows\.length" :rows="inventoryRows" :measurement-unit="record\.measurement_unit"\/>/);
-    assert.match(editor, /<ProductWarehouseInventory[\s\S]*?v-model:rows="productForm\.data\.inventory"[\s\S]*?mode="edit"/);
-    assert.match(modal, /record\.internal_code/);
-    assert.match(modal, /record\.barcode/);
-    assert.match(modal, /record\.brand\?\.name/);
-    assert.match(inventory, /Stock actual/);
-    assert.match(inventory, /Stock mínimo/);
-    assert.match(inventory, /class="br-entity-inventory__head">\s*<span>Sede<\/span>\s*<span>Almacén<\/span>/);
-    assert.match(inventory, /br-entity-inventory__branch[\s\S]*?<span v-text="item\.inventory\.branch_name"[\s\S]*?br-entity-inventory__warehouse[\s\S]*?<span v-text="item\.inventory\.warehouse_name"/);
-    assert.match(inventory, /:model-value="item\.inventory\.initial_stock"[\s\S]*?:placeholder="currentLabel"/);
-    assert.match(inventory, /:model-value="item\.inventory\.minimum_stock"[\s\S]*?placeholder="Stock mínimo"/);
-    assert.match(inventory, /v-if="mode === 'edit' && !isUpdate"/);
-    assert.match(inventory, /v-if="mode === 'edit'"/);
-    assert.match(inventory, /class="br-entity-inventory__status" :class="item\.status && \['br-inventory__situation', `br-inventory__situation--\$\{item\.status\.code\}`\]"/);
-    assert.match(inventory, /<QuantityValue class="br-inventory__stock-current" :value="item\.inventory\.initial_stock"/);
-    assert.match(stockStyles, /\.br-entity-inventory__status\.br-inventory__situation,\s*body\.br-layout \.br-inventory__table > tbody > tr > td\.br-inventory__situation \{[^}]*background-color: var\(--br-situation-bg\)/);
-    assert.match(inventory, /<span>Stock mínimo<\/span>\s*<span>Estado del stock<\/span>\s*<span v-if="mode === 'edit'">/);
-    assert.match(inventory, /<div v-if="mode === 'edit'" class="br-entity-inventory__actions">[\s\S]*?@click="\$emit\('remove-row', item\.index, \$event\)"/);
-    assert.match(editor, /@remove-row="removeInventoryRow"/);
-    assert.match(editor, /@click="restoreInventoryRows"[\s\S]*?Restaurar almacenes/);
-    assert.match(inventory, /@update:modelValue="updateRow\(item\.index, 'minimum_stock', \$event\)"[\s\S]*?class="br-entity-inventory__status"\s/);
-    assert.match(branding, /\.br-entity-inventory__field \.form-control:focus::placeholder\s*\{\s*opacity: 0;/);
-    assert.match(branding, /\.br-entity-stock-trigger \{[^}]*color: var\(--br-success-hover\)/);
-    assert.match(branding, /\.br-entity-stock-trigger\.is-alert \{[^}]*color: var\(--br-warning-hover\)/);
-    assert.match(branding, /\.br-entity-product-cell \{[^}]*grid-template-columns: auto minmax\(0, 1fr\)/);
-    assert.match(branding, /\.br-entity-stock-trigger:is\(:hover, :focus-visible\) \{[\s\S]*?background: transparent/);
-    assert.match(branding, /\.br-entity-prices \{[\s\S]*?gap: 0\.24rem/);
-    assert.match(branding, /\.br-entity-inventory__head \{[\s\S]*?background: var\(--br-table-thead-bg\);[\s\S]*?color: var\(--br-table-thead-text\);/);
-    assert.match(branding, /\.br-entity-inventory__head > span \{[^}]*justify-content: center;/);
-    assert.match(typography, /\.table,\s*\.br-entity-inventory \{[^}]*font-size: var\(--br-font-size-table\)/);
-    assert.match(typography, /body \.table > thead > tr > th,\s*\.br-entity-inventory__head \{[^}]*font-size: var\(--br-table-heading-font-size\)/);
+ const read=p=>readFileSync(new URL("../../resources/js/System/"+p,import.meta.url),"utf8");
+ const page=read("Pages/Catalogs/products/main.vue"),modal=read("Components/Catalogs/Products/ProductInventoryModal.vue"),editor=read("Components/Catalogs/Products/ProductEditor.vue"),inventory=read("Components/Catalogs/Products/ProductWarehouseInventory.vue");
+ for(const source of [page,modal,editor,inventory]) assert.equal(parse(source).errors.length,0);
+ assert.match(page,/@click="openInventoryModal\(record\)"/);
+ assert.match(modal,/:show-submit="false"/);
+ assert.match(modal,/<ProductWarehouseInventory/);
+ for(const field of ["record.internal_code","record.barcode","record.brand?.name"]) assert.ok(modal.includes(field));
+ assert.match(editor,/v-model:rows="productForm.data.inventory"/);
+ assert.match(inventory,/Sucursal y almacén/);
+ assert.match(inventory,/Stock actual/);
+ assert.match(inventory,/Stock mínimo/);
+ assert.match(inventory,/v-if="mode === 'edit' && !isUpdate"/);
+ assert.match(inventory,/@update:modelValue="updateRow\(item.index, 'minimum_stock', \$event\)"/);
+ assert.doesNotMatch(inventory,/remove-row|fa-trash|Restaurar/);
+ assert.doesNotMatch(editor,/@remove-row|restoreInventoryRows/);
 
 });
 
@@ -84,13 +50,13 @@ test("el campo numérico distingue cero de un campo vacío con placeholder", () 
     const {descriptor} = parse(source);
     const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
     const generalConfig = {forms: {inputs: {required: "*"}, errors: {styles: {default: "text-danger"}}}};
-    const options = new Function("generalConfig", "editableNumber", "separatorNumber", script)(generalConfig, editableNumber, separatorNumber);
+    const options = new Function("generalConfig", "editableNumber", "separatorNumber", "FgField", script)(generalConfig, editableNumber, separatorNumber, {});
     const format = modelValue => options.computed.formattedValue.call({modelValue, decimalPlaces: 2});
 
     assert.equal(format(0), "0.00");
     assert.equal(format(""), "");
     assert.equal(format(null), "");
-    assert.match(descriptor.template.content, /:aria-label="ariaLabel \|\| undefined"\s+:placeholder="placeholder"/);
+    assert.match(descriptor.template.content, /:placeholder="placeholder"[\s\S]*?:aria-label="ariaLabel \|\| undefined"/);
 });
 
 test("los tooltips se restauran al cerrar cualquier modal", async () => {

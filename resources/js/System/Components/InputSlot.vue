@@ -1,40 +1,19 @@
 <template>
-    <template v-if="hasDiv">
-        <div :class="[...divClass, divSizeClass]">
-            <slot name="default"></slot>
-            <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="inputId || undefined"></label>
-            <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-            <slot name="defaultAppend"></slot>
-            <div :class="[isInputGroup ? 'input-group' : '', 'br-form-control-group', {'is-invalid': hasError}, ...divInputClass]">
-                <slot name="inputGroupPrepend"></slot>
-                <slot name="input"></slot>
-                <slot name="inputGroupAppend"></slot>
-            </div>
-            <div v-if="hasTextBottom">
-                <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
-            </div>
-        </div>
-    </template>
-    <template v-else>
-        <slot name="default"></slot>
-        <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="inputId || undefined"></label>
-        <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-        <slot name="defaultAppend"></slot>
-        <div :class="[isInputGroup ? 'input-group' : '', 'br-form-control-group', {'is-invalid': hasError}, ...divInputClass]">
-            <slot name="inputGroupPrepend"></slot>
-            <slot name="input"></slot>
-            <slot name="inputGroupAppend"></slot>
-        </div>
-        <div v-if="hasTextBottom">
-            <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
-        </div>
-    </template>
+    <FgField  :label="title" :required="isRequired" :input-id="inputId || undefined" :error="hasTextBottom ? textBottomInfo : null">
+        <template #action><slot name="default"/><slot name="defaultAppend"/></template>
+        <div v-if="isInputGroup && ($slots.inputGroupPrepend || $slots.inputGroupAppend)" class="fg-field__control"><slot name="inputGroupPrepend"/><slot name="input"/><slot name="inputGroupAppend"/></div>
+        <slot v-else name="input"/>
+    </FgField>
+
+
 </template>
 
 <script>
+import FgField from "./Figma/FgField.vue";
 import { generalConfig } from "../Helpers/Constants.js";
 
 export default {
+    components: {FgField},
     name: "InputSlot",
     emits: [],
     props: {
@@ -59,7 +38,7 @@ export default {
         titleClass: {
             type: Array,
             required: false,
-            default: ["form-label", "colon-at-end"]
+            default: ["fg-field__label"]
         },
         // Input - Required
         isRequired: {
@@ -75,7 +54,7 @@ export default {
         requiredClass: {
             type: Array,
             required: false,
-            default: ["text-danger", "ms-1", "fw-bold"]
+            default: ["fg-required"]
         },
         // Input - Props
         isInputGroup: {
@@ -91,7 +70,7 @@ export default {
         inputClass:{
             type: Array,
             required: false,
-            default: ["form-control"]
+            default: ["fg-input"]
         },
         placeholder: {
             type: String,

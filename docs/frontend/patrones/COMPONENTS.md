@@ -1,5 +1,8 @@
 # Componentes
 
+> Estándar vigente de System: [FG global](../figma/IMPLEMENTACION_FG.md). Sus tokens, componentes y layout sustituyen la apariencia anterior. Las reglas funcionales de esta guía siguen vigentes. Guest y Platform conservan sus límites.
+
+
 Los nombres describen la implementación de System. Para Guest y Platform, consulta primero sus entradas y reutiliza la base compartida cuando el contrato coincida. Los props y las variantes disponibles se consultan en el código enlazado.
 
 | Necesidad | Implementación y criterio de uso |

@@ -1,16 +1,16 @@
 <template>
-    <div class="br-entity-prices">
-        <span class="br-entity-price-row is-sale">
+    <div :class="'fg-price'">
+        <span :class="'fg-price__sale'">
             <strong>{{ amount(record.price) }}</strong>
         </span>
-        <details v-if="limits.length" class="br-catalog-disclosure">
-            <summary class="br-link br-catalog-disclosure__summary" aria-label="Límites de precio">
-                Límites
+        <details v-if="limits.length" :class="'fg-price__limits'">
+            <summary :class="'fg-price__summary'" aria-label="Límites de precio">
+                Ver límites
                 <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             </summary>
-            <dl class="br-catalog-disclosure__values">
-                <div v-for="limit in limits" :key="limit.label" class="br-entity-price-row">
-                    <dt class="colon-at-end">{{ limit.label }}</dt>
+            <dl :class="'fg-price__values'">
+                <div v-for="limit in limits" :key="limit.label" :class="'fg-price__limit'">
+                    <dt :class="'fg-price__label'">{{ limit.label }}</dt>
                     <dd>{{ amount(limit.value) }}</dd>
                 </div>
             </dl>

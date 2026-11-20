@@ -3,8 +3,10 @@
 import {createTooltip} from "../Helpers/Alerts.js";
 import {writeClipboard} from "../Helpers/Clipboard.js";
 import {initializeMenu} from "./Menu.js";
+import {initializeFeedback} from "../Helpers/Feedback.js";
 import "../../Shared/disabled-controls.js";
 
+initializeFeedback(window.Swal);
 initializeMenu(createTooltip);
 
 const copyResetTimers = new WeakMap();

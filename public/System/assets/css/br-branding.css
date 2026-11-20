@@ -118,9 +118,9 @@ strong {
 }
 
 /* Source: resources/css/Shared/modal-results.css */
-.br-modal-result-hidden {
-    visibility: hidden !important;
-    pointer-events: none !important;
+.modal.fg-modal-result-hidden, .modal-backdrop.fg-modal-result-hidden {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* Source: resources/css/Shared/tabs.css */
@@ -12858,10 +12858,6 @@ body.br-layout .br-field-summary > .br-field-summary__value {
 .icon-fixed-width {
     min-width: 20px;
     flex-shrink: 0;
-}
-
-.swal2-modal.swal2-popup .swal2-title {
-    margin: 0px !important;
 }
 
 /* SYSTEM ENTITY VIEWS */

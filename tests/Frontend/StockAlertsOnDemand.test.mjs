@@ -217,7 +217,7 @@ test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas
     assert.match(inventoryStyles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;/);
     assert.match(page, /<FormModal[\s\S]*?modal-id="inventoryMovementModal"[\s\S]*?title="REGISTRAR OPERACIÓN"[\s\S]*?dialog-class="modal-dialog-scrollable"/);
     assert.match(page, /<template #footerClose>[\s\S]*?ref="closeMovementModal"[\s\S]*?<template #footer>[\s\S]*?Guardar operación/);
-    assert.match(sharedModal, /br-entity-modal__title--form/);
+    assert.match(sharedModal, /fg-modal__title/);
     assert.match(modalStyles, /\.br-entity-modal \.modal-dialog-scrollable \.modal-content \{\s*overflow: hidden;/);
     assert.match(modalStyles, /\.br-entity-modal \.modal-dialog-scrollable \.modal-body\.br-entity-modal__body \{\s*overflow-x: hidden !important;\s*overflow-y: auto !important;/);
 });

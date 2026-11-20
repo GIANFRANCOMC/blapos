@@ -1,15 +1,17 @@
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 
-export async function downloadCatalogList({resource, route, filters, fileName}) {
+export async function downloadCatalogList({resource, route, filters, fileName, total = null}) {
     const word = filters.word?.trim();
     const scope = word
         ? `El Excel incluye todos los resultados de la búsqueda «${word}».`
         : `El Excel incluye el listado completo de ${resource}.`;
     const confirmed = await Alerts.confirmAction({
-        title: `¿Descargar el listado de ${resource}?`,
+        title: `¿Exportar ${resource}?`,
         text: scope,
-        confirmButtonText: "Descargar Excel"
+        confirmButtonText: `Exportar ${resource}`,
+        actionIcon: "export",
+        scope: [total != null ? `${total} ${resource}` : null, word ? "Resultados de búsqueda" : "Listado completo"].filter(Boolean).join(" · ")
     });
     if(!confirmed) return;
 

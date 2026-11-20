@@ -16,12 +16,12 @@ export const STATUS = {
 };
 
 /**
- * Modificador visual para .br-badge--{valor} (estándar de plataforma).
+ * Modificador visual para .fg-badge--{valor} (estándar de plataforma).
  * Valores: success | info | warning | danger | primary | secondary | neutral | dark
  */
 export const STATUS_BADGE_VARIANTS = {
     [STATUS.ACTIVE]: "success",
-    [STATUS.INACTIVE]: "danger",
+    [STATUS.INACTIVE]: "warning",
     [STATUS.PENDING]: "warning",
     [STATUS.CANCELED]: "danger",
     [STATUS.SENT]: "success",
@@ -83,16 +83,16 @@ export const FILTER_BY_OPTIONS = {
 
 // Clases CSS comunes
 export const CSS_CLASSES = {
-    TITLE: "form-label colon-at-end",
-    SELECT2: "",
-    BADGE_BASE: ["br-badge"],
-    STATUS_LABEL_BASE: ["br-badge"],
-    BUTTON_PRIMARY: "btn btn-primary waves-effect",
-    BUTTON_SUCCESS: "btn btn-success waves-effect",
-    BUTTON_WARNING: "btn btn-warning waves-effect",
-    BUTTON_DANGER: "btn btn-danger waves-effect",
-    BUTTON_INFO: "btn btn-info-1 waves-effect",
-    BUTTON_SECONDARY: "btn btn-secondary waves-effect"
+    TITLE: "fg-field__label",
+    SELECT2: "fg-select2",
+    BADGE_BASE: ["fg-badge"],
+    STATUS_LABEL_BASE: ["fg-badge"],
+    BUTTON_PRIMARY: "fg-button",
+    BUTTON_SUCCESS: "fg-button",
+    BUTTON_WARNING: "fg-button fg-button--secondary",
+    BUTTON_DANGER: "fg-button fg-button--danger",
+    BUTTON_INFO: "fg-button fg-button--secondary",
+    BUTTON_SECONDARY: "fg-button fg-button--secondary"
 };
 
 /**
@@ -118,8 +118,8 @@ export function getStatusLabelClasses(status, customVariants = {}) {
 
     return [
         ...CSS_CLASSES.STATUS_LABEL_BASE,
-        `br-status-${statusClass}`,
-        `br-badge--${variant}`
+        `fg-status-${statusClass}`,
+        `fg-badge--${variant}`
     ];
 }
 

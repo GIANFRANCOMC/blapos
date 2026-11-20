@@ -1,0 +1,9 @@
+@import "../../../../public/System/assets/vendor/libs/sweetalert2/sweetalert2.css" layer(fg-vendor);
+@import "vue-select/dist/vue-select.css";
+@import "./00-tokens.css";
+@import "./components.css";
+@import "./select-overlay.css";
+@import "../../Shared/modal-results.css";
+@import "./products.css";
+@import "./navigation.css";
+@import "./feedback.css";

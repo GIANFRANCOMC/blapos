@@ -1,8 +1,7 @@
 export function tooltipOptionsFor(element, navigationContainer = document.body) {
 
-    const customClass = element?.dataset?.bsCustomClass || "br-tooltip";
-    const isNavigationTooltip = customClass === "br-navigation-tooltip"
-        || customClass === "br-navigation-logout-tooltip";
+    const customClass = element?.dataset?.bsCustomClass || "fg-tooltip";
+    const isNavigationTooltip = customClass.includes("fg-tooltip");
 
     return {
         animation: false,

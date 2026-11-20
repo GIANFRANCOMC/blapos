@@ -17,7 +17,7 @@ test("los encabezados de precio quedan centrados sin cambiar las celdas de impor
         const priceHeader = headers.find(([, , label]) => label.trim() === heading);
 
         assert.ok(priceHeader, `Falta el encabezado ${heading} en ${page}`);
-        assert.match(priceHeader[1], /\btext-center\b/, page);
+        assert.match(priceHeader[1], page.includes("products") ? /fg-align-end/ : /\btext-center\b/, page);
         assert.doesNotMatch(priceHeader[1], /\btext-end\b/, page);
     }
 });
@@ -45,7 +45,7 @@ test("todas las cabeceras del catálogo comercial se centran sin modificar las c
 
     for(const page of pages) {
         const source = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${page}/main.vue`, import.meta.url), "utf8");
-        assert.match(source, /<table class="[^"]*br-entity-table--commercial-headings[^"]*"/, page);
+        assert.match(source, page === "products" ? /<table class="fg-table fg-products-table"/ : /<table class="[^"]*br-entity-table--commercial-headings[^"]*"/, page);
     }
 
     const sharedSkeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");

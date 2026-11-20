@@ -1,67 +1,26 @@
 <template>
-    <template v-if="hasDiv">
-        <div :class="[...divClass, divSizeClass]">
-            <slot name="default"></slot>
-            <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="resolvedControlId"></label>
-            <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-            <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
-                <slot name="inputGroupPrepend"></slot>
-                <input
-                    ref="inputElement"
-                    v-bind="$attrs"
-                    :id="resolvedControlId"
-                    :type="inputType"
-                    :value="modelValue"
-                    @input="updateValue($event.target)"
-                    :class="[...inputClass]"
-                    :aria-label="ariaLabel || undefined"
-                    :placeholder="placeholder"
-                    :disabled="disabled"
-                    :maxlength="maxlength"
-                    :min="min"
-                    :max="max"
-                    @keyup.enter="handleEnterKey"/>
-                <slot name="inputGroupAppend"></slot>
-            </div>
-            <div v-if="hasTextBottom">
-                <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-html="textBottom"></small>
-            </div>
+    <FgField  :label="title" :required="isRequired" :input-id="resolvedControlId" :error="hasTextBottom ? textBottomInfo : null">
+        <template #action><slot name="default"/><slot name="defaultAppend"/></template>
+        <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
+            <slot name="inputGroupPrepend"/>
+            <input ref="inputElement" v-bind="$attrs" :id="resolvedControlId" :type="inputType" :value="modelValue" class="fg-input"
+                :placeholder="placeholder" :disabled="disabled" :maxlength="maxlength" :min="min" :max="max"
+                :aria-label="ariaLabel || undefined" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined"
+                :aria-describedby="hasError ? resolvedControlId + '-error' : undefined" @input="updateValue($event.target)" @keyup.enter="handleEnterKey"/>
+            <slot name="inputGroupAppend"/>
         </div>
-    </template>
-    <template v-else>
-        <slot name="default"></slot>
-        <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="resolvedControlId"></label>
-        <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-        <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
-            <slot name="inputGroupPrepend"></slot>
-            <input
-                ref="inputElement"
-                v-bind="$attrs"
-                :id="resolvedControlId"
-                :type="inputType"
-                :value="modelValue"
-                @input="updateValue($event.target)"
-                :class="[...inputClass]"
-                :aria-label="ariaLabel || undefined"
-                :placeholder="placeholder"
-                :disabled="disabled"
-                :maxlength="maxlength"
-                :min="min"
-                :max="max"
-                @keyup.enter="handleEnterKey"/>
-            <slot name="inputGroupAppend"></slot>
-        </div>
-        <div v-if="hasTextBottom">
-            <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
-        </div>
-    </template>
+    </FgField>
+
+
 </template>
 
 <script>
+import FgField from "./Figma/FgField.vue";
 import {useId} from "vue";
 import { generalConfig } from "../Helpers/Constants.js";
 
 export default {
+    components: {FgField},
     name: "InputBase",
     inheritAttrs: false,
     setup() {
@@ -93,7 +52,7 @@ export default {
         },
         titleClass: {
             type: Array,
-            default: () => ["form-label", "colon-at-end"]
+            default: () => ["fg-field__label"]
         },
         isRequired: {
             type: Boolean,
@@ -105,11 +64,11 @@ export default {
         },
         requiredClass: {
             type: Array,
-            default: () => ["text-danger", "ms-1", "fw-bold"]
+            default: () => ["fg-required"]
         },
         inputClass: {
             type: Array,
-            default: () => ["form-control"]
+            default: () => ["fg-input"]
         },
         placeholder: {
             type: String,

@@ -1,4 +1,4 @@
-const SUSPENDED_CLASS = "br-modal-result-hidden";
+const SUSPENDED_CLASS = "fg-modal-result-hidden";
 const suspendedCounts = new WeakMap();
 
 function isResult(options) {

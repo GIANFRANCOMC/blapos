@@ -4,7 +4,7 @@ import {prepareModalResult} from "../../resources/js/Shared/modal-results.js";
 import {initializeSweetAlertTooltips} from "../../resources/js/Shared/sweetalert-tooltips.js";
 import {legibleFormatDate} from "../../resources/js/System/Helpers/DateUtils.js";
 
-const hiddenClass = "br-modal-result-hidden";
+const hiddenClass = "fg-modal-result-hidden";
 
 function element(classes = []) {
     const node = new EventTarget();

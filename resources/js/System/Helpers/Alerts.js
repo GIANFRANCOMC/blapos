@@ -1,8 +1,8 @@
 import { requestRoute } from "./Constants.js";
 import {tooltipOptionsFor} from "./TooltipOptions.js";
+import {feedbackIconHtml, escapeFeedbackText} from "./Feedback.js";
 
 const SWAL_INSTANT_TRANSITION = Object.freeze({
-    animation: false,
     showClass: {
         popup: "",
         icon: ""
@@ -13,7 +13,6 @@ const SWAL_INSTANT_TRANSITION = Object.freeze({
     }
 });
 
-const SUCCESS_MESSAGE_ICON = '<svg class="br-swal-message-check" viewBox="2 5 20 16" aria-hidden="true" focusable="false"><path d="M4.5 12.5 10 18 20 7" pathLength="1" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function prepareModal(modalElement) {
 
@@ -21,7 +20,7 @@ function prepareModal(modalElement) {
 
     modalElement.setAttribute("data-bs-backdrop", "static");
     modalElement.setAttribute("data-bs-keyboard", "false");
-    modalElement.classList.add("br-modal-standard");
+    modalElement.classList.add("fg-modal");
 
     const instance = window.bootstrap?.Modal?.getInstance(modalElement);
 
@@ -69,18 +68,7 @@ function buildSwalLoadingHtml({message}) {
         "'": "&#39;"
     })[character]);
 
-    return `
-        <div class="br-swal-load__wrap" role="status" aria-live="polite" aria-busy="true">
-            <div class="br-loader br-loader--swal" aria-hidden="true">
-                <i class="fa-solid fa-circle-notch br-loader__icon"></i>
-            </div>
-            <div class="br-swal-load-msg">
-                <p class="br-swal-load-msg__title">${safeTitle}</p>
-                <p class="br-swal-load-msg__hint">Espera un momento, por favor.</p>
-            </div>
-        </div>
-    `;
-
+    return '<div class="fg-swal__loading" role="status" aria-live="polite" aria-busy="true">' + feedbackIconHtml("loading", true) + '<h2>' + safeTitle + '</h2><p>Espera un momento, por favor.</p></div>';
 }
 
 function resolveSwalLoadingTitle({type, title, entity}) {
@@ -141,16 +129,9 @@ export function swals({
             stopKeydownPropagation: true,
             showConfirmButton: false,
             customClass: {
-                container: "br-swal-top-layer",
-                popup: "br-swal-load-popup",
-                htmlContainer: "br-swal-load-html"
-            },
-            didOpen: () => {
-
-                const container = Swal.getContainer();
-
-                container?.style.setProperty("z-index", "2147483647", "important");
-
+                container: "fg-swal-layer",
+                popup: "fg-swal fg-swal--loading",
+                htmlContainer: "fg-swal__html"
             }
         });
 
@@ -206,7 +187,9 @@ function actionConfirmation({
     text = "",
     icon = "question",
     confirmButtonText = "Realizar acción",
-    target = document.body
+    target = document.body,
+    actionIcon = null,
+    scope = null
 } = {}, inputOptions = {}) {
 
     return Swal.fire({
@@ -215,20 +198,22 @@ function actionConfirmation({
         target,
         title,
         text,
+        ...(actionIcon ? {icon: "info", iconHtml: feedbackIconHtml(actionIcon)} : {}),
+        ...(scope ? {footer: escapeFeedbackText(scope)} : {}),
         showCancelButton: true,
         showCloseButton: true,
         closeButtonAriaLabel: "Cerrar confirmación",
-        confirmButtonText,
+        confirmButtonText: actionIcon === "export" ? '<span class="fg-button__content">' + feedbackIconHtml("exportWhite") + "<span>" + escapeFeedbackText(confirmButtonText) + "</span></span>" : confirmButtonText,
         cancelButtonText: "Cerrar",
         reverseButtons: true,
         focusCancel: true,
         allowOutsideClick: false,
         buttonsStyling: false,
         customClass: {
-            container: "br-swal-backdrop",
-            popup: `br-swal-alert br-swal-alert--${icon}`,
-            confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${icon}`,
-            cancelButton: "br-btn br-btn-cancel"
+            container: "fg-swal-layer",
+            popup: "fg-swal",
+            confirmButton: "fg-button",
+            cancelButton: "fg-button fg-button--secondary"
         },
         ...inputOptions
     });
@@ -239,7 +224,7 @@ function setMessageWidth(popup, width) {
 
     if(Number.isFinite(width) && width > 0) {
 
-        popup.style.setProperty("--br-swal-alert-width", `${width}px`);
+        popup.style.setProperty("--fg-swal-width", `${width}px`);
 
     }
 
@@ -255,15 +240,15 @@ export function showMessage({title = "", text = "", type = "info", width = null,
         title,
         text,
         icon: type,
-        iconHtml: type === "success" ? SUCCESS_MESSAGE_ICON : undefined,
+        iconHtml: feedbackIconHtml(type),
         willOpen: popup => setMessageWidth(popup, width),
         allowOutsideClick: false,
         buttonsStyling: false,
         confirmButtonText: "Entendido",
         customClass: {
-            container: "br-swal-backdrop",
-            popup: `br-swal-alert br-swal-alert--message br-swal-alert--${type}`,
-            confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${type}`
+            container: "fg-swal-layer",
+            popup: "fg-swal",
+            confirmButton: "fg-button"
         }
     });
 
@@ -476,7 +461,7 @@ export function showStackedModal({id, parent, onHidden}) {
 
     prepareModal(element);
     // La segunda modal oscurece el fondo desde su propia capa para dejar el contenido por encima.
-    element.classList.add("br-modal-stacked");
+    element.classList.add("fg-modal--stacked");
     const modal = Modal.getOrCreateInstance(element, {backdrop: false});
     const scrollbar = modal._scrollBar;
     const {hide, reset} = scrollbar;
@@ -537,7 +522,7 @@ export function generateAlert({messages = [], type = "warning", headerTitle = nu
 	return Swal.fire({...SWAL_INSTANT_TRANSITION,
                title             : headerTitle,
                icon              : type,
-               iconHtml          : type === "success" ? SUCCESS_MESSAGE_ICON : undefined,
+               iconHtml          : feedbackIconHtml(type),
 		       willOpen          : popup => setMessageWidth(popup, width),
 		       allowOutsideClick : false,
 		       allowEscapeKey    : false,
@@ -545,9 +530,9 @@ export function generateAlert({messages = [], type = "warning", headerTitle = nu
                buttonsStyling    : false,
                confirmButtonText: "Entendido",
                customClass: {
-                   container: "br-swal-backdrop",
-                   popup: `br-swal-alert br-swal-alert--message br-swal-alert--${type}`,
-                   confirmButton: `br-btn br-swal-alert__confirm br-swal-alert__confirm--${type}`
+                   container: "fg-swal-layer",
+                   popup: "fg-swal",
+                   confirmButton: "fg-button"
                }});
 
 }
@@ -592,11 +577,11 @@ export function generateTableAlert({messages, keys = []}) {
     }
 
 	let result = messages.length === 0 ? "" : `
-	<table class="table table table-hover table-bordered mt-3">
-		<thead class="table-light">
+	<table class="fg-table fg-swal__table">
+		<thead >
 			${header}
 		</thead>
-		<tbody class="table-border-bottom-0 bg-white">
+		<tbody >
 			${content}
 		</tbody>
 	</table>

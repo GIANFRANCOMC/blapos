@@ -1,159 +1,78 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
-
-    <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"/>
-
-        <main v-else class="br-entity">
-            <FiltersSection
-                class="br-filter-bar--compact"
-                show-clear-button
-                :filter-by-value="filterByValue"
-                @update:filterByValue="filterByValue = $event"
-                :filter-word-value="filterWordValue"
-                @update:filterWordValue="filterWordValue = $event"
-                :filter-by-options="filterByOptions"
-                :search-placeholder="searchPlaceholder"
-                :loading="entityList.extras.loading"
-                :filter-by-title="MODULE.texts.filters.filterBy"
-                :search-title="MODULE.texts.filters.search"
-                :add-button-text="MODULE.texts.actions.add"
-                :show-add-button="true"
-                :show-download-button="MODULE.config.hasDownloadRecords"
-                :show-import-button="MODULE.config.hasImportRecords"
-                :group-secondary-actions="true"
-                :import-button-text="MODULE.texts.actions.import"
-                :import-button-tooltip="MODULE.texts.actions.import"
-                :download-button-text="MODULE.texts.actions.download"
-                :download-button-tooltip="MODULE.texts.actions.download"
-                :download-icon-only-on-desktop="true"
-                :downloading="isExporting"
-                :title-class="[config.forms.classes.title]"
-                :select-class="config.forms.classes.select2"
-                @search="handleSearch"
-                @add="openModal()"
-                @import="openImportModal"
-                @download="downloadRecords"/>
-
-            <ProductImportModal
-                ref="productImportModal"
-                :import-route="routeActions.import"
-                :internal-code-prefix="options.internal_code_prefixes?.product"
-                :warehouses="warehouses"
-                @imported="handleProductsImported"/>
-
-            <ProductInventoryModal ref="productInventoryModal"/>
-
-            <section class="br-entity-list" :aria-label="MODULE.texts.table.ariaLabel">
-                <ResponsiveTable>
-                    <table class="table br-entity-table br-entity-table--catalog-products br-entity-table--commercial-headings mb-0">
-                        <colgroup>
-                            <col class="br-entity-table__col-identification">
-                            <col class="br-entity-table__col-product">
-                            <col class="br-entity-table__col-price">
-                            <col class="br-entity-table__col-status">
-                            <col class="br-entity-table__col-actions">
-                        </colgroup>
-                        <thead class="br-table-header-surface">
-                            <tr>
-                                <th>Identificación</th>
-                                <th class="text-center">Producto</th>
-                                <th class="text-center">Precio</th>
-                                <th class="text-center">Estado</th>
-                                <th class="text-center">
-                                    <span class="visually-hidden">Acciones</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="br-table-state" v-if="entityList.extras.loading">
-                                <td colspan="5" class="py-4">
-                                    <Loader label="Buscando productos…"/>
-                                </td>
-                            </tr>
-                            <template v-else-if="entityList.records.total > 0">
-                                <tr v-for="record in entityList.records.data" :key="record.id">
-                                    <td class="br-entity-table__identification-cell">
-                                        <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                            <div class="br-entity-identifier">
-                                                <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                                <span class="br-entity-identifier__value" v-text="record.internal_code"></span>
-                                            </div>
-                                            <div v-if="record.barcode" class="br-entity-identifier">
-                                                <span class="br-entity-identifier__label colon-at-end">Cód. barras</span>
-                                                <span class="br-entity-identifier__value" v-text="record.barcode"></span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="br-entity-product-cell">
-                                            <button
-                                                type="button"
-                                                :class="['br-entity-stock-trigger', {'is-alert': stockByProduct[record.id].code !== 'healthy'}]"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                :title="stockInventoryActionText(record)"
-                                                :aria-label="stockInventoryActionText(record)"
-                                                @click="openInventoryModal(record)">
-                                                <i :class="stockByProduct[record.id].code !== 'healthy' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-box-open'" aria-hidden="true"></i>
-                                            </button>
-                                            <div>
-                                                <span class="br-entity-table__name" v-text="record.name"></span>
-                                                <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-end">
-                                        <CatalogPriceCell :record="record"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <StatusBadge
-                                            class="flex-shrink-none"
-                                            :status="record.status"
-                                            :formatted-status="record.formatted_status"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                            <li>
-                                                <button type="button" class="dropdown-item" @click="openModal(record)">
-                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                    <span v-text="MODULE.texts.actions.edit"></span>
-                                                </button>
-                                            </li>
-                                            <li v-if="record.barcode">
-                                                <BarcodeDownloadButton
-                                                    menu-item
-                                                    tooltip="Descargar código de barras"
-                                                    :value="record.barcode"
-                                                    :file-name="record.internal_code"/>
-                                            </li>
-                                        </TableActionsDropdown>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr class="br-table-state" v-else>
-                                <td colspan="5" class="py-4">
-                                    <WithoutData
-                                        class="br-entity-empty-state"
-                                        type="image"
-                                        :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos productos con esta búsqueda' : 'Aún no hay productos registrados'"
-                                        :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega un producto o importa un archivo para empezar.'"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </ResponsiveTable>
-            </section>
-
-            <Paginator aria-label="Paginación de productos" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
-        </main>
-    </InitialLoadTransition>
-
-    <AddProduct ref="productEditor" :show-trigger="false" :initial-options="options" @saved="listEntity({})"/>
+    <main class="fg-products">
+        <header class="fg-page-header">
+            <div><h1 class="fg-title">Productos</h1><p class="fg-help">Administra tu catálogo y consulta el stock por almacén.</p></div>
+            <div class="fg-page-header__actions">
+                <FgButton icon="fa-solid fa-plus" :disabled="initialLoading" @click="openModal()">Agregar producto</FgButton>
+                <ActionsDropdown type="button" text="Acciones" label="Acciones de productos" :disabled="initialLoading">
+                    <li><button type="button" class="fg-menu__item" @click="openImportModal"><i class="fa-solid fa-file-import" aria-hidden="true"/>Importar productos</button></li>
+                    <li><button type="button" class="fg-menu__item" :disabled="isExporting" @click="downloadRecords"><i class="fa-solid fa-file-export" aria-hidden="true"/>Exportar productos</button></li>
+                </ActionsDropdown>
+            </div>
+        </header>
+        <InitialLoadTransition>
+            <div v-if="initialLoading" class="fg-skeleton" aria-label="Cargando productos" aria-busy="true"><span/><span/><span/><span/></div>
+            <div v-else>
+                <form class="fg-filters" role="search" aria-label="Buscar productos" @submit.prevent="handleSearch">
+                    <FgField label="Filtrar por" input-id="fg-products-filter">
+                        <FgSelect input-id="fg-products-filter" v-model="filterByValue" :options="filterByOptions" class="fg-select" :clearable="false" :searchable="false"/>
+                    </FgField>
+                    <FgField label="Buscar" input-id="fg-products-search">
+                        <div class="fg-field__control"><input id="fg-products-search" v-model="filterWordValue" class="fg-input" :placeholder="searchPlaceholder" type="search" autocomplete="off"/></div>
+                    </FgField>
+                    <FgButton type="submit" icon="fa-solid fa-magnifying-glass" :loading="entityList.extras.loading">Buscar</FgButton>
+                    <FgButton tone="link" :disabled="entityList.extras.loading" @click="clearProductFilters">Limpiar</FgButton>
+                </form>
+                <div class="fg-list-heading">
+                    <h2 class="fg-section-title">{{ entityList.appliedFilters?.word?.trim() ? 'Resultados de «' + entityList.appliedFilters.word.trim() + '»' : 'Productos registrados' }}</h2>
+                    <span class="fg-help">Ordenado por <strong>Nombre A–Z</strong></span>
+                </div>
+                <section class="fg-products-list" aria-label="Listado de productos">
+                    <div class="fg-table-scroll" role="region" aria-label="Tabla de productos" tabindex="0">
+                        <table class="fg-table fg-products-table">
+                            <colgroup><col class="fg-products-table__identity"/><col class="fg-products-table__product"/><col class="fg-products-table__price"/><col class="fg-products-table__status"/><col class="fg-products-table__actions"/></colgroup>
+                            <thead><tr><th scope="col">Identificación</th><th scope="col">Producto</th><th scope="col" class="fg-align-end">Precio</th><th scope="col" class="fg-align-center">Estado</th><th scope="col" class="fg-align-center">Acciones</th></tr></thead>
+                            <tbody>
+                                <tr v-if="entityList.extras.loading" class="fg-table__state"><td colspan="5"><div class="fg-loader" role="status"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"/>Buscando productos…</div></td></tr>
+                                <template v-else-if="entityList.records.total > 0">
+                                    <tr v-for="record in entityList.records.data" :key="record.id">
+                                        <td><div class="fg-product-codes"><span>{{ record.internal_code }}</span><small v-if="record.barcode">{{ record.barcode }}</small></div></td>
+                                        <td><div class="fg-product-cell">
+                                            <button type="button" :class="['fg-stock-trigger', {'fg-stock-trigger--warning': stockByProduct[record.id].code !== 'healthy'}]" :title="stockInventoryActionText(record)" :aria-label="stockInventoryActionText(record)" @click="openInventoryModal(record)"><i class="fa-solid fa-box" aria-hidden="true"/></button>
+                                            <div class="fg-product-cell__copy"><span class="fg-product-name">{{ record.name }}</span><ExpandableText v-if="record.description" :text="record.description"/></div>
+                                        </div></td>
+                                        <td class="fg-align-end"><CatalogPriceCell :record="record"/></td>
+                                        <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+                                        <td class="fg-align-center"><TableActionsDropdown :label="'Acciones de ' + record.name">
+                                            <li><button type="button" class="fg-menu__item" @click="openModal(record)"><i class="fa-solid fa-pen" aria-hidden="true"/>Editar producto</button></li>
+                                            <li v-if="record.barcode"><BarcodeDownloadButton menu-item tooltip="Descargar código de barras" :value="record.barcode" :file-name="record.internal_code"/></li>
+                                        </TableActionsDropdown></td>
+                                    </tr>
+                                </template>
+                                <tr v-else class="fg-table__state"><td colspan="5"><FgEmptyState :title="listFailed ? 'No se pudo cargar el listado' : entityList.appliedFilters?.word?.trim() ? 'No encontramos productos con esta búsqueda' : 'Aún no hay productos registrados'" :description="listFailed ? 'Vuelve a intentar la consulta.' : entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros.' : 'Agrega un producto o importa un archivo para empezar.'">
+                                    <div class="fg-empty__actions"><FgButton v-if="listFailed" @click="listEntity({})">Volver a intentar</FgButton><FgButton v-else-if="entityList.appliedFilters?.word?.trim()" tone="secondary" @click="clearProductFilters">Limpiar filtros</FgButton><template v-else><FgButton icon="fa-solid fa-plus" @click="openModal()">Agregar producto</FgButton><FgButton tone="secondary" @click="openImportModal">Importar productos</FgButton></template></div>
+                                </FgEmptyState></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <Paginator singular="producto" plural="productos" aria-label="Paginación de productos" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
+            </div>
+        </InitialLoadTransition>
+        <ProductImportModal ref="productImportModal" :import-route="routeActions.import" :internal-code-prefix="options.internal_code_prefixes?.product" :warehouses="warehouses" @imported="handleProductsImported"/>
+        <ProductInventoryModal ref="productInventoryModal"/>
+        <AddProduct ref="productEditor" :show-trigger="false" :initial-options="options" @saved="listEntity({})"/>
+    </main>
 </template>
-
 <script>
-import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import Paginator from "@System/Components/Paginator.vue";
+import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
+
 import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
@@ -171,7 +90,6 @@ import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdo
 import {PRODUCT_TEXTS} from "@System/Components/Catalogs/Products/productFormConfig.js";
 import {summarizeProductStock} from "@System/Components/Catalogs/Products/productInventory.js";
 import * as StockStatus from "../../../../Shared/StockStatus.js";
-import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 
 
 const MODULE_CONFIG = {
@@ -203,8 +121,7 @@ const MODULE = {
 
 export default {
     name: "ProductsMain",
-    components: {
-        ResponsiveTable,
+    components: {Paginator, StatusBadge,FgSelect,FgButton, FgField, FgEmptyState, ActionsDropdown,
         CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,
@@ -213,7 +130,6 @@ export default {
         ProductInventoryModal,
         AddProduct,
         TableActionsDropdown,
-        CatalogListSkeleton
     },
     data() {
 
@@ -230,7 +146,8 @@ export default {
             ...crudModule,
             MODULE,
             isExporting: false,
-            initialLoading: true
+            initialLoading: true,
+            listFailed: false
         };
 
     },
@@ -248,6 +165,7 @@ export default {
         }
 
         if(initialized) await this.listEntity({});
+        else this.listFailed = true;
     },
     beforeUnmount() {
 
@@ -283,6 +201,7 @@ export default {
             const filterData = this.getListFilters({includePagination: true});
 
             this.entityList.extras.loading = true;
+            this.listFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -316,10 +235,12 @@ export default {
                     showAlert: true
                 });
 
+                this.listFailed = !response?.bool;
                 this.entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
+                this.listFailed = true;
                 this.entityList.records = emptyRecords;
 
             }finally {
@@ -329,6 +250,11 @@ export default {
 
             }
 
+        },
+        clearProductFilters() {
+            this.entityList.filters.filter_by = this.MODULE.filterOptions[0];
+            this.entityList.filters.word = "";
+            return this.handleSearch();
         },
         handleSearch() {
             this.entityList.appliedFilters = {...this.entityList.filters};
@@ -359,7 +285,8 @@ export default {
                     resource: "productos",
                     route: this.routeActions.export,
                     filters: this.getListFilters(),
-                    fileName: "productos.xlsx"
+                    fileName: "productos.xlsx",
+                    total: this.entityList.extras.loading || this.listFailed ? null : this.entityList.records.total
                 });
             } finally {
                 this.isExporting = false;

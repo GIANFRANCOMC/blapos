@@ -18,7 +18,7 @@ test("el estado disabled global oculta el cursor en campos nativos, Vue Select y
     assert.match(css, /\.select2-container--disabled \* \{\s*cursor: not-allowed !important;/);
     assert.match(layout, /import "\.\.\/\.\.\/Shared\/disabled-controls\.js"/);
     for(const view of [guest, auth, platform]) {
-        assert.match(view, /@vite\('resources\/js\/Shared\/disabled-controls\.js'\)/);
+        assert.match(view, /@vite\([^\n]*'resources\/js\/Shared\/disabled-controls\.js'/);
     }
     assert.match(platformCss, /@import "\.\.\/Shared\/disabled-controls\.css"/);
     assert.match(cssBuilder, /sharedFiles: \[[^\]]*"resources\/css\/Shared\/disabled-controls\.css"[^\]]*\]/);

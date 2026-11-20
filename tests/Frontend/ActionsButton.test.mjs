@@ -22,7 +22,7 @@ test("acciones muestra por defecto tres puntos verticales con tooltip y área de
         const html = await renderToString(h(component));
         assert.match(html, /title="Acciones" data-bs-toggle="tooltip"/);
         assert.match(html, /<button[^>]*type="button"/);
-        assert.match(html, component === TableActionsDropdown ? /br-table-actions-trigger/ : /br-btn br-btn-sm br-btn-actions br-btn-actions--icon/);
+        assert.match(html, /fg-button fg-button--icon/);
         assert.match(html, /fa-ellipsis-vertical/);
         assert.doesNotMatch(html, /<span>Acciones<\/span>|fa-chevron-down/);
     }
@@ -37,6 +37,6 @@ test("type button habilita explícitamente la variante con label y flecha conser
     assert.doesNotMatch(html, /fa-ellipsis-vertical/);
     assert.match(html, /data-bs-toggle="dropdown"/);
     assert.match(html, /aria-label="Acciones del producto" disabled/);
-    assert.match(html, /dropdown-menu dropdown-menu-end custom-menu/);
+    assert.match(html, /class="[^"]*fg-menu__panel[^"]*custom-menu/);
     assert.match(html, /<li>Descargar Excel<\/li>/);
 });

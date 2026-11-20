@@ -5,17 +5,12 @@ import test from "node:test";
 const file = path => new URL(`../../${path}`, import.meta.url);
 const read = path => readFileSync(file(path), "utf8");
 
-test("Loader y Swal usan el mismo icono giratorio sin imágenes", () => {
-    const component = read("resources/js/System/Components/Loader.vue");
-    const alerts = read("resources/js/System/Helpers/Alerts.js");
-    const css = read("resources/css/System/br-branding/40-buttons-quick-create.css");
+test("Loader y Swal conservan carga animada accesible sin GIF", () => {
 
-    assert.match(component, /class="br-loader"[\s\S]*?role="status"[\s\S]*?fa-solid fa-circle-notch br-loader__icon[\s\S]*?class="visually-hidden" v-text="label"/);
-    assert.doesNotMatch(component, /showLabel|show-label/);
-    assert.match(alerts, /function buildSwalLoadingHtml\(\{message\}\)[\s\S]*?class="br-loader br-loader--swal"[\s\S]*?fa-solid fa-circle-notch br-loader__icon/);
-    assert.match(css, /\.br-loader__icon \{[\s\S]*?font-size: var\(--br-font-size-200\);[\s\S]*?color: var\(--br-primary\);[\s\S]*?animation: br-loader-spin 0\.7s linear infinite;/);
-    assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.br-loader__icon \{\s*animation: none;/);
-    assert.doesNotMatch(component, /<img|LOADER_IMAGE_SRC|loaderImageSrc/);
-    assert.doesNotMatch(alerts, /<img|LOADER_IMAGE_SRC|br-swal-load__logo/);
-    assert.equal(existsSync(file("resources/js/System/Helpers/BrandAssets.js")), false);
+ const loader=read("resources/js/System/Components/Loader.vue"),alerts=read("resources/js/System/Helpers/Alerts.js");
+ assert.match(loader,/fa-solid fa-circle-notch/);
+ assert.match(alerts,/fg-swal__loading[\s\S]*?feedbackIconHtml\("loading", true\)/);
+ assert.match(alerts,/role="status" aria-live="polite" aria-busy="true"/);
+ assert.doesNotMatch(alerts,/loader\.gif|loading\.gif/);
+
 });

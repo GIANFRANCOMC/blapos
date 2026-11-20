@@ -1,7 +1,7 @@
 <template>
     <Teleport to="body">
     <div
-        :class="['modal', 'fade', 'br-entity-modal', modalClass]"
+        :class="['modal', 'fade', 'fg-modal', modalClass]"
         :id="modalId"
         :data-bs-backdrop="staticBackdrop ? 'static' : null"
         :data-bs-keyboard="keyboard ? null : 'false'"
@@ -10,29 +10,29 @@
         aria-modal="true"
         :aria-labelledby="titleId">
         <div class="modal-dialog modal-dialog-centered" :class="[modalSize, dialogClass]" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+            <div :class="'fg-modal__content'">
+                <div :class="'fg-modal__header'">
                     <h2
                         :id="titleId"
-                        class="modal-title br-entity-modal__title br-entity-modal__title--form"
+                        :class="'fg-modal__title'"
                         v-text="title"></h2>
                     <button
                         type="button"
-                        class="br-modal-close"
+                        :class="'fg-button fg-button--icon'"
                         data-bs-dismiss="modal"
                         :disabled="closeDisabled"
                         aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body" :class="bodyClass">
+                <div :class="['fg-modal__body', bodyClass]">
                     <slot name="body">
                         <slot></slot>
                     </slot>
                 </div>
-                <div v-if="showFooter" class="modal-footer br-entity-modal__footer" :class="footerClass">
+                <div v-if="showFooter" :class="['fg-modal__footer', footerClass]">
                     <slot name="footerClose">
-                        <button type="button" class="br-btn br-btn-cancel waves-effect" :disabled="closeDisabled" data-bs-dismiss="modal">
+                        <button type="button" :class="'fg-button fg-button--secondary'" :disabled="closeDisabled" data-bs-dismiss="modal">
                             Cerrar
                         </button>
                     </slot>
@@ -40,7 +40,7 @@
                         <button
                             v-if="showSubmit"
                             type="button"
-                            :class="['br-btn', 'waves-effect', submitButtonClass]"
+                            :class="['fg-button']"
                             :disabled="submitDisabled"
                             @click="$emit('submit')">
                             <i v-if="submitButtonIcon" :class="submitButtonIcon" aria-hidden="true"></i>
@@ -117,7 +117,7 @@ export default {
         },
         submitButtonClass: {
             type: String,
-            default: "br-btn-action-create"
+            default: "fg-button"
         },
         submitButtonIcon: {
             type: String,

@@ -1,30 +1,11 @@
 <template>
-    <div v-if="!loading" class="br-list-footer">
-        <nav
-            v-if="shouldShowPaginator"
-            class="br-pagination"
-            role="navigation"
-            :aria-label="$attrs['aria-label'] || 'Navegación de páginas'">
-            <ul class="pagination br-pagination__list d-flex flex-wrap justify-content-center align-items-center mb-0">
-                <template v-for="(link, index) in displayLinks" :key="itemKey(link, index)">
-                    <li
-                        class="page-item br-pagination__item"
-                        :class="{ active: link.active, disabled: !link.url, 'br-pagination__item--boundary': ['first', 'last'].includes(link.kind) }">
-                        <button
-                            type="button"
-                            class="page-link br-pagination__link"
-                            :aria-label="ariaLabel(link, index)"
-                            :aria-current="link.active ? 'page' : undefined"
-                            :aria-disabled="ariaDisabled(link) ? 'true' : undefined"
-                            :disabled="!navigable(link)"
-                            @click="onPageClick(link)"
-                            v-text="displayLabel(link, index)"></button>
-                    </li>
-                </template>
-            </ul>
-        </nav>
-        <ListResultCount :pagination="pagination" :loading="loading"/>
+    <div v-if="!loading" class="fg-pagination">
+        <ListResultCount :pagination="pagination" :loading="loading" :singular="singular" :plural="plural"/>
+        <nav v-if="shouldShowPaginator" :aria-label="$attrs['aria-label'] || 'Navegación de páginas'"><ul class="fg-pagination__links">
+            <li v-for="(link, index) in displayLinks" :key="itemKey(link, index)"><button type="button" class="fg-pagination__button" :aria-label="ariaLabel(link, index)" :aria-current="link.active ? 'page' : undefined" :disabled="!navigable(link)" @click="onPageClick(link)">{{ displayLabel(link, index) }}</button></li>
+        </ul></nav>
     </div>
+
 </template>
 
 <script>
@@ -36,6 +17,8 @@ export default {
     components: {ListResultCount},
     emits: ["clickPage"],
     props: {
+        singular: {type: String, default: "registro"},
+        plural: {type: String, default: "registros"},
         pagination: {type: Object, required: true},
         loading: {type: Boolean, default: false},
         links: {

@@ -103,12 +103,12 @@ test("los datos de cabecera siguen visibles al consultar el historial y Producto
     for(const field of ["Referencia:", "TRAS-1", "Almacén de origen:", "Almacén de destino:", "Estado:", "Recibido", "Motivo del traslado:", "Registrado por:"]) {
         assert.ok(header.includes(field), field);
     }
-    assert.match(html, /br-tabs--descriptive/);
-    assert.equal((html.match(/class="br-tabs__icon"/g) || []).length, 3);
+    assert.match(html, /fg-tabs/);
+    assert.equal((html.match(/<i class="fa-solid/g) || []).length, 3);
     assert.equal((html.match(/class="text-muted">—(?:<!--v-if-->)?<\/span>/g) || []).length, 2);
     assert.equal((html.match(/class="br-quantity-value__unit"> UND<\/small>/g) || []).length, 2);
     for(const description of ["Cantidades y estado", "Ingresos y diferencias", "Fechas y responsables"]) {
-        assert.ok(html.includes(`<small class="br-tabs__description">${description}</small>`));
+        assert.ok(!html.includes(description));
     }
 });
 

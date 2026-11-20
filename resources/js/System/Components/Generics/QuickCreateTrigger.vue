@@ -71,8 +71,8 @@ export default {
         triggerClasses() {
 
             return [
-                "br-quick-create-trigger",
-                `br-quick-create-trigger--${this.mode}`,
+                this.mode === "icon" ? "fg-button fg-button--icon" : "fg-link",
+                "fg-quick-create",
                 this.customClass
             ];
 

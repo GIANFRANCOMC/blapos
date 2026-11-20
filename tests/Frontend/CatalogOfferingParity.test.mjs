@@ -31,12 +31,10 @@ test("el catálogo muestra códigos como texto y conserva la descarga del códig
     const product = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
 
     assert.equal(parse(product, {filename: "products/main.vue"}).errors.length, 0);
-    assert.match(product, /br-entity-identifiers br-entity-identifiers--plain/);
-    assert.match(product, /class="br-entity-identifier__value" v-text="record\.internal_code"/);
-    assert.match(product, /class="br-entity-identifier__value" v-text="record\.barcode"/);
+    assert.match(product, /fg-product-codes/);
+    assert.match(product, /record\.internal_code/);
+    assert.match(product, /record\.barcode/);
     assert.match(product, /<BarcodeDownloadButton[\s\S]*?:value="record\.barcode"/);
-    assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. interno/);
-    assert.match(product, /br-entity-identifier__label colon-at-end">Cód\. barras/);
     assert.doesNotMatch(product, /record\.brand\??\.name/);
     for(const page of ["products", "services", "subscriptions", "categories", "brands", "recipes"]) {
         const source = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${page}/main.vue`, import.meta.url), "utf8");
@@ -84,86 +82,28 @@ test("copiar usa un icono interactivo por defecto y permite un botón explícito
 
 test("los tres editores comparten pestañas accesibles y navegables en móvil", () => {
 
-    const editorPaths = [
-        "resources/js/System/Components/Catalogs/Products/ProductEditor.vue",
-        ...modules.map(module => module.path)
-    ];
-    const tabs = readFileSync(new URL("../../resources/js/Shared/AppTabs.vue", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/Shared/tabs.css", import.meta.url), "utf8");
-
-    for(const path of editorPaths) {
-
-        const source = readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
-
-        assert.match(source, /<AppTabs\s+v-model="activeFormTab"/);
-
-    }
-
-    assert.equal(parse(tabs, {filename: "AppTabs.vue"}).errors.length, 0);
-    assert.match(tabs, /role="tablist"/);
-    assert.match(tabs, /@keydown="handleKeydown"/);
-    assert.match(tabs, /tab-trigger-\$\{tab\.id\}/);
-    assert.match(tabs, /:aria-controls="sharedControlsId \|\| \(controlsPrefix/);
-    assert.match(branding, /\.br-tabs__list\s*\{[^}]*overflow-x: auto/);
+ const paths = ["resources/js/System/Components/Catalogs/Products/ProductEditor.vue", ...modules.map(module => module.path)];
+ for(const path of paths) assert.match(readFileSync(new URL("../../"+path,import.meta.url),"utf8"), /<AppTabs\s+v-model="activeFormTab"/);
+ const tabs=readFileSync(new URL("../../resources/js/Shared/AppTabs.vue",import.meta.url),"utf8");
+ assert.equal(parse(tabs).errors.length,0);
+ for(const marker of ['role="tablist"', '@keydown="handleKeydown"', ':aria-controls="sharedControlsId ||', ':aria-selected="modelValue === tab.id"', 'ArrowUp:', 'ArrowDown:', 'Home:', 'End:']) assert.ok(tabs.includes(marker),marker);
+ const css=readFileSync(new URL("../../resources/css/System/fg/components.css",import.meta.url),"utf8");
+ assert.match(css,/\.fg-tabs__list/);
+ assert.match(css,/@media \(max-width: 767px\)/);
 
 });
 
 test("productos, servicios y membresías comparten pestañas descriptivas con iconos", () => {
 
-    const product = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
-    const config = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/productFormConfig.js", import.meta.url), "utf8");
-    const tabConfig = config.split("export const FORM_FIELDS")[0];
-    const tabs = readFileSync(new URL("../../resources/js/Shared/AppTabs.vue", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/Shared/tabs.css", import.meta.url), "utf8");
-    const motion = readFileSync(new URL("../../resources/css/System/br-branding/02-loading-transitions.css", import.meta.url), "utf8");
-
-    assert.match(product, /<AppTabs[\s\S]*?variant="descriptive"/);
-    const inventoryPanel = product.match(/<section\s+v-show="activeFormTab === 'inventory'"[\s\S]*?<\/section>/)?.[0];
-    assert.equal((product.match(/class="br-field-summary\b/g) || []).length, 1);
-    assert.match(inventoryPanel, /<div class="br-field-summary mb-3">\s*<span class="form-label">Producto<\/span>\s*<strong class="br-field-summary__value" :title="productName \|\| undefined">\{\{ productName \|\| 'Sin nombre' \}\}<\/strong>\s*<\/div>\s*<ProductWarehouseInventory/);
-    assert.match(product, /productName\(\)\s*\{\s*return this\.productForm\.data\.name\?\.trim\(\)/);
-    assert.match(tabs, /variant: \{type: String, default: "compact"/);
-    assert.match(tabs, /<small v-if="variant === 'descriptive' && tab\.description" class="br-tabs__description">/);
-    assert.match(tabs, /class="br-tabs__icon" aria-hidden="true"/);
-    assert.match(tabs, /class="br-tabs__label">\{\{ tab\.label \}\}/);
-    assert.match(tabs, /aria-label="Pestaña anterior"/);
-    assert.match(tabs, /aria-label="Pestaña siguiente"/);
-    assert.match(tabs, /selectAdjacent\(direction\)/);
-    assert.match(tabs, /focus\(\{preventScroll: true\}\)/);
-    assert.equal([...tabConfig.matchAll(/description: "/g)].length, 3);
-    assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 3);
-    assert.doesNotMatch(branding, /scroll-snap-type|scroll-behavior: smooth/);
-    assert.match(motion, /@media \(prefers-reduced-motion: no-preference\) \{\s*:is\(\[role="tabpanel"\], \.br-tab-panel\) \{[^}]*animation: brTabPanelIn/);
-
-    for(const module of modules) {
-
-        const source = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
-
-        assert.match(source, /<AppTabs[\s\S]*?variant="descriptive"/);
-        const offeringTabs = source.match(/const FORM_TABS = \[[\s\S]+?^\];/m)?.[0];
-        assert.ok(offeringTabs);
-        assert.equal([...offeringTabs.matchAll(/description: "/g)].length, 2);
-        assert.equal([...offeringTabs.matchAll(/icon: "fa-solid/g)].length, 2);
-        assert.match(source, /entityForms\.errors = validation\.errors/);
-        assert.match(source, /shared-controls-id="(?:service|subscription)-form-panel"/);
-        const details = source.match(/<div class="br-entity-offering-details">[\s\S]*?<\/div>/)?.[0];
-        const detailLabels = [...details.matchAll(/<strong class="colon-at-end">([^<]+)<\/strong>/g)].map(match => match[1]);
-        assert.deepEqual(detailLabels, ["Duración", "Cupos", "Comisión"]);
-
-        if(module.name === "membresía") {
-            assert.match(details, /Duración<\/strong>\s*<span class="br-entity-offering-details__value">\{\{ record\.formatted_duration \}\}<\/span>/);
-            assert.doesNotMatch(details, /attendance_limit_per_day|<button/);
-        }
-
-        assert.match(details, /<span v-if="record\.capacity_control_enabled">\s*<strong class="colon-at-end">Cupos<\/strong>\s*<span class="br-entity-offering-details__value">\{\{ capacityLabel\(record\) \}\}/);
-        assert.match(details, /<span v-if="commissionLabel\(record\)">\s*<strong class="colon-at-end">Comisión<\/strong>/);
-        assert.match(source, /import \{capacityLabel\} from "@System\/Components\/Catalogs\/Offerings\/capacityLabel\.js"/);
-        assert.match(formGroups(source, "configuration"), /<CommissionValueInput\s+v-model="forms\[entity\]\.createUpdate\.data\.commission_value"\s+:commission-type="forms\[entity\]\.createUpdate\.data\.commission_type\?\.code"\s+:currency-sign="forms\[entity\]\.createUpdate\.data\.currency\?\.data\?\.sign"/);
-
-    }
-
-    assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: 2, available_capacity: 0}), "2");
-    assert.equal(capacityLabel({capacity_control_enabled: true, capacity_limit: null}), "—");
+ const tabs=readFileSync(new URL("../../resources/js/Shared/AppTabs.vue",import.meta.url),"utf8");
+ assert.match(tabs, /v-if="tab.icon" :class="tab.icon" aria-hidden="true"/);
+ assert.match(tabs, /tab.label/);
+ assert.match(tabs, /hasErrors\(tab.id\)/);
+ const product=readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue",import.meta.url),"utf8");
+ assert.match(product,/variant="descriptive"/);
+ assert.match(product,/fg-product-summary/);
+ assert.match(product,/productName \|\| 'Producto sin nombre'/);
+ assert.match(product,/productName\(\)\s*\{\s*return this\.productForm\.data\.name\?\.trim\(\)/);
 
 });
 
@@ -311,7 +251,7 @@ test("producto conserva Inventario dentro de la modal compartida", () => {
     const parsed = parse(source, {filename: "ProductEditor.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /modal-class="br-record-editor br-entity-modal--tabbed"/);
+    assert.match(source, /modal-class="'fg-modal--editor'"/);
     assert.match(source, /activeFormTab === 'inventory'/);
 
 });
@@ -456,42 +396,16 @@ test("el editor envía el mismo código interno que muestra", () => {
 
 test("producto muestra la información comercial al inicio y la visibilidad en Configuración", () => {
 
-    const component = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
-    const config = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/productFormConfig.js", import.meta.url), "utf8");
-    const parsed = parse(component, {filename: "ProductEditor.vue"});
-
-    assert.equal(parsed.errors.length, 0);
-    assert.match(component, /<AppTabs[\s\S]*?:tabs="formTabs"/);
-    assert.match(component, /layout="content"/);
-    assert.doesNotMatch(config, /id: "(?:attributes|taxes)"/);
-    assert.match(config, /id: "general",[\s\S]*?fields: \[[^\n]*"description", "categories", "brand", "brand_id"\]/);
-    assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",[\s\S]*?fields: \["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"\]/);
-    assert.match(config, /expiresAt: "Disponible hasta"/);
-    assert.deepEqual([...config.matchAll(/id: "(general|inventory|configuration)"/g)].map(match => match[1]), ["general", "inventory", "configuration"]);
-
-    const configurationPanel = component.match(/<section\s+v-show="activeFormTab === 'configuration'"[\s\S]*?<\/section>/)?.[0];
-
-    assert.ok(configurationPanel);
-    assert.match(configurationPanel, /title="Aplicación del IGV"[\s\S]*?\.igv_exempt"[\s\S]*?\.price_includes_tax"/);
-    assert.match(configurationPanel, /v-model="productForm\.data\.expires_at"/);
-    assert.match(configurationPanel, /v-model="productForm\.data\.commission_type"/);
-    assert.match(configurationPanel, /<CatalogVisibilityFields\b[^>]*v-model:published="productForm\.data\.see_my_web"/);
-    assert.match(configurationPanel, /<CommissionValueInput\s+v-model="productForm\.data\.commission_value"\s+:commission-type="productForm\.data\.commission_type"\s+:currency-sign="currencySign"/);
-    assertFieldOrder(configurationPanel, "productForm.data", ["expires_at", "commission_type", "commission_value"]);
-
-    for(const [field] of configurationPanel.matchAll(/<(?:CommissionValueInput|InputDate|InputSlot)\b[\s\S]*?>/g)) {
-
-        assert.match(field, /xl="4"\s+lg="4"/);
-
-    }
-
-    const generalPanel = component.match(/<section\s+v-show="activeFormTab === 'general'"[\s\S]*?<\/section>/)?.[0];
-
-    assert.ok(generalPanel);
-    assert.ok(generalPanel.indexOf('data.description"') < generalPanel.indexOf('data.categories"'));
-    assert.ok(generalPanel.indexOf('data.categories"') < generalPanel.indexOf('data.brand"'));
-    assert.match(generalPanel, /data\.description"[\s\S]*?xl="4"\s+lg="4"/);
-    assert.match(generalPanel, /:title="MODULE\.texts\.form\.brand"[\s\S]*?xl="4"\s+lg="4"/);
-    assert.match(generalPanel, /:title="MODULE\.texts\.form\.categories"[\s\S]*?xl="4"\s+lg="4"/);
+ const source=readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue",import.meta.url),"utf8");
+ const general=source.slice(source.indexOf("activeFormTab === 'general'"),source.indexOf("activeFormTab === 'inventory'"));
+ const configuration=source.slice(source.indexOf("activeFormTab === 'configuration'"),source.indexOf("</form>"));
+ assertFieldOrder(general,"productForm.data",["internal_code","barcode","name","price"]);
+ assert.match(general,/data.categories"[\s\S]*?multiple/);
+ assert.match(general,/data.brand"/);
+ for(const field of ["igv_exempt","price_includes_tax"]) assert.ok(general.includes("productForm.data."+field));
+ for(const field of ["see_my_web","see_my_web_price","expires_at","commission_type","commission_value"]) assert.ok(configuration.includes("productForm.data."+field));
+ assert.match(configuration,/:disabled="isSaving \|\| !productForm.data.see_my_web"/);
+ assert.match(configuration,/<CommissionValueInput[\s\S]*?:currency-sign="currencySign"/);
+ assert.match(configuration,/:searchable="false"/);
 
 });

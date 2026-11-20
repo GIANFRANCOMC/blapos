@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verificación visual de feedback FG</title>
+    <link rel="stylesheet" href="/public/System/assets/vendor/fonts/fontawesome.css">
+    <link rel="stylesheet" href="/resources/css/System/fg/index.css">
+    <script src="/public/System/assets/vendor/libs/sweetalert2/sweetalert2.js"></script>
+</head>
+<body class="fg-theme">
+    <main class="fg-stack">
+        <h1 class="fg-title">Verificación visual · mensajes de ejemplo</h1>
+        <p class="fg-help">Esta página no consulta APIs ni modifica registros. Abrir desde el servidor Vite.</p>
+        <button class="fg-button" data-state="success">Ver éxito</button>
+        <button class="fg-button" data-state="error">Ver error</button>
+        <button class="fg-button" data-state="warning">Ver atención</button>
+        <button class="fg-button" data-state="loading">Ver carga</button>
+    </main>
+    <script type="module">
+        import {initializeFeedback} from '/resources/js/System/Helpers/Feedback.js';
+        import {loading, close, showMessage} from '/resources/js/System/Helpers/Alerts.js';
+        initializeFeedback(window.Swal);
+        const messages = {
+            success: ['Importación completada', '1 producto importado correctamente.'],
+            error: ['No se pudo importar', 'Revisa el archivo y vuelve a intentarlo.'],
+            warning: ['Revisa el archivo', 'Completa los campos obligatorios antes de importar.'],
+            loading: ['Guardando producto…', 'Espera un momento, por favor.']
+        };
+        document.querySelectorAll('[data-state]').forEach(button => button.addEventListener('click', () => {
+            const state = button.dataset.state;
+            const [title, text] = messages[state];
+            if(state === 'loading') { loading({title}); setTimeout(close, 6000); }
+            else showMessage({title, text, type: state});
+        }));
+    </script>
+</body>
+</html>

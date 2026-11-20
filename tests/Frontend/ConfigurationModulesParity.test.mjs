@@ -16,8 +16,8 @@ test("sucursales usa tabla y agrupa auditoría en acciones", () => {
     assert.match(source, /#secondaryActions/);
     assert.match(source, /Auditoría de series/);
     assert.match(source, /<FormModal/);
-    assert.match(modal, /br-entity-modal__header/);
-    assert.match(modal, /br-entity-modal__footer/);
+    assert.match(modal, /fg-modal__header/);
+    assert.match(modal, /fg-modal__footer/);
     assert.doesNotMatch(source, /br-config-scope-grid|card-list-custom|br-branch-audit-toolbar/);
 });
 

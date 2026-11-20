@@ -1,10 +1,10 @@
 <template>
-    <span ref="container" class="br-inline-text-action" :class="{'br-inline-text-action--expanded': expanded}">
-        <span ref="content" :id="textId" class="br-inline-text-action__content" v-text="text"></span>
+    <span ref="container" :class="['fg-product-description', {'fg-product-description--expanded': expanded}]">
+        <span ref="content" :id="textId" :class="'fg-product-description__text'" v-text="text"></span>
         <button
             v-if="hasOverflow"
             type="button"
-            class="br-link br-inline-text-action__button"
+            :class="'fg-link'"
             :aria-controls="textId"
             :aria-expanded="expanded"
             @click.stop="toggle">

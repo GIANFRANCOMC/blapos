@@ -1,34 +1,14 @@
 <template>
-    <div class="br-tabs" :class="{ 'br-tabs--descriptive': variant === 'descriptive', 'br-tabs--content': layout === 'content' }">
-        <button v-if="variant === 'descriptive'" type="button" class="br-tabs__step"
-            aria-label="Pestaña anterior" :disabled="activeIndex <= 0" @click="selectAdjacent(-1)">
-            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-        </button>
-        <nav ref="tabList" class="br-tabs__list" role="tablist" :aria-label="label" @keydown="handleKeydown">
-            <button v-for="tab in tabs" :key="tab.id" :id="`${idPrefix}-tab-trigger-${tab.id}`"
-                type="button" role="tab" class="br-tabs__item"
-                :aria-selected="modelValue === tab.id"
-                :aria-controls="sharedControlsId || (controlsPrefix ? `${controlsPrefix}-tab-${tab.id}` : undefined)"
-                :tabindex="modelValue === tab.id ? 0 : -1"
-                @click="selectTab(tab.id)">
-                <span v-if="variant === 'descriptive' && tab.icon" class="br-tabs__icon" aria-hidden="true">
-                    <i :class="tab.icon"></i>
-                </span>
-                <span class="br-tabs__text">
-                    <span class="br-tabs__label">{{ tab.label }}</span>
-                    <small v-if="variant === 'descriptive' && tab.description" class="br-tabs__description">{{ tab.description }}</small>
-                </span>
-                <span v-if="hasErrors(tab.id)" class="br-tabs__error">
-                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-                    <span class="visually-hidden">Contiene errores</span>
-                </span>
+    <nav  class="fg-tabs" :aria-label="label">
+        <div ref="tabList" class="fg-tabs__list" role="tablist" :aria-label="label" aria-orientation="vertical" @keydown="handleKeydown">
+            <button v-for="tab in tabs" :key="tab.id" :id="idPrefix + '-tab-trigger-' + tab.id" class="fg-tabs__item" type="button" role="tab"
+                :aria-selected="modelValue === tab.id" :aria-controls="sharedControlsId || (controlsPrefix ? controlsPrefix + '-tab-' + tab.id : idPrefix + '-panel')" :tabindex="modelValue === tab.id ? 0 : -1" @click="selectTab(tab.id)">
+                <i v-if="tab.icon" :class="tab.icon" aria-hidden="true"/><span>{{ tab.label }}</span>
+                <i v-if="hasErrors(tab.id)" class="fa-solid fa-circle-exclamation fg-required" aria-label="Contiene errores"/>
             </button>
-        </nav>
-        <button v-if="variant === 'descriptive'" type="button" class="br-tabs__step"
-            aria-label="Pestaña siguiente" :disabled="activeIndex >= tabs.length - 1" @click="selectAdjacent(1)">
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-        </button>
-    </div>
+        </div>
+    </nav>
+
 </template>
 
 <script>
@@ -94,6 +74,8 @@ export default {
             if(!count) return;
 
             const indices = {
+                ArrowDown: (this.activeIndex + 1) % count,
+                ArrowUp: (this.activeIndex + count - 1) % count,
                 ArrowRight: (this.activeIndex + 1) % count,
                 ArrowLeft: (this.activeIndex + count - 1) % count,
                 Home: 0,

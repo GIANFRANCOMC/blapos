@@ -1,0 +1,7 @@
+/* Body portal independent of modal scrolling and clipping. */
+.fg-select-menu.vs__dropdown-menu { --vs-dropdown-option--active-bg: var(--fg-primary-soft); --vs-dropdown-option--active-color: var(--fg-text); position: fixed; z-index: var(--fg-layer-select); min-width: 0; margin: 0; padding: 4px; border: 1px solid var(--fg-border); border-radius: var(--fg-radius); background: var(--fg-surface); color: var(--fg-text); font-family: var(--fg-font); font-size: var(--fg-body-size); line-height: 1.35; box-shadow: var(--fg-shadow); overscroll-behavior: contain; }
+.fg-select-menu .vs__dropdown-option { display: flex; align-items: center; min-height: 36px; padding: 8px 10px; border-radius: 3px; color: var(--fg-text); white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+.fg-select-menu .vs__dropdown-option--highlight, .fg-select-menu .vs__dropdown-option--selected { background: var(--fg-primary-soft); color: var(--fg-text); }
+.fg-select-menu .vs__dropdown-option--selected::after { content: "✓"; margin-left: auto; padding-left: 12px; color: var(--fg-primary); }
+.fg-select-menu .vs__no-options { padding: 12px; color: var(--fg-muted); }
+@media (max-width: 767px) { .fg-select-menu .vs__dropdown-option { min-height: 44px; } }

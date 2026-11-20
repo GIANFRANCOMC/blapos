@@ -1,11 +1,12 @@
 const PREFERENCES_UPDATED_EVENT = "br:preferences-updated";
 
 export function initializeMenu(createTooltip) {
+    initializeFgNavigationDrawer();
     initializeNavbarSearch();
     initializeFavorites();
     initializeWorldNavigation(createTooltip);
 
-    document.querySelectorAll(".br-navigation__logout, .br-navbar-user__logout").forEach(button => {
+    document.querySelectorAll(".fg-world--logout, .fg-user-logout").forEach(button => {
         button.addEventListener("click", confirmLogout);
     });
 }
@@ -29,7 +30,7 @@ export function updateMenuPreferences(preferences) {
 
 function initializeWorldNavigation(createTooltip) {
 
-    const navigation = document.getElementById("layout-menu");
+    const navigation = document.getElementById("fg-layout-menu");
 
     if(!navigation) {
 
@@ -37,7 +38,7 @@ function initializeWorldNavigation(createTooltip) {
 
     }
 
-    const modules = Array.from(navigation.querySelectorAll(".br-navigation__module"));
+    const modules = Array.from(navigation.querySelectorAll(".fg-world[data-navigation-section]"));
     const panels = Array.from(navigation.querySelectorAll("[data-navigation-panel]"));
     const currentSectionId = document.documentElement.dataset.navigationSectionId || "";
     let showingOtherWorldMenu = false;
@@ -88,12 +89,6 @@ function initializeWorldNavigation(createTooltip) {
 
         navigation.classList.toggle("without-context", !hasSubmenu);
         navigation.classList.toggle("has-context", hasSubmenu);
-        document.documentElement.classList.toggle("br-navigation-without-context", !hasSubmenu);
-        document.documentElement.classList.toggle("br-navigation-with-context", hasSubmenu);
-        if(hasSubmenu && document.documentElement.classList.contains("layout-menu-collapsed")) {
-            document.documentElement.classList.remove("layout-menu-collapsed");
-            window.dispatchEvent(new Event("resize"));
-        }
     }
 
     modules.forEach(function (moduleButton) {
@@ -109,7 +104,7 @@ function initializeWorldNavigation(createTooltip) {
             if(event.detail === 0) {
                 panels.find(function (panel) {
                     return panel.dataset.navigationPanel === moduleButton.dataset.navigationSection;
-                })?.querySelector(".br-navigation__page")?.focus();
+                })?.querySelector(".fg-context__page")?.focus();
             }
 
         });
@@ -119,8 +114,8 @@ function initializeWorldNavigation(createTooltip) {
     document.addEventListener("click", function (event) {
 
         if(!showingOtherWorldMenu) return;
-        if(event.target.closest(".br-navigation__context")) return;
-        if(event.target.closest(".br-navigation__module")) return;
+        if(event.target.closest(".fg-context")) return;
+        if(event.target.closest(".fg-world")) return;
         selectWorld(currentSectionId);
 
     });
@@ -372,29 +367,10 @@ function initializeNavbarSearch() {
 }
 
 function initializeFavorites() {
-
     const root = document.getElementById("brFabFavorites");
-
     if (!root) return;
-
-    const btn = document.getElementById("brFabFavoritesToggle");
-    const panel = document.getElementById("brFabFavoritesPanel");
-    const closeBtn = document.getElementById("brFabFavoritesClose");
-    const backdrop = document.getElementById("brFabFavoritesBackdrop");
     const body = document.getElementById("brFabFavoritesBody");
     const count = document.getElementById("brFabFavoritesCount");
-    const homeUrl = root.dataset.homeUrl;
-
-    function setOpen(open) {
-
-        root.setAttribute("data-open", open ? "1" : "0");
-        panel.classList.toggle("br-fab-favorites__panel--open", open);
-        panel.setAttribute("aria-hidden", open ? "false" : "true");
-        btn.setAttribute("aria-expanded", open ? "true" : "false");
-        btn.setAttribute("aria-label", open ? "Cerrar favoritos" : "Abrir favoritos");
-
-    }
-
     function getFavoriteItems(preferences) {
 
         const preferenceConfig = preferences?.config_companies_sub_sections;
@@ -438,118 +414,36 @@ function initializeFavorites() {
 
     }
 
+
     function renderFavoriteItems(preferences) {
-
         const groups = getFavoriteItems(preferences);
-        const totalItems = groups.reduce(function (total, group) {
-            return total + group.items.length;
-        }, 0);
-
+        const totalItems = groups.reduce((total, group) => total + group.items.length, 0);
         count.textContent = String(totalItems);
         count.hidden = totalItems === 0;
         body.replaceChildren();
-
-        if (totalItems === 0) {
-
+        if(!totalItems) {
             const empty = document.createElement("p");
-            const link = document.createElement("a");
-
-            empty.className = "br-fab-favorites__empty mb-0";
-            empty.append("Aún no tienes favoritos. Puedes configurarlos desde ");
-            link.href = homeUrl;
-            link.className = "fw-semibold";
-            link.textContent = "Favoritos";
-            empty.append(link, ".");
-            body.appendChild(empty);
-
-            return;
-
+            empty.className = "fg-help";
+            empty.textContent = "Aún no tienes favoritos.";
+            body.append(empty);
         }
-
-        const list = document.createElement("ul");
-        list.className = "br-fab-favorites__list list-unstyled mb-0";
-
-        groups.forEach(function (group) {
-
-            const groupItem = document.createElement("li");
-            const groupHead = document.createElement("div");
-            const groupIcon = document.createElement("i");
-            const groupTitle = document.createElement("span");
-            const groupList = document.createElement("ul");
-
-            groupItem.className = "br-fab-favorites__group";
-            groupHead.className = "br-fab-favorites__group-head";
-            groupIcon.className = (group.icon || "") + " br-fab-favorites__group-icon";
-            groupIcon.setAttribute("aria-hidden", "true");
-            groupTitle.textContent = group.section;
-            groupList.className = "br-fab-favorites__group-items list-unstyled mb-0";
-            groupHead.append(groupIcon, groupTitle);
-
-            group.items.forEach(function (item) {
-
-                const listItem = document.createElement("li");
+        groups.forEach(group => {
+            const title = document.createElement("p");
+            title.className = "fg-help";
+            title.textContent = group.section;
+            body.append(title);
+            group.items.forEach(item => {
                 const link = document.createElement("a");
-                const content = document.createElement("span");
-                const label = document.createElement("span");
-                const description = document.createElement("span");
-                const arrow = document.createElement("i");
-
-                listItem.className = "br-fab-favorites__item";
-                link.className = "br-fab-favorites__link";
+                link.className = "fg-menu__item";
                 link.href = item.url;
-                content.className = "br-fab-favorites__item-content";
-                label.className = "br-fab-favorites__item-label";
-                label.textContent = item.label;
-                description.className = "br-fab-favorites__item-description";
-                description.textContent = item.description;
-                arrow.className = "fa-solid fa-arrow-right br-fab-favorites__item-arrow";
-                arrow.setAttribute("aria-hidden", "true");
-                content.appendChild(label);
-
-                if(item.description) {
-
-                    content.appendChild(description);
-
-                }
-
-                link.append(content, arrow);
-                listItem.appendChild(link);
-                groupList.appendChild(listItem);
-
+                link.textContent = item.label;
+                body.append(link);
             });
-
-            groupItem.append(groupHead, groupList);
-            list.appendChild(groupItem);
-
         });
-
-        body.appendChild(list);
-
     }
-
-    btn.addEventListener("click", function (e) {
-
-        e.stopPropagation();
-        setOpen(!panel.classList.contains("br-fab-favorites__panel--open"));
-
-    });
-
-    closeBtn.addEventListener("click", function () { setOpen(false); });
-
-    if(backdrop) backdrop.addEventListener("click", function () { setOpen(false); });
-
-    document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && root.getAttribute("data-open") === "1") { setOpen(false); btn.focus(); }
-    });
-
-    document.addEventListener("click", function (e) {
-        if (root.getAttribute("data-open") === "1" && !root.contains(e.target)) { setOpen(false); }
-    });
-
-    window.addEventListener(PREFERENCES_UPDATED_EVENT, function (event) {
+    window.addEventListener(PREFERENCES_UPDATED_EVENT, event => {
         renderFavoriteItems(event.detail?.preferences || window.preferences || {});
     });
-
 }
 
 function confirmLogout() {
@@ -578,9 +472,10 @@ function confirmLogout() {
         confirmButtonText: "Cerrar sesión",
         buttonsStyling: false,
         customClass: {
-            popup: "br-swal",
-            confirmButton: "br-btn br-btn-danger ms-2",
-            cancelButton: "br-btn br-btn-cancel"
+            container: "fg-swal-layer",
+            popup: "fg-swal",
+            confirmButton: "fg-button fg-button--danger",
+            cancelButton: "fg-button fg-button--secondary"
         },
         reverseButtons: true
     }).then(function (result) {
@@ -589,4 +484,45 @@ function confirmLogout() {
 
     });
 
+}
+
+function initializeFgNavigationDrawer() {
+    const navigation = document.querySelector(".fg-navigation");
+    const trigger = document.querySelector("[data-fg-menu-toggle]");
+    if(!navigation || !trigger) return;
+    const backdrop = document.querySelector(".fg-nav-backdrop");
+    const mobile = window.matchMedia("(max-width: 1000px)");
+    const setOpen = (open, restoreFocus = true) => {
+        navigation.classList.toggle("fg-navigation--open", open);
+        navigation.inert = mobile.matches && !open;
+        navigation.toggleAttribute("inert", mobile.matches && !open);
+        navigation.setAttribute("aria-hidden", String(mobile.matches && !open));
+        trigger.setAttribute("aria-expanded", String(open));
+        if(backdrop) backdrop.hidden = !mobile.matches || !open;
+        if(open && mobile.matches) navigation.querySelector("button, a")?.focus({preventScroll: true});
+        if(!open && restoreFocus) trigger.focus({preventScroll: true});
+    };
+    setOpen(!mobile.matches, false);
+    mobile.addEventListener("change", () => { navigation.classList.remove("fg-navigation--collapsed"); setOpen(!mobile.matches, false); });
+    trigger.addEventListener("click", () => {
+        if(mobile.matches) setOpen(!navigation.classList.contains("fg-navigation--open"));
+        else {
+            const collapsed = navigation.classList.toggle("fg-navigation--collapsed");
+            navigation.inert = collapsed;
+            navigation.toggleAttribute("inert", collapsed);
+            navigation.setAttribute("aria-hidden", String(collapsed));
+            trigger.setAttribute("aria-expanded", String(!collapsed));
+        }
+    });
+    document.querySelectorAll("[data-fg-menu-close]").forEach(button => button.addEventListener("click", () => setOpen(false)));
+    document.addEventListener("keydown", event => {
+        if(!mobile.matches || !navigation.classList.contains("fg-navigation--open")) return;
+        if(event.key === "Escape") { event.preventDefault(); setOpen(false); }
+        if(event.key === "Tab") {
+            const focusable = [...navigation.querySelectorAll("a[href], button:not(:disabled)")].filter(element => element.getClientRects().length);
+            const first = focusable[0], last = focusable.at(-1);
+            if(event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+            else if(!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        }
+    });
 }

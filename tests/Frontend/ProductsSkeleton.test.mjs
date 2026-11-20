@@ -10,11 +10,13 @@ test("Productos usa skeleton solo durante initParams", () => {
     const entry = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.js", import.meta.url), "utf8");
 
     assert.equal(parse(page, {filename: "products/main.vue"}).errors.length, 0);
-    assert.match(page, /<CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"\/>[\s\S]*?<main v-else class="br-entity">/);
+    assert.match(page, /<div v-if="initialLoading" class="fg-skeleton"[^>]*aria-busy="true"/);
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/);
-    assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader label="Buscando productos…"\/>/);
+    assert.match(page, /<tr v-if="entityList\.extras\.loading" class="fg-table__state">[\s\S]*?Buscando productos…/);
     assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/);
-    assert.match(entry, /Components\/Catalogs\/catalog-list-skeleton\.css/);
+    const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
+    assert.match(layout, /@vite\(\["resources\/css\/System\/fg\/index\.css"/);
+    assert.doesNotMatch(entry, /index\.css/);
 });
 
 test("el skeleton de Productos conserva filtros y columnas con el loader real de la tabla", () => {

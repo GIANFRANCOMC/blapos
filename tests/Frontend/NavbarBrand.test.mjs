@@ -1,25 +1,17 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+const read=p=>readFileSync(new URL("../../"+p,import.meta.url),"utf8");
+const layout=read("resources/views/System/layouts/main.blade.php");
+const nav=read("resources/views/System/layouts/partials/fg-navigation.blade.php");
+const navbar=read("resources/views/System/layouts/partials/fg-navbar.blade.php");
+const css=read("resources/css/System/fg/navigation.css");
+const behavior=read("resources/js/System/Layout/Menu.js");
 
-test("el nombre del mundo ocupa el encabezado del menú lateral sin logo", () => {
-
-    const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
-    const company = readFileSync(new URL("../../resources/js/System/Pages/Organizations/companies/main.vue", import.meta.url), "utf8");
-    const styles = readFileSync(new URL("../../resources/css/System/br-branding/51-two-level-navigation.css", import.meta.url), "utf8");
-    const navbarStyles = readFileSync(new URL("../../resources/css/System/br-branding/60-dashboard-sales.css", import.meta.url), "utf8");
-
-    assert.match(layout, /<div class="br-navigation__context-head">\s*<div class="br-navigation__world-card">\s*<span class="br-navigation__world-icon"/);
-    assert.match(layout, /<h2 class="br-navigation__world-title">\{\{ \$section->dom_label \}\}<\/h2>/);
-    assert.doesNotMatch(layout, /navigationBrandUrl|br-navigation__context-brand/);
-    assert.doesNotMatch(layout, /br-navbar-brand/);
-    assert.match(layout, /class="br-navigation__logomark"/);
-    assert.match(company, /formField: "combinationmark"[^\n]*identidad de la empresa/);
-    assert.doesNotMatch(styles, /\.br-navigation__context-brand/);
-    assert.match(styles, /\.br-navigation__context-head\s*\{[^}]*height: 3\.65rem;[^}]*padding: 0\.95rem 0 0;/);
-    assert.match(styles, /\.br-navigation__world-card\s*\{[^}]*height: 100%;/);
-    assert.match(navbarStyles, /\.br-layout \.br-layout-navbar\.navbar-detached\s*\{[^}]*height: 2\.95rem !important;/);
-    assert.match(styles, /\.br-navigation__world-title\s*\{[^}]*letter-spacing: -0\.015em;/);
-    assert.doesNotMatch(styles.match(/\.br-navigation__rail\s*\{[^}]*\}/)?.[0] ?? "", /border-right:/);
-
+test("el contexto identifica el mundo sin repetir el icono del riel",()=>{
+ assert.match(nav,/<header class="fg-context__header"><h2>\{\{ \$section->dom_label \}\}<\/h2>/);
+ assert.match(nav,/class="fg-rail__brand"/);
+ assert.doesNotMatch(nav,/world-description|world-icon|br-navbar-brand/);
+ assert.match(css,/\.fg-context__header h2/);
+ assert.match(css,/align-items: center/);
 });

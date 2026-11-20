@@ -7,7 +7,7 @@ test("los tooltips del menú conservan su clase al reconstruirse", async () => {
     const {tooltipOptionsFor} = await import("../../resources/js/System/Helpers/TooltipOptions.js");
     const body = {};
 
-    for(const customClass of ["br-navigation-tooltip", "br-navigation-logout-tooltip"]) {
+    for(const customClass of ["fg-tooltip", "fg-tooltip fg-tooltip--danger"]) {
 
         const options = tooltipOptionsFor({dataset: {bsCustomClass: customClass}}, body);
 
@@ -18,8 +18,8 @@ test("los tooltips del menú conservan su clase al reconstruirse", async () => {
 
     const regular = tooltipOptionsFor({dataset: {}}, body);
 
-    assert.equal(regular.customClass, "br-tooltip");
-    assert.equal(regular.container, false);
+    assert.equal(regular.customClass, "fg-tooltip");
+    assert.equal(regular.container, body);
     assert.equal(regular.trigger, "hover focus");
     assert.equal(tooltipOptionsFor({dataset: {bsTrigger: "hover"}}, body).trigger, "hover");
 

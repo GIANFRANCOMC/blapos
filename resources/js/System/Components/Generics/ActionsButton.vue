@@ -1,13 +1,9 @@
 <template>
-    <div ref="tooltip" class="br-table-actions-dropdown" :class="{dropdown}" title="Acciones" data-bs-toggle="tooltip">
+    <div ref="tooltip" :class="['fg-menu', {dropdown}]" title="Acciones" data-bs-toggle="tooltip">
         <button
             ref="button"
             type="button"
-            class="waves-effect"
-            :class="[
-                type === 'button' || variant === 'solid' ? 'br-btn br-btn-sm br-btn-actions' : 'br-table-actions-trigger',
-                {'br-btn-actions--icon': type === 'icon' && variant === 'solid'}
-            ]"
+            :class="type === 'button' ? 'fg-button fg-button--secondary' : 'fg-button fg-button--icon'"
             :data-bs-toggle="dropdown ? 'dropdown' : null"
             data-bs-boundary="viewport"
             data-bs-config='{"popperConfig":{"strategy":"fixed"}}'
@@ -18,7 +14,7 @@
             <i v-if="type === 'icon'" class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
             <template v-else>
                 <span>{{ text }}</span>
-                <i class="fa-solid fa-chevron-down br-btn-actions__chevron" aria-hidden="true"></i>
+                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             </template>
         </button>
         <slot></slot>

@@ -1,5 +1,8 @@
 # Sistema de diseño
 
+> Estándar vigente de System: [FG global](../figma/IMPLEMENTACION_FG.md). Sus tokens, componentes y layout sustituyen la apariencia anterior. Las reglas funcionales de esta guía siguen vigentes. Guest y Platform conservan sus límites.
+
+
 Blapos es un ERP SaaS multiempresa y multisectorial. Una persona que recibe mercadería, cobra una venta o registra asistencia necesita identificar el contexto, operar varios registros seguidos y detectar errores a tiempo. La identidad visual se expresa en el marco compacto, las superficies neutras, la escala de Control de stock y los acentos de marca y estado.
 
 ## Arquitectura visual

@@ -1,133 +1,28 @@
 <template>
-    <QuickCreateTrigger
-        :mode="triggerMode"
-        :text="triggerText"
-        :title="resolvedTriggerTitle"
-        :aria-label="resolvedTriggerTitle"
-        :show-tooltip="triggerTooltip"
-        :icon="triggerIcon"
-        :custom-class="triggerClass"
-        :disabled="disabled"
-        @click="openModal"/>
 
-    <Teleport to="body">
-        <div
-            ref="modal"
-            :id="resolvedModalId"
-            class="modal fade br-entity-modal br-record-editor br-quick-create-modal"
-            data-bs-backdrop="static"
-            tabindex="-1"
-            role="dialog"
-            aria-modal="true"
-            :aria-labelledby="`${resolvedModalId}-title`"
-            @keydown.esc.prevent="closeModal">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header br-entity-modal__header">
-                        <div>
-                            <p class="br-entity-modal__eyebrow mb-1" v-text="eyebrow"></p>
-                            <h2
-                                :id="`${resolvedModalId}-title`"
-                                class="modal-title br-entity-modal__title"
-                                v-text="`Agregar ${singularLabel.toLowerCase()}`">
-                            </h2>
-                        </div>
+<button ref="trigger" type="button" class="fg-link" :disabled="disabled || isSaving" :aria-label="resolvedTriggerTitle" @click="openModal">Agregar</button>
+    <Teleport to="body"><div ref="modal" :id="resolvedModalId" class="modal fade fg-modal fg-modal--compact" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-modal="true" :aria-labelledby="resolvedModalId + '-title'" @keydown.esc.prevent="closeModal">
+        <div class="modal-dialog modal-dialog-centered" role="document"><div class="fg-modal__content">
+            <header class="fg-modal__header"><h2 :id="resolvedModalId + '-title'" class="fg-modal__title">Agregar {{ singularLabel.toLowerCase() }}</h2><button type="button" class="fg-button fg-button--icon" :disabled="isSaving" aria-label="Cerrar" @click="closeModal"><i class="fa-solid fa-xmark" aria-hidden="true"/></button></header>
+            <form :id="resolvedModalId + '-form'" class="fg-modal__body fg-stack" @submit.prevent="saveEntity">
+                <div v-if="generalError" class="fg-notice fg-notice--danger" role="alert">{{ generalError }}</div>
+                <InputText ref="nameInput" v-model="form.name" title="Nombre" is-required :maxlength="nameMaxlength" show-char-counter has-text-bottom :text-bottom-info="errors.name" :disabled="isSaving" autocomplete="off"/>
+                <InputTextArea v-model="form.description" title="Descripción" :maxlength="descriptionMaxlength" placeholder="Opcional" has-text-bottom :text-bottom-info="errors.description" :disabled="isSaving"/>
+                <small v-if="errors.internal_code" class="fg-error" role="alert">{{ Array.isArray(errors.internal_code) ? errors.internal_code[0] : errors.internal_code }}</small>
+            </form>
+            <footer class="fg-modal__footer"><button type="button" class="fg-button fg-button--secondary" :disabled="isSaving" @click="closeModal">Cerrar</button><button type="submit" :form="resolvedModalId + '-form'" class="fg-button" :disabled="isSaving">{{ isSaving ? 'Guardando…' : 'Guardar ' + singularLabel.toLowerCase() }}</button></footer>
+        </div></div>
+    </div></Teleport>
 
-                        <button
-                            type="button"
-                            class="br-modal-close"
-                            aria-label="Cerrar"
-                            :disabled="isSaving"
-                            @click="closeModal">
-                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                        </button>
-                    </div>
 
-                    <form
-                        class="modal-body br-entity-modal__body br-quick-create-modal__body"
-                        @submit.prevent="saveEntity">
-                        <div v-if="generalError" class="br-quick-create-dialog__alert" role="alert">
-                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
-                            <span v-text="generalError"></span>
-                        </div>
-
-                        <FormGroup title="Identificación" icon="fa-solid fa-id-card" primary stacked>
-                            <div class="row g-3">
-                                <InputText
-                                    ref="nameInput"
-                                    v-model="form.name"
-                                    hasDiv
-                                    title="Nombre"
-                                    :titleClass="labelClasses"
-                                    isRequired
-                                    :maxlength="nameMaxlength"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="errors.name"
-                                    autocomplete="off"
-                                    xl="12"
-                                    lg="12"
-                                    @enterKeyPressed="saveEntity"/>
-
-                                <InputText
-                                    v-model="form.description"
-                                    hasDiv
-                                    title="Descripción"
-                                    :titleClass="labelClasses"
-                                    :maxlength="descriptionMaxlength"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="errors.description"
-                                    autocomplete="off"
-                                    xl="12"
-                                    lg="12"
-                                    @enterKeyPressed="saveEntity"/>
-                                <InternalCodeInput
-                                    v-model="form.internal_code"
-                                    v-bind="internalCodeInputProps(form)"
-                                    hasDiv
-                                    title="Código interno"
-                                    :titleClass="labelClasses"
-                                    isRequired
-                                    hasTextBottom
-                                    :textBottomInfo="errors.internal_code"
-                                    @enterKeyPressed="saveEntity"/>
-                            </div>
-                        </FormGroup>
-                        <p class="br-quick-create-dialog__note">
-                            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                            <span>
-                                Podrás seleccionar el registro en este formulario después de guardarlo.
-                            </span>
-                        </p>
-                    </form>
-
-                    <div class="modal-footer br-entity-modal__footer">
-                        <button type="button" class="br-btn br-btn-cancel waves-effect" :disabled="isSaving" @click="closeModal">
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-action-create waves-effect"
-                            :disabled="isSaving"
-                            @click="saveEntity">
-                            <span v-text="isSaving ? 'Guardando…' : `Guardar ${singularLabel.toLowerCase()}`"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </Teleport>
 </template>
-
 <script>
-import FormGroup from "@/Shared/FormGroup.vue";
-import QuickCreateTrigger from "@System/Components/Generics/QuickCreateTrigger.vue";
+import InputText from "@System/Components/InputText.vue";
+import InputTextArea from "@System/Components/InputTextArea.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 
 let quickCreateSequence = 0;
@@ -141,10 +36,7 @@ const FORM_DEFAULTS = {
 
 export default {
     name: "QuickCreateCatalogEntity",
-    components: {
-        FormGroup,
-        QuickCreateTrigger,
-        InternalCodeInput
+    components: {InputText, InputTextArea,
     },
     mixins: [InternalCodePrefixMixin],
     emits: ["created", "postAction"],
@@ -235,7 +127,7 @@ export default {
     computed: {
         resolvedModalId() {
 
-            return this.dialogId || `br-quick-create-${this.entity}-${this.instanceId}`;
+            return this.dialogId || `fg-quick-create-${this.entity}-${this.instanceId}`;
 
         },
         resolvedTriggerTitle() {
@@ -310,7 +202,12 @@ export default {
             if(this.disabled || this.isSaving) return;
 
             this.resetForm();
-            Alerts.modals({type: "show", id: this.resolvedModalId});
+            const parent = document.querySelector(".modal.show");
+            if(parent && parent !== this.$refs.modal) {
+                Alerts.showStackedModal({id: this.resolvedModalId, parent, onHidden: () => this.$refs.trigger?.focus()});
+            } else {
+                Alerts.modals({type: "show", id: this.resolvedModalId});
+            }
 
         },
         closeModal() {

@@ -10,46 +10,24 @@
         :required-fields="{warehouse_id: 'Selecciona el almacén para el stock inicial.'}"
         @imported="$emit('imported', $event)">
         <template #fields="{errors, busy}">
-            <div class="br-file-import__field">
-                <label :for="`${modalId}-warehouse`" class="form-label colon-at-end required">Almacén para el stock inicial</label>
-                <v-select
-                    v-model="warehouse"
-                    :input-id="`${modalId}-warehouse`"
-                    :options="warehouseOptions"
-                    :clearable="false"
-                    :searchable="false"
-                    :disabled="busy"
-                    append-to-body
-                    @update:model-value="$refs.importModal.clearError('warehouse_id')">
-                    <template #search="{attributes, events}">
-                        <input
-                            class="vs__search"
-                            v-bind="attributes"
-                            v-on="events"
-                            aria-required="true"
-                            :aria-invalid="Boolean(errors.warehouse_id)"
-                            :aria-describedby="errors.warehouse_id ? `${modalId}-warehouse-error` : undefined">
-                    </template>
-                    <template #no-options>
-                        <SelectNoOptions/>
-                    </template>
-                </v-select>
-                <small v-if="errors.warehouse_id" :id="`${modalId}-warehouse-error`" class="br-file-import__help text-danger" role="alert">
-                    {{ errors.warehouse_id }}
-                </small>
-            </div>
+            <FgField  label="Almacén para el stock inicial" required :input-id="modalId + '-warehouse'" :error="errors.warehouse_id">
+                <FgSelect :input-id="modalId + '-warehouse'" v-model="warehouse" :options="warehouseOptions" class="fg-select" :clearable="false" :searchable="false" :disabled="busy" @update:model-value="$refs.importModal.clearError('warehouse_id')"/>
+            </FgField>
+
         </template>
     </FileImportModal>
 </template>
 
 <script>
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
 import {internalCodeImportHelp} from "@System/Helpers/InternalCodes.js";
 import FileImportModal from "@System/Components/Generics/FileImportModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 
 export default {
     name: "ProductImportModal",
-    components: {FileImportModal, SelectNoOptions},
+    components: {FgSelect,FgField,FileImportModal, SelectNoOptions},
     emits: ["imported"],
     props: {
         internalCodePrefix: {type: String, default: ""},

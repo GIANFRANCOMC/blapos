@@ -5,6 +5,15 @@ description: Diseña, implementa o audita interfaces del ERP Blapos con criterio
 
 # Diseño de interfaces en Blapos
 
+## Estándar FG de System
+
+- En System, usar exclusivamente componentes y tokens FG, primero en su fuente compartida y después en sus consumidores. No crear condiciones de diseño por submódulo. Consultar la [implementación y controles de calidad FG](../../../docs/frontend/figma/IMPLEMENTACION_FG.md).
+- Para feedback y menús, comparar iconos, tipografía, espacios y botones con Componentes de Figma. Revisar la procedencia de las reglas calculadas, retirar CSS propio obsoleto y aislar CSS de terceros en capas; no editar los archivos de SweetAlert2 ni compensar conflictos con más `!important`.
+- Vue Select conserva su lógica de selección y teclado. El foco se indica en el control exterior; el input de búsqueda no lleva otro marco. Con searchable desactivado, ocultar el caret y usar cursor de selección, conservando el foco y el teclado. Los desplegables usan el portal compartido sobre las modales y se reposicionan al desplazar o cambiar el tamaño, limpiando eventos al cerrarse. Abrir cualquier select o Select2 no debe aumentar la altura del campo ni desplazar etiquetas o generar scroll de formulario; usar superposición sin reservar espacio. Separar sutilmente las acciones simultáneas de un mismo campo.
+- En Productos, el stock inicial vacío, nulo o cero se muestra como Agotado. Es un estado visual previo al guardado; conservar el contrato de cantidades y sus validaciones.
+
+## Flujo de trabajo
+
 1. Define la tarea del usuario, el área del producto (System, Guest o Platform), el contexto operativo y el alcance autorizado. Abre la documentación del módulo y localiza la ruta real en Blade y Vue. Compara con una pantalla ya trabajada del mismo tipo.
 2. Consulta el [índice de diseño](../../../docs/frontend/README.md) y elige solo las guías que necesites.
    - Estructura de archivos Vue y JavaScript → [Arquitectura frontend](../../../docs/frontend/desarrollo/ARQUITECTURA_FRONTEND.md).

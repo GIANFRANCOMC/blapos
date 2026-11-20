@@ -14,9 +14,9 @@
     <head>
         @include("System.layouts.partials.up")
         <link rel="stylesheet" href="{{ asset('System/assets/css/br-login.css') }}" />
-        @vite('resources/js/Shared/disabled-controls.js')
+        @vite(['resources/css/System/fg/index.css', 'resources/js/Shared/disabled-controls.js'])
     </head>
-    <body>
+    <body class="fg-theme">
         {{ $slot }}
         @include("System.layouts.partials.down")
     </body>

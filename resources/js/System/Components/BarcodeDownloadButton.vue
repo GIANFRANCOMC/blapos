@@ -2,7 +2,7 @@
     <button
         ref="button"
         type="button"
-        :class="menuItem ? 'dropdown-item' : 'br-barcode-download-button'"
+        :class="menuItem ? 'fg-menu__item' : 'fg-button fg-button--icon'"
         :data-bs-toggle="menuItem ? null : 'tooltip'"
         :data-bs-placement="menuItem ? null : 'top'"
         :title="menuItem ? null : tooltipText"

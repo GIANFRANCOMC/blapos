@@ -1,74 +1,27 @@
 <template>
-    <FormModal
-        :modal-id="modalId"
-        :modal-size="modalSize"
-        :title="`Importar ${resource}`"
-        :close-disabled="busy">
-        <template #body>
-            <form :id="`${modalId}-form`" class="br-file-import" :aria-busy="busy" @submit.prevent="importRecords">
-                <section class="br-file-import__panel br-file-import__panel--template" :aria-labelledby="`${fileId}-template`">
-                    <span class="br-file-import__icon" aria-hidden="true"><i class="fa-solid fa-file-excel"></i></span>
-                    <div class="br-file-import__summary">
-                        <h3 :id="`${fileId}-template`" class="br-file-import__title">Plantilla de {{ resource }}</h3>
-                        <p class="br-file-import__help mb-0">{{ instructions }}</p>
+
+<FormModal :modal-id="modalId" :title="'Importar ' + resource" modal-class="fg-modal--import" :close-disabled="busy">
+        <template #body><form :id="modalId + '-form'" class="fg-import" :aria-busy="busy" @submit.prevent="importRecords">
+            <section class="fg-import__section" :aria-labelledby="fileId + '-template'"><h3 :id="fileId + '-template'" class="fg-section-title">1. Prepara el archivo</h3><p class="fg-help">{{ instructions }}</p>
+                <button type="button" class="fg-button fg-button--template" :disabled="busy" @click="downloadTemplate"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"/>{{ downloadingTemplate ? 'Preparando plantilla…' : 'Plantilla Excel' }}</button>
+            </section>
+            <section class="fg-import__section" :aria-labelledby="fileId + '-upload'"><h3 :id="fileId + '-upload'" class="fg-section-title">2. Selecciona el archivo y su almacén</h3>
+                <div class="fg-import__fields"><slot name="fields" :errors="errors" :busy="busy"/><p :id="fileId + '-help'" class="fg-help">{{ help }}</p>
+                    <div class="fg-import__picker">
+                        <input :id="fileId" ref="fileInput" class="fg-sr-only" type="file" accept=".xlsx,.xls,.csv" aria-required="true" :aria-invalid="Boolean(errors.file)" :aria-describedby="fileId + '-help ' + fileId + '-status' + (errors.file ? ' ' + fileId + '-error' : '')" :disabled="busy" @change="selectFile"/>
+                        <label :id="fileId + '-action'" :for="fileId" class="fg-button fg-button--secondary" :aria-disabled="busy"><i class="fa-solid fa-folder-open" aria-hidden="true"/>{{ file ? 'Cambiar archivo' : 'Seleccionar archivo' }}</label>
+                        <span :id="fileId + '-status'" :class="['fg-import__filename', {'fg-import__filename--selected': file}]" aria-live="polite">{{ file?.name || 'Ningún archivo seleccionado' }}</span>
                     </div>
-                    <button type="button" class="br-btn br-btn-outline-secondary waves-effect" :disabled="busy" @click="downloadTemplate">
-                        <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
-                        {{ downloadingTemplate ? 'Preparando plantilla…' : 'Descargar plantilla Excel' }}
-                    </button>
-                </section>
-
-                <section class="br-file-import__panel" :aria-labelledby="`${fileId}-upload`">
-                    <span class="br-file-import__icon" aria-hidden="true"><i class="fa-solid fa-file-arrow-up"></i></span>
-                    <div class="br-file-import__summary">
-                        <h3 :id="`${fileId}-upload`" class="br-file-import__title">Archivo de {{ resource }}</h3>
-                        <p :id="`${fileId}-help`" class="br-file-import__help mb-0">{{ help }}</p>
-                    </div>
-
-                    <div class="br-file-import__details">
-                        <slot name="fields" :errors="errors" :busy="busy"/>
-                        <div class="br-file-import__picker" :class="{'is-invalid': errors.file}">
-                            <input
-                                :id="fileId"
-                                ref="fileInput"
-                                class="visually-hidden br-file-import__input"
-                                type="file"
-                                accept=".xlsx,.xls,.csv"
-                                aria-required="true"
-                                :aria-invalid="Boolean(errors.file)"
-                                :aria-labelledby="`${fileId}-action ${fileId}-upload`"
-                                :aria-describedby="errors.file ? `${fileId}-help ${fileId}-error ${fileId}-status` : `${fileId}-help ${fileId}-status`"
-                                :disabled="busy"
-                                @change="selectFile">
-                            <label :id="`${fileId}-action`" :for="fileId" class="br-btn br-btn-outline-secondary" :class="{'is-disabled': busy}">
-                                <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
-                                {{ file ? 'Cambiar archivo' : 'Seleccionar archivo' }}
-                            </label>
-                            <span :id="`${fileId}-status`" class="br-file-import__filename" :class="{'text-muted': !file}" aria-live="polite">
-                                {{ file?.name || 'Ningún archivo seleccionado' }}
-                            </span>
-                        </div>
-                        <small v-if="errors.file" :id="`${fileId}-error`" class="br-file-import__help text-danger" role="alert">
-                            {{ errors.file }}
-                        </small>
-                    </div>
-                </section>
-            </form>
-        </template>
-
-        <template #footerClose>
-            <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal" :disabled="busy">Cerrar</button>
-        </template>
-
-        <template #footer>
-            <button type="submit" :form="`${modalId}-form`" class="br-btn br-btn-action-create waves-effect" :disabled="busy">
-                <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
-                {{ importing ? `Importando ${resource}…` : `Importar ${resource}` }}
-            </button>
-        </template>
+                    <small v-if="errors.file" :id="fileId + '-error'" class="fg-error" role="alert">{{ errors.file }}</small>
+                </div>
+            </section>
+        </form></template>
+        <template #footerClose><button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal" :disabled="busy">Cerrar</button></template>
+        <template #footer><button type="submit" :form="modalId + '-form'" class="fg-button" :disabled="busy">{{ importing ? 'Importando ' + resource + '…' : 'Importar ' + resource }}</button></template>
     </FormModal>
-</template>
 
+
+</template>
 <script>
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";

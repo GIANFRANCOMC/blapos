@@ -1,5 +1,5 @@
 <template>
-    <span class="br-select-empty" role="status">
+    <span class="fg-select-empty" role="status">
         <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
         <span v-text="message"></span>
     </span>
