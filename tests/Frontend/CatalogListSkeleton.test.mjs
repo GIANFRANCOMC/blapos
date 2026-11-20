@@ -21,7 +21,7 @@ test("los cuatro catálogos usan el skeleton solo durante parámetros", () => {
         assert.ok(page.includes(`<CatalogListSkeleton v-if="initialLoading" kind="${route}" label="${label}"/>`), route);
         assert.match(page, /<main v-else class="br-entity">/, route);
         assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
-        assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);
+        assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader label="Buscando [^"]+…"\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
         assert.match(entry, /Components\/Catalogs\/catalog-list-skeleton\.css/, route);
     }

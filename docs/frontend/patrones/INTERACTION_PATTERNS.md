@@ -18,7 +18,7 @@ Al empezar una consulta, limpia las filas y totales anteriores. Conserva el resu
 | Estado | Respuesta de la interfaz |
 | --- | --- |
 | Apertura o configuración inicial | Skeleton durante `initParams` o su equivalente. En listados, representa la estructura y el loader dentro de la tabla según [Carga inicial](../fundamentos/ESTANDARES_UI.md#carga-inicial-con-skeleton). |
-| Consulta de registros | Loader de tabla dentro de la fila de estado. Paginador y total ocultos durante la consulta y visibles cuando termina, también con cero resultados. |
+| Consulta de registros | Loader de tabla dentro de la fila de estado. Muestra el icono giratorio y anuncia la consulta mediante texto reservado a lectores de pantalla. Paginador y total ocultos durante la consulta y visibles cuando termina, también con cero resultados. |
 | Vacío y sin coincidencias | Diferencia un conjunto sin datos de una búsqueda sin coincidencias cuando la acción de recuperación cambie. Centra la retroalimentación en el área visible. |
 | Aviso informativo | Toastr para mensajes breves como «Se limpiaron los filtros correctamente.». |
 | Error, advertencia o confirmación global | Usa el patrón compartido de [SweetAlert](../fundamentos/ESTANDARES_UI.md#modales-y-sweetalert) según el nivel de atención. Para errores locales, vincula el mensaje al elemento que se debe corregir. |

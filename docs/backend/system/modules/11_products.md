@@ -174,14 +174,14 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Código interno y código de barras se muestran como identificadores distintos; el formato EAN-13 se explica únicamente como ayuda técnica en tooltips y documentación.
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
 - La descripción, si existe, aparece debajo del nombre del producto.
-- El formulario se organiza en cinco pestañas: Producto, Detalle, Inventario, Impuestos y Configuración. Cada pestaña anticipa su contenido con un icono y una descripción breve; El editor usa la variante descriptiva de `AppTabs`, compartida con Servicios y Membresías.
+- El formulario se organiza en tres pestañas. Producto incluye la descripción comercial, las categorías y la marca. Inventario agrupa el stock por almacén. Configuración reúne los controles de IGV y visibilidad para clientes. El editor usa la variante descriptiva de `AppTabs`, compartida con Servicios y Membresías.
 - Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
 - Los placeholders heredan el tamaño y el peso del campo en inputs, `vue-select` y Select2.
 - El estado sin registros del listado usa la ilustración compartida `public/System/assets/img/utils/without_data/empty_records.png` mediante `WithoutData`.
 - Producto sigue el orden: código interno, código de barras, nombre, precio de venta, precio mínimo, precio máximo y estado.
 - El estado se selecciona mediante el selector reutilizable `vue-select`, con las mismas reglas visuales y de interacción que el resto de selectores del sistema.
 - El selector de estado ocupa cuatro columnas en escritorio para evitar opciones innecesariamente anchas.
-- Detalle reúne descripción comercial adicional, marca, categorías y visibilidad para clientes; Impuestos contiene los dos controles de IGV; Configuración agrupa disponible hasta y la comisión.
+- En Configuración, **Aplicación del IGV** reúne **IGV exonerado** y **Precio incluye IGV**. La misma pestaña incluye disponibilidad y comisión.
 - Inventario conserva el stock inicial o actual y el mínimo por almacén. La tabla usa la misma tipografía que Control de stock y centra los encabezados Sede y Almacén. La celda de estado muestra el mismo color de fondo y texto que Control de stock para Agotado, Stock bajo y Stock saludable.
 - La sección `Visibilidad para clientes` explica expresamente que publicar el producto o mostrar su precio controla la información visible fuera de la plataforma y no modifica el estado interno Activo o Inactivo.
 - Marca y Categorías incluyen un enlace azul `Agregar` alineado con la línea base de su etiqueta. Cada enlace abre un modal rápido y conserva el formulario de Producto.

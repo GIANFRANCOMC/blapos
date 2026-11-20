@@ -89,6 +89,22 @@ strong {
   overflow-x: auto;
 }
 
+.br-scroll-table:focus-visible {
+  outline: none;
+}
+
+.br-scroll-table[tabindex="0"]:focus-visible::after {
+  content: "";
+  display: block;
+  position: sticky;
+  inset-inline-start: 0;
+  inline-size: 100cqi;
+  block-size: 2px;
+  margin-block-start: -2px;
+  border-block-end: 2px solid var(--br-primary-active);
+  pointer-events: none;
+}
+
 /* Keep feedback centered in the visible area of a wide table. */
 .table-responsive > .table > tbody > .br-table-state > td[colspan]:has(> :is(.br-feedback-state, .br-loader)) {
   padding-inline: 0;
@@ -330,6 +346,223 @@ strong {
   font-size: inherit;
   line-height: inherit;
   white-space: nowrap;
+}
+
+/* Source: resources/css/Shared/file-import.css */
+.br-file-import {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.875rem;
+    padding: 1rem var(--br-entity-modal-content-space-x, 1rem);
+}
+
+.br-file-import__panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.625rem 0.875rem;
+    padding: 0.875rem;
+    border: 1px solid var(--br-border-cool);
+    border-radius: var(--br-radius);
+    background: var(--br-white);
+}
+
+.br-file-import__panel--template {
+    align-items: center;
+    background: var(--br-neutral-panel);
+}
+
+.br-file-import__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    border-radius: var(--br-radius-sm);
+    background: var(--br-primary-soft);
+    color: var(--br-primary-active);
+}
+
+.br-file-import__summary {
+    flex: 1 1 12rem;
+    min-inline-size: 0;
+}
+
+.br-file-import__title {
+    margin: 0;
+    color: var(--br-secondary);
+    font-size: var(--br-ui-font-size);
+    font-weight: var(--br-font-weight-heading);
+}
+
+.br-file-import__details {
+    flex: 1 1 100%;
+    min-inline-size: 0;
+}
+
+.br-file-import__field {
+    min-inline-size: 0;
+    margin-block-end: 0.75rem;
+}
+
+.br-file-import__picker {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    padding: 0.5rem;
+    border: 1px dashed var(--br-border);
+    border-radius: var(--br-radius-sm);
+    background: var(--br-surface-soft);
+}
+
+.br-file-import__picker.is-invalid {
+    border-color: var(--br-danger);
+}
+
+.br-file-import__picker .br-btn {
+    margin: 0;
+    cursor: pointer;
+}
+
+.br-file-import__input:focus-visible + label {
+    outline: 2px solid var(--br-primary-active);
+    outline-offset: 2px;
+}
+
+.br-file-import__picker .br-btn.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.br-file-import__filename {
+    flex: 1 1 8rem;
+    min-inline-size: 0;
+    color: var(--br-text);
+    font-size: var(--br-ui-font-size);
+    overflow-wrap: anywhere;
+}
+
+.br-file-import__help {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--br-text-muted);
+    font-size: var(--br-table-caption-font-size);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 575.98px) {
+    .br-file-import__summary {
+        flex-basis: calc(100% - 3.25rem);
+    }
+}
+
+/* Source: resources/css/Shared/detail-tags.css */
+.br-entity-offering-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    color: var(--br-secondary);
+    font-size: var(--br-table-caption-font-size);
+    line-height: 1.3;
+}
+
+.br-entity-offering-details > span {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 0.25rem;
+    max-inline-size: 100%;
+    padding: 0.16rem 0.38rem;
+    border: 1px solid var(--br-border);
+    border-radius: var(--br-radius-sm);
+    background: var(--br-neutral-panel);
+}
+
+.br-entity-offering-details__value {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    font-size: var(--br-font-size-066);
+}
+
+.br-entity-offering-details strong {
+    font-weight: var(--br-font-weight-medium);
+    color: var(--br-text-muted);
+}
+
+.br-entity-table--offering .br-entity-offering-details strong {
+    font-size: var(--br-font-size-061);
+}
+
+.br-detail-tags--wrap {
+    flex-flow: row wrap;
+}
+
+/* Source: resources/css/Shared/form-sections.css */
+.br-record-editor .br-entity-modal__title {
+    color: var(--br-secondary);
+    text-transform: none;
+}
+
+.br-form-groups {
+    display: grid;
+    gap: 1.15rem;
+}
+
+.br-form-group {
+    display: grid;
+    min-inline-size: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+}
+
+.br-form-group__header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.br-form-group__icon {
+    flex: 0 0 auto;
+    color: var(--br-text-muted);
+    font-size: var(--br-ui-font-size);
+    line-height: 1.25;
+}
+
+.br-form-group--primary :is(.br-form-group-heading, .br-form-group__icon) {
+    color: var(--br-primary-active);
+}
+
+.br-form-group-heading {
+    margin: 0;
+    color: var(--br-secondary);
+    font-size: var(--br-ui-font-size);
+    font-weight: var(--br-font-weight-heading);
+    line-height: 1.25;
+}
+
+.br-form-group__body {
+    min-inline-size: 0;
+}
+
+.br-form-group__actions {
+    margin-inline-start: auto;
+}
+
+@media (min-width: 992px) {
+    .br-form-group:not(.br-form-group--stacked) {
+        grid-template-columns: 8rem minmax(0, 1fr);
+        column-gap: 0.85rem;
+    }
+
+    .br-form-group:not(.br-form-group--stacked) > .br-form-group__header {
+        align-self: start;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        padding-block-start: 0.15rem;
+    }
 }
 
 /* Source: resources/css/System/br-branding/00-tokens.css */
@@ -12728,11 +12961,6 @@ body.br-layout .br-field-summary > .br-field-summary__value {
     position: relative;
 }
 
-.table-responsive:has(> .br-entity-table--commercial-headings):focus-visible {
-    outline: 2px solid var(--br-primary-active);
-    outline-offset: -2px;
-}
-
 .br-catalog-disclosure {
     min-inline-size: 0;
     font-size: var(--br-table-caption-font-size);
@@ -12857,42 +13085,6 @@ body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
 
 .br-entity-table__col-detail {
     width: 15%;
-}
-
-.br-entity-offering-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    color: var(--br-secondary);
-    font-size: var(--br-table-caption-font-size);
-    line-height: 1.3;
-}
-
-.br-entity-offering-details > span {
-    display: inline-flex;
-    align-items: center;
-    column-gap: 0.25rem;
-    max-inline-size: 100%;
-    padding: 0.16rem 0.38rem;
-    border: 1px solid var(--br-border);
-    border-radius: var(--br-radius-sm);
-    background: var(--br-neutral-panel);
-}
-
-.br-entity-offering-details__value {
-    min-inline-size: 0;
-    overflow-wrap: anywhere;
-    font-size: var(--br-font-size-066);
-}
-
-.br-entity-offering-details strong {
-    font-weight: var(--br-font-weight-medium);
-    color: var(--br-text-muted);
-}
-
-.br-entity-table--offering .br-entity-offering-details strong {
-    font-size: var(--br-font-size-061);
 }
 
 .br-entity-table tbody td {
@@ -14708,50 +14900,6 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 
 .br-inventory-operation__remove-help > button:disabled {
     pointer-events: none;
-}
-
-.br-import-products__intro {
-    margin: 0;
-    color: var(--br-text-muted);
-    font-size: var(--br-ui-font-size);
-    line-height: 1.5;
-}
-
-.br-import-products__template {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.8rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--br-primary-active);
-}
-
-.br-import-products__template:hover {
-    color: var(--br-secondary);
-}
-
-.br-import-products__help {
-    display: block;
-    margin-top: 0.28rem;
-    color: var(--br-text-muted);
-    font-size: var(--br-table-caption-font-size);
-}
-
-.br-reference-import__fields .br-import-products__template {
-    min-height: var(--br-control-height);
-    margin-top: 0;
-}
-
-.br-reference-import__fields .br-import-products__intro {
-    display: block;
-    margin-top: 0.35rem;
-    line-height: 1.4;
-}
-
-.br-reference-import__fields .br-import-products__help {
-    line-height: 1.35;
 }
 
 /* Source: resources/css/System/br-branding/83-purchases-suppliers.css */
@@ -18205,82 +18353,6 @@ body.br-layout .br-inventory-operation__cost-heading .br-field-help:focus-visibl
 @media (max-width: 420px) {
   .br-pos .br-pos-categories {
     grid-template-columns: 1fr;
-  }
-}
-
-.br-recipe-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.45rem;
-  margin: 0.12rem 0.18rem 0.12rem 0;
-  padding: 0.18rem 0.48rem;
-  border: 1px solid color-mix(in srgb, var(--br-primary) 20%, var(--br-border));
-  border-radius: var(--br-radius-sm);
-  background: color-mix(in srgb, var(--br-primary-soft) 56%, var(--br-white));
-  color: var(--br-secondary);
-  font-size: var(--br-ui-font-size);
-  font-weight: var(--br-font-weight-emphasis);
-}
-
-.br-recipe-form .br-entity-form-section {
-  background: var(--br-neutral-panel);
-}
-
-.br-recipe-section-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.85rem;
-}
-
-.br-recipe-section-toolbar h3 {
-  margin: 0;
-  color: var(--br-secondary);
-  font-size: var(--br-table-value-font-size);
-  font-weight: var(--br-font-weight-heading);
-}
-
-.br-recipe-section-toolbar p {
-  margin: 0.1rem 0 0;
-  color: var(--br-text-muted);
-  font-size: var(--br-ui-font-size);
-}
-
-.br-recipe-lines,
-.br-recipe-card {
-  display: grid;
-  gap: 0.65rem;
-}
-
-.br-recipe-line,
-.br-recipe-card__grid {
-  display: grid;
-  grid-template-columns: minmax(14rem, 1fr) minmax(8rem, 0.35fr) minmax(8rem, 0.35fr) auto;
-  gap: 0.55rem;
-  align-items: center;
-}
-
-.br-recipe-card {
-  padding: 0.85rem;
-  border: 1px solid var(--br-border);
-  border-radius: var(--br-radius-md);
-  background: var(--br-white);
-}
-
-.br-recipe-card + .br-recipe-card {
-  margin-top: 0.75rem;
-}
-
-@media (max-width: 768px) {
-  .br-recipe-section-toolbar,
-  .br-recipe-line,
-  .br-recipe-card__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .br-recipe-section-toolbar {
-    align-items: stretch;
   }
 }
 

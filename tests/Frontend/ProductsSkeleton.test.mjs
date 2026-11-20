@@ -12,7 +12,7 @@ test("Productos usa skeleton solo durante initParams", () => {
     assert.equal(parse(page, {filename: "products/main.vue"}).errors.length, 0);
     assert.match(page, /<CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"\/>[\s\S]*?<main v-else class="br-entity">/);
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/);
-    assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/);
+    assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader label="Buscando productos…"\/>/);
     assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/);
     assert.match(entry, /Components\/Catalogs\/catalog-list-skeleton\.css/);
 });

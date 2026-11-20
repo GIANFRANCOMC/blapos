@@ -14,7 +14,7 @@
         <div
             ref="modal"
             :id="resolvedModalId"
-            class="modal fade br-entity-modal br-quick-create-modal"
+            class="modal fade br-entity-modal br-record-editor br-quick-create-modal"
             data-bs-backdrop="static"
             tabindex="-1"
             role="dialog"
@@ -37,6 +37,7 @@
                             type="button"
                             class="br-modal-close"
                             aria-label="Cerrar"
+                            :disabled="isSaving"
                             @click="closeModal">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
@@ -50,65 +51,67 @@
                             <span v-text="generalError"></span>
                         </div>
 
-                        <div class="row g-3">
-                            <InputText
-                                ref="nameInput"
-                                v-model="form.name"
-                                hasDiv
-                                title="Nombre"
-                                :titleClass="labelClasses"
-                                isRequired
-                                :maxlength="nameMaxlength"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="errors.name"
-                                autocomplete="off"
-                                xl="12"
-                                lg="12"
-                                @enterKeyPressed="saveEntity"/>
+                        <FormGroup title="Identificación" icon="fa-solid fa-id-card" primary stacked>
+                            <div class="row g-3">
+                                <InputText
+                                    ref="nameInput"
+                                    v-model="form.name"
+                                    hasDiv
+                                    title="Nombre"
+                                    :titleClass="labelClasses"
+                                    isRequired
+                                    :maxlength="nameMaxlength"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="errors.name"
+                                    autocomplete="off"
+                                    xl="12"
+                                    lg="12"
+                                    @enterKeyPressed="saveEntity"/>
 
-                            <InputText
-                                v-model="form.description"
-                                hasDiv
-                                title="Descripción"
-                                :titleClass="labelClasses"
-                                :maxlength="descriptionMaxlength"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="errors.description"
-                                autocomplete="off"
-                                xl="12"
-                                lg="12"
-                                @enterKeyPressed="saveEntity"/>
-                            <InternalCodeInput
-                                v-model="form.internal_code"
-                                v-bind="internalCodeInputProps(form)"
-                                hasDiv
-                                title="Código interno"
-                                :titleClass="labelClasses"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="errors.internal_code"
-                                @enterKeyPressed="saveEntity"/>
-                        </div>
+                                <InputText
+                                    v-model="form.description"
+                                    hasDiv
+                                    title="Descripción"
+                                    :titleClass="labelClasses"
+                                    :maxlength="descriptionMaxlength"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="errors.description"
+                                    autocomplete="off"
+                                    xl="12"
+                                    lg="12"
+                                    @enterKeyPressed="saveEntity"/>
+                                <InternalCodeInput
+                                    v-model="form.internal_code"
+                                    v-bind="internalCodeInputProps(form)"
+                                    hasDiv
+                                    title="Código interno"
+                                    :titleClass="labelClasses"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="errors.internal_code"
+                                    @enterKeyPressed="saveEntity"/>
+                            </div>
+                        </FormGroup>
                         <p class="br-quick-create-dialog__note">
                             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                             <span>
-                                El registro se creará con el código mostrado y estado activo.
+                                Podrás seleccionar el registro en este formulario después de guardarlo.
                             </span>
                         </p>
                     </form>
 
                     <div class="modal-footer br-entity-modal__footer">
-                        <button type="button" class="br-btn br-btn-cancel" @click="closeModal">
+                        <button type="button" class="br-btn br-btn-cancel waves-effect" :disabled="isSaving" @click="closeModal">
                             Cerrar
                         </button>
                         <button
                             type="button"
-                            class="br-btn br-btn-action-create"
+                            class="br-btn br-btn-action-create waves-effect"
                             :disabled="isSaving"
                             @click="saveEntity">
-                            <span v-text="isSaving ? 'Agregando' : `Agregar ${singularLabel.toLowerCase()}`"></span>
+                            <span v-text="isSaving ? 'Guardando…' : `Guardar ${singularLabel.toLowerCase()}`"></span>
                         </button>
                     </div>
                 </div>
@@ -118,6 +121,7 @@
 </template>
 
 <script>
+import FormGroup from "@/Shared/FormGroup.vue";
 import QuickCreateTrigger from "@System/Components/Generics/QuickCreateTrigger.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -138,6 +142,7 @@ const FORM_DEFAULTS = {
 export default {
     name: "QuickCreateCatalogEntity",
     components: {
+        FormGroup,
         QuickCreateTrigger,
         InternalCodeInput
     },
@@ -354,8 +359,8 @@ export default {
 
             Alerts.generateAlert({
                 type: "error",
+                headerTitle: "Revisa los campos indicados",
                 messages: Forms.getDescriptiveErrors(errors, this.errorLabels),
-                msgContent: "Revise los campos indicados para continuar.",
                 width: 430
             });
 
@@ -417,10 +422,10 @@ export default {
                     this.$emit("postAction", {response: result});
                     Alerts.modals({type: "hide", id: this.resolvedModalId});
 
-                    Alerts.generateAlert({
+                    Alerts.showMessage({
                         type: "success",
-                        headerTitle: `${this.singularLabel} agregada`,
-                        msgContent: `${this.singularLabel} se registró con estado activo y ya está disponible para seleccionarla.`,
+                        title: `${this.singularLabel} guardada`,
+                        text: "Ya está disponible para seleccionarla en el formulario.",
                         width: 430
                     });
 

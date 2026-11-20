@@ -37,7 +37,6 @@
 
             <ProductImportModal
                 ref="productImportModal"
-                :title="MODULE.texts.actions.import"
                 :import-route="routeActions.import"
                 :internal-code-prefix="options.internal_code_prefixes?.product"
                 :warehouses="warehouses"
@@ -46,7 +45,7 @@
             <ProductInventoryModal ref="productInventoryModal"/>
 
             <section class="br-entity-list" :aria-label="MODULE.texts.table.ariaLabel">
-                <div class="table-responsive" tabindex="0">
+                <ResponsiveTable>
                     <table class="table br-entity-table br-entity-table--catalog-products br-entity-table--commercial-headings mb-0">
                         <colgroup>
                             <col class="br-entity-table__col-identification">
@@ -69,7 +68,7 @@
                         <tbody>
                             <tr class="br-table-state" v-if="entityList.extras.loading">
                                 <td colspan="5" class="py-4">
-                                    <Loader/>
+                                    <Loader label="Buscando productos…"/>
                                 </td>
                             </tr>
                             <template v-else-if="entityList.records.total > 0">
@@ -124,7 +123,7 @@
                                             <li v-if="record.barcode">
                                                 <BarcodeDownloadButton
                                                     menu-item
-                                                    tooltip="Descargar cód. barras"
+                                                    tooltip="Descargar código de barras"
                                                     :value="record.barcode"
                                                     :file-name="record.internal_code"/>
                                             </li>
@@ -137,13 +136,13 @@
                                     <WithoutData
                                         class="br-entity-empty-state"
                                         type="image"
-                                        :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
-                                        :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
+                                        :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos productos con esta búsqueda' : 'Aún no hay productos registrados'"
+                                        :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega un producto o importa un archivo para empezar.'"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </ResponsiveTable>
             </section>
 
             <Paginator aria-label="Paginación de productos" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
@@ -154,6 +153,8 @@
 </template>
 
 <script>
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
@@ -190,7 +191,7 @@ const FILTER_OPTIONS = [
     {code: "barcode", label: "Código de barras"},
     {code: "name", label: "Nombre"},
     {code: "brand", label: "Marca"},
-    {code: "description", label: "Descripción comercial adicional"},
+    {code: "description", label: "Descripción comercial"},
     {code: "price", label: "Precio de venta"}
 ];
 
@@ -203,6 +204,7 @@ const MODULE = {
 export default {
     name: "ProductsMain",
     components: {
+        ResponsiveTable,
         CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,
@@ -350,35 +352,18 @@ export default {
 
         },
         async downloadRecords() {
-
             if(this.isExporting) return;
-
-            const confirmed = await Alerts.confirmDownload({resource: "el listado de productos"});
-
-            if(!confirmed) return;
-
             this.isExporting = true;
-            Alerts.swals({
-                type: "default",
-                title: "Preparando reporte de productos"
-            });
-
             try {
-
-                await Requests.download({
+                await downloadCatalogList({
+                    resource: "productos",
                     route: this.routeActions.export,
-                    data: this.getListFilters(),
-                    fileName: "productos.xlsx",
-                    showAlert: true
+                    filters: this.getListFilters(),
+                    fileName: "productos.xlsx"
                 });
-
-            }finally {
-
-                Alerts.swals({show: false});
+            } finally {
                 this.isExporting = false;
-
             }
-
         },
         openImportModal() {
 

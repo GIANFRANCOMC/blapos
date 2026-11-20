@@ -22,7 +22,7 @@
                 @add="openModal()"/>
 
             <section class="br-entity-list" aria-label="Listado de recetas y platillos">
-                <div class="table-responsive" tabindex="0">
+                <ResponsiveTable>
                     <table class="table br-entity-table br-entity-table--catalog-recipes br-entity-table--commercial-headings mb-0">
                         <thead class="br-table-header-surface">
                             <tr>
@@ -38,7 +38,7 @@
                         </thead>
                         <tbody>
                             <tr class="br-table-state" v-if="loading">
-                                <td colspan="6" class="py-4"><Loader/></td>
+                                <td colspan="6" class="py-4"><Loader label="Buscando recetas y platillos…"/></td>
                             </tr>
                             <template v-else-if="records.total > 0">
                                 <tr v-for="record in records.data" :key="record.id">
@@ -55,9 +55,11 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="br-recipe-pill">{{ record.components_count }} insumos</span>
-                                        <span class="br-recipe-pill">{{ record.toppings_count }} extras</span>
-                                        <span class="br-recipe-pill">{{ record.options_count }} sabores</span>
+                                        <div class="br-entity-offering-details br-detail-tags--wrap">
+                                            <span><strong class="colon-at-end">Insumos</strong> <span class="br-entity-offering-details__value">{{ record.components_count }}</span></span>
+                                            <span><strong class="colon-at-end">Extras</strong> <span class="br-entity-offering-details__value">{{ record.toppings_count }}</span></span>
+                                            <span><strong class="colon-at-end">Sabores</strong> <span class="br-entity-offering-details__value">{{ record.options_count }}</span></span>
+                                        </div>
                                     </td>
                                     <td>
                                         <small class="text-muted d-block">Rendimiento</small>
@@ -76,12 +78,12 @@
                             </template>
                             <tr class="br-table-state" v-else>
                                 <td colspan="6"><WithoutData type="image"
-                                :text="appliedFilters.word?.trim() ? 'Sin coincidencias' : undefined"
-                                :description="appliedFilters.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/></td>
+                                :text="appliedFilters.word?.trim() ? 'No encontramos recetas y platillos con esta búsqueda' : 'Aún no hay recetas registradas'"
+                                :description="appliedFilters.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una receta para definir sus insumos.'"/></td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </ResponsiveTable>
             </section>
 
             <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listRecipes"/>
@@ -90,13 +92,16 @@
     </InitialLoadTransition>
     <FormModal
         modal-id="recipeModal"
-        :title="isUpdate ? 'Editar receta o platillo' : 'Agregar receta o platillo'"
-        modal-class="br-entity-modal--tabbed"
+        :title="isUpdate ? 'Editar receta' : 'Agregar receta'"
+        modal-class="br-record-editor br-entity-modal--tabbed"
         modal-size="modal-xl"
         dialog-class="modal-dialog-scrollable"
         :close-disabled="saving"
         :keyboard="!saving"
-        :show-submit="false">
+        :submit-disabled="saving"
+        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :submit-button-text="saving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar receta'"
+        @submit="saveRecipe">
         <template #body>
             <AppTabs
                 v-model="activeTab"
@@ -106,198 +111,206 @@
                 controls-prefix="recipe"
                 variant="descriptive" layout="content"
                 label="Secciones de receta"/>
-            <form class="br-recipe-form" @submit.prevent="saveRecipe">
+            <form @submit.prevent="saveRecipe">
                 <section v-show="activeTab === 'general'" id="recipe-tab-general" class="br-entity-form-section br-tab-panel" role="tabpanel" aria-labelledby="recipe-tab-trigger-general">
-                    <div class="row g-3">
-                        <InputSlot
-                            hasDiv
-                            title="Platillo o producto vendible"
-                            :titleClass="formTitleClass"
-                            isRequired
-                            hasTextBottom
-                            :textBottomInfo="errors.item_id"
-                            xl="6"
-                            lg="6">
-                            <template #input>
-                                <v-select
-                                    v-model="form.item"
-                                    :options="items"
-                                    label="name"
-                                    :clearable="false"
-                                    :searchable="true"
-                                    append-to-body
-                                    placeholder="Selecciona el item que venderás"/>
-                            </template>
-                        </InputSlot>
+                    <FormGroup title="Platillo y rendimiento" icon="fa-solid fa-utensils" primary>
+                        <div class="row g-3">
+                            <InputSlot
+                                input-id="recipe-catalog-item"
+                                hasDiv
+                                title="Producto o platillo"
+                                :titleClass="formTitleClass"
+                                isRequired
+                                hasTextBottom
+                                :textBottomInfo="errors.item_id"
+                                xl="6"
+                                lg="6">
+                                <template #input>
+                                    <v-select
+                                        input-id="recipe-catalog-item"
+                                        v-model="form.item"
+                                        :options="items"
+                                        label="name"
+                                        :clearable="false"
+                                        :searchable="true"
+                                        append-to-body
+                                        placeholder="Selecciona el producto que venderás"/>
+                                </template>
+                            </InputSlot>
 
-                        <InputSlot
-                            hasDiv
-                            title="Estado"
-                            :titleClass="formTitleClass"
-                            isRequired
-                            hasTextBottom
-                            :textBottomInfo="errors.status"
-                            xl="3"
-                            lg="3">
-                            <template #input>
-                                <v-select
-                                    v-model="form.status"
-                                    :options="statuses"
-                                    label="label"
-                                    :clearable="false"
-                                    append-to-body
-                                    :searchable="false"/>
-                            </template>
-                        </InputSlot>
+                            <InputSlot
+                                input-id="recipe-catalog-status"
+                                hasDiv
+                                title="Estado"
+                                :titleClass="formTitleClass"
+                                isRequired
+                                hasTextBottom
+                                :textBottomInfo="errors.status"
+                                xl="3"
+                                lg="3">
+                                <template #input>
+                                    <v-select
+                                        input-id="recipe-catalog-status"
+                                        v-model="form.status"
+                                        :options="statuses"
+                                        label="label"
+                                        :clearable="false"
+                                        append-to-body
+                                        :searchable="false"/>
+                                </template>
+                            </InputSlot>
 
-                        <InputNumber
-                            v-model="form.yield_quantity"
-                            hasDiv
-                            title="Rendimiento"
-                            :titleClass="formTitleClass"
-                            isRequired
-                            hasTextBottom
-                            :textBottomInfo="errors.yield_quantity"
-                            :hasNegative="false"
-                            :minValue="quantityStep"
-                            xl="3"
-                            lg="3"/>
+                            <InputNumber
+                                v-model="form.yield_quantity"
+                                hasDiv
+                                title="Rendimiento"
+                                :titleClass="formTitleClass"
+                                isRequired
+                                hasTextBottom
+                                :textBottomInfo="errors.yield_quantity"
+                                :hasNegative="false"
+                                :minValue="quantityStep"
+                                xl="3"
+                                lg="3"/>
 
-                        <InputNumber
-                            v-model="form.waste_percentage"
-                            hasDiv
-                            title="Merma esperada (%)"
-                            :titleClass="formTitleClass"
-                            hasTextBottom
-                            :textBottomInfo="errors.waste_percentage"
-                            :hasNegative="false"
-                            minValue="0"
-                            maxValue="100"
-                            xl="3"
-                            lg="3"/>
+                            <InputNumber
+                                v-model="form.waste_percentage"
+                                hasDiv
+                                title="Merma esperada"
+                                :titleClass="formTitleClass"
+                                hasTextBottom
+                                :textBottomInfo="errors.waste_percentage"
+                                :hasNegative="false"
+                                minValue="0"
+                                maxValue="100"
+                                xl="3"
+                                lg="3">
+                                <template #inputGroupAppend><span class="input-group-text br-input-unit-suffix">%</span></template>
+                            </InputNumber>
 
-                        <InputTextArea
-                            v-model="form.preparation_notes"
-                            hasDiv
-                            title="Notas operativas"
-                            :titleClass="formTitleClass"
-                            hasTextBottom
-                            :textBottomInfo="errors.preparation_notes"
-                            xl="9"
-                            lg="9"/>
-                    </div>
+                            <InputTextArea
+                                v-model="form.preparation_notes"
+                                hasDiv
+                                title="Notas operativas"
+                                :titleClass="formTitleClass"
+                                hasTextBottom
+                                :textBottomInfo="errors.preparation_notes"
+                                xl="9"
+                                lg="9"/>
+                        </div>
+                    </FormGroup>
                 </section>
 
                 <section v-show="activeTab === 'components'" id="recipe-tab-components" class="br-entity-form-section br-tab-panel" role="tabpanel" aria-labelledby="recipe-tab-trigger-components">
-                    <div class="br-recipe-section-toolbar">
-                        <div>
-                            <h3>Insumos base</h3>
-                            <p>Condimentos, materias primas y productos consumidos al preparar el platillo.</p>
-                        </div>
-                        <button type="button" class="br-btn br-btn-sm br-btn-action-create" @click="addComponent">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar insumo</span>
-                        </button>
-                    </div>
-                    <div class="br-recipe-lines">
-                        <div v-for="(row, index) in form.components" :key="row.uid" class="br-recipe-line">
-                            <v-select v-model="row.item" :options="ingredients" label="name" placeholder="Insumo" append-to-body/>
-                            <InputNumber v-model="row.quantity" :hasNegative="false" :minValue="quantityStep" placeholder="Cantidad"/>
-                            <InputNumber v-model="row.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
-                            <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(form.components, index)">
-                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                    <FormGroup title="Insumos base" icon="fa-solid fa-basket-shopping" stacked>
+                        <template #actions>
+                            <button type="button" class="br-btn br-btn-sm br-btn-action-create" @click="addComponent">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <span>Agregar insumo</span>
                             </button>
+                        </template>
+                        <ul v-if="errorsByTab.components?.size" class="text-danger small ps-3" role="alert">
+                            <li v-for="message in errorsByTab.components" :key="message">{{ message }}</li>
+                        </ul>
+                        <p class="small text-muted mb-3">Indica qué insumos y cantidades se usan para preparar el platillo.</p>
+                        <div class="br-recipe-lines">
+                            <div v-for="(row, index) in form.components" :key="row.uid" class="br-recipe-line">
+                                <v-select v-model="row.item" :options="ingredients" label="name" placeholder="Buscar insumo" append-to-body/>
+                                <InputNumber v-model="row.quantity" :hasNegative="false" :minValue="quantityStep" aria-label="Cantidad de insumo" placeholder="Cantidad"/>
+                                <InputNumber v-model="row.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" aria-label="Merma del insumo, en porcentaje" placeholder="Merma %"/>
+                                <button type="button" class="br-icon-action br-btn-danger" aria-label="Quitar insumo" title="Quitar insumo" @click="removeRow(form.components, index)">
+                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </FormGroup>
                 </section>
 
                 <section v-show="activeTab === 'toppings'" id="recipe-tab-toppings" class="br-entity-form-section br-tab-panel" role="tabpanel" aria-labelledby="recipe-tab-trigger-toppings">
-                    <div class="br-recipe-section-toolbar">
-                        <div>
-                            <h3>Toppings y extras</h3>
-                            <p>Adicionales vendibles que pueden aumentar el total y consumir insumos propios.</p>
-                        </div>
-                        <button type="button" class="br-btn br-btn-sm br-btn-action-create" @click="addTopping">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar extra</span>
-                        </button>
-                    </div>
-                    <div v-for="(topping, index) in form.toppings" :key="topping.uid" class="br-recipe-card">
-                        <div class="br-recipe-card__grid">
-                            <InputText v-model="topping.name" placeholder="Nombre del extra"/>
-                            <InputNumber v-model="topping.price" :hasNegative="false" minValue="0">
-                                <template #inputGroupPrepend>
-                                    <span class="input-group-text br-currency-prefix">{{ currencySign }}</span>
-                                </template>
-                            </InputNumber>
-                            <InputNumber v-model="topping.max_quantity" :hasNegative="false" minValue="1" :decimals="0" placeholder="Máx."/>
-                            <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(form.toppings, index)">
-                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                    <FormGroup title="Extras" icon="fa-solid fa-circle-plus" stacked>
+                        <template #actions>
+                            <button type="button" class="br-btn br-btn-sm br-btn-action-create" @click="addTopping">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <span>Agregar extra</span>
                             </button>
-                        </div>
-                        <button type="button" class="br-quick-create-trigger br-quick-create-trigger--link mt-2" @click="addToppingComponent(topping)">
-                            <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
-                            <span>Agregar insumo del extra</span>
-                        </button>
-                        <div v-for="(component, componentIndex) in topping.components" :key="component.uid" class="br-recipe-line mt-2">
-                            <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Insumo" append-to-body/>
-                            <InputNumber v-model="component.quantity" :hasNegative="false" :minValue="quantityStep" placeholder="Cantidad"/>
-                            <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
-                            <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(topping.components, componentIndex)">
-                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                        </template>
+                        <ul v-if="errorsByTab.toppings?.size" class="text-danger small ps-3" role="alert">
+                            <li v-for="message in errorsByTab.toppings" :key="message">{{ message }}</li>
+                        </ul>
+                        <p class="small text-muted mb-3">Define el precio de cada extra y los insumos que consume.</p>
+                        <div v-for="(topping, index) in form.toppings" :key="topping.uid" class="br-recipe-card">
+                            <div class="br-recipe-card__grid">
+                                <InputText v-model="topping.name" placeholder="Nombre del extra"/>
+                                <InputNumber v-model="topping.price" aria-label="Precio del extra" placeholder="Precio" :hasNegative="false" minValue="0">
+                                    <template #inputGroupPrepend>
+                                        <span class="input-group-text br-currency-prefix">{{ currencySign }}</span>
+                                    </template>
+                                </InputNumber>
+                                <InputNumber v-model="topping.max_quantity" :hasNegative="false" minValue="1" :decimals="0" aria-label="Cantidad máxima del extra" placeholder="Cantidad máx."/>
+                                <button type="button" class="br-icon-action br-btn-danger" aria-label="Quitar extra" title="Quitar extra" @click="removeRow(form.toppings, index)">
+                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <button type="button" class="br-quick-create-trigger br-quick-create-trigger--link mt-2" @click="addToppingComponent(topping)">
+                                <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+                                <span>Agregar insumo del extra</span>
                             </button>
+                            <div v-for="(component, componentIndex) in topping.components" :key="component.uid" class="br-recipe-line mt-2">
+                                <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Buscar insumo" append-to-body/>
+                                <InputNumber v-model="component.quantity" :hasNegative="false" :minValue="quantityStep" aria-label="Cantidad de insumo" placeholder="Cantidad"/>
+                                <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" aria-label="Merma del insumo, en porcentaje" placeholder="Merma %"/>
+                                <button type="button" class="br-icon-action br-btn-danger" aria-label="Quitar insumo del extra" title="Quitar insumo del extra" @click="removeRow(topping.components, componentIndex)">
+                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </FormGroup>
                 </section>
 
                 <section v-show="activeTab === 'options'" id="recipe-tab-options" class="br-entity-form-section br-tab-panel mb-0" role="tabpanel" aria-labelledby="recipe-tab-trigger-options">
-                    <div class="br-recipe-section-toolbar">
-                        <div>
-                            <h3>Sabores y variantes</h3>
-                            <p>Útil para pizzas mixtas, combinaciones por porción o variantes con insumos propios.</p>
-                        </div>
-                        <button type="button" class="br-btn br-btn-sm br-btn-action-create" @click="addOption">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar sabor</span>
-                        </button>
-                    </div>
-                    <div v-for="(option, index) in form.options" :key="option.uid" class="br-recipe-card">
-                        <div class="br-recipe-card__grid">
-                            <InputText v-model="option.name" placeholder="Nombre del sabor"/>
-                            <InputText v-model="option.description" placeholder="Descripción breve"/>
-                            <InputNumber v-model="option.max_portions" :hasNegative="false" minValue="1" :decimals="0" placeholder="Porciones máx."/>
-                            <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(form.options, index)">
-                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                    <FormGroup title="Sabores y variantes" icon="fa-solid fa-layer-group" stacked>
+                        <template #actions>
+                            <button type="button" class="br-btn br-btn-sm br-btn-action-create" @click="addOption">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <span>Agregar sabor</span>
                             </button>
-                        </div>
-                        <button type="button" class="br-quick-create-trigger br-quick-create-trigger--link mt-2" @click="addOptionComponent(option)">
-                            <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
-                            <span>Agregar insumo del sabor</span>
-                        </button>
-                        <div v-for="(component, componentIndex) in option.components" :key="component.uid" class="br-recipe-line mt-2">
-                            <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Insumo" append-to-body/>
-                            <InputNumber v-model="component.quantity" :hasNegative="false" :minValue="quantityStep" placeholder="Cantidad"/>
-                            <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" placeholder="Merma %"/>
-                            <button type="button" class="br-icon-action br-btn-danger" @click="removeRow(option.components, componentIndex)">
-                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                        </template>
+                        <ul v-if="errorsByTab.options?.size" class="text-danger small ps-3" role="alert">
+                            <li v-for="message in errorsByTab.options" :key="message">{{ message }}</li>
+                        </ul>
+                        <p class="small text-muted mb-3">Configura las variantes por porción y los insumos de cada una.</p>
+                        <div v-for="(option, index) in form.options" :key="option.uid" class="br-recipe-card">
+                            <div class="br-recipe-card__grid">
+                                <InputText v-model="option.name" placeholder="Nombre del sabor"/>
+                                <InputText v-model="option.description" placeholder="Descripción breve"/>
+                                <InputNumber v-model="option.max_portions" :hasNegative="false" minValue="1" :decimals="0" aria-label="Porciones máximas del sabor" placeholder="Porciones máx."/>
+                                <button type="button" class="br-icon-action br-btn-danger" aria-label="Quitar sabor" title="Quitar sabor" @click="removeRow(form.options, index)">
+                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <button type="button" class="br-quick-create-trigger br-quick-create-trigger--link mt-2" @click="addOptionComponent(option)">
+                                <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+                                <span>Agregar insumo del sabor</span>
                             </button>
+                            <div v-for="(component, componentIndex) in option.components" :key="component.uid" class="br-recipe-line mt-2">
+                                <v-select v-model="component.item" :options="ingredients" label="name" placeholder="Buscar insumo" append-to-body/>
+                                <InputNumber v-model="component.quantity" :hasNegative="false" :minValue="quantityStep" aria-label="Cantidad de insumo" placeholder="Cantidad"/>
+                                <InputNumber v-model="component.waste_percentage" :hasNegative="false" minValue="0" maxValue="100" aria-label="Merma del insumo, en porcentaje" placeholder="Merma %"/>
+                                <button type="button" class="br-icon-action br-btn-danger" aria-label="Quitar insumo del sabor" title="Quitar insumo del sabor" @click="removeRow(option.components, componentIndex)">
+                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </FormGroup>
                 </section>
             </form>
-        </template>
-        <template #footerClose>
-            <button type="button" class="br-btn br-btn-cancel waves-effect" data-bs-dismiss="modal" :disabled="saving">Cerrar</button>
-        </template>
-        <template #footer>
-            <button type="button" class="br-btn br-btn-action-create waves-effect" :disabled="saving" @click="saveRecipe">
-                {{ saving ? "Guardando…" : "Guardar receta" }}
-            </button>
         </template>
     </FormModal>
 </template>
 
 <script>
+import FormGroup from "@/Shared/FormGroup.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import AppTabs from "@/Shared/AppTabs.vue";
 import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
@@ -331,7 +344,15 @@ const uid = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default {
     mixins: [InitialPageMixin],
-    components: {FormModal, AppTabs, CatalogListSkeleton, TableActionsDropdown, InternalCodeValue},
+    components: {
+        FormGroup,
+        ResponsiveTable,
+        FormModal,
+        AppTabs,
+        CatalogListSkeleton,
+        TableActionsDropdown,
+        InternalCodeValue
+    },
     data() {
         return {
             breadcrumbTitles: [{title: "Catálogo e inventario"}, {title: "Recetas y platillos"}],
@@ -353,7 +374,7 @@ export default {
             tabs: [
                 {id: "general", label: "Datos", description: "Platillo y rendimiento", icon: "fa-solid fa-utensils"},
                 {id: "components", label: "Insumos", description: "Fórmula base", icon: "fa-solid fa-basket-shopping"},
-                {id: "toppings", label: "Extras", description: "Toppings y adicionales", icon: "fa-solid fa-circle-plus"},
+                {id: "toppings", label: "Extras", description: "Precio e insumos", icon: "fa-solid fa-circle-plus"},
                 {id: "options", label: "Sabores", description: "Variantes del platillo", icon: "fa-solid fa-layer-group"}
             ],
             filterOptions: [
@@ -371,6 +392,15 @@ export default {
         },
         currencySign() {
             return this.currencies?.[0]?.sign || "S/";
+        },
+        errorsByTab() {
+            const sections = {};
+            for(const [field, message] of Object.entries(this.errors)) {
+                const section = field.split(".")[0];
+                const tab = ["components", "toppings", "options"].includes(section) ? section : "general";
+                (sections[tab] ??= new Set()).add(message);
+            }
+            return sections;
         }
     },
     async mounted() {
@@ -524,32 +554,42 @@ export default {
             }, {});
         },
         tabHasErrors(tab) {
-            return Object.keys(this.errors).some(field => {
-                const section = field.split(".")[0];
-                return (["components", "toppings", "options"].includes(section) ? section : "general") === tab;
-            });
+            return Boolean(this.errorsByTab[tab]?.size);
         },
         async saveRecipe() {
             if(this.saving) return;
             this.saving = true;
             this.errors = {};
 
-            const payload = this.buildPayload();
-            const response = this.isUpdate
-                ? await Requests.patch({route: CONFIG.routes.update, id: this.form.id, data: payload})
-                : await Requests.post({route: CONFIG.routes.store, data: payload});
+            let response;
+            try {
+                const payload = this.buildPayload();
+                response = this.isUpdate
+                    ? await Requests.patch({route: CONFIG.routes.update, id: this.form.id, data: payload})
+                    : await Requests.post({route: CONFIG.routes.store, data: payload});
+            } catch {
+                response = null;
+            } finally {
+                this.saving = false;
+            }
 
-            this.saving = false;
-
-            if(!response.bool || response.data?.bool === false) {
-                this.errors = this.normalizeErrors(response.data?.errors || {});
+            if(!response?.bool || response.data?.bool === false) {
+                this.errors = this.normalizeErrors(response?.errors ?? response?.data?.errors ?? {});
                 this.activeTab = this.tabs.find(tab => this.tabHasErrors(tab.id))?.id || this.activeTab;
-                Alerts.toastrs({type: "error", subtitle: response.data?.msg || "Revisa la información ingresada."});
+                const hasFieldErrors = Object.keys(this.errors).length > 0;
+                const rejected = hasFieldErrors || (response?.code >= 400 && response.code < 500);
+                Alerts.toastrs({
+                    type: "error",
+                    title: rejected ? "Revisa los datos de la receta" : "No pudimos confirmar el guardado",
+                    subtitle: rejected
+                        ? (hasFieldErrors ? "Corrige los campos indicados y vuelve a guardar." : response?.data?.msg || "No se pudo guardar la receta.")
+                        : "Consulta el listado antes de volver a guardar la receta."
+                });
                 return;
             }
 
-            Alerts.toastrs({type: "success", subtitle: response.data?.msg || "Registro guardado correctamente."});
             bootstrap.Modal.getInstance(document.getElementById("recipeModal"))?.hide();
+            Alerts.toastrs({type: "success", subtitle: response.data?.msg || "Se guardó la receta."});
             this.listRecipes();
         }
     }

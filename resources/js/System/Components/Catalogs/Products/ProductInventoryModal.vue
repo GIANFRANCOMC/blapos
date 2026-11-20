@@ -1,7 +1,7 @@
 <template>
     <FormModal
         :modal-id="modalId"
-        title="INVENTARIO"
+        title="Inventario del producto"
         modal-class="br-modal-standard"
         modal-size="modal-lg"
         :show-submit="false">
@@ -11,9 +11,9 @@
                     <div class="br-product-inventory-view__identity">
                         <strong class="br-product-inventory-view__name" v-text="record.name"></strong>
                         <div class="br-product-inventory-view__meta">
-                            <span v-if="record.internal_code">Cód. interno: <strong v-text="record.internal_code"></strong></span>
-                            <span v-if="record.barcode">Cód. barras: <strong v-text="record.barcode"></strong></span>
-                            <span v-if="record.brand?.name">Marca: <strong v-text="record.brand.name"></strong></span>
+                            <span v-if="record.internal_code"><span class="colon-at-end">Cód. interno</span> <strong v-text="record.internal_code"></strong></span>
+                            <span v-if="record.barcode"><span class="colon-at-end">Cód. barras</span> <strong v-text="record.barcode"></strong></span>
+                            <span v-if="record.brand?.name"><span class="colon-at-end">Marca</span> <strong v-text="record.brand.name"></strong></span>
                         </div>
                     </div>
                     <div class="br-product-inventory-view__total">

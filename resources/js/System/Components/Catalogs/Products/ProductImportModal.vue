@@ -1,224 +1,81 @@
 <template>
-    <FormModal
+    <FileImportModal
+        ref="importModal"
         :modal-id="modalId"
-        :title="title"
-        modal-class="br-catalog-import-modal"
-        modal-size="modal-lg"
-        :keyboard="false"
-        :close-disabled="importing">
-        <template #body>
-            <p class="br-import-products__intro">
-                Completa el nombre y el precio. {{ internalCodeImportHelp(internalCodePrefix) }} El código de barras se genera si lo dejas vacío.
-            </p>
-
-            <button
-                type="button"
-                class="br-import-products__template"
-                :disabled="downloadingTemplate || importing"
-                @click="downloadTemplate">
-                <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
-                <span>Descargar plantilla</span>
-            </button>
-
-            <div class="row g-3 mt-1">
-                <div class="col-12 col-lg-6 col-xl-6">
-                    <label for="productImportWarehouse" class="form-label">Almacén para el stock inicial</label>
-                    <v-select
-                        id="productImportWarehouse"
-                        v-model="form.warehouse"
-                        :options="warehouseOptions"
-                        :clearable="false"
-                        :searchable="false"
-                        append-to-body>
-                        <template #no-options>
-                            <SelectNoOptions/>
-                        </template>
-                    </v-select>
-                    <small v-if="errors.warehouse_id" class="text-danger">
-                        {{ firstError(errors.warehouse_id) }}
-                    </small>
-                </div>
-
-                <div class="col-12 col-lg-6 col-xl-6">
-                    <label for="productImportFile" class="form-label">Archivo de productos</label>
-                    <input
-                        id="productImportFile"
-                        ref="fileInput"
-                        class="form-control"
-                        type="file"
-                        accept=".xlsx,.xls,.csv"
-                        @change="selectFile">
-                    <small class="br-import-products__help">
-                        Se aceptan archivos Excel o CSV. El tamaño permitido se valida al cargar.
-                    </small>
-                    <small v-if="errors.file" class="text-danger d-block">
-                        {{ firstError(errors.file) }}
-                    </small>
-                </div>
+        resource="productos"
+        :instructions="instructions"
+        :import-route="importRoute"
+        template-file-name="plantilla_productos.xlsx"
+        :additional-data="{warehouse_id: warehouse?.code}"
+        :required-fields="{warehouse_id: 'Selecciona el almacén para el stock inicial.'}"
+        @imported="$emit('imported', $event)">
+        <template #fields="{errors, busy}">
+            <div class="br-file-import__field">
+                <label :for="`${modalId}-warehouse`" class="form-label colon-at-end required">Almacén para el stock inicial</label>
+                <v-select
+                    v-model="warehouse"
+                    :input-id="`${modalId}-warehouse`"
+                    :options="warehouseOptions"
+                    :clearable="false"
+                    :searchable="false"
+                    :disabled="busy"
+                    append-to-body
+                    @update:model-value="$refs.importModal.clearError('warehouse_id')">
+                    <template #search="{attributes, events}">
+                        <input
+                            class="vs__search"
+                            v-bind="attributes"
+                            v-on="events"
+                            aria-required="true"
+                            :aria-invalid="Boolean(errors.warehouse_id)"
+                            :aria-describedby="errors.warehouse_id ? `${modalId}-warehouse-error` : undefined">
+                    </template>
+                    <template #no-options>
+                        <SelectNoOptions/>
+                    </template>
+                </v-select>
+                <small v-if="errors.warehouse_id" :id="`${modalId}-warehouse-error`" class="br-file-import__help text-danger" role="alert">
+                    {{ errors.warehouse_id }}
+                </small>
             </div>
         </template>
-
-        <template #footerClose>
-            <button
-                ref="closeButton"
-                type="button"
-                class="br-btn br-btn-cancel"
-                :disabled="importing"
-                data-bs-dismiss="modal">
-                Cerrar
-            </button>
-        </template>
-
-        <template #footer>
-            <button
-                type="button"
-                class="br-btn br-btn-action-create"
-                :disabled="importing"
-                @click="importProducts">
-                Cargar
-            </button>
-        </template>
-    </FormModal>
+    </FileImportModal>
 </template>
 
 <script>
-import * as Alerts from "@System/Helpers/Alerts.js";
-import * as Requests from "@System/Helpers/Requests.js";
 import {internalCodeImportHelp} from "@System/Helpers/InternalCodes.js";
-import FormModal from "@System/Components/Generics/FormModal.vue";
+import FileImportModal from "@System/Components/Generics/FileImportModal.vue";
 import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 
 export default {
     name: "ProductImportModal",
-    components: {FormModal, SelectNoOptions},
+    components: {FileImportModal, SelectNoOptions},
     emits: ["imported"],
     props: {
         internalCodePrefix: {type: String, default: ""},
-        title: {
-            type: String,
-            required: true
-        },
-        modalId: {
-            type: String,
-            default: "productImportModal"
-        },
-        importRoute: {
-            type: String,
-            required: true
-        },
-        warehouses: {
-            type: Array,
-            default: () => []
-        }
+        modalId: {type: String, default: "productImportModal"},
+        importRoute: {type: String, required: true},
+        warehouses: {type: Array, default: () => []}
     },
     data() {
-        return {
-            importing: false,
-            downloadingTemplate: false,
-            form: {
-                warehouse: null,
-                file: null
-            },
-            errors: {}
-        };
-    },
-    methods: {
-        internalCodeImportHelp,
-        open() {
-            this.reset();
-            this.form.warehouse = this.warehouseOptions[0] ?? null;
-            Alerts.modals({type: "show", id: this.modalId});
-        },
-        reset() {
-            this.form = {warehouse: null, file: null};
-            this.errors = {};
-
-            if(this.$refs.fileInput) {
-                this.$refs.fileInput.value = "";
-            }
-        },
-        selectFile(event) {
-            this.form.file = event.target.files?.[0] ?? null;
-            delete this.errors.file;
-        },
-        async downloadTemplate() {
-            if(this.downloadingTemplate) return;
-
-            this.downloadingTemplate = true;
-            Alerts.swals({
-                type: "loading",
-                message: "Preparando plantilla"
-            });
-
-            try {
-                await Requests.download({
-                    route: this.importRoute,
-                    fileName: "plantilla_productos.xlsx",
-                    showAlert: true
-                });
-            }finally {
-                Alerts.swals({show: false});
-                this.downloadingTemplate = false;
-            }
-        },
-        async importProducts() {
-            this.errors = {};
-
-            if(!this.form.warehouse?.code) {
-                this.errors.warehouse_id = ["Selecciona un almacén."];
-            }
-
-            if(!this.form.file) {
-                this.errors.file = ["Selecciona el archivo completado."];
-            }
-
-            if(Object.keys(this.errors).length) return;
-
-            this.importing = true;
-            Alerts.swals({type: "loading", message: "Importando productos"});
-
-            const formData = new FormData();
-            formData.append("warehouse_id", this.form.warehouse.code);
-            formData.append("file", this.form.file);
-
-            const result = await Requests.post({
-                route: this.importRoute,
-                formData
-            });
-
-            this.importing = false;
-            Alerts.swals({show: false});
-
-            if(Requests.valid({result})) {
-                this.$refs.closeButton?.click();
-                Alerts.generateAlert({
-                    type: "success",
-                    msgContent: result.data.msg
-                });
-                this.$emit("imported", result.data.data);
-                return;
-            }
-
-            this.errors = result?.errors ?? result?.data?.errors ?? {};
-            const messages = Object.values(this.errors).flat();
-
-            Alerts.generateAlert({
-                type: "error",
-                messages: messages.length
-                    ? messages
-                    : [result?.data?.msg || "No se pudo completar la carga masiva."]
-            });
-        },
-        firstError(error) {
-            return Array.isArray(error) ? error[0] : error;
-        }
+        return {warehouse: null};
     },
     computed: {
+        instructions() {
+            return `Completa el nombre y el precio de cada producto. ${internalCodeImportHelp(this.internalCodePrefix)} El código de barras se genera si lo dejas vacío.`;
+        },
         warehouseOptions() {
             return this.warehouses.map(warehouse => ({
                 code: warehouse.id,
                 label: `${warehouse.branch?.name ? `${warehouse.branch.name} - ` : ""}${warehouse.name}`
             }));
+        }
+    },
+    methods: {
+        open() {
+            if(this.$refs.importModal.busy) return;
+            this.warehouse = this.warehouseOptions[0] ?? null;
+            this.$refs.importModal.open();
         }
     }
 };

@@ -1,0 +1,64 @@
+.br-record-editor .br-entity-modal__title {
+    color: var(--br-secondary);
+    text-transform: none;
+}
+
+.br-form-groups {
+    display: grid;
+    gap: 1.15rem;
+}
+
+.br-form-group {
+    display: grid;
+    min-inline-size: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+}
+
+.br-form-group__header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.br-form-group__icon {
+    flex: 0 0 auto;
+    color: var(--br-text-muted);
+    font-size: var(--br-ui-font-size);
+    line-height: 1.25;
+}
+
+.br-form-group--primary :is(.br-form-group-heading, .br-form-group__icon) {
+    color: var(--br-primary-active);
+}
+
+.br-form-group-heading {
+    margin: 0;
+    color: var(--br-secondary);
+    font-size: var(--br-ui-font-size);
+    font-weight: var(--br-font-weight-heading);
+    line-height: 1.25;
+}
+
+.br-form-group__body {
+    min-inline-size: 0;
+}
+
+.br-form-group__actions {
+    margin-inline-start: auto;
+}
+
+@media (min-width: 992px) {
+    .br-form-group:not(.br-form-group--stacked) {
+        grid-template-columns: 8rem minmax(0, 1fr);
+        column-gap: 0.85rem;
+    }
+
+    .br-form-group:not(.br-form-group--stacked) > .br-form-group__header {
+        align-self: start;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        padding-block-start: 0.15rem;
+    }
+}

@@ -2,11 +2,12 @@
     <template v-if="hasDiv">
         <div :class="[...divClass, divSizeClass]">
             <slot name="default"></slot>
-            <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
+            <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="controlId"></label>
             <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
             <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
                 <slot name="inputGroupPrepend"></slot>
                 <textarea
+                    :id="controlId"
                     :value="modelValue"
                     @input="updateValue($event.target.value)"
                     :class="[...inputClass]"
@@ -25,11 +26,12 @@
     </template>
     <template v-else>
         <slot name="default"></slot>
-        <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
+        <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="controlId"></label>
         <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
         <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
             <slot name="inputGroupPrepend"></slot>
             <textarea
+                :id="controlId"
                 :value="modelValue"
                 @input="updateValue($event.target.value)"
                 :class="[...inputClass]"
@@ -48,10 +50,14 @@
 </template>
 
 <script>
+import {useId} from "vue";
 import { generalConfig } from "../Helpers/Constants.js";
 
 export default {
     name: "InputTextArea",
+    setup() {
+        return {controlId: useId()};
+    },
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
         modelValue: {

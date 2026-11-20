@@ -22,8 +22,8 @@
                 :show-download-button="true"
                 :show-import-button="true"
                 :group-secondary-actions="true"
-                import-button-text="Cargar masivamente"
-                download-button-text="Descargar Excel"
+                import-button-text="Importar marcas"
+                download-button-text="Descargar listado en Excel"
                 :downloading="isExporting"
                 :title-class="[config.forms.classes.title]"
                 :select-class="config.forms.classes.select2"
@@ -42,7 +42,7 @@
                 @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de marcas">
-                <div class="table-responsive" tabindex="0">
+                <ResponsiveTable>
                     <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
                         <colgroup>
                             <col style="width: 20%;">
@@ -64,7 +64,7 @@
                         </thead>
                         <tbody>
                             <tr class="br-table-state" v-if="entityList.extras.loading">
-                                <td colspan="6" class="py-4"><Loader/></td>
+                                <td colspan="6" class="py-4"><Loader label="Buscando marcas…"/></td>
                             </tr>
                             <template v-else-if="entityList.records.total > 0">
                                 <tr v-for="record in entityList.records.data" :key="record.id">
@@ -76,8 +76,10 @@
                                         <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
                                     </td>
                                     <td class="text-center">
-                                        <a v-if="record.website_url" class="br-link text-nowrap" :href="record.website_url" target="_blank" rel="noopener noreferrer">
-                                            Visitar sitio
+                                        <a v-if="record.website_url" class="br-link text-nowrap" :href="record.website_url" target="_blank" rel="noopener noreferrer"
+                                            :aria-label="`Visitar el sitio oficial de ${record.name} en una nueva pestaña`">
+                                            <span>Visitar sitio</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i>
                                         </a>
                                         <span v-else class="br-entity-table__meta mt-0">
                                             Sin sitio oficial
@@ -96,7 +98,7 @@
                                             <li>
                                                 <button type="button" class="dropdown-item" @click="openModal(record)">
                                                     <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                    <span>Editar</span>
+                                                    <span>Editar marca</span>
                                                 </button>
                                             </li>
                                         </TableActionsDropdown>
@@ -108,13 +110,13 @@
                                     <WithoutData
                                         class="br-entity-empty-state"
                                         type="image"
-                                        :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
-                                        :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
+                                        :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos marcas con esta búsqueda' : 'Aún no hay marcas registradas'"
+                                        :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una marca o importa un archivo para empezar.'"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </ResponsiveTable>
             </section>
 
             <Paginator aria-label="Paginación de marcas" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
@@ -124,110 +126,122 @@
     <FormModal
         :modal-id="brandForm.extras.modals.default.id"
         :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
+        modal-class="br-record-editor"
         modal-size="modal-lg"
         :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :close-disabled="isSaving"
         :submit-disabled="isSaving"
+        :submit-button-text="isSaving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar marca'"
         @submit="saveEntity">
         <template #body>
                     <form @submit.prevent="saveEntity">
-                        <section class="br-entity-form-section">
-                            <div class="row g-3">
-                                <InputText
-                                    v-model="brandForm.data.name"
-                                    hasDiv
-                                    title="Nombre"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    maxlength="100"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.name"
-                                    xl="8"
-                                    lg="8"/>
+                        <section class="br-entity-form-section br-form-groups">
+                            <FormGroup title="Identificación" icon="fa-solid fa-id-card" primary>
+                                <div class="row g-3">
+                                    <InputText
+                                        v-model="brandForm.data.name"
+                                        hasDiv
+                                        title="Nombre"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        maxlength="100"
+                                        showCharCounter
+                                        hasTextBottom
+                                        :textBottomInfo="brandForm.errors?.name"
+                                        xl="8"
+                                        lg="8"/>
 
-                                <InternalCodeInput
-                                    v-model="brandForm.data.internal_code"
-                                    v-bind="internalCodeInputProps(brandForm.data)"
-                                    hasDiv
-                                    title="Código interno"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.internal_code"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-if="!isUpdate" #inputGroupAppend>
-                                        <button
-                                            type="button"
-                                            class="br-input-action"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Generar un nuevo código interno para la marca"
-                                            aria-label="Generar un nuevo código interno para la marca"
-                                            @click="generateInternalCode($event)">
-                                            <i class="fa-solid fa-rotate" aria-hidden="true"></i>
-                                        </button>
-                                    </template>
-                                </InternalCodeInput>
+                                    <InternalCodeInput
+                                        v-model="brandForm.data.internal_code"
+                                        v-bind="internalCodeInputProps(brandForm.data)"
+                                        hasDiv
+                                        title="Código interno"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        hasTextBottom
+                                        :textBottomInfo="brandForm.errors?.internal_code"
+                                        xl="4"
+                                        lg="4">
+                                        <template v-if="!isUpdate" #inputGroupAppend>
+                                            <button
+                                                type="button"
+                                                class="br-input-action"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Generar un nuevo código interno para la marca"
+                                                aria-label="Generar un nuevo código interno para la marca"
+                                                @click="generateInternalCode($event)">
+                                                <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+                                            </button>
+                                        </template>
+                                    </InternalCodeInput>
+                                </div>
+                            </FormGroup>
 
-                                <InputText
-                                    v-model="brandForm.data.description"
-                                    hasDiv
-                                    title="Descripción"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="250"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.description"
-                                    xl="8"
-                                    lg="8"/>
+                            <FormGroup title="Información y estado" icon="fa-solid fa-circle-info">
+                                <div class="row g-3">
+                                    <InputText
+                                        v-model="brandForm.data.description"
+                                        hasDiv
+                                        title="Descripción"
+                                        :titleClass="[config.forms.classes.title]"
+                                        maxlength="250"
+                                        showCharCounter
+                                        hasTextBottom
+                                        :textBottomInfo="brandForm.errors?.description"
+                                        xl="8"
+                                        lg="8"/>
 
-                                <InputSlot
-                                    hasDiv
-                                    title="Estado"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.status"
-                                    xl="4"
-                                    lg="4">
-                                    <template #input>
-                                        <v-select
-                                            v-model="brandForm.data.status"
-                                            :options="statuses"
-                                            :class="config.forms.classes.select2"
-                                            :clearable="false"
-                                            :searchable="false"
-                                            append-to-body>
-                                            <template #selected-option="option">
-                                                <span
-                                                    class="br-select-selected-text"
-                                                    :title="option.label"
-                                                    v-text="option.label">
-                                                </span>
-                                            </template>
-                                            <template #option="option">
-                                                <span
-                                                    class="br-select-option-text"
-                                                    :title="option.label"
-                                                    v-text="option.label">
-                                                </span>
-                                            </template>
-                                        </v-select>
-                                    </template>
-                                </InputSlot>
+                                    <InputSlot
+                                        input-id="brand-catalog-status"
+                                        hasDiv
+                                        title="Estado"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        hasTextBottom
+                                        :textBottomInfo="brandForm.errors?.status"
+                                        xl="4"
+                                        lg="4">
+                                        <template #input>
+                                            <v-select
+                                                input-id="brand-catalog-status"
+                                                v-model="brandForm.data.status"
+                                                :options="statuses"
+                                                :class="config.forms.classes.select2"
+                                                :clearable="false"
+                                                :searchable="false"
+                                                append-to-body>
+                                                <template #selected-option="option">
+                                                    <span
+                                                        class="br-select-selected-text"
+                                                        :title="option.label"
+                                                        v-text="option.label">
+                                                    </span>
+                                                </template>
+                                                <template #option="option">
+                                                    <span
+                                                        class="br-select-option-text"
+                                                        :title="option.label"
+                                                        v-text="option.label">
+                                                    </span>
+                                                </template>
+                                            </v-select>
+                                        </template>
+                                    </InputSlot>
 
-                                <InputText
-                                    v-model="brandForm.data.website_url"
-                                    hasDiv
-                                    title="Sitio oficial"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="500"
-                                    hasTextBottom
-                                    :textBottomInfo="brandForm.errors?.website_url"
-                                    xl="12"
-                                    lg="12"/>
-                            </div>
+                                    <InputText
+                                        v-model="brandForm.data.website_url"
+                                        hasDiv
+                                        title="Sitio oficial"
+                                        placeholder="https://"
+                                        :titleClass="[config.forms.classes.title]"
+                                        maxlength="500"
+                                        hasTextBottom
+                                        :textBottomInfo="brandForm.errors?.website_url"
+                                        xl="12"
+                                        lg="12"/>
+                                </div>
+                            </FormGroup>
                         </section>
                     </form>
         </template>
@@ -235,6 +249,9 @@
 </template>
 
 <script>
+import FormGroup from "@/Shared/FormGroup.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -300,7 +317,19 @@ const MODULE = {
 export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
-    components: {InternalCodeInput, ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {
+        FormGroup,
+        ResponsiveTable,
+        InternalCodeInput,
+        ExpandableText,
+        InitialLoadTransition,
+        CatalogReferenceImportModal,
+        CatalogUsageBreakdown,
+        InternalCodeValue,
+        FormModal,
+        TableActionsDropdown,
+        CatalogListSkeleton
+    },
     data() {
 
         const crudModule = initCrudModule({
@@ -429,39 +458,21 @@ export default {
 
         },
         async downloadRecords() {
-
-            if(this.isExporting) {
-
-                return;
-
-            }
-
-            const confirmed = await Alerts.confirmDownload({resource: "el listado de marcas"});
-
-            if(!confirmed) return;
-
+            if(this.isExporting) return;
             this.isExporting = true;
-            Alerts.swals({type: "default", title: "Preparando reporte de marcas"});
-
             try {
-
-                await Requests.download({
+                await downloadCatalogList({
+                    resource: "marcas",
                     route: this.routeActions.export,
-                    data: {
+                    filters: {
                         filter_by: this.entityList.appliedFilters?.filter_by?.code,
                         word: this.entityList.appliedFilters?.word || ""
                     },
-                    fileName: "marcas.xlsx",
-                    showAlert: true
+                    fileName: "marcas.xlsx"
                 });
-
-            }finally {
-
-                Alerts.swals({show: false});
+            } finally {
                 this.isExporting = false;
-
             }
-
         },
         openImportModal() {
 
@@ -519,10 +530,7 @@ export default {
 
             if(this.isSaving) return;
 
-            Alerts.swals({});
             this.brandForm.errors = {};
-            this.isSaving = true;
-
             try {
 
                 const formData = Utils.cloneJson(this.brandForm.data);
@@ -536,8 +544,9 @@ export default {
 
                     this.brandForm.errors = validation.errors;
                     Alerts.generateAlert({
-                        messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels),
-                        msgContent: this.config.messages.errorValidate
+                        type: "error",
+                        headerTitle: "Revisa los campos indicados",
+                        messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels)
                     });
                     return;
 
@@ -549,12 +558,17 @@ export default {
                 const isUpdate = this.isDefined(id);
                 const method = isUpdate ? "patch" : "post";
                 const route = this.routeActions[isUpdate ? "update" : "store"];
-                const result = await Requests[method]({route, data, id});
+                this.isSaving = true;
+                Alerts.loading({title: isUpdate ? "Guardando cambios" : "Guardando marca"});
+                const result = await Requests[method]({route, data, id}).finally(Alerts.close);
 
                 if(Requests.valid({result})) {
 
-                    Alerts.modals({type: "hide", id: this.brandForm.extras.modals.default.id});
-                    Alerts.generateAlert({type: "success", msgContent: result.data.msg});
+                    Alerts.showMessage({
+                        type: "success",
+                        title: isUpdate ? "Cambios guardados" : "Marca guardada",
+                        text: result.data.msg
+                    });
 
                     const page = this.entityList?.records?.current_page ?? 1;
                     await this.listEntity({url: `${this.entityList?.extras?.route || ""}?page=${page}`});

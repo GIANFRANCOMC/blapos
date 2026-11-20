@@ -22,8 +22,8 @@
             :show-download-button="true"
             :show-import-button="true"
             :group-secondary-actions="true"
-            import-button-text="Cargar masivamente"
-            download-button-text="Descargar Excel"
+            import-button-text="Importar categorías"
+            download-button-text="Descargar listado en Excel"
             :downloading="isExporting"
             :title-class="[config.forms.classes.title]"
             :select-class="config.forms.classes.select2"
@@ -42,7 +42,7 @@
             @imported="listEntity({})"/>
 
         <section class="br-entity-list" aria-label="Listado de categorías">
-            <div class="table-responsive" tabindex="0">
+            <ResponsiveTable>
             <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
                 <colgroup>
                     <col style="width: 20%;">
@@ -63,7 +63,7 @@
                 <tbody>
                     <tr class="br-table-state" v-if="entityList.extras.loading">
                         <td colspan="5" class="py-4">
-                            <Loader/>
+                            <Loader label="Buscando categorías…"/>
                         </td>
                     </tr>
                     <template v-else-if="entityList.records.total > 0">
@@ -86,7 +86,7 @@
                                     <li>
                                         <button type="button" class="dropdown-item" @click="openModal(record)">
                                             <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                            <span>Editar</span>
+                                            <span v-text="MODULE.texts.actions.edit"></span>
                                         </button>
                                     </li>
                                 </TableActionsDropdown>
@@ -98,13 +98,13 @@
                             <WithoutData
                                 class="br-entity-empty-state"
                                 type="image"
-                                :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
-                                :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
+                                :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos categorías con esta búsqueda' : 'Aún no hay categorías registradas'"
+                                :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una categoría o importa un archivo para empezar.'"/>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            </div>
+            </ResponsiveTable>
         </section>
 
         <Paginator aria-label="Paginación de categorías" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
@@ -114,80 +114,97 @@
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
+        modal-class="br-record-editor"
         modal-size="modal-lg"
         :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :close-disabled="isSaving"
         :submit-disabled="isSaving"
+        :submit-button-text="isSaving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar categoría'"
         @submit="saveEntity">
         <template #body>
-                    <form class="br-entity-form-section" @submit.prevent="saveEntity">
-                        <div class="row g-3">
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.name"
-                                hasDiv
-                                :title="MODULE.texts.form.name"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                maxlength="50"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="8"
-                                lg="8"/>
-                            <InternalCodeInput
-                                v-model="forms[entity].createUpdate.data.internal_code"
-                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
-                                hasDiv
-                                :title="MODULE.texts.form.internalCode"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :showCharCounter="false"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
-                                xl="4"
-                                lg="4">
-                                <template v-if="!isUpdate" v-slot:inputGroupAppend>
-                                    <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
-                                        <i class="fa-solid fa-rotate" aria-hidden="true"></i>
-                                    </button>
-                                </template>
-                            </InternalCodeInput>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.description"
-                                hasDiv
-                                :title="MODULE.texts.form.description"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="100"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="8"
-                                lg="8"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.status"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.status"
-                                        :options="statuses"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"
-                                        append-to-body/>
-                                </template>
-                            </InputSlot>
-                        </div>
+                    <form class="br-entity-form-section br-form-groups" @submit.prevent="saveEntity">
+                        <FormGroup title="Identificación" icon="fa-solid fa-id-card" primary>
+                            <div class="row g-3">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.name"
+                                    hasDiv
+                                    :title="MODULE.texts.form.name"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    maxlength="50"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.name"
+                                    xl="8"
+                                    lg="8"/>
+
+                                <InternalCodeInput
+                                    v-model="forms[entity].createUpdate.data.internal_code"
+                                    v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
+                                    hasDiv
+                                    :title="MODULE.texts.form.internalCode"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    :showCharCounter="false"
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-if="!isUpdate" v-slot:inputGroupAppend>
+                                        <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
+                                            <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+                                        </button>
+                                    </template>
+                                </InternalCodeInput>
+                            </div>
+                        </FormGroup>
+
+                        <FormGroup title="Información y estado" icon="fa-solid fa-circle-info">
+                            <div class="row g-3">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.description"
+                                    hasDiv
+                                    :title="MODULE.texts.form.description"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.description"
+                                    xl="8"
+                                    lg="8"/>
+
+                                <InputSlot
+                                    input-id="category-catalog-status"
+                                    hasDiv
+                                    :title="MODULE.texts.form.status"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.status"
+                                    xl="4"
+                                    lg="4">
+                                    <template v-slot:input>
+                                        <v-select
+                                            input-id="category-catalog-status"
+                                            v-model="forms[entity].createUpdate.data.status"
+                                            :options="statuses"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"
+                                            append-to-body/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                        </FormGroup>
                     </form>
         </template>
     </FormModal>
 </template>
 
 <script>
+import FormGroup from "@/Shared/FormGroup.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -258,7 +275,7 @@ const TEXTS = {
     actions: {
         search: "Buscar",
         add: "Agregar categoría",
-        edit: "Editar"
+        edit: "Editar categoría"
     },
     form: {
         internalCode: "Código interno",
@@ -287,7 +304,19 @@ const MODULE = {
 export default {
     name: "CategoriesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {InternalCodeInput, ExpandableText, InitialLoadTransition, CatalogReferenceImportModal, CatalogUsageBreakdown, InternalCodeValue, FormModal, TableActionsDropdown, CatalogListSkeleton},
+    components: {
+        FormGroup,
+        ResponsiveTable,
+        InternalCodeInput,
+        ExpandableText,
+        InitialLoadTransition,
+        CatalogReferenceImportModal,
+        CatalogUsageBreakdown,
+        InternalCodeValue,
+        FormModal,
+        TableActionsDropdown,
+        CatalogListSkeleton
+    },
     data() {
 
         const crudModule = initCrudModule({
@@ -403,39 +432,21 @@ export default {
             return this.listEntity({});
         },
         async downloadRecords() {
-
-            if(this.isExporting) {
-
-                return;
-
-            }
-
-            const confirmed = await Alerts.confirmDownload({resource: "el listado de categorías"});
-
-            if(!confirmed) return;
-
+            if(this.isExporting) return;
             this.isExporting = true;
-            Alerts.swals({type: "default", title: "Preparando reporte de categorías"});
-
             try {
-
-                await Requests.download({
+                await downloadCatalogList({
+                    resource: "categorías",
                     route: this.routeActions.export,
-                    data: {
+                    filters: {
                         filter_by: this.entityList.appliedFilters?.filter_by?.code,
                         word: this.entityList.appliedFilters?.word || ""
                     },
-                    fileName: "categorias.xlsx",
-                    showAlert: true
+                    fileName: "categorias.xlsx"
                 });
-
-            }finally {
-
-                Alerts.swals({show: false});
+            } finally {
                 this.isExporting = false;
-
             }
-
         },
         openImportModal() {
 
@@ -487,11 +498,7 @@ export default {
 
             const entityForms = this.forms[this.entity].createUpdate;
 
-            Alerts.swals({});
-
             entityForms.errors = {};
-            this.isSaving = true;
-
             try {
 
                 const formData   = Utils.cloneJson(entityForms.data);
@@ -502,8 +509,8 @@ export default {
                     entityForms.errors = validation.errors;
                     Alerts.generateAlert({
                         type: "error",
-                        messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels),
-                        msgContent: this.config.messages.errorValidate
+                        headerTitle: "Revisa los campos indicados",
+                        messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels)
                     });
                     return;
 
@@ -515,12 +522,17 @@ export default {
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";
                 const route         = this.routeActions[isUpdate ? "update" : "store"];
-                const result        = await Requests[requestMethod]({route, data: preparedData, id});
+                this.isSaving = true;
+                Alerts.loading({title: isUpdate ? "Guardando cambios" : "Guardando categoría"});
+                const result        = await Requests[requestMethod]({route, data: preparedData, id}).finally(Alerts.close);
 
                 if(Requests.valid({result})) {
 
-                    Alerts.modals({type: "hide", id: entityForms.extras.modals.default.id});
-                    Alerts.generateAlert({type: "success", msgContent: result.data.msg});
+                    Alerts.showMessage({
+                        type: "success",
+                        title: isUpdate ? "Cambios guardados" : "Categoría guardada",
+                        text: result.data.msg
+                    });
 
                     Forms.clearFormData(entityForms.data, this.MODULE.formFields);
 

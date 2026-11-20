@@ -4,14 +4,7 @@ export const FORM_TABS = [
         label: "PRODUCTO",
         description: "Datos y precios",
         icon: "fa-solid fa-box",
-        fields: ["internal_code", "barcode", "name", "price", "min_price", "max_price", "currency", "currency_id", "status"]
-    },
-    {
-        id: "attributes",
-        label: "DETALLE",
-        description: "Marca y catálogo",
-        icon: "fa-solid fa-clipboard-list",
-        fields: ["description", "brand", "brand_id", "categories", "see_my_web", "see_my_web_price"]
+        fields: ["internal_code", "barcode", "name", "price", "min_price", "max_price", "currency", "currency_id", "status", "description", "categories", "brand", "brand_id"]
     },
     {
         id: "inventory",
@@ -21,18 +14,11 @@ export const FORM_TABS = [
         fields: ["inventory"]
     },
     {
-        id: "taxes",
-        label: "IMPUESTOS",
-        description: "Aplicación del IGV",
-        icon: "fa-solid fa-receipt",
-        fields: ["igv_exempt", "price_includes_tax"]
-    },
-    {
         id: "configuration",
         label: "CONFIGURACIÓN",
-        description: "Vigencia y comisión",
+        description: "IGV y visibilidad",
         icon: "fa-solid fa-sliders",
-        fields: ["expires_at", "commission_type", "commission_value"]
+        fields: ["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"]
     }
 ];
 
@@ -166,8 +152,8 @@ export const PRODUCT_TEXTS = {
         search: "Buscar",
         add: "Agregar producto",
         edit: "Editar producto",
-        import: "Cargar masivamente",
-        download: "Descargar Excel"
+        import: "Importar productos",
+        download: "Descargar listado en Excel"
     },
     table: {
         ariaLabel: "Listado de productos"
@@ -176,7 +162,7 @@ export const PRODUCT_TEXTS = {
         internalCode: "Código interno",
         barcode: "Código de barras",
         name: "Nombre",
-        commercialDescription: "Descripción comercial adicional",
+        commercialDescription: "Descripción comercial",
         price: "Precio de venta",
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
@@ -192,7 +178,6 @@ export const PRODUCT_TEXTS = {
     modal: {
         store: "Agregar producto",
         update: "Editar producto",
-        save: "Guardar producto",
-        saving: "Guardando..."
+        save: "Guardar producto"
     }
 };

@@ -6,6 +6,22 @@
   overflow-x: auto;
 }
 
+.br-scroll-table:focus-visible {
+  outline: none;
+}
+
+.br-scroll-table[tabindex="0"]:focus-visible::after {
+  content: "";
+  display: block;
+  position: sticky;
+  inset-inline-start: 0;
+  inline-size: 100cqi;
+  block-size: 2px;
+  margin-block-start: -2px;
+  border-block-end: 2px solid var(--br-primary-active);
+  pointer-events: none;
+}
+
 /* Keep feedback centered in the visible area of a wide table. */
 .table-responsive > .table > tbody > .br-table-state > td[colspan]:has(> :is(.br-feedback-state, .br-loader)) {
   padding-inline: 0;

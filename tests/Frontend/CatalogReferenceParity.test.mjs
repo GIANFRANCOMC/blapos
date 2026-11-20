@@ -54,7 +54,7 @@ test("brands conserva solo sus cinco campos comerciales", () => {
     assert.match(source, /<th class="text-center">En uso<\/th>/);
     assert.match(source, /<CatalogUsageBreakdown :record="record" :enabled-types="options\.usage_types"\/>/);
     assert.match(source, /<th class="text-center">Sitio oficial<\/th>/);
-    assert.match(source, /<td class="text-center">\s*<a v-if="record\.website_url" class="br-link text-nowrap" :href="record\.website_url" target="_blank" rel="noopener noreferrer">\s*Visitar sitio\s*<\/a>\s*<span v-else class="br-entity-table__meta mt-0">\s*Sin sitio oficial/);
+    assert.match(source, /<td class="text-center">\s*<a v-if="record\.website_url" class="br-link text-nowrap" :href="record\.website_url" target="_blank" rel="noopener noreferrer"[^>]*>\s*<span>Visitar sitio<\/span>\s*<i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"><\/i>\s*<\/a>\s*<span v-else class="br-entity-table__meta mt-0">\s*Sin sitio oficial/);
 
     for(const field of ["internal_code", "name", "description", "status", "website_url"]) {
 

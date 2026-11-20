@@ -38,7 +38,7 @@
             <OfferingImportModal ref="importModal" type="service" :import-route="routeActions.import" :internal-code-prefix="internalCodePrefixes.service" @imported="listEntity({})"/>
 
             <section class="br-entity-list" aria-label="Listado de servicios">
-                <div class="table-responsive" tabindex="0">
+                <ResponsiveTable>
             <table class="table br-entity-table br-entity-table--offering br-entity-table--commercial-headings mb-0">
                 <colgroup>
                     <col class="br-entity-table__col-code">
@@ -61,7 +61,7 @@
                 <tbody>
                     <tr class="br-table-state" v-if="entityList.extras.loading">
                         <td colspan="6" class="py-4">
-                            <Loader/>
+                            <Loader label="Buscando servicios…"/>
                         </td>
                     </tr>
                     <template v-else-if="entityList.records.total > 0">
@@ -107,13 +107,13 @@
                             <WithoutData
                                 class="br-entity-empty-state"
                                 type="image"
-                                :text="entityList.appliedFilters?.word?.trim() ? 'Sin coincidencias' : undefined"
-                                :description="entityList.appliedFilters?.word?.trim() ? 'Revisa la búsqueda e inténtalo de nuevo.' : undefined"/>
+                                :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos servicios con esta búsqueda' : 'Aún no hay servicios registrados'"
+                                :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega un servicio o importa un archivo para empezar.'"/>
                         </td>
                     </tr>
                 </tbody>
             </table>
-                </div>
+                </ResponsiveTable>
             </section>
 
         <!-- Pagination -->
@@ -124,9 +124,13 @@
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="MODULE.texts.modal[isUpdate ? 'update' : 'store']"
-        modal-class="br-entity-modal--tabbed"
+        modal-class="br-record-editor br-entity-modal--tabbed"
         modal-size="modal-lg"
-        :show-submit="false">
+        :close-disabled="isSaving"
+        :submit-disabled="isSaving"
+        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        :submit-button-text="isSaving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar servicio'"
+        @submit="saveEntity">
         <template #body>
             <AppTabs
                 v-model="activeFormTab"
@@ -137,294 +141,313 @@
                 variant="descriptive" layout="content"
                 label="Secciones del servicio"/>
             <form class="br-entity-form-section" @submit.prevent="saveEntity">
-                        <div id="service-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`service-tab-trigger-${activeFormTab}`">
-                            <InternalCodeInput
-                                v-show="activeFormTab === 'general'"
-                                v-model="forms[entity].createUpdate.data.internal_code"
-                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
-                                hasDiv
-                                :title="MODULE.texts.form.internalCode"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :showCharCounter="false"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
-                                xl="3"
-                                lg="3">
-                                <template v-slot:inputGroupAppend>
-                                    <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
-                                        <i class="fa fa-rotate"></i>
-                                    </button>
-                                </template>
-                            </InternalCodeInput>
-                            <InputText
-                                v-show="activeFormTab === 'general'"
-                                v-model="forms[entity].createUpdate.data.name"
-                                hasDiv
-                                :title="MODULE.texts.form.name"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                maxlength="100"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="6"
-                                lg="6"/>
-                            <InputNumber
-                                v-show="activeFormTab === 'general'"
-                                v-model="forms[entity].createUpdate.data.estimated_duration_minutes"
-                                hasDiv
-                                :title="MODULE.texts.form.estimatedDuration"
-                                :titleClass="[config.forms.classes.title]"
-                                :decimals="0"
-                                :minValue="1"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.estimated_duration_minutes"
-                                xl="3"
-                                lg="3">
-                                <template #inputGroupAppend>
-                                    <span class="input-group-text br-input-unit-suffix">min</span>
-                                </template>
-                            </InputNumber>
-                            <InputText
-                                v-show="activeFormTab === 'attributes'"
-                                v-model="forms[entity].createUpdate.data.description"
-                                hasDiv
-                                :title="MODULE.texts.form.description"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="100"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="8"
-                                lg="8"/>
-                            <InputDate
-                                v-show="activeFormTab === 'configuration'"
-                                v-model="forms[entity].createUpdate.data.expires_at"
-                                hasDiv
-                                :title="MODULE.texts.form.expiresAt"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
-                                xl="4"
-                                lg="4"/>
-                            <InputSlot
-                                v-show="activeFormTab === 'configuration'"
-                                hasDiv
-                                :title="MODULE.texts.form.commissionType"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.commission_type"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.commission_type"
-                                        :options="commissionTypeOptions"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"
-                                        @update:modelValue="resetCatalogCommission(forms[entity].createUpdate)"/>
-                                </template>
-                            </InputSlot>
-                            <CommissionValueInput
-                                v-show="activeFormTab === 'configuration'"
-                                v-model="forms[entity].createUpdate.data.commission_value"
-                                :commission-type="forms[entity].createUpdate.data.commission_type?.code"
-                                :currency-sign="forms[entity].createUpdate.data.currency?.data?.sign"
-                                :title="MODULE.texts.form.commissionValue"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
-                                xl="4"
-                                lg="4"/>
-                            <div v-show="activeFormTab === 'configuration'" class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                <label class="form-label" v-text="MODULE.texts.form.capacityControl"></label>
-                                <label class="br-entity-switch br-entity-switch--field" for="service_capacity_control_enabled">
-                                    <input
-                                        id="service_capacity_control_enabled"
-                                        v-model="forms[entity].createUpdate.data.capacity_control_enabled"
-                                        @change="delete forms[entity].createUpdate.errors.capacity_limit"
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        role="switch">
-                                    <span>Activar <small>· Límite de cupos</small></span>
-                                </label>
-                            </div>
-                            <InputNumber
-                                v-show="activeFormTab === 'configuration'"
-                                v-model="forms[entity].createUpdate.data.capacity_limit"
-                                hasDiv
-                                :title="MODULE.texts.form.capacityLimit"
-                                :titleClass="[config.forms.classes.title]"
-                                :isRequired="forms[entity].createUpdate.data.capacity_control_enabled"
-                                :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
-                                :decimals="0"
-                                :minValue="1"
-                                :maxValue="validationRules.capacity_limit.max"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
-                                xl="4"
-                                lg="4"/>
-                            <InputNumber
-                                v-show="activeFormTab === 'general'"
-                                v-model="forms[entity].createUpdate.data.price"
-                                hasDiv
-                                :title="MODULE.texts.form.price"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.price"
-                                xl="3"
-                                lg="3">
-                                <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-currency-prefix">
-                                        <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
-                                    </span>
-                                </template>
-                            </InputNumber>
-                            <InputNumber
-                                v-show="activeFormTab === 'general'"
-                                v-model="forms[entity].createUpdate.data.min_price"
-                                hasDiv
-                                :title="MODULE.texts.form.minPrice"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.min_price"
-                                xl="3"
-                                lg="3"
-                                md="6"
-                                sm="6">
-                                <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-currency-prefix">
-                                        <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
-                                    </span>
-                                </template>
-                            </InputNumber>
-                            <InputNumber
-                                v-show="activeFormTab === 'general'"
-                                v-model="forms[entity].createUpdate.data.max_price"
-                                hasDiv
-                                :title="MODULE.texts.form.maxPrice"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.max_price"
-                                xl="3"
-                                lg="3"
-                                md="6"
-                                sm="6">
-                                <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-currency-prefix">
-                                        <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
-                                    </span>
-                                </template>
-                            </InputNumber>
-                            <div v-show="activeFormTab === 'taxes'" class="col-12">
-                                <div class="br-entity-publication-settings">
-                                    <label class="br-entity-switch" for="service_igv_exempt">
-                                        <input
-                                            id="service_igv_exempt"
-                                            v-model="forms[entity].createUpdate.data.igv_exempt"
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            role="switch"
-                                            @change="syncTaxExemption(forms[entity].createUpdate.data)">
-                                        <span>
-                                            <strong>IGV exonerado</strong>
-                                            <small>Si está activo, el IGV no se calcula para este servicio al vender.</small>
-                                        </span>
-                                    </label>
-                                    <label class="br-entity-switch" :class="{'is-disabled': forms[entity].createUpdate.data.igv_exempt}" for="service_price_includes_tax">
-                                        <input id="service_price_includes_tax"
-                                            v-model="forms[entity].createUpdate.data.price_includes_tax"
-                                            class="form-check-input" type="checkbox" role="switch"
-                                            :disabled="forms[entity].createUpdate.data.igv_exempt">
-                                        <span><strong>Precio incluye IGV</strong><small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small></span>
-                                    </label>
+                        <div id="service-form-panel" class="br-form-groups" role="tabpanel" :aria-labelledby="`service-tab-trigger-${activeFormTab}`">
+                            <FormGroup v-show="activeFormTab === 'general'" title="Identificación" icon="fa-solid fa-id-card" primary>
+                                <div class="row g-3">
+                                    <InputText
+                                        v-model="forms[entity].createUpdate.data.name"
+                                        hasDiv
+                                        :title="MODULE.texts.form.name"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        maxlength="100"
+                                        showCharCounter
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.name"
+                                        xl="6"
+                                        lg="6"
+                                        md="12"/>
+
+                                    <InternalCodeInput
+                                        v-model="forms[entity].createUpdate.data.internal_code"
+                                        v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
+                                        hasDiv
+                                        :title="MODULE.texts.form.internalCode"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        :showCharCounter="false"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
+                                        xl="3"
+                                        lg="3"
+                                        md="6">
+                                        <template v-slot:inputGroupAppend>
+                                            <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
+                                                <i class="fa fa-rotate"></i>
+                                            </button>
+                                        </template>
+                                    </InternalCodeInput>
+
+                                    <InputNumber
+                                        v-model="forms[entity].createUpdate.data.estimated_duration_minutes"
+                                        hasDiv
+                                        :title="MODULE.texts.form.estimatedDuration"
+                                        :titleClass="[config.forms.classes.title]"
+                                        :decimals="0"
+                                        :minValue="1"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.estimated_duration_minutes"
+                                        xl="3"
+                                        lg="3"
+                                        md="6">
+                                        <template #inputGroupAppend>
+                                            <span class="input-group-text br-input-unit-suffix">min</span>
+                                        </template>
+                                    </InputNumber>
                                 </div>
-                            </div>
-                            <InputSlot
-                                v-show="activeFormTab === 'attributes'"
-                                hasDiv
-                                :title="MODULE.texts.form.categories"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.categories"
-                                xl="4"
-                                lg="4">
-                                <template #default>
-                                    <AddCategory
-                                        :internal-code-prefix="internalCodePrefixes.category"
-                                        :disabled="isSaving"
-                                        @created="handleCategoryCreated"/>
-                                </template>
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.categories"
-                                        :options="categories"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="true"
-                                        :searchable="true"
-                                        :multiple="true"
-                                        append-to-body>
-                                        <template #selected-option="option"><span class="br-select-selected-text" v-text="option.label"></span></template>
-                                        <template #option="option"><span class="br-select-option-text" v-text="option.label"></span></template>
-                                        <template #no-options><SelectNoOptions/></template>
-                                    </v-select>
-                                </template>
-                            </InputSlot>
-                            <InputSlot
-                                v-show="activeFormTab === 'general'"
-                                hasDiv
-                                :title="MODULE.texts.form.status"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="3"
-                                lg="3">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.status"
-                                        :options="statuses"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <div v-show="activeFormTab === 'attributes'" class="col-12">
-                                <div class="mb-2"><span class="form-label colon-at-end">Visibilidad para clientes</span></div>
-                                <div class="br-entity-publication-settings">
-                                    <label class="br-entity-switch" for="service-publish">
-                                        <input id="service-publish" v-model="forms[entity].createUpdate.data.see_my_web"
-                                            class="form-check-input" type="checkbox" role="switch"
-                                            @change="syncPublicationSettings(forms[entity].createUpdate.data)">
-                                        <span><strong>Publicar servicio</strong><small>Permite que los clientes vean este servicio en el catálogo.</small></span>
-                                    </label>
-                                    <label class="br-entity-switch" :class="{'is-disabled': !forms[entity].createUpdate.data.see_my_web}" for="service-show-price">
-                                        <input id="service-show-price" v-model="forms[entity].createUpdate.data.see_my_web_price"
-                                            class="form-check-input" type="checkbox" role="switch"
-                                            :disabled="!forms[entity].createUpdate.data.see_my_web">
-                                        <span><strong>Mostrar precio</strong><small>Permite que los clientes vean el precio en el catálogo.</small></span>
-                                    </label>
+                            </FormGroup>
+
+                            <FormGroup v-show="activeFormTab === 'general'" title="Precios y estado" icon="fa-solid fa-tag">
+                                <div class="row g-3">
+                                    <InputNumber
+                                        v-model="forms[entity].createUpdate.data.price"
+                                        hasDiv
+                                        :title="MODULE.texts.form.price"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.price"
+                                        xl="3"
+                                        lg="3"
+                                        md="6">
+                                        <template v-slot:inputGroupPrepend>
+                                            <span class="input-group-text br-currency-prefix">
+                                                <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
+                                            </span>
+                                        </template>
+                                    </InputNumber>
+
+                                    <InputNumber
+                                        v-model="forms[entity].createUpdate.data.min_price"
+                                        hasDiv
+                                        :title="MODULE.texts.form.minPrice"
+                                        :titleClass="[config.forms.classes.title]"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.min_price"
+                                        xl="3"
+                                        lg="3"
+                                        md="6"
+                                        sm="6">
+                                        <template v-slot:inputGroupPrepend>
+                                            <span class="input-group-text br-currency-prefix">
+                                                <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
+                                            </span>
+                                        </template>
+                                    </InputNumber>
+
+                                    <InputNumber
+                                        v-model="forms[entity].createUpdate.data.max_price"
+                                        hasDiv
+                                        :title="MODULE.texts.form.maxPrice"
+                                        :titleClass="[config.forms.classes.title]"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.max_price"
+                                        xl="3"
+                                        lg="3"
+                                        md="6"
+                                        sm="6">
+                                        <template v-slot:inputGroupPrepend>
+                                            <span class="input-group-text br-currency-prefix">
+                                                <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
+                                            </span>
+                                        </template>
+                                    </InputNumber>
+
+                                    <InputSlot
+                                        input-id="service-catalog-status"
+                                        hasDiv
+                                        :title="MODULE.texts.form.status"
+                                        :titleClass="[config.forms.classes.title]"
+                                        isRequired
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.status"
+                                        xl="3"
+                                        lg="3"
+                                        md="6">
+                                        <template v-slot:input>
+                                            <v-select
+                                                input-id="service-catalog-status"
+                                                v-model="forms[entity].createUpdate.data.status"
+                                                :options="statuses"
+                                                :class="config.forms.classes.select2"
+                                                :clearable="false"
+                                                :searchable="false"/>
+                                        </template>
+                                    </InputSlot>
                                 </div>
-                            </div>
+                            </FormGroup>
+
+                            <FormGroup v-show="activeFormTab === 'general'" title="Información comercial" icon="fa-solid fa-tags">
+                                <div class="row g-3">
+                                    <InputText
+                                        v-model="forms[entity].createUpdate.data.description"
+                                        hasDiv
+                                        :title="MODULE.texts.form.description"
+                                        :titleClass="[config.forms.classes.title]"
+                                        maxlength="100"
+                                        showCharCounter
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.description"
+                                        xl="8"
+                                        lg="8"/>
+
+                                    <InputSlot
+                                        input-id="service-catalog-categories"
+                                        hasDiv
+                                        :title="MODULE.texts.form.categories"
+                                        :titleClass="[config.forms.classes.title]"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.categories"
+                                        xl="4"
+                                        lg="4">
+                                        <template #default>
+                                            <AddCategory
+                                                :internal-code-prefix="internalCodePrefixes.category"
+                                                :disabled="isSaving"
+                                                @created="handleCategoryCreated"/>
+                                        </template>
+                                        <template v-slot:input>
+                                            <v-select
+                                                input-id="service-catalog-categories"
+                                                v-model="forms[entity].createUpdate.data.categories"
+                                                :options="categories"
+                                                :class="config.forms.classes.select2"
+                                                :clearable="true"
+                                                :searchable="true"
+                                                :multiple="true"
+                                                append-to-body>
+                                                <template #selected-option="option"><span class="br-select-selected-text" v-text="option.label"></span></template>
+                                                <template #option="option"><span class="br-select-option-text" v-text="option.label"></span></template>
+                                                <template #no-options><SelectNoOptions/></template>
+                                            </v-select>
+                                        </template>
+                                    </InputSlot>
+                                </div>
+                            </FormGroup>
+
+                            <FormGroup v-show="activeFormTab === 'configuration'" title="Aplicación del IGV" icon="fa-solid fa-receipt">
+                                <div>
+                                    <div class="br-entity-publication-settings">
+                                        <label class="br-entity-switch" for="service_igv_exempt">
+                                            <input
+                                                id="service_igv_exempt"
+                                                v-model="forms[entity].createUpdate.data.igv_exempt"
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                                @change="syncTaxExemption(forms[entity].createUpdate.data)">
+                                            <span>
+                                                <strong>IGV exonerado</strong>
+                                                <small>Si está activo, el IGV no se calcula para este servicio al vender.</small>
+                                            </span>
+                                        </label>
+                                        <label class="br-entity-switch" :class="{'is-disabled': forms[entity].createUpdate.data.igv_exempt}" for="service_price_includes_tax">
+                                            <input id="service_price_includes_tax"
+                                                v-model="forms[entity].createUpdate.data.price_includes_tax"
+                                                class="form-check-input" type="checkbox" role="switch"
+                                                :disabled="forms[entity].createUpdate.data.igv_exempt">
+                                            <span><strong>Precio incluye IGV</strong><small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </FormGroup>
+
+                            <FormGroup v-show="activeFormTab === 'configuration'" title="Vigencia y comisión" icon="fa-solid fa-sliders">
+                                <div class="row g-3">
+                                    <InputDate
+                                        v-model="forms[entity].createUpdate.data.expires_at"
+                                        hasDiv
+                                        :title="MODULE.texts.form.expiresAt"
+                                        :titleClass="[config.forms.classes.title]"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
+                                        xl="4"
+                                        lg="4"/>
+
+                                    <InputSlot
+                                        input-id="service-catalog-commission-type"
+                                        hasDiv
+                                        :title="MODULE.texts.form.commissionType"
+                                        :titleClass="[config.forms.classes.title]"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.commission_type"
+                                        xl="4"
+                                        lg="4">
+                                        <template v-slot:input>
+                                            <v-select
+                                                input-id="service-catalog-commission-type"
+                                                v-model="forms[entity].createUpdate.data.commission_type"
+                                                :options="commissionTypeOptions"
+                                                :class="config.forms.classes.select2"
+                                                :clearable="false"
+                                                :searchable="false"
+                                                @update:modelValue="resetCatalogCommission(forms[entity].createUpdate)"/>
+                                        </template>
+                                    </InputSlot>
+
+                                    <CommissionValueInput
+                                        v-model="forms[entity].createUpdate.data.commission_value"
+                                        :commission-type="forms[entity].createUpdate.data.commission_type?.code"
+                                        :currency-sign="forms[entity].createUpdate.data.currency?.data?.sign"
+                                        :title="MODULE.texts.form.commissionValue"
+                                        :titleClass="[config.forms.classes.title]"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
+                                        xl="4"
+                                        lg="4"/>
+                                </div>
+                            </FormGroup>
+
+                            <FormGroup v-show="activeFormTab === 'configuration'" title="Cupos" icon="fa-solid fa-users">
+                                <div class="row g-3">
+                                    <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                                        <label class="form-label" v-text="MODULE.texts.form.capacityControl"></label>
+                                        <label class="br-entity-switch br-entity-switch--field" for="service_capacity_control_enabled">
+                                            <input
+                                                id="service_capacity_control_enabled"
+                                                v-model="forms[entity].createUpdate.data.capacity_control_enabled"
+                                                @change="delete forms[entity].createUpdate.errors.capacity_limit"
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch">
+                                            <span>Limitar cupos</span>
+                                        </label>
+                                    </div>
+
+                                    <InputNumber
+                                        v-model="forms[entity].createUpdate.data.capacity_limit"
+                                        hasDiv
+                                        :title="MODULE.texts.form.capacityLimit"
+                                        :titleClass="[config.forms.classes.title]"
+                                        :isRequired="forms[entity].createUpdate.data.capacity_control_enabled"
+                                        :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
+                                        :decimals="0"
+                                        :minValue="1"
+                                        :maxValue="validationRules.capacity_limit.max"
+                                        hasTextBottom
+                                        :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
+                                        xl="4"
+                                        lg="4"/>
+                                </div>
+                            </FormGroup>
+
+                            <CatalogVisibilityFields
+                                v-show="activeFormTab === 'configuration'"
+                                id-prefix="service"
+                                item-label="servicio"
+                                v-model:published="forms[entity].createUpdate.data.see_my_web"
+                                v-model:show-price="forms[entity].createUpdate.data.see_my_web_price"/>
                         </div>
             </form>
-        </template>
-        <template #footer>
-                    <button
-                        type="button"
-                        :class="['br-btn', isUpdate ? 'br-btn-action-edit' : 'br-btn-action-create']"
-                        @click="saveEntity"
-                        :disabled="isSaving">
-                        <span v-text="MODULE.texts.modal[isSaving ? 'saving' : 'save']"></span>
-                    </button>
         </template>
     </FormModal>
 </template>
 
 <script>
+import FormGroup from "@/Shared/FormGroup.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
+import CatalogVisibilityFields from "@System/Components/Catalogs/CatalogVisibilityFields.vue";
 import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
@@ -451,10 +474,8 @@ import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
 const FORM_TABS = [
-    {id: "general", label: "SERVICIO", description: "Datos y precios", icon: "fa-solid fa-hand-holding-heart", fields: ["internal_code", "name", "estimated_duration_minutes", "price", "min_price", "max_price", "status"]},
-    {id: "attributes", label: "DETALLE", description: "Catálogo y visibilidad", icon: "fa-solid fa-clipboard-list", fields: ["description", "categories", "see_my_web", "see_my_web_price"]},
-    {id: "taxes", label: "IMPUESTOS", description: "Aplicación del IGV", icon: "fa-solid fa-receipt", fields: ["igv_exempt", "price_includes_tax"]},
-    {id: "configuration", label: "CONFIGURACIÓN", description: "Vigencia y cupos", icon: "fa-solid fa-sliders", fields: ["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"]}
+    {id: "general", label: "SERVICIO", description: "Datos y precios", icon: "fa-solid fa-hand-holding-heart", fields: ["internal_code", "name", "estimated_duration_minutes", "price", "min_price", "max_price", "status", "description", "categories"]},
+    {id: "configuration", label: "CONFIGURACIÓN", description: "IGV y visibilidad", icon: "fa-solid fa-sliders", fields: ["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit", "see_my_web", "see_my_web_price"]}
 ];
 
 const MODULE_CONFIG = {
@@ -572,18 +593,18 @@ const TEXTS = {
         search: "Buscar",
         add: "Agregar servicio",
         edit: "Editar servicio",
-        import: "Cargar masivamente",
-        download: "Descargar Excel"
+        import: "Importar servicios",
+        download: "Descargar listado en Excel"
     },
     form: {
         internalCode: "Código interno",
         name: "Nombre",
-        description: "Descripción comercial adicional",
+        description: "Descripción comercial",
         price: "Precio de venta",
         minPrice: "Precio mínimo",
         maxPrice: "Precio máximo",
         estimatedDuration: "Duración estimada",
-        capacityControl: "¿Controlar cupos?",
+        capacityControl: "Control de cupos",
         capacityLimit: "Cantidad de cupos",
         commissionType: "Tipo de comisión",
         commissionValue: "Valor de comisión",
@@ -598,9 +619,7 @@ const TEXTS = {
     },
     modal: {
         store: "Agregar servicio",
-        update: "Editar servicio",
-        save: "Guardar servicio",
-        saving: "Guardando..."
+        update: "Editar servicio"
     }
 };
 
@@ -618,7 +637,24 @@ const MODULE = {
 export default {
     name: "ServicesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {CatalogPriceCell, InternalCodeInput, CommissionValueInput, ExpandableText, InitialLoadTransition, FormModal, AppTabs, TableActionsDropdown, AddCategory, OfferingImportModal, SelectNoOptions, CatalogListSkeleton, InternalCodeValue},
+    components: {
+        FormGroup,
+        ResponsiveTable,
+        CatalogPriceCell,
+        CatalogVisibilityFields,
+        InternalCodeInput,
+        CommissionValueInput,
+        ExpandableText,
+        InitialLoadTransition,
+        FormModal,
+        AppTabs,
+        TableActionsDropdown,
+        AddCategory,
+        OfferingImportModal,
+        SelectNoOptions,
+        CatalogListSkeleton,
+        InternalCodeValue
+    },
     data() {
 
         const crudModule = initCrudModule({
@@ -744,32 +780,18 @@ export default {
 
         },
         async downloadRecords() {
-
-            if(this.isExporting || !await Alerts.confirmDownload({resource: "el listado de servicios"})) {
-
-                return;
-
-            }
-
+            if(this.isExporting) return;
             this.isExporting = true;
-            Alerts.swals({type: "default", title: "Preparando reporte de servicios"});
-
             try {
-
-                await Requests.download({
+                await downloadCatalogList({
+                    resource: "servicios",
                     route: this.routeActions.export,
-                    data: this.getListFilters(),
-                    fileName: "servicios.xlsx",
-                    showAlert: true
+                    filters: this.getListFilters(),
+                    fileName: "servicios.xlsx"
                 });
-
-            }finally {
-
-                Alerts.swals({show: false});
+            } finally {
                 this.isExporting = false;
-
             }
-
         },
         openImportModal() {
 
@@ -847,11 +869,6 @@ export default {
             if(form.igv_exempt) form.price_includes_tax = false;
 
         },
-        syncPublicationSettings(form = {}) {
-
-            if(!form.see_my_web) form.see_my_web_price = false;
-
-        },
         handleCategoryCreated({record}) {
 
             upsertCatalogOption(this.options, "categories", record);
@@ -863,11 +880,7 @@ export default {
 
             const entityForms = this.forms[this.entity].createUpdate;
 
-            Alerts.swals({});
-
             entityForms.errors = {};
-            this.isSaving = true;
-
             try {
 
                 const formData   = Utils.cloneJson(entityForms.data);
@@ -880,10 +893,9 @@ export default {
 
                     Alerts.generateAlert({
                         type: "error",
-                        messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels),
-                        msgContent: this.config.messages.errorValidate
+                        headerTitle: "Revisa los campos indicados",
+                        messages: Forms.getDescriptiveErrors(validation.errors, this.MODULE.errorLabels)
                     });
-                    this.isSaving = false;
                     return;
 
                 }
@@ -897,12 +909,17 @@ export default {
                 const isUpdate      = this.isDefined(id);
                 const requestMethod = isUpdate ? "patch" : "post";
                 const route         = this.routeActions[isUpdate ? "update" : "store"];
-                const result        = await Requests[requestMethod]({route, data: preparedData, id});
+                this.isSaving = true;
+                Alerts.loading({title: isUpdate ? "Guardando cambios" : "Guardando servicio"});
+                const result        = await Requests[requestMethod]({route, data: preparedData, id}).finally(Alerts.close);
 
                 if(Requests.valid({result})) {
 
-                    Alerts.modals({type: "hide", id: entityForms.extras.modals.default.id});
-                    Alerts.generateAlert({type: "success", msgContent: result.data.msg});
+                    Alerts.showMessage({
+                        type: "success",
+                        title: isUpdate ? "Cambios guardados" : "Servicio guardado",
+                        text: result.data.msg
+                    });
 
                     Forms.clearFormData(entityForms.data, this.MODULE.formFields);
 

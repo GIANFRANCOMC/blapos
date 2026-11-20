@@ -32,7 +32,7 @@
                 </div>
                 <div v-if="showFooter" class="modal-footer br-entity-modal__footer" :class="footerClass">
                     <slot name="footerClose">
-                        <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">
+                        <button type="button" class="br-btn br-btn-cancel waves-effect" :disabled="closeDisabled" data-bs-dismiss="modal">
                             Cerrar
                         </button>
                     </slot>
@@ -40,7 +40,7 @@
                         <button
                             v-if="showSubmit"
                             type="button"
-                            :class="['br-btn', submitButtonClass]"
+                            :class="['br-btn', 'waves-effect', submitButtonClass]"
                             :disabled="submitDisabled"
                             @click="$emit('submit')">
                             <i v-if="submitButtonIcon" :class="submitButtonIcon" aria-hidden="true"></i>

@@ -130,8 +130,8 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
     assert.match(tabs, /aria-label="Pestaña siguiente"/);
     assert.match(tabs, /selectAdjacent\(direction\)/);
     assert.match(tabs, /focus\(\{preventScroll: true\}\)/);
-    assert.equal([...tabConfig.matchAll(/description: "/g)].length, 5);
-    assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 5);
+    assert.equal([...tabConfig.matchAll(/description: "/g)].length, 3);
+    assert.equal([...tabConfig.matchAll(/icon: "fa-solid/g)].length, 3);
     assert.doesNotMatch(branding, /scroll-snap-type|scroll-behavior: smooth/);
     assert.match(motion, /@media \(prefers-reduced-motion: no-preference\) \{\s*:is\(\[role="tabpanel"\], \.br-tab-panel\) \{[^}]*animation: brTabPanelIn/);
 
@@ -140,8 +140,10 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
         const source = readFileSync(new URL(`../../${module.path}`, import.meta.url), "utf8");
 
         assert.match(source, /<AppTabs[\s\S]*?variant="descriptive"/);
-        assert.equal([...source.matchAll(/description: "/g)].length >= 4, true);
-        assert.equal([...source.matchAll(/icon: "fa-solid/g)].length, 4);
+        const offeringTabs = source.match(/const FORM_TABS = \[[\s\S]+?^\];/m)?.[0];
+        assert.ok(offeringTabs);
+        assert.equal([...offeringTabs.matchAll(/description: "/g)].length, 2);
+        assert.equal([...offeringTabs.matchAll(/icon: "fa-solid/g)].length, 2);
         assert.match(source, /entityForms\.errors = validation\.errors/);
         assert.match(source, /shared-controls-id="(?:service|subscription)-form-panel"/);
         const details = source.match(/<div class="br-entity-offering-details">[\s\S]*?<\/div>/)?.[0];
@@ -156,7 +158,7 @@ test("productos, servicios y membresías comparten pestañas descriptivas con ic
         assert.match(details, /<span v-if="record\.capacity_control_enabled">\s*<strong class="colon-at-end">Cupos<\/strong>\s*<span class="br-entity-offering-details__value">\{\{ capacityLabel\(record\) \}\}/);
         assert.match(details, /<span v-if="commissionLabel\(record\)">\s*<strong class="colon-at-end">Comisión<\/strong>/);
         assert.match(source, /import \{capacityLabel\} from "@System\/Components\/Catalogs\/Offerings\/capacityLabel\.js"/);
-        assert.match(source, /<CommissionValueInput\s+v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.commission_value"\s+:commission-type="forms\[entity\]\.createUpdate\.data\.commission_type\?\.code"\s+:currency-sign="forms\[entity\]\.createUpdate\.data\.currency\?\.data\?\.sign"/);
+        assert.match(formGroups(source, "configuration"), /<CommissionValueInput\s+v-model="forms\[entity\]\.createUpdate\.data\.commission_value"\s+:commission-type="forms\[entity\]\.createUpdate\.data\.commission_type\?\.code"\s+:currency-sign="forms\[entity\]\.createUpdate\.data\.currency\?\.data\?\.sign"/);
 
     }
 
@@ -199,11 +201,13 @@ test("servicios y membresías comparten acciones masivas y una modal de importac
 
     const modalPath = "resources/js/System/Components/Catalogs/Offerings/OfferingImportModal.vue";
     const modal = readFileSync(new URL(`../../${modalPath}`, import.meta.url), "utf8");
+    const sharedModal = readFileSync(new URL("../../resources/js/System/Components/Generics/FileImportModal.vue", import.meta.url), "utf8");
     const requests = readFileSync(new URL("../../resources/js/System/Helpers/Requests.js", import.meta.url), "utf8");
 
     assert.equal(parse(modal, {filename: modalPath}).errors.length, 0);
-    assert.match(modal, /:close-disabled="importing"/);
-    assert.match(modal, /:keyboard="false"/);
+    assert.match(modal, /<FileImportModal\b/);
+    assert.match(sharedModal, /:close-disabled="busy"/);
+    assert.match(sharedModal, /if\(this\.busy\) event\.preventDefault\(\)/);
     assert.doesNotMatch(modal, /warehouse_id|Almacén para el stock inicial/);
 
     for(const module of modules) {
@@ -229,6 +233,12 @@ test("servicios y membresías comparten acciones masivas y una modal de importac
 
 });
 
+function formGroups(source, tab) {
+    return [...source.matchAll(/<FormGroup\b([^>]*)>[\s\S]*?<\/FormGroup>/g)]
+        .filter(([, attributes]) => attributes.includes(`v-show="activeFormTab === '${tab}'"`))
+        .map(([group]) => group).join("\n");
+}
+
 function assertFieldOrder(source, modelPrefix, fields) {
 
     const positions = fields.map(field => source.indexOf(`v-model="${modelPrefix}.${field}"`));
@@ -253,11 +263,17 @@ for(const module of modules) {
         assert.match(source, /<TableActionsDropdown/);
         assert.match(source, /<AddCategory/);
 
-        for(const tab of ["general", "attributes", "taxes"]) {
+        for(const tab of ["general", "configuration"]) {
 
             assert.match(source, new RegExp(`activeFormTab === '${tab}'`));
 
         }
+
+        assert.doesNotMatch(source, /id: "(?:attributes|taxes)"|activeFormTab === '(?:attributes|taxes)'/);
+        assert.match(source, /<CatalogVisibilityFields\b[^>]*v-show="activeFormTab === 'configuration'"/);
+        const general = formGroups(source, "general");
+        assert.match(general, /<InputText\s+v-model="forms\[entity\]\.createUpdate\.data\.description"/);
+        assert.match(general, /<InputSlot\s+input-id="[\w-]+-catalog-categories"/);
 
         for(const field of module.ownFields) {
 
@@ -268,10 +284,12 @@ for(const module of modules) {
         assert.match(source, /class="br-entity-switch br-entity-switch--field"/);
         assert.match(source, /v-model="forms\[entity\]\.createUpdate\.data\.capacity_control_enabled"/);
         assert.match(source, /:isRequired="forms\[entity\]\.createUpdate\.data\.capacity_control_enabled"/);
-        assert.match(source, /capacityControl: "¿Controlar cupos\?"/);
-        assert.match(source, /<span>Activar <small>· Límite de cupos<\/small><\/span>/);
+        assert.match(source, /capacityControl: "Control de cupos"/);
+        assert.match(source, /<span>Limitar cupos<\/span>/);
 
-        const configurationFields = [...source.matchAll(/<(?:InputNumber|InputDate|InputSlot)\s+v-show="activeFormTab === 'configuration'"[\s\S]*?>/g)];
+        const configuration = formGroups(source, "configuration");
+        assert.match(configuration, /title="Aplicación del IGV"[\s\S]*?\.igv_exempt"[\s\S]*?\.price_includes_tax"/);
+        const configurationFields = [...configuration.matchAll(/<(?:InputNumber|InputDate|InputSlot)\b[^>]*>/g)];
 
         assert.ok(configurationFields.length > 0);
 
@@ -293,7 +311,7 @@ test("producto conserva Inventario dentro de la modal compartida", () => {
     const parsed = parse(source, {filename: "ProductEditor.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /modal-class="br-entity-modal--tabbed"/);
+    assert.match(source, /modal-class="br-record-editor br-entity-modal--tabbed"/);
     assert.match(source, /activeFormTab === 'inventory'/);
 
 });
@@ -304,22 +322,24 @@ test("servicio conserva duración en Servicio y agrupa sus límites y comisión 
     const parsed = parse(source, {filename: "services/main.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN",[^\n]*fields: \["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"\]\}/);
+    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN",[^\n]*fields: \["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit", "see_my_web", "see_my_web_price"\]\}/);
     assertFieldOrder(source, "forms[entity].createUpdate.data", ["expires_at", "commission_type", "commission_value", "capacity_control_enabled", "capacity_limit"]);
-    assert.match(source, /v-show="activeFormTab === 'general'"\s+v-model="forms\[entity\]\.createUpdate\.data\.estimated_duration_minutes"/);
-    assert.match(source, /v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.capacity_limit"/);
-    assert.match(source, /v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.expires_at"/);
-    assert.match(source, /v-show="activeFormTab === 'configuration'"\s+v-model="forms\[entity\]\.createUpdate\.data\.commission_value"/);
+    const general = formGroups(source, "general");
+    const configuration = formGroups(source, "configuration");
+    assert.match(general, /v-model="forms\[entity\]\.createUpdate\.data\.estimated_duration_minutes"/);
+    assert.match(configuration, /v-model="forms\[entity\]\.createUpdate\.data\.capacity_limit"/);
+    assert.match(configuration, /v-model="forms\[entity\]\.createUpdate\.data\.expires_at"/);
+    assert.match(configuration, /v-model="forms\[entity\]\.createUpdate\.data\.commission_value"/);
     assert.match(source, /estimatedDuration: "Duración estimada"/);
     assert.match(source, /expiresAt: "Disponible hasta"/);
 
-    const durationField = source.match(/<InputNumber\s+v-show="activeFormTab === 'general'"\s+v-model="forms\[entity\]\.createUpdate\.data\.estimated_duration_minutes"[\s\S]*?<\/InputNumber>/)?.[0];
+    const durationField = general.match(/<InputNumber\s+v-model="forms\[entity\]\.createUpdate\.data\.estimated_duration_minutes"[\s\S]*?<\/InputNumber>/)?.[0];
 
     assert.ok(durationField);
     assert.doesNotMatch(durationField, /isRequired/);
     assert.match(durationField, /<span class="input-group-text br-input-unit-suffix">min<\/span>/);
     assert.ok(source.indexOf('v-model="forms[entity].createUpdate.data.name"') < source.indexOf(durationField));
-    assert.match(source, /\{id: "attributes", label: "DETALLE"/);
+    assert.match(source, /id: "general",[^\n]*"description", "categories"\]/);
     assert.match(source, /data\.description"[\s\S]*?xl="8"\s+lg="8"/);
     assert.match(source, /:title="MODULE\.texts\.form\.categories"[\s\S]*?xl="4"\s+lg="4"/);
 
@@ -331,23 +351,23 @@ test("membresía agrupa cupos, asistencia, disponibilidad y comisión en Configu
     const parsed = parse(source, {filename: "subscriptions/main.vue"});
 
     assert.equal(parsed.errors.length, 0);
-    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN",[^\n]*fields: \["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"\]\}/);
+    assert.match(source, /\{id: "configuration", label: "CONFIGURACIÓN",[^\n]*fields: \["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "see_my_web", "see_my_web_price"\]\}/);
     assertFieldOrder(source, "forms[entity].createUpdate.data", ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit"]);
 
     for(const field of ["attendance_limit_per_day", "capacity_limit", "expires_at", "commission_value"]) {
 
-        assert.match(source, new RegExp(`v-show="activeFormTab === 'configuration'"\\s+v-model="forms\\[entity\\]\\.createUpdate\\.data\\.${field}"`));
+        assert.match(formGroups(source, "configuration"), new RegExp(`v-model="forms\\[entity\\]\\.createUpdate\\.data\\.${field}"`));
 
     }
 
     assert.match(source, /expiresAt: "Disponible hasta"/);
-    assert.match(source, /\{id: "attributes", label: "DETALLE"/);
+    assert.match(source, /id: "general",[^\n]*"description", "categories", "benefits", "restrictions"\]/);
 
-    const firstTab = source.match(/<InputText\s+v-show="activeFormTab === 'general'"[\s\S]*?<InputText\s+v-show="activeFormTab === 'attributes'"/)?.[0];
+    const firstTab = formGroups(source, "general");
 
     assert.ok(firstTab);
 
-    assert.match(firstTab, /data\.name"[\s\S]*?xl="3"\s+lg="3"/);
+    assert.match(firstTab, /data\.name"[\s\S]*?xl="6"\s+lg="6"/);
     assert.match(firstTab, /data\.duration_value"[\s\S]*?xl="3"\s+lg="3"/);
     assert.match(firstTab, /data\.duration_value"[\s\S]*?<template #inputGroupAppend>\s*<v-select\s+v-model="forms\[entity\]\.createUpdate\.data\.duration_type"\s+class="br-input-unit-select"[\s\S]*?<\/v-select>\s*<\/template>\s*<\/InputNumber>/);
 
@@ -434,7 +454,7 @@ test("el editor envía el mismo código interno que muestra", () => {
     assert.equal(internalCodeImportHelp(null), "Completa el código interno de cada fila.");
 });
 
-test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", () => {
+test("producto muestra la información comercial al inicio y la visibilidad en Configuración", () => {
 
     const component = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/ProductEditor.vue", import.meta.url), "utf8");
     const config = readFileSync(new URL("../../resources/js/System/Components/Catalogs/Products/productFormConfig.js", import.meta.url), "utf8");
@@ -443,16 +463,19 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
     assert.equal(parsed.errors.length, 0);
     assert.match(component, /<AppTabs[\s\S]*?:tabs="formTabs"/);
     assert.match(component, /layout="content"/);
-    assert.match(config, /id: "attributes",\s+label: "DETALLE"/);
-    assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",[\s\S]*?fields: \["expires_at", "commission_type", "commission_value"\]/);
+    assert.doesNotMatch(config, /id: "(?:attributes|taxes)"/);
+    assert.match(config, /id: "general",[\s\S]*?fields: \[[^\n]*"description", "categories", "brand", "brand_id"\]/);
+    assert.match(config, /id: "configuration",\s+label: "CONFIGURACIÓN",[\s\S]*?fields: \["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"\]/);
     assert.match(config, /expiresAt: "Disponible hasta"/);
-    assert.deepEqual([...config.matchAll(/id: "(general|attributes|inventory|taxes|configuration)"/g)].map(match => match[1]), ["general", "attributes", "inventory", "taxes", "configuration"]);
+    assert.deepEqual([...config.matchAll(/id: "(general|inventory|configuration)"/g)].map(match => match[1]), ["general", "inventory", "configuration"]);
 
     const configurationPanel = component.match(/<section\s+v-show="activeFormTab === 'configuration'"[\s\S]*?<\/section>/)?.[0];
 
     assert.ok(configurationPanel);
+    assert.match(configurationPanel, /title="Aplicación del IGV"[\s\S]*?\.igv_exempt"[\s\S]*?\.price_includes_tax"/);
     assert.match(configurationPanel, /v-model="productForm\.data\.expires_at"/);
     assert.match(configurationPanel, /v-model="productForm\.data\.commission_type"/);
+    assert.match(configurationPanel, /<CatalogVisibilityFields\b[^>]*v-model:published="productForm\.data\.see_my_web"/);
     assert.match(configurationPanel, /<CommissionValueInput\s+v-model="productForm\.data\.commission_value"\s+:commission-type="productForm\.data\.commission_type"\s+:currency-sign="currencySign"/);
     assertFieldOrder(configurationPanel, "productForm.data", ["expires_at", "commission_type", "commission_value"]);
 
@@ -462,13 +485,13 @@ test("producto ordena Detalle y separa Configuración, Impuestos e Inventario", 
 
     }
 
-    const detailPanel = component.match(/<section\s+v-show="activeFormTab === 'attributes'"[\s\S]*?<\/section>/)?.[0];
+    const generalPanel = component.match(/<section\s+v-show="activeFormTab === 'general'"[\s\S]*?<\/section>/)?.[0];
 
-    assert.ok(detailPanel);
-    assert.ok(detailPanel.indexOf('data.description"') < detailPanel.indexOf('data.categories"'));
-    assert.ok(detailPanel.indexOf('data.categories"') < detailPanel.indexOf('data.brand"'));
-    assert.match(detailPanel, /data\.description"[\s\S]*?xl="4"\s+lg="4"/);
-    assert.match(detailPanel, /:title="MODULE\.texts\.form\.brand"[\s\S]*?xl="4"\s+lg="4"/);
-    assert.match(detailPanel, /:title="MODULE\.texts\.form\.categories"[\s\S]*?xl="4"\s+lg="4"/);
+    assert.ok(generalPanel);
+    assert.ok(generalPanel.indexOf('data.description"') < generalPanel.indexOf('data.categories"'));
+    assert.ok(generalPanel.indexOf('data.categories"') < generalPanel.indexOf('data.brand"'));
+    assert.match(generalPanel, /data\.description"[\s\S]*?xl="4"\s+lg="4"/);
+    assert.match(generalPanel, /:title="MODULE\.texts\.form\.brand"[\s\S]*?xl="4"\s+lg="4"/);
+    assert.match(generalPanel, /:title="MODULE\.texts\.form\.categories"[\s\S]*?xl="4"\s+lg="4"/);
 
 });

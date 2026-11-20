@@ -2,12 +2,13 @@
     <template v-if="hasDiv">
         <div :class="[...divClass, divSizeClass]">
             <slot name="default"></slot>
-            <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
+            <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="controlId"></label>
             <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
             <slot name="defaultAppend"></slot>
             <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
                 <slot name="inputGroupPrepend"></slot>
                 <input
+                    :id="controlId"
                     type="text"
                     :value="displayValue"
                     @focus="handleFocus"
@@ -31,12 +32,13 @@
     </template>
     <template v-else>
         <slot name="default"></slot>
-        <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
+        <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="controlId"></label>
         <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
         <slot name="defaultAppend"></slot>
         <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
             <slot name="inputGroupPrepend"></slot>
             <input
+                :id="controlId"
                 type="text"
                 :value="displayValue"
                 @focus="handleFocus"
@@ -68,7 +70,8 @@ export default {
     name: "InputNumber",
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     setup() {
-        return {errorId: `br-number-error-${useId()}`};
+        const id = useId();
+        return {controlId: id, errorId: "br-number-error-" + id};
     },
     props: {
         modelValue: {

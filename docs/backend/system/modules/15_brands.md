@@ -53,7 +53,7 @@ La tabla `brands`, la relación `items.brand_id`, la subsección de menú y su h
 - Al eliminar una marca directamente en base de datos, `brand_id` pasa a `null` mediante `ON DELETE SET NULL`.
 - El listado de Productos precarga `brand` para evitar consultas por fila.
 - La búsqueda general de Productos también considera el nombre de la marca.
-- El formulario de Producto muestra el selector de Marca en la pestaña Detalle.
+- El formulario de Producto muestra el selector de Marca en la sección Información comercial de la primera pestaña.
 - Solo se ofrecen marcas activas para nuevas asociaciones.
 - Una marca inactiva ya asociada se conserva al editar el producto y se identifica como inactiva; no puede asignarse a otro producto.
 

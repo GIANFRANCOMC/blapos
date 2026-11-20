@@ -4,7 +4,7 @@
             <strong>{{ amount(record.price) }}</strong>
         </span>
         <details v-if="limits.length" class="br-catalog-disclosure">
-            <summary class="br-link br-catalog-disclosure__summary">
+            <summary class="br-link br-catalog-disclosure__summary" aria-label="Límites de precio">
                 Límites
                 <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             </summary>

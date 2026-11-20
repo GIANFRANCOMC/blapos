@@ -12,6 +12,8 @@ Guía de trabajo para construir y revisar interfaces del ERP conservando la iden
 | Elegir tamaño y peso por función | [Tipografía](fundamentos/TYPOGRAPHY.md) |
 | Encontrar controles y variantes existentes | [Componentes](patrones/COMPONENTS.md) |
 | Mantener listados y formularios del catálogo | [Catálogo comercial](patrones/CATALOGO_COMERCIAL.md) |
+| Consultar la propuesta de Productos en Figma y sus flujos | [Productos: experiencia e interfaz](modulos/productos/README.md) · [Estados y mensajes](modulos/productos/ESTADOS_Y_MENSAJES.md) |
+| Reutilizar el sistema propuesto de Figma en otros módulos | [Estilos y componentes Blapos](modulos/productos/README.md#componentes-y-adopción) |
 | Componer navegación, listados, detalle o pantallas transaccionales | [Estructuras](patrones/LAYOUTS.md) |
 | Cambiar el menú, los mundos o el navbar | [Navegación tenant](patrones/TENANT_NAVIGATION.md) |
 | Consultar grupos, orden y opciones de menú | [Orden del menú de System](patrones/00_menu_order.md) |

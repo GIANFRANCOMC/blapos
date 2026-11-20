@@ -2,7 +2,7 @@
     <template v-if="hasDiv">
         <div :class="[...divClass, divSizeClass]">
             <slot name="default"></slot>
-            <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
+            <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="inputId || undefined"></label>
             <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
             <slot name="defaultAppend"></slot>
             <div :class="[isInputGroup ? 'input-group' : '', 'br-form-control-group', {'is-invalid': hasError}, ...divInputClass]">
@@ -17,7 +17,7 @@
     </template>
     <template v-else>
         <slot name="default"></slot>
-        <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
+        <label v-if="!!title" v-text="title" :class="[...titleClass]" :for="inputId || undefined"></label>
         <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
         <slot name="defaultAppend"></slot>
         <div :class="[isInputGroup ? 'input-group' : '', 'br-form-control-group', {'is-invalid': hasError}, ...divInputClass]">
@@ -38,6 +38,7 @@ export default {
     name: "InputSlot",
     emits: [],
     props: {
+        inputId: {type: String, default: ""},
         // Div - Show
         hasDiv: {
             type: Boolean,

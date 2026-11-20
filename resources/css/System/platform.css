@@ -10,6 +10,9 @@
 @import "../Shared/tabs.css";
 @import "../Shared/skeleton.css";
 @import "../Shared/inline-text-action.css";
+@import "../Shared/file-import.css";
+@import "../Shared/detail-tags.css";
+@import "../Shared/form-sections.css";
 @import "./br-branding/00-tokens.css";
 @import "./br-branding/01-typography.css";
 @import "./br-branding/02-loading-transitions.css";
