@@ -1,14 +1,16 @@
 <template>
-    <FgField  :label="title" :required="isRequired" :input-id="resolvedControlId" :error="hasTextBottom ? textBottomInfo : null">
+    <FgField  :label="title" :required="isRequired" :input-id="resolvedControlId" :error="hasTextBottom ? textBottomInfo : null" :help="help">
         <template #action><slot name="default"/><slot name="defaultAppend"/></template>
-        <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
-            <slot name="inputGroupPrepend"/>
-            <input ref="inputElement" v-bind="$attrs" :id="resolvedControlId" :type="inputType" :value="modelValue" class="fg-input"
-                :placeholder="placeholder" :disabled="disabled" :maxlength="maxlength" :min="min" :max="max"
-                :aria-label="ariaLabel || undefined" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined"
-                :aria-describedby="hasError ? resolvedControlId + '-error' : undefined" @input="updateValue($event.target)" @keyup.enter="handleEnterKey"/>
-            <slot name="inputGroupAppend"/>
-        </div>
+        <template #default="{describedBy}">
+            <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
+                <slot name="inputGroupPrepend"/>
+                <input ref="inputElement" v-bind="$attrs" :id="resolvedControlId" :type="inputType" :value="modelValue" class="fg-input"
+                    :placeholder="placeholder" :disabled="disabled" :maxlength="maxlength" :min="min" :max="max"
+                    :aria-label="ariaLabel || undefined" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined"
+                    :aria-describedby="describedBy" @input="updateValue($event.target)" @keyup.enter="handleEnterKey"/>
+                <slot name="inputGroupAppend"/>
+            </div>
+        </template>
     </FgField>
 
 
@@ -28,6 +30,7 @@ export default {
     },
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
+        help: {type: String, default: ""},
         noWhitespace: Boolean,
         transformValue: Function,
         modelValue: {

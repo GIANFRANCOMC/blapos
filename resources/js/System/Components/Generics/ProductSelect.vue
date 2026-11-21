@@ -1,10 +1,10 @@
 <template>
-    <span v-if="showSummary" class="br-inline-text-action">
-        <span class="br-inline-text-action__content" :title="modelValue.label">{{ modelValue.label }}</span>
+    <span v-if="showSummary" class="fg-selection-summary">
+        <span class="fg-selection-summary__value" :title="modelValue.label">{{ modelValue.label }}</span>
         <button
             ref="change"
             type="button"
-            class="br-link br-inline-text-action__button waves-effect"
+            class="fg-link"
             :disabled="disabled"
             :aria-label="`Cambiar producto ${modelValue.label}`"
             @click="changeProduct">

@@ -6,7 +6,7 @@
         :model-value="modelValue"
         :options="options"
         :get-option-key="option => option.code"
-        :class="[selectClass, 'br-warehouse-select']"
+        :class="[selectClass, 'fg-warehouse-select']"
         :clearable="clearable"
         :searchable="searchable"
         :disabled="disabled"
@@ -15,23 +15,23 @@
         @update:modelValue="$emit('update:modelValue', $event)"
         @close="$emit('close')">
         <template #selected-option="warehouse">
-            <span class="br-warehouse-select__value" :title="warehouse.displayLabel || warehouse.label">
-                <strong v-if="warehouse.branchName" class="br-warehouse-select__branch">
+            <span class="fg-location__value" :title="warehouse.displayLabel || warehouse.label">
+                <strong v-if="warehouse.branchName" class="fg-location__branch">
                     {{ warehouse.branchName }}
                 </strong>
-                <span v-if="warehouse.branchName" class="br-warehouse-select__separator" aria-hidden="true">-</span>
-                <span class="br-warehouse-select__name">
+                <span v-if="warehouse.branchName" class="fg-location__separator" aria-hidden="true">-</span>
+                <span class="fg-location__name">
                     {{ warehouse.warehouseName || warehouse.label }}
                 </span>
             </span>
         </template>
         <template #option="warehouse">
-            <span class="br-warehouse-select__value" :title="warehouse.displayLabel || warehouse.label">
-                <strong v-if="warehouse.branchName" class="br-warehouse-select__branch">
+            <span class="fg-location__value" :title="warehouse.displayLabel || warehouse.label">
+                <strong v-if="warehouse.branchName" class="fg-location__branch">
                     {{ warehouse.branchName }}
                 </strong>
-                <span v-if="warehouse.branchName" class="br-warehouse-select__separator" aria-hidden="true">-</span>
-                <span class="br-warehouse-select__name">
+                <span v-if="warehouse.branchName" class="fg-location__separator" aria-hidden="true">-</span>
+                <span class="fg-location__name">
                     {{ warehouse.warehouseName || warehouse.label }}
                 </span>
             </span>

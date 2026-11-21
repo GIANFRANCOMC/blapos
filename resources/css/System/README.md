@@ -11,6 +11,7 @@ FG es el único sistema visual del ERP System. La fuente editable es [fg/](fg/);
 - No agregar banderas por página, duplicar la biblioteca ni usar !important para competir con plantillas.
 - Conservar contratos, modelos, opciones remotas, estados disabled y validaciones.
 - Enlazar el CSS desde el head mediante Vite, antes de montar Vue.
+- Scroll y foco compartidos viven en `../Shared/viewport.css`, consumido también por Guest y Platform. Usar sus tokens FG y conservar el scroll nativo; no agregar barras mediante otra biblioteca ni quitar el foco de teclado para corregir los cuadros de Shift.
 
 ## Compilación
 

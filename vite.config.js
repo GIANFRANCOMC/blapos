@@ -57,6 +57,7 @@ export default defineConfig({
             input: [
                 'resources/css/System/app.css',
                 'resources/css/System/fg/index.css',
+                'resources/css/Shared/viewport.css',
                 'resources/css/System/platform.css',
                 'resources/css/Platform/app.css',
                 'resources/js/System/app.js',

@@ -1,0 +1,42 @@
+/* Shared FG scroll and keyboard feedback. Native scrolling remains intact. */
+:root {
+    --fg-scroll-neutral: #7b8ba0;
+    --fg-scroll-thumb: var(--fg-scroll-neutral);
+    --fg-scroll-thumb-hover: var(--fg-muted, #607086);
+    --fg-scroll-thumb-active: var(--fg-primary, #176fae);
+    --fg-scroll-size: 10px;
+    --fg-scroll-thumb-size: 6px;
+    --fg-scroll-radius: 6px;
+    --fg-focus-indicator: var(--fg-primary, #176fae);
+    --fg-focus-surface: var(--fg-primary-soft, #eaf6fd);
+}
+@supports selector(::-webkit-scrollbar) {
+    :root, body, body * { scrollbar-width: auto; scrollbar-color: auto; }
+    ::-webkit-scrollbar { width: var(--fg-scroll-size); height: var(--fg-scroll-size); }
+    ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+        border: calc((var(--fg-scroll-size) - var(--fg-scroll-thumb-size)) / 2) solid transparent;
+        border-radius: var(--fg-scroll-radius);
+        background: var(--fg-scroll-thumb);
+        background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover { background-color: var(--fg-scroll-thumb-hover); }
+    ::-webkit-scrollbar-thumb:active { background-color: var(--fg-scroll-thumb-active); }
+    ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+}
+@supports not selector(::-webkit-scrollbar) {
+    :root, body, body * { scrollbar-width: thin; scrollbar-color: var(--fg-scroll-thumb) transparent; }
+}
+
+/* Modifiers alone never activate keyboard decoration. Preserve field focus. */
+:root[data-fg-input-mode] :where(button, a, summary, [role="button"]):focus-visible { outline: none; box-shadow: none; }
+:root[data-fg-input-mode="pointer"] :is(input, select, textarea):focus-visible { outline: none; }
+:root[data-fg-input-mode="keyboard"] :where(button, a, summary, [role="button"]):focus-visible { box-shadow: inset 0 -2px 0 currentColor; }
+:root[data-fg-input-mode="keyboard"] summary:focus-visible { background-color: var(--fg-focus-surface); box-shadow: inset 0 -2px 0 var(--fg-focus-indicator); border-radius: var(--fg-radius, 6px); }
+@media (forced-colors: active) {
+    :root, body, body * { scrollbar-width: auto; scrollbar-color: auto; }
+    ::-webkit-scrollbar { width: auto; height: auto; }
+    ::-webkit-scrollbar-thumb { background: CanvasText; border-color: Canvas; }
+    ::-webkit-scrollbar-button { display: initial; width: auto; height: auto; }
+    :root[data-fg-input-mode="keyboard"] :where(button, a, summary, [role="button"]):focus-visible { outline: 2px solid Highlight; outline-offset: 2px; box-shadow: none; }
+}

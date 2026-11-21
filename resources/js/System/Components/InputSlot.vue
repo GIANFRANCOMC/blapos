@@ -1,8 +1,10 @@
 <template>
-    <FgField  :label="title" :required="isRequired" :input-id="inputId || undefined" :error="hasTextBottom ? textBottomInfo : null">
+    <FgField  :label="title" :required="isRequired" :input-id="inputId || undefined" :error="hasTextBottom ? textBottomInfo : null" :help="help">
         <template #action><slot name="default"/><slot name="defaultAppend"/></template>
-        <div v-if="isInputGroup && ($slots.inputGroupPrepend || $slots.inputGroupAppend)" class="fg-field__control"><slot name="inputGroupPrepend"/><slot name="input"/><slot name="inputGroupAppend"/></div>
-        <slot v-else name="input"/>
+        <template #default="field">
+            <div v-if="isInputGroup && ($slots.inputGroupPrepend || $slots.inputGroupAppend)" class="fg-field__control"><slot name="inputGroupPrepend"/><slot name="input" v-bind="field"/><slot name="inputGroupAppend"/></div>
+            <slot v-else name="input" v-bind="field"/>
+        </template>
     </FgField>
 
 
@@ -17,6 +19,7 @@ export default {
     name: "InputSlot",
     emits: [],
     props: {
+        help: {type: String, default: ""},
         inputId: {type: String, default: ""},
         // Div - Show
         hasDiv: {

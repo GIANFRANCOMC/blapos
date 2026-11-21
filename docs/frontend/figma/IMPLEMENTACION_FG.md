@@ -12,6 +12,7 @@ La fuente editable está en `resources/css/System/fg/`:
 - `components.css`: controles, botones, pestañas, badges, modales, paginación y estados.
 - `navigation.css`: mundos, submódulos, navbar y contenedor común.
 - `feedback.css`: SweetAlert, capas y tooltips.
+- `Shared/viewport.css`: scroll nativo y foco transversal, también cargado en Guest y Platform.
 - `products.css`: composición del listado, edición, inventario e importación.
 
 El entry `index.css` se enlaza desde el head con Vite, antes de montar Vue, para evitar la carga tardía de estilos desde JavaScript. En producción Vite genera CSS y fuentes con hash. Source Sans 3 está alojada en `resources/fonts/`, con licencia OFL; no requiere Google Fonts en ejecución.
@@ -47,7 +48,26 @@ Las rutas Vue son relativas a `resources/js/System/Components/`, excepto Shared 
 - Comisión muestra `%`, el signo de moneda o un campo deshabilitado según corresponda. El desplegable flota sobre el formulario, sin reservar espacio ni desplazar campos.
 - Carga, validación, éxito y error describen la operación. Conservar el bloqueo de acciones duplicadas y el foco de los controles.
 
+### Ayudas y errores de campo
+
+`FgField` organiza **control → error, si existe → ayuda**. `--fg-field-gap` define una separación uniforme de 4 px; los mensajes no añaden márgenes. Sin error, la ayuda ocupa la primera posición bajo el control; con error, este ocupa esa posición y la ayuda continúa debajo. No se reserva una fila vacía y los textos largos pueden envolver naturalmente.
+
+Pasar la ayuda mediante `help` a `InputText`, `InputNumber`, `InputDate`, `InputTextArea`, `InputSelect`, `InputSelect2` o `InputSlot`. Para Vue Select, pasarla al `FgField` que lo contiene. Evitar párrafos de ayuda independientes dentro de `.fg-stack`, cuyo espaciado corresponde a secciones. Los errores conservan su contrato actual (`hasTextBottom` y `textBottomInfo` en los adaptadores).
+
+`FgField` expone `describedBy` en su slot y contexto para asociar los IDs de error y ayuda a `aria-describedby`. `FgSelect` lo consume desde el contexto; los controles nativos lo reciben desde el slot. `InputSlot` reenvía esos datos a su slot `input` para los controles personalizados.
+
+Verificación de este ajuste: 297 pruebas de frontend aprobadas y compilación de producción correcta. Navegador autenticado: fecha y comisión con separación medida de 4 px; errores de Nombre y Precio también a 4 px del control. Comprobados escritorio y 390 px, sin desbordamiento horizontal del documento; restablecido el viewport. La coexistencia de error y ayuda, sus referencias accesibles y la recuperación al estado válido se cubren en las pruebas de controles compartidos. No se guardaron productos. Captura de comprobación: `fg-ayuda-campos.png` en los artefactos de la sesión.
+
 ## 3. Navegación global y dependencias
+
+### Scroll y foco sin ruido
+
+La fuente común es `resources/css/Shared/viewport.css`. System la importa desde FG, Platform desde su entry CSS y Guest la enlaza desde el head. `Shared/disabled-controls.js` carga el seguimiento de modalidad de entrada para las tres áreas. No cambian sus rutas, permisos, datos ni contexto de tenant.
+
+- Scroll: canal nativo de 10 px y thumb redondo de 6 px, fondo transparente y sin flechas decorativas. Reposo `#7b8ba0`, hover `muted` y arrastre `primary`; todos mediante tokens FG. Aplica a documento, paneles, modales, tablas y opciones, incluidas las listas en portal. No reemplaza rueda, touchpad, arrastre ni teclado. Firefox usa `scrollbar-width: thin`; los detalles nativos pueden variar según navegador y sistema operativo.
+- Shift, Control, Alt o Meta aislados no activan el modo de teclado. Tab, Shift+Tab y teclas de navegación conservan un foco visible interior. Las secciones usan superficie suave y subrayado azul de 2 px, sin marco exterior; los botones conservan su color y un subrayado interior con `currentColor`. Los campos mantienen su borde/halo. No se cancelan eventos ni se alteran trampas de foco de modales. Alto contraste recupera la señal nativa de contorno.
+- Figma: [Scroll y guía de uso](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=115-119), [maestro Scroll](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=115-94), [Foco de sección](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=115-107). Publicados los dos componentes y sus seis tokens; [Productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=253-36372) incorpora cuatro instancias vinculadas, sin duplicar maestros locales. Otros consumidores de Figma deberán aceptar la actualización cuando corresponda; el CSS compartido de la aplicación ya aplica globalmente.
+- Verificación: 299 pruebas aprobadas, compilación de producción y vistas Blade correctas. Navegador autenticado en escritorio: Shift mantiene `pointer` y no muestra outline ni sombra; Tab/Shift+Tab muestra subrayado azul; Enter conserva la apertura nativa; PageUp desplaza el panel. Modal y opciones de Categorías usan el canal de 10 px, con portal en capa 1080. No se guardaron datos. Queda pendiente la comprobación específica en Firefox, tacto y alto contraste. El intento de emulación móvil no cambió el viewport del tab de prueba y no se cuenta como una validación móvil.
 
 `System/layouts/main.blade.php` incluye fg-navigation, fg-navbar, fg-up y fg-down para todos sus consumidores. Los mundos siguen usando las secciones autorizadas, sus grupos y rutas. Los favoritos conservan la actualización al cambiar preferencias.
 
@@ -63,9 +83,25 @@ Listado, filtros, búsquedas aplicadas, tabla, acciones, resultados, paginación
 
 Se mantiene **Códigos → Nombre → Precio**. Inventario conserva todos los almacenes; editar no cambia existencias, solo permite ajustar el mínimo. Las altas de marca/categoría muestran Nombre y Descripción; el código requerido por el contrato se sigue generando internamente.
 
-**Ordenamiento:** por decisión del usuario se conserva A–Z como texto. Z–A queda pendiente de una API que lo admita. No ordenar solamente los resultados de una página en el navegador. La descarga de código de barras sigue siendo una imagen, sin un flujo adicional.
+**Ordenamiento:** el selector permite Nombre A–Z y Nombre Z–A, con `sort_direction=asc|desc` en listado y exportación. Cambiarlo vuelve a la página 1 usando filtros aplicados; la API ordena el conjunto completo y desempata por ID. La descarga de código de barras sigue siendo una imagen, sin un flujo adicional.
+
+**Acciones, carga y fecha de alta:** los menús general y de fila muestran solo el label. El disparador conserva chevron o tres puntos; `BarcodeDownloadButton` conserva el icono únicamente cuando se presenta como botón independiente. `FgListLoading` reutiliza el SVG de carga de 32 px, contenedor mínimo de 200 px, estado anunciado una sola vez y giro desactivado con movimiento reducido. En alta, Disponible hasta admite hoy o una fecha futura; al editar no tiene mínimo. La ayuda pertenece a `FgField` y la API conserva la validación definitiva.
+
+Los menús de acciones ajustan su ancho al contenido, sin el mínimo general de 244 px: `max-content`, máximo 240 px o ancho de ventana menos 32 px. Los textos largos pueden envolver sin recortarse. Se mantiene el anclaje derecho junto al disparador. Comprobado en local: general 140 px y por registro 180 px, sin etiquetas recortadas; dos pruebas del componente y compilación aprobadas. En Figma se ajustaron cinco menús de escritorio y móvil a 141/181 px, reutilizando sus instancias existentes. No cambia la lógica de las acciones.
+
+En Figma se publicaron Opción de menú, Ordenar listado, Listado / Carga y su token de altura. Se aceptó la actualización para todas las páginas de Productos: 100 instancias de orden y 10 opciones de menú. La vista [Buscando productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=39-1390) utiliza el nuevo maestro enlazado; las configuraciones de alta de escritorio y móvil explican la fecha mínima. Las instancias se conservan vinculadas.
+
+Verificación de esta etapa: 302 pruebas de frontend aprobadas; cuatro casos funcionales de Productos aprobados con 24 aserciones sobre fechas, orden global, filtros, paginación estable, exportación y rechazo de dirección inválida. Vite y Blade compilan. Navegador local: ambas listas de acciones sin iconos, selección Z–A con resultados descendentes y calendario con mínimo al crear y sin mínimo al editar. No se guardaron registros reales. La suite backend completa dio 236 casos aprobados y 11 fallidos: arquitectura tenant (4), inicialización de seeders (1), datos maestros (1), inventario/unidad (1), navegación (2) y workspace (2). Los fallos corresponden a archivos o expectativas fuera de estos cuatro ajustes; se registran para su revisión sin ampliar este cambio. No se declara la suite general aprobada.
 
 ## 5. Verificación y mantenimiento
+
+### Indicadores y navegación compartidos · 20 de noviembre de 2026
+
+- El riel usa `justify-content: safe center`, sin el antiguo umbral de 620 px. Los mundos se mantienen centrados cuando caben y pueden desplazarse desde el primer acceso cuando falta altura, incluida la reducción de espacio al aumentar el zoom.
+- `control-icons.css` es la fuente común del chevron de Vue Select, Select2, secciones nativas y botones de dropdown. Reutiliza el SVG original de Componentes de 16 × 16 y lo gira 180° según el estado real del control, con `--fg-control-motion: 160ms ease`. Con movimiento reducido se elimina la transición. La X es de 16 × 16 en selección única y 10 × 10 en etiquetas; conserva los botones, eventos y accesibilidad de las bibliotecas.
+- Consumidores: formulario de Productos, límites de precio, menú de acciones, navbar, usos de categorías/marcas y operaciones de traslados. Los resúmenes de selección de producto y almacén, las unidades de cantidad y el desglose de uso ya no emiten clases `br-*`; se componen con primitivas y tokens FG. La limpieza del resto de submódulos continúa por sus fuentes compartidas; no se renombraron IDs ni atributos funcionales.
+- Referencias: [chevron](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=1-513), [limpiar selección](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=1-559), [etiqueta](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=13-22). Assets locales sin alterar en `resources/assets/fg/controls/`.
+- Verificación de código: 295 pruebas de frontend aprobadas; se repitieron los 29 casos de navegación, inventario y traslados tras el ajuste final de la etiqueta obligatoria. Compilación de producción y de vistas Blade aprobadas, con caché de vistas limpiada y `git diff --check` sin incidencias. La revisión visual actual de zoom, flechas y X queda pendiente: el navegador integrado abrió el inicio de sesión y el control de Chrome se interrumpió porque no pudo verificar su URL. Las comprobaciones de navegador registradas abajo corresponden a las etapas anteriores.
 
 Ejecutar `npm run build` y `tests/Frontend/*.test.mjs` con una versión de Node que admita atributos de importación JSON. Las pruebas cubren contratos numéricos, formularios, búsqueda, paginación, navegación, opciones, importación y accesibilidad de campos FG. Las aserciones de la apariencia anterior se adaptaron al diseño único.
 

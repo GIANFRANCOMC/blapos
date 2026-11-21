@@ -5,8 +5,8 @@
             <div class="fg-page-header__actions">
                 <FgButton icon="fa-solid fa-plus" :disabled="initialLoading" @click="openModal()">Agregar producto</FgButton>
                 <ActionsDropdown type="button" text="Acciones" label="Acciones de productos" :disabled="initialLoading">
-                    <li><button type="button" class="fg-menu__item" @click="openImportModal"><i class="fa-solid fa-file-import" aria-hidden="true"/>Importar productos</button></li>
-                    <li><button type="button" class="fg-menu__item" :disabled="isExporting" @click="downloadRecords"><i class="fa-solid fa-file-export" aria-hidden="true"/>Exportar productos</button></li>
+                    <li><button type="button" class="fg-menu__item" @click="openImportModal">Importar productos</button></li>
+                    <li><button type="button" class="fg-menu__item" :disabled="isExporting" @click="downloadRecords">Exportar productos</button></li>
                 </ActionsDropdown>
             </div>
         </header>
@@ -25,7 +25,7 @@
                 </form>
                 <div class="fg-list-heading">
                     <h2 class="fg-section-title">{{ entityList.appliedFilters?.word?.trim() ? 'Resultados de «' + entityList.appliedFilters.word.trim() + '»' : 'Productos registrados' }}</h2>
-                    <span class="fg-help">Ordenado por <strong>Nombre A–Z</strong></span>
+                    <FgField class="fg-list-order" label="Ordenado por" input-id="fg-products-order"><FgSelect input-id="fg-products-order" :model-value="sortDirection" :options="sortOptions" :reduce="option => option.code" :clearable="false" :searchable="false" :disabled="entityList.extras.loading" @update:modelValue="changeSort"/></FgField>
                 </div>
                 <section class="fg-products-list" aria-label="Listado de productos">
                     <div class="fg-table-scroll" role="region" aria-label="Tabla de productos" tabindex="0">
@@ -33,7 +33,7 @@
                             <colgroup><col class="fg-products-table__identity"/><col class="fg-products-table__product"/><col class="fg-products-table__price"/><col class="fg-products-table__status"/><col class="fg-products-table__actions"/></colgroup>
                             <thead><tr><th scope="col">Identificación</th><th scope="col">Producto</th><th scope="col" class="fg-align-end">Precio</th><th scope="col" class="fg-align-center">Estado</th><th scope="col" class="fg-align-center">Acciones</th></tr></thead>
                             <tbody>
-                                <tr v-if="entityList.extras.loading" class="fg-table__state"><td colspan="5"><div class="fg-loader" role="status"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"/>Buscando productos…</div></td></tr>
+                                <tr v-if="entityList.extras.loading" class="fg-table__state"><td colspan="5"><FgListLoading label="Buscando productos…"/></td></tr>
                                 <template v-else-if="entityList.records.total > 0">
                                     <tr v-for="record in entityList.records.data" :key="record.id">
                                         <td><div class="fg-product-codes"><span>{{ record.internal_code }}</span><small v-if="record.barcode">{{ record.barcode }}</small></div></td>
@@ -44,7 +44,7 @@
                                         <td class="fg-align-end"><CatalogPriceCell :record="record"/></td>
                                         <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
                                         <td class="fg-align-center"><TableActionsDropdown :label="'Acciones de ' + record.name">
-                                            <li><button type="button" class="fg-menu__item" @click="openModal(record)"><i class="fa-solid fa-pen" aria-hidden="true"/>Editar producto</button></li>
+                                            <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar producto</button></li>
                                             <li v-if="record.barcode"><BarcodeDownloadButton menu-item tooltip="Descargar código de barras" :value="record.barcode" :file-name="record.internal_code"/></li>
                                         </TableActionsDropdown></td>
                                     </tr>
@@ -67,6 +67,7 @@
 <script>
 import Paginator from "@System/Components/Paginator.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
 import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import FgButton from "@System/Components/Figma/FgButton.vue";
 import FgField from "@System/Components/Figma/FgField.vue";
@@ -121,7 +122,7 @@ const MODULE = {
 
 export default {
     name: "ProductsMain",
-    components: {Paginator, StatusBadge,FgSelect,FgButton, FgField, FgEmptyState, ActionsDropdown,
+    components: {FgListLoading, Paginator, StatusBadge,FgSelect,FgButton, FgField, FgEmptyState, ActionsDropdown,
         CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,
@@ -147,6 +148,8 @@ export default {
             MODULE,
             isExporting: false,
             initialLoading: true,
+            sortDirection: "asc",
+            sortOptions: [{code: "asc", label: "Nombre A–Z"}, {code: "desc", label: "Nombre Z–A"}],
             listFailed: false
         };
 
@@ -187,6 +190,7 @@ export default {
                 this.options.categories = response.data.config.categories;
                 this.options.currencies = response.data.config.currencies;
                 this.options.statuses   = response.data.config.statuses;
+                this.options.timezone = response.data.config.timezone;
                 this.options.warehouses = response.data.config.warehouses;
                 this.options.internal_code_prefixes = response.data.config.internal_code_prefixes ?? {};
 
@@ -251,6 +255,11 @@ export default {
             }
 
         },
+        changeSort(direction) {
+            if(!["asc", "desc"].includes(direction) || direction === this.sortDirection) return;
+            this.sortDirection = direction;
+            return this.listEntity({});
+        },
         clearProductFilters() {
             this.entityList.filters.filter_by = this.MODULE.filterOptions[0];
             this.entityList.filters.word = "";
@@ -265,7 +274,8 @@ export default {
             const filters = (this.entityList.appliedFilters ??= {...this.entityList.filters});
             const filterData = {
                 filter_by: filters.filter_by?.code,
-                word: filters.word
+                word: filters.word,
+                sort_direction: this.sortDirection
             };
 
             if(includePagination) {

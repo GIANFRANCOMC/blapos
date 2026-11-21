@@ -29,9 +29,11 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 
 ## Exportación Excel
 
-La barra conserva `Agregar producto` como acción principal. `Cargar masivamente` y `Descargar Excel` están agrupadas en el menú `Acciones`, con una flecha que indica si está abierto o cerrado. La variante reutilizable `br-btn-actions` usa naranja con texto blanco de alto contraste; su menú conserva la misma paleta en los estados de interacción. `FiltersSection` solo activa esta agrupación cuando recibe `groupSecondaryActions`; los demás módulos mantienen su presentación actual. El campo de búsqueda compartido ocupa una columna menos en escritorio para dejar más aire a las acciones.
+La barra conserva `Agregar producto` como acción principal. El menú `Acciones` contiene `Importar productos` y `Exportar productos`, únicamente con texto. Las acciones por registro muestran `Editar producto` y `Descargar código de barras`, también sin iconos. Los disparadores conservan su flecha o tres puntos y las opciones respetan permisos y estados disabled. Se reutilizan los componentes FG compartidos.
 
-El endpoint `GET /products/export` recibe `filter_by` y `word`, exactamente los mismos parámetros del listado. No recibe `page` ni `per_page`: descarga todos los registros que coinciden con el filtro actual y conserva el orden alfabético por producto.
+Los endpoints `GET /products/list` y `GET /products/export` reciben `filter_by`, `word` y `sort_direction`. El orden admite exclusivamente `asc` o `desc`; al omitirse usa `asc` y un valor distinto devuelve 422. La columna se mantiene fija en Nombre y el ID desempata en la misma dirección, para obtener paginación estable incluso con nombres repetidos. No se aceptan columnas SQL enviadas por el cliente.
+
+El selector `Ordenado por` ofrece `Nombre A–Z` y `Nombre Z–A`. Cambiarlo vuelve a la página 1 y conserva la búsqueda aplicada, sin aplicar las ediciones todavía pendientes en el buscador. Los enlaces de paginación conservan filtros, dirección y `per_page`. Excel usa la misma consulta y dirección sobre todos los resultados; no se limita a la página visible.
 
 La consulta no se duplica. `ProductService::getFilteredListQuery()` centraliza empresa, tipo de item, filtros, relaciones y orden; `getPaginatedList()` agrega únicamente la paginación y `ProductListExport` consume la consulta completa mediante `FromQuery`.
 
@@ -50,7 +52,13 @@ La descarga frontend usa `Requests.download()`, helper genérico que solicita un
 
 Esta exportación vive exclusivamente bajo `System/Catalogs/Products`, porque contiene información operativa de la empresa autenticada. `Guest` no comparte la ruta, consulta ni exportador.
 
-La opción `Descargar Excel` está disponible dentro de `Acciones` con icono y texto visibles en todas las resoluciones.
+La opción `Exportar productos` está disponible dentro de `Acciones` en todas las resoluciones.
+
+### Fecha mínima al crear
+
+`Disponible hasta` sigue siendo opcional. `StoreProductRequest` rechaza fechas anteriores a hoy, según la zona horaria configurada de la aplicación, y devuelve `Elige hoy o una fecha futura.` Hoy y fechas posteriores se aceptan. `UpdateProductRequest` conserva la validación de fecha sin mínimo: editar permite una fecha pasada válida o retirar la fecha.
+
+El formulario limita el calendario solo en alta y vuelve a validar antes de enviar; usa `timezone` de la configuración de Productos para calcular el día comercial, sin convertirlo primero a UTC. La restricción del servidor es la autoridad. No se cambian el mecanismo existente de vencimiento e inactivación, el inventario ni la disponibilidad de otros tipos de ítem.
 
 ## Datos del producto
 

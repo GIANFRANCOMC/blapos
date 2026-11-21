@@ -7,7 +7,7 @@
 .fg-rail { display: flex; flex-direction: column; align-items: center; flex: none; width: 64px; padding: 16px 12px; gap: 12px; background: var(--fg-heading); color: var(--fg-surface); }
 .fg-rail__brand { display: flex; flex: none; align-items: center; justify-content: center; width: 40px; height: 40px; }
 .fg-rail__brand img { object-fit: contain; }
-.fg-worlds { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; flex: 1; width: 64px; margin-inline: -12px; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.fg-worlds { display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 12px; flex: 1; width: 64px; margin-inline: -12px; min-height: 0; overflow-y: auto; }
 .fg-world { display: flex; align-items: center; justify-content: center; position: relative; flex: none; width: 40px; height: 40px; padding: 0; border: 0; border-radius: var(--fg-radius); background: transparent; color: var(--fg-surface); cursor: pointer; text-decoration: none; }
 .fg-world i { font-size: var(--fg-loading-title-size); color: inherit; }
 .fg-world:hover { background: color-mix(in srgb, var(--fg-surface) 8%, transparent); color: var(--fg-surface); }
@@ -50,7 +50,6 @@
 .fg-user > i { font-size: var(--fg-help-size); color: var(--fg-muted); }
 .fg-topbar__user-summary { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-bottom: 1px solid var(--fg-border); }
 .fg-nav-backdrop { display: none; }
-@media (max-height: 620px) { .fg-worlds { justify-content: flex-start; } }
 @media (max-width: 1000px) {
     .fg-layout-page, .fg-theme:has(.fg-navigation.without-context) .fg-layout-page { margin-left: 0; }
     .fg-navigation { transform: translateX(-100%); }

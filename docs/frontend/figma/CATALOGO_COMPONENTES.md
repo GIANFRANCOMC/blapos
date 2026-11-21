@@ -2,6 +2,18 @@
 
 Cada enlace abre el maestro central. Cambiar textos, iconos y variantes mediante propiedades; mantener las instancias vinculadas. Los valores predeterminados son ejemplos, no reglas de negocio.
 
+## Acciones y carga de listados
+
+[Opción de menú](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=1-118) expone solo Label, sin Icon. El disparador de menú conserva su chevron o tres puntos. [Listado / Carga](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=123-78) reutiliza el indicador de 32 px, altura mínima 200 y Label contextual. En código corresponde a `Figma/FgListLoading.vue`; no ampliar el spinner de todos los botones para resolver una carga de tabla.
+
+[Ordenar listado](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=1-859) representa selección única A–Z/Z–A respaldada por la API. Reiniciar página conservando filtros aplicados y usar el mismo orden al exportar.
+
+## Scroll y foco
+
+- [Scroll](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=115-94): Dirección Vertical/Horizontal × Estado Reposo/Hover/Arrastre. Thumb 6 px dentro de canal 10 px. Reutilizar como instancia para representar scroll nativo, sin añadir una segunda barra a un panel que ya la contiene.
+- [Foco de sección](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=115-107): Reposo/Teclado; Título y Ayuda editables. Shift aislado conserva Reposo; Tab y Shift+Tab usan Teclado. No se elimina la navegación accesible.
+- [Guía visual](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=115-119) · [Consumidor en Productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=253-36372). Publicados en Componentes; no crear variantes locales de estas familias en cada submódulo.
+
 
 ## Personalización de contenido
 

@@ -9,7 +9,7 @@
         :aria-label="ariaLabel"
         :disabled="disabled || !cleanValue"
         @click="download">
-        <i class="fa-solid fa-barcode" aria-hidden="true"></i>
+        <i v-if="!menuItem" class="fa-solid fa-barcode" aria-hidden="true"></i>
         <span v-if="menuItem" v-text="tooltip"></span>
     </button>
 </template>

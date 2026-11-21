@@ -58,7 +58,7 @@ El menú Acciones ofrece **Importar productos** y **Exportar productos**. El men
 
 El icono junto al nombre consulta el inventario. Se usa el mismo símbolo de caja en todas las filas: neutro para consulta normal y ámbar sobre amarillo suave cuando existe una alerta. Su tooltip y nombre accesible deben indicar “Consultar inventario” o “Consultar inventario: requiere atención”, para no depender únicamente del color. No elimina, traslada ni ajusta existencias.
 
-En Figma se diseñaron A–Z y Z–A. Por decisión del usuario, la implementación conserva **Nombre A–Z** como texto hasta que la API admita Z–A. No se ordenan solo los registros de la página actual.
+El selector permite **Nombre A–Z** y **Nombre Z–A**. La API recibe `sort_direction=asc|desc`, ordena el conjunto filtrado completo y desempata por ID. Cambiar el orden reinicia la página y mantiene la búsqueda aplicada; Excel usa la misma dirección. No se ordenan solo los registros de la página visible.
 
 ### Orden por nombre: propuesta para implementar
 

@@ -52,6 +52,16 @@ class ProductController extends BaseController {
 
     }
 
+    protected function getFilters(Request $request): array {
+
+        $validated = $request->validate([
+            "sort_direction" => ["sometimes", "in:asc,desc"],
+        ]);
+
+        return [...parent::getFilters($request), "sort_direction" => $validated["sort_direction"] ?? "asc"];
+
+    }
+
     /**
      * Download every product matching the current list filters.
      */

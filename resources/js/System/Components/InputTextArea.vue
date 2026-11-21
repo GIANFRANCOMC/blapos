@@ -1,11 +1,13 @@
 <template>
-    <FgField  class="fg-field--textarea" :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null">
+    <FgField  class="fg-field--textarea" :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null" :help="help">
         <template #action><slot name="default"/></template>
-        <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
-            <textarea :id="controlId" :value="modelValue" class="fg-input" :placeholder="placeholder" :disabled="disabled" :maxlength="maxlength" :rows="rows"
-                :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined" :aria-describedby="hasError ? controlId + '-error' : undefined" @input="updateValue($event.target.value)" @keyup.enter="handleEnterKey"/>
-            <span v-if="maxlength" class="fg-field__counter">{{ String(modelValue || '').length }} / {{ maxlength }}</span>
-        </div>
+        <template #default="{describedBy}">
+            <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
+                <textarea :id="controlId" :value="modelValue" class="fg-input" :placeholder="placeholder" :disabled="disabled" :maxlength="maxlength" :rows="rows"
+                    :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined" :aria-describedby="describedBy" @input="updateValue($event.target.value)" @keyup.enter="handleEnterKey"/>
+                <span v-if="maxlength" class="fg-field__counter">{{ String(modelValue || '').length }} / {{ maxlength }}</span>
+            </div>
+        </template>
     </FgField>
 
 
@@ -24,6 +26,7 @@ export default {
     },
     emits: ["enterKeyPressed", "update:modelValue", "input", "change"],
     props: {
+        help: {type: String, default: ""},
         modelValue: {
             type: [String, Number],
             default: ""

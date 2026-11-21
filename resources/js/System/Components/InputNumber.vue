@@ -1,14 +1,16 @@
 <template>
-    <FgField  :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null">
+    <FgField  :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null" :help="help">
         <template #action><slot name="default"/><slot name="defaultAppend"/></template>
-        <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
-            <slot name="inputGroupPrepend"/>
-            <input :id="controlId" type="text" inputmode="decimal" :value="displayValue" class="fg-input" :placeholder="placeholder" :disabled="disabled"
-                :aria-label="ariaLabel || undefined" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined"
-                :aria-describedby="showError ? controlId + '-error' : undefined"
-                @focus="handleFocus" @blur="handleBlur" @input="handleTyping($event.target.value)" @keydown="handleKeyDown" @keyup.enter="handleEnterKey"/>
-            <slot name="inputGroupAppend"/>
-        </div>
+        <template #default="{describedBy}">
+            <div :class="['fg-field__control', {'fg-field__control--invalid': hasError}]">
+                <slot name="inputGroupPrepend"/>
+                <input :id="controlId" type="text" inputmode="decimal" :value="displayValue" class="fg-input" :placeholder="placeholder" :disabled="disabled"
+                    :aria-label="ariaLabel || undefined" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined"
+                    :aria-describedby="describedBy"
+                    @focus="handleFocus" @blur="handleBlur" @input="handleTyping($event.target.value)" @keydown="handleKeyDown" @keyup.enter="handleEnterKey"/>
+                <slot name="inputGroupAppend"/>
+            </div>
+        </template>
     </FgField>
 
 
@@ -29,6 +31,7 @@ export default {
         return {controlId: id, errorId: "fg-number-error-" + id};
     },
     props: {
+        help: {type: String, default: ""},
         modelValue: {
             type: [String, Number],
             default: ""

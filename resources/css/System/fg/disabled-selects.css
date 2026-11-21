@@ -1,0 +1,26 @@
+/* One neutral disabled surface: internal search/actions must not paint separate blocks. */
+:is(.fg-select, .fg-theme .v-select).vs--disabled {
+    --vs-state-disabled-bg: transparent;
+    --vs-state-disabled-color: var(--fg-disabled-text);
+    --vs-selected-color: var(--fg-disabled-text);
+    --vs-selected-bg: var(--fg-disabled-tag-bg);
+    --vs-controls-color: var(--fg-disabled-text);
+}
+:is(.fg-select, .fg-theme .v-select).vs--disabled .vs__dropdown-toggle {
+    background: var(--fg-disabled-bg);
+    border-color: var(--fg-disabled-border);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+:is(.fg-select, .fg-theme .v-select).vs--disabled :is(.vs__selected-options, .vs__actions, .vs__search) { background: transparent; }
+:is(.fg-select, .fg-theme .v-select).vs--disabled :is(.vs__selected, .vs__search, .vs__open-indicator) { color: var(--fg-disabled-text); opacity: 1; }
+:is(.fg-select, .fg-theme .v-select).vs--disabled .vs__search::placeholder { color: var(--fg-disabled-text); opacity: 1; }
+:is(.fg-select, .fg-theme .v-select).vs--disabled.vs--single .vs__selected { background: transparent; }
+:is(.fg-select, .fg-theme .v-select).vs--disabled.vs--multiple .vs__selected { background: var(--fg-disabled-tag-bg); }
+
+.fg-theme .select2-container.select2-container--disabled .select2-selection { background: var(--fg-disabled-bg); border-color: var(--fg-disabled-border); box-shadow: none; }
+.fg-theme .select2-container.select2-container--disabled :is(.select2-selection__rendered, .select2-selection__placeholder, .select2-search__field, .select2-selection__arrow) { background: transparent; color: var(--fg-disabled-text); opacity: 1; }
+.fg-theme .select2-container.select2-container--disabled .select2-selection__choice { background: var(--fg-disabled-tag-bg); border-color: var(--fg-disabled-border); color: var(--fg-disabled-text); }
+.fg-theme .select2-container.select2-container--disabled .select2-search__field::placeholder { color: var(--fg-disabled-text); opacity: 1; }
+.fg-theme .fg-field__control:has(> select:disabled) { background: var(--fg-disabled-bg); border-color: var(--fg-disabled-border); box-shadow: none; }
+.fg-theme select:disabled { color: var(--fg-disabled-text); }

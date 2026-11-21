@@ -37,6 +37,7 @@ final class ProductConfigService extends BaseConfigService {
             ]),
             "internal_code_prefixes" => self::internalCodePrefixes(),
             "statuses" => Item::getStatuses(),
+            "timezone" => config("app.timezone"),
         ]);
 
     }

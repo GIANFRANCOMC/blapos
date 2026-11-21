@@ -453,23 +453,23 @@ test("the shared work-warehouse selector shows branch and warehouse on every pag
     const component = readInventory();
     const warehouseSelect = read("resources/js/System/Components/Generics/WarehouseSelect.vue");
     const selectionField = read("resources/js/System/Components/Generics/WarehouseSelectionField.vue");
-    const warehouseCss = read("resources/css/System/br-branding/12-warehouse-select.css");
+    const warehouseCss = read("resources/css/System/fg/components.css");
     const references = read("app/Services/System/Base/CompanyReferenceDataService.php");
 
     assert.match(component, /v-model="filters\.warehouse"\s+:options="warehouses"/);
     assert.equal((component.match(/<WarehouseSelect\s/g) || []).length, 6);
     assert.equal((component.match(/<WarehouseSelectionField\s/g) || []).length, 2);
     assert.match(component, /import WarehouseSelect from "@System\/Components\/Generics\/WarehouseSelect\.vue";/);
-    assert.match(selectionField, /v-if="required"[^>]*>\*<\/span>\s*<button\s+v-if="showSummary"[\s\S]*?Cambiar\s*<\/button>/);
-    assert.match(selectionField, /v-if="showSummary" class="br-field-summary br-field-summary--control"[\s\S]*?class="br-field-summary__value"[\s\S]*?<WarehouseSelect\s+v-else/);
+    assert.match(selectionField, /v-if="required"[^>]*>\*<\/span>\s*<\/component>\s*<button\s+v-if="showSummary"[\s\S]*?Cambiar\s*<\/button>/);
+    assert.match(selectionField, /v-if="showSummary" class="fg-field__control"[\s\S]*?class="fg-selection-summary__value"[\s\S]*?<WarehouseSelect\s+v-else/);
     assert.match(warehouseSelect, /<VueSelect[\s\S]*?:model-value="modelValue"[\s\S]*?:options="options"[\s\S]*?@update:modelValue="\$emit\('update:modelValue', \$event\)"/);
-    assert.match(warehouseSelect, /br-warehouse-select[\s\S]*?#selected-option="warehouse"[\s\S]*?#option="warehouse"/);
-    assert.match(warehouseSelect, /<strong v-if="warehouse\.branchName" class="br-warehouse-select__branch">[\s\S]*?warehouse\.branchName[\s\S]*?<\/strong>/);
-    assert.match(warehouseSelect, /br-warehouse-select__separator" aria-hidden="true">-<\/span>[\s\S]*?br-warehouse-select__name/);
+    assert.match(warehouseSelect, /fg-warehouse-select[\s\S]*?#selected-option="warehouse"[\s\S]*?#option="warehouse"/);
+    assert.match(warehouseSelect, /<strong v-if="warehouse\.branchName" class="fg-location__branch">[\s\S]*?warehouse\.branchName[\s\S]*?<\/strong>/);
+    assert.match(warehouseSelect, /fg-location__separator" aria-hidden="true">-<\/span>[\s\S]*?fg-location__name/);
     assert.match(component, /branchName: record\.branch\?\.name \|\| ""[\s\S]*?warehouseName: record\.name[\s\S]*?displayLabel: record\.branch\?\.name \? `\$\{record\.branch\.name\} - \$\{record\.name\}` : record\.name/);
     assert.match(component, /label: record\.branch\?\.name \? `\$\{record\.branch\.name\} \/ \$\{record\.name\}` : record\.name/);
-    assert.match(warehouseCss, /\.br-warehouse-select__branch \{[\s\S]*?font-weight: var\(--br-font-weight-medium\);/);
-    assert.match(warehouseCss, /\.br-warehouse-select__name \{[\s\S]*?font-weight: var\(--br-font-weight-body\);/);
+    assert.match(warehouseCss, /\.fg-location__branch \{[\s\S]*?font-weight: var\(--fg-label-weight\);/);
+    assert.match(warehouseCss, /\.fg-location__name \{[\s\S]*?font-weight: var\(--fg-regular-weight\);/);
     assert.match(references, /function stockWarehouses\(\): Collection \{[\s\S]*?->with\("branch"\)/);
 
 });

@@ -6,7 +6,7 @@
         <details v-if="limits.length" :class="'fg-price__limits'">
             <summary :class="'fg-price__summary'" aria-label="Límites de precio">
                 Ver límites
-                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                <span class="fg-chevron" aria-hidden="true"></span>
             </summary>
             <dl :class="'fg-price__values'">
                 <div v-for="limit in limits" :key="limit.label" :class="'fg-price__limit'">

@@ -1,7 +1,7 @@
 <template>
     <VueSelect ref="select" v-bind="$attrs" :class="['fg-select', {'fg-select--invalid': field?.invalid}]" append-to-body :calculate-position="positionSelectDropdown" :input-id="inputId" :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)">
         <template #search="{attributes, events}">
-            <input class="vs__search" v-bind="attributes" :aria-label="label" :aria-labelledby="undefined" :aria-required="field?.required || undefined" :aria-invalid="field?.invalid || undefined" :aria-describedby="field?.invalid ? inputId + '-error' : undefined" v-on="events">
+            <input class="vs__search" v-bind="attributes" :aria-label="label" :aria-labelledby="undefined" :aria-required="field?.required || undefined" :aria-invalid="field?.invalid || undefined" :aria-describedby="field?.describedBy" v-on="events">
         </template>
         <template v-for="(_, name) in $slots" #[name]="scope"><slot :name="name" v-bind="scope || {}"/></template>
         <template v-if="!$slots['no-options']" #no-options><span>No hay opciones disponibles.</span></template>

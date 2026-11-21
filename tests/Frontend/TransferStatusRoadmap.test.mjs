@@ -105,8 +105,8 @@ test("los datos de cabecera siguen visibles al consultar el historial y Producto
     }
     assert.match(html, /fg-tabs/);
     assert.equal((html.match(/<i class="fa-solid/g) || []).length, 3);
-    assert.equal((html.match(/class="text-muted">—(?:<!--v-if-->)?<\/span>/g) || []).length, 2);
-    assert.equal((html.match(/class="br-quantity-value__unit"> UND<\/small>/g) || []).length, 2);
+    assert.equal((html.match(/class="fg-help">—(?:<!--v-if-->)?<\/span>/g) || []).length, 2);
+    assert.equal((html.match(/class="fg-quantity-unit"> UND<\/small>/g) || []).length, 2);
     for(const description of ["Cantidades y estado", "Ingresos y diferencias", "Fechas y responsables"]) {
         assert.ok(!html.includes(description));
     }

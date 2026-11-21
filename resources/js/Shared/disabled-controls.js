@@ -1,3 +1,5 @@
+import "./input-modality.js";
+
 // Solo se observa el control enfocado y sus contenedores de bloqueo relevantes.
 export function initializeDisabledControlFocus() {
     const observer = new MutationObserver(blurIfDisabled);

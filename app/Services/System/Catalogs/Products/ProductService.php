@@ -339,7 +339,8 @@ class ProductService {
         Item::expireActiveItems();
 
         return self::getFilteredListQuery($filters)
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->appends([...$filters, "sort_direction" => ($filters["sort_direction"] ?? "asc") === "desc" ? "desc" : "asc", "per_page" => $perPage]);
 
     }
 
@@ -417,7 +418,9 @@ class ProductService {
 
         }
 
-        return $query->orderBy("name", "ASC");
+        $direction = ($filters["sort_direction"] ?? "asc") === "desc" ? "desc" : "asc";
+
+        return $query->orderBy("name", $direction)->orderBy("id", $direction);
 
     }
 

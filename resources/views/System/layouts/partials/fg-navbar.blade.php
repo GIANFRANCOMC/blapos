@@ -38,7 +38,7 @@
                 @empty <p class="fg-help">No hay avisos vigentes.</p> @endforelse
             </div>
         </div>
-        <div class="fg-menu"><button class="fg-user" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de {{ $user->name }}"><span class="fg-user__avatar" aria-hidden="true">{{ $userInitials }}</span><span class="fg-user__identity"><span>{{ $user->name }}</span><small>{{ $navbarCompanyName }}</small></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+        <div class="fg-menu"><button class="fg-user" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de {{ $user->name }}"><span class="fg-user__avatar" aria-hidden="true">{{ $userInitials }}</span><span class="fg-user__identity"><span>{{ $user->name }}</span><small>{{ $navbarCompanyName }}</small></span><span class="fg-chevron" aria-hidden="true"></span></button>
             <ul class="dropdown-menu dropdown-menu-end fg-menu__panel"><li class="fg-topbar__user-summary"><strong>{{ $user->name }}</strong><small class="fg-help">{{ $user->email }}</small></li><li><a href="{{ route('account.index') }}" class="fg-menu__item">Mi cuenta</a></li>@if($favoritesEnabled)<li><a href="{{ route('home.index') }}" class="fg-menu__item">Preferencias</a></li>@endif<li><button class="fg-menu__item fg-user-logout" type="button"><i class="fa-solid fa-power-off" aria-hidden="true"></i>Cerrar sesión</button></li></ul>
         </div>
     </div>

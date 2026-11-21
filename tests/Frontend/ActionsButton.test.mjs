@@ -24,7 +24,7 @@ test("acciones muestra por defecto tres puntos verticales con tooltip y área de
         assert.match(html, /<button[^>]*type="button"/);
         assert.match(html, /fg-button fg-button--icon/);
         assert.match(html, /fa-ellipsis-vertical/);
-        assert.doesNotMatch(html, /<span>Acciones<\/span>|fa-chevron-down/);
+        assert.doesNotMatch(html, /<span>Acciones<\/span>|fg-chevron/);
     }
 });
 
@@ -33,7 +33,7 @@ test("type button habilita explícitamente la variante con label y flecha conser
         type: "button", text: "Acciones", label: "Acciones del producto", disabled: true, menuClass: "custom-menu"
     }, {default: () => h("li", "Descargar Excel")}));
     assert.match(html, /<span>Acciones<\/span>/);
-    assert.match(html, /fa-chevron-down/);
+    assert.match(html, /fg-chevron/);
     assert.doesNotMatch(html, /fa-ellipsis-vertical/);
     assert.match(html, /data-bs-toggle="dropdown"/);
     assert.match(html, /aria-label="Acciones del producto" disabled/);

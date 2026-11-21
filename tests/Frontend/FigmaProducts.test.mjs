@@ -33,7 +33,7 @@ function component(file, dependencies = {}) {
 import {compile} from '@vue/compiler-dom';
 function options(file, dependencies = {}) {
     const loaded = component(file, dependencies);
-    if(!loaded.descriptor.scriptSetup) loaded.result.render = new Function('Vue', compile(loaded.descriptor.template.content, {mode: 'function'}).code)(Vue);
+    if(!loaded.descriptor.scriptSetup) loaded.result.render = new Function('Vue', compile(loaded.descriptor.template.content, {mode: 'function', prefixIdentifiers: true}).code)(Vue);
     return loaded.result;
 }
 const FgField = options('Figma/FgField.vue');
@@ -41,11 +41,24 @@ const InputBase = options('InputBase.vue', {generalConfig, FgField});
 const InputText = options('InputText.vue', {InputBase});
 const InputNumber = options('InputNumber.vue', {generalConfig, FgField, ...Numbers});
 const FgSelect = options('Figma/FgSelect.vue', {VueSelect, positionSelectDropdown});
+const InputDate = options('InputDate.vue', {InputBase});
+const InputTextArea = options('InputTextArea.vue', {generalConfig, FgField});
+const InputSelect = options('InputSelect.vue', {generalConfig, FgField});
+const InputSlot = options('InputSlot.vue', {generalConfig, FgField});
+const FgListLoading = options('Figma/FgListLoading.vue', {loadingIcon: 'loading.svg'});
 
 async function render(component, props = {}, slots = {}) {
     const app = Vue.createSSRApp({render: () => Vue.h(component, props, slots)});
     return renderToString(app);
 }
+
+test('table loading has a visible 32px indicator and one polite status label', async () => {
+    const html = await render(FgListLoading, {label: 'Buscando productos…'});
+    assert.match(html, /role="status" aria-live="polite"/);
+    assert.match(html, /width="32" height="32"/);
+    assert.match(html, /alt(?:="")? aria-hidden="true"/);
+    assert.equal((html.match(/Buscando productos…/g) || []).length, 1);
+});
 
 test('fg inputs associate the real label, required state and validation error without vendor classes', async () => {
     const html = await render(InputBase, {id: 'product-name', title: 'Nombre', modelValue: '', isRequired: true, hasTextBottom: true, textBottomInfo: ['Escribe el nombre.']});
@@ -88,4 +101,35 @@ test('fg selects retain vue-select models and expose the Spanish field name on t
     assert.match(html, /aria-label="Marca"/);
     assert.match(html, /Andes/);
     assert.doesNotMatch(html, /aria-labelledby="vs\d+__combobox"/);
+});
+
+test('shared controls keep help after the validation error and associate both descriptions', async () => {
+    for(const control of [InputBase, InputText, InputDate, InputNumber, InputTextArea, InputSelect]) {
+        const props = {title: 'Campo', help: 'Dato de apoyo.', hasTextBottom: true, textBottomInfo: ['Corrige este campo.']};
+        const html = await render(control, props);
+        const description = html.match(/aria-describedby="([^"]+)"/)[1].split(' ');
+        assert.equal(description.length, 2);
+        assert.match(description[0], /-error$/);
+        assert.match(description[1], /-help$/);
+        assert.ok(html.includes(`id="${description[0]}"`));
+        assert.ok(html.includes(`id="${description[1]}"`));
+        assert.ok(html.indexOf('Corrige este campo.') < html.indexOf('Dato de apoyo.'));
+        const valid = await render(control, {...props, textBottomInfo: []});
+        assert.match(valid, /aria-describedby="[^"]+-help"/);
+        assert.doesNotMatch(valid, /role="alert"/);
+        assert.ok(valid.includes('Dato de apoyo.'));
+    }
+});
+
+test('vue-select and custom field slots receive error and help associations from the shared field', async () => {
+    const props = {label: 'Comisión', inputId: 'commission', error: ['Selecciona una opción.'], help: 'Comisión interna.'};
+    const html = await render(FgField, props, {default: () => Vue.h(FgSelect, {options: [], searchable: false})});
+    assert.match(html, /aria-describedby="commission-error commission-help"/);
+    assert.match(html, /aria-invalid="true"/);
+    assert.ok(html.indexOf('Selecciona una opción.') < html.indexOf('Comisión interna.'));
+    const custom = await render(InputSlot, {inputId: 'custom', help: 'Apoyo del control.'}, {
+        input: ({id, describedBy}) => Vue.h('input', {id, 'aria-describedby': describedBy})
+    });
+    assert.match(custom, /id="custom" aria-describedby="custom-help"/);
+    assert.ok(custom.includes('Apoyo del control.'));
 });

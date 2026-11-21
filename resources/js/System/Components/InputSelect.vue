@@ -1,14 +1,16 @@
 <template>
-    <FgField :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null">
+    <FgField :label="title" :required="isRequired" :input-id="controlId" :error="hasTextBottom ? textBottomInfo : null" :help="help">
         <template #action><slot name="default"/></template>
-        <div class="fg-field__control">
-            <slot name="inputGroupPrepend"/>
-            <select :id="controlId" class="fg-input" :value="modelValue" :disabled="disabled" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined" :aria-describedby="hasError ? controlId + '-error' : undefined" @input="updateValue($event.target.value)" @change="handleChange">
-                <option v-if="hasDefaultOption" :value="defaultOptionValue">{{ defaultOptionLabel }}</option>
-                <option v-for="(option,index) in options" :key="index" :value="option.code">{{ option.label }}</option>
-            </select>
-            <slot name="inputGroupAppend"/>
-        </div>
+        <template #default="{describedBy}">
+            <div class="fg-field__control">
+                <slot name="inputGroupPrepend"/>
+                <select :id="controlId" class="fg-input" :value="modelValue" :disabled="disabled" :aria-required="isRequired || undefined" :aria-invalid="hasError || undefined" :aria-describedby="describedBy" @input="updateValue($event.target.value)" @change="handleChange">
+                    <option v-if="hasDefaultOption" :value="defaultOptionValue">{{ defaultOptionLabel }}</option>
+                    <option v-for="(option,index) in options" :key="index" :value="option.code">{{ option.label }}</option>
+                </select>
+                <slot name="inputGroupAppend"/>
+            </div>
+        </template>
     </FgField>
 </template>
 <script>
@@ -22,6 +24,7 @@ export default {
     setup() {return {controlId: useId()};},
     emits: ["changeEvent", "update:modelValue"],
     props: {
+        help: {type: String, default: ""},
         modelValue: {
             type: [String, Number],
             default: ""

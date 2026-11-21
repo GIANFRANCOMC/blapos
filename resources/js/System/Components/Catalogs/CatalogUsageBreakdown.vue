@@ -1,17 +1,17 @@
 <template>
-    <details v-if="total" class="br-catalog-disclosure">
-        <summary class="br-link br-catalog-disclosure__summary">
+    <details v-if="total" class="fg-usage">
+        <summary class="fg-usage__summary fg-link">
             {{ total }} {{ total === 1 ? "registro activo" : "registros activos" }}
-            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span class="fg-chevron" aria-hidden="true"></span>
         </summary>
-        <dl class="br-catalog-disclosure__values">
-            <div v-for="entry in entries" :key="entry.type" class="br-catalog-disclosure__row">
-                <dt class="colon-at-end">{{ entry.label }}</dt>
+        <dl class="fg-usage__values">
+            <div v-for="entry in entries" :key="entry.type" class="fg-usage__row">
+                <dt>{{ entry.label }}</dt>
                 <dd>{{ entry.count }}</dd>
             </div>
         </dl>
     </details>
-    <span v-else class="br-entity-table__meta mt-0 text-center">{{ entries.length ? "Sin uso" : "Sin módulos disponibles" }}</span>
+    <span v-else class="fg-help">{{ entries.length ? "Sin uso" : "Sin módulos disponibles" }}</span>
 </template>
 
 <script>

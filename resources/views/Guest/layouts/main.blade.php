@@ -14,7 +14,7 @@
     data-template="front-pages-no-customizer">
     <head>
         @include('Guest.layouts.partials.up')
-        @vite('resources/js/Shared/disabled-controls.js')
+        @vite(['resources/css/Shared/viewport.css', 'resources/js/Shared/disabled-controls.js'])
         <script>
             window.ownerApp = @json($ownerApp ?? null);
             window.withMenu = {{ json_encode($withMenu ?? true) }};

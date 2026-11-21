@@ -109,12 +109,13 @@
                     </section>
                     <section v-show="activeTab === 'receipts'" aria-label="Recepciones y diferencias registradas">
                         <p v-if="!transfer.operations?.length" class="text-muted mb-0">Aún no hay recepciones ni diferencias registradas.</p>
-                        <details v-for="(operation, index) in transfer.operations" :key="operation.id" :open="index === 0" class="br-inventory-transfer__operation">
+                        <details v-for="(operation, index) in transfer.operations" :key="operation.id" :open="index === 0" class="fg-operation">
                             <summary>
-                                <span class="br-inventory-transfer__operation-summary">
+                                <span class="fg-operation__summary">
                                     <strong>{{ operation.label }} #{{ operation.id }}</strong>
                                     <span class="text-muted">{{ formatDate(operation.occurred_at) }} · {{ operation.user_name }}</span>
                                 </span>
+                                <span class="fg-chevron" aria-hidden="true"></span>
                             </summary>
                             <dl v-if="operation.reason" class="br-inventory-transfer__detail-reason">
                                 <dt>{{ operation.kind === 'receipt' ? 'Observaciones' : 'Motivo' }}</dt>

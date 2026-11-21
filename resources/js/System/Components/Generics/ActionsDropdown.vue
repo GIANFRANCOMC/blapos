@@ -1,6 +1,6 @@
 <template>
     <ActionsButton v-bind="$attrs" dropdown>
-        <ul class="dropdown-menu dropdown-menu-end" :class="['fg-menu__panel', menuClass]">
+        <ul class="dropdown-menu dropdown-menu-end" :class="['fg-menu__panel fg-menu__panel--actions', menuClass]">
             <slot></slot>
         </ul>
     </ActionsButton>

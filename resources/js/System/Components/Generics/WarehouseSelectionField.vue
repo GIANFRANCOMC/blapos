@@ -1,27 +1,27 @@
 <template>
-    <div>
-        <div>
-            <component :is="showSummary ? 'span' : 'label'" :for="showSummary ? null : id" class="form-label colon-at-end">
+    <div class="fg-field">
+        <div class="fg-field__label-row">
+            <component :is="showSummary ? 'span' : 'label'" :for="showSummary ? null : id" class="fg-field__label">
                 {{ label }}
+                <span v-if="required" class="fg-required" aria-hidden="true">*</span>
             </component>
-            <span v-if="required" class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
             <button
                 v-if="showSummary"
                 ref="change"
                 type="button"
-                class="br-link br-field-label-action p-0 ms-2 border-0 bg-transparent waves-effect"
+                class="fg-link"
                 :disabled="disabled"
                 :aria-label="`Cambiar ${label.toLowerCase()}`"
                 @click="changeWarehouse">
                 Cambiar
             </button>
         </div>
-        <div v-if="showSummary" class="br-field-summary br-field-summary--control">
-            <span class="br-field-summary__value" :title="warehouseLabel">
-                <span v-if="modelValue.branchName && modelValue.warehouseName" class="br-warehouse-summary__parts">
-                    <span class="br-warehouse-summary__part">{{ modelValue.branchName }}</span>
-                    <span class="br-warehouse-select__separator" aria-hidden="true">-</span>
-                    <span class="br-warehouse-summary__part">{{ modelValue.warehouseName }}</span>
+        <div v-if="showSummary" class="fg-field__control">
+            <span class="fg-selection-summary__value" :title="warehouseLabel">
+                <span v-if="modelValue.branchName && modelValue.warehouseName" class="fg-location">
+                    <span class="fg-location__name">{{ modelValue.branchName }}</span>
+                    <span class="fg-location__separator" aria-hidden="true">-</span>
+                    <span class="fg-location__name">{{ modelValue.warehouseName }}</span>
                 </span>
                 <template v-else>{{ warehouseLabel }}</template>
             </span>
@@ -40,7 +40,7 @@
             @update:model-value="selectWarehouse"
             @close="editing = false"
             @keydown.esc.stop="cancelChange"/>
-        <small v-if="error" class="text-danger">{{ error }}</small>
+        <small v-if="error" class="fg-error">{{ error }}</small>
     </div>
 </template>
 

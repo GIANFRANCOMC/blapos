@@ -1,5 +1,5 @@
 <template>
-    <span :class="{'text-muted': showDash}">{{ showDash ? "—" : amount }}<small v-if="!showDash && parts.abbreviation" class="br-quantity-value__unit">{{ " " + parts.abbreviation }}</small></span>
+    <span :class="{'fg-help': showDash}">{{ showDash ? "—" : amount }}<small v-if="!showDash && parts.abbreviation" class="fg-quantity-unit">{{ " " + parts.abbreviation }}</small></span>
 </template>
 
 <script>
@@ -26,9 +26,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.br-quantity-value__unit {
-    font-size: var(--br-font-size-066);
-}
-</style>

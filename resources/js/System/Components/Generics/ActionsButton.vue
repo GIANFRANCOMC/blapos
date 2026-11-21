@@ -14,7 +14,7 @@
             <i v-if="type === 'icon'" class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
             <template v-else>
                 <span>{{ text }}</span>
-                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                <span class="fg-chevron" aria-hidden="true"></span>
             </template>
         </button>
         <slot></slot>

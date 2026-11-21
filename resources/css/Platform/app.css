@@ -7,6 +7,7 @@
 @import "../System/br-branding/02-loading-transitions.css";
 @import "../System/br-branding/03-form-controls.css";
 @import "../System/br-branding/40-buttons-quick-create.css";
+@import "../Shared/viewport.css";
 
 :root {
   --platform-primary: #0b63a9;

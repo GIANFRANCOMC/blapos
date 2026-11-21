@@ -24,7 +24,9 @@ test("el riel usa indicador activo, tooltips y cierre de sesión con CSRF",()=>{
  assert.match(nav,/fa-power-off/);
  assert.match(nav,/@csrf/);
  assert.match(css,/\.fg-world.is-active::before/);
- assert.match(css,/justify-content: center; gap: 12px; flex: 1/);
+ assert.match(css,/justify-content: safe center; gap: 12px; flex: 1/);
+ assert.doesNotMatch(css, /@media\s*\(max-height:/);
+ assert.match(css, /min-height: 0; overflow-y: auto/);
 });
 test("Mi cuenta y favoritos mantienen la organización y activación existentes",()=>{
  const catalog=read("database/seeders/SystemNavigationSeeder.php");

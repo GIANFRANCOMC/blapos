@@ -48,7 +48,7 @@
                             </FgField>
                         </div>
                         <details class="fg-disclosure" :open="detailsOpen" @toggle="detailsOpen = $event.target.open">
-                            <summary><span><span>Descripción y límites de precio</span><small class="fg-help">{{ productForm.data.description || productForm.data.min_price || productForm.data.max_price ? 'Configurado' : 'Opcional · Sin configurar' }}</small></span><i class="fa-solid fa-chevron-down" aria-hidden="true"/></summary>
+                            <summary><span><span>Descripción y límites de precio</span><small class="fg-help">{{ productForm.data.description || productForm.data.min_price || productForm.data.max_price ? 'Configurado' : 'Opcional · Sin configurar' }}</small></span><span class="fg-chevron" aria-hidden="true"></span></summary>
                             <div class="fg-stack">
                                 <InputTextArea v-model="productForm.data.description" title="Descripción comercial" maxlength="100" placeholder="Opcional" has-text-bottom :text-bottom-info="productForm.errors?.description" :disabled="isSaving"/>
                                 <div class="fg-grid">
@@ -73,15 +73,13 @@
                         <label class="fg-check"><input v-model="productForm.data.see_my_web_price" type="checkbox" :disabled="isSaving || !productForm.data.see_my_web"/><span class="fg-check__text"><strong>Mostrar precio</strong><small>Al ocultarlo, aparece «Precio a consultar».</small></span></label>
                         <div class="fg-section-divider"/>
                         <p>Vigencia y comisión</p>
-                        <InputDate v-model="productForm.data.expires_at" title="Disponible hasta" has-text-bottom :text-bottom-info="productForm.errors?.expires_at" :disabled="isSaving"/>
-                        <p class="fg-help">Sin fecha, el producto no tiene límite de venta.</p>
+                        <InputDate v-model="productForm.data.expires_at" title="Disponible hasta" :min="minimumExpiryDate || undefined" :help="isUpdate ? 'Sin fecha, el producto no tiene límite de venta.' : 'Sin fecha, el producto no tiene límite de venta. Elige hoy o una fecha futura.'" has-text-bottom :text-bottom-info="productForm.errors?.expires_at" :disabled="isSaving"/>
                         <div class="fg-grid">
-                            <FgField label="Comisión" :input-id="modalId + '-commission'" :error="productForm.errors?.commission_type">
+                            <FgField label="Comisión" :input-id="modalId + '-commission'" :error="productForm.errors?.commission_type" help="La comisión es interna y no cambia el precio que paga el cliente.">
                                 <FgSelect :input-id="modalId + '-commission'" v-model="productForm.data.commission_type" :options="commissionTypeOptions" :reduce="option => option.code" class="fg-select" :clearable="false" :searchable="false" :disabled="isSaving" @update:modelValue="resetCatalogCommission(productForm)"/>
                             </FgField>
                             <CommissionValueInput v-model="productForm.data.commission_value" :commission-type="productForm.data.commission_type" :currency-sign="currencySign" :disabled="isSaving" title="Valor de comisión" has-text-bottom :text-bottom-info="productForm.errors?.commission_value"/>
                         </div>
-                        <p class="fg-help">La comisión es interna y no cambia el precio que paga el cliente.</p>
                     </section>
                 </form>
             </div>
@@ -91,6 +89,7 @@
 
 </template>
 <script>
+import {productToday, validateProductExpiry} from "./productDate.js";
 import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import FgField from "@System/Components/Figma/FgField.vue";
 import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
@@ -163,6 +162,7 @@ export default {
             ...state,
             MODULE,
             activeFormTab: FORM_TABS[0].id,
+            minimumExpiryDate: "",
             isSaving: false,
             detailsOpen: false,
             originalInventoryRows: [],
@@ -250,6 +250,7 @@ export default {
 
             Alerts.tooltips({show: false});
             this.resetProductForm();
+            this.minimumExpiryDate = this.isDefined(record) ? "" : productToday(this.options.timezone || "America/Lima");
 
             if(this.isDefined(record)) {
 
@@ -494,6 +495,7 @@ export default {
             const result = Forms.validateFormData(formData, this.validationRules, {isDescriptive: true, errorLabels: this.MODULE.errorLabels});
 
             validateCatalogCommission(result, formData);
+            validateProductExpiry(result, formData, {isUpdate: this.isUpdate, today: productToday(this.options.timezone || "America/Lima")});
 
             if(!isValidEan13(formData.barcode)) {
 
