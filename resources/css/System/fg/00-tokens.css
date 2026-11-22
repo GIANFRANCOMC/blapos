@@ -19,6 +19,9 @@
     --fg-layer-select: 1080;
     --fg-control-icon-size: 16px;
     --fg-control-motion: 160ms ease;
+    --fg-load-duration: 180ms;
+    --fg-load-easing: cubic-bezier(0.2, 0, 0, 1);
+    --fg-load-offset: 3px;
     --fg-field-gap: 4px;
     --fg-modal-title-size: 16px;
     --fg-section-size: 14px;

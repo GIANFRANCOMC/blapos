@@ -1,4 +1,5 @@
 .fg-theme { font-family: var(--fg-font); font-size: var(--fg-body-size); color: var(--fg-text); background: var(--fg-canvas); }
+.fg-theme, .fg-theme :where(*, *::before, *::after) { box-sizing: border-box; }
 .fg-theme :where(button, input, select, textarea) { font: inherit; }
 .fg-theme :where(h1, h2, h3, p, dl, dd) { margin: 0; }
 .fg-theme :where(input, select, textarea):focus-visible { outline: 2px solid var(--fg-primary); outline-offset: 3px; }
@@ -16,7 +17,7 @@
 .fg-button--danger { background: var(--fg-danger); color: var(--fg-surface); }
 .fg-button--icon { width: var(--fg-control-height); padding: 0; background: transparent; color: var(--fg-muted); }
 .fg-button--icon:hover { color: var(--fg-text); background: var(--fg-table-head); }
-.fg-button > i { color: inherit; font-size: var(--fg-section-size); }
+.fg-button > i { flex: none; width: 1em; color: inherit; font-size: var(--fg-section-size); text-align: center; }
 .fg-link { display: inline-flex; align-items: center; gap: var(--fg-space-1); padding: 0; border: 0; background: transparent; color: var(--fg-primary); font-size: var(--fg-help-size); cursor: pointer; }
 .fg-link:disabled { opacity: .5; }
 .fg-selection-summary { display: inline-flex; align-items: baseline; gap: var(--fg-space-2); min-width: 0; max-width: 100%; }
@@ -53,12 +54,10 @@
 .fg-field__label { margin: 0; flex: 1; color: var(--fg-text); font-weight: var(--fg-label-weight); line-height: 1.35; }
 .fg-field__control { display: flex; align-items: center; gap: var(--fg-space-2); min-height: var(--fg-control-height); border: 1px solid var(--fg-control-border); border-radius: var(--fg-radius); background: var(--fg-surface); padding: 0 10px; min-width: 0; }
 .fg-field__control:focus-within { border-color: var(--fg-primary); box-shadow: var(--fg-focus); }
-.fg-field__control:has(:disabled) { background: var(--fg-table-head); }
 .fg-field__control--invalid { border-color: var(--fg-danger); }
 .fg-input { display: block; flex: 1; width: 100%; min-width: 0; min-height: 34px; padding: 6px 0; border: 0; outline: none; box-shadow: none; border-radius: 0; background: transparent; color: var(--fg-text); line-height: 1.35; }
 .fg-input:focus { outline: none; box-shadow: none; }
 .fg-input::placeholder { color: var(--fg-muted); opacity: 1; }
-.fg-input:disabled { color: var(--fg-muted); }
 .fg-field__counter, .fg-field__prefix { flex: none; font-size: var(--fg-help-size); color: var(--fg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .fg-field__prefix { color: var(--fg-text); font-size: var(--fg-body-size); }
 .fg-field--textarea .fg-field__control { position: relative; padding-bottom: 24px; align-items: stretch; }

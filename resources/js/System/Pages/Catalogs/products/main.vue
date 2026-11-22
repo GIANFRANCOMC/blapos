@@ -11,7 +11,7 @@
             </div>
         </header>
         <InitialLoadTransition>
-            <div v-if="initialLoading" class="fg-skeleton" aria-label="Cargando productos" aria-busy="true"><span/><span/><span/><span/></div>
+            <CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"/>
             <div v-else>
                 <form class="fg-filters" role="search" aria-label="Buscar productos" @submit.prevent="handleSearch">
                     <FgField label="Filtrar por" input-id="fg-products-filter">
@@ -79,6 +79,7 @@ import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
+import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -126,6 +127,7 @@ export default {
         CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,
+        CatalogListSkeleton,
         BarcodeDownloadButton,
         ProductImportModal,
         ProductInventoryModal,

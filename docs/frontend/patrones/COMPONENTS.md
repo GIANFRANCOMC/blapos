@@ -28,7 +28,7 @@ En tablas, centra verticalmente el contenido y alinea por tipo de dato. Usa enca
 
 Una clase de presentación como `br-entity-table__description` aporta tipografía y separación. El componente conserva su propio layout. En botoneras compartidas, deja que el grupo se redistribuya al reducir el ancho. Los botones de icono conservan su área de interacción.
 
-Las reglas de pestañas, texto expandible y animación del skeleton viven en [CSS Shared](../../../resources/css/Shared). Usa `br-skeleton` en la raíz de un placeholder, `br-skeleton-line` en las líneas y `br-skeleton-control` para conservar las dimensiones del control. El CSS de cada módulo define la distribución y los tamaños de sus placeholders.
+Las reglas de pestañas, texto expandible y animación del skeleton viven en [CSS Shared](../../../resources/css/Shared). Usa `fg-skeleton` en la raíz, `fg-skeleton-line` en las líneas y `fg-skeleton-control` para conservar las dimensiones del control. `CatalogListSkeleton` y `FgSkeletonFilters` comparten la estructura FG del listado; `InitialLoadTransition` mantiene su altura y respeta movimiento reducido. El CSS de cada módulo conserva las distribuciones específicas todavía pendientes de migración.
 
 La iconografía operativa usa Font Awesome. Reutiliza el icono establecido para buscar, limpiar, copiar y abrir acciones. Combina icono y texto cuando la decisión sea crítica o el símbolo resulte ambiguo.
 

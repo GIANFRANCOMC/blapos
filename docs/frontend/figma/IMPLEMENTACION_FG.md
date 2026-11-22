@@ -135,6 +135,30 @@ Verificación de estos ajustes: 295 pruebas de frontend aprobadas, compilación 
 
 ## Relación con Figma
 
+### Skeleton FG y transición inicial
+
+`CatalogListSkeleton` reutiliza `FgSkeletonFilters`, las cabeceras del catálogo y `FgListLoading`; Productos conserva el encabezado real con acciones deshabilitadas durante `initParams`. Las búsquedas y la primera consulta del listado mantienen su loader en la tabla, sin demoras artificiales ni skeletons de filas con cantidades inventadas. Columnas de Productos: 22/40/16/13/9 %, precio a la derecha y estado/acciones al centro.
+
+La fuente única es `Shared/skeleton.css`: primitivas `fg-skeleton-*`, controles, pulso y transición `fg-initial-load`. `InitialLoadTransition` conserva ambas vistas en la misma celda y vuelve inert/aria-hidden la saliente. Fundido de 180 ms y entrada de 3 px; movimiento reducido sin animación. No usar modo out-in, temporizadores para prolongar la carga ni cuatro bloques genéricos.
+
+Limpieza: migradas las primitivas de los siete skeletons específicos y los componentes compartidos; retirados los selectores antiguos de página/transición y el archivo `catalog-list-skeleton.css` con sus siete imports. Los componentes compartidos de carga ya no contienen clases `br-`. Los estilos específicos de módulos todavía pendientes de FG mantienen sus consumidores; esta entrega no elimina indiscriminadamente sus layouts. Los componentes compartidos conservan fallbacks para Guest/Platform sin cargar el tema de System.
+
+Verificado con la muestra `/tests/Frontend/fixtures/FgSkeleton.preview.html` desde Vite: Productos, Marcas y PageSkeleton, sin APIs. Skeleton y contenido de Productos mantienen 416,5 px en escritorio y 595,39 px en el viewport móvil de 390 px; filtros y botones coinciden. A 320 px, el documento no desborda y solo la tabla permite scroll horizontal. El loader se centra en el área visible mediante el contenedor de la tabla. El ancho mínimo de Productos pasa a 860 px para conservar sus cabeceras de 44 px. FG declara su propio border-box y reserva 1 em para iconos de botones, sin depender del reset de Bootstrap.
+
+Compilación de producción y 303 pruebas de frontend correctas, incluida la protección de la vista saliente durante la transición. Movimiento reducido comprobado en las reglas y pruebas; no se cambió la configuración del sistema operativo.
+
+Figma: publicadas juntas Línea, Control y Catálogo (Escritorio/Móvil) en Componentes. La [carga inicial de Productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=279-36231) usa una instancia vinculada del maestro, sin duplicarlo. El prototipo pasa a la carga de tabla y al listado con fundidos de 180 ms; sus esperas son solo de demostración y no se incorporan al código.
+
+### Campos no editables
+
+`fg/unavailable-controls.css`, importado después de `control-icons.css`, unifica texto, textarea, número, importe, fecha, Vue Select, Select2 y select nativo con los tokens `--fg-disabled-bg`, `--fg-disabled-text`, `--fg-disabled-border` y `--fg-disabled-tag-bg`. Aplica a disabled, readonly y estados ARIA equivalentes existentes. La superficie exterior es gris y los fondos internos son transparentes; prefijos, contadores, etiquetas múltiples, texto y flecha usan tonos neutros. Readonly conserva copia y foco de teclado. Se excluyen los inputs de búsqueda internos de un selector activo. No cambia selección, permisos, envío de valores ni contratos.
+
+Verificado con los componentes reales en una muestra temporal: Vue Select único vacío/con valor, múltiple y Select2 único/múltiple. Sin franjas blancas; fondo calculado #f3f4f6 y texto/flecha #6b7280. Compilación de producción y 13 pruebas específicas correctas. La muestra temporal se retira tras la revisión.
+
+Biblioteca Componentes publicada y actualización aceptada para todas las páginas de Productos, incluidas sus instancias de Comisión. La regla transversal también queda registrada en la skill frontend.
+
+Extensión a todos los campos: retiradas las reglas anteriores que daban otro gris a `.fg-input:disabled` y a su contenedor. Comprobación de navegador con CSS de producción: texto, textarea, número con prefijo y contador, fecha, select nativo y readonly muestran fondo #f3f4f6, borde #d1d5db y texto #6b7280. El campo editable conserva su superficie blanca. Compilación y 13 pruebas específicas correctas; sin operaciones de escritura de negocio. La muestra temporal no forma parte de la aplicación.
+
 Fuentes: [Componentes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes) y [Productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos).
 
 Figma y el repositorio no se sincronizan automáticamente. Registrar cualquier cambio reutilizable primero en Componentes y después aplicarlo en sus consumidores. Avisar al usuario cuando publicar la biblioteca requiera aceptar actualizaciones en otros archivos de Figma, según el [registro de actualizaciones](REGISTRO_Y_CALIDAD.md). Una vez implementado en código, cambiar una fuente compartida se refleja en sus consumidores al compilar.

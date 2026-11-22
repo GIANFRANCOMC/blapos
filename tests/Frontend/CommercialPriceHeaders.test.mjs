@@ -51,6 +51,8 @@ test("todas las cabeceras del catálogo comercial se centran sin modificar las c
     const sharedSkeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
 
-    assert.match(sharedSkeleton, /'br-entity-table--commercial-headings': !isDirectory/);
+    assert.doesNotMatch(sharedSkeleton, /br-/);
+    assert.match(sharedSkeleton, /title: "Precio", width: "16%", align: "fg-align-end"/);
+    assert.match(sharedSkeleton, /COMMON_STATUS = \{title: "Estado", align: "fg-align-center"/);
     assert.match(styles, /body\.br-layout \.br-entity-table--commercial-headings > thead > tr > th\s*\{\s*text-align: center !important;/);
 });

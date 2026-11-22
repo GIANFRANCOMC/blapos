@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FG · Skeleton y transición</title>
+<link rel="stylesheet" href="/resources/css/System/fg/index.css">
+<link rel="stylesheet" href="/System/assets/vendor/fonts/fontawesome.css">
+<style>body{margin:0;padding:24px}#app{max-width:1104px;margin:auto}.preview-controls{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}@media(max-width:767px){body{padding:16px}}</style>
+<body class="fg-theme"><div id="app"></div>
+<script type="module">
+import {createApp, h, ref} from 'vue';
+import CatalogListSkeleton from '/resources/js/System/Components/Catalogs/CatalogListSkeleton.vue';
+import PageSkeleton from '/resources/js/System/Components/Generics/PageSkeleton.vue';
+import InitialLoadTransition from '/resources/js/System/Components/Generics/InitialLoadTransition.vue';
+import FgField from '/resources/js/System/Components/Figma/FgField.vue';
+import FgSelect from '/resources/js/System/Components/Figma/FgSelect.vue';
+import FgButton from '/resources/js/System/Components/Figma/FgButton.vue';
+import FgListLoading from '/resources/js/System/Components/Figma/FgListLoading.vue';
+
+// Components and CSS are real. Examples never call APIs or write business data.
+createApp({setup() {
+    const loading = ref(true);
+    const kind = ref('products');
+    const button = (text, click) => h(FgButton, {tone:'secondary', onClick:click}, () => text);
+    const field = (label, control, attrs={}) => h(FgField, {label, ...attrs}, {default:control});
+    const select = (label, value, attrs={}) => field(label, () => h(FgSelect, {options:[value], modelValue:value, searchable:false, clearable:false}), attrs);
+    const ready = () => h('div', {key:'ready'}, [
+        h('form', {class:'fg-filters', onSubmit:e=>e.preventDefault()}, [
+            select('Filtrar por', 'Todos los filtros'),
+            field('Buscar', () => h('div', {class:'fg-field__control'}, h('input', {class:'fg-input', placeholder:'Busca un producto', 'aria-label':'Buscar'}))),
+            h(FgButton, {icon:'fa-solid fa-magnifying-glass'}, () => 'Buscar'), h(FgButton, {tone:'link'}, () => 'Limpiar')
+        ]),
+        h('div', {class:'fg-list-heading'}, [h('h2', {class:'fg-section-title'}, 'Productos registrados'), select('Ordenado por', 'Nombre A–Z', {class:'fg-list-order'})]),
+        h('section', {class:'fg-products-list'}, h('div', {class:'fg-table-scroll'}, h('table', {class:'fg-table fg-products-table'}, [
+            h('colgroup', ['identity','product','price','status','actions'].map(name=>h('col', {class:`fg-products-table__${name}`}))),
+            h('thead', h('tr', ['Identificación','Producto','Precio','Estado','Acciones'].map((label,i)=>h('th', {scope:'col',class:i===2?'fg-align-end':i>2?'fg-align-center':''}, label)))),
+            h('tbody', h('tr', {class:'fg-table__state'}, h('td', {colspan:5}, h(FgListLoading, {label:'Buscando productos…'}))))
+        ])))
+    ]);
+    return () => [
+        h('div', {class:'preview-controls'}, [button(loading.value?'Mostrar contenido':'Mostrar skeleton',()=>loading.value=!loading.value),button('Productos',()=>{kind.value='products';loading.value=true}),button('Marcas',()=>{kind.value='brands';loading.value=true}),button('Página compartida',()=>{kind.value='page';loading.value=true})]),
+        h('header', {class:'fg-page-header'}, [h('div', [h('h1', {class:'fg-title'}, 'Productos'),h('p', {class:'fg-help'}, 'Administra tu catálogo y consulta el stock por almacén.')]),h('div', {class:'fg-page-header__actions'}, [h(FgButton, {disabled:loading.value},()=> 'Agregar producto'),h(FgButton, {disabled:loading.value,tone:'secondary'},()=> 'Acciones')])]),
+        h(InitialLoadTransition, {}, {default:()=>loading.value ? kind.value==='page' ? h(PageSkeleton, {key:'page',table:true}) : h(CatalogListSkeleton, {key:kind.value,kind:kind.value,label:kind.value==='brands'?'marcas':'productos'}) : ready()})
+    ];
+}}).mount('#app');
+</script>
+</body></html>

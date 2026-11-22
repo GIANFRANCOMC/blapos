@@ -1,15 +1,15 @@
 <template>
-    <main class="br-entity br-roles br-roles-skeleton br-skeleton" role="status" aria-live="polite" aria-label="Cargando perfiles de acceso">
+    <main class="br-entity br-roles br-roles-skeleton fg-skeleton" role="status" aria-live="polite" aria-label="Cargando perfiles de acceso">
         <span class="visually-hidden">Cargando perfiles de acceso</span>
 
         <section class="br-filter-bar br-roles-skeleton__filters" aria-hidden="true">
             <div class="br-roles-skeleton__search">
-                <span class="br-skeleton-line br-roles-skeleton__label"></span>
-                <span class="br-skeleton-control"><span class="br-skeleton-line br-roles-skeleton__search-value"></span></span>
+                <span class="fg-skeleton-line br-roles-skeleton__label"></span>
+                <span class="fg-skeleton-control"><span class="fg-skeleton-line br-roles-skeleton__search-value"></span></span>
             </div>
             <div class="br-filter-bar__actions">
-                <span class="br-skeleton-line br-roles-skeleton__button"></span>
-                <span class="br-skeleton-line br-roles-skeleton__button br-roles-skeleton__button--add"></span>
+                <span class="fg-skeleton-line br-roles-skeleton__button"></span>
+                <span class="fg-skeleton-line br-roles-skeleton__button br-roles-skeleton__button--add"></span>
             </div>
         </section>
 

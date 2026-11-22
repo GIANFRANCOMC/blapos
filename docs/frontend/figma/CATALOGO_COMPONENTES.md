@@ -126,7 +126,15 @@ Variantes: Estado=Sin seleccionar; Estado=Seleccionado.
 | Label | TEXT | Precio incluye IGV |
 | Estado | VARIANT | Sin seleccionar, Seleccionado |
 
+## Skeleton / Línea, Control y Catálogo
+
+[Catálogo](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=142-118) · [Ejemplo y guía](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=142-119).
+
+Primitivas Línea y Control con tokens compartidos. Catálogo ofrece Dispositivo=Escritorio/Móvil y reutiliza las cabeceras y el loader existentes. Código: `CatalogListSkeleton`, `FgSkeletonFilters`, `InitialLoadTransition` y `Shared/skeleton.css`. Mantener el encabezado real, filtros, orden y anchos de columna. Solo durante los parámetros iniciales; las consultas posteriores usan el loader de tabla. Transición de 180 ms y entrada de 3 px, sin pulso ni desplazamiento con movimiento reducido.
+
 ## Vue Select / Múltiple
+
+Regla transversal de campos no editables: Campo en Estado=Lectura y selects en Estado=Deshabilitado comparten los tokens `disabled/*`. Usar el mismo fondo, borde y texto gris en texto, número, importe, fecha y descripción, incluidos contador y prefijos; la implementación común está en `fg/unavailable-controls.css`.
 
 [Maestro en Componentes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=7-86) · 03 · Campos y selección
 
@@ -141,6 +149,9 @@ Variantes: Dispositivo=Escritorio, Selección=Vacía; Dispositivo=Escritorio, Se
 | Show action | BOOLEAN | true |
 | Dispositivo | VARIANT | Escritorio, Móvil |
 | Selección | VARIANT | Vacía, Con valores |
+| Estado | VARIANT | Disponible, Deshabilitado |
+
+Las combinaciones anteriores existen en ambos estados. Deshabilitado reutiliza los tokens `disabled/bg`, `disabled/text`, `disabled/border` y `disabled/tag-bg`; toda la superficie del control es gris, incluidas las etiquetas.
 
 ## Vue Select / Único
 
@@ -158,6 +169,9 @@ Variantes: Dispositivo=Escritorio, Selección=Vacía; Dispositivo=Escritorio, Se
 | Value | TEXT | Selecciona una marca |
 | Dispositivo | VARIANT | Escritorio, Móvil |
 | Selección | VARIANT | Vacía, Con valor |
+| Estado | VARIANT | Disponible, Deshabilitado |
+
+Las combinaciones anteriores existen en ambos estados. Deshabilitado comparte el tratamiento gris del múltiple y conserva las dimensiones del control disponible.
 
 ## Vue Select / Opción
 

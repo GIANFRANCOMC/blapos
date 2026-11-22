@@ -1,97 +1,65 @@
 <template>
-    <main class="br-entity br-catalog-skeleton br-skeleton" role="status" aria-live="polite" :aria-label="`Cargando ${label}`">
-        <span class="visually-hidden">Cargando {{ label }}</span>
-
-        <section class="br-filter-bar br-catalog-skeleton__filters" :class="{'br-filter-bar--compact': !isDirectory}" aria-hidden="true">
-            <div class="br-catalog-skeleton__filter">
-                <span class="br-skeleton-line br-catalog-skeleton__label"></span>
-                <span class="br-skeleton-control"><span class="br-skeleton-line br-catalog-skeleton__select-value"></span></span>
+    <div class="fg-catalog-skeleton fg-skeleton" role="status" aria-live="polite" aria-busy="true" :aria-label="`Cargando ${label}`">
+        <span class="fg-sr-only">Cargando {{ label }}</span>
+        <div aria-hidden="true">
+            <FgSkeletonFilters/>
+            <div class="fg-list-heading">
+                <span class="fg-catalog-skeleton__heading"><span class="fg-skeleton-line"/></span>
+                <div class="fg-catalog-skeleton__order"><span class="fg-skeleton-line fg-catalog-skeleton__order-label"/><span class="fg-skeleton-control"><span class="fg-skeleton-line fg-catalog-skeleton__value"/></span></div>
             </div>
-            <div class="br-catalog-skeleton__filter">
-                <span class="br-skeleton-line br-catalog-skeleton__label"></span>
-                <span class="br-skeleton-control"><span class="br-skeleton-line br-catalog-skeleton__search-value"></span></span>
-            </div>
-            <div class="br-catalog-skeleton__filter">
-                <div class="br-filter-bar__actions">
-                    <span class="br-skeleton-line br-catalog-skeleton__button" :class="{'br-catalog-skeleton__button--icon': !isDirectory}"></span>
-                    <span v-if="!isDirectory" class="br-skeleton-line br-catalog-skeleton__button br-catalog-skeleton__button--icon"></span>
-                    <span class="br-skeleton-line br-catalog-skeleton__button br-catalog-skeleton__button--add"></span>
-                    <span v-if="kind !== 'recipes'" class="br-skeleton-line br-catalog-skeleton__button" :class="isDirectory ? 'br-catalog-skeleton__button--more' : 'br-catalog-skeleton__button--icon'"></span>
+            <section class="fg-products-list">
+                <div class="fg-table-scroll">
+                    <table class="fg-table fg-catalog-skeleton__table" :class="{'fg-products-table': kind === 'products'}">
+                        <colgroup><col v-for="column in columns" :key="column.title" :style="{width: column.width}"/></colgroup>
+                        <thead><tr><th v-for="column in columns" :key="column.title" scope="col" :class="column.align">{{ column.title }}</th></tr></thead>
+                        <tbody><tr class="fg-table__state"><td :colspan="columns.length"><FgListLoading :label="`Cargando ${label}…`"/></td></tr></tbody>
+                    </table>
                 </div>
-            </div>
-        </section>
-
-        <section class="br-entity-list" aria-hidden="true">
-            <div class="table-responsive">
-                <table class="table br-entity-table mb-0" :class="{
-                    'br-entity-table--catalog-products': kind === 'products',
-                    'br-entity-table--offering': isOffering,
-                    'br-entity-table--directory': isDirectory,
-                    'br-entity-table--catalog-usage': isCatalogUsage,
-                    'br-entity-table--catalog-recipes': kind === 'recipes',
-                    'br-entity-table--commercial-headings': !isDirectory
-                }">
-                    <colgroup>
-                        <col v-for="column in columns" :key="column.title" :class="column.className" :style="{width: column.width}">
-                    </colgroup>
-                    <thead class="br-table-header-surface">
-                        <tr>
-                            <th v-for="column in columns" :key="column.title" :class="column.align">
-                                <span v-if="column.title" v-text="column.title"></span>
-                                <span v-else class="visually-hidden">Acciones</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="br-table-state">
-                            <td :colspan="columns.length" class="py-4"><Loader/></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
+            </section>
+        </div>
+    </div>
 </template>
 
 <script>
-import Loader from "@System/Components/Loader.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgSkeletonFilters from "@System/Components/Figma/FgSkeletonFilters.vue";
 
 const COMMON_IDENTITY = {title: "Identificación"};
-const COMMON_INTERNAL_CODE = {title: "Código interno", align: "text-center"};
-const COMMON_STATUS = {title: "Estado", align: "text-center"};
-const COMMON_ACTIONS = {title: "", align: "text-center"};
+const COMMON_INTERNAL_CODE = {title: "Código interno", align: "fg-align-center"};
+const COMMON_STATUS = {title: "Estado", align: "fg-align-center"};
+const COMMON_ACTIONS = {title: "Acciones", align: "fg-align-center"};
 
 const offeringColumns = title => [
-    {...COMMON_INTERNAL_CODE, className: "br-entity-table__col-code"},
-    {title, className: "br-entity-table__col-offering"},
-    {title: "Detalle", className: "br-entity-table__col-detail"},
-    {title: "Precio", className: "br-entity-table__col-price", align: "text-center"},
-    {...COMMON_STATUS, className: "br-entity-table__col-status"},
-    {...COMMON_ACTIONS, className: "br-entity-table__col-actions"}
+    {...COMMON_INTERNAL_CODE, width: "22%"},
+    {title, width: "34%"},
+    {title: "Detalle", width: "15%"},
+    {title: "Precio", width: "15%", align: "fg-align-center"},
+    {...COMMON_STATUS, width: "8%"},
+    {...COMMON_ACTIONS, width: "6%"}
 ];
 
 const COLUMNS = {
     products: [
-        {...COMMON_IDENTITY, className: "br-entity-table__col-identification"},
-        {title: "Producto", className: "br-entity-table__col-product"},
-        {title: "Precio", className: "br-entity-table__col-price", align: "text-center"},
-        {...COMMON_STATUS, className: "br-entity-table__col-status"},
-        {...COMMON_ACTIONS, className: "br-entity-table__col-actions"}
+        {...COMMON_IDENTITY, width: "22%"},
+        {title: "Producto", width: "40%"},
+        {title: "Precio", width: "16%", align: "fg-align-end"},
+        {...COMMON_STATUS, width: "13%"},
+        {...COMMON_ACTIONS, width: "9%"}
     ],
     services: offeringColumns("Servicio"),
     subscriptions: offeringColumns("Membresía"),
     categories: [
         {...COMMON_INTERNAL_CODE, width: "20%"},
         {title: "Categoría", width: "40%"},
-        {title: "En uso", width: "20%", align: "text-center"},
+        {title: "En uso", width: "20%", align: "fg-align-center"},
         {...COMMON_STATUS, width: "13%"},
         {...COMMON_ACTIONS, width: "7%"}
     ],
     brands: [
         {...COMMON_INTERNAL_CODE, width: "20%"},
         {title: "Marca", width: "28%"},
-        {title: "Sitio oficial", width: "14%", align: "text-center"},
-        {title: "En uso", width: "19%", align: "text-center"},
+        {title: "Sitio oficial", width: "14%", align: "fg-align-center"},
+        {title: "En uso", width: "19%", align: "fg-align-center"},
         {...COMMON_STATUS, width: "11%"},
         {...COMMON_ACTIONS, width: "8%"}
     ],
@@ -108,7 +76,7 @@ const COLUMNS = {
         {title: "Sucursal", width: "18%"},
         {title: "Ubicación", width: "19%"},
         {title: "Contacto", width: "19%"},
-        {title: "Aforo", width: "10%", align: "text-center"},
+        {title: "Aforo", width: "10%", align: "fg-align-center"},
         {...COMMON_STATUS, width: "8%"},
         {...COMMON_ACTIONS, width: "6%"}
     ],
@@ -123,17 +91,14 @@ const COLUMNS = {
 };
 
 export default {
-    components: {Loader},
+    components: {FgListLoading, FgSkeletonFilters},
     name: "CatalogListSkeleton",
     props: {
         kind: {type: String, required: true, validator: value => Object.prototype.hasOwnProperty.call(COLUMNS, value)},
         label: {type: String, required: true}
     },
     computed: {
-        columns() { return COLUMNS[this.kind] || []; },
-        isOffering() { return this.kind === "services" || this.kind === "subscriptions"; },
-        isDirectory() { return this.kind === "branches" || this.kind === "users"; },
-        isCatalogUsage() { return this.kind === "categories" || this.kind === "brands"; }
+        columns() { return COLUMNS[this.kind] || []; }
     }
 };
 </script>

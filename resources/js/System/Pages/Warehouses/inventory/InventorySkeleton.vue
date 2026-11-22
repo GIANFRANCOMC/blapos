@@ -1,30 +1,30 @@
 <template>
-    <section class="br-inventory br-inventory-skeleton br-skeleton" role="status" aria-live="polite">
+    <section class="br-inventory br-inventory-skeleton fg-skeleton" role="status" aria-live="polite">
         <span class="visually-hidden">Cargando {{ viewLabel }}</span>
 
         <div class="row align-items-end g-3 br-inventory__context" aria-hidden="true">
             <div v-for="[label, columns] in filters" :key="label" :class="columns">
                 <span class="form-label br-inventory-skeleton__label">{{ label }}</span>
                 <span class="form-control br-inventory-skeleton__control">
-                    <span class="br-skeleton-line"></span>
+                    <span class="fg-skeleton-line"></span>
                 </span>
             </div>
 
             <div :class="actionColumns">
                 <div :class="actionLayout">
-                    <span class="br-btn br-btn-sm br-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
-                    <span class="br-btn br-btn-sm br-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
-                    <span class="br-btn br-btn-sm br-btn-actions br-btn-actions--icon br-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon">
+                    <span class="br-btn br-btn-sm fg-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
+                    <span class="br-btn br-btn-sm fg-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
+                    <span class="br-btn br-btn-sm br-btn-actions br-btn-actions--icon fg-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon">
                         <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                     </span>
                 </div>
                 <div v-if="hasPrimaryActions" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
                     <span class="vr align-self-center"></span>
-                    <span class="br-btn br-btn-sm br-skeleton-line br-inventory-skeleton__button">
+                    <span class="br-btn br-btn-sm fg-skeleton-line br-inventory-skeleton__button">
                         <i class="fa-solid fa-plus"></i>
                         <span>{{ page === 'stock' ? 'Registrar operación' : 'Registrar traslado' }}</span>
                     </span>
-                    <span v-if="page === 'stock'" class="br-btn br-btn-sm br-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
+                    <span v-if="page === 'stock'" class="br-btn br-btn-sm fg-skeleton-line br-inventory-skeleton__button br-inventory-skeleton__button--icon"></span>
                 </div>
             </div>
         </div>

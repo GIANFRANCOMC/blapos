@@ -8,12 +8,12 @@
     min-block-size: var(--br-control-height);
 }
 
-.br-inventory-skeleton__control .br-skeleton-line {
+.br-inventory-skeleton__control .fg-skeleton-line {
     inline-size: min(55%, 6rem);
     block-size: 0.5rem;
 }
 
-.br-inventory-skeleton .br-skeleton-line,
+.br-inventory-skeleton .fg-skeleton-line,
 .br-inventory-skeleton .br-btn.br-inventory-skeleton__button {
     background: color-mix(in srgb, var(--br-primary-soft) 65%, var(--br-border));
 }

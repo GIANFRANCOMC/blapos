@@ -19,7 +19,7 @@ test("Mi empresa conserva pestañas, formulario y botón durante la carga inicia
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.initOthers\(\)/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando empresa"/);
     assert.match(skeleton, /v-for="index in 3"[\s\S]*?v-for="index in 6"[\s\S]*?br-company-settings__footer/);
-    assert.match(readSharedSkeleton(), /height: var\(--br-control-height\)/);
+    assert.match(readSharedSkeleton(), /height: var\(--fg-control-height, 36px\)/);
     assert.match(styles, /height: var\(--br-btn-height\)/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /Organizations\/companies\/skeleton\.css/);
@@ -43,10 +43,10 @@ test("Sucursales y Usuarios muestran su tabla esqueleto hasta terminar initParam
         assert.match(page, /this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{\}\)\)/, route);
         assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
-        assert.match(entry, /Components\/Catalogs\/catalog-list-skeleton\.css/, route);
+        assert.doesNotMatch(entry, /catalog-list-skeleton\.css/, route);
         assert.match(skeleton, new RegExp(`${route}: \\[`, "m"));
     }
 
-    assert.match(skeleton, /br-entity-table--directory/);
-    assert.match(skeleton, /:colspan="columns.length" class="py-4"><Loader\/>/);
+    assert.match(skeleton, /fg-catalog-skeleton__table/);
+    assert.match(skeleton, /:colspan="columns.length"><FgListLoading/);
 });

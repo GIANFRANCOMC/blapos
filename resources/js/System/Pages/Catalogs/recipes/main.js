@@ -4,7 +4,6 @@ import App from "./main.vue";
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import "../../../../../css/System/Pages/Catalogs/recipes/recipes.css";
-import "../../../../../css/System/Components/Catalogs/catalog-list-skeleton.css";
 
 import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import FiltersSection from "@System/Components/Generics/FiltersSection.vue";

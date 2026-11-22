@@ -4,10 +4,21 @@ import test from "node:test";
 
 const read = file => readFileSync(new URL(`../../${file}`, import.meta.url), "utf8");
 
+test("la salida del skeleton bloquea interacción y anuncios duplicados durante el fundido", () => {
+    const source = read("resources/js/System/Components/Generics/InitialLoadTransition.vue");
+    const script = source.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import .*;\s*$/gm, "").replace("export default", "return");
+    const component = new Function(script)();
+    const attributes = {};
+    const element = {inert: false, setAttribute(name, value) { attributes[name] = value; }};
+    component.methods.hideLeavingContent(element);
+    assert.equal(element.inert, true);
+    assert.equal(attributes['aria-hidden'], 'true');
+});
+
 test("el skeleton compartido usa el loader habitual en una fila de tabla", () => {
     const skeleton = read("resources/js/System/Components/Generics/PageSkeleton.vue");
-    assert.match(skeleton, /import Loader from "@System\/Components\/Loader\.vue"/);
-    assert.match(skeleton, /v-if="table"[\s\S]*?<table[\s\S]*?<tr class="br-table-state">[\s\S]*?<Loader\/>/);
+    assert.match(skeleton, /import FgListLoading from "@System\/Components\/Figma\/FgListLoading\.vue"/);
+    assert.match(skeleton, /v-if="table"[\s\S]*?<table[\s\S]*?<tr class="fg-table__state">[\s\S]*?<FgListLoading/);
 });
 
 function inventory(page, events) {

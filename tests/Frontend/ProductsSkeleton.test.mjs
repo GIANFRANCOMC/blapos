@@ -10,7 +10,7 @@ test("Productos usa skeleton solo durante initParams", () => {
     const entry = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.js", import.meta.url), "utf8");
 
     assert.equal(parse(page, {filename: "products/main.vue"}).errors.length, 0);
-    assert.match(page, /<div v-if="initialLoading" class="fg-skeleton"[^>]*aria-busy="true"/);
+    assert.match(page, /<CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"\/>/);
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/);
     assert.match(page, /<tr v-if="entityList\.extras\.loading" class="fg-table__state">[\s\S]*?Buscando productos…/);
     assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/);
@@ -21,18 +21,21 @@ test("Productos usa skeleton solo durante initParams", () => {
 
 test("el skeleton de Productos conserva filtros y columnas con el loader real de la tabla", () => {
     const skeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
-    const styles = readFileSync(new URL("../../resources/css/System/Components/Catalogs/catalog-list-skeleton.css", import.meta.url), "utf8");
+    const styles = readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
 
     const {descriptor, errors} = parse(skeleton, {filename: "CatalogListSkeleton.vue"});
     assert.deepEqual(errors, []);
     assert.match(descriptor.template.content, /role="status" aria-live="polite"/);
-    assert.match(skeleton, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?br-entity-table/);
-    const script = descriptor.script.content.replace(/^import .*;\s*$/m, "").replace("export default", "return");
-    const component = new Function("Loader", script)({});
+    assert.match(skeleton, /<FgSkeletonFilters[\s\S]*?fg-products-list[\s\S]*?fg-table/);
+    assert.doesNotMatch(skeleton, /br-/);
+    const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
+    const component = new Function("FgListLoading", "FgSkeletonFilters", script)({}, {});
     const columns = component.computed.columns.call({kind: "products"});
-    assert.deepEqual(columns.map(column => column.title), ["Identificación", "Producto", "Precio", "Estado", ""]);
-    assert.match(skeleton, /:colspan="columns.length" class="py-4"><Loader\/>/);
-    assert.match(styles, /height: var\(--br-control-height\)/);
-    assert.match(styles, /@media \(max-width: 991\.98px\)/);
+    assert.deepEqual(columns.map(column => column.title), ["Identificación", "Producto", "Precio", "Estado", "Acciones"]);
+    assert.match(skeleton, /:colspan="columns.length"><FgListLoading/);
+    assert.deepEqual(columns.map(column => column.width), ["22%", "40%", "16%", "13%", "9%"]);
+    assert.equal(columns[2].align, "fg-align-end");
+    assert.match(styles, /height: var\(--fg-control-height, 36px\)/);
+    assert.match(styles, /@media \(max-width: 767px\)/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
 });

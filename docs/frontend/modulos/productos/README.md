@@ -20,6 +20,8 @@ Biblioteca Componentes 1.0.5 publicada y aplicada con autorización del usuario:
 
 El sistema visual FG es global. La composición de los otros módulos se migrará conservando sus datos, permisos y operaciones.
 
+La carga inicial reutiliza `CatalogListSkeleton` y `InitialLoadTransition`, con la estructura del listado FG y sus mismas medidas. Solo cubre los parámetros iniciales; después se muestra el loader real de tabla. Fuentes, transición, limpieza de dependencias y verificación están en la [implementación FG](../../figma/IMPLEMENTACION_FG.md#skeleton-fg-y-transición-inicial). [Vista en Figma](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=279-36231).
+
 ## Objetivo y alcance
 
 Permitir a una persona con poca experiencia tecnológica localizar un producto, consultar su inventario y agregarlo o editarlo sin perder el contexto del listado. La jerarquía depende del espacio, la alineación y los títulos; el color destaca acciones y estados.

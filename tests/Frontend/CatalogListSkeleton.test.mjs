@@ -23,28 +23,24 @@ test("los cuatro catálogos usan el skeleton solo durante parámetros", () => {
         assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
         assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader label="Buscando [^"]+…"\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
-        assert.match(entry, /Components\/Catalogs\/catalog-list-skeleton\.css/, route);
+        assert.doesNotMatch(entry, /catalog-list-skeleton\.css/, route);
     }
 });
 
-test("el skeleton compartido conserva los encabezados y el loader de cada catálogo", () => {
-    const component = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
-    const styles = readFileSync(new URL("../../resources/css/System/Components/Catalogs/catalog-list-skeleton.css", import.meta.url), "utf8");
-
-    assert.equal(parse(component, {filename: "CatalogListSkeleton.vue"}).errors.length, 0);
-    assert.match(component, /role="status" aria-live="polite"/);
-    assert.match(component, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?br-entity-table/);
-    assert.match(component, /const COMMON_INTERNAL_CODE = \{title: "Código interno", align: "text-center"\}/);
-    assert.match(component, /const offeringColumns = title => \[\s*\{\.\.\.COMMON_INTERNAL_CODE, className: "br-entity-table__col-code"\}/);
-    assert.match(component, /categories: \[\s*\{\.\.\.COMMON_INTERNAL_CODE,[^}]+\}[\s\S]*?brands: \[\s*\{\.\.\.COMMON_INTERNAL_CODE,/);
-    assert.match(component, /services: offeringColumns\("Servicio"\)/);
-    assert.match(component, /subscriptions: offeringColumns\("Membresía"\)/);
-    assert.match(component, /:class="column.className"/);
-    assert.match(component, /className: "br-entity-table__col-price"/);
-    for(const route of ["categories", "brands"]) assert.match(component, new RegExp(`${route}: \\[`, "m"));
-    assert.match(component, /:colspan="columns.length" class="py-4"><Loader\/>/);
-    assert.doesNotMatch(component, /rowCount|skeleton__pagination/);
-    assert.match(styles, /height: var\(--br-control-height\)/);
-    assert.match(styles, /@media \(max-width: 991\.98px\)/);
+test("el skeleton FG conserva las columnas de cada catálogo sin estilos antiguos", () => {
+    const source = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
+    const {descriptor, errors} = parse(source, {filename: "CatalogListSkeleton.vue"});
+    assert.deepEqual(errors, []);
+    assert.doesNotMatch(source, /br-|className/);
+    const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
+    const component = new Function("FgListLoading", "FgSkeletonFilters", script)({}, {});
+    for(const kind of ["products", "services", "subscriptions", "categories", "brands", "recipes", "branches", "users"]) {
+        const columns = component.computed.columns.call({kind});
+        assert.ok(columns.length >= 5, kind);
+        assert.equal(columns.at(-1).title, "Acciones", kind);
+        assert.ok(columns.some(column => column.title === "Estado"), kind);
+    }
+    assert.match(source, /:colspan="columns.length"><FgListLoading/);
+    assert.doesNotMatch(source, /rowCount|skeleton__pagination/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
 });

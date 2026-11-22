@@ -1,12 +1,13 @@
 <template>
-    <div class="br-initial-load">
-        <Transition name="br-initial-load" @before-leave="hideLeavingContent">
+    <div class="fg-initial-load">
+        <Transition name="fg-initial-load" @before-leave="hideLeavingContent">
             <slot/>
         </Transition>
     </div>
 </template>
 
 <script>
+import "../../../../css/Shared/skeleton.css";
 export default {
     name: "InitialLoadTransition",
     methods: {

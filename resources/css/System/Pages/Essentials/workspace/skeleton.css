@@ -3,14 +3,14 @@
   gap: 1.1rem;
 }
 
-.br-workspace-skeleton .br-skeleton-line { flex: none; }
+.br-workspace-skeleton .fg-skeleton-line { flex: none; }
 
 .br-workspace-skeleton__breadcrumb {
   min-height: 1rem;
   align-items: center;
 }
 
-.br-workspace-skeleton__breadcrumb .br-skeleton-line {
+.br-workspace-skeleton__breadcrumb .fg-skeleton-line {
   height: 0.68rem;
 }
 
