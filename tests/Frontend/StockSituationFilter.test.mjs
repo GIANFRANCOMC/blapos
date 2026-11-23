@@ -6,13 +6,13 @@ import {forProduct, fromLevels, labels} from "../../resources/js/Shared/StockSta
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
 test("Estado del stock filtra el control de stock antes de paginar en ambos ámbitos", () => {
-    const page = read("resources/js/System/Pages/Warehouses/inventory/stock.vue");
+    const page = read("resources/js/System/Pages/Warehouses/inventory/inventoryPresentation.js");
     const state = read("resources/js/System/Pages/Warehouses/inventory/inventoryState.js");
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const service = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
     const exportClass = read("app/Exports/System/Warehouses/InventoryReportExport.php");
 
-    assert.match(page, /<label for="stockSituation"[^>]*>Estado del stock<\/label>[\s\S]*?v-model="filters\.stockSituation"/);
+    assert.match(page, /key: "stockSituation", label: "Estado del stock", options: "stockSituations"/);
     assert.match(state, /\{code: "", label: "Todos los estados"\}/);
     assert.match(state, /Object\.entries\(StockStatus\.labels\)/);
     assert.match(state, /product_search: productSearch,\s*situation/);

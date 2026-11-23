@@ -1,213 +1,87 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgCatalogList
+        kind="categories"
+        title="Categorías"
+        singular="categoría"
+        plural="categorías"
+        list-title="Categorías registradas"
+        description="Organiza los artículos de tu catálogo por categoría."
+        v-model:filter-by="filterByValue"
+        v-model:word="filterWordValue"
+        :filter-options="filterByOptions"
+        :placeholder="searchPlaceholder"
+        :applied-word="entityList.appliedFilters?.word?.trim()"
+        :records="entityList.records"
+        :initial-loading="initialLoading"
+        :loading="entityList.extras.loading"
+        :exporting="isExporting"
+        :failed="listFailed"
+        @search="handleSearch"
+        @page="listEntity"
+        @retry="listEntity({})"
+        @add="openModal()"
+        @import="openImportModal"
+        @export="downloadRecords">
+        <template #row="{record}">
+            <td class="fg-align-center"><InternalCodeValue :value="record.internal_code"/></td>
+            <td>
+                <span class="fg-product-name">{{ record.name }}</span>
+                <ExpandableText v-if="record.description" :text="record.description"/>
+            </td>
+            <td class="fg-align-center"><CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/></td>
+            <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+            <td class="fg-align-center">
+                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                    <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar categoría</button></li>
+                </TableActionsDropdown>
+            </td>
+        </template>
+    </FgCatalogList>
 
-    <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading" kind="categories" label="categorías"/>
-
-        <main v-else class="br-entity">
-        <FiltersSection
-            class="br-filter-bar--compact"
-            show-clear-button
-            :filter-by-value="filterByValue"
-            @update:filterByValue="filterByValue = $event"
-            :filter-word-value="filterWordValue"
-            @update:filterWordValue="filterWordValue = $event"
-            :filter-by-options="filterByOptions"
-            :search-placeholder="searchPlaceholder"
-            :loading="entityList.extras.loading"
-            :filter-by-title="MODULE.texts.filters.filterBy"
-            :search-title="MODULE.texts.filters.search"
-            :add-button-text="MODULE.texts.actions.add"
-            :show-add-button="true"
-            :show-download-button="true"
-            :show-import-button="true"
-            :group-secondary-actions="true"
-            import-button-text="Importar categorías"
-            download-button-text="Descargar listado en Excel"
-            :downloading="isExporting"
-            :title-class="[config.forms.classes.title]"
-            :select-class="config.forms.classes.select2"
-            @search="handleSearch"
-            @add="openModal()"
-            @import="openImportModal"
-            @download="downloadRecords"/>
-
-        <CatalogReferenceImportModal
-            ref="categoryImportModal"
-            modal-id="categoryImportModal"
-            resource="categorías"
-            template-file-name="plantilla_categorias.xlsx"
-            :import-route="routeActions.import"
-            :internal-code-prefix="internalCodePrefixes.category"
-            @imported="listEntity({})"/>
-
-        <section class="br-entity-list" aria-label="Listado de categorías">
-            <ResponsiveTable>
-            <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
-                <colgroup>
-                    <col style="width: 20%;">
-                    <col style="width: 40%;">
-                    <col style="width: 20%;">
-                    <col style="width: 13%;">
-                    <col style="width: 7%;">
-                </colgroup>
-                <thead class="br-table-header-surface">
-                    <tr>
-                        <th class="text-center">Código interno</th>
-                        <th>Categoría</th>
-                        <th class="text-center">En uso</th>
-                        <th class="text-center">Estado</th>
-                        <th><span class="visually-hidden">Acciones</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="br-table-state" v-if="entityList.extras.loading">
-                        <td colspan="5" class="py-4">
-                            <Loader label="Buscando categorías…"/>
-                        </td>
-                    </tr>
-                    <template v-else-if="entityList.records.total > 0">
-                        <tr v-for="record in entityList.records.data" :key="record.id">
-                            <td class="text-center">
-                                <InternalCodeValue :value="record.internal_code"/>
-                            </td>
-                            <td>
-                                <span class="br-entity-table__name" v-text="record.name"></span>
-                                <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
-                            </td>
-                            <td>
-                                <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
-                            </td>
-                            <td class="text-center">
-                                <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                            </td>
-                            <td class="text-center">
-                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                    <li>
-                                        <button type="button" class="dropdown-item" @click="openModal(record)">
-                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                            <span v-text="MODULE.texts.actions.edit"></span>
-                                        </button>
-                                    </li>
-                                </TableActionsDropdown>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr class="br-table-state" v-else>
-                        <td colspan="5" class="py-4">
-                            <WithoutData
-                                class="br-entity-empty-state"
-                                type="image"
-                                :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos categorías con esta búsqueda' : 'Aún no hay categorías registradas'"
-                                :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una categoría o importa un archivo para empezar.'"/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </ResponsiveTable>
-        </section>
-
-        <Paginator aria-label="Paginación de categorías" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
-        </main>
-    </InitialLoadTransition>
+    <CatalogReferenceImportModal
+        ref="categoryImportModal"
+        modal-id="categoryImportModal"
+        resource="categorías"
+        template-file-name="plantilla_categorias.xlsx"
+        :import-route="routeActions.import"
+        :internal-code-prefix="internalCodePrefixes.category"
+        @imported="listEntity({})"/>
 
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
-        modal-class="br-record-editor"
         modal-size="modal-lg"
-        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
         :close-disabled="isSaving"
         :submit-disabled="isSaving"
         :submit-button-text="isSaving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar categoría'"
         @submit="saveEntity">
         <template #body>
-                    <form class="br-entity-form-section br-form-groups" @submit.prevent="saveEntity">
-                        <FormGroup title="Identificación" icon="fa-solid fa-id-card" primary>
-                            <div class="row g-3">
-                                <InputText
-                                    v-model="forms[entity].createUpdate.data.name"
-                                    hasDiv
-                                    :title="MODULE.texts.form.name"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    maxlength="50"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                    xl="8"
-                                    lg="8"/>
-
-                                <InternalCodeInput
-                                    v-model="forms[entity].createUpdate.data.internal_code"
-                                    v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
-                                    hasDiv
-                                    :title="MODULE.texts.form.internalCode"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    :showCharCounter="false"
-                                    hasTextBottom
-                                    :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-if="!isUpdate" v-slot:inputGroupAppend>
-                                        <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
-                                            <i class="fa-solid fa-rotate" aria-hidden="true"></i>
-                                        </button>
-                                    </template>
-                                </InternalCodeInput>
-                            </div>
-                        </FormGroup>
-
-                        <FormGroup title="Información y estado" icon="fa-solid fa-circle-info">
-                            <div class="row g-3">
-                                <InputText
-                                    v-model="forms[entity].createUpdate.data.description"
-                                    hasDiv
-                                    :title="MODULE.texts.form.description"
-                                    :titleClass="[config.forms.classes.title]"
-                                    maxlength="100"
-                                    showCharCounter
-                                    hasTextBottom
-                                    :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                    xl="8"
-                                    lg="8"/>
-
-                                <InputSlot
-                                    input-id="category-catalog-status"
-                                    hasDiv
-                                    :title="MODULE.texts.form.status"
-                                    :titleClass="[config.forms.classes.title]"
-                                    isRequired
-                                    hasTextBottom
-                                    :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                    xl="4"
-                                    lg="4">
-                                    <template v-slot:input>
-                                        <v-select
-                                            input-id="category-catalog-status"
-                                            v-model="forms[entity].createUpdate.data.status"
-                                            :options="statuses"
-                                            :class="config.forms.classes.select2"
-                                            :clearable="false"
-                                            :searchable="false"
-                                            append-to-body/>
-                                    </template>
-                                </InputSlot>
-                            </div>
-                        </FormGroup>
-                    </form>
+            <form class="fg-stack" @submit.prevent="saveEntity">
+                <div class="fg-section-heading"><h3 class="fg-section-title">Datos de la categoría</h3><span class="fg-help"><span class="fg-required">*</span> Obligatorios</span></div>
+                <div class="fg-grid">
+                    <InternalCodeInput v-model="forms[entity].createUpdate.data.internal_code" v-bind="internalCodeInputProps(forms[entity].createUpdate.data)" title="Código interno" is-required show-char-counter has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.internal_code" :disabled="isSaving">
+                        <template v-if="!isUpdate" #action><button type="button" class="fg-link" :disabled="isSaving" :title="MODULE.texts.form.generateCodeTooltip" @click="generateCodeAction($event)">Generar</button></template>
+                    </InternalCodeInput>
+                    <InputText v-model="forms[entity].createUpdate.data.name" title="Nombre de la categoría" :placeholder="placeholders.names.category" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.name" :disabled="isSaving" is-required show-char-counter maxlength="50"/>
+                </div>
+                <div class="fg-grid">
+                    <InputText v-model="forms[entity].createUpdate.data.description" title="Descripción" :placeholder="placeholders.optional" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.description" :disabled="isSaving" show-char-counter maxlength="100"/>
+                    <FgField label="Estado" required :error="forms[entity].createUpdate.errors?.status">
+                        <FgSelect v-model="forms[entity].createUpdate.data.status" :options="statuses" :disabled="isSaving" :clearable="false" :searchable="false"/>
+                    </FgField>
+                </div>
+            </form>
         </template>
     </FormModal>
 </template>
 
 <script>
-import FormGroup from "@/Shared/FormGroup.vue";
-import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgCatalogList from "@System/Components/Catalogs/FgCatalogList.vue";
 import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
-import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -215,7 +89,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
-import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
+import {catalogFormPlaceholders} from "@System/Components/Catalogs/catalogFormPlaceholders.js";
 import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
@@ -305,17 +179,16 @@ export default {
     name: "CategoriesMain",
     mixins: [InternalCodePrefixMixin],
     components: {
-        FormGroup,
-        ResponsiveTable,
+        FgSelect,
+        FgField,
+        FgCatalogList,
         InternalCodeInput,
         ExpandableText,
-        InitialLoadTransition,
         CatalogReferenceImportModal,
         CatalogUsageBreakdown,
         InternalCodeValue,
         FormModal,
         TableActionsDropdown,
-        CatalogListSkeleton
     },
     data() {
 
@@ -334,7 +207,9 @@ export default {
             MODULE: MODULE,
             isInitialized: false,
             isSaving: false,
+            placeholders: catalogFormPlaceholders,
             isExporting: false,
+            listFailed: false,
             initialLoading: true
         };
 
@@ -384,6 +259,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.listFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -413,10 +289,12 @@ export default {
                 }
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
+                this.listFailed = !response?.bool;
 
                 entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
+                this.listFailed = true;
 
                 entityList.records = emptyRecords;
 

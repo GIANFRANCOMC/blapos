@@ -1,5 +1,5 @@
 <template>
-    <VueSelect
+    <FgSelect
         ref="select"
         :id="id"
         :input-id="inputId"
@@ -11,7 +11,6 @@
         :searchable="searchable"
         :disabled="disabled"
         :placeholder="placeholder"
-        :append-to-body="appendToBody"
         @update:modelValue="$emit('update:modelValue', $event)"
         @close="$emit('close')">
         <template #selected-option="warehouse">
@@ -37,18 +36,16 @@
             </span>
         </template>
         <template #no-options><SelectNoOptions/></template>
-    </VueSelect>
+    </FgSelect>
 </template>
 
 <script>
-import VueSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
-
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import SelectNoOptions from "./SelectNoOptions.vue";
 
 export default {
     name: "WarehouseSelect",
-    components: {VueSelect, SelectNoOptions},
+    components: {FgSelect, SelectNoOptions},
     emits: ["update:modelValue", "close"],
     props: {
         id: {type: String, required: true},
@@ -64,7 +61,7 @@ export default {
     },
     methods: {
         focus() {
-            this.$refs.select?.searchEl?.focus();
+            this.$refs.select?.focus();
         }
     }
 };

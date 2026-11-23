@@ -20,8 +20,7 @@
                     <FgField label="Buscar" input-id="fg-products-search">
                         <div class="fg-field__control"><input id="fg-products-search" v-model="filterWordValue" class="fg-input" :placeholder="searchPlaceholder" type="search" autocomplete="off"/></div>
                     </FgField>
-                    <FgButton type="submit" icon="fa-solid fa-magnifying-glass" :loading="entityList.extras.loading">Buscar</FgButton>
-                    <FgButton tone="link" :disabled="entityList.extras.loading" @click="clearProductFilters">Limpiar</FgButton>
+                    <FgFilterActions submit :loading="entityList.extras.loading" @clear="clearProductFilters"/>
                 </form>
                 <div class="fg-list-heading">
                     <h2 class="fg-section-title">{{ entityList.appliedFilters?.word?.trim() ? 'Resultados de «' + entityList.appliedFilters.word.trim() + '»' : 'Productos registrados' }}</h2>
@@ -70,6 +69,7 @@ import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
 import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgFilterActions from "@System/Components/Figma/FgFilterActions.vue";
 import FgField from "@System/Components/Figma/FgField.vue";
 import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
 import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
@@ -123,7 +123,7 @@ const MODULE = {
 
 export default {
     name: "ProductsMain",
-    components: {FgListLoading, Paginator, StatusBadge,FgSelect,FgButton, FgField, FgEmptyState, ActionsDropdown,
+    components: {FgListLoading, Paginator, StatusBadge,FgSelect,FgButton, FgField, FgFilterActions, FgEmptyState, ActionsDropdown,
         CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,

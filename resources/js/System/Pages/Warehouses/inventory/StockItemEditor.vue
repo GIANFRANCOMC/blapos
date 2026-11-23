@@ -1,7 +1,8 @@
 <template>
     <FormModal
         modal-id="inventoryStockEditorModal"
-        title="EDITAR STOCK"
+        title="Editar stock"
+        modal-class="fg-inventory-dialog"
         modal-size="modal-lg"
         :keyboard="false"
         :close-disabled="busy"
@@ -9,50 +10,38 @@
         submit-button-text="Guardar cambios"
         @submit="save">
         <template #body>
-            <ProductIdentity v-if="record" variant="expandable" class="mb-2" :product="record"/>
-            <p class="br-operational-scope mb-3">
-                <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
-                <span>{{ warehouse?.displayLabel || warehouse?.label }}</span>
-            </p>
-            <div class="row g-3">
-                <InputNumber
-                    v-model="form.quantity"
-                    has-div is-required has-text-bottom
-                    title="Stock actual"
-                    :title-class="['form-label', 'colon-at-end']"
-                    :input-class="['form-control']"
-                    :min-value="Math.min(0, original.quantity)"
-                    :has-negative="original.quantity < 0"
-                    :disabled="busy"
-                    :text-bottom-info="errors.quantity || []"
-                    md="6" lg="6" xl="6"
-                    @enter-key-pressed="save"/>
-                <InputNumber
-                    v-model="form.minimum_stock"
-                    has-div is-required has-text-bottom
-                    title="Stock mínimo"
-                    :title-class="['form-label', 'colon-at-end']"
-                    :input-class="['form-control']"
-                    :min-value="0"
-                    :disabled="busy"
-                    :text-bottom-info="errors.minimum_stock || []"
-                    md="6" lg="6" xl="6"
-                    @enter-key-pressed="save"/>
-                <div class="col-12">
-                    <InputText
-                        v-model="form.reason"
-                        title="Motivo del ajuste"
-                        :title-class="['form-label', 'colon-at-end']"
-                        :input-class="['form-control']"
-                        placeholder="Opcional"
-                        maxlength="100"
-                        :disabled="busy"/>
+            <form class="fg-stack" @submit.prevent="save">
+                <div class="fg-field">
+                    <ProductIdentity v-if="record" variant="expandable" :product="record"/>
+                    <p class="fg-help"><i class="fa-solid fa-warehouse" aria-hidden="true"></i> {{ warehouse?.displayLabel || warehouse?.label }}</p>
                 </div>
-            </div>
-            <p v-if="error" class="text-danger mt-3 mb-0" role="alert">{{ error }}</p>
-        </template>
-        <template #footerClose>
-            <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal" :disabled="busy">Cerrar</button>
+                <div class="fg-grid">
+                    <InputNumber
+                        v-model="form.quantity"
+                        has-div is-required has-text-bottom
+                        title="Stock actual"
+                        :min-value="Math.min(0, original.quantity)"
+                        :has-negative="original.quantity < 0"
+                        :disabled="busy"
+                        :text-bottom-info="errors.quantity || []"
+                        @enter-key-pressed="save"/>
+                    <InputNumber
+                        v-model="form.minimum_stock"
+                        has-div is-required has-text-bottom
+                        title="Stock mínimo"
+                        :min-value="0"
+                        :disabled="busy"
+                        :text-bottom-info="errors.minimum_stock || []"
+                        @enter-key-pressed="save"/>
+                </div>
+                <InputText
+                    v-model="form.reason"
+                    title="Motivo del ajuste"
+                    placeholder="Opcional"
+                    maxlength="100"
+                    :disabled="busy"/>
+                <p v-if="error" class="fg-notice fg-notice--danger" role="alert">{{ error }}</p>
+            </form>
         </template>
     </FormModal>
 </template>

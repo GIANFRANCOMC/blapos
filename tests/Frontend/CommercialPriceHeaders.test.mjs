@@ -1,58 +1,27 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+import {catalogColumns} from "../../resources/js/System/Components/Catalogs/catalogColumns.js";
 
-const priceTables = [
-    ["Catalogs/products/main.vue", "Precio"],
-    ["Catalogs/services/main.vue", "Precio"],
-    ["Catalogs/subscriptions/main.vue", "Precio"],
-    ["Sales/sales/main.vue", "PRECIO UNITARIO"],
-    ["Sales/quotations/main.vue", "Precio"],
-];
+const read = path => readFileSync(new URL("../../" + path, import.meta.url), "utf8");
 
-test("los encabezados de precio quedan centrados sin cambiar las celdas de importes", () => {
-    for(const [page, heading] of priceTables) {
-        const source = readFileSync(new URL(`../../resources/js/System/Pages/${page}`, import.meta.url), "utf8");
-        const headers = [...source.matchAll(/<th\b([^>]*)>([^<]*)<\/th>/g)];
-        const priceHeader = headers.find(([, , label]) => label.trim() === heading);
-
-        assert.ok(priceHeader, `Falta el encabezado ${heading} en ${page}`);
-        assert.match(priceHeader[1], page.includes("products") ? /fg-align-end/ : /\btext-center\b/, page);
-        assert.doesNotMatch(priceHeader[1], /\btext-end\b/, page);
+test("FG alinea encabezado e importes a la derecha en el Catálogo comercial", () => {
+    const shared = read("resources/js/System/Components/Catalogs/FgCatalogList.vue");
+    assert.match(shared, /<th v-for="column in columns"[^>]*:class="column\.align"/);
+    for(const kind of ["products", "services", "subscriptions"]) {
+        const columns = catalogColumns[kind];
+        assert.equal(columns.find(column => column.title === "Precio").align, "fg-align-end");
+        assert.equal(columns.reduce((sum, column) => sum + parseInt(column.width, 10), 0), 100);
+        const source = read("resources/js/System/Pages/Catalogs/" + kind + "/main.vue");
+        assert.match(source, /<td class="fg-align-end">\s*<CatalogPriceCell/);
     }
 });
 
-test("la columna de precio ocupa el mismo ancho en productos, servicios y membresías", () => {
-    const styles = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
-    const sharedPrice = styles.match(/\.br-entity-table__col-price\s*\{\s*width:\s*(\d+)%;/);
-
-    assert.ok(sharedPrice, "El ancho de precio debe definirse en una sola regla para los tres listados");
-    const priceWidth = Number(sharedPrice[1]);
-    assert.equal(priceWidth, 15);
-
-    const widthOf = name => {
-        const match = styles.match(new RegExp(`\\.br-entity-table__col-${name}\\s*\\{\\s*width:\\s*(\\d+)%`));
-        assert.ok(match, `Falta el ancho de ${name}`);
-        return Number(match[1]);
-    };
-
-    assert.equal(widthOf("identification") + widthOf("product") + priceWidth + widthOf("status") + widthOf("actions"), 100);
-    assert.equal(widthOf("code") + widthOf("offering") + widthOf("detail") + priceWidth + widthOf("status") + widthOf("actions"), 100);
-});
-
-test("todas las cabeceras del catálogo comercial se centran sin modificar las celdas", () => {
-    const pages = ["products", "services", "subscriptions", "brands", "categories", "recipes"];
-
-    for(const page of pages) {
-        const source = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${page}/main.vue`, import.meta.url), "utf8");
-        assert.match(source, page === "products" ? /<table class="fg-table fg-products-table"/ : /<table class="[^"]*br-entity-table--commercial-headings[^"]*"/, page);
+test("ventas y cotizaciones conservan sus encabezados de precio centrados", () => {
+    for(const [page, label] of [["sales", "PRECIO UNITARIO"], ["quotations", "Precio"]]) {
+        const source = read("resources/js/System/Pages/Sales/" + page + "/main.vue");
+        const price = [...source.matchAll(/<th\b([^>]*)>([^<]*)<\/th>/g)].find(([, , text]) => text.trim() === label);
+        assert.ok(price, page);
+        assert.match(price[1], /\btext-center\b/, page);
     }
-
-    const sharedSkeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
-    const styles = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
-
-    assert.doesNotMatch(sharedSkeleton, /br-/);
-    assert.match(sharedSkeleton, /title: "Precio", width: "16%", align: "fg-align-end"/);
-    assert.match(sharedSkeleton, /COMMON_STATUS = \{title: "Estado", align: "fg-align-center"/);
-    assert.match(styles, /body\.br-layout \.br-entity-table--commercial-headings > thead > tr > th\s*\{\s*text-align: center !important;/);
 });

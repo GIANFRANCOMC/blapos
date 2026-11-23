@@ -4,7 +4,7 @@ export const FORM_TABS = [
         label: "PRODUCTO",
         description: "Datos y precios",
         icon: "fa-solid fa-box",
-        fields: ["internal_code", "barcode", "name", "price", "min_price", "max_price", "currency", "currency_id", "status", "description", "categories", "brand", "brand_id"]
+        fields: ["internal_code", "barcode", "name", "price", "min_price", "max_price", "currency", "currency_id", "status", "igv_exempt", "price_includes_tax", "description", "categories", "brand", "brand_id"]
     },
     {
         id: "inventory",
@@ -16,9 +16,9 @@ export const FORM_TABS = [
     {
         id: "configuration",
         label: "CONFIGURACIÓN",
-        description: "IGV y visibilidad",
+        description: "Visibilidad y vigencia",
         icon: "fa-solid fa-sliders",
-        fields: ["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"]
+        fields: ["expires_at", "commission_type", "commission_value", "see_my_web", "see_my_web_price"]
     }
 ];
 

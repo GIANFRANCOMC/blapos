@@ -17,7 +17,7 @@ test("las celdas bloqueadas de control de stock y traslados no conservan cursor 
     assert.equal((numberInput.match(/:disabled="disabled"/g) ?? []).length, 1);
     assert.match(styles, /\.v-select\.vs--disabled \.vs__search,[\s\S]*?caret-color: transparent !important;/);
 
-    for(const [page, condition] of [["stock", "!canConfigureMovement"], ["transfers", "savingTransfer"]]) {
+    for(const [page, condition] of [["stock", "!canConfigureMovement \\|\\| savingMovement"], ["transfers", "savingTransfer"]]) {
         const source = read(`resources/js/System/Pages/Warehouses/inventory/${page}.vue`);
         assert.match(source, new RegExp(`<ProductSelect[^>]*:disabled="${condition}"`));
         assert.match(source, new RegExp(`<InputNumber[^>]*:disabled="${condition}"`));

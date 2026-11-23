@@ -7,7 +7,9 @@
 @import "./select-overlay.css";
 @import "../../Shared/modal-results.css";
 @import "./products.css";
+@import "./inventory.css";
 @import "../../Shared/skeleton.css";
+@import "../../Shared/responsive-tables.css";
 @import "./navigation.css";
 @import "./feedback.css";
 @import "../../Shared/viewport.css";

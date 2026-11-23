@@ -26,7 +26,7 @@ const events = [
 test("el recorrido muestra fechas y responsables de cada evento y señala únicamente el último como actual", async () => {
     const html = await renderToString(h(roadmap, {events, formatDate: value => `Fecha ${value}`}));
     assert.match(html, /<th scope="col">Fecha de registro<\/th><th scope="col">Responsable<\/th>/);
-    const entries = [...html.matchAll(/<tr\b[^>]*class="br-status-roadmap__item"[^>]*>[\s\S]*?<\/tr>/g)].map(([entry]) => entry);
+    const entries = [...html.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/g)].map(([entry]) => entry).filter(entry => entry.includes("<td"));
     assert.equal(entries.length, 3);
     events.forEach((event, index) => {
         assert.ok(entries[index].includes(event.label));
@@ -51,7 +51,8 @@ function detailComponent() {
     return component("resources/js/System/Pages/Warehouses/inventory/TransferDetailModal.vue", {
         FormModal: {render() { return h("div", this.$slots.body?.()); }},
         ProductIdentity: placeholder, QuantityValue: quantityValue, InputText: placeholder, InputNumber: placeholder,
-        Loader: placeholder, StatusRoadmap: roadmap, AppTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
+        FgListLoading: placeholder, FgEmptyState: placeholder, FgField: placeholder, FgSelect: placeholder, FgButton: placeholder,
+        ResponsiveTable: {render() { return h("div", this.$slots.default?.()); }}, StatusRoadmap: roadmap, AppTabs: catalogTabs, compareNumbers, normalizeNumber, isNumber,
         uuid: () => `00000000-0000-4000-8000-${String(++key).padStart(12, "0")}`
     });
 }

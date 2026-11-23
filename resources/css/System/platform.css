@@ -18,7 +18,6 @@
 @import "./br-branding/02-loading-transitions.css";
 @import "./br-branding/03-form-controls.css";
 @import "./br-branding/10-tables-breadcrumb-filters.css";
-@import "./br-branding/12-warehouse-select.css";
 @import "./br-branding/20-sales-tables-status.css";
 @import "./br-branding/30-modals-fields-forms.css";
 @import "./br-branding/40-buttons-quick-create.css";
@@ -30,9 +29,7 @@
 @import "./br-branding/70-visual-density-brand-refresh.css";
 @import "./br-branding/80-base-guest.css";
 @import "./br-branding/81-core-roles-entities.css";
-@import "./br-branding/82-inventory.css";
 @import "./br-branding/83-purchases-suppliers.css";
-@import "./br-branding/83-status-roadmap.css";
 @import "./br-branding/84-accounts-receivable.css";
 @import "./br-branding/84-cash.css";
 @import "./br-branding/85-pos-base.css";

@@ -1,5 +1,5 @@
 <template>
-    <div class="fg-field">
+    <div v-if="showSummary" class="fg-field">
         <div class="fg-field__label-row">
             <component :is="showSummary ? 'span' : 'label'" :for="showSummary ? null : id" class="fg-field__label">
                 {{ label }}
@@ -26,8 +26,9 @@
                 <template v-else>{{ warehouseLabel }}</template>
             </span>
         </div>
+    </div>
+    <FgField v-else :label="label" :input-id="id" :required="required" :error="error">
         <WarehouseSelect
-            v-else
             ref="select"
             :id="`${id}Select`"
             :input-id="id"
@@ -40,16 +41,16 @@
             @update:model-value="selectWarehouse"
             @close="editing = false"
             @keydown.esc.stop="cancelChange"/>
-        <small v-if="error" class="fg-error">{{ error }}</small>
-    </div>
+    </FgField>
 </template>
 
 <script>
 import WarehouseSelect from "./WarehouseSelect.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
 
 export default {
     name: "WarehouseSelectionField",
-    components: {WarehouseSelect},
+    components: {WarehouseSelect, FgField},
     emits: ["update:modelValue"],
     props: {
         id: {type: String, required: true},

@@ -1,31 +1,29 @@
 
 import {navbarItem} from "@System/Layout/Menu.js";
-import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import * as Numbers from "../../../../Shared/Numbers.js";
 import * as StockStatus from "../../../../Shared/StockStatus.js";
-import SearchButton from "@/Shared/SearchButton.vue";
-import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import ProductSelect from "@System/Components/Generics/ProductSelect.vue";
 import QuickCreateTrigger from "@System/Components/Generics/QuickCreateTrigger.vue";
 import QuantityValue from "@System/Components/Generics/QuantityValue.vue";
-import SearchInput from "@System/Components/Generics/SearchInput.vue";
 import TemplateFilePicker from "@System/Components/Generics/TemplateFilePicker.vue";
 import WarehouseSelect from "@System/Components/Generics/WarehouseSelect.vue";
-import InventorySkeleton from "./InventorySkeleton.vue";
+import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import InventoryListing from "./InventoryListing.vue";
+import {inventoryBadgeTones, inventoryFilters, inventoryProductPlaceholder, inventoryViews} from "./inventoryPresentation.js";
 import KardexMovementDetails from "./KardexMovementDetails.vue";
-import StockAdvancedFilters from "./StockAdvancedFilters.vue";
 import StockAlertsModal from "./StockAlertsModal.vue";
 import StockDifference from "./StockDifference.vue";
 import StockItemEditor from "./StockItemEditor.vue";
 import StockTraceabilityModal from "./StockTraceabilityModal.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
-import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
 
 const STOCK_PAGE_SIZE = 10;
 const DEFAULT_TRANSFER_STATUS = "awaiting_dispatch";
@@ -44,14 +42,6 @@ const TRANSFER_REASON_OPTIONS = [
     {label: "Liberación de espacio", text: "Reubicar productos para liberar espacio en el almacén de origen y facilitar sus operaciones."},
     {label: "Control de calidad", text: "Enviar productos al almacén habilitado para su inspección y control de calidad."},
     {label: "Productos próximos a vencer", text: "Trasladar productos próximos a vencer a un almacén con mayor rotación para priorizar su salida."}
-];
-
-const VIEWS = [
-    {code: "stock", title: "Control de stock"},
-    {code: "kardex", title: "Kardex"},
-    {code: "transfers", title: "Traslados"},
-    {code: "valued", title: "Kardex valorizado"},
-    {code: "guides", title: "Guías"}
 ];
 
 const VIEW_MENU_MAP = {
@@ -131,31 +121,18 @@ const INVENTORY_OPERATION_OPTIONS = INVENTORY_OPERATION_GROUPS.flatMap(group => 
 ]);
 
 export default {
-    components: {ActionsDropdown, InitialLoadTransition, ClearFiltersButton, FormModal, ProductIdentity, ProductSelect, QuickCreateTrigger, QuantityValue, SearchButton, SearchInput, TemplateFilePicker, WarehouseSelect, InventorySkeleton, KardexMovementDetails, StockAdvancedFilters, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
+    components: {FgButton, FgField, FgSelect, FormModal, InventoryListing, ProductIdentity, ProductSelect, QuickCreateTrigger, QuantityValue, TemplateFilePicker, WarehouseSelect, KardexMovementDetails, StockAlertsModal, StockDifference, StockItemEditor, StockTraceabilityModal, TableActionsDropdown},
     props: {
         page: {
             type: String,
             required: true,
-            validator: value => VIEWS.some(view => view.code === value)
+            validator: value => Object.hasOwn(inventoryViews, value)
         }
     },
     async mounted() {
         navbarItem("menu-parent-items", {addClass: "open"});
         navbarItem(this.activeMenuId(), {});
-        let initialized;
-        try {
-            initialized = await this.initParams();
-        } finally {
-            this.initialLoading = false;
-        }
-
-        if(initialized && this.activeView === "transfers") {
-            await this.listCurrentView({});
-        }else if(initialized && this.realWarehouses.length) {
-            this.filters.warehouse = this.realWarehouses[0];
-            this.appliedFilters = {...this.filters};
-            await this.listCurrentView({});
-        }
+        await this.loadInventory();
     },
     beforeUnmount() {
         this.traceabilityRequest += 1;
@@ -166,6 +143,8 @@ export default {
         return {
             activeView: this.page,
             initialLoading: true,
+            initializationFailed: false,
+            listError: "",
             loadingStock: false,
             loadingKardex: false,
             loadingTransfers: false,
@@ -237,7 +216,7 @@ export default {
                 entity: {
                     ...Requests.config({entity: "stocks_management"}),
                     page: {
-                        title: VIEWS.find(view => view.code === this.page)?.title || "Inventario",
+                        title: inventoryViews[this.page]?.title || "Inventario",
                         active: true,
                         menu: {id: VIEW_MENU_MAP[this.page]}
                     }
@@ -246,6 +225,32 @@ export default {
         };
     },
     methods: {
+        async loadInventory() {
+            this.initialLoading = true;
+            this.listError = "";
+            let initialized;
+            try {
+                initialized = await this.initParams();
+            } finally {
+                this.initialLoading = false;
+            }
+
+            this.initializationFailed = !initialized;
+            if(!initialized) {
+                this.listError = "No se pudieron cargar los parámetros de Inventario.";
+                return;
+            }
+            if(this.activeView === "transfers") {
+                await this.listCurrentView({});
+            }else if(this.realWarehouses.length) {
+                this.filters.warehouse = this.realWarehouses[0];
+                this.appliedFilters = {...this.filters};
+                await this.listCurrentView({});
+            }
+        },
+        retryInventoryList() {
+            return this.initializationFailed ? this.loadInventory() : this.listCurrentView({});
+        },
         activeMenuId() {
             return VIEW_MENU_MAP[this.activeView] || VIEW_MENU_MAP.stock;
         },
@@ -274,6 +279,7 @@ export default {
             const situation = this.appliedFilters.stockSituation?.code || "";
 
             this.loadingStock = true;
+            this.listError = "";
 
             try {
                 this.stockRecords = Requests.emptyPagination();
@@ -292,6 +298,7 @@ export default {
                 if(requestVersion !== this.requestVersion) return;
 
                 this.stockRecords = result?.bool ? result.data : Requests.emptyPagination();
+                if(!result?.bool) this.listError = "No se pudieron consultar las existencias del almacén.";
             } finally {
                 if(requestVersion === this.requestVersion) this.loadingStock = false;
             }
@@ -447,6 +454,7 @@ export default {
             const filters = this.currentReportFilters();
 
             this.loadingKardex = true;
+            this.listError = "";
 
             try {
                 this.kardexRecords = Requests.emptyPagination();
@@ -459,6 +467,7 @@ export default {
                 if(requestVersion !== this.requestVersion) return;
 
                 this.kardexRecords = result?.bool ? result.data : Requests.emptyPagination();
+                if(!result?.bool) this.listError = "No se pudieron consultar los movimientos del almacén.";
             } finally {
                 if(requestVersion === this.requestVersion) this.loadingKardex = false;
             }
@@ -475,6 +484,7 @@ export default {
             };
 
             this.loadingGuides = true;
+            this.listError = "";
 
             try {
                 this.guideRecords = Requests.emptyPagination();
@@ -487,6 +497,7 @@ export default {
                 if(requestVersion !== this.requestVersion) return;
 
                 this.guideRecords = result?.bool ? result.data : Requests.emptyPagination();
+                if(!result?.bool) this.listError = "No se pudieron consultar las guías del almacén.";
             } finally {
                 if(requestVersion === this.requestVersion) this.loadingGuides = false;
             }
@@ -494,6 +505,7 @@ export default {
         async listTransfers({url = null} = {}) {
             const requestVersion = ++this.requestVersion;
             this.loadingTransfers = true;
+            this.listError = "";
             this.transferRecords = Requests.emptyPagination();
 
             try {
@@ -503,7 +515,9 @@ export default {
                     showAlert: true
                 });
 
-                if(requestVersion === this.requestVersion && result?.bool) this.transferRecords = result.data;
+                if(requestVersion !== this.requestVersion) return;
+                if(result?.bool) this.transferRecords = result.data;
+                else this.listError = "No se pudieron consultar los traslados.";
             } finally {
                 if(requestVersion === this.requestVersion) this.loadingTransfers = false;
             }
@@ -537,7 +551,7 @@ export default {
         },
         focusProductSearch() {
             this.$nextTick(() => {
-                this.$refs.productSearch?.focus();
+                this.$refs.inventoryListing?.focusProductSearch();
             });
         },
         invalidateListing() {
@@ -902,7 +916,7 @@ export default {
             Alerts.swals({show: false});
 
             if(Requests.valid({result})) {
-                this.$refs.closeMovementModal?.click();
+                Alerts.modals({type: "hide", id: "inventoryMovementModal"});
                 Alerts.generateAlert({type: "success", msgContent: result.data.msg});
                 await this.listStock({});
                 return;
@@ -1050,7 +1064,7 @@ export default {
             Alerts.swals({show: false});
 
             if(Requests.valid({result})) {
-                this.$refs.closeTransferModal?.click();
+                Alerts.modals({type: "hide", id: "inventoryTransferModal"});
                 Alerts.generateAlert({type: "success", msgContent: result.data.msg});
                 this.prepareTransfer();
                 await this.listCurrentView({});
@@ -1069,7 +1083,7 @@ export default {
         stockStatus(record) {
             const {stock_quantity: stock, minimum_stock: minimum} = record;
             const code = StockStatus.fromLevels(stock, minimum);
-            return {label: StockStatus.labels[code], cellClass: `br-inventory__situation--${code}`};
+            return {label: StockStatus.labels[code], tone: inventoryBadgeTones[code]};
         },
         movementTypeLabel(type) {
             return MOVEMENT_TYPES.find(record => record.code === type)?.label || type;
@@ -1121,20 +1135,14 @@ export default {
         }
     },
     computed: {
-        productSearchPlaceholder: () => "Buscar producto o escanear código",
-        breadcrumbTitles() {
-            return [{title: "Catálogo e inventario"}, this.config.entity.page];
-        },
+        productSearchPlaceholder: () => inventoryProductPlaceholder,
         currentView() {
-            return VIEWS.find(view => view.code === this.activeView) || VIEWS[0];
+            return inventoryViews[this.activeView] || inventoryViews.stock;
         },
-        isReportView() {
-            return ["kardex", "valued", "guides"].includes(this.activeView);
-        },
-        contextActionColumns() {
-            if(this.isReportView) return "col-12 col-md-6 col-lg-3 col-xl-3";
-
-            return "col-12 col-md-6 col-lg-9 col-xl-9";
+        listingOptions() {
+            return Object.fromEntries(inventoryFilters[this.page]
+                .filter(field => field.options)
+                .map(field => [field.options, this[field.options]]));
         },
         warehouses() {
             return (this.options.warehouses || []).map(record => ({

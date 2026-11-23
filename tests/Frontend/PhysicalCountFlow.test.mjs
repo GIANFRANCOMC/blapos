@@ -15,17 +15,17 @@ test("toma física descarga plantilla y revisa el archivo antes de guardar", () 
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const alerts = read("resources/js/System/Helpers/Alerts.js");
     const picker = read("resources/js/System/Components/Generics/TemplateFilePicker.vue");
-    const pickerStyles = read("resources/css/System/br-branding/30-modals-fields-forms.css");
-    const inventoryStyles = read("resources/css/System/br-branding/82-inventory.css");
+    const pickerStyles = read("resources/css/System/fg/components.css");
+    const inventoryStyles = read("resources/css/System/fg/inventory.css");
 
     assert.match(page, /Productos incluidos[\s\S]*?<TemplateFilePicker[\s\S]*?id="operationFile"[\s\S]*?@download="downloadOperationTemplate"[\s\S]*?@select="previewOperation"/);
-    assert.match(page, /máximo 100 productos\./);
+    assert.match(page, /Máximo 100 productos\./);
     assert.doesNotMatch(page, /Completa Saldo contado en la plantilla\./);
-    assert.match(inventoryStyles, /\.br-inventory-operation__template \{[\s\S]*?margin-bottom: 0\.45rem;/);
+    assert.match(inventoryStyles, /\.fg-inventory-section-actions \{[^}]*flex-wrap: wrap;/);
     assert.match(page, /this\.previewingOperation = true;\s*Alerts\.loading\(\{message: "Procesando plantilla"\}\);[\s\S]*?Requests\.post\([\s\S]*?Alerts\.close\(\)/);
     assert.match(page, /async downloadOperationTemplate\(\) \{[\s\S]*?Alerts\.loading\(\{message: "Generando y descargando plantilla"\}\);[\s\S]*?Requests\.download\([\s\S]*?finally \{[\s\S]*?Alerts\.close\(\);/);
     assert.match(page, /:busy="previewingOperation \|\| downloadingOperation"/);
-    assert.match(picker, /br-template-file-picker__name[\s\S]*?Descargar plantilla[\s\S]*?aria-label="Subir plantilla"[\s\S]*?Subir plantilla/);
+    assert.match(picker, /fg-import__filename[\s\S]*?Descargar plantilla[\s\S]*?aria-label="Subir plantilla"[\s\S]*?Subir plantilla/);
     assert.match(picker, /const file = event\.target\.files\?\.\[0\];[\s\S]*?event\.target\.value = "";[\s\S]*?\$emit\("select", file\)/);
     assert.doesNotMatch(page, /Archivo de toma física<\/label>/);
     assert.match(page, /result\.data\.data\.items[\s\S]*?this\.movementForm\.items = importedItems\.map/);
@@ -35,7 +35,7 @@ test("toma física descarga plantilla y revisa el archivo antes de guardar", () 
     assert.match(alerts, /export async function confirmAction\(/);
     assert.match(alerts, /export function showMessage\([\s\S]*?title,[\s\S]*?text,[\s\S]*?icon: type/);
     assert.doesNotMatch(page, /placeholder="Describe por qué se realiza esta operación"/);
-    assert.match(pickerStyles, /br-template-file-picker__action:hover,[\s\S]*?text-decoration: none;/);
+    assert.match(pickerStyles, /\.fg-button \{[^}]*text-decoration: none;/);
     assert.match(page, /async saveMovement\(\)[\s\S]*?origin_type: operation\?\.originType/);
     assert.match(routes, /operations\/template[\s\S]*?operations\/preview/);
     assert.match(requestRoutes, /operationTemplate: "operations\/template"[\s\S]*?operationPreview: "operations\/preview"/);

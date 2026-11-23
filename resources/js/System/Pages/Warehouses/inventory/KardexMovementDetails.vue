@@ -1,30 +1,33 @@
 <template>
     <div>
-        <div class="br-kardex-movement__heading">
+        <div class="fg-inventory-movement">
             <time v-if="dateLabel" :datetime="movement.created_at">{{ dateLabel }}</time>
-            <span :class="['br-inventory-movement', `is-${movement.movement_type}`]">{{ typeLabel }}</span>
+            <span :class="['fg-badge', 'fg-badge--' + inventoryBadgeTones[movement.movement_type]]">{{ typeLabel }}</span>
         </div>
-        <span class="br-inventory__meta">
+        <span class="fg-table-note">
             <template v-if="originLabel">
                 <span class="visually-hidden">Origen:</span>
                 {{ originLabel }} <span aria-hidden="true">·</span>
             </template>
             {{ authorLabel }}
         </span>
-        <span v-if="distinctReason || movement.reference" class="br-inventory__meta">
+        <span v-if="distinctReason || movement.reference" class="fg-table-note">
             <template v-if="distinctReason">
-                <span class="colon-at-end">Motivo</span> {{ distinctReason }}
+                Motivo: {{ distinctReason }}
             </template>
             <template v-if="movement.reference">
                 <span v-if="distinctReason" aria-hidden="true"> · </span>
-                <span class="colon-at-end">Referencia</span> {{ movement.reference }}
+                Referencia: {{ movement.reference }}
             </template>
         </span>
     </div>
 </template>
 
 <script>
+import {inventoryBadgeTones} from "./inventoryPresentation.js";
+
 export default {
+    data: () => ({inventoryBadgeTones}),
     name: "KardexMovementDetails",
     props: {
         movement: {type: Object, required: true},

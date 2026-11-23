@@ -1,526 +1,197 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
-
-    <InitialLoadTransition>
-        <InventorySkeleton v-if="initialLoading" :page="page"/>
-
-        <section v-else class="br-inventory">
-            <div class="row align-items-end g-3 br-inventory__context">
-                <div v-for="[field, label] in transferWarehouseFilters" :key="field" class="col-12 col-sm-6 col-lg-3 br-inventory__warehouse">
-                    <label :for="`transferFilter-${field}`" class="form-label">{{ label }}</label>
-                    <WarehouseSelect
-                        :id="`transferFilter-${field}-select`"
-                        :input-id="`transferFilter-${field}`"
-                        v-model="filters[field]"
-                        :options="transferWarehouseOptions"
-                        :disabled="isCurrentViewLoading"
-                        :clearable="false"
-                        :select-class="config.forms.classes.select2"/>
-                </div>
-
-                <SearchInput
-                    v-model.trim="filters.transferReference"
-                    hasDiv
-                    title="Referencia"
-                    :titleClass="[config.forms.classes.title]"
-                    placeholder="Buscar referencia"
-                    maxlength="40"
-                    :inputClass="['form-control']"
-                    :disabled="isCurrentViewLoading"
-                    xl="2"
-                    lg="2"
-                    md="6"
-                    sm="6"/>
-
-                <div class="col-12 col-sm-6 col-lg-2">
-                    <label for="inventoryDateFrom" class="form-label">Desde</label>
-                    <input id="inventoryDateFrom" v-model="filters.dateFrom" type="date" class="form-control"
-                        :disabled="isCurrentViewLoading">
-                </div>
-
-                <div class="col-12 col-sm-6 col-lg-2">
-                    <label for="inventoryDateTo" class="form-label">Hasta</label>
-                    <input id="inventoryDateTo" v-model="filters.dateTo" type="date" class="form-control"
-                        :disabled="isCurrentViewLoading">
-                </div>
-
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <label for="transferUserFilter" class="form-label">Registrado por</label>
-                    <v-select id="transferUserFilter" v-model="filters.movementUser" :options="movementUsers"
-                        :class="config.forms.classes.select2" :disabled="isCurrentViewLoading"
-                        :clearable="false"/>
-                </div>
-
-                <SearchInput
-                    ref="productSearch"
-                    v-model.trim="filters.productSearch"
-                    hasDiv
-                    title="Producto"
-                    :titleClass="[config.forms.classes.title]"
-                    :placeholder="productSearchPlaceholder"
-                    :inputClass="['form-control']"
-                    :disabled="isCurrentViewLoading"
-                    xl="3"
-                    lg="3"
-                    md="6"
-                    sm="6"/>
-
-                <div class="col-12 col-sm-6 col-lg-2">
-                    <label for="transferStatusFilter" class="form-label">Estado del traslado</label>
-                    <v-select id="transferStatusFilter" v-model="filters.transferStatus" :options="transferStatusFilters"
-                        :class="config.forms.classes.select2" :disabled="isCurrentViewLoading"
-                        :clearable="false" :searchable="false"/>
-                </div>
-
-                <div class="col-auto flex-grow-1 d-flex flex-wrap align-items-end gap-2">
-                    <div class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2">
-                        <SearchButton
-                            class="br-btn-sm"
-                            :disabled="isCurrentViewLoading"
-                            @click="searchCurrentView"/>
-                        <ClearFiltersButton
-                            :disabled="isCurrentViewLoading"
-                            @clear="clearFilters"/>
-                        <ActionsDropdown :disabled="isCurrentViewLoading">
-                            <li>
-                                <button type="button" class="dropdown-item" :disabled="isCurrentViewLoading || exporting" @click="exportCurrentView">
-                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                    <span>Descargar Excel</span>
-                                </button>
-                            </li>
-                        </ActionsDropdown>
-                    </div>
-                    <div v-if="canOperateTransfers" class="br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2 ms-auto">
-                        <span class="vr align-self-center" aria-hidden="true"></span>
-                        <button
-                            type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
-                            :disabled="isCurrentViewLoading"
-                            data-bs-toggle="modal"
-                            data-bs-target="#inventoryTransferModal"
-                            @click="prepareTransfer">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Registrar traslado</span>
+    <InventoryListing ref="inventoryListing" :page="page" v-model:filters="filters" :options="listingOptions"
+        :initial-loading="initialLoading" :loading="isCurrentViewLoading" :records="currentRecords"
+        :exporting="exporting" :applied-warehouse="Boolean(appliedFilters.warehouse?.code)" :error="listError"
+        @search="searchCurrentView" @clear="clearFilters" @export="exportCurrentView" @page="listCurrentView" @retry="retryInventoryList">
+        <template #actions>
+            <FgButton v-if="canOperateTransfers" icon="fa-solid fa-plus" :disabled="initialLoading || isCurrentViewLoading" data-bs-toggle="modal" data-bs-target="#inventoryTransferModal" @click="prepareTransfer">Registrar traslado</FgButton>
+        </template>
+        <tr v-for="transfer in transferRecords.data" :key="transfer.id">
+            <td class="fg-align-center fg-inventory-reference">{{ transfer.reference }}</td>
+            <td class="fg-align-end">
+                <span>{{ transfer.source_warehouse?.branch?.name || transfer.source_warehouse?.name || "Almacén no visible" }}</span>
+                <span v-if="transfer.source_warehouse?.branch?.name" class="fg-table-note">{{ transfer.source_warehouse.name }}</span>
+            </td>
+            <td class="px-0">
+                <span class="fg-transfer-direction mx-auto">
+                    <i class="fa-solid fa-right-long fa-lg lh-1" aria-hidden="true"></i>
+                    <span class="fg-transfer-count" tabindex="0" data-bs-toggle="tooltip"
+                        :title="`${transfer.items_count} ${Number(transfer.items_count) === 1 ? 'producto' : 'productos'}`">
+                        <span class="visually-hidden">Productos incluidos: </span>{{ transfer.items_count }}
+                    </span>
+                </span>
+            </td>
+            <td>
+                <span>{{ transfer.destination_warehouse?.branch?.name || transfer.destination_warehouse?.name || "Almacén no visible" }}</span>
+                <span v-if="transfer.destination_warehouse?.branch?.name" class="fg-table-note">{{ transfer.destination_warehouse.name }}</span>
+            </td>
+            <td class="text-start">
+                <span class="d-flex align-items-center gap-1">
+                    <i class="fa-regular fa-calendar fg-help" tabindex="0" role="img" aria-label="Fecha de registro"
+                        title="Fecha de registro" data-bs-toggle="tooltip"></i>
+                    <span>{{ formatTransferDate(transfer.created_at) }}</span>
+                </span>
+                <span class="fg-table-note d-flex align-items-center gap-1">
+                    <i class="fa-regular fa-user" tabindex="0" role="img" aria-label="Registrado por"
+                        title="Registrado por" data-bs-toggle="tooltip"></i>
+                    <span>{{ transfer.user?.name || "Proceso del sistema" }}</span>
+                </span>
+            </td>
+            <td class="fg-align-center">
+                <span :class="['fg-badge', `fg-badge--${transferStatusInfo(transfer.status).tone}`]">{{ transferStatusInfo(transfer.status).label }}</span>
+            </td>
+            <td class="fg-align-center">
+                <TableActionsDropdown :label="`Acciones de ${transfer.reference}`">
+                    <li>
+                        <button type="button" class="fg-menu__item" data-bs-toggle="modal" data-bs-target="#inventoryTransferDetailModal" @click="loadTransferDetail(transfer.id)">
+                            <span>Ver detalle</span>
                         </button>
-                    </div>
+                    </li>
+                </TableActionsDropdown>
+            </td>
+        </tr>
+    </InventoryListing>
+
+    <FormModal modal-id="inventoryTransferModal" title="Registrar traslado" modal-class="fg-inventory-dialog" modal-size="modal-lg"
+        :keyboard="false" :show-submit="false" :close-disabled="savingTransfer" @hidden="resetOptions('items')">
+        <template #body>
+            <div class="fg-stack">
+                <div class="fg-section-heading"><h3 class="fg-section-title">Datos del traslado</h3><span class="fg-help"><span class="fg-required">*</span> Obligatorios</span></div>
+                <div class="fg-transfer-route">
+                    <WarehouseSelectionField id="transferSource" v-model="transferForm.source" :summarize-selection="false"
+                        label="Almacén de origen" :options="realWarehouses" placeholder="Selecciona el almacén que envía"
+                        :disabled="savingTransfer" :error="firstError(transferErrors.source_warehouse_id)" required/>
+                    <span class="fg-transfer-direction" aria-hidden="true"><i class="fa-solid fa-right-long"></i></span>
+                    <WarehouseSelectionField id="transferDestination" v-model="transferForm.destination" :summarize-selection="false"
+                        label="Almacén de destino" :options="destinationWarehouses" placeholder="Selecciona el almacén que recibe"
+                        :disabled="savingTransfer || !transferForm.source?.code" :error="firstError(transferErrors.destination_warehouse_id)" required/>
+                    <FgField label="Estado del traslado" input-id="transferFormStatus" :error="transferErrors.status"
+                        :help="transferForm.status === 'in_transit' ? 'Se descontará el stock del origen.' : 'El stock saldrá al confirmar el envío.'">
+                        <FgSelect v-model="transferForm.status" :options="transferRegistrationStatuses" :reduce="status => status.code"
+                            :get-option-key="status => status.code" :clearable="false" :searchable="false" :disabled="savingTransfer"/>
+                    </FgField>
                 </div>
-            </div>
 
-            <div class="br-inventory__workspace">
-                <section class="br-inventory__content">
-                    <div  class="br-inventory-transfer">
-                        <Teleport to="body">
-                            <div
-                                id="inventoryTransferModal"
-                                class="modal fade br-entity-modal br-modal-standard"
-                                data-bs-backdrop="static"
-                                data-bs-keyboard="false"
-                                tabindex="-1"
-                                aria-labelledby="inventoryTransferModalTitle"
-                                aria-hidden="true"
-                                v-on="{ 'hidden.bs.modal': () => resetOptions('items') }">
-                                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-                                    <div class="modal-content">
-                                        <div class="modal-header br-entity-modal__header">
-                                            <h2 id="inventoryTransferModalTitle" class="modal-title br-entity-modal__title">
-                                                REGISTRAR TRASLADO
-                                            </h2>
-                                            <button
-                                                type="button"
-                                                class="br-modal-close"
-                                                :disabled="savingTransfer"
-                                                data-bs-dismiss="modal"
-                                                aria-label="Cerrar">
-                                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-
-                                        <div class="modal-body br-entity-modal__body br-inventory-transfer__body">
-                                            <div class="row g-3 br-inventory-transfer__config">
-                                                <div class="col-12 col-md-10">
-                                                    <div class="br-inventory-operation__config br-inventory-transfer__route-fields">
-                                                        <WarehouseSelectionField
-                                                            id="transferSource"
-                                                            v-model="transferForm.source"
-                                                            :summarize-selection="false"
-                                                            class="br-inventory-transfer__warehouse"
-                                                            label="Almacén de origen"
-                                                            :options="realWarehouses"
-                                                            :select-class="config.forms.classes.select2"
-                                                            placeholder="Selecciona el almacén que envía"
-                                                            :disabled="savingTransfer"
-                                                            :error="firstError(transferErrors.source_warehouse_id)"
-                                                            required
-                                                            append-to-body/>
-
-                                                        <span class="br-inventory-transfer__direction" aria-hidden="true">
-                                                            <i class="fa-solid fa-right-long fa-lg lh-1"></i>
-                                                        </span>
-
-                                                        <WarehouseSelectionField
-                                                            id="transferDestination"
-                                                            v-model="transferForm.destination"
-                                                            :summarize-selection="false"
-                                                            class="br-inventory-transfer__warehouse"
-                                                            label="Almacén de destino"
-                                                            :options="destinationWarehouses"
-                                                            :select-class="config.forms.classes.select2"
-                                                            :disabled="savingTransfer || !transferForm.source?.code"
-                                                            placeholder="Selecciona el almacén que recibe"
-                                                            :error="firstError(transferErrors.destination_warehouse_id)"
-                                                            required
-                                                            append-to-body/>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12 col-md-2 br-inventory-transfer__form-status">
-                                                    <label for="transferFormStatus" class="form-label">Estado del traslado</label>
-                                                    <v-select id="transferFormStatus" v-model="transferForm.status" :options="transferRegistrationStatuses"
-                                                        :reduce="status => status.code" :class="config.forms.classes.select2"
-                                                        :get-option-key="status => status.code"
-                                                        :clearable="false" :searchable="false" :disabled="savingTransfer" append-to-body>
-                                                        <template #selected-option="status">
-                                                            <span class="br-select-selected-text" :title="status.label">{{ status.label }}</span>
-                                                        </template>
-                                                        <template #option="status">
-                                                            <span class="br-select-option-text">{{ status.label }}</span>
-                                                        </template>
-                                                    </v-select>
-                                                    <small v-if="transferErrors.status" class="text-danger">{{ firstError(transferErrors.status) }}</small>
-                                                    <small v-else class="br-inventory__meta">{{ transferForm.status === 'in_transit' ? 'Se descontará el stock del origen.' : 'El stock saldrá al confirmar el envío.' }}</small>
-                                                </div>
-
-                                                <div v-if="canConfigureTransfer" class="col-12 br-inventory-transfer__reason">
-                                                    <QuickCreateTrigger
-                                                        mode="icon"
-                                                        title="Motivos frecuentes"
-                                                        icon="fa-solid fa-arrow-up-right-from-square"
-                                                        custom-class="br-quick-create-trigger--field-label waves-effect"
-                                                        aria-haspopup="dialog"
-                                                        aria-controls="transferReasonsDialog"
-                                                        :disabled="savingTransfer"
-                                                        @click="openTransferReasons"/>
-                                                    <label for="transferReason" class="form-label colon-at-end">Motivo del traslado</label>
-                                                    <span class="text-danger ms-1 fw-bold" aria-hidden="true">*</span>
-                                                    <InputText
-                                                        id="transferReason"
-                                                        ref="transferReason"
-                                                        v-model.trim="transferForm.reason"
-                                                        :disabled="savingTransfer"
-                                                        aria-required="true"
-                                                        placeholder="Describe por qué se realiza el traslado"
-                                                        maxlength="255"
-                                                        showCharCounter
-                                                        hasTextBottom
-                                                        :textBottomInfo="transferErrors.reason || []"/>
-                                                </div>
-                                            </div>
-
-                                            <div v-if="canConfigureTransfer" class="br-inventory-operation__items br-inventory-transfer__items">
-                                                <div class="br-inventory-operation__items-header">
-                                                    <div class="br-inventory-operation__items-title">
-                                                        <span id="inventoryTransferItemsTitle" class="form-label colon-at-end">Productos incluidos</span>
-                                                        <span class="text-danger fw-bold" aria-hidden="true">*</span>
-                                                    </div>
-                                                    <small v-if="transferAvailabilityError" class="text-danger">
-                                                        No se pudo consultar el stock.
-                                                        <button type="button" class="btn btn-link p-0" @click="loadTransferAvailability(transferAvailabilityQuery)">Reintentar</button>
-                                                    </small>
-                                                    <div class="d-inline-flex align-items-center gap-2 ms-auto">
-                                                        <button
-                                                            ref="addTransferProduct"
-                                                            type="button"
-                                                            class="br-btn br-btn-xs br-btn-add-row waves-effect"
-                                                            :disabled="savingTransfer || transferForm.items.length >= 100"
-                                                            @click="addTransferItem">
-                                                            Agregar producto
+                <template v-if="canConfigureTransfer">
+                    <InputText id="transferReason" ref="transferReason" v-model.trim="transferForm.reason" title="Motivo del traslado"
+                        :disabled="savingTransfer" is-required placeholder="Describe por qué se realiza el traslado"
+                        maxlength="255" show-char-counter has-text-bottom :text-bottom-info="transferErrors.reason || []">
+                        <template #default>
+                            <QuickCreateTrigger mode="icon" title="Motivos frecuentes" icon="fa-solid fa-arrow-up-right-from-square"
+                                custom-class="fg-field__action" aria-haspopup="dialog" aria-controls="transferReasonsDialog" :disabled="savingTransfer"
+                                @click="openTransferReasons"/>
+                        </template>
+                    </InputText>
+                    <section class="fg-stack" aria-labelledby="inventoryTransferItemsTitle">
+                        <div class="fg-inventory-section-actions">
+                            <h3 id="inventoryTransferItemsTitle" class="fg-section-title">Productos incluidos <span class="fg-required" aria-hidden="true">*</span></h3>
+                            <div class="fg-inventory-dialog-actions">
+                                <button ref="addTransferProduct" type="button" class="fg-link" :disabled="savingTransfer || transferForm.items.length >= 100"
+                                    @click="addTransferItem"><i class="fa-solid fa-plus" aria-hidden="true"></i> Agregar producto</button>
+                                <button type="button" class="fg-link fg-error" :disabled="savingTransfer || !transferForm.items.length"
+                                    @click="clearTransferItems">Eliminar productos</button>
+                            </div>
+                        </div>
+                        <p v-if="transferAvailabilityError" class="fg-notice fg-notice--danger" role="alert">
+                            No se pudo consultar el stock.
+                            <button type="button" class="fg-link" @click="loadTransferAvailability(transferAvailabilityQuery)">Reintentar</button>
+                        </p>
+                        <div ref="transferItemsScroll" class="fg-table-scroll fg-table-scroll--records" role="region" aria-labelledby="inventoryTransferItemsTitle" tabindex="0">
+                            <table class="fg-table fg-inventory-items">
+                                <thead><tr>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col" class="fg-align-end">Stock disponible</th>
+                                    <th scope="col">Cantidad a trasladar</th>
+                                    <th scope="col"><span class="fg-sr-only">Quitar</span></th>
+                                </tr></thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in transferForm.items" :key="item.key">
+                                        <td>
+                                            <ProductSelect v-model="item.product" :disabled="savingTransfer" :options="transferProductOptions(item.product)"
+                                                :loading="remoteOptions.items.loading" :placeholder="productSearchPlaceholder" :aria-label="`Producto ${index + 1}`"
+                                                remote summarize-selection @open="openTransferProductOptions" @search="searchOptions('items', $event)">
+                                                <template #no-options>
+                                                    {{ remoteOptions.items.loading ? 'Buscando productos…' : remoteOptions.items.error ? 'No se pudieron consultar los productos.' : 'Sin productos para esta búsqueda.' }}
+                                                </template>
+                                                <template #list-footer>
+                                                    <li v-if="remoteOptions.items.hasMore || remoteOptions.items.error" class="p-2">
+                                                        <button type="button" class="fg-link" :disabled="remoteOptions.items.loading" @mousedown.prevent
+                                                            @click.stop="loadOptions('items', remoteOptions.items.page + 1)">
+                                                            {{ remoteOptions.items.error ? 'Reintentar consulta' : 'Cargar más productos' }}
                                                         </button>
-                                                        <button
-                                                            type="button"
-                                                            class="br-btn br-btn-xs br-btn-danger waves-effect"
-                                                            :disabled="savingTransfer || !transferForm.items.length"
-                                                            @click="clearTransferItems">
-                                                            Eliminar productos
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="table-responsive br-inventory-operation__table-wrap br-inventory-transfer__table-scroll"
-                                                    ref="transferItemsScroll"
-                                                    role="region"
-                                                    aria-labelledby="inventoryTransferItemsTitle"
-                                                    tabindex="0">
-                                                    <table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">
-                                                        <thead class="br-table-header-surface">
-                                                            <tr>
-                                                                <th scope="col">Producto</th>
-                                                                <th scope="col">Stock disponible</th>
-                                                                <th scope="col">Cantidad a trasladar</th>
-                                                                <th scope="col"><span class="visually-hidden">Quitar</span></th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr v-for="(item, index) in transferForm.items" :key="item.key">
-                                                                <td>
-                                                                    <ProductSelect
-                                                                        v-model="item.product"
-                                                                        :disabled="savingTransfer"
-                                                                        :options="transferProductOptions(item.product)"
-                                                                        :select-class="config.forms.classes.select2"
-                                                                        :loading="remoteOptions.items.loading"
-                                                                        :placeholder="productSearchPlaceholder"
-                                                                        remote
-                                                                        summarize-selection
-                                                                        @open="openTransferProductOptions"
-                                                                        @search="searchOptions('items', $event)">
-                                                                        <template #no-options>
-                                                                            {{ remoteOptions.items.loading ? 'Buscando productos…' : remoteOptions.items.error ? 'No se pudieron consultar los productos.' : 'Sin productos para esta búsqueda.' }}
-                                                                        </template>
-                                                                        <template #list-footer>
-                                                                            <li v-if="remoteOptions.items.hasMore || remoteOptions.items.error" class="px-2 py-1">
-                                                                                <button
-                                                                                    type="button"
-                                                                                    class="btn btn-link btn-sm w-100 text-start waves-effect"
-                                                                                    :disabled="remoteOptions.items.loading"
-                                                                                    @mousedown.prevent
-                                                                                    @click.stop="loadOptions('items', remoteOptions.items.page + 1)">
-                                                                                    {{ remoteOptions.items.error ? 'Reintentar consulta' : 'Cargar más productos' }}
-                                                                                </button>
-                                                                            </li>
-                                                                        </template>
-                                                                    </ProductSelect>
-                                                                    <small v-if="transferItemError(index, 'item_id')" class="text-danger">
-                                                                        {{ transferItemError(index, "item_id") }}
-                                                                    </small>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <QuantityValue
-                                                                        v-if="item.product && transferAvailability[item.product.code] != null"
-                                                                        class="text-nowrap"
-                                                                        :value="transferAvailability[item.product.code]"
-                                                                        :unit="item.product"/>
-                                                                    <small v-else-if="item.product && loadingTransferAvailability" class="text-muted">Consultando…</small>
-                                                                    <span v-else class="text-muted" aria-label="Stock disponible no informado">—</span>
-                                                                </td>
-                                                                <td>
-                                                                    <InputNumber
-                                                                        v-model="item.quantity"
-                                                                        :hasNegative="false"
-                                                                        :disabled="savingTransfer"
-                                                                        hasTextBottom
-                                                                        :text-bottom-info="transferQuantityErrors(item, index)"
-                                                                        @input="clearTransferQuantityError(index)"
-                                                                        :aria-label="item.product?.unitAbbreviation ? `Cantidad a trasladar (${item.product.unitAbbreviation})` : 'Cantidad a trasladar'">
-                                                                        <template #inputGroupAppend>
-                                                                            <span
-                                                                                v-if="item.product?.unitAbbreviation"
-                                                                                class="input-group-text br-input-unit-suffix"
-                                                                                aria-hidden="true">{{ item.product.unitAbbreviation }}</span>
-                                                                        </template>
-                                                                    </InputNumber>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <span
-                                                                        class="br-inventory-operation__remove-help"
-                                                                        title="Quitar producto"
-                                                                        data-bs-toggle="tooltip"
-                                                                        data-bs-placement="top">
-                                                                        <button
-                                                                            type="button"
-                                                                            class="br-icon-danger-plain"
-                                                                            :disabled="savingTransfer"
-                                                                            :aria-label="`Quitar producto ${index + 1}`"
-                                                                            @click="removeTransferItem(index)">
-                                                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                                                                        </button>
-                                                                    </span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr v-if="!transferForm.items.length" class="br-table-state">
-                                                                <td colspan="4" class="text-center text-muted">Agrega un producto al traslado.</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="modal-footer br-entity-modal__footer">
-                                            <button
-                                                ref="closeTransferModal"
-                                                type="button"
-                                                class="br-btn br-btn-cancel"
-                                                :disabled="savingTransfer"
-                                                data-bs-dismiss="modal">
-                                                Cerrar
-                                            </button>
-                                            <div v-if="canConfigureTransfer" class="br-entity-modal__footer-actions">
-                                                <button
-                                                    type="button"
-                                                    class="br-btn br-btn-action-create"
-                                                    :disabled="savingTransfer || !transferForm.items.length || hasTransferQuantityOverStock"
-                                                    @click="saveTransfer">
-                                                    Guardar traslado
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </Teleport>
-
-                        <FormModal
-                            v-if="canConfigureTransfer"
-                            modal-id="transferReasonsDialog"
-                            title="Motivos frecuentes"
-                            modal-size="modal-lg"
-                            modal-class="br-modal-standard"
-                            dialog-class="modal-dialog-scrollable"
-                            :show-submit="false">
-                            <div class="table-responsive">
-                                <table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__reasons-table mb-0">
-                                    <colgroup>
-                                        <col>
-                                        <col class="br-inventory-transfer__reason-action">
-                                    </colgroup>
-                                    <thead class="br-table-header-surface">
-                                        <tr>
-                                            <th scope="col">Motivo</th>
-                                            <th scope="col">Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="option in transferReasonOptions" :key="option.label">
-                                            <td>
-                                                {{ option.label }}
-                                                <span class="br-inventory__meta">{{ option.text }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <a
-                                                    href="#transferReason"
-                                                    class="br-link"
-                                                    :aria-label="`Seleccionar ${option.label}`"
-                                                    @click.prevent="applyTransferReason(option.text)">
-                                                    <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
-                                                    <span class="ms-1">Seleccionar</span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </FormModal>
-
-                        <TransferDetailModal
-                            :transfer="selectedTransfer"
-                            :loading="loadingTransferDetail"
-                            :error="transferDetailError"
-                            :status="transferStatusInfo(selectedTransfer?.status)"
-                            :next-status="nextTransferStatus"
-                            :can-cancel="canCancelTransfer"
-                            :saving-status="savingTransferStatus"
-                            :status-error="transferStatusError"
-                            :pdf-url="selectedTransfer ? transferPdfUrl(selectedTransfer) : null"
-                            :format-date="formatTransferDate"
-                            @retry="loadTransferDetail(transferDetailId)"
-                            @advance="changeTransferStatus(nextTransferStatus)"
-                            @cancel="changeTransferStatus('canceled')"
-                            @operate="saveTransferOperation"
-                            @view-cancellation-reason="viewTransferCancellationReason"/>
-
-                        <section class="br-entity-list" aria-label="Traslados registrados" :aria-busy="loadingTransfers">
-                            <div class="table-responsive">
-                                <table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__table mb-0">
-                                    <colgroup>
-                                        <col class="br-inventory-transfer__col-reference">
-                                        <col class="br-inventory-transfer__col-source">
-                                        <col class="br-inventory-transfer__col-direction">
-                                        <col class="br-inventory-transfer__col-destination">
-                                        <col class="br-inventory-transfer__col-detail">
-                                        <col class="br-inventory-transfer__col-status">
-                                        <col class="br-entity-table__col-actions">
-                                    </colgroup>
-                                    <thead class="br-table-header-surface">
-                                        <tr>
-                                            <th scope="col">Referencia</th>
-                                            <th scope="col" class="text-end">Almacén de origen</th>
-                                            <th aria-hidden="true"></th>
-                                            <th scope="col" class="text-start">Almacén de destino</th>
-                                            <th scope="col">Detalle</th>
-                                            <th scope="col">Estado</th>
-                                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="br-table-state" v-if="loadingTransfers">
-                                            <td colspan="7" class="py-4"><Loader/></td>
-                                        </tr>
-                                        <template v-else-if="transferRecords.data.length">
-                                            <tr v-for="transfer in transferRecords.data" :key="transfer.id">
-                                                <td class="text-center br-inventory-transfer__reference">{{ transfer.reference }}</td>
-                                                <td class="text-end">
-                                                    <span>{{ transfer.source_warehouse?.branch?.name || transfer.source_warehouse?.name || "Almacén no visible" }}</span>
-                                                    <span v-if="transfer.source_warehouse?.branch?.name" class="br-inventory__meta">{{ transfer.source_warehouse.name }}</span>
-                                                </td>
-                                                <td class="px-0">
-                                                    <span class="br-inventory-transfer__direction br-inventory-transfer__direction--counted mx-auto">
-                                                        <i class="fa-solid fa-right-long fa-lg lh-1" aria-hidden="true"></i>
-                                                        <span class="br-inventory-transfer__product-count" tabindex="0" data-bs-toggle="tooltip"
-                                                            :title="`${transfer.items_count} ${Number(transfer.items_count) === 1 ? 'producto' : 'productos'}`">
-                                                            <span class="visually-hidden">Productos incluidos: </span>{{ transfer.items_count }}
-                                                        </span>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span>{{ transfer.destination_warehouse?.branch?.name || transfer.destination_warehouse?.name || "Almacén no visible" }}</span>
-                                                    <span v-if="transfer.destination_warehouse?.branch?.name" class="br-inventory__meta">{{ transfer.destination_warehouse.name }}</span>
-                                                </td>
-                                                <td class="text-start">
-                                                    <span class="d-flex align-items-center gap-1">
-                                                        <i class="fa-regular fa-calendar text-muted" tabindex="0" role="img" aria-label="Fecha de registro"
-                                                            title="Fecha de registro" data-bs-toggle="tooltip"></i>
-                                                        <span>{{ formatTransferDate(transfer.created_at) }}</span>
-                                                    </span>
-                                                    <span class="br-inventory__meta d-flex align-items-center gap-1">
-                                                        <i class="fa-regular fa-user" tabindex="0" role="img" aria-label="Registrado por"
-                                                            title="Registrado por" data-bs-toggle="tooltip"></i>
-                                                        <span>{{ transfer.user?.name || "Proceso del sistema" }}</span>
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span :class="['br-badge', `br-badge--${transferStatusInfo(transfer.status).tone}`]">{{ transferStatusInfo(transfer.status).label }}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <TableActionsDropdown :label="`Acciones de ${transfer.reference}`">
-                                                        <li>
-                                                            <button type="button" class="dropdown-item waves-effect" data-bs-toggle="modal" data-bs-target="#inventoryTransferDetailModal" @click="loadTransferDetail(transfer.id)">
-                                                                <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                                                <span>Ver detalle</span>
-                                                            </button>
-                                                        </li>
-                                                    </TableActionsDropdown>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                        <tr class="br-table-state" v-else>
-                                            <td colspan="7" class="py-4">
-                                                <WithoutData
-                                                    class="br-entity-empty-state"
-                                                    type="image"/>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
-                </section>
-
-                <Paginator :aria-label="`Paginación de ${currentView.title.toLocaleLowerCase('es')}`" :links="currentRecords.links" :pagination="currentRecords" :loading="isCurrentViewLoading" @clickPage="listCurrentView"/>
+                                                    </li>
+                                                </template>
+                                            </ProductSelect>
+                                            <small v-if="transferItemError(index, 'item_id')" class="fg-error">{{ transferItemError(index, "item_id") }}</small>
+                                        </td>
+                                        <td class="fg-align-end">
+                                            <QuantityValue v-if="item.product && transferAvailability[item.product.code] != null" class="fg-inventory-quantity"
+                                                :value="transferAvailability[item.product.code]" :unit="item.product"/>
+                                            <small v-else-if="item.product && loadingTransferAvailability" class="fg-help">Consultando…</small>
+                                            <span v-else class="fg-help" aria-label="Stock disponible no informado">—</span>
+                                        </td>
+                                        <td>
+                                            <InputNumber v-model="item.quantity" :has-negative="false" :disabled="savingTransfer" has-text-bottom
+                                                :text-bottom-info="transferQuantityErrors(item, index)" @input="clearTransferQuantityError(index)"
+                                                :aria-label="item.product?.unitAbbreviation ? `Cantidad a trasladar (${item.product.unitAbbreviation})` : 'Cantidad a trasladar'">
+                                                <template #inputGroupAppend>
+                                                    <span v-if="item.product?.unitAbbreviation" class="fg-field__prefix fg-quantity-unit" aria-hidden="true">{{ item.product.unitAbbreviation }}</span>
+                                                </template>
+                                            </InputNumber>
+                                        </td>
+                                        <td class="fg-align-center">
+                                            <FgButton tone="icon" class="fg-icon-danger" icon="fa-solid fa-trash" :disabled="savingTransfer"
+                                                :aria-label="`Quitar producto ${index + 1}`" data-bs-toggle="tooltip" title="Quitar producto" @click="removeTransferItem(index)"/>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="!transferForm.items.length" class="fg-table__state">
+                                        <td colspan="4"><p class="fg-inventory-empty-row">Agrega un producto al traslado.</p></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </template>
             </div>
-        </section>
-    </InitialLoadTransition>
+        </template>
+        <template #footer>
+            <FgButton v-if="canConfigureTransfer" :loading="savingTransfer"
+                :disabled="!transferForm.items.length || hasTransferQuantityOverStock" @click="saveTransfer">Guardar traslado</FgButton>
+        </template>
+    </FormModal>
+
+    <FormModal v-if="canConfigureTransfer" modal-id="transferReasonsDialog" title="Motivos frecuentes" modal-class="fg-inventory-dialog"
+        modal-size="modal-lg" :show-submit="false">
+        <InventoryTable :columns="transferReasonColumns" min-width="420px" scroll-records>
+            <tr v-for="option in transferReasonOptions" :key="option.label">
+                <td><span>{{ option.label }}</span><span class="fg-table-note">{{ option.text }}</span></td>
+                <td class="fg-align-center">
+                    <a href="#transferReason" class="fg-link" :aria-label="`Seleccionar ${option.label}`" @click.prevent="applyTransferReason(option.text)">
+                        <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Seleccionar
+                    </a>
+                </td>
+            </tr>
+        </InventoryTable>
+    </FormModal>
+
+    <TransferDetailModal
+        :transfer="selectedTransfer"
+        :loading="loadingTransferDetail"
+        :error="transferDetailError"
+        :status="transferStatusInfo(selectedTransfer?.status)"
+        :next-status="nextTransferStatus"
+        :can-cancel="canCancelTransfer"
+        :saving-status="savingTransferStatus"
+        :status-error="transferStatusError"
+        :pdf-url="selectedTransfer ? transferPdfUrl(selectedTransfer) : null"
+        :format-date="formatTransferDate"
+        @retry="loadTransferDetail(transferDetailId)"
+        @advance="changeTransferStatus(nextTransferStatus)"
+        @cancel="changeTransferStatus('canceled')"
+        @operate="saveTransferOperation"
+        @view-cancellation-reason="viewTransferCancellationReason"/>
+
+
 </template>
 
 <script>
@@ -529,11 +200,12 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {createOptionSearch} from "@/Shared/Options.js";
 import TransferDetailModal from "./TransferDetailModal.vue";
+import InventoryTable from "./InventoryTable.vue";
 import inventoryPage from "./inventoryState.js";
 
 export default {
     ...inventoryPage,
-    components: {...inventoryPage.components, TransferDetailModal, WarehouseSelectionField},
+    components: {...inventoryPage.components, InventoryTable, TransferDetailModal, WarehouseSelectionField},
     mixins: [createOptionSearch("items")],
     data() {
         return {
@@ -550,7 +222,7 @@ export default {
     computed: {
         ...inventoryPage.computed,
         optionOrigin: () => "inventory-transfers",
-        transferWarehouseFilters: () => [["sourceWarehouse", "Almacén de origen"], ["destinationWarehouse", "Almacén de destino"]],
+        transferReasonColumns: () => [{label: "Motivo"}, {label: "Acción", width: "130px", align: "center"}],
         transferRegistrationStatuses() {
             return this.options.transferStatuses.filter(status => status.can_register === true);
         },

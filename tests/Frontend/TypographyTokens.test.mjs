@@ -73,16 +73,16 @@ test("los roles globales tienen un Ãºnico origen y stock comparte el mismo tamaÃ
         assert.equal(count, 1, `${name} no se redefine en otra capa`);
     }
     assert.equal(definitions.get("--br-stock-quantity-font-size"), "var(--br-font-size-080)");
-    const inventory = postcss.parse(read("resources/css/System/br-branding/82-inventory.css"));
+    const inventory = postcss.parse(read("resources/css/System/fg/inventory.css"));
     let sharedRule;
     inventory.walkRules(rule => {
-        if(rule.selectors.includes("body.br-layout .br-inventory__stock-current") && rule.selectors.includes("body.br-layout .br-inventory__difference")) sharedRule = rule;
+        if(rule.selectors.includes(".fg-inventory-quantity")) sharedRule = rule;
     });
     assert.ok(sharedRule);
-    assert.equal(sharedRule.nodes.find(d => d.prop === "font-size").value, "var(--br-stock-quantity-font-size)");
+    assert.equal(sharedRule.nodes.find(d => d.prop === "font-size").value, "var(--fg-section-size)");
     for(const file of ["StockDifference.vue", "StockTraceabilityModal.vue"]) {
         const view = read("resources/js/System/Pages/Warehouses/inventory/" + file);
-        assert.match(view, /br-inventory__difference/);
+        assert.match(view, /fg-inventory-quantity/);
         assert.doesNotMatch(view, /fw-(?:bold|semibold)/);
     }
 });

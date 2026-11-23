@@ -4,6 +4,7 @@ import test from "node:test";
 
 const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
 import {parse} from "@vue/compiler-sfc";
+import {catalogColumns} from "../../resources/js/System/Components/Catalogs/catalogColumns.js";
 
 test("Productos usa skeleton solo durante initParams", () => {
     const page = readFileSync(new URL("../../resources/js/System/Pages/Catalogs/products/main.vue", import.meta.url), "utf8");
@@ -29,7 +30,7 @@ test("el skeleton de Productos conserva filtros y columnas con el loader real de
     assert.match(skeleton, /<FgSkeletonFilters[\s\S]*?fg-products-list[\s\S]*?fg-table/);
     assert.doesNotMatch(skeleton, /br-/);
     const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
-    const component = new Function("FgListLoading", "FgSkeletonFilters", script)({}, {});
+    const component = new Function("FgListLoading", "FgSkeletonFilters", "catalogColumns", script)({}, {}, catalogColumns);
     const columns = component.computed.columns.call({kind: "products"});
     assert.deepEqual(columns.map(column => column.title), ["Identificación", "Producto", "Precio", "Estado", "Acciones"]);
     assert.match(skeleton, /:colspan="columns.length"><FgListLoading/);

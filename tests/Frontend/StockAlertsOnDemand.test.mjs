@@ -190,34 +190,20 @@ test("paginar alertas conserva los filtros aplicados hasta pulsar Buscar", async
     await request.pending;
 });
 
-test("las alertas de stock se consultan solo al abrirlas y se muestran paginadas", () => {
-    const page = read("resources/js/System/Pages/Warehouses/inventory/stock.vue");
-    const state = read("resources/js/System/Pages/Warehouses/inventory/inventoryState.js");
-    const modal = read("resources/js/System/Pages/Warehouses/inventory/StockAlertsModal.vue");
-    const sharedModal = read("resources/js/System/Components/Generics/FormModal.vue");
-    const modalStyles = read("resources/css/System/br-branding/81-core-roles-entities.css");
-    const inventoryStyles = read("resources/css/System/br-branding/82-inventory.css");
+test("las alertas se consultan al abrirlas y muestran un único listado con paginación", () => {
+    const base = "resources/js/System/Pages/Warehouses/inventory/";
+    const page = read(base + "stock.vue");
+    const state = read(base + "inventoryState.js");
+    const modal = read(base + "StockAlertsModal.vue");
     const listStock = state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts("));
-
     assert.doesNotMatch(listStock, /listStockAlerts|type: "alerts"/);
-    assert.doesNotMatch(page, /openStockAlerts|br-inventory-alerts__list|Productos agotados o con stock bajo/);
-    assert.match(page, /aria-label="Ver alertas"[\s\S]*?<StockAlertsModal/);
-    const alertsButton = page.match(/<button\b[^>]*class="[^"]*\bbr-inventory__alerts-button\b[^"]*"[^>]*>[\s\S]*?<\/button>/)?.[0] ?? "";
-    assert.match(alertsButton, /\bv-tooltip\b[^>]*aria-label="Ver alertas"[^>]*title="Ver alertas"[^>]*data-bs-toggle="tooltip"/);
-    assert.match(alertsButton, /:disabled="!canViewStockAlerts"/);
-    assert.doesNotMatch(alertsButton, /data-bs-target/);
-    assert.match(alertsButton, /@click="viewStockAlerts">\s*<i class="fa-solid fa-bell fa-shake" aria-hidden="true"><\/i>\s*<\/button>/);
-    assert.match(page, /viewStockAlerts\(event\) \{\s*dismissTooltip\(event\.currentTarget\);\s*return this\.listStockAlerts\(\{showModal: true\}\);/);
-    assert.match(state, /async listStockAlerts\(\{url = null, showModal = false\} = \{\}\)[\s\S]*?type: "alerts"[\s\S]*?status: "open"/);
-    assert.match(modal, /v-for="alert in alerts\.data"[\s\S]*?alert\.warehouse_item\?\.item\?\.name/);
-    assert.match(modal, /<Paginator[\s\S]*?:links="alerts\.links"[\s\S]*?@clickPage=/);
-    assert.match(modal, /<FormModal[\s\S]*?modal-id="inventoryStockAlertsModal"[\s\S]*?title="ALERTAS DE STOCK"[\s\S]*?body-class="br-inventory-alerts__body"[\s\S]*?:show-submit="false"/);
-    assert.match(modal, /br-inventory-alerts__table-scroll[\s\S]*?<\/section>[\s\S]*?<Paginator[^>]*:pagination="alerts"/);
-    assert.match(inventoryStyles, /\.br-inventory-alerts__table-head \{[\s\S]*?overflow-y: hidden;/);
-    assert.match(inventoryStyles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;/);
-    assert.match(page, /<FormModal[\s\S]*?modal-id="inventoryMovementModal"[\s\S]*?title="REGISTRAR OPERACIÓN"[\s\S]*?dialog-class="modal-dialog-scrollable"/);
-    assert.match(page, /<template #footerClose>[\s\S]*?ref="closeMovementModal"[\s\S]*?<template #footer>[\s\S]*?Guardar operación/);
-    assert.match(sharedModal, /fg-modal__title/);
-    assert.match(modalStyles, /\.br-entity-modal \.modal-dialog-scrollable \.modal-content \{\s*overflow: hidden;/);
-    assert.match(modalStyles, /\.br-entity-modal \.modal-dialog-scrollable \.modal-body\.br-entity-modal__body \{\s*overflow-x: hidden !important;\s*overflow-y: auto !important;/);
+    const button = page.match(/<FgButton[^>]*aria-label="Ver alertas"[^>]*\/>/)?.[0] || "";
+    assert.match(button, /icon="fa-solid fa-bell fa-shake"/);
+    assert.match(button, /:disabled="initialLoading \|\| !canViewStockAlerts"/);
+    assert.match(button, /title="Ver alertas" data-bs-toggle="tooltip" @click="viewStockAlerts"/);
+    assert.doesNotMatch(button, /data-bs-target/);
+    assert.match(page, /viewStockAlerts\(event\)[\s\S]*?dismissTooltip\(event\.currentTarget\)[\s\S]*?this\.listStockAlerts\(\{showModal: true\}\)/);
+    assert.match(state, /async listStockAlerts[\s\S]*?type: "alerts"[\s\S]*?status: "open"/);
+    assert.match(modal, /<FormModal modal-id="inventoryStockAlertsModal" title="Alertas de stock"[^>]*modal-size="modal-xl"/);
+    assert.match(modal, /<InventoryTable[^>]*scroll-records[\s\S]*?v-for="alert in alerts\.data"[\s\S]*?<\/InventoryTable>\s*<Paginator[^>]*:pagination="alerts"[^>]*:loading="loading"/);
 });

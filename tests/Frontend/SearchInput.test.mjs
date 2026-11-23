@@ -64,21 +64,16 @@ test("los atributos del buscador llegan al input nativo en el único diseño glo
     assert.match(text, /<InputBase[\s\S]*?v-bind="\$attrs"/);
     assert.match(base, /name: "InputBase",\s*inheritAttrs: false/);
     assert.equal((base.match(/<input\s+ref="inputElement"\s+v-bind="\$attrs"/g) || []).length, 1);
-    assert.match(modal, /<label for="inventoryAlertProduct"[\s\S]*?<SearchInput\s+id="inventoryAlertProduct"/);
+    assert.match(modal, /<SearchInput id="inventoryAlertProduct" title="Producto"/);
 
 });
 
 test("Inventario comparte la indicación de búsqueda de productos entre listados y modales", () => {
     const inventory = "resources/js/System/Pages/Warehouses/inventory/";
-    assert.match(read(`${inventory}inventoryState.js`), /productSearchPlaceholder: \(\) => "Buscar producto o escanear código"/);
-
-    for(const name of ["stock", "transfers", "guides", "kardex", "valued-kardex"]) {
-        const page = read(`${inventory}${name}.vue`);
-        assert.match(page, /<SearchInput[^>]*v-model\.trim="filters\.productSearch"[^>]*:placeholder="productSearchPlaceholder"/, name);
-        if(name === "stock" || name === "transfers") {
-            assert.match(page, /<ProductSelect[^>]*:placeholder="productSearchPlaceholder"/, name);
-        }
-    }
+    assert.match(read(inventory + "inventoryPresentation.js"), /inventoryProductPlaceholder = "Buscar producto o escanear código"/);
+    assert.match(read(inventory + "inventoryState.js"), /productSearchPlaceholder: \(\) => inventoryProductPlaceholder/);
+    assert.match(read(inventory + "InventoryListing.vue"), /<SearchInput[\s\S]*?:placeholder="field\.placeholder"/);
+    for(const name of ["stock", "transfers"]) assert.match(read(inventory + name + ".vue"), /<ProductSelect[^>]*:placeholder="productSearchPlaceholder"/);
 });
 
 test("limpiar Producto en alertas solo actualiza el texto y devuelve el foco", () => {

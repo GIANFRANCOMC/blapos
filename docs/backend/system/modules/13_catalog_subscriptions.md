@@ -21,7 +21,7 @@ Administra ítems `subscription` que, al venderse, generan una membresía real p
 
 - El listado muestra el código interno centrado en la primera columna. La columna **Detalle** muestra una etiqueta por línea y Duración presenta el plazo de la membresía. El límite diario de asistencias se consulta en la pestaña Configuración del formulario. La etiqueta de Comisión aparece cuando se configura un porcentaje o un monto mayor que cero.
 - El editor de Duración agrupa el valor numérico y el selector de unidad a la derecha. Un solo borde y anillo de foco rodean el conjunto. La flecha del selector gira al abrir y cerrar.
-- La modal compartida usa las pestañas descriptivas Membresía y Configuración, con navegación por teclado y desplazamiento en móvil. Membresía incluye la descripción comercial, las categorías, los beneficios y las restricciones. Configuración incluye la aplicación del IGV y la visibilidad para clientes.
+- La modal compartida usa las pestañas Membresía y Configuración. Membresía incluye el precio, la aplicación del IGV, la descripción comercial, las categorías, los beneficios y las restricciones. Configuración comienza con la publicación y la visibilidad del precio. [Patrón de catálogo](../../../frontend/patrones/CATALOGO_COMERCIAL.md).
 - Los errores locales y del backend se muestran en el campo y señalan la pestaña correspondiente.
 - El formulario permite definir límite diario de asistencias, comisión y valor de comisión.
 - El campo Valor de comisión comparte `CommissionValueInput` con Productos y Servicios. Muestra `%` o el símbolo de la moneda al inicio. Para porcentaje o monto fijo muestra un asterisco y exige un valor mayor que cero. El porcentaje admite hasta 100 %.

@@ -1,260 +1,92 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgCatalogList
+        kind="brands"
+        title="Marcas"
+        singular="marca"
+        plural="marcas"
+        list-title="Marcas registradas"
+        description="Identifica las marcas que usas en tu catálogo."
+        v-model:filter-by="filterByValue"
+        v-model:word="filterWordValue"
+        :filter-options="filterByOptions"
+        :placeholder="searchPlaceholder"
+        :applied-word="entityList.appliedFilters?.word?.trim()"
+        :records="entityList.records"
+        :initial-loading="initialLoading"
+        :loading="entityList.extras.loading"
+        :exporting="isExporting"
+        :failed="listFailed"
+        @search="handleSearch"
+        @page="listEntity"
+        @retry="listEntity({})"
+        @add="openModal()"
+        @import="openImportModal"
+        @export="downloadRecords">
+        <template #row="{record}">
+            <td class="fg-align-center"><InternalCodeValue :value="record.internal_code"/></td>
+            <td>
+                <span class="fg-product-name">{{ record.name }}</span>
+                <ExpandableText v-if="record.description" :text="record.description"/>
+            </td>
+            <td class="fg-align-center">
+                <a v-if="record.website_url" class="fg-link" :href="record.website_url" target="_blank" rel="noopener noreferrer" :aria-label="`Visitar el sitio oficial de ${record.name} en una nueva pestaña`">Visitar sitio</a>
+                <span v-else class="fg-help">Sin sitio oficial</span>
+            </td>
+            <td class="fg-align-center"><CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/></td>
+            <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+            <td class="fg-align-center">
+                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                    <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar marca</button></li>
+                </TableActionsDropdown>
+            </td>
+        </template>
+    </FgCatalogList>
 
-    <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading" kind="brands" label="marcas"/>
-
-        <main v-else class="br-entity">
-            <FiltersSection
-                class="br-filter-bar--compact"
-                show-clear-button
-                :filter-by-value="filterByValue"
-                @update:filterByValue="filterByValue = $event"
-                :filter-word-value="filterWordValue"
-                @update:filterWordValue="filterWordValue = $event"
-                :filter-by-options="filterByOptions"
-                :search-placeholder="searchPlaceholder"
-                :loading="entityList.extras.loading"
-                filter-by-title="Filtrar por"
-                search-title="Búsqueda"
-                add-button-text="Agregar marca"
-                :show-add-button="true"
-                :show-download-button="true"
-                :show-import-button="true"
-                :group-secondary-actions="true"
-                import-button-text="Importar marcas"
-                download-button-text="Descargar listado en Excel"
-                :downloading="isExporting"
-                :title-class="[config.forms.classes.title]"
-                :select-class="config.forms.classes.select2"
-                @search="handleSearch"
-                @add="openModal()"
-                @import="openImportModal"
-                @download="downloadRecords"/>
-
-            <CatalogReferenceImportModal
-                ref="brandImportModal"
-                modal-id="brandImportModal"
-                resource="marcas"
-                template-file-name="plantilla_marcas.xlsx"
-                :import-route="routeActions.import"
-                :internal-code-prefix="internalCodePrefixes.brand"
-                @imported="listEntity({})"/>
-
-            <section class="br-entity-list" aria-label="Listado de marcas">
-                <ResponsiveTable>
-                    <table class="table br-entity-table br-entity-table--catalog-usage br-entity-table--commercial-headings mb-0">
-                        <colgroup>
-                            <col style="width: 20%;">
-                            <col style="width: 28%;">
-                            <col style="width: 14%;">
-                            <col style="width: 19%;">
-                            <col style="width: 11%;">
-                            <col style="width: 8%;">
-                        </colgroup>
-                        <thead class="br-table-header-surface">
-                            <tr>
-                                <th class="text-center">Código interno</th>
-                                <th>Marca</th>
-                                <th class="text-center">Sitio oficial</th>
-                                <th class="text-center">En uso</th>
-                                <th class="text-center">Estado</th>
-                                <th><span class="visually-hidden">Acciones</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="br-table-state" v-if="entityList.extras.loading">
-                                <td colspan="6" class="py-4"><Loader label="Buscando marcas…"/></td>
-                            </tr>
-                            <template v-else-if="entityList.records.total > 0">
-                                <tr v-for="record in entityList.records.data" :key="record.id">
-                                    <td class="text-center">
-                                        <InternalCodeValue :value="record.internal_code"/>
-                                    </td>
-                                    <td>
-                                        <span class="br-entity-table__name" v-text="record.name"></span>
-                                        <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <a v-if="record.website_url" class="br-link text-nowrap" :href="record.website_url" target="_blank" rel="noopener noreferrer"
-                                            :aria-label="`Visitar el sitio oficial de ${record.name} en una nueva pestaña`">
-                                            <span>Visitar sitio</span>
-                                            <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i>
-                                        </a>
-                                        <span v-else class="br-entity-table__meta mt-0">
-                                            Sin sitio oficial
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <StatusBadge
-                                            :status="record.status"
-                                            :formatted-status="record.formatted_status"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                            <li>
-                                                <button type="button" class="dropdown-item" @click="openModal(record)">
-                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                    <span>Editar marca</span>
-                                                </button>
-                                            </li>
-                                        </TableActionsDropdown>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr class="br-table-state" v-else>
-                                <td colspan="6" class="py-4">
-                                    <WithoutData
-                                        class="br-entity-empty-state"
-                                        type="image"
-                                        :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos marcas con esta búsqueda' : 'Aún no hay marcas registradas'"
-                                        :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una marca o importa un archivo para empezar.'"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </ResponsiveTable>
-            </section>
-
-            <Paginator aria-label="Paginación de marcas" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
-        </main>
-    </InitialLoadTransition>
+    <CatalogReferenceImportModal
+        ref="brandImportModal"
+        modal-id="brandImportModal"
+        resource="marcas"
+        template-file-name="plantilla_marcas.xlsx"
+        :import-route="routeActions.import"
+        :internal-code-prefix="internalCodePrefixes.brand"
+        @imported="listEntity({})"/>
 
     <FormModal
         :modal-id="brandForm.extras.modals.default.id"
         :title="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"
-        modal-class="br-record-editor"
         modal-size="modal-lg"
-        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
         :close-disabled="isSaving"
         :submit-disabled="isSaving"
         :submit-button-text="isSaving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar marca'"
         @submit="saveEntity">
         <template #body>
-                    <form @submit.prevent="saveEntity">
-                        <section class="br-entity-form-section br-form-groups">
-                            <FormGroup title="Identificación" icon="fa-solid fa-id-card" primary>
-                                <div class="row g-3">
-                                    <InputText
-                                        v-model="brandForm.data.name"
-                                        hasDiv
-                                        title="Nombre"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        maxlength="100"
-                                        showCharCounter
-                                        hasTextBottom
-                                        :textBottomInfo="brandForm.errors?.name"
-                                        xl="8"
-                                        lg="8"/>
-
-                                    <InternalCodeInput
-                                        v-model="brandForm.data.internal_code"
-                                        v-bind="internalCodeInputProps(brandForm.data)"
-                                        hasDiv
-                                        title="Código interno"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        hasTextBottom
-                                        :textBottomInfo="brandForm.errors?.internal_code"
-                                        xl="4"
-                                        lg="4">
-                                        <template v-if="!isUpdate" #inputGroupAppend>
-                                            <button
-                                                type="button"
-                                                class="br-input-action"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Generar un nuevo código interno para la marca"
-                                                aria-label="Generar un nuevo código interno para la marca"
-                                                @click="generateInternalCode($event)">
-                                                <i class="fa-solid fa-rotate" aria-hidden="true"></i>
-                                            </button>
-                                        </template>
-                                    </InternalCodeInput>
-                                </div>
-                            </FormGroup>
-
-                            <FormGroup title="Información y estado" icon="fa-solid fa-circle-info">
-                                <div class="row g-3">
-                                    <InputText
-                                        v-model="brandForm.data.description"
-                                        hasDiv
-                                        title="Descripción"
-                                        :titleClass="[config.forms.classes.title]"
-                                        maxlength="250"
-                                        showCharCounter
-                                        hasTextBottom
-                                        :textBottomInfo="brandForm.errors?.description"
-                                        xl="8"
-                                        lg="8"/>
-
-                                    <InputSlot
-                                        input-id="brand-catalog-status"
-                                        hasDiv
-                                        title="Estado"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        hasTextBottom
-                                        :textBottomInfo="brandForm.errors?.status"
-                                        xl="4"
-                                        lg="4">
-                                        <template #input>
-                                            <v-select
-                                                input-id="brand-catalog-status"
-                                                v-model="brandForm.data.status"
-                                                :options="statuses"
-                                                :class="config.forms.classes.select2"
-                                                :clearable="false"
-                                                :searchable="false"
-                                                append-to-body>
-                                                <template #selected-option="option">
-                                                    <span
-                                                        class="br-select-selected-text"
-                                                        :title="option.label"
-                                                        v-text="option.label">
-                                                    </span>
-                                                </template>
-                                                <template #option="option">
-                                                    <span
-                                                        class="br-select-option-text"
-                                                        :title="option.label"
-                                                        v-text="option.label">
-                                                    </span>
-                                                </template>
-                                            </v-select>
-                                        </template>
-                                    </InputSlot>
-
-                                    <InputText
-                                        v-model="brandForm.data.website_url"
-                                        hasDiv
-                                        title="Sitio oficial"
-                                        placeholder="https://"
-                                        :titleClass="[config.forms.classes.title]"
-                                        maxlength="500"
-                                        hasTextBottom
-                                        :textBottomInfo="brandForm.errors?.website_url"
-                                        xl="12"
-                                        lg="12"/>
-                                </div>
-                            </FormGroup>
-                        </section>
-                    </form>
+            <form class="fg-stack" @submit.prevent="saveEntity">
+                <div class="fg-section-heading"><h3 class="fg-section-title">Datos de la marca</h3><span class="fg-help"><span class="fg-required">*</span> Obligatorios</span></div>
+                <div class="fg-grid">
+                    <InternalCodeInput v-model="brandForm.data.internal_code" v-bind="internalCodeInputProps(brandForm.data)" title="Código interno" is-required show-char-counter has-text-bottom :text-bottom-info="brandForm.errors?.internal_code" :disabled="isSaving">
+                        <template v-if="!isUpdate" #action><button type="button" class="fg-link" :disabled="isSaving" title="Generar un nuevo código interno para la marca" @click="generateInternalCode($event)">Generar</button></template>
+                    </InternalCodeInput>
+                    <InputText v-model="brandForm.data.name" title="Nombre de la marca" :placeholder="placeholders.names.brand" has-text-bottom :text-bottom-info="brandForm.errors?.name" :disabled="isSaving" is-required show-char-counter maxlength="100"/>
+                </div>
+                <div class="fg-grid">
+                    <InputText v-model="brandForm.data.description" title="Descripción" :placeholder="placeholders.optional" has-text-bottom :text-bottom-info="brandForm.errors?.description" :disabled="isSaving" show-char-counter maxlength="250"/>
+                    <FgField label="Estado" required :error="brandForm.errors?.status">
+                        <FgSelect v-model="brandForm.data.status" :options="statuses" :disabled="isSaving" :clearable="false" :searchable="false"/>
+                    </FgField>
+                </div>
+                <InputText v-model="brandForm.data.website_url" title="Sitio oficial" has-text-bottom :text-bottom-info="brandForm.errors?.website_url" :disabled="isSaving" placeholder="https://" maxlength="500"/>
+            </form>
         </template>
     </FormModal>
 </template>
 
 <script>
-import FormGroup from "@/Shared/FormGroup.vue";
-import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgCatalogList from "@System/Components/Catalogs/FgCatalogList.vue";
 import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
-import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import {initCrudModule} from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -262,7 +94,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
-import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
+import {catalogFormPlaceholders} from "@System/Components/Catalogs/catalogFormPlaceholders.js";
 import CatalogUsageBreakdown from "@System/Components/Catalogs/CatalogUsageBreakdown.vue";
 import CatalogReferenceImportModal from "@System/Components/Catalogs/References/CatalogReferenceImportModal.vue";
 import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
@@ -318,17 +150,16 @@ export default {
     name: "BrandsMain",
     mixins: [InternalCodePrefixMixin],
     components: {
-        FormGroup,
-        ResponsiveTable,
+        FgSelect,
+        FgField,
+        FgCatalogList,
         InternalCodeInput,
         ExpandableText,
-        InitialLoadTransition,
         CatalogReferenceImportModal,
         CatalogUsageBreakdown,
         InternalCodeValue,
         FormModal,
         TableActionsDropdown,
-        CatalogListSkeleton
     },
     data() {
 
@@ -346,7 +177,9 @@ export default {
             ...crudModule,
             MODULE,
             isSaving: false,
+            placeholders: catalogFormPlaceholders,
             isExporting: false,
+            listFailed: false,
             initialLoading: true
         };
 
@@ -408,6 +241,7 @@ export default {
             };
 
             this.entityList.extras.loading = true;
+            this.listFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -443,10 +277,12 @@ export default {
                     showAlert: true
                 });
 
+                this.listFailed = !response?.bool;
                 this.entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
+                this.listFailed = true;
                 this.entityList.records = emptyRecords;
 
             }finally {

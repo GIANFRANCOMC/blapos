@@ -1,5 +1,5 @@
 <template>
-    <QuantityValue :class="['br-inventory__difference', tone]" :value="difference" :unit="unit" signed/>
+    <QuantityValue :class="['fg-inventory-quantity', tone]" :value="difference" :unit="unit" signed/>
 </template>
 
 <script>
@@ -20,9 +20,9 @@ export default {
         },
         tone() {
             const sign = compareNumbers(this.difference, 0);
-            if(sign > 0) return "is-positive";
-            if(sign < 0) return "is-negative";
-            return "is-neutral";
+            if(sign > 0) return "fg-value-positive";
+            if(sign < 0) return "fg-value-negative";
+            return "fg-help";
         }
     }
 };

@@ -10,7 +10,7 @@
             <button
                 v-if="String(modelValue ?? '').length > 0"
                 type="button"
-                class="br-input-action"
+                class="fg-button fg-button--icon fg-field__action"
                 title="Limpiar búsqueda"
                 aria-label="Limpiar búsqueda"
                 :disabled="disabled"

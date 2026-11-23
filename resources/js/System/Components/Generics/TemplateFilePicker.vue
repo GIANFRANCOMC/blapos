@@ -1,13 +1,13 @@
 <template>
-    <div class="br-template-file-picker">
-        <span class="br-template-file-picker__name" :title="fileName || placeholder">
+    <div class="fg-inventory-section-actions fg-inventory-notice">
+        <span class="fg-import__filename" :title="fileName || placeholder" aria-live="polite">
             {{ busy ? busyText : (fileName || placeholder) }}
         </span>
 
-        <div class="br-template-file-picker__actions">
+        <div class="fg-inventory-dialog-actions fg-import__picker">
             <a
                 :href="templateHref || '#'"
-                class="br-template-file-picker__action"
+                class="fg-button fg-button--template"
                 :aria-disabled="downloadDisabled ? 'true' : null"
                 :tabindex="downloadDisabled ? -1 : null"
                 @click.prevent="downloadTemplate">
@@ -18,7 +18,7 @@
             <input
                 :id="id"
                 type="file"
-                class="br-template-file-picker__input visually-hidden"
+                class="fg-sr-only"
                 :accept="accept"
                 :aria-describedby="describedBy || null"
                 aria-label="Subir plantilla"
@@ -27,8 +27,8 @@
 
             <label
                 :for="id"
-                class="br-template-file-picker__action br-template-file-picker__upload"
-                :class="{'is-disabled': uploadDisabled}">
+                class="fg-button fg-button--secondary"
+                :aria-disabled="uploadDisabled || undefined">
                 <i class="fa-solid fa-upload" aria-hidden="true"></i>
                 Subir plantilla
             </label>

@@ -4,7 +4,10 @@
             <span class="fg-catalog-skeleton__label"><span class="fg-skeleton-line"/></span>
             <span class="fg-skeleton-control"><span class="fg-skeleton-line fg-catalog-skeleton__value"/></span>
         </div>
-        <span class="fg-button fg-skeleton-line fg-catalog-skeleton__button">Buscar</span>
-        <span class="fg-button fg-button--link fg-skeleton-line fg-catalog-skeleton__clear">Limpiar</span>
+        <FgSkeletonFilterActions/>
     </div>
 </template>
+
+<script setup>
+import FgSkeletonFilterActions from "./FgSkeletonFilterActions.vue";
+</script>

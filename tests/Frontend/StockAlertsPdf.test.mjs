@@ -5,54 +5,32 @@ import {parse} from "@vue/compiler-sfc";
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("alertas muestra contexto, códigos y abreviaturas sin desplazar la paginación", () => {
-    const modal = read("resources/js/System/Pages/Warehouses/inventory/StockAlertsModal.vue");
-    const page = read("resources/js/System/Pages/Warehouses/inventory/stock.vue");
-    const state = read("resources/js/System/Pages/Warehouses/inventory/inventoryState.js");
-    const styles = read("resources/css/System/br-branding/82-inventory.css");
-    const sharedStyles = read("resources/css/System/br-branding/81-core-roles-entities.css");
-
-    assert.equal(parse(modal).errors.length, 0);
-    assert.match(modal, /<span class="form-label">Almacén de trabajo<\/span>[\s\S]*?warehouse\?\.displayLabel \|\| warehouse\?\.label/);
-    assert.match(modal, /<header class="br-inventory-alerts__summary">\s*<div class="br-field-summary">[\s\S]*?<strong class="br-field-summary__value"[\s\S]*?<\/header>\s*<div class="br-inventory-alerts__toolbar">/);
-    assert.doesNotMatch(modal, /fa-warehouse/);
-    assert.match(modal, /modal-size="modal-xl"/);
-    assert.match(modal, /<div class="br-inventory-alerts__toolbar">[\s\S]*?<div class="br-inventory-alerts__filters"[\s\S]*?br-inventory-alerts__product-filter[\s\S]*?inventoryAlertMinimumStatus[\s\S]*?@click="\$emit\('search'\)"/);
-    assert.doesNotMatch(modal, /fa-bell|br-inventory-alerts__count/);
-    assert.doesNotMatch(styles, /br-inventory-alerts__count/);
-    assert.match(modal, /<label for="inventoryAlertMinimumStatus"[^>]*>Stock mínimo<\/label>[\s\S]*?:model-value="minimumStatus"[\s\S]*?:options="minimumOptions"/);
+test("alertas muestra contexto, códigos y cantidades con paginación fuera del scroll", () => {
+    const base = "resources/js/System/Pages/Warehouses/inventory/";
+    const modal=read(base + "StockAlertsModal.vue");
+    const page=read(base + "stock.vue");
+    const state=read(base + "inventoryState.js");
+    const table=read(base + "InventoryTable.vue");
+    const css=read("resources/css/System/fg/inventory.css");
+    assert.deepEqual(parse(modal).errors, []);
+    assert.match(modal, /Almacén de trabajo<\/span>[\s\S]*?class="fg-inventory-quantity"[\s\S]*?warehouse\?\.displayLabel/);
+    assert.match(modal, /<SearchInput id="inventoryAlertProduct" title="Producto"[\s\S]*?:placeholder="productSearchPlaceholder"/);
+    assert.match(modal, /<FgField label="Stock mínimo" input-id="inventoryAlertMinimumStatus">[\s\S]*?:model-value="minimumStatus"/);
     assert.match(page, /v-model:minimum-status="alertMinimumStatus"[\s\S]*?:minimum-options="stockMinimumOptions"/);
-    assert.match(modal, /<label for="inventoryAlertProduct"[^>]*>Producto<\/label>[\s\S]*?<SearchInput[\s\S]*?@update:model-value="\$emit\('update:productSearch', \$event\)"/);
-    assert.match(page, /<StockAlertsModal\s+:product-search-placeholder="productSearchPlaceholder"/);
-    assert.match(modal, /:placeholder="productSearchPlaceholder"/);
-    assert.doesNotMatch(modal, /br-inventory-alerts__location-icon|br-inventory-alerts__eyebrow|br-btn br-btn-sm br-btn-danger/);
-    assert.match(modal, /<ProductIdentity variant="expandable" :product="alert\.warehouse_item\?\.item"\/>/);
-    assert.match(modal, /<QuantityValue class="br-inventory__stock-current" :value="alert\.quantity" :unit="alert\.warehouse_item\?\.item\?\.measurement_unit"/);
-    assert.match(page, /<QuantityValue class="br-inventory__stock-current" :value="record\.stock_quantity"/);
+    assert.doesNotMatch(modal, /ClearFiltersButton|fa-bell|<template #footer>/);
+    assert.match(modal, /<FgFilterActions :show-clear="false"[^>]*@search="\$emit\('search'\)"/);
+    assert.match(modal, /<ActionsDropdown type="button" label="Acciones de alertas de stock"/);
+    assert.match(modal, /<ProductIdentity variant="expandable" :product="alert\.warehouse_item\?\.item"/);
+    assert.match(modal, /<QuantityValue class="fg-inventory-quantity" :value="alert\.quantity" :unit="alert\.warehouse_item\?\.item\?\.measurement_unit"/);
     assert.match(modal, /<QuantityValue :value="alert\.minimum_stock"/);
-    assert.match(styles, /body\.br-layout \.br-inventory__stock-current \{[^}]*font-weight: var\(--br-font-weight-value\);/);
-    assert.match(modal, /br-inventory-alerts__table-head[\s\S]*?<\/table>[\s\S]*?br-inventory-alerts__table-scroll[\s\S]*?<WithoutData/);
-    assert.match(modal, /<tr class="br-table-state" v-if="loading && !alerts\.data\?\.length">[\s\S]*?<WithoutData[\s\S]*?text="Preparando resultados"/);
-    assert.doesNotMatch(modal, /<Loader\s*\/>/);
-    assert.match(modal, /<thead class="visually-hidden">[\s\S]*?scope="col"/);
-    assert.match(modal, /<\/section>[\s\S]*?<Paginator[^>]*:pagination="alerts"[^>]*:loading="loading"/);
-    assert.match(modal, /<SearchButton\b[^>]*@click="\$emit\('search'\)"\/>[\s\S]*?class="dropdown br-inventory-alerts__actions"[\s\S]*?<ActionsDropdown\b[\s\S]*?Descargar PDF[\s\S]*?Descargar Excel/);
+    assert.match(modal, /<\/InventoryTable>\s*<Paginator[^>]*:pagination="alerts"[^>]*:loading="loading"/);
+    assert.match(table, /:class="\{'fg-table-scroll--records': scrollRecords\}"/);
+    assert.match(css, /\.fg-table-scroll--records thead th \{ position: sticky;/);
     assert.equal((modal.match(/:disabled="loading \|\| downloading \|\| !alerts\.total"/g) || []).length, 3);
-    assert.doesNotMatch(modal, /<template #footer>/);
     assert.match(modal, /@click="\$emit\('download', 'pdf'\)"[\s\S]*?@click="\$emit\('download', 'excel'\)"/);
-    assert.match(sharedStyles, /\.br-field-summary \{[^}]*flex-direction: column;/);
-    assert.match(sharedStyles, /\.br-field-summary > \.br-field-summary__value \{[^}]*font-size: var\(--br-stock-quantity-font-size\);[^}]*font-weight: var\(--br-font-weight-emphasis\);/);
-    assert.match(styles, /\.br-inventory-alerts__table-head \{[\s\S]*?overflow-y: hidden;[\s\S]*?scrollbar-gutter: stable;[\s\S]*?background: var\(--br-table-thead-bg\);/);
-    assert.match(styles, /\.br-inventory-alerts__table-scroll \{[\s\S]*?overflow-y: auto;[\s\S]*?scrollbar-gutter: stable;/);
-    assert.match(styles, /\.br-inventory-alerts__toolbar \{[\s\S]*?display: flex;[\s\S]*?justify-content: space-between;/);
-    assert.match(modal, /class="col-12 col-sm-6 br-inventory-alerts__product-filter"/);
-    assert.doesNotMatch(styles.match(/\.br-inventory-alerts__product-filter \{[^}]*\}/)?.[0], /(?:^|[;{\s])(?:flex|width):/);
-    assert.match(styles, /\.br-inventory-alerts__table-head \.table > thead > tr > th \{[\s\S]*?background: var\(--br-table-thead-bg\) !important;/);
-    assert.doesNotMatch(styles.match(/\.br-inventory-alerts__summary \{[^}]*\}/)?.[0], /border:|background:/);
     assert.match(state, /this\.stockAlerts = Requests\.emptyPagination\(\);/);
-    assert.match(state, /searchStockAlerts\(value = this\.alertProductSearch\)[\s\S]*?this\.alertProductSearch = String[\s\S]*?listStockAlerts\(\{\}\)/);
+    assert.match(state, /searchStockAlerts\(value = this\.alertProductSearch\)[\s\S]*?listStockAlerts\(\{\}\)/);
     assert.match(state, /async listStockAlerts[\s\S]*?Alerts\.loading\(\{message: "Consultando alertas de stock"\}\)[\s\S]*?Requests\.get[\s\S]*?Alerts\.close\(\)/);
-    assert.match(state, /async downloadStockAlerts\(format\)[\s\S]*?!this\.stockAlerts\.total[\s\S]*?product_search: this\.appliedAlertProductSearch/);
 });
 
 test("las etiquetas compartidas añaden dos puntos sin duplicarlos", () => {

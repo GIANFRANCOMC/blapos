@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
+import {catalogColumns} from "../../resources/js/System/Components/Catalogs/catalogColumns.js";
 
 for(const entity of ["brands", "categories"]) {
 
@@ -13,35 +14,31 @@ for(const entity of ["brands", "categories"]) {
 
         assert.equal(parsed.errors.length, 0);
 
-        for(const component of ["FiltersSection", "FormModal", "CatalogReferenceImportModal", "TableActionsDropdown", "StatusBadge", "InternalCodeValue"]) {
+        for(const component of ["FgCatalogList", "FormModal", "CatalogReferenceImportModal", "TableActionsDropdown", "StatusBadge", "InternalCodeValue"]) {
 
             assert.match(source, new RegExp(`<${component}\\b`));
 
         }
 
-        assert.match(source, /<thead class="br-table-header-surface">/);
-        assert.match(source, /:show-download-button="true"/);
-        assert.match(source, /:show-import-button="true"/);
-        assert.match(source, /@download="downloadRecords"/);
+        assert.match(source, /@export="downloadRecords"/);
         assert.match(source, /@import="openImportModal"/);
         assert.match(source, /:import-route="routeActions\.import"/);
+        assert.match(parsed.descriptor.template.content, /<InternalCodeInput v-model=[^\n]+\.internal_code"[\s\S]*?<\/InternalCodeInput>\s*<InputText v-model=[^\n]+\.name"/);
+        assert.match(source, /:placeholder="placeholders\.names\.(?:brand|category)"/);
+        assert.match(source, /:placeholder="placeholders\.optional"/);
         assert.doesNotMatch(source, /template-route|importTemplate|import-template/);
-        assert.match(source, /class="br-entity-empty-state"/);
-        assert.doesNotMatch(source, /btn-header-modal|table table-hover|btn btn-xs btn-warning/);
-        assert.match(source, /components: \{[^}]*InternalCodeValue/);
+        assert.doesNotMatch(source, /\bbr[t]?-[a-z]/);
 
     });
 
 }
 
-test("categories omite orden y publicación y distribuye descripción y estado en 8/4", () => {
+test("categorías conserva descripción y estado en su formulario", () => {
 
     const path = "../../resources/js/System/Pages/Catalogs/categories/main.vue";
     const source = readFileSync(new URL(path, import.meta.url), "utf8");
 
     assert.doesNotMatch(source, /sort_order|is_public|Visible públicamente|<th class="text-center">Orden</);
-    assert.match(source, /data\.description"[\s\S]*?xl="8"\s+lg="8"/);
-    assert.match(source, /<InputSlot[\s\S]*?:title="MODULE\.texts\.form\.status"[\s\S]*?xl="4"\s+lg="4"/);
 
 });
 
@@ -51,10 +48,9 @@ test("brands conserva solo sus cinco campos comerciales", () => {
     const source = readFileSync(new URL(path, import.meta.url), "utf8");
 
     assert.doesNotMatch(source, /logo_path|origin_country_code|products_count|País de origen|Logo configurado/);
-    assert.match(source, /<th class="text-center">En uso<\/th>/);
     assert.match(source, /<CatalogUsageBreakdown :record="record" :enabled-types="options\.usage_types"\/>/);
-    assert.match(source, /<th class="text-center">Sitio oficial<\/th>/);
-    assert.match(source, /<td class="text-center">\s*<a v-if="record\.website_url" class="br-link text-nowrap" :href="record\.website_url" target="_blank" rel="noopener noreferrer"[^>]*>\s*<span>Visitar sitio<\/span>\s*<i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"><\/i>\s*<\/a>\s*<span v-else class="br-entity-table__meta mt-0">\s*Sin sitio oficial/);
+    assert.match(source, /<a v-if="record\.website_url" class="fg-link" :href="record\.website_url" target="_blank" rel="noopener noreferrer"[^>]*>Visitar sitio<\/a>/);
+    assert.match(source, /<span v-else class="fg-help">Sin sitio oficial/);
 
     for(const field of ["internal_code", "name", "description", "status", "website_url"]) {
 
@@ -69,7 +65,7 @@ test("categorías y marcas presentan el uso por tipo y el skeleton mantiene sus 
     for(const entity of ["brands", "categories"]) {
 
         const source = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${entity}/main.vue`, import.meta.url), "utf8");
-        assert.match(source, /<th class="text-center">En uso<\/th>/);
+        assert.ok(catalogColumns[entity].some(column => column.title === "En uso" && column.align === "fg-align-center"));
         assert.match(source, /<CatalogUsageBreakdown :record="record" :enabled-types="options\.usage_types"\/>/);
         assert.doesNotMatch(source, /Uso actual|ítems activos|productos activos/);
 
@@ -84,8 +80,7 @@ test("categorías y marcas presentan el uso por tipo y el skeleton mantiene sus 
     assert.match(breakdown, /active_subscriptions_count/);
 
     const skeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
-    assert.match(skeleton, /title: "En uso"/);
-    assert.match(skeleton, /title: "Sitio oficial", width: "14%", align: "fg-align-center"/);
+    assert.deepEqual(catalogColumns.brands.find(column => column.title === "Sitio oficial"), {title: "Sitio oficial", width: "14%", align: "fg-align-center"});
     assert.match(skeleton, /:colspan="columns.length"><FgListLoading/);
 
 });

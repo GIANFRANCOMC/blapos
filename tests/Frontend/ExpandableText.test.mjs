@@ -17,7 +17,7 @@ test("el catálogo usa el control compartido para las descripciones de sus tabla
         /:where\(\.br-entity-table__description, \.br-entity-table__meta\)\s*\{\s*display: block;/);
     for(const page of ["products", "services", "subscriptions", "categories", "brands"]) {
         assert.match(read(`resources/js/System/Pages/Catalogs/${page}/main.vue`),
-            page === "products" ? /<ExpandableText v-if="record\.description" :text="record\.description"\/>/ : /<ExpandableText v-if="record\.description" class="br-entity-table__description" :text="record\.description"\/>/);
+            /<ExpandableText v-if="record\.description" :text="record\.description"\/>/);
     }
 });
 

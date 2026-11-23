@@ -29,7 +29,7 @@ test("sucursales reutiliza la modal y separa alta y edición en tres pestañas",
 
 test("el aforo conserva el campo capacity y aparece también en el reporte", () => {
     const page = read("resources/js/System/Pages/Organizations/branches/main.vue");
-    const skeleton = read("resources/js/System/Components/Catalogs/CatalogListSkeleton.vue");
+    const skeleton = read("resources/js/System/Components/Catalogs/catalogColumns.js");
     const report = read("app/Http/Controllers/System/Essentials/ReportController.php");
     const exportFile = read("app/Exports/BranchExport.php");
     const storeRequest = read("app/Http/Requests/System/Organizations/Branches/StoreBranchRequest.php");

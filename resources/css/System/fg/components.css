@@ -55,6 +55,9 @@
 .fg-field__control { display: flex; align-items: center; gap: var(--fg-space-2); min-height: var(--fg-control-height); border: 1px solid var(--fg-control-border); border-radius: var(--fg-radius); background: var(--fg-surface); padding: 0 10px; min-width: 0; }
 .fg-field__control:focus-within { border-color: var(--fg-primary); box-shadow: var(--fg-focus); }
 .fg-field__control--invalid { border-color: var(--fg-danger); }
+.fg-field__control--invalid:focus-within { border-color: var(--fg-danger); box-shadow: 0 0 0 3px var(--fg-danger-soft); }
+.fg-field__control--invalid .fg-field__prefix { color: var(--fg-danger); }
+.fg-field__action.fg-button { min-height: 24px; width: 24px; flex: none; }
 .fg-input { display: block; flex: 1; width: 100%; min-width: 0; min-height: 34px; padding: 6px 0; border: 0; outline: none; box-shadow: none; border-radius: 0; background: transparent; color: var(--fg-text); line-height: 1.35; }
 .fg-input:focus { outline: none; box-shadow: none; }
 .fg-input::placeholder { color: var(--fg-muted); opacity: 1; }
@@ -77,6 +80,8 @@
 :is(.fg-select, .fg-theme .v-select) .vs__dropdown-option--selected { background: var(--fg-primary-soft); color: var(--fg-text); }
 :is(.fg-select, .fg-theme .v-select) .vs__dropdown-option--selected::after { content: "✓"; margin-left: auto; padding-left: 12px; color: var(--fg-primary); }
 .fg-select--invalid .vs__dropdown-toggle { border-color: var(--fg-danger); }
+.fg-field__control .fg-select--unit { flex: 0 0 6rem; }
+.fg-field__control .fg-select--unit .vs__dropdown-toggle { min-height: calc(var(--fg-control-height) - 2px); border: 0; border-inline-start: 1px solid var(--fg-border); border-radius: 0; background: transparent; box-shadow: none; }
 :is(.fg-select, .fg-theme .v-select) .vs__no-options { padding: 12px; color: var(--fg-muted); font-size: var(--fg-help-size); }
 :is(.fg-select, .fg-theme .v-select).vs--unsearchable :is(.vs__dropdown-toggle, .vs__search) { cursor: pointer; }
 :is(.fg-select, .fg-theme .v-select).vs--unsearchable .vs__search { caret-color: transparent; }
@@ -107,6 +112,9 @@
 .fg-modal--compact { --fg-modal-width: 520px; }
 .fg-modal--import { --fg-modal-width: 720px; }
 .fg-modal--editor .fg-modal__body { padding: 0; overflow: hidden; }
+@media (min-width: 992px) {
+    .fg-modal > .modal-dialog.modal-xl { max-width: var(--bs-modal-width, var(--fg-modal-width)); }
+}
 .fg-editor { display: grid; grid-template-columns: 172px minmax(0, 1fr); height: min(568px, calc(100dvh - 180px)); min-height: 320px; }
 .fg-tabs { padding: var(--fg-space-6) var(--fg-space-3); background: var(--fg-surface); }
 .fg-tabs__list { display: flex; flex-direction: column; gap: 6px; }

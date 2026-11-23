@@ -42,7 +42,7 @@ export default {
 </script>
 
 <style scoped>
-button.br-search-button {
+button.br-search-button:not(.fg-button) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -52,7 +52,7 @@ button.br-search-button {
     padding-inline: 0;
 }
 
-button.br-search-button .fa-magnifying-glass {
+button.br-search-button:not(.fg-button) .fa-magnifying-glass {
     font-size: var(--br-font-size-082);
     line-height: 1;
 }

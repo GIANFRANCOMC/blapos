@@ -260,19 +260,6 @@
 }
 
 @media (max-width: 767.98px) {
-    .br-inventory-transfer {
-        padding-inline: 0;
-    }
-
-    .br-inventory-operation__config {
-        grid-template-columns: 1fr;
-    }
-
-    .br-inventory-operation__items-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
     .br-btn-action-import__label {
         display: inline;
     }

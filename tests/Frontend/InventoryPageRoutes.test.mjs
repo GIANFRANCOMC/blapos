@@ -11,6 +11,8 @@ const readInventory = () => ["stock", "transfers", "guides", "kardex", "valued-k
     .concat(read(`${inventoryPath}inventoryState.js`))
     .join("\n");
 
+import {inventoryFilters, inventoryViews, inventoryBadgeTones} from "../../resources/js/System/Pages/Warehouses/inventory/inventoryPresentation.js";
+
 test("inventory applies work warehouse changes only on search", () => {
 
     const component = readInventory();
@@ -19,28 +21,6 @@ test("inventory applies work warehouse changes only on search", () => {
     assert.match(component, /searchCurrentView\(\) \{[\s\S]*?this\.invalidateListing\(\);\s*this\.appliedFilters = \{\.\.\.this\.filters\};/);
     assert.doesNotMatch(component, /"filters\.warehouse"\(/);
     assert.match(component, /listCurrentView\(\{url = null\} = \{\}\) \{[\s\S]*?this\.listStock\(\{url\}\)[\s\S]*?this\.listKardex\(\{url\}\)[\s\S]*?this\.listGuides\(\{url\}\)/);
-
-});
-
-test("stock paints the full situation cell without an icon while entities keep their badges", () => {
-
-    const component = readInventory();
-    const stock = read(`${inventoryPath}stock.vue`);
-    const badge = read("resources/js/System/Components/Generics/StatusBadge.vue");
-    const constants = read("resources/js/System/Helpers/ModuleConstants.js");
-    const css = read("resources/css/System/br-branding/20-sales-tables-status.css");
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-
-    assert.match(stock, /<td :class="\['br-inventory__situation', stockStatus\(record\)\.cellClass\]">\{\{ stockStatus\(record\)\.label \}\}<\/td>/);
-    assert.doesNotMatch(stock, /stockStatus\(record\)\.icon|stockStatus\(record\)\.badgeClass/);
-    assert.match(component, /StockStatus\.fromLevels\(stock, minimum\)[\s\S]*?cellClass: `br-inventory__situation--\$\{code\}`/);
-    assert.match(inventoryCss, /td\.br-inventory__situation \{[\s\S]*?background-color: var\(--br-situation-bg\) !important;[\s\S]*?box-shadow: none !important;/);
-    assert.match(inventoryCss, /br-inventory__situation--empty \{[\s\S]*?var\(--br-danger-soft\)[\s\S]*?br-inventory__situation--low \{[\s\S]*?var\(--br-warning-soft\)[\s\S]*?br-inventory__situation--healthy \{[\s\S]*?var\(--br-success-soft\)/);
-    assert.match(badge, /<span :class="badgeClasses" v-text="displayStatus"><\/span>/);
-    assert.doesNotMatch(badge, /badgeIcon|<i\b/);
-    assert.match(constants, /STATUS_LABEL_BASE: \["fg-badge"\]/);
-    const fgCss = read("resources/css/System/fg/components.css");
-    for(const tone of ["success","danger","warning"]) assert.ok(fgCss.includes(".fg-badge--"+tone));
 
 });
 
@@ -74,419 +54,135 @@ test("inventory submodules have independent pages without internal tabs", () => 
 
 });
 
-test("inventory labels and paginated listings stay consistent across views", () => {
 
-    const component = readInventory();
+test("inventario usa los mismos estados y tonos FG que Catálogo", () => {
+    const stock = read(inventoryPath + "stock.vue");
+    assert.match(stock, /<td class="fg-align-center"><span :class="\['fg-badge', 'fg-badge--' \+ stockStatus\(record\)\.tone\]"/);
+    assert.doesNotMatch(stock, /stockStatus\(record\)\.(icon|badgeClass)/);
+    assert.match(readInventory(), /StockStatus\.fromLevels\(stock, minimum\)[\s\S]*?tone: inventoryBadgeTones\[code\]/);
+    assert.deepEqual([inventoryBadgeTones.healthy, inventoryBadgeTones.empty, inventoryBadgeTones.low], ["success", "danger", "warning"]);
+});
+
+test("guías conserva la fecha, el número y los contratos paginados", () => {
+    const page = read(inventoryPath + "guides.vue");
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const service = read("app/Services/System/Warehouses/StockManagement/StockManagementService.php");
-
-    assert.match(component, /v-if="\['stock', 'transfers'\]\.includes\(activeView\)"[\s\S]*?title="Producto"/);
-    assert.match(component, /<th>Fecha y número<\/th>[\s\S]*?<strong>\{\{ formatSimpleDate\(guide\.issue_date\) \}\}<\/strong>[\s\S]*?<span class="br-inventory__meta">\{\{ guide\.number \}\}<\/span>/);
-    assert.match(component, /this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
+    assert.equal(inventoryViews.guides.columns[0].label, "Fecha y número");
+    assert.match(page, /formatSimpleDate\(guide\.issue_date\)[\s\S]*?guide\.number/);
     assert.match(controller, /private const MAX_LIST_PER_PAGE = 30;/);
     assert.match(controller, /return min\(self::MAX_LIST_PER_PAGE, max\(1, \$this->getPerPage\(\$request, Utilities::\$per_page_default\)\)\);/);
     assert.equal((controller.match(/this->inventoryPerPage\(\$request\)/g) || []).length, 7);
     assert.match(service, /getPaginatedConsolidatedStock\([\s\S]*?->paginate\(\$perPage\)/);
     assert.match(service, /getConsolidatedStock\([\s\S]*?->get\(\)/);
-
 });
 
-test("transfers open the standard modal and save without leaving the list", () => {
-
-    const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
+test("Registrar traslado comparte la modal y mantiene motivos, filas y validación", () => {
+    const page = read(inventoryPath + "transfers.vue");
+    const state = read(inventoryPath + "inventoryState.js");
     const request = read("app/Http/Requests/System/Warehouses/StoreInventoryTransferRequest.php");
-    const modal = component.slice(
-        component.indexOf('id="inventoryTransferModal"'),
-        component.indexOf('</Teleport>', component.indexOf('id="inventoryTransferModal"'))
-    );
-
-    assert.match(component, /data-bs-target="#inventoryTransferModal"[\s\S]*?Registrar traslado/);
-    assert.match(modal, /class="modal fade br-entity-modal br-modal-standard"/);
-    assert.match(modal, /id="inventoryTransferModalTitle"[\s\S]*?REGISTRAR TRASLADO/);
-    assert.match(modal, /class="br-inventory-operation__config br-inventory-transfer__route-fields"[\s\S]*?transferSource[\s\S]*?placeholder="Selecciona el almacén que envía"[\s\S]*?class="br-inventory-transfer__direction"[\s\S]*?fa-right-long[\s\S]*?transferDestination[\s\S]*?Selecciona el almacén que recibe[\s\S]*?for="transferReason"[^>]*>Motivo del traslado<\/label>/);
-    assert.match(modal, /col-12 col-md-10[\s\S]*?transferDestination[\s\S]*?col-12 col-md-2 br-inventory-transfer__form-status[\s\S]*?transferFormStatus[\s\S]*?col-12 br-inventory-transfer__reason/);
-    assert.match(modal, /v-model\.trim="transferForm\.reason"[\s\S]*?maxlength="255"[\s\S]*?showCharCounter/);
-    assert.match(modal, /<QuickCreateTrigger\s+mode="icon"\s+title="Motivos frecuentes"[^>]*icon="fa-solid fa-arrow-up-right-from-square"[^>]*aria-controls="transferReasonsDialog"/);
-    assert.match(component, /<FormModal\s+v-if="canConfigureTransfer"\s+modal-id="transferReasonsDialog"\s+title="Motivos frecuentes"\s+modal-size="modal-lg"[\s\S]*?<th scope="col">Motivo<\/th>\s*<th scope="col">Acción<\/th>[\s\S]*?v-for="option in transferReasonOptions"[\s\S]*?<a\s+href="#transferReason"[^>]*@click\.prevent="applyTransferReason\(option\.text\)"[^>]*>\s*<i class="fa-solid fa-hand-pointer"[^>]*><\/i>\s*<span[^>]*>Seleccionar<\/span>\s*<\/a>/);
+    assert.match(page, /data-bs-target="#inventoryTransferModal"/);
+    assert.match(page, /<FormModal modal-id="inventoryTransferModal" title="Registrar traslado"/);
+    assert.match(page, /class="fg-transfer-route"[\s\S]*?transferSource[\s\S]*?Selecciona el almacén que envía[\s\S]*?fa-right-long[\s\S]*?transferDestination[\s\S]*?Selecciona el almacén que recibe[\s\S]*?transferFormStatus/);
+    assert.match(page, /v-model\.trim="transferForm\.reason"[\s\S]*?maxlength="255"[\s\S]*?show-char-counter/);
+    assert.match(page, /<QuickCreateTrigger[^>]*title="Motivos frecuentes"[^>]*aria-controls="transferReasonsDialog"/);
+    assert.match(page, /modal-id="transferReasonsDialog"[\s\S]*?<InventoryTable[^>]*:columns="transferReasonColumns"[^>]*scroll-records/);
+    assert.match(page, /<a href="#transferReason"[^>]*@click\.prevent="applyTransferReason\(option\.text\)"/);
+    assert.match(page, /transferReasonColumns: \(\) => \[\{label: "Motivo"\}, \{label: "Acción"/);
     assert.match(request, /"reason" => \["required", "string", "max:255"\]/);
-    assert.match(modal, /class="br-inventory-operation__items br-inventory-transfer__items"[\s\S]*?Productos incluidos[\s\S]*?<table class="table br-entity-table br-inventory-table-headings br-inventory-operation__table br-inventory-transfer__items-table mb-0">/);
-    assert.match(modal, /class="table-responsive br-inventory-operation__table-wrap br-inventory-transfer__table-scroll"\s+ref="transferItemsScroll"\s+role="region"\s+aria-labelledby="inventoryTransferItemsTitle"/);
-    assert.match(inventoryCss, /\.br-inventory-transfer__table-scroll thead,\s*\.br-inventory-traceability__scroll thead\s*\{\s*position: sticky;\s*top: 0;/);
-    assert.match(modal, /<ProductSelect[^>]*\bsummarize-selection\b/);
-    assert.match(modal, /<th scope="col">Producto<\/th>\s*<th scope="col">Stock disponible<\/th>\s*<th scope="col">Cantidad a trasladar<\/th>/);
-    assert.match(modal, /<QuantityValue[\s\S]*?:value="transferAvailability\[item\.product\.code\]"\s+:unit="item\.product"/);
-    assert.match(modal, /v-if="!transferForm\.items\.length" class="br-table-state"/);
-    assert.doesNotMatch(modal, /transferForm\.items\.length === 1/);
-    assert.match(modal, /<tr v-for="\(item, index\) in transferForm\.items"[\s\S]*?<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.quantity"/);
-    assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
-    assert.match(modal, /Productos incluidos[\s\S]*?@click="addTransferItem">\s*Agregar producto[\s\S]*?ref="transferItemsScroll"/);
-    assert.match(modal, /Agregar producto\s*<\/button>\s*<button[^>]*class="br-btn br-btn-xs br-btn-danger waves-effect"[^>]*@click="clearTransferItems">\s*Eliminar productos\s*<\/button>/);
-    assert.match(modal, /<InputNumber[^>]*v-model="item\.quantity"[^>]*hasTextBottom[^>]*:text-bottom-info="transferQuantityErrors\(item, index\)"/);
-    assert.match(modal, /ref="closeTransferModal"[\s\S]*?Cerrar[\s\S]*?class="br-entity-modal__footer-actions"[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?@click="saveTransfer"[\s\S]*?Guardar/);
-    assert.doesNotMatch(modal, /br-inventory-transfer__item-row|<textarea/);
-    assert.doesNotMatch(inventoryCss, /\.br-inventory-transfer__item-row/);
-    assert.match(component, /addTransferItem\(\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryTransferModal"\);[\s\S]*?this\.transferForm\.items\.push\([\s\S]*?this\.refreshInventoryModalTooltips\("inventoryTransferModal"\)/);
-    assert.match(component, /removeTransferItem\(index\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryTransferModal"\);[\s\S]*?this\.transferForm\.items\.splice\(index, 1\);[\s\S]*?this\.refreshInventoryModalTooltips\("inventoryTransferModal"\)/);
-    assert.match(component, /this\.\$refs\.closeTransferModal\?\.click\(\)/);
-
+    assert.match(page, /Productos incluidos[\s\S]*?@click="addTransferItem"[\s\S]*?@click="clearTransferItems"[\s\S]*?ref="transferItemsScroll" class="fg-table-scroll fg-table-scroll--records"/);
+    assert.match(page, /Producto<\/th>[\s\S]*?Stock disponible<\/th>[\s\S]*?Cantidad a trasladar<\/th>/);
+    assert.match(page, /v-model="item\.product"[\s\S]*?summarize-selection[\s\S]*?:value="transferAvailability\[item\.product\.code\]"/);
+    assert.match(page, /v-model="item\.quantity"[^>]*:text-bottom-info="transferQuantityErrors\(item, index\)"/);
+    assert.match(page, /icon="fa-solid fa-trash"[^>]*@click="removeTransferItem\(index\)"/);
+    assert.doesNotMatch(page, /transferForm\.items\.length === 1/);
+    assert.match(page, /:disabled="!transferForm\.items\.length \|\| hasTransferQuantityOverStock" @click="saveTransfer"/);
+    assert.match(state, /addTransferItem\(\)[\s\S]*?transferForm\.items\.push[\s\S]*?refreshInventoryModalTooltips/);
+    assert.match(state, /removeTransferItem\(index\)[\s\S]*?transferForm\.items\.splice\(index, 1\)[\s\S]*?refreshInventoryModalTooltips/);
+    assert.match(state, /Alerts\.modals\(\{type: "hide", id: "inventoryTransferModal"\}\)/);
 });
 
-test("stock operation modal uses the standard primary action and a compact product table", () => {
-
-    const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const buttonsCss = read("resources/css/System/br-branding/40-buttons-quick-create.css");
-    const modalCss = read("resources/css/System/br-branding/81-core-roles-entities.css");
-    const selectCss = read("resources/css/System/br-branding/10-tables-breadcrumb-filters.css");
-    const mount = read("resources/js/System/Pages/Warehouses/inventory/mount.js");
+test("la operación conserva tipo, motivo, plantilla, productos y costo opcional", () => {
+    const stock = read(inventoryPath + "stock.vue");
+    const state = read(inventoryPath + "inventoryState.js");
     const request = read("app/Http/Requests/System/Warehouses/StoreInventoryOperationRequest.php");
-    const stock = read(`${inventoryPath}stock.vue`);
-    const start = stock.indexOf('id="inventoryMovementModal"');
-    const modal = stock.slice(start, stock.indexOf("</FormModal>", start));
-
-    assert.match(modal, /inventoryOperation[\s\S]*?:selectable="option => !option\.isGroup"[\s\S]*?#option="option"[\s\S]*?br-inventory-operation__option-group/);
-    assert.match(modal, /config\.forms\.inputs\.required[\s\S]*?input-id="inventoryOperation"[\s\S]*?aria-required="true"[\s\S]*?placeholder="Selecciona un tipo de operación"/);
-    assert.match(component, /movementForm: \{\s*operation: null,[\s\S]*?prepareMovement\(record = null\) \{[\s\S]*?this\.movementForm = \{\s*operation: null,/);
-    assert.match(component, /if\(!operation\?\.code\) \{\s*this\.movementErrors\.operation = \["Selecciona un tipo de operación\."\]/);
-    assert.match(component, /\{code: "correction", label: "Actualización"[\s\S]*?\{code: "entry", label: "Ingresos"[\s\S]*?\{code: "exit", label: "Salidas"/);
-    assert.match(component, /INVENTORY_OPERATION_GROUPS\.flatMap\(group => \[[\s\S]*?INVENTORY_OPERATIONS\.filter\(operation => operation\.movementType === group\.code\)/);
-    assert.match(modal, /br-inventory-operation__description[\s\S]*?inventoryOperationEffect[\s\S]*?movementForm\.operation\?\.description[\s\S]*?title="Motivo"/);
-    assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?border-left: 2px solid var\(--br-primary\)/);
-    assert.match(modal, /v-model\.trim="movementForm\.reason"[\s\S]*?maxlength="100"[\s\S]*?showCharCounter/);
+    assert.match(stock, /<FormModal modal-id="inventoryMovementModal" title="Registrar operación"/);
+    assert.match(stock, /Almacén de la operación[\s\S]*?Tipo de operación[\s\S]*?:selectable="option => !option\.isGroup"[\s\S]*?inventoryOperationEffect[\s\S]*?title="Motivo"/);
+    assert.match(stock, /v-model\.trim="movementForm\.reason"[^>]*maxlength="100"/);
     assert.match(request, /"reason" => \["required", "string", "max:100"\]/);
-    assert.match(modal, /<span class="form-label colon-at-end">Productos incluidos<\/span>\s*<span class="text-danger fw-bold"[^>]*>\*<\/span>/);
-    assert.match(modal, /class="br-inventory-operation__template"[\s\S]*?Productos incluidos[\s\S]*?<TemplateFilePicker[\s\S]*?class="table-responsive br-inventory-operation__table-wrap"/);
-    assert.doesNotMatch(modal.slice(modal.indexOf('class="br-inventory-operation__template"'), modal.indexOf('class="table-responsive br-inventory-operation__table-wrap"')), /Agregar producto/);
-    assert.match(buttonsCss, /\.br-btn\.br-btn-add-row \{[\s\S]*?background: var\(--br-success\);/);
-    assert.doesNotMatch(buttonsCss.match(/\.br-btn\.br-btn-add-row \{[^}]*\}/)?.[0], /min-height|padding|font-size/);
-    assert.match(modal, /<template #footerClose>[\s\S]*?Cerrar[\s\S]*?<template #footer>\s*<div class="br-entity-modal__footer-actions">[\s\S]*?class="br-btn br-btn-add-row"[\s\S]*?Agregar producto[\s\S]*?class="br-btn br-btn-action-create"[\s\S]*?Guardar/);
-    assert.match(modalCss, /\.modal-footer\.br-entity-modal__footer > \.br-entity-modal__footer-actions \{[\s\S]*?margin-left: auto;/);
-    assert.match(inventoryCss, /\.br-inventory-operation__effect \{[\s\S]*?display: flex;[\s\S]*?align-items: center;[\s\S]*?min-height: var\(--br-control-height\);[\s\S]*?white-space: nowrap;/);
-    assert.match(inventoryCss, /\.br-inventory-operation__items-header \{[\s\S]*?align-items: flex-end;/);
-    const tableStyles = read("resources/css/System/br-branding/01-typography.css");
-    assert.match(tableStyles, /body table :is\(th, td\) \{\s*vertical-align: middle;/);
-    assert.doesNotMatch(inventoryCss, /vertical-align:\s*(?:top|bottom|middle)/);
-    assert.match(modal, /<table[\s\S]*?br-inventory-operation__table[\s\S]*?<thead class="br-table-header-surface">[\s\S]*?Producto[\s\S]*?operationAmountLabel[\s\S]*?Costo unitario/);
-    assert.match(modal, /Costo unitario\s*<small>Opcional<\/small>[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?title="Si se omite, se conserva el costo promedio actual\."/);
-    assert.match(modal, /<tr v-for="\(item, index\) in movementForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.amount"/);
-    assert.match(modal, /<ProductSelect[\s\S]*?v-model="item\.product"[\s\S]*?:select-class="config\.forms\.classes\.select2"/);
-    const productSelect = read("resources/js/System/Components/Generics/ProductSelect.vue");
-    assert.match(productSelect, /<template #no-options><slot name="no-options"><SelectNoOptions\/><\/slot><\/template>/);
-    assert.match(mount, /\.component\("SelectNoOptions", SelectNoOptions\)/);
-    assert.match(selectCss, /\.br-layout \.vs__no-options,[\s\S]*?min-height: 2\.65rem;[\s\S]*?text-align: center;/);
-    assert.match(modal, /class="br-inventory-operation__remove-help"[\s\S]*?title="Quitar producto"[\s\S]*?data-bs-toggle="tooltip"[\s\S]*?class="br-icon-danger-plain"[\s\S]*?fa-trash/);
-    assert.match(component, /addMovementItem\(\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryMovementModal"\);[\s\S]*?this\.movementForm\.items\.push\([\s\S]*?this\.refreshInventoryModalTooltips\("inventoryMovementModal"\)/);
-    assert.match(component, /removeMovementItem\(index\) \{[\s\S]*?this\.disposeInventoryModalTooltips\("inventoryMovementModal"\);[\s\S]*?this\.movementForm\.items\.splice\(index, 1\);[\s\S]*?this\.refreshInventoryModalTooltips\("inventoryMovementModal"\)/);
-    assert.match(component, /refreshInventoryModalTooltips\(modalId\) \{[\s\S]*?this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{show: true, time: 0, selector:/);
-    assert.match(component, /"movementForm\.operation"\(operation, previous\) \{[\s\S]*?this\.refreshInventoryModalTooltips\("inventoryMovementModal"\);/);
-    assert.match(inventoryCss, /\.br-inventory-operation__remove-help > button:disabled \{\s*pointer-events: none;/);
-    assert.match(modal, /class="br-btn br-btn-action-create"[\s\S]*?@click="saveMovement"/);
-    assert.doesNotMatch(modal, /br-inventory-operation__item"|<textarea/);
-
+    assert.match(stock, /Productos incluidos[\s\S]*?<TemplateFilePicker[\s\S]*?class="fg-table fg-inventory-items"/);
+    assert.match(stock, /Costo unitario[\s\S]*?Opcional[\s\S]*?title="Si se omite, se conserva el costo promedio actual\."/);
+    assert.match(stock, /v-for="\(item, index\) in movementForm\.items"[\s\S]*?v-model="item\.product"[\s\S]*?v-model="item\.amount"/);
+    assert.match(stock, /<template #footer>[\s\S]*?@click="addMovementItem">Agregar producto[\s\S]*?@click="saveMovement">Guardar operación/);
+    assert.match(state, /operation: null,[\s\S]*?warehouse: null/);
+    assert.match(state, /if\(!operation\?\.code\) \{\s*this\.movementErrors\.operation = \["Selecciona un tipo de operación\."\]/);
+    assert.match(state, /INVENTORY_OPERATION_GROUPS\.flatMap\(group => \[[\s\S]*?INVENTORY_OPERATIONS\.filter\(operation => operation\.movementType === group\.code\)/);
+    assert.match(state, /removeMovementItem\(index\)[\s\S]*?movementForm\.items\.splice\(index, 1\)[\s\S]*?refreshInventoryModalTooltips/);
+    assert.match(state, /Alerts\.modals\(\{type: "hide", id: "inventoryMovementModal"\}\)/);
 });
 
-test("stock places warehouse, search and actions in order", () => {
-
-    const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const context = component.slice(
-        component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
-        component.indexOf('<div class="br-inventory__workspace">')
-    );
-
-    assert.doesNotMatch(component, /br-inventory__page-heading|br-operational-scope/);
-    assert.match(context, /inventoryWarehouse[\s\S]*?ref="productSearch"[\s\S]*?<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>[\s\S]*?<ActionsDropdown\b[^>]*>[\s\S]*?Descargar Excel[\s\S]*?Registrar traslado[\s\S]*?Registrar operación[\s\S]*?Ver alertas/);
-    assert.doesNotMatch(context, /inputGroupPrepend|br-inventory-search__prefix|fa-barcode/);
-    assert.match(inventoryCss, /\.br-layout \.br-inventory__context > \.form-group \{\s*margin-bottom: 0 !important;/);
-    assert.doesNotMatch(component, /br-inventory__toolbar/);
-    assert.match(component, /Alerts\.confirmDownload/);
-
-});
-
-test("transfers show only the product-style table below the controls", () => {
-
-    const component = readInventory();
-    const transfers = read(`${inventoryPath}transfers.vue`);
-
-    assert.doesNotMatch(transfers, /Para registrar un traslado, configura al menos dos almacenes/);
-    assert.match(transfers, /<section class="br-entity-list" aria-label="Traslados registrados"[^>]*>\s*<div class="table-responsive">/);
-    assert.match(transfers, /<table class="table br-entity-table br-inventory-table-headings br-inventory-transfer__table mb-0">/);
-    assert.match(transfers, /<thead class="br-table-header-surface">/);
-    assert.match(transfers, /<WithoutData\s+class="br-entity-empty-state"\s+type="image"\/>/);
-
-});
-
-test("transfers list all accessible warehouses without allowing a virtual transfer source", () => {
-
-    const component = readInventory();
-    const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
-    const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const transfers = read(`${inventoryPath}transfers.vue`);
-    const movements = controller.slice(
-        controller.indexOf("public function movements(Request $request)"),
-        controller.indexOf("public function alerts(Request $request)")
-    );
-
-    assert.match(component, /warehouses\(\) \{\s*return \(this\.options\.warehouses \|\| \[\]\)\.map\(record =>/);
-    assert.match(transfers, /:options="transferWarehouseOptions"/);
-    assert.doesNotMatch(transfers, /placeholder="Todos los almacenes"/);
-    assert.match(component, /sourceWarehouse: ALL_TRANSFER_WAREHOUSES,\s*destinationWarehouse: ALL_TRANSFER_WAREHOUSES/);
-    assert.match(component, /this\.filters\.warehouse = this\.realWarehouses\[0\];/);
-    const registerTransferButton = transfers.slice(
-        transfers.indexOf('v-if="canOperateTransfers"'),
-        transfers.indexOf('data-bs-target="#inventoryTransferModal"')
-    );
-
-    assert.match(registerTransferButton, /:disabled="isCurrentViewLoading"/);
-    assert.doesNotMatch(registerTransferButton, /:disabled="!filters\.warehouse/);
-    assert.match(transfers, /id="transferSource"[\s\S]*?v-model="transferForm\.source"[\s\S]*?:options="realWarehouses"/);
-    assert.match(transfers, /id="transferDestination"[\s\S]*?v-model="transferForm\.destination"[\s\S]*?:options="destinationWarehouses"/);
-    assert.match(component, /prepareTransfer\(\) \{[\s\S]*?source: null,[\s\S]*?destination: null/);
-    assert.match(component, /source_warehouse_id: this\.transferForm\.source\.code/);
-    assert.match(component, /destinationWarehouses\(\) \{\s*if\(!this\.transferForm\.source\?\.code\) return \[\];\s*return this\.realWarehouses\.filter\(warehouse => Number\(warehouse\.code\) !== Number\(this\.transferForm\.source\?\.code\)\);/);
-    assert.match(transfers, /<th scope="col" class="text-end">Almacén de origen<\/th>\s*<th aria-hidden="true"><\/th>\s*<th scope="col" class="text-start">Almacén de destino<\/th>/);
-    assert.match(transfers, /transfer\.source_warehouse\?\.name[\s\S]*?br-inventory-transfer__direction[\s\S]*?fa-right-long[\s\S]*?transfer\.destination_warehouse\?\.name/);
-    assert.equal((transfers.match(/colspan="7"/g) || []).length, 2);
-    assert.match(transfers, /<th scope="col">Estado<\/th>/);
-    const actions = transfers.match(/<TableActionsDropdown[\s\S]*?<\/TableActionsDropdown>/)[0];
-    assert.match(actions, /Ver detalle/);
-    assert.equal((actions.match(/<li>/g) || []).length, 1);
-    assert.match(read(`${inventoryPath}TransferDetailModal.vue`), /<template #footer>[\s\S]*?:href="pdfUrl" class="br-btn br-btn-danger waves-effect"[\s\S]*?Descargar PDF/);
-    assert.match(transfers, /v-for="\[field, label\] in transferWarehouseFilters"[\s\S]*?v-model="filters\[field\]"[\s\S]*?v-model\.trim="filters\.transferReference"[\s\S]*?v-model="filters\.dateFrom" type="date"[\s\S]*?v-model="filters\.dateTo" type="date"[\s\S]*?v-model\.trim="filters\.productSearch"[\s\S]*?v-model="filters\.transferStatus"/);
-    assert.doesNotMatch(transfers, /<StockAdvancedFilters|filters\.warehouse|stockCategory|stockBrand/);
-    assert.doesNotMatch(transfers, /stockSituation|stockMinimumStatus|stockInactiveDays/);
-    assert.match(inventoryCss, /\.br-inventory-transfer__table \{\s*min-width: 52rem;/);
-    assert.match(movementService, /\$warehouseIds = \$page->getCollection\(\)[\s\S]*?source_warehouse_id[\s\S]*?destination_warehouse_id/);
-    assert.match(movementService, /\$warehouseQuery->whereIn\("id", \$filters\["allowed_warehouse_ids"\]\);/);
-    assert.match(movementService, /"transfer_source_warehouse" => \$sourceId,[\s\S]*?"transfer_destination_warehouse" => \$destinationId/);
-    assert.match(movements, /\$allWarehouses = \(\$filters\["warehouse_id"\] \?\? null\) === "all";/);
-    assert.match(movements, /RolePermissionService::canAccessRoute\(\$this->getAuthUser\(\), "stocks_management\.transfers\.index"\)/);
-    assert.match(movements, /\$filters\["origin_types"\] = InventoryMovement::TRANSFER_ORIGINS;\s*unset\(\$filters\["warehouse_id"\]\);/);
-    assert.match(movements, /\$filters\["allowed_warehouse_ids"\] = AccessScopeService::allowedIds/);
-
-});
-
-test("operation and transfer dialogs choose their own warehouses without changing the list filter", () => {
-
-    const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const registerOperationButton = component.slice(
-        component.indexOf('v-if="activeView === \'stock\'"', component.indexOf('<SearchButton')),
-        component.indexOf('data-bs-target="#inventoryMovementModal"')
-    );
-    const operationModal = component.slice(component.indexOf('id="inventoryMovementModal"'));
-
-    assert.match(registerOperationButton, /:disabled="isCurrentViewLoading"/);
-    assert.doesNotMatch(registerOperationButton, /:disabled="!filters\.warehouse/);
-    assert.match(operationModal, /id="operationWarehouse"[\s\S]*?v-model="movementForm\.warehouse"[\s\S]*?:options="realWarehouses"/);
-    assert.match(component, /prepareMovement\(record = null\) \{[\s\S]*?warehouse: null,/);
-    assert.match(component, /warehouse_id: this\.movementForm\.warehouse\.code/);
-    assert.doesNotMatch(component, /defaultFormWarehouse\(/);
-    assert.match(component, /:disabled="savingMovement \|\| confirmingMovement \|\| previewingOperation \|\| !movementForm\.warehouse\?\.code \|\| !movementForm\.items\.length"/);
-    assert.match(component, /:disabled="savingTransfer \|\| !transferForm\.items\.length \|\| hasTransferQuantityOverStock"/);
-    assert.match(inventoryCss, /\.br-layout \.br-inventory-operation__reason\.form-group \{\s*grid-column: 1 \/ -1;/);
-    assert.doesNotMatch(inventoryCss, /br-inventory-operation__config--movement/);
-
-});
-
-test("stock lists only the selected warehouse and shows six table columns including actions", () => {
-
-    const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const stock = read(`${inventoryPath}stock.vue`);
-
-    assert.match(stock, /<table class="table br-entity-table br-inventory-table-headings br-inventory__table br-inventory__table--single-warehouse mb-0">/);
-    assert.doesNotMatch(stock, /isConsolidatedStock|br-inventory__col-warehouses|<th[^>]*>Almacenes<\/th>|stockWarehouseBreakdown/);
-    assert.equal((stock.match(/colspan="6"/g) || []).length, 2);
-    assert.match(stock, /<th>Stock mínimo<\/th>\s*<th>Diferencia<\/th>\s*<th class="text-nowrap px-0">Estado del stock<\/th>/);
-    assert.doesNotMatch(component, /stockWarehouseBreakdown|isConsolidatedStock/);
-    assert.match(component, /async listStock\([\s\S]*?type: "list"[\s\S]*?this\.stockRecords = result\?\.bool \? result\.data : Requests\.emptyPagination\(\);/);
-    assert.doesNotMatch(inventoryCss, /\.br-inventory__col-warehouses/);
-    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse,\s*\.br-inventory__kardex-table \{\s*min-width: 52rem;/);
-    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse \.br-inventory__col-status \{ width: 14%; \}/);
-    assert.match(inventoryCss, /\.br-inventory__table--single-warehouse > thead > tr > th:nth-child\(n\+2\):nth-child\(-n\+4\) \{\s*text-align: right !important;/);
-    assert.match(inventoryCss, /td\.br-inventory__situation \{[^}]*text-align: center;/);
-
-});
-
-test("all inventory listings reuse the product loader, empty illustration and table surface", () => {
-
-    const component = readInventory();
-    const products = read("resources/js/System/Pages/Catalogs/products/main.vue");
-    const withoutData = read("resources/js/System/Components/WithoutData.vue");
-    const listing = ["stock", "transfers", "guides", "kardex", "valued-kardex"]
-        .map(name => read(`${inventoryPath}${name}.vue`)
-            .replace(/<Teleport to="body">[\s\S]*?<\/Teleport>/g, "")
-            .replace(/<FormModal\b[\s\S]*?<\/FormModal>/g, ""))
-        .join("\n");
-    const emptyStates = listing.match(/<WithoutData[\s\S]*?\/>/g) || [];
-
-    assert.equal((listing.match(/class="br-entity-list"/g) || []).length, 5);
-    assert.equal((listing.match(/class="br-table-header-surface"/g) || []).length, 5);
-    assert.equal((listing.match(/class="py-4"><Loader\/>/g) || []).length, 5);
-    assert.equal(emptyStates.length, 5);
-    assert.equal((listing.match(/image-src=/g) || []).length, 0);
-    assert.match(products, /<FgEmptyState[^>]*No encontramos productos con esta búsqueda[^>]*Aún no hay productos registrados/);
-    assert.match(withoutData, /default: "\/System\/assets\/img\/utils\/without_data\/empty_records\.png"/);
-    assert.match(withoutData, /default: Constants\.generalConfig\.messages\.withoutResults/);
-    assert.match(withoutData, /default: "Aún no hay información para mostrar\."/);
-    assert.doesNotMatch(component, /hasSearched|emptyStateText|emptyStateDescription|Pulsa Buscar para consultar/);
-
-    for(const state of emptyStates) {
-        assert.match(state, /class="br-entity-empty-state"/);
-        assert.doesNotMatch(state, /(?:^|\s):?(?:text|description)=/);
+test("los filtros y las acciones se muestran juntos con la tabla y paginación fuera de la botonera", () => {
+    const listing = read(inventoryPath + "InventoryListing.vue");
+    const table = read(inventoryPath + "InventoryTable.vue");
+    const css = read("resources/css/System/fg/products.css");
+    for(const name of ["stock", "transfers", "guides", "kardex", "valued-kardex"]) {
+        const page = read(inventoryPath + name + ".vue");
+        assert.match(page, /<InventoryListing[^>]*@search="searchCurrentView"[^>]*@page="listCurrentView"/);
+        assert.doesNotMatch(page, /br-inventory|<Breadcrumb|<WithoutData/);
     }
-
+    assert.match(listing, /fg-page-header__actions[\s\S]*?<ActionsDropdown type="button"[^>]*>[\s\S]*?Descargar Excel[\s\S]*?<\/header>/);
+    assert.match(listing, /fg-filters fg-filter-grid[\s\S]*?<FgFilterActions[^>]*@search="\$emit\('search'\)" @clear="\$emit\('clear'\)"[\s\S]*?<InventoryTable[\s\S]*?<\/InventoryTable>\s*<Paginator/);
+    assert.doesNotMatch(listing, /(?:brt?-|<SearchButton\b|<ClearFiltersButton\b)/);
+    assert.match(read("resources/js/System/Pages/Catalogs/products/main.vue"), /<FgFilterActions submit[^>]*@clear="clearProductFilters"/);
+    const filterActions = read("resources/js/System/Components/Figma/FgFilterActions.vue");
+    assert.match(filterActions, /icon="fa-solid fa-magnifying-glass"[^>]*:loading="loading"[^>]*>Buscar<\/FgButton>/);
+    assert.match(filterActions, /<FgButton v-if="showClear" tone="link"[^>]*>Limpiar<\/FgButton>/);
+    assert.match(table, /<ResponsiveTable fg[\s\S]*?<table class="fg-table fg-inventory-table"[\s\S]*?<FgListLoading[\s\S]*?<FgEmptyState/);
+    assert.match(css, /\.fg-table th \{[^}]*vertical-align: middle/);
+    assert.match(css, /\.fg-table td \{[^}]*vertical-align: middle/);
+    assert.match(css, /tbody tr:not\(\.fg-table__state\):hover/);
+    assert.match(readInventory(), /Alerts\.confirmDownload/);
 });
 
-test("inventory filters remain outside the white table surface", () => {
-
+test("Traslados conserva los alcances de almacén y los selectores separados", () => {
     const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const cardCss = read("resources/css/System/br-branding/70-visual-density-brand-refresh.css");
-    const polishCss = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");
-
-    assert.match(component, /<section class="br-inventory__content">/);
-    assert.doesNotMatch(component, /br-inventory__panel/);
-    assert.doesNotMatch(cardCss + polishCss, /\.br-inventory__content|\.br-inventory__panel/);
-    assert.match(inventoryCss, /\.br-inventory__context \{[\s\S]*?padding: 0\.15rem 0 0\.25rem;/);
-    assert.doesNotMatch(component, /br-inventory__kardex-filters/);
-    assert.match(component, /br-inventory__context-actions d-flex flex-nowrap align-items-stretch gap-2/);
-    assert.doesNotMatch(inventoryCss, /br-inventory__context-actions--report/);
-    assert.match(inventoryCss, /\.br-inventory-transfer \{[\s\S]*?background: transparent;/);
-
+    const page = read(inventoryPath + "transfers.vue");
+    const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
+    const service = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
+    assert.deepEqual(inventoryFilters.transfers.slice(0, 2).map(field => field.options), ["transferWarehouseOptions", "transferWarehouseOptions"]);
+    assert.match(component, /sourceWarehouse: ALL_TRANSFER_WAREHOUSES,\s*destinationWarehouse: ALL_TRANSFER_WAREHOUSES/);
+    assert.match(component, /prepareTransfer\(\)[\s\S]*?source: null,[\s\S]*?destination: null/);
+    assert.match(component, /destinationWarehouses\(\)[\s\S]*?return this\.realWarehouses\.filter\(warehouse => Number\(warehouse\.code\) !== Number\(this\.transferForm\.source\?\.code\)\)/);
+    assert.match(component, /source_warehouse_id: this\.transferForm\.source\.code/);
+    assert.match(page, /:options="realWarehouses"[\s\S]*?:options="destinationWarehouses"/);
+    assert.equal((page.match(/:summarize-selection="false"/g) || []).length, 2);
+    assert.doesNotMatch(page, /placeholder="Todos los almacenes"/);
+    assert.match(service, /\$warehouseIds = \$page->getCollection\(\)[\s\S]*?source_warehouse_id[\s\S]*?destination_warehouse_id/);
+    assert.match(service, /\$warehouseQuery->whereIn\("id", \$filters\["allowed_warehouse_ids"\]\);/);
+    assert.match(service, /"transfer_source_warehouse" => \$sourceId,[\s\S]*?"transfer_destination_warehouse" => \$destinationId/);
+    assert.match(controller, /RolePermissionService::canAccessRoute\(\$this->getAuthUser\(\), "stocks_management\.transfers\.index"\)/);
+    assert.match(controller, /\$filters\["allowed_warehouse_ids"\] = AccessScopeService::allowedIds/);
 });
 
-test("stock matches the Kardex filter widths and groups all toolbar actions", () => {
-
+test("las operaciones conservan su almacén y control de carga independientes de los filtros", () => {
+    const listing = read(inventoryPath + "InventoryListing.vue");
     const component = readInventory();
-    const stockFilters = component.slice(
-        component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
-        component.indexOf('<div class="br-inventory__workspace">')
-    );
-    assert.match(stockFilters, /col-lg-3 col-xl-3 br-inventory__warehouse/);
-    assert.match(stockFilters, /xl="3"\s+lg="3"\s+md="6"/);
-    assert.match(stockFilters, /v-if="activeView === 'stock'" class="col-12 col-md-6 col-lg-2 col-xl-2"\s*>\s*<label for="stockSituation"/);
-    assert.match(stockFilters, /inventoryWarehouse[\s\S]*?movementType[\s\S]*?guideType[\s\S]*?inventoryDateFrom[\s\S]*?inventoryDateTo[\s\S]*?<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>[\s\S]*?<ActionsDropdown\b[\s\S]*?class="vr align-self-center"[\s\S]*?<span>Registrar operación<\/span>[\s\S]*?aria-label="Ver alertas"/);
-    assert.doesNotMatch(component, /br-inventory__alerts-action/);
-    assert.match(component, /<ProductIdentity variant="expandable" :product="record"\/>/);
-    assert.doesNotMatch(component, /<strong>\{\{ (?:record\.(?:internal_code|barcode)|quantityWithUnit\((?:record\.stock_quantity|warehouse\.quantity))/);
-    assert.match(component, /isReportView\(\) \{[\s\S]*?"kardex", "valued", "guides"/);
-    assert.match(component, /if\(this\.isReportView\) return "col-12 col-md-6 col-lg-3 col-xl-3";/);
-
-});
-
-test("inventory loads the first warehouse and waits for Buscar to apply filters", () => {
-
-    const component = readInventory();
-    const movementService = read("app/Services/System/Warehouses/Inventory/InventoryMovementService.php");
-    const watcher = component.slice(component.indexOf('watch: {'));
-    const state = read(`${inventoryPath}inventoryState.js`);
-    const mounted = state.slice(state.indexOf('async mounted() {'), state.indexOf('    data() {'));
-
-    assert.equal((component.match(/@click="searchCurrentView"/g) || []).length, 5);
-    assert.equal((component.match(/<SearchButton\b[^>]*@click="searchCurrentView"[^>]*\/>/g) || []).length, 5);
-    assert.match(mounted, /if\(initialized && this\.activeView === "transfers"\) \{\s*await this\.listCurrentView\(\{\}\);\s*\}else if\(initialized && this\.realWarehouses\.length\) \{\s*this\.filters\.warehouse = this\.realWarehouses\[0\];\s*this\.appliedFilters = \{\.\.\.this\.filters\};\s*await this\.listCurrentView\(\{\}\);/);
-    assert.doesNotMatch(watcher, /"filters\.|alertMinimumStatus\(\)|this\.invalidateListing\(\)/);
-    assert.match(component, /focusProductSearch\(\) \{[\s\S]*?this\.\$refs\.productSearch\?\.focus\(\);/);
-    assert.match(state, /if\(this\.activeView === "transfers"\) return this\.listTransfers\(\{url\}\);/);
-    assert.match(state, /async listTransfers\([\s\S]*?data: this\.currentReportFilters\(\)/);
-    assert.match(state, /product_search: applied\.productSearch/);
-    assert.match(movementService, /\$productSearch = trim\(\(string\) \(\$filters\["product_search"\] \?\? ""\)\);[\s\S]*?whereHas\("item"/);
+    assert.match(listing, /fieldDisabled\(field\) \{ return props\.loading \|\| \(field\.kind !== "warehouse" && !warehouseAvailable\.value\);/);
+    assert.match(listing, /const searchDisabled = computed\(\(\) => props\.loading \|\| !warehouseAvailable\.value\)/);
     assert.match(component, /if\(requestVersion !== this\.requestVersion\) return;/);
-
+    assert.match(component, /warehouse_id: this\.movementForm\.warehouse\.code/);
+    assert.match(component, /prepareMovement\(record = null\)[\s\S]*?warehouse: null/);
+    assert.match(component, /canConfigureTransfer\(\)[\s\S]*?Boolean\(source\?\.code && destination\?\.code && Number\(source\.code\) !== Number\(destination\.code\)\)/);
+    assert.match(component, /searchCurrentView\(\)[\s\S]*?if\(\(this\.activeView !== "transfers" && !warehouse\) \|\| this\.isCurrentViewLoading\) return Promise\.resolve\(\);/);
+    assert.match(component, /exportCurrentView\(\)[\s\S]*?this\.appliedFilters\.warehouse\?\.code/);
+    assert.match(component, /focusProductSearch\(\)[\s\S]*?this\.\$refs\.inventoryListing\?\.focusProductSearch\(\);/);
 });
 
-test("inventory blocks filters and actions while searching", () => {
-
-    const component = readInventory();
-    const toolbar = component.slice(
-        component.indexOf('<div class="row align-items-end g-3 br-inventory__context">'),
-        component.indexOf('<div class="br-inventory__workspace">')
-    );
-
-    assert.match(toolbar, /id="inventoryWarehouse"[\s\S]*?:disabled="isCurrentViewLoading"/);
-    assert.match(toolbar, /ref="productSearch"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /id="movementType"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /id="guideType"[\s\S]*?:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /id="inventoryDateFrom"[^>]*:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /id="inventoryDateTo"[^>]*:disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create waves-effect"[\s\S]*?:disabled="isCurrentViewLoading"/);
-    assert.match(toolbar, /class="br-btn br-btn-sm br-btn-action-open-create"\s*:disabled="isCurrentViewLoading"[\s\S]*?@click="prepareMovement\(\)"/);
-    assert.match(toolbar, /<ActionsDropdown :disabled="isCurrentViewLoading \|\| !filters\.warehouse\?\.code"/);
-    assert.match(toolbar, /class="dropdown-item" :disabled="isCurrentViewLoading \|\| exporting/);
-    assert.match(component, /isCurrentViewLoading\(\) \{\s*if\(this\.activeView === "stock"\) return this\.loadingStock;/);
-    assert.match(component, /searchCurrentView\(\) \{\s*const warehouse = this\.filters\.warehouse\?\.code;\s*if\(\(this\.activeView !== "transfers" && !warehouse\) \|\| this\.isCurrentViewLoading\) return Promise\.resolve\(\);/);
-    assert.match(component, /async exportCurrentView\(\) \{\s*if\(\(this\.activeView !== "transfers" && !this\.appliedFilters\.warehouse\?\.code\) \|\| this\.exporting \|\| this\.isCurrentViewLoading\) return;/);
-
-});
-
-test("inventory forms gate dependent fields on the required warehouse selections", () => {
-
-    const component = readInventory();
-    const transferModal = component.slice(
-        component.indexOf('id="inventoryTransferModal"'),
-        component.indexOf('</Teleport>', component.indexOf('id="inventoryTransferModal"'))
-    );
-    const operationModal = component.slice(component.indexOf('id="inventoryMovementModal"'));
-
-    assert.match(component, /prepareMovement\(record = null\) \{[\s\S]*?operation: null,[\s\S]*?warehouse: null,/);
-    assert.match(component, /prepareTransfer\(\) \{[\s\S]*?source: null,[\s\S]*?destination: null,/);
-    assert.match(component, /canConfigureMovement\(\) \{\s*return Boolean\(this\.movementForm\.warehouse\?\.code\);/);
-    assert.match(operationModal, /input-id="inventoryOperation"[\s\S]*?:disabled="!canConfigureMovement"/);
-    assert.match(operationModal, /v-model\.trim="movementForm\.reason"[\s\S]*?:disabled="!canConfigureMovement"/);
-    assert.match(operationModal, /:upload-disabled="!canConfigureMovement \|\| previewingOperation \|\| downloadingOperation \|\| savingMovement"/);
-    assert.match(operationModal, /v-model="item\.product"[\s\S]*?:disabled="!canConfigureMovement"/);
-    assert.match(operationModal, /v-model="item\.amount"[^>]*:disabled="!canConfigureMovement"/);
-    assert.match(operationModal, /v-model="item\.unitCost"[^>]*:disabled="!canConfigureMovement"/);
-    assert.match(transferModal, /id="transferDestination"[^>]*:disabled="savingTransfer \|\| !transferForm\.source\?\.code"\s+placeholder="Selecciona el almacén que recibe"/);
-    assert.match(transferModal, /v-if="canConfigureTransfer" class="col-12 br-inventory-transfer__reason"[\s\S]*?v-model\.trim="transferForm\.reason"/);
-    assert.match(transferModal, /v-if="canConfigureTransfer" class="br-inventory-operation__items br-inventory-transfer__items"[\s\S]*?Productos incluidos/);
-    assert.match(transferModal, /v-if="canConfigureTransfer" class="br-entity-modal__footer-actions"[\s\S]*?Guardar traslado/);
-
-});
-
-test("the shared work-warehouse selector shows branch and warehouse on every page", () => {
-
-    const component = readInventory();
-    const warehouseSelect = read("resources/js/System/Components/Generics/WarehouseSelect.vue");
-    const selectionField = read("resources/js/System/Components/Generics/WarehouseSelectionField.vue");
-    const warehouseCss = read("resources/css/System/fg/components.css");
-    const references = read("app/Services/System/Base/CompanyReferenceDataService.php");
-
-    assert.match(component, /v-model="filters\.warehouse"\s+:options="warehouses"/);
-    assert.equal((component.match(/<WarehouseSelect\s/g) || []).length, 6);
-    assert.equal((component.match(/<WarehouseSelectionField\s/g) || []).length, 2);
-    assert.match(component, /import WarehouseSelect from "@System\/Components\/Generics\/WarehouseSelect\.vue";/);
-    assert.match(selectionField, /v-if="required"[^>]*>\*<\/span>\s*<\/component>\s*<button\s+v-if="showSummary"[\s\S]*?Cambiar\s*<\/button>/);
-    assert.match(selectionField, /v-if="showSummary" class="fg-field__control"[\s\S]*?class="fg-selection-summary__value"[\s\S]*?<WarehouseSelect\s+v-else/);
-    assert.match(warehouseSelect, /<VueSelect[\s\S]*?:model-value="modelValue"[\s\S]*?:options="options"[\s\S]*?@update:modelValue="\$emit\('update:modelValue', \$event\)"/);
-    assert.match(warehouseSelect, /fg-warehouse-select[\s\S]*?#selected-option="warehouse"[\s\S]*?#option="warehouse"/);
-    assert.match(warehouseSelect, /<strong v-if="warehouse\.branchName" class="fg-location__branch">[\s\S]*?warehouse\.branchName[\s\S]*?<\/strong>/);
-    assert.match(warehouseSelect, /fg-location__separator" aria-hidden="true">-<\/span>[\s\S]*?fg-location__name/);
-    assert.match(component, /branchName: record\.branch\?\.name \|\| ""[\s\S]*?warehouseName: record\.name[\s\S]*?displayLabel: record\.branch\?\.name \? `\$\{record\.branch\.name\} - \$\{record\.name\}` : record\.name/);
-    assert.match(component, /label: record\.branch\?\.name \? `\$\{record\.branch\.name\} \/ \$\{record\.name\}` : record\.name/);
-    assert.match(warehouseCss, /\.fg-location__branch \{[\s\S]*?font-weight: var\(--fg-label-weight\);/);
-    assert.match(warehouseCss, /\.fg-location__name \{[\s\S]*?font-weight: var\(--fg-regular-weight\);/);
-    assert.match(references, /function stockWarehouses\(\): Collection \{[\s\S]*?->with\("branch"\)/);
-
-});
-
-test("operation form orders warehouse context, type and effect before the full-width reason", () => {
-
-    const component = readInventory();
-    const inventoryCss = read("resources/css/System/br-branding/82-inventory.css");
-    const modal = component.slice(component.indexOf('id="inventoryMovementModal"'));
-
-    assert.match(modal, /Almacén de la operación[\s\S]*?<WarehouseSelect[\s\S]*?<strong>El stock cambia solo en el almacén elegido\.<\/strong>[\s\S]*?Tipo de operación[\s\S]*?br-inventory-operation__description[\s\S]*?title="Motivo"/);
-    assert.doesNotMatch(modal, /Alcance de la operación|Efecto en el almacén/);
-    assert.match(inventoryCss, /\.br-layout \.br-inventory-operation__reason\.form-group \{\s*grid-column: 1 \/ -1;/);
-    assert.match(inventoryCss, /\.br-inventory-operation__config \{\s*display: grid;\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
-    assert.match(inventoryCss, /\.br-inventory-operation__warehouse-info \.br-inventory-operation__effect/);
-    assert.match(component, /code: "physical_count"[\s\S]*?description: "Usa el saldo contado\."/);
-
+test("el selector de almacén conserva sede y nombre en inventario", () => {
+    const select = read("resources/js/System/Components/Generics/WarehouseSelect.vue");
+    const listing = read(inventoryPath + "InventoryListing.vue");
+    assert.match(select, /<FgSelect[\s\S]*?#selected-option="warehouse"[\s\S]*?fg-location__branch[\s\S]*?fg-location__name[\s\S]*?#option="warehouse"/);
+    assert.match(listing, /<WarehouseSelect v-if="field\.kind === 'warehouse'"[\s\S]*?:model-value="filters\[field\.key\]"/);
+    assert.match(readInventory(), /branchName: record\.branch\?\.name \|\| ""[\s\S]*?warehouseName: record\.name[\s\S]*?displayLabel:/);
 });
 
 test("ingresos manuales solo admiten entrada manual y devolución de cliente", () => {

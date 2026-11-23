@@ -1,504 +1,146 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgCatalogList
+        kind="subscriptions"
+        title="Membresías"
+        singular="membresía"
+        plural="membresías"
+        list-title="Membresías registradas"
+        description="Administra tus planes, sus precios y sus condiciones de acceso."
+        v-model:filter-by="filterByValue"
+        v-model:word="filterWordValue"
+        :filter-options="filterByOptions"
+        :placeholder="searchPlaceholder"
+        :applied-word="entityList.appliedFilters?.word?.trim()"
+        :records="entityList.records"
+        :initial-loading="initialLoading"
+        :loading="entityList.extras.loading"
+        :exporting="isExporting"
+        :failed="listFailed"
+        @search="handleSearch"
+        @page="listEntity"
+        @retry="listEntity({})"
+        @add="openModal()"
+        @import="openImportModal"
+        @export="downloadRecords">
+        <template #row="{record}">
+            <td class="fg-align-center"><InternalCodeValue :value="record.internal_code"/></td>
+            <td>
+                <span class="fg-product-name">{{ record.name }}</span>
+                <ExpandableText v-if="record.description" :text="record.description"/>
+            </td>
+            <td><dl class="fg-catalog-details">
+                <div><dt>Duración:</dt><dd>{{ record.formatted_duration }}</dd></div>
+                <div v-if="record.capacity_control_enabled"><dt>Cupos:</dt><dd>{{ capacityLabel(record) }}</dd></div>
+                <div v-if="commissionLabel(record)"><dt>Comisión:</dt><dd>{{ commissionLabel(record) }}</dd></div>
+            </dl></td>
+            <td class="fg-align-end"><CatalogPriceCell :record="record"/></td>
+            <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+            <td class="fg-align-center">
+                <TableActionsDropdown :label="`Acciones de ${record.name}`">
+                    <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar membresía</button></li>
+                </TableActionsDropdown>
+            </td>
+        </template>
+    </FgCatalogList>
 
-    <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading" kind="subscriptions" label="membresías"/>
-
-        <main v-else class="br-entity">
-            <FiltersSection
-                class="br-filter-bar--compact"
-                show-clear-button
-                :filter-by-value="filterByValue"
-                @update:filterByValue="filterByValue = $event"
-                :filter-word-value="filterWordValue"
-                @update:filterWordValue="filterWordValue = $event"
-                :filter-by-options="filterByOptions"
-                :search-placeholder="searchPlaceholder"
-                :loading="entityList.extras.loading"
-                :filter-by-title="MODULE.texts.filters.filterBy"
-                :search-title="MODULE.texts.filters.search"
-                :add-button-text="MODULE.texts.actions.add"
-                :show-add-button="true"
-                :show-download-button="true"
-                :show-import-button="true"
-                :group-secondary-actions="true"
-                :import-button-text="MODULE.texts.actions.import"
-                :import-button-tooltip="MODULE.texts.actions.import"
-                :download-button-text="MODULE.texts.actions.download"
-                :download-button-tooltip="MODULE.texts.actions.download"
-                :download-icon-only-on-desktop="true"
-                :downloading="isExporting"
-                :title-class="[config.forms.classes.title]"
-                :select-class="config.forms.classes.select2"
-                @search="handleSearch"
-                @add="openModal()"
-                @import="openImportModal"
-                @download="downloadRecords"/>
-
-            <OfferingImportModal ref="importModal" type="subscription" :import-route="routeActions.import" :internal-code-prefix="internalCodePrefixes.subscription" @imported="listEntity({})"/>
-
-            <section class="br-entity-list" aria-label="Listado de membresías">
-                <ResponsiveTable>
-            <table class="table br-entity-table br-entity-table--offering br-entity-table--commercial-headings mb-0">
-                <colgroup>
-                    <col class="br-entity-table__col-code">
-                    <col class="br-entity-table__col-offering">
-                    <col class="br-entity-table__col-detail">
-                    <col class="br-entity-table__col-price">
-                    <col class="br-entity-table__col-status">
-                    <col class="br-entity-table__col-actions">
-                </colgroup>
-                <thead class="br-table-header-surface">
-                    <tr>
-                        <th class="text-center">Código interno</th>
-                        <th>Membresía</th>
-                        <th>Detalle</th>
-                        <th class="text-center">Precio</th>
-                        <th class="text-center">Estado</th>
-                        <th><span class="visually-hidden">Acciones</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="br-table-state" v-if="entityList.extras.loading">
-                        <td colspan="6" class="py-4">
-                            <Loader label="Buscando membresías…"/>
-                        </td>
-                    </tr>
-                    <template v-else-if="entityList.records.total > 0">
-                        <tr v-for="record in entityList.records.data" :key="record.id">
-                            <td class="text-center">
-                                <InternalCodeValue :value="record.internal_code"/>
-                            </td>
-                            <td>
-                                <span v-text="record.name" class="br-entity-table__name"></span>
-                                <ExpandableText v-if="record.description" class="br-entity-table__description" :text="record.description"/>
-                            </td>
-                            <td>
-                                <div class="br-entity-offering-details">
-                                    <span>
-                                        <strong class="colon-at-end">Duración</strong>
-                                        <span class="br-entity-offering-details__value">{{ record.formatted_duration }}</span>
-                                    </span>
-                                    <span v-if="record.capacity_control_enabled">
-                                        <strong class="colon-at-end">Cupos</strong>
-                                        <span class="br-entity-offering-details__value">{{ capacityLabel(record) }}</span>
-                                    </span>
-                                    <span v-if="commissionLabel(record)">
-                                        <strong class="colon-at-end">Comisión</strong>
-                                        <span class="br-entity-offering-details__value">{{ commissionLabel(record) }}</span>
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="text-end">
-                                <CatalogPriceCell :record="record"/>
-                            </td>
-                            <td class="text-center">
-                                <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
-                            </td>
-                            <td class="text-center">
-                                <TableActionsDropdown :label="`Acciones de ${record.name}`">
-                                    <li><button type="button" class="dropdown-item" @click="openModal(record)"><i class="fa-solid fa-pen" aria-hidden="true"></i><span v-text="MODULE.texts.actions.edit"></span></button></li>
-                                </TableActionsDropdown>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr class="br-table-state" v-else>
-                        <td colspan="6" class="py-4">
-                            <WithoutData
-                                class="br-entity-empty-state"
-                                type="image"
-                                :text="entityList.appliedFilters?.word?.trim() ? 'No encontramos membresías con esta búsqueda' : 'Aún no hay membresías registradas'"
-                                :description="entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una membresía o importa un archivo para empezar.'"/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-                </ResponsiveTable>
-            </section>
-
-        <!-- Pagination -->
-            <Paginator aria-label="Paginación de membresías" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
-        </main>
-    </InitialLoadTransition>
+    <OfferingImportModal ref="importModal" type="subscription" :import-route="routeActions.import" :internal-code-prefix="internalCodePrefixes.subscription" @imported="listEntity({})"/>
 
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="MODULE.texts.modal[isUpdate ? 'update' : 'store']"
-        modal-class="br-record-editor br-entity-modal--tabbed"
+        modal-class="fg-modal--editor"
         modal-size="modal-lg"
         :close-disabled="isSaving"
         :submit-disabled="isSaving"
-        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
         :submit-button-text="isSaving ? 'Guardando…' : isUpdate ? 'Guardar cambios' : 'Guardar membresía'"
         @submit="saveEntity">
         <template #body>
-            <AppTabs
-                v-model="activeFormTab"
-                :tabs="formTabs"
-                :has-errors="tabHasErrors"
-                id-prefix="subscription"
-                shared-controls-id="subscription-form-panel"
-                variant="descriptive" layout="content"
-                label="Secciones de la membresía"/>
-            <form class="br-entity-form-section" @submit.prevent="saveEntity">
-                        <div id="subscription-form-panel" class="br-form-groups" role="tabpanel" :aria-labelledby="`subscription-tab-trigger-${activeFormTab}`">
-                            <FormGroup v-show="activeFormTab === 'general'" title="Identificación" icon="fa-solid fa-id-card" primary>
-                                <div class="row g-3">
-                                    <InputText
-                                        v-model="forms[entity].createUpdate.data.name"
-                                        hasDiv
-                                        :title="MODULE.texts.form.name"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        maxlength="100"
-                                        showCharCounter
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                        xl="6"
-                                        lg="6"
-                                        md="12"/>
-
-                                    <InternalCodeInput
-                                        v-model="forms[entity].createUpdate.data.internal_code"
-                                        v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
-                                        hasDiv
-                                        :title="MODULE.texts.form.internalCode"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        :showCharCounter="false"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
-                                        xl="3"
-                                        lg="3"
-                                        md="6">
-                                        <template v-slot:inputGroupAppend>
-                                            <button type="button" class="br-input-action" @click="generateCodeAction($event)" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
-                                                <i class="fa fa-rotate"></i>
-                                            </button>
-                                        </template>
-                                    </InternalCodeInput>
-
-                                    <InputNumber
-                                        v-model="forms[entity].createUpdate.data.duration_value"
-                                        hasDiv
-                                        :title="MODULE.texts.form.durationValue"
-                                        :aria-label="MODULE.texts.form.durationValue"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        :decimals="0"
-                                        :minValue="1"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.duration_value || forms[entity].createUpdate.errors?.duration_type"
-                                        xl="3"
-                                        lg="3"
-                                        md="6">
-                                        <template #inputGroupAppend>
-                                            <v-select
-                                                v-model="forms[entity].createUpdate.data.duration_type"
-                                                class="br-input-unit-select"
-                                                :options="durationTypes"
-                                                :aria-label="MODULE.texts.form.durationType"
-                                                :clearable="false"
-                                                :searchable="false"
-                                                append-to-body>
-                                                <template #no-options><SelectNoOptions/></template>
-                                            </v-select>
-                                        </template>
-                                    </InputNumber>
-                                </div>
-                            </FormGroup>
-
-                            <FormGroup v-show="activeFormTab === 'general'" title="Precios y estado" icon="fa-solid fa-tag">
-                                <div class="row g-3">
-                                    <InputNumber
-                                        v-model="forms[entity].createUpdate.data.price"
-                                        hasDiv
-                                        :title="MODULE.texts.form.price"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.price"
-                                        xl="3"
-                                        lg="3"
-                                        md="6">
-                                        <template v-slot:inputGroupPrepend>
-                                            <span class="input-group-text br-currency-prefix">
-                                                <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
-                                            </span>
-                                        </template>
-                                    </InputNumber>
-
-                                    <InputNumber
-                                        v-model="forms[entity].createUpdate.data.min_price"
-                                        hasDiv
-                                        :title="MODULE.texts.form.minPrice"
-                                        :titleClass="[config.forms.classes.title]"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.min_price"
-                                        xl="3"
-                                        lg="3"
-                                        md="6"
-                                        sm="6">
-                                        <template v-slot:inputGroupPrepend>
-                                            <span class="input-group-text br-currency-prefix">
-                                                <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
-                                            </span>
-                                        </template>
-                                    </InputNumber>
-
-                                    <InputNumber
-                                        v-model="forms[entity].createUpdate.data.max_price"
-                                        hasDiv
-                                        :title="MODULE.texts.form.maxPrice"
-                                        :titleClass="[config.forms.classes.title]"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.max_price"
-                                        xl="3"
-                                        lg="3"
-                                        md="6"
-                                        sm="6">
-                                        <template v-slot:inputGroupPrepend>
-                                            <span class="input-group-text br-currency-prefix">
-                                                <span class="br-currency-prefix__symbol" v-text="forms[entity].createUpdate.data.currency?.data?.sign"></span>
-                                            </span>
-                                        </template>
-                                    </InputNumber>
-
-                                    <InputSlot
-                                        input-id="membership-catalog-status"
-                                        hasDiv
-                                        :title="MODULE.texts.form.status"
-                                        :titleClass="[config.forms.classes.title]"
-                                        isRequired
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                        xl="3"
-                                        lg="3"
-                                        md="6">
-                                        <template v-slot:input>
-                                            <v-select
-                                                input-id="membership-catalog-status"
-                                                v-model="forms[entity].createUpdate.data.status"
-                                                :options="statuses"
-                                                :class="config.forms.classes.select2"
-                                                :clearable="false"
-                                                :searchable="false"/>
-                                        </template>
-                                    </InputSlot>
-                                </div>
-                            </FormGroup>
-
-                            <FormGroup v-show="activeFormTab === 'general'" title="Información comercial" icon="fa-solid fa-tags">
-                                <div class="row g-3">
-                                    <InputText
-                                        v-model="forms[entity].createUpdate.data.description"
-                                        hasDiv
-                                        :title="MODULE.texts.form.description"
-                                        :titleClass="[config.forms.classes.title]"
-                                        maxlength="100"
-                                        showCharCounter
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                        xl="6"
-                                        lg="6"/>
-
-                                    <InputSlot
-                                        input-id="membership-catalog-categories"
-                                        hasDiv
-                                        :title="MODULE.texts.form.categories"
-                                        :titleClass="[config.forms.classes.title]"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.categories"
-                                        xl="6"
-                                        lg="6">
-                                        <template #default>
-                                            <AddCategory
-                                                :internal-code-prefix="internalCodePrefixes.category"
-                                                :disabled="isSaving"
-                                                @created="handleCategoryCreated"/>
-                                        </template>
-                                        <template v-slot:input>
-                                            <v-select
-                                                input-id="membership-catalog-categories"
-                                                v-model="forms[entity].createUpdate.data.categories"
-                                                :options="categories"
-                                                :class="config.forms.classes.select2"
-                                                :clearable="true"
-                                                :searchable="true"
-                                                :multiple="true"
-                                                append-to-body>
-                                                <template #selected-option="option"><span class="br-select-selected-text" v-text="option.label"></span></template>
-                                                <template #option="option"><span class="br-select-option-text" v-text="option.label"></span></template>
-                                                <template #no-options><SelectNoOptions/></template>
-                                            </v-select>
-                                        </template>
-                                    </InputSlot>
-
-                                    <InputText
-                                        v-model="forms[entity].createUpdate.data.benefits_text"
-                                        hasDiv
-                                        :title="MODULE.texts.form.benefits"
-                                        :titleClass="[config.forms.classes.title]"
-                                        maxlength="100"
-                                        showCharCounter
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.benefits"
-                                        xl="6"
-                                        lg="6"/>
-
-                                    <InputText
-                                        v-model="forms[entity].createUpdate.data.restrictions_text"
-                                        hasDiv
-                                        :title="MODULE.texts.form.restrictions"
-                                        :titleClass="[config.forms.classes.title]"
-                                        maxlength="100"
-                                        showCharCounter
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.restrictions"
-                                        xl="6"
-                                        lg="6"/>
-                                </div>
-                            </FormGroup>
-
-                            <FormGroup v-show="activeFormTab === 'configuration'" title="Aplicación del IGV" icon="fa-solid fa-receipt">
-                                <div>
-                                    <div class="br-entity-publication-settings">
-                                        <label class="br-entity-switch" for="subscription_igv_exempt">
-                                            <input
-                                                id="subscription_igv_exempt"
-                                                v-model="forms[entity].createUpdate.data.igv_exempt"
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                role="switch"
-                                                @change="syncTaxExemption(forms[entity].createUpdate.data)">
-                                            <span>
-                                                <strong>IGV exonerado</strong>
-                                                <small>Si está activo, el IGV no se calcula para esta membresía al vender.</small>
-                                            </span>
-                                        </label>
-                                        <label class="br-entity-switch" :class="{'is-disabled': forms[entity].createUpdate.data.igv_exempt}" for="subscription_price_includes_tax">
-                                            <input id="subscription_price_includes_tax"
-                                                v-model="forms[entity].createUpdate.data.price_includes_tax"
-                                                class="form-check-input" type="checkbox" role="switch"
-                                                :disabled="forms[entity].createUpdate.data.igv_exempt">
-                                            <span><strong>Precio incluye IGV</strong><small>Si está activo, el precio de venta ya contiene el impuesto y no incrementará el total al vender.</small></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </FormGroup>
-
-                            <FormGroup v-show="activeFormTab === 'configuration'" title="Vigencia y comisión" icon="fa-solid fa-sliders">
-                                <div class="row g-3">
-                                    <InputDate
-                                        v-model="forms[entity].createUpdate.data.expires_at"
-                                        hasDiv
-                                        :title="MODULE.texts.form.expiresAt"
-                                        :titleClass="[config.forms.classes.title]"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.expires_at"
-                                        xl="4"
-                                        lg="4"/>
-
-                                    <InputSlot
-                                        input-id="membership-catalog-commission-type"
-                                        hasDiv
-                                        :title="MODULE.texts.form.commissionType"
-                                        :titleClass="[config.forms.classes.title]"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.commission_type"
-                                        xl="4"
-                                        lg="4">
-                                        <template v-slot:input>
-                                            <v-select
-                                                input-id="membership-catalog-commission-type"
-                                                v-model="forms[entity].createUpdate.data.commission_type"
-                                                :options="commissionTypeOptions"
-                                                :class="config.forms.classes.select2"
-                                                :clearable="false"
-                                                :searchable="false"
-                                                @update:modelValue="resetCatalogCommission(forms[entity].createUpdate)"/>
-                                        </template>
-                                    </InputSlot>
-
-                                    <CommissionValueInput
-                                        v-model="forms[entity].createUpdate.data.commission_value"
-                                        :commission-type="forms[entity].createUpdate.data.commission_type?.code"
-                                        :currency-sign="forms[entity].createUpdate.data.currency?.data?.sign"
-                                        :title="MODULE.texts.form.commissionValue"
-                                        :titleClass="[config.forms.classes.title]"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.commission_value"
-                                        xl="4"
-                                        lg="4"/>
-                                </div>
-                            </FormGroup>
-
-                            <FormGroup v-show="activeFormTab === 'configuration'" title="Cupos y asistencia" icon="fa-solid fa-users">
-                                <div class="row g-3">
-                                    <InputNumber
-                                        v-model="forms[entity].createUpdate.data.attendance_limit_per_day"
-                                        hasDiv
-                                        :title="MODULE.texts.form.attendanceLimit"
-                                        :titleClass="[config.forms.classes.title]"
-                                        :decimals="0"
-                                        :minValue="1"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.attendance_limit_per_day"
-                                        xl="4"
-                                        lg="4"/>
-
-                                    <div class="form-group col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                                        <label class="form-label" v-text="MODULE.texts.form.capacityControl"></label>
-                                        <label class="br-entity-switch br-entity-switch--field" for="subscription_capacity_control_enabled">
-                                            <input
-                                                id="subscription_capacity_control_enabled"
-                                                v-model="forms[entity].createUpdate.data.capacity_control_enabled"
-                                                @change="delete forms[entity].createUpdate.errors.capacity_limit"
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                role="switch">
-                                            <span>Limitar cupos</span>
-                                        </label>
-                                    </div>
-
-                                    <InputNumber
-                                        v-model="forms[entity].createUpdate.data.capacity_limit"
-                                        hasDiv
-                                        :title="MODULE.texts.form.capacityLimit"
-                                        :titleClass="[config.forms.classes.title]"
-                                        :isRequired="forms[entity].createUpdate.data.capacity_control_enabled"
-                                        :disabled="!forms[entity].createUpdate.data.capacity_control_enabled"
-                                        :decimals="0"
-                                        :minValue="1"
-                                        :maxValue="validationRules.capacity_limit.max"
-                                        hasTextBottom
-                                        :textBottomInfo="forms[entity].createUpdate.errors?.capacity_limit"
-                                        xl="4"
-                                        lg="4"/>
-                                </div>
-                            </FormGroup>
-
-                            <CatalogVisibilityFields
-                                v-show="activeFormTab === 'configuration'"
-                                id-prefix="subscription"
-                                item-label="membresía"
-                                v-model:published="forms[entity].createUpdate.data.see_my_web"
-                                v-model:show-price="forms[entity].createUpdate.data.see_my_web_price"/>
+            <div class="fg-editor">
+                <AppTabs v-model="activeFormTab" :tabs="formTabs" :has-errors="tabHasErrors" id-prefix="subscription" controls-prefix="subscription" variant="descriptive" layout="content" label="Secciones de la membresía"/>
+                <form class="fg-editor__panel" @submit.prevent="saveEntity">
+                    <section v-show="activeFormTab === 'general'" id="subscription-tab-general" aria-labelledby="subscription-tab-trigger-general" role="tabpanel" class="fg-stack">
+                        <div class="fg-section-heading"><h3 class="fg-section-title">Datos de la membresía</h3><span class="fg-help"><span class="fg-required">*</span> Obligatorios</span></div>
+                        <div class="fg-grid">
+                            <InternalCodeInput v-model="forms[entity].createUpdate.data.internal_code" v-bind="internalCodeInputProps(forms[entity].createUpdate.data)" title="Código interno" is-required show-char-counter has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.internal_code" :disabled="isSaving">
+                                <template #action><button type="button" class="fg-link" :disabled="isSaving" :title="MODULE.texts.form.generateCodeTooltip" @click="generateCodeAction($event)">Generar</button></template>
+                            </InternalCodeInput>
+                            <InputNumber v-model="forms[entity].createUpdate.data.duration_value" :title="MODULE.texts.form.durationValue" is-required :decimals="0" :min-value="1" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.duration_value || forms[entity].createUpdate.errors?.duration_type" :disabled="isSaving">
+                                <template #inputGroupAppend>
+                                    <FgSelect input-id="subscription-duration-unit" class="fg-select--unit" v-model="forms[entity].createUpdate.data.duration_type" :options="durationTypes" :aria-label="MODULE.texts.form.durationType" :clearable="false" :searchable="false" :disabled="isSaving"/>
+                                </template>
+                            </InputNumber>
                         </div>
-            </form>
+                        <InputText v-model="forms[entity].createUpdate.data.name" :title="MODULE.texts.form.name" :placeholder="placeholders.names.subscription" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.name" :disabled="isSaving" is-required maxlength="100" show-char-counter/>
+                        <div class="fg-grid">
+                            <InputNumber v-model="forms[entity].createUpdate.data.price" :title="MODULE.texts.form.price" is-required :placeholder="placeholders.price" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.price" :disabled="isSaving">
+                                <template #inputGroupPrepend><span class="fg-field__prefix">{{ forms[entity].createUpdate.data.currency?.data?.sign }}</span></template>
+                            </InputNumber>
+                            <FgField label="Estado" required :error="forms[entity].createUpdate.errors?.status">
+                                <FgSelect v-model="forms[entity].createUpdate.data.status" :options="statuses" :disabled="isSaving" :clearable="false" :searchable="false"/>
+                            </FgField>
+                        </div>
+                        <CatalogTaxFields v-model:price-includes-tax="forms[entity].createUpdate.data.price_includes_tax" v-model:igv-exempt="forms[entity].createUpdate.data.igv_exempt" :disabled="isSaving"/>
+                        <FgField label="Categorías" :error="forms[entity].createUpdate.errors?.categories">
+                            <template #action><AddCategory :internal-code-prefix="internalCodePrefixes.category" :disabled="isSaving" @created="handleCategoryCreated"/></template>
+                            <FgSelect v-model="forms[entity].createUpdate.data.categories" :options="categories" :disabled="isSaving" multiple :placeholder="placeholders.categories">
+                                <template #no-options><span>No hay categorías disponibles.</span></template>
+                            </FgSelect>
+                        </FgField>
+                        <details class="fg-disclosure" :open="Boolean(forms[entity].createUpdate.errors?.description || forms[entity].createUpdate.errors?.min_price || forms[entity].createUpdate.errors?.max_price || forms[entity].createUpdate.errors?.benefits || forms[entity].createUpdate.errors?.restrictions)">
+                            <summary><span>Descripción, condiciones y límites de precio</span><span class="fg-chevron" aria-hidden="true"/></summary>
+                            <div class="fg-stack">
+                                <InputTextArea v-model="forms[entity].createUpdate.data.description" :title="MODULE.texts.form.description" :placeholder="placeholders.optional" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.description" :disabled="isSaving" maxlength="100"/>
+                                <div class="fg-grid">
+                                    <InputText v-model="forms[entity].createUpdate.data.benefits_text" :title="MODULE.texts.form.benefits" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.benefits" :disabled="isSaving" maxlength="100" show-char-counter/>
+                                    <InputText v-model="forms[entity].createUpdate.data.restrictions_text" :title="MODULE.texts.form.restrictions" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.restrictions" :disabled="isSaving" maxlength="100" show-char-counter/>
+                                </div>
+                                <div class="fg-grid">
+                                    <InputNumber v-model="forms[entity].createUpdate.data.min_price" :title="MODULE.texts.form.minPrice" :placeholder="placeholders.minPrice" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.min_price" :disabled="isSaving">
+                                        <template #inputGroupPrepend><span class="fg-field__prefix">{{ forms[entity].createUpdate.data.currency?.data?.sign }}</span></template>
+                                    </InputNumber>
+                                    <InputNumber v-model="forms[entity].createUpdate.data.max_price" :title="MODULE.texts.form.maxPrice" :placeholder="placeholders.maxPrice" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.max_price" :disabled="isSaving">
+                                        <template #inputGroupPrepend><span class="fg-field__prefix">{{ forms[entity].createUpdate.data.currency?.data?.sign }}</span></template>
+                                    </InputNumber>
+                                </div>
+                            </div>
+                        </details>
+                    </section>
+                    <section v-show="activeFormTab === 'configuration'" id="subscription-tab-configuration" aria-labelledby="subscription-tab-trigger-configuration" role="tabpanel" class="fg-stack">
+                        <CatalogVisibilityFields id-prefix="subscription" item-label="membresía" v-model:published="forms[entity].createUpdate.data.see_my_web" v-model:show-price="forms[entity].createUpdate.data.see_my_web_price" :disabled="isSaving"/>
+                        <div class="fg-section-divider"/>
+                        <p>Vigencia y comisión</p>
+                        <InputDate v-model="forms[entity].createUpdate.data.expires_at" :title="MODULE.texts.form.expiresAt" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.expires_at" :disabled="isSaving"/>
+                        <div class="fg-grid">
+                            <FgField :label="MODULE.texts.form.commissionType" :error="forms[entity].createUpdate.errors?.commission_type" help="La comisión es interna y no cambia el precio que paga el cliente.">
+                                <FgSelect v-model="forms[entity].createUpdate.data.commission_type" :options="commissionTypeOptions" :disabled="isSaving" :clearable="false" :searchable="false" @update:modelValue="resetCatalogCommission(forms[entity].createUpdate)"/>
+                            </FgField>
+                            <CommissionValueInput v-model="forms[entity].createUpdate.data.commission_value" :commission-type="forms[entity].createUpdate.data.commission_type?.code" :currency-sign="forms[entity].createUpdate.data.currency?.data?.sign" :title="MODULE.texts.form.commissionValue" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.commission_value" :disabled="isSaving"/>
+                        </div>
+                        <div class="fg-section-divider"/>
+                        <p>Cupos y asistencia</p>
+                        <label class="fg-check"><input v-model="forms[entity].createUpdate.data.capacity_control_enabled" type="checkbox" :disabled="isSaving" @change="delete forms[entity].createUpdate.errors.capacity_limit"/><span>Limitar cupos</span></label>
+                        <div class="fg-grid">
+                            <InputNumber v-model="forms[entity].createUpdate.data.capacity_limit" :title="MODULE.texts.form.capacityLimit" :is-required="forms[entity].createUpdate.data.capacity_control_enabled" :disabled="isSaving || !forms[entity].createUpdate.data.capacity_control_enabled" :decimals="0" :min-value="1" :max-value="validationRules.capacity_limit.max" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.capacity_limit"/>
+                            <InputNumber v-model="forms[entity].createUpdate.data.attendance_limit_per_day" :title="MODULE.texts.form.attendanceLimit" has-text-bottom :text-bottom-info="forms[entity].createUpdate.errors?.attendance_limit_per_day" :disabled="isSaving" :decimals="0" :min-value="1"/>
+                        </div>
+                    </section>
+                </form>
+            </div>
         </template>
     </FormModal>
 </template>
 
 <script>
-import FormGroup from "@/Shared/FormGroup.vue";
-import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgCatalogList from "@System/Components/Catalogs/FgCatalogList.vue";
 import {downloadCatalogList} from "@System/Components/Catalogs/downloadCatalogList.js";
 import CatalogVisibilityFields from "@System/Components/Catalogs/CatalogVisibilityFields.vue";
+import CatalogTaxFields from "@System/Components/Catalogs/CatalogTaxFields.vue";
+import {catalogFormPlaceholders} from "@System/Components/Catalogs/catalogFormPlaceholders.js";
 import CatalogPriceCell from "@System/Components/Catalogs/CatalogPriceCell.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import ExpandableText from "@System/Components/Generics/ExpandableText.vue";
-import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -506,7 +148,6 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
-import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
 import InternalCodeValue from "@System/Components/Catalogs/InternalCodeValue.vue";
 import CommissionValueInput from "@System/Components/Catalogs/CommissionValueInput.vue";
 import {OFFERING_CAPACITY_MAX, resetCatalogCommission, validateCatalogCapacity, validateCatalogCommission} from "@System/Components/Catalogs/catalogFormValidation.js";
@@ -517,12 +158,11 @@ import AddCategory from "@System/Components/Catalogs/AddCategory.vue";
 import OfferingImportModal from "@System/Components/Catalogs/Offerings/OfferingImportModal.vue";
 import {capacityLabel} from "@System/Components/Catalogs/Offerings/capacityLabel.js";
 import {commissionLabel} from "@System/Components/Catalogs/Offerings/commissionLabel.js";
-import SelectNoOptions from "@System/Components/Generics/SelectNoOptions.vue";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
 
 const FORM_TABS = [
-    {id: "general", label: "MEMBRESÍA", description: "Datos y precios", icon: "fa-solid fa-id-card", fields: ["internal_code", "name", "duration_value", "duration_type", "price", "min_price", "max_price", "status", "description", "categories", "benefits", "restrictions"]},
-    {id: "configuration", label: "CONFIGURACIÓN", description: "IGV y visibilidad", icon: "fa-solid fa-sliders", fields: ["igv_exempt", "price_includes_tax", "expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "see_my_web", "see_my_web_price"]}
+    {id: "general", label: "Membresía", description: "Datos y precios", icon: "fa-solid fa-id-card", fields: ["internal_code", "name", "duration_value", "duration_type", "price", "min_price", "max_price", "status", "igv_exempt", "price_includes_tax", "description", "categories", "benefits", "restrictions"]},
+    {id: "configuration", label: "Configuración", description: "Visibilidad y vigencia", icon: "fa-solid fa-sliders", fields: ["expires_at", "commission_type", "commission_value", "attendance_limit_per_day", "capacity_control_enabled", "capacity_limit", "see_my_web", "see_my_web_price"]}
 ];
 
 const MODULE_CONFIG = {
@@ -701,21 +341,20 @@ export default {
     name: "SubscriptionsMain",
     mixins: [InternalCodePrefixMixin],
     components: {
-        FormGroup,
-        ResponsiveTable,
+        FgSelect,
+        FgField,
+        FgCatalogList,
         CatalogPriceCell,
         CatalogVisibilityFields,
+        CatalogTaxFields,
         InternalCodeInput,
         CommissionValueInput,
         ExpandableText,
-        InitialLoadTransition,
         FormModal,
         AppTabs,
         TableActionsDropdown,
         AddCategory,
         OfferingImportModal,
-        SelectNoOptions,
-        CatalogListSkeleton,
         InternalCodeValue
     },
     data() {
@@ -736,8 +375,10 @@ export default {
             isInitialized: false,
             isSaving: false,
             isExporting: false,
+            listFailed: false,
             initialLoading: true,
-            activeFormTab: FORM_TABS[0].id
+            activeFormTab: FORM_TABS[0].id,
+            placeholders: catalogFormPlaceholders
         };
 
     },
@@ -789,6 +430,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            this.listFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -818,10 +460,12 @@ export default {
                 }
 
                 const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
+                this.listFailed = !response?.bool;
 
                 entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
+                this.listFailed = true;
 
                 entityList.records = emptyRecords;
 
@@ -933,11 +577,6 @@ export default {
 
             Alerts.toastrs({type: "success", subtitle: "Código interno generado correctamente."});
             Alerts.dismissTooltip(event?.currentTarget);
-
-        },
-        syncTaxExemption(form = {}) {
-
-            if(form.igv_exempt) form.price_includes_tax = false;
 
         },
         handleCategoryCreated({record}) {

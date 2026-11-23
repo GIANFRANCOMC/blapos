@@ -30,10 +30,6 @@
     color: var(--br-text-muted);
 }
 
-.br-entity-table--offering .br-entity-offering-details strong {
-    font-size: var(--br-font-size-061);
-}
-
 .br-detail-tags--wrap {
     flex-flow: row wrap;
 }

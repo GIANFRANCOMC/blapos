@@ -1,5 +1,5 @@
 <template>
-    <VueSelect ref="select" v-bind="$attrs" :class="['fg-select', {'fg-select--invalid': field?.invalid}]" append-to-body :calculate-position="positionSelectDropdown" :input-id="inputId" :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)">
+    <VueSelect ref="select" v-bind="$attrs" :class="['fg-select', {'fg-select--invalid': field?.invalid}]" append-to-body :calculate-position="calculatePosition" :input-id="inputId" :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)">
         <template #search="{attributes, events}">
             <input class="vs__search" v-bind="attributes" :aria-label="label" :aria-labelledby="undefined" :aria-required="field?.required || undefined" :aria-invalid="field?.invalid || undefined" :aria-describedby="field?.describedBy" v-on="events">
         </template>
@@ -13,11 +13,12 @@ import VueSelect from 'vue-select';
 import {positionSelectDropdown} from '../../Helpers/SelectOverlay.js';
 defineOptions({inheritAttrs: false});
 defineEmits(['update:modelValue']);
-defineProps({modelValue: {default: null}});
+const props = defineProps({modelValue: {default: null}, inputId: String, ariaLabel: String, calculatePosition: {type: Function, default: positionSelectDropdown}});
 const field = inject('fgField', null);
 const select = ref(null);
-const label = computed(() => field?.label || 'Selecciona una opción');
-const inputId = computed(() => field?.id);
+const label = computed(() => props.ariaLabel || field?.label || 'Selecciona una opción');
+const inputId = computed(() => props.inputId || field?.id);
+defineExpose({focus: options => select.value?.searchEl?.focus(options), isOpen: () => select.value?.open});
 // vue-select hardcodes the English combobox name; keep this accessibility adapter in one place.
 watchPostEffect(() => {
     const root = select.value?.$el;

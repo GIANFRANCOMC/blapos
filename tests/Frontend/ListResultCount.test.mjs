@@ -70,8 +70,8 @@ test("el tooltip Acciones se oculta cuando se abre el menú de la fila", () => {
 
 test("control de stock muestra el total filtrado a la derecha del paginador", () => {
 
- const page=read("resources/js/System/Pages/Warehouses/inventory/stock.vue"),paginator=read("resources/js/System/Components/Paginator.vue"),count=read("resources/js/System/Components/Generics/ListResultCount.vue");
- assert.match(page,/<Paginator\s+v-if="appliedFilters\.warehouse\?\.code"[\s\S]*?:pagination="currentRecords"[\s\S]*?:loading="isCurrentViewLoading"/);
+ const page=read("resources/js/System/Pages/Warehouses/inventory/InventoryListing.vue"),paginator=read("resources/js/System/Components/Paginator.vue"),count=read("resources/js/System/Components/Generics/ListResultCount.vue");
+ assert.match(page,/<Paginator\s+v-if="showResults"[^>]*:pagination="records"[^>]*:loading="loading"/);
  assert.match(paginator,/<ListResultCount[^>]*:pagination="pagination"[^>]*:loading="loading"[^>]*:singular="singular"[^>]*:plural="plural"/);
  assert.match(paginator,/<div v-if="!loading" class="fg-pagination"/);
  assert.match(count,/Mostrando/);

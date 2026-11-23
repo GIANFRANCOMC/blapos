@@ -1,5 +1,5 @@
 <template>
-    <span class="br-entity-identifier__value" v-text="value || '—'"></span>
+    <span class="fg-product-codes" v-text="value || '—'"></span>
 </template>
 
 <script setup>

@@ -1095,7 +1095,6 @@
   color: var(--br-primary-active);
 }
 
-.br-inventory__context .br-operational-scope,
 .br-cash__selector .br-operational-scope {
   display: inline-flex;
   margin: 0;

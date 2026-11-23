@@ -67,7 +67,8 @@ test('FG owns feedback and select focus without competing global theme rules', (
     assert.match(fields, /\.vs__search:focus-visible\s*\{\s*outline: none/);
     assert.match(fields, /fg-field__actions > :not\(:first-child\)/);
     const select = read('resources/js/System/Components/Figma/FgSelect.vue');
-    assert.match(select, /append-to-body :calculate-position="positionSelectDropdown"/);
+    assert.match(select, /default: positionSelectDropdown/);
+    assert.match(select, /append-to-body :calculate-position="calculatePosition"/);
 });
 
 test('select overlay flips near the viewport edge, follows scrolling and releases all observers', () => {

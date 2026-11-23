@@ -44,7 +44,8 @@ test("Sucursales y Usuarios muestran su tabla esqueleto hasta terminar initParam
         assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
         assert.doesNotMatch(entry, /catalog-list-skeleton\.css/, route);
-        assert.match(skeleton, new RegExp(`${route}: \\[`, "m"));
+        const columns = readFileSync(new URL("../../resources/js/System/Components/Catalogs/catalogColumns.js", import.meta.url), "utf8");
+        assert.match(columns, new RegExp(`${route}: \\[`, "m"));
     }
 
     assert.match(skeleton, /fg-catalog-skeleton__table/);

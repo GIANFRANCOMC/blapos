@@ -42,6 +42,8 @@ function inventory(page, events) {
         async initParams() { return true; }
     };
     context.activeMenuId = component.methods.activeMenuId.bind(context);
+    context.loadInventory = component.methods.loadInventory.bind(context);
+    context.retryInventoryList = component.methods.retryInventoryList.bind(context);
     return {context, mount: () => component.mounted.call(context)};
 }
 
@@ -82,9 +84,18 @@ test("la carga inicial de inventario libera el skeleton al fallar sin abrir Swal
     }
     const events = [];
     const {context, mount} = inventory("kardex", events);
-    context.listCurrentView = async () => {};
+    let queries = 0;
+    context.listCurrentView = async () => { queries++; };
+    context.initParams = async () => false;
     await mount();
     assert.equal(context.initialLoading, false);
+    assert.equal(queries, 0);
+    assert.ok(context.listError);
+    context.initParams = async () => true;
+    await context.retryInventoryList();
+    assert.equal(context.initialLoading, false);
+    assert.equal(context.listError, "");
+    assert.equal(queries, 1);
     assert.deepEqual(events, []);
 });
 

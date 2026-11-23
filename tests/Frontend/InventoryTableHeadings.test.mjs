@@ -8,61 +8,36 @@ import {renderToString} from "vue/server-renderer";
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 const directory = "resources/js/System/Pages/Warehouses/inventory";
 
-test("las tablas de inventario comparten cabeceras y respetan las alineaciones de Kardex y Traslados", () => {
-    const styles = read("resources/css/System/br-branding/82-inventory.css");
-    assert.match(styles, /body\.br-layout \.br-inventory-table-headings > thead > tr > th \{\s*text-align: center !important;/);
-    assert.match(styles, /\.br-inventory__table--single-warehouse > thead > tr > th:last-child \{\s*position: relative;/);
+import {inventoryViews, inventoryBadgeTones} from "../../resources/js/System/Pages/Warehouses/inventory/inventoryPresentation.js";
 
-    for(const file of ["stock", "transfers", "guides", "kardex", "valued-kardex", "StockAlertsModal", "InventorySkeleton"]) {
-        const source = read(`${directory}/${file}.vue`);
-        const tables = [...source.matchAll(/<table\b[\s\S]*?>/g)].map(match => match[0]);
-
-        assert.ok(tables.length > 0, `${file} debe contener una tabla`);
-        assert.ok(tables.every(table => table.includes("br-inventory-table-headings")), `${file} debe compartir la regla de cabeceras`);
-
-        for(const [, head] of source.matchAll(/<thead\b[^>]*>([\s\S]*?)<\/thead>/g)) {
-            if(file === "InventorySkeleton") {
-                assert.match(head, /'text-end': page === 'transfers' && heading === 'Almacén de origen'/);
-                assert.match(head, /'text-start': page === 'transfers' && heading === 'Almacén de destino'/);
-                continue;
-            }
-            if(file === "transfers" && head.includes("Almacén de origen")) {
-                assert.match(head, /class="text-end">Almacén de origen/);
-                assert.match(head, /class="text-start">Almacén de destino/);
-                continue;
-            }
-            assert.doesNotMatch(head, /<th\b[^>]*\btext-end\b/, `${file} debe usar la regla compartida de alineación`);
-        }
-    }
-    assert.doesNotMatch(styles, /\.br-inventory__kardex-table > thead > tr > th:nth-child\(-n\+2\)/);
-    assert.match(styles, /\.br-inventory__kardex-table > thead > tr > th:nth-child\(n\+3\) \{\s*text-align: end !important;/);
+test("los encabezados de Kardex y Traslados conservan su alineación", () => {
+    assert.deepEqual(inventoryViews.kardex.columns.map(column => [column.label, column.align]), [
+        ["Producto","center"], ["Movimiento","center"], ["Variación","end"], ["Saldo","end"]
+    ]);
+    assert.ok(inventoryViews.valued.columns.slice(2).every(column => column.align === "end"));
+    assert.deepEqual(inventoryViews.transfers.columns.slice(0,4).map(column => [column.label,column.align]), [
+        ["Referencia","center"], ["Almacén de origen","end"], ["Dirección del traslado",undefined], ["Almacén de destino",undefined]
+    ]);
+    const table=read(directory + "/InventoryTable.vue");
+    assert.match(table, /<th[\s\S]*?scope="col" :class="column\.align/);
+    assert.match(table, /'fg-sr-only': column\.hidden/);
+    for(const file of ["stock", "kardex", "valued"]) assert.equal(inventoryViews[file].columns[0].width, "37%");
 });
 
-test("Kardex conserva su distribución de columnas y los importes en una línea", () => {
-    const styles = read("resources/css/System/br-branding/82-inventory.css");
-
-    const commonHeadings = ["Producto", "Movimiento", "Variación"];
-    for(const [view, remaining] of [
-        ["kardex.vue", ["Saldo"]],
-        ["valued-kardex.vue", ["Costo unitario", "Valor movimiento", "Valor resultante"]]
-    ]) {
-        const page = read(directory + "/" + view);
-        const headers = [...page.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map(match => match[1]);
-        assert.deepEqual(headers, [...commonHeadings, ...remaining], view);
-        assert.equal(page.split('colspan="' + headers.length + '"').length - 1, 2, view);
-        assert.match(page, /<td>\s*<ProductIdentity variant="expandable" :product="movement\.item"\/>\s*<\/td>\s*<td>\s*<KardexMovementDetails\b[^>]*\/>\s*<\/td>\s*<td class="text-end">\s*<StockDifference\b/);
-    }
-    assert.match(styles, /body\.br-layout \.br-inventory__difference \{[^}]*white-space: nowrap;/);
-    assert.match(styles, /\.br-inventory__kardex-table--valued tbody td:nth-child\(n\+3\) \{\s*white-space: nowrap;\s*overflow-wrap: normal;/);
-    assert.doesNotMatch(styles, /\.br-inventory__kardex-table \.br-inventory__difference \{[^}]*white-space: normal;/);
-    assert.match(styles, /\.br-inventory__table--single-warehouse \.br-inventory__col-product,\s*\.br-inventory__kardex-table th:first-child \{ width: 37%; \}/);
+test("el Kardex valorizado mantiene variaciones y montos en una sola línea", () => {
+    const page=read(directory + "/valued-kardex.vue");
+    const styles=read("resources/css/System/fg/inventory.css");
+    assert.match(page, /class="fg-align-end text-nowrap">\{\{ currencyNumber\(movement\.unit_cost\) \}\}/);
+    assert.match(page, /fg-inventory-quantity[^>]*>[\s\S]*?signedCurrency\(movement\.value_change\)/);
+    assert.match(page, /class="fg-inventory-quantity">\{\{ currencyNumber\(movement\.value_after\) \}\}/);
+    assert.match(styles, /\.fg-inventory-quantity \{[^}]*white-space: nowrap/);
 });
 
 test("el detalle de movimiento conserva la autoría y los datos disponibles", async () => {
     const {descriptor, errors} = parse(read(directory + "/KardexMovementDetails.vue"));
     assert.deepEqual(errors, []);
-    const moduleUrl = "data:text/javascript;base64," + Buffer.from(descriptor.script.content).toString("base64");
-    const {default: options} = await import(moduleUrl);
+    const script = descriptor.script.content.replace(/^import .*;$/gm, "").replace("export default", "return");
+    const options = new Function("inventoryBadgeTones", script)(inventoryBadgeTones);
     const component = {...options, render: compile(descriptor.template.content)};
     const renderMovement = (movement, originLabel = "Compra") => renderToString(createSSRApp({
         render: () => h(component, {
@@ -111,7 +86,7 @@ test("Control de stock e Inventario usan la variante desplegable de producto", a
     }
     const withoutCodes = await renderProduct({name: "Producto sin códigos"}, "expandable");
     assert.match(withoutCodes, /Producto sin códigos/);
-    assert.doesNotMatch(withoutCodes, /<button|br-product-identity__codes/);
+    assert.doesNotMatch(withoutCodes, /<button|fg-product-identity__codes/);
 });
 
 test("el botón de producto alterna los códigos por instancia y se cierra al cambiar de producto", async () => {
@@ -160,7 +135,7 @@ test("el botón de producto alterna los códigos por instancia y se cierra al ca
     assert.equal(blurCount, 1);
     assert.equal(codes.style.display, "");
     const identification = codes.children.filter(child => child.tag === "span");
-    assert.deepEqual(identification.map(child => child.children[0].value), ["Cód. interno", "Cód. barras"]);
+    assert.deepEqual(identification.map(child => child.children[0].value), ["Cód. interno:", "Cód. barras:"]);
     assert.equal(identification[1].children[1].value, "001234");
     assert.equal(otherButton.props["aria-expanded"], false);
     click();

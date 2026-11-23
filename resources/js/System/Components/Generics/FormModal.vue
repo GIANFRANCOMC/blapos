@@ -8,6 +8,7 @@
         tabindex="-1"
         role="dialog"
         aria-modal="true"
+        v-on="{ 'hidden.bs.modal': event => $emit('hidden', event) }"
         :aria-labelledby="titleId">
         <div class="modal-dialog modal-dialog-centered" :class="[modalSize, dialogClass]" role="document">
             <div :class="'fg-modal__content'">
@@ -57,7 +58,7 @@
 <script>
 export default {
     name: "FormModal",
-    emits: ["submit"],
+    emits: ["submit", "hidden"],
     props: {
         modalId: {
             type: String,

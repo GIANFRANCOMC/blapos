@@ -4,6 +4,7 @@ import test from "node:test";
 
 const readSharedSkeleton = () => readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
 import {parse} from "@vue/compiler-sfc";
+import {catalogColumns} from "../../resources/js/System/Components/Catalogs/catalogColumns.js";
 
 const routes = [
     ["services", "servicios"],
@@ -13,15 +14,18 @@ const routes = [
 ];
 
 test("los cuatro catálogos usan el skeleton solo durante parámetros", () => {
+    const list = readFileSync(new URL("../../resources/js/System/Components/Catalogs/FgCatalogList.vue", import.meta.url), "utf8");
+    assert.match(list, /<CatalogListSkeleton v-if="initialLoading"/);
+    assert.match(list, /<tr v-if="loading" class="fg-table__state">[\s\S]*?<FgListLoading/);
     for(const [route, label] of routes) {
         const page = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${route}/main.vue`, import.meta.url), "utf8");
         const entry = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${route}/main.js`, import.meta.url), "utf8");
 
         assert.equal(parse(page, {filename: `${route}/main.vue`}).errors.length, 0, route);
-        assert.ok(page.includes(`<CatalogListSkeleton v-if="initialLoading" kind="${route}" label="${label}"/>`), route);
-        assert.match(page, /<main v-else class="br-entity">/, route);
+        assert.match(page, /<FgCatalogList\b/);
+        assert.ok(page.includes('plural="' + label + '"'));
+        assert.match(page, /:initial-loading="initialLoading"/);
         assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
-        assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader label="Buscando [^"]+…"\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
         assert.doesNotMatch(entry, /catalog-list-skeleton\.css/, route);
     }
@@ -33,7 +37,7 @@ test("el skeleton FG conserva las columnas de cada catálogo sin estilos antiguo
     assert.deepEqual(errors, []);
     assert.doesNotMatch(source, /br-|className/);
     const script = descriptor.script.content.replace(/^import .*;\s*$/gm, "").replace("export default", "return");
-    const component = new Function("FgListLoading", "FgSkeletonFilters", script)({}, {});
+    const component = new Function("FgListLoading", "FgSkeletonFilters", "catalogColumns", script)({}, {}, catalogColumns);
     for(const kind of ["products", "services", "subscriptions", "categories", "brands", "recipes", "branches", "users"]) {
         const columns = component.computed.columns.call({kind});
         assert.ok(columns.length >= 5, kind);

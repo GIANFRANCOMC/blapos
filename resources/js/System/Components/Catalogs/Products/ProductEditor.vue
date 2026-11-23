@@ -17,9 +17,9 @@
                                 <template #default><button class="fg-link" type="button" :disabled="isSaving" :title="MODULE.texts.form.generateBarcodeTooltip" @click="generateBarcode($event)">Generar</button></template>
                             </InputText>
                         </div>
-                        <InputText v-model="productForm.data.name" title="Nombre del producto" is-required maxlength="100" show-char-counter placeholder="Ej. Café molido 250 g" has-text-bottom :text-bottom-info="productForm.errors?.name" :disabled="isSaving"/>
+                        <InputText v-model="productForm.data.name" title="Nombre del producto" is-required maxlength="100" show-char-counter :placeholder="placeholders.names.product" has-text-bottom :text-bottom-info="productForm.errors?.name" :disabled="isSaving"/>
                         <div class="fg-grid fg-grid--price">
-                            <InputNumber v-model="productForm.data.price" title="Precio de venta" is-required placeholder="Ingresa el precio" has-text-bottom :text-bottom-info="productForm.errors?.price" :disabled="isSaving">
+                            <InputNumber v-model="productForm.data.price" title="Precio de venta" is-required :placeholder="placeholders.price" has-text-bottom :text-bottom-info="productForm.errors?.price" :disabled="isSaving">
                                 <template #inputGroupPrepend><span class="fg-field__prefix">{{ currencySign }}</span></template>
                             </InputNumber>
                             <FgField label="Moneda" required :input-id="modalId + '-currency'" :error="productForm.errors?.currency_id">
@@ -29,14 +29,11 @@
                                 <FgSelect :input-id="modalId + '-status'" v-model="productForm.data.status" :options="statuses" class="fg-select" :clearable="false" :searchable="false" :disabled="isSaving"/>
                             </FgField>
                         </div>
-                        <div class="fg-grid--checks">
-                            <label class="fg-check"><input v-model="productForm.data.price_includes_tax" type="checkbox" :disabled="isSaving || productForm.data.igv_exempt"/><span>Precio incluye IGV</span></label>
-                            <label class="fg-check"><input v-model="productForm.data.igv_exempt" type="checkbox" :disabled="isSaving" @change="syncTaxExemption(productForm.data)"/><span>Exonerado de IGV</span></label>
-                        </div>
+                        <CatalogTaxFields v-model:price-includes-tax="productForm.data.price_includes_tax" v-model:igv-exempt="productForm.data.igv_exempt" :disabled="isSaving"/>
                         <div class="fg-grid">
                             <FgField label="Categorías" :input-id="modalId + '-categories'" :error="productForm.errors?.categories">
                                 <template #action><AddCategory :internal-code-prefix="internalCodePrefixes.category" :disabled="isSaving" @created="handleCategoryCreated"/></template>
-                                <FgSelect :input-id="modalId + '-categories'" v-model="productForm.data.categories" :options="categories" class="fg-select" multiple :disabled="isSaving" placeholder="Selecciona categorías">
+                                <FgSelect :input-id="modalId + '-categories'" v-model="productForm.data.categories" :options="categories" class="fg-select" multiple :disabled="isSaving" :placeholder="placeholders.categories">
                                     <template #no-options><span>No hay categorías disponibles.</span></template>
                                 </FgSelect>
                             </FgField>
@@ -50,10 +47,10 @@
                         <details class="fg-disclosure" :open="detailsOpen" @toggle="detailsOpen = $event.target.open">
                             <summary><span><span>Descripción y límites de precio</span><small class="fg-help">{{ productForm.data.description || productForm.data.min_price || productForm.data.max_price ? 'Configurado' : 'Opcional · Sin configurar' }}</small></span><span class="fg-chevron" aria-hidden="true"></span></summary>
                             <div class="fg-stack">
-                                <InputTextArea v-model="productForm.data.description" title="Descripción comercial" maxlength="100" placeholder="Opcional" has-text-bottom :text-bottom-info="productForm.errors?.description" :disabled="isSaving"/>
+                                <InputTextArea v-model="productForm.data.description" title="Descripción comercial" maxlength="100" :placeholder="placeholders.optional" has-text-bottom :text-bottom-info="productForm.errors?.description" :disabled="isSaving"/>
                                 <div class="fg-grid">
-                                    <InputNumber v-model="productForm.data.min_price" title="Precio mínimo" placeholder="Sin mínimo" has-text-bottom :text-bottom-info="productForm.errors?.min_price" :disabled="isSaving"><template #inputGroupPrepend><span class="fg-field__prefix">{{ currencySign }}</span></template></InputNumber>
-                                    <InputNumber v-model="productForm.data.max_price" title="Precio máximo" placeholder="Sin máximo" has-text-bottom :text-bottom-info="productForm.errors?.max_price" :disabled="isSaving"><template #inputGroupPrepend><span class="fg-field__prefix">{{ currencySign }}</span></template></InputNumber>
+                                    <InputNumber v-model="productForm.data.min_price" title="Precio mínimo" :placeholder="placeholders.minPrice" has-text-bottom :text-bottom-info="productForm.errors?.min_price" :disabled="isSaving"><template #inputGroupPrepend><span class="fg-field__prefix">{{ currencySign }}</span></template></InputNumber>
+                                    <InputNumber v-model="productForm.data.max_price" title="Precio máximo" :placeholder="placeholders.maxPrice" has-text-bottom :text-bottom-info="productForm.errors?.max_price" :disabled="isSaving"><template #inputGroupPrepend><span class="fg-field__prefix">{{ currencySign }}</span></template></InputNumber>
                                 </div>
                             </div>
                         </details>
@@ -67,10 +64,7 @@
                         <p class="fg-help">{{ isUpdate ? 'El stock actual se modifica desde Inventario. Aquí puedes ajustar el stock mínimo.' : 'Indica las existencias iniciales y el stock mínimo de cada almacén.' }}</p>
                     </section>
                     <section v-show="activeFormTab === 'configuration'" :id="modalId + '-tab-configuration'" :aria-labelledby="modalId + '-tab-trigger-configuration'" role="tabpanel" class="fg-stack">
-                        <h3 class="fg-section-title">Visibilidad y condiciones</h3>
-                        <p>Publicación en el catálogo</p>
-                        <label class="fg-check"><input v-model="productForm.data.see_my_web" type="checkbox" :disabled="isSaving"/><span class="fg-check__text"><strong>Publicar producto</strong><small>Se muestra a tus clientes cuando está activo.</small></span></label>
-                        <label class="fg-check"><input v-model="productForm.data.see_my_web_price" type="checkbox" :disabled="isSaving || !productForm.data.see_my_web"/><span class="fg-check__text"><strong>Mostrar precio</strong><small>Al ocultarlo, aparece «Precio a consultar».</small></span></label>
+                        <CatalogVisibilityFields :id-prefix="modalId" item-label="producto" v-model:published="productForm.data.see_my_web" v-model:show-price="productForm.data.see_my_web_price" :disabled="isSaving"/>
                         <div class="fg-section-divider"/>
                         <p>Vigencia y comisión</p>
                         <InputDate v-model="productForm.data.expires_at" title="Disponible hasta" :min="minimumExpiryDate || undefined" :help="isUpdate ? 'Sin fecha, el producto no tiene límite de venta.' : 'Sin fecha, el producto no tiene límite de venta. Elige hoy o una fecha futura.'" has-text-bottom :text-bottom-info="productForm.errors?.expires_at" :disabled="isSaving"/>
@@ -109,6 +103,9 @@ import InputNumber from "@System/Components/InputNumber.vue";
 import InputDate from "@System/Components/InputDate.vue";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
 import InternalCodeInput from "@System/Components/Catalogs/InternalCodeInput.vue";
+import CatalogTaxFields from "@System/Components/Catalogs/CatalogTaxFields.vue";
+import CatalogVisibilityFields from "@System/Components/Catalogs/CatalogVisibilityFields.vue";
+import {catalogFormPlaceholders} from "@System/Components/Catalogs/catalogFormPlaceholders.js";
 import CommissionValueInput from "@System/Components/Catalogs/CommissionValueInput.vue";
 import {resetCatalogCommission, validateCatalogCommission} from "@System/Components/Catalogs/catalogFormValidation.js";
 import {upsertCatalogOption} from "@System/Helpers/CatalogReferenceOptions.js";
@@ -130,6 +127,8 @@ export default {
     mixins: [InternalCodePrefixMixin],
     components: {FgSelect,FgField, FgEmptyState, InputTextArea,
         InternalCodeInput,
+        CatalogTaxFields,
+        CatalogVisibilityFields,
         CommissionValueInput,
         AddBrand,
         AddCategory,
@@ -161,6 +160,7 @@ export default {
         return {
             ...state,
             MODULE,
+            placeholders: catalogFormPlaceholders,
             activeFormTab: FORM_TABS[0].id,
             minimumExpiryDate: "",
             isSaving: false,
@@ -382,15 +382,6 @@ export default {
 
         },
         resetCatalogCommission,
-        syncTaxExemption(form = {}) {
-
-            if(form.igv_exempt) {
-
-                form.price_includes_tax = false;
-
-            }
-
-        },
         async saveEntity() {
 
             if(this.isSaving) {

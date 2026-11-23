@@ -11,13 +11,13 @@
             Cambiar
         </button>
     </span>
-    <VueSelect
+    <FgSelect
         v-else
         ref="select"
         :model-value="modelValue"
         :options="options"
         :get-option-key="option => option.code"
-        :class="selectClass"
+        :aria-label="ariaLabel"
         :clearable="false"
         :searchable="!disabled"
         :filterable="!remote"
@@ -26,7 +26,6 @@
         :calculate-position="positionDropdown"
         :placeholder="placeholder"
         :disabled="disabled"
-        append-to-body
         @update:modelValue="selectProduct"
         @open="$emit('open')"
         @close="editing = false"
@@ -34,18 +33,17 @@
         @keydown.esc="cancelChange">
         <template #no-options><slot name="no-options"><SelectNoOptions/></slot></template>
         <template v-if="$slots['list-footer']" #list-footer><slot name="list-footer"/></template>
-    </VueSelect>
+    </FgSelect>
 </template>
 
 <script>
-import VueSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
-
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import {positionSelectDropdown} from "@System/Helpers/SelectOverlay.js";
 import SelectNoOptions from "./SelectNoOptions.vue";
 
 export default {
     name: "ProductSelect",
-    components: {VueSelect, SelectNoOptions},
+    components: {FgSelect, SelectNoOptions},
     emits: ["update:modelValue", "open", "search"],
     props: {
         modelValue: {type: Object, default: null},
@@ -54,7 +52,7 @@ export default {
         summarizeSelection: {type: Boolean, default: false},
         loading: {type: Boolean, default: false},
         placeholder: {type: String, default: ""},
-        selectClass: {type: [String, Array, Object], default: ""},
+        ariaLabel: {type: String, default: "Producto"},
         disabled: {type: Boolean, default: false}
     },
     data() {
@@ -68,7 +66,7 @@ export default {
     methods: {
         changeProduct() {
             this.editing = true;
-            this.$nextTick(() => this.$refs.select?.searchEl?.focus({preventScroll: true}));
+            this.$nextTick(() => this.$refs.select?.focus({preventScroll: true}));
         },
         selectProduct(product) {
             this.$emit("update:modelValue", product);
@@ -85,10 +83,10 @@ export default {
             this.$nextTick(() => this.$refs.change?.focus({preventScroll: true}));
         },
         positionDropdown(dropdown, select, position) {
-            Object.assign(dropdown.style, position);
+            const stopPositioning = positionSelectDropdown(dropdown, select, position);
             const toggle = select.$refs.toggle;
-            const scroller = this.summarizeSelection && toggle.closest(".table-responsive");
-            if(!scroller) return;
+            const scroller = this.summarizeSelection && toggle.closest(".fg-table-scroll--records");
+            if(!scroller) return stopPositioning;
 
             const header = scroller.querySelector("thead");
             const sync = () => {
@@ -101,17 +99,18 @@ export default {
                     return;
                 }
 
-                dropdown.style.top = `${anchor.bottom + window.scrollY}px`;
-                dropdown.style.left = `${anchor.left + window.scrollX}px`;
             };
             scroller.addEventListener("scroll", sync, {passive: true});
-            return () => scroller.removeEventListener("scroll", sync);
+            return () => {
+                stopPositioning();
+                scroller.removeEventListener("scroll", sync);
+            };
         },
         dropdownShouldOpen({noDrop, open, mutableLoading}) {
             return !noDrop && open && (this.remote || !mutableLoading);
         },
         handleSearch(term) {
-            if(this.remote && this.$refs.select?.open) this.$emit("search", term);
+            if(this.remote && this.$refs.select?.isOpen()) this.$emit("search", term);
         }
     }
 };

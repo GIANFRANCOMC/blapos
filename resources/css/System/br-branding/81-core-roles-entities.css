@@ -1467,10 +1467,6 @@ body.br-layout .br-field-summary > .br-field-summary__value {
     min-width: 60rem;
 }
 
-.br-entity-table--catalog-usage {
-    min-width: 45rem;
-}
-
 .br-entity-table--catalog-products {
     min-width: 46rem;
 }
@@ -1563,17 +1559,6 @@ body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
     overflow-wrap: anywhere;
 }
 
-.br-entity-table--catalog-usage .br-catalog-disclosure {
-    width: fit-content;
-    max-width: 100%;
-    margin-inline: auto;
-    text-align: start;
-}
-
-.br-entity-table--catalog-usage .br-catalog-disclosure__row + .br-catalog-disclosure__row {
-    margin-top: 0.1rem;
-}
-
 .br-entity-table__col-product {
     width: 49%;
 }
@@ -1592,22 +1577,6 @@ body.br-layout .br-entity-table--commercial-headings > thead > tr > th {
 
 .br-entity-table__col-actions {
     width: 6%;
-}
-
-.br-entity-table__col-offering {
-    width: 34%;
-}
-
-.br-entity-table--offering {
-    min-width: 49rem;
-}
-
-.br-entity-table__col-code {
-    width: 22%;
-}
-
-.br-entity-table__col-detail {
-    width: 15%;
 }
 
 .br-entity-table tbody td {

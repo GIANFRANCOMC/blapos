@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import {parse} from "@vue/compiler-sfc";
+import {catalogColumns} from "../../resources/js/System/Components/Catalogs/catalogColumns.js";
 
 const pages = [
     "Catalogs/products",
@@ -31,8 +32,8 @@ for(const page of pages) {
             return;
         }
         if(page.startsWith("Catalogs/") && page !== "Catalogs/products") {
-            assert.match(list, /<thead class="br-table-header-surface">\s*<tr>\s*<th class="text-center">Código interno<\/th>/);
-            assert.match(list, /<tr v-for="record in entityList\.records\.data" :key="record\.id">\s*<td class="text-center">\s*<InternalCodeValue :value="record\.internal_code"\/>\s*<\/td>/);
+            assert.equal(catalogColumns[page.split("/").at(-1)][0].title, "Código interno");
+            assert.match(list, /<template #row="\{record\}">\s*<td class="fg-align-center"><InternalCodeValue :value="record\.internal_code"\/>/);
             return;
         }
 

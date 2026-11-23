@@ -6,8 +6,8 @@
             <header class="fg-modal__header"><h2 :id="resolvedModalId + '-title'" class="fg-modal__title">Agregar {{ singularLabel.toLowerCase() }}</h2><button type="button" class="fg-button fg-button--icon" :disabled="isSaving" aria-label="Cerrar" @click="closeModal"><i class="fa-solid fa-xmark" aria-hidden="true"/></button></header>
             <form :id="resolvedModalId + '-form'" class="fg-modal__body fg-stack" @submit.prevent="saveEntity">
                 <div v-if="generalError" class="fg-notice fg-notice--danger" role="alert">{{ generalError }}</div>
-                <InputText ref="nameInput" v-model="form.name" title="Nombre" is-required :maxlength="nameMaxlength" show-char-counter has-text-bottom :text-bottom-info="errors.name" :disabled="isSaving" autocomplete="off"/>
-                <InputTextArea v-model="form.description" title="Descripción" :maxlength="descriptionMaxlength" placeholder="Opcional" has-text-bottom :text-bottom-info="errors.description" :disabled="isSaving"/>
+                <InputText ref="nameInput" v-model="form.name" title="Nombre" is-required :maxlength="nameMaxlength" :placeholder="placeholders.names[resourceKey]" show-char-counter has-text-bottom :text-bottom-info="errors.name" :disabled="isSaving" autocomplete="off"/>
+                <InputTextArea v-model="form.description" title="Descripción" :maxlength="descriptionMaxlength" :placeholder="placeholders.optional" has-text-bottom :text-bottom-info="errors.description" :disabled="isSaving"/>
                 <small v-if="errors.internal_code" class="fg-error" role="alert">{{ Array.isArray(errors.internal_code) ? errors.internal_code[0] : errors.internal_code }}</small>
             </form>
             <footer class="fg-modal__footer"><button type="button" class="fg-button fg-button--secondary" :disabled="isSaving" @click="closeModal">Cerrar</button><button type="submit" :form="resolvedModalId + '-form'" class="fg-button" :disabled="isSaving">{{ isSaving ? 'Guardando…' : 'Guardar ' + singularLabel.toLowerCase() }}</button></footer>
@@ -24,6 +24,7 @@ import * as Forms from "@System/Helpers/Forms.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import InternalCodePrefixMixin from "@System/Mixins/InternalCodePrefixMixin.js";
+import {catalogFormPlaceholders} from "./catalogFormPlaceholders.js";
 
 let quickCreateSequence = 0;
 
@@ -120,6 +121,7 @@ export default {
             form: Utils.cloneJson(FORM_DEFAULTS),
             errors: {},
             generalError: "",
+            placeholders: catalogFormPlaceholders,
             isSaving: false
         };
 

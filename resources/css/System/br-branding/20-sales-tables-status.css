@@ -190,10 +190,10 @@
  * [br] Indicadores de estado — .br-badge y superficie (.br-status-surface)
  * Uso: <span class="br-badge br-badge--success">Activo</span>
  * Modificadores: --success | --info | --warning | --danger | --primary | --secondary | --neutral | --dark
- * .br-status-label y .br-inventory-status se conservan como alias de transición.
+ * .br-status-label se conserva como alias de transición.
  * Superficie (celdas/filas): td.br-status-surface--success (mismo sufijo que la etiqueta)
  * ------------------------------------------------------------------------- */
-.br-layout :is(.br-badge, .br-status-label, .br-inventory-status, .br-inventory-movement) {
+.br-layout :is(.br-badge, .br-status-label) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -209,12 +209,12 @@
   white-space: nowrap;
 }
 
-.br-layout :is(.br-badge--success, .br-status-label--success, .br-status-active, .br-inventory-status.is-healthy, .br-inventory-movement.is-entry) {
+.br-layout :is(.br-badge--success, .br-status-label--success, .br-status-active) {
   background-color: var(--br-success-soft);
   color: var(--br-success-hover);
 }
 
-.br-layout :is(.br-badge--danger, .br-status-label--danger, .br-status-inactive, .br-inventory-status.is-empty, .br-inventory-movement.is-exit) {
+.br-layout :is(.br-badge--danger, .br-status-label--danger, .br-status-inactive) {
   background-color: var(--br-danger-soft);
   color: var(--br-danger);
 }
@@ -224,7 +224,7 @@
   color: var(--br-info-hover);
 }
 
-.br-layout :is(.br-badge--warning, .br-status-label--warning, .br-inventory-status.is-low, .br-inventory-movement.is-correction) {
+.br-layout :is(.br-badge--warning, .br-status-label--warning) {
   background-color: var(--br-warning-soft);
   color: var(--br-warning-hover);
 }

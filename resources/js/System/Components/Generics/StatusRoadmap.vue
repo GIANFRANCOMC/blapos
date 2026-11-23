@@ -1,5 +1,5 @@
 <template>
-    <table v-if="events.length" class="br-status-roadmap" :aria-label="label">
+    <table v-if="events.length" class="fg-table" :aria-label="label">
         <thead>
             <tr>
                 <th scope="col">Movimiento</th>
@@ -8,18 +8,15 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(event, index) in events" :key="event.id" class="br-status-roadmap__item"
+            <tr v-for="(event, index) in events" :key="event.id"
                 :aria-current="index === events.length - 1 ? 'step' : null">
-                <th scope="row" class="br-status-roadmap__label">
-                    <span :class="['br-status-roadmap__marker', `text-${event.tone}`]" aria-hidden="true"></span>
-                    {{ event.label }}
-                </th>
+                <td><span :class="['fg-badge', 'fg-badge--' + event.tone]">{{ event.label }}</span></td>
                 <td><time :datetime="event.occurred_at">{{ formatDate(event.occurred_at) }}</time></td>
                 <td>{{ event.user_name }}</td>
             </tr>
         </tbody>
     </table>
-    <p v-else class="text-muted mb-0">No hay cambios de estado registrados.</p>
+    <p v-else class="fg-help">No hay cambios de estado registrados.</p>
 </template>
 
 <script>
