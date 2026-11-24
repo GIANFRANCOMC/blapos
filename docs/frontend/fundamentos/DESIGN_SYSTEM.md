@@ -14,7 +14,7 @@ Blapos es un ERP SaaS multiempresa y multisectorial. Una persona que recibe merc
 | Componentes y flujos | [Componentes Vue de System](../../../resources/js/System/Components), [comunes](../../../resources/js/Shared) y guías por módulo de [System](../../backend/system/README.md) y [Guest](../../backend/guest/README.md). |
 | Integración | Blade carga los assets por superficie. Vite integra las entradas; `npm run build` genera las hojas públicas desde los parciales. [CSS System](../../../resources/css/System/README.md). |
 
-System usa Vue 3 y la plantilla Bootstrap/Vuexy. El repositorio también tiene una configuración de Tailwind. Verifica la hoja y el punto de entrada del área antes de elegir sus utilidades. La [auditoría](../calidad/AUDIT.md) registra las versiones encontradas y el alcance de la revisión.
+Blapos usa Vue 3 y Bootstrap. Bootstrap aporta la cuadrícula, los controles nativos y sus estados. FG define la presentación desde las entradas de Vite. La [auditoría](../calidad/AUDIT.md) registra las versiones y el alcance de la revisión.
 
 ## Extensión y mantenimiento
 

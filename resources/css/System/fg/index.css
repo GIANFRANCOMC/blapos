@@ -1,5 +1,5 @@
-@import "../../../../public/System/assets/vendor/libs/sweetalert2/sweetalert2.css" layer(fg-vendor);
-@import "vue-select/dist/vue-select.css";
+@import "vue-select/dist/vue-select.css" layer(fg-vendor);
+@import "../../../../public/System/assets/vendor/libs/select2/select2.css" layer(fg-vendor);
 @import "../../Shared/ui.css";
 @import "./modules/index.css";
 @import "../../Shared/detail-tags.css";

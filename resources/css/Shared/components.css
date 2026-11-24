@@ -69,7 +69,8 @@
 .fg-input { display: block; flex: 1; width: 100%; min-width: 0; min-height: 34px; padding: 6px 0; border: 0; outline: none; box-shadow: none; border-radius: 0; background: transparent; color: var(--fg-text); line-height: 1.35; }
 .fg-input:focus { outline: none; box-shadow: none; }
 .fg-input::placeholder { color: var(--fg-muted); opacity: 1; }
-.fg-field__counter, .fg-field__prefix { flex: none; font-size: var(--fg-help-size); color: var(--fg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fg-field__counter, .fg-field__prefix { flex: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fg-field__counter { color: var(--fg-muted); font-size: var(--fg-help-size); }
 .fg-field__prefix { color: var(--fg-text); font-size: var(--fg-body-size); }
 .fg-field--textarea .fg-field__control { position: relative; padding-bottom: 24px; align-items: stretch; }
 .fg-field--textarea textarea { min-height: 72px; resize: vertical; }

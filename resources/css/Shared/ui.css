@@ -1,3 +1,5 @@
+@import "../../../public/System/assets/vendor/bootstrap/bootstrap.min.css" layer(fg-vendor);
+@import "../../../public/System/assets/vendor/libs/sweetalert2/sweetalert2.css" layer(fg-vendor);
 @import "./tokens.css";
 @import "./typography.css";
 @import "./components.css";

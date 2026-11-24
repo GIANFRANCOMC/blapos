@@ -55,7 +55,7 @@ Verificación de este ajuste: 297 pruebas de frontend aprobadas y compilación d
 
 ### Scroll y foco sin ruido
 
-La fuente común es `resources/css/Shared/viewport.css`. System la importa desde FG, Platform desde su entry CSS y Guest la enlaza desde el head. `Shared/disabled-controls.js` carga el seguimiento de modalidad de entrada para las tres áreas. No cambian sus rutas, permisos, datos ni contexto de tenant.
+La fuente común es `resources/css/Shared/viewport.css`, que carga `Shared/ui.css` en las tres áreas. `Shared/disabled-controls.js` carga el seguimiento de modalidad de entrada.
 
 - Scroll: canal nativo de 10 px y thumb redondo de 6 px, fondo transparente y sin flechas decorativas. Reposo `#7b8ba0`, hover `muted` y arrastre `primary`; todos mediante tokens FG. Aplica a documento, paneles, modales, tablas y opciones, incluidas las listas en portal. No reemplaza rueda, touchpad, arrastre ni teclado. Firefox usa `scrollbar-width: thin`; los detalles nativos pueden variar según navegador y sistema operativo.
 - Shift, Control, Alt o Meta aislados no activan el modo de teclado. Tab, Shift+Tab y teclas de navegación conservan un foco visible interior. Las secciones usan superficie suave y subrayado azul de 2 px, sin marco exterior; los botones conservan su color y un subrayado interior con `currentColor`. Los campos mantienen su borde/halo. No se cancelan eventos ni se alteran trampas de foco de modales. Alto contraste recupera la señal nativa de contorno.
@@ -113,7 +113,7 @@ No se guardaron productos ni se ejecutó una importación real durante estas com
 
 ## Ajustes de feedback, menús y selección · 20 de noviembre de 2026
 
-- SweetAlert2 mantiene sus archivos originales. Su CSS se incorpora a la capa `fg-vendor` desde el entry FG; se retiran los enlaces duplicados y la antigua regla propia global sobre `.swal2-title`. No se añaden `!important` para competir con la plantilla. Las clases antiguas de feedback se sustituyen en la configuración común de System, conservando decisiones, callbacks, inputs y resultados.
+- SweetAlert2 mantiene sus archivos originales. `Shared/ui.css` incorpora su CSS en la capa `fg-vendor`. La presentación FG vive en `Shared/feedback.css` y las decisiones, callbacks, inputs y resultados en los componentes que usan SweetAlert.
 - `Helpers/Feedback.js` centraliza esa configuración y los SVG originales locales de Componentes. Resultado: ancho 420 px, icono 32 px, título 16 px, cuerpo y botón 13 px, botón centrado y espacios de 14 px. Confirmación con alcance: ancho 480 px, acción a la izquierda, alcance y decisiones a la derecha. El ancho queda limitado por el viewport.
 - Los menús compartidos usan texto de 13 px, iconos de 14 px y opciones de al menos 40 px, sin heredar la escala del dropdown de Bootstrap. Icono y etiqueta de las acciones mantienen el mismo color.
 - `FgSelect` monta su lista en body mediante la API de vue-select. `SelectOverlay.js` la posiciona con capa 1080, ancho del control, desplazamiento y cambio de tamaño; abre hacia arriba cuando falta espacio y elimina listeners/observadores al cerrar. `select-overlay.css` mantiene la misma apariencia en el portal. Ningún select reserva espacio al abrir, ni modifica la altura del formulario, las etiquetas o el scroll.

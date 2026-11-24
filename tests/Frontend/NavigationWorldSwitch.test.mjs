@@ -42,6 +42,7 @@ test("el CSS global se carga en head sin la apariencia ni el inicializador de Vu
  const down=read("resources/views/System/layouts/partials/fg-down.blade.php");
  assert.doesNotMatch(up,/core.css|theme-default.css|demo.css|br-branding.css|template-customizer/);
  assert.doesNotMatch(down,/assets\/js\/main.js|perfect-scrollbar|vendor\/js\/menu.js/);
- assert.match(up,/bootstrap.min.css/);
+ assert.match(read("resources/css/Shared/ui.css"), /bootstrap\.min\.css" layer\(fg-vendor\)/);
+ assert.doesNotMatch(up,/bootstrap\.min\.css/);
  assert.match(down,/vendor\/js\/bootstrap.js/);
 });

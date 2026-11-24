@@ -1,50 +1,3 @@
-.fg-input-action {
-    width: var(--fg-control-height);
-    min-width: var(--fg-control-height);
-    min-height: var(--fg-control-height);
-    font-size: var(--fg-body-size);
-}
-.fg-filter-bar__actions .fg-button {
-    min-height: var(--fg-control-height-small);
-    padding: 0.32rem 0.66rem;
-}
-.fg-filter-bar__actions .fg-button {
-    min-height: var(--fg-control-height);
-}
-body.fg-theme .fg-entity-table > thead > tr > th {
-    padding: 0.58rem var(--fg-space-4);
-    line-height: 1.12;
-    letter-spacing: 0.012em;
-    text-transform: uppercase;
-}
-.fg-entity-table tbody td,
-.fg-cash__panel .fg-entity-table td,
-.fg-cash-inventory-count .fg-entity-table td {
-    padding: var(--fg-space-2) var(--fg-space-4);
-    line-height: 1.32;
-}
-.fg-entity-table__name {
-    color: var(--fg-heading);
-}
-.fg-entity-modal__eyebrow {
-    letter-spacing: 0.045em;
-}
-.fg-filter-bar {
-    margin-bottom: 0.78rem;
-    padding-bottom: 0.15rem;
-}
-.fg-filter-bar__actions {
-    gap: 0.42rem;
-}
-.fg-entity-empty-state .fg-empty-state__custom-image {
-    width: min(16rem, 70vw);
-    height: 9.5rem;
-    object-fit: contain;
-}
-.fg-theme .fg-cash__panel {
-    border-color: color-mix(in srgb, var(--fg-border) 88%, var(--fg-surface));
-    box-shadow: 0 1px 3px color-mix(in srgb, var(--fg-heading) 5%, transparent);
-}
 body.fg-theme .fg-document-payment-config,
 body.fg-theme .fg-document-payment-config :where(span, i) {
     font-size: var(--fg-help-size) !important;
@@ -101,7 +54,6 @@ body.fg-theme .fg-document-payment-config:active {
     transform: translateY(1px);
 }
 body.fg-theme .fg-table-header-surface {
-    background: var(--fg-table-head) !important;
     background-color: var(--fg-table-head) !important;
     background-image: none !important;
 }

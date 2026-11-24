@@ -11,7 +11,7 @@ El sistema combina administracion interna y portal publico por empresa. Internam
 - Backend: Laravel 10, PHP 8.1.
 - Frontend: Vue 3 con Vite.
 - UI base: Blade para montar paginas y Vue para la interaccion.
-- Estilos: Tailwind CSS.
+- Estilos: sistema FG compartido con Bootstrap para la base de los controles.
 - Autenticacion: Laravel Breeze / session auth.
 - PDF: `barryvdh/laravel-dompdf`.
 - Excel: `maatwebsite/excel`.

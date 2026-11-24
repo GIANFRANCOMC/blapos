@@ -1,3 +1,5 @@
+@import "vue-select/dist/vue-select.css" layer(fg-vendor);
+@import "../../../public/System/assets/vendor/libs/node-waves/node-waves.css" layer(fg-vendor);
 @import "../Shared/ui.css";
 @import "../Shared/toasts.css";
 
@@ -10,10 +12,46 @@
     width: min(1120px, calc(100% - 2rem));
     margin: 0 auto;
 }
-.fg-guest-page .layout-navbar .navbar {
-    border: 1px solid color-mix(in srgb, var(--fg-heading) 14%, transparent);
-    border-radius: 0.75rem;
-    background: var(--fg-heading) !important;
+.fg-guest-nav {
+    position: fixed;
+    inset: var(--fg-space-4) 0 auto;
+    z-index: 1030;
+}
+.fg-guest-nav__bar {
+    gap: var(--fg-space-3);
+    min-height: 64px;
+    padding: var(--fg-space-2) var(--fg-space-4);
+    border-radius: var(--fg-panel-radius);
+    background: var(--fg-heading);
+    box-shadow: var(--fg-shadow);
+}
+.fg-guest-nav__logo {
+    width: auto;
+    max-width: 100%;
+    height: 44px;
+    object-fit: contain;
+}
+.fg-guest-nav__links {
+    gap: var(--fg-space-2);
+}
+.fg-guest-nav__links a,
+.fg-guest-nav__toggle {
+    color: var(--fg-surface);
+}
+.fg-guest-nav__links a {
+    padding: var(--fg-space-2) var(--fg-space-3);
+    font-weight: var(--fg-label-weight);
+    text-transform: uppercase;
+}
+.fg-guest-nav__links a:is(:hover, :focus-visible),
+.fg-guest-nav__toggle:is(:hover, :focus-visible) {
+    color: var(--fg-primary-muted);
+    background: transparent;
+}
+@media (min-width: 992px) {
+    .fg-guest-nav__toggle {
+        display: none;
+    }
 }
 .fg-guest-hero {
     padding: 8rem 0 3rem;

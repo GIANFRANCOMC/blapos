@@ -1,7 +1,6 @@
 import { createApp } from "vue";
 import App from "./main.vue";
 import VueSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
 
 import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import Loader from "@System/Components/Loader.vue";

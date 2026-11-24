@@ -7,9 +7,6 @@
     border-color: var(--fg-primary);
     box-shadow: var(--fg-focus);
 }
-.fg-field-help {
-    color: color-mix(in srgb, var(--fg-primary) 74%, var(--fg-muted));
-}
 .fg-icon-action,
 .fg-input-action {
     box-shadow: 0 1px 2px color-mix(in srgb, var(--fg-heading) 5%, transparent);
@@ -21,21 +18,16 @@
 .fg-theme .fg-input-action:focus-visible {
     transform: none;
 }
-.fg-quick-create-trigger {
-    text-underline-offset: 0.16em;
-}
 .fg-theme .fg-entity-table {
     border-radius: 0;
 }
 .fg-theme .table > tbody > tr:has(.fg-empty-state) .fg-empty-state__custom-image {
     opacity: 0.86;
 }
-.fg-entity-table__name {
-    letter-spacing: 0;
-}
 .fg-theme .fg-cash__panel {
     border: 1px solid var(--fg-border);
     background: var(--fg-surface);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--fg-heading) 5%, transparent);
 }
 .fg-theme .fg-status-surface {
     letter-spacing: 0;

@@ -283,14 +283,10 @@
 }
 .fg-home__grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
 }
 .fg-home-access {
     display: flex;
     align-items: center;
-    min-height: 3.25rem;
-    padding: 0 0.75rem;
     border-bottom: 1px solid var(--fg-border);
 }
 .fg-home-access:last-child {
@@ -301,8 +297,6 @@
     align-items: center;
     gap: 0.5rem;
     min-width: 0;
-    width: 100%;
-    min-height: 3.25rem;
     color: var(--fg-text);
 }
 .fg-home-access__link:hover,
@@ -322,18 +316,7 @@
     padding: 2rem 1rem;
     border: 1px dashed var(--fg-border-strong);
     border-radius: var(--fg-radius, 0.5rem);
-    background: var(--fg-surface);
     text-align: center;
-}
-@media (max-width: 1199.98px) {
-    .fg-home__grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-@media (max-width: 767.98px) {
-    .fg-home__grid {
-        grid-template-columns: 1fr;
-    }
 }
 .fg-home__header {
     display: flex;
@@ -777,6 +760,7 @@ body.fg-theme .fg-entity-table > thead > tr > th {
     background: transparent !important;
     color: var(--fg-surface) !important;
     letter-spacing: 0;
+    line-height: 1.12;
     text-transform: uppercase;
 }
 body.fg-theme .fg-entity-table--commercial-headings > thead > tr > th {
@@ -794,6 +778,11 @@ body.fg-theme .fg-entity-table--commercial-headings > thead > tr > th {
     padding: 0.85rem;
     border-color: var(--fg-border);
     color: var(--fg-heading);
+    line-height: 1.32;
+}
+.fg-cash__panel .fg-entity-table td,
+.fg-cash-inventory-count .fg-entity-table td {
+    padding: var(--fg-space-2) var(--fg-space-4);
 }
 .fg-entity-table tbody td.fg-entity-table__identification-cell {
     padding-inline: 0.65rem;
@@ -806,6 +795,12 @@ body.fg-theme .fg-entity-table--commercial-headings > thead > tr > th {
     display: block;
     color: var(--fg-heading);
     font-weight: var(--fg-label-weight);
+    letter-spacing: 0;
+}
+.fg-entity-empty-state .fg-empty-state__custom-image {
+    width: min(16rem, 70vw);
+    height: 9.5rem;
+    object-fit: contain;
 }
 .fg-entity-table__meta {
     margin-top: 0.2rem;
@@ -899,6 +894,7 @@ body.fg-theme .fg-entity-table--commercial-headings > thead > tr > th {
     color: var(--fg-primary);
     font-size: var(--fg-help-size);
     font-weight: var(--fg-regular-weight);
+    letter-spacing: 0.045em;
     text-transform: uppercase;
 }
 .fg-theme .fg-entity-modal__title--form {

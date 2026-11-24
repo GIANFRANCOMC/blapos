@@ -54,8 +54,8 @@ body.fg-theme .fg-entity-table {
 }
 .fg-filter-bar {
     width: 100%;
-    margin-bottom: 1rem;
-    padding-bottom: 0.35rem;
+    margin-bottom: 0.78rem;
+    padding-bottom: 0.15rem;
 }
 .fg-filter-bar .form-group {
     margin-bottom: 0;
@@ -103,7 +103,7 @@ body.fg-theme .fg-entity-table {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 0.5rem;
+    gap: 0.42rem;
     width: 100%;
     border: 0;
     border-radius: 0;
@@ -118,12 +118,11 @@ body.fg-theme .fg-entity-table {
     box-shadow: none !important;
 }
 .fg-filter-bar__actions .fg-button {
-    min-height: 2.35rem;
+    min-height: var(--fg-control-height);
+    padding-block: 0.32rem;
 }
-@media (max-width: 991.98px) {
-    .fg-filter-bar__actions {
-        justify-content: flex-start;
-    }
+.fg-filter-bar__actions .fg-button:not(.fg-button--search, .fg-button--icon) {
+    padding-inline: 0.66rem;
 }
 @media (max-width: 575.98px) {
     .fg-filter-bar__actions:not(:where(.fg-filter-bar--compact *)) {

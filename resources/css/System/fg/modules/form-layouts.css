@@ -39,7 +39,6 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
 .fg-modal-close:focus-visible {
     background: transparent;
     color: var(--fg-danger);
-    box-shadow: none;
     transform: none;
 }
 .fg-modal-close:focus-visible {
@@ -64,7 +63,7 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: var(--fg-text-placeholder);
+    color: color-mix(in srgb, var(--fg-primary) 74%, var(--fg-muted));
     font-size: var(--fg-help-size);
     vertical-align: middle;
     place-items: center;
@@ -82,8 +81,10 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
     align-self: stretch;
     align-items: center;
     justify-content: center;
-    width: 2.2rem;
-    min-width: 2.2rem;
+    width: var(--fg-control-height);
+    min-width: var(--fg-control-height);
+    min-height: var(--fg-control-height);
+    font-size: var(--fg-body-size);
     height: auto;
     margin: 0;
     padding: 0;

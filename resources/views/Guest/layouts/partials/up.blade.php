@@ -29,33 +29,4 @@
 <link rel="icon" type="image/x-icon" href="{{ $company->logomark ? asset('storage/'.$company->logomark) : asset(config("app.owner_app")->assets->img->logomark) }}"/>
 
 <!-- Icons -->
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/tabler-icons.css') }}" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/fontawesome.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/flag-icons.css') }}" />
-
-<!-- Core CSS -->
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/core.css') }}" class="template-customizer-core-css" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/css/pages/front-page.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/css/pages/front-page-landing.css') }}" />
-
-<!-- Vendors CSS -->
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/node-waves/node-waves.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/sweetalert2/sweetalert2.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/toastr/toastr.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/animate-css/animate.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/nouislider/nouislider.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/swiper/swiper.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/bs-stepper/bs-stepper.css') }}" />
-
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/select2/select2.css') }}" />
-<link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/bootstrap-select/bootstrap-select.css') }}" />
-
-<!-- Helpers -->
-<script src="{{ asset('System/assets/vendor/js/helpers.js') }}"></script>
-<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-<!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
-<script src="{{ asset('System/assets/vendor/js/template-customizer.js') }}"></script>
-<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-<script src="{{ asset("System/assets/js/config.js") }}?v={{ filemtime(public_path("System/assets/js/config.js")) }}"></script>

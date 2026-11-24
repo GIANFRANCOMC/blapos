@@ -221,8 +221,6 @@
 .fg-quick-create-trigger:focus-visible {
     background: transparent;
     color: var(--fg-primary);
-    text-decoration: underline;
-    text-underline-offset: 0.12rem;
     outline: 0;
 }
 .fg-quick-create-trigger:hover i,

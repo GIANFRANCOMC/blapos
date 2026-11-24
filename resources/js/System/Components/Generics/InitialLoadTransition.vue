@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import "../../../../css/Shared/skeleton.css";
 export default {
     name: "InitialLoadTransition",
     methods: {

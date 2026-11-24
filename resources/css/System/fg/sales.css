@@ -81,7 +81,8 @@
 .fg-panel-heading { margin-block-end: var(--fg-space-3); }
 .fg-sales-panel, .fg-document-settlement, .fg-pos-ticket, .fg-receivables-metric { min-width: 0; border: 1px solid var(--fg-border); border-radius: var(--fg-panel-radius); background: var(--fg-surface); }
 .fg-sales-panel__body, .fg-document-settlement { padding: var(--fg-space-4); }
-.fg-sale-create-grid, .fg-pos { display: grid; align-items: start; gap: var(--fg-space-4); grid-template-columns: minmax(0, 1fr) minmax(17rem, 29%); }
+.fg-sale-create-grid, .fg-pos { display: grid; align-items: start; gap: var(--fg-space-4); }
+.fg-sale-create-grid { grid-template-columns: minmax(0, 1fr) minmax(17rem, 29%); }
 .fg-pos { grid-template-columns: minmax(0, 1fr) minmax(18rem, 32%); }
 .fg-sale-create-grid > *, .fg-pos > * { min-width: 0; }
 .fg-sale-detail-toolbar, .fg-quotation-builder__head, .fg-document-settlement__group-header, .fg-document-settlement__section-head, .fg-receivable-detail__section-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--fg-space-2); margin-block-end: var(--fg-space-3); }
@@ -229,9 +230,10 @@
 .fg-service-detail { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 1045; display: flex; flex-direction: column; inline-size: min(100%, 34rem); background: var(--fg-surface); box-shadow: var(--fg-shadow); }
 .fg-service-detail__header, .fg-service-detail__content, .fg-service-detail__footer { padding: var(--fg-space-4); }
 .fg-service-detail__content { min-height: 0; flex: 1 1 auto; overflow: auto; }
-.fg-service-detail__header, .fg-service-detail__footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--fg-space-2); border-block-end: 1px solid var(--fg-border); }
+.fg-service-detail__header, .fg-service-detail__footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--fg-space-2); }
+.fg-service-detail__header { border-block-end: 1px solid var(--fg-border); }
 .fg-service-detail__section + .fg-service-detail__section { margin-block-start: var(--fg-space-4); }
-.fg-service-detail__footer { border-block-start: 1px solid var(--fg-border); border-block-end: 0; background: var(--fg-table-head); }
+.fg-service-detail__footer { border-block-start: 1px solid var(--fg-border); background: var(--fg-table-head); }
 .fg-service-detail__section > h3 { margin-block-end: var(--fg-space-2); }
 .fg-service-detail__header p { color: var(--fg-muted); margin: 0; }
 .fg-service-detail__items > article { display: flex; flex-wrap: wrap; align-items: center; gap: var(--fg-space-2); }

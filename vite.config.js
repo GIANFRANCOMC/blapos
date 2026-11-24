@@ -13,9 +13,7 @@ export default defineConfig({
         vue(),
         laravel({
             input: [
-                'resources/css/System/app.css',
                 'resources/css/System/fg/index.css',
-                'resources/css/Shared/viewport.css',
                 'resources/css/System/fg/auth.css',
                 'resources/css/Guest/app.css',
                 'resources/css/Shared/error-page.css',
@@ -27,6 +25,7 @@ export default defineConfig({
                 'resources/js/Platform/app.js',
 
                 // Guest Pages
+                'resources/js/Guest/Layout/main.js',
                 'resources/js/Guest/Pages/home/main.js',
                 'resources/js/Guest/Pages/book_complaints/main.js',
                 'resources/js/Guest/Pages/tracking_attendances/main.js',

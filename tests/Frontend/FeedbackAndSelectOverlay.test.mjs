@@ -59,7 +59,7 @@ test('custom feedback widths and lifecycle hooks remain available', () => {
 
 test('FG owns feedback and select focus without competing global theme rules', () => {
     const read = path => readFileSync(new URL('../../' + path, import.meta.url), 'utf8');
-    assert.match(read('resources/css/System/fg/index.css'), /sweetalert2\.css" layer\(fg-vendor\)/);
+    assert.match(read('resources/css/Shared/ui.css'), /sweetalert2\.css" layer\(fg-vendor\)/);
     assert.doesNotMatch(read('resources/views/System/layouts/partials/fg-up.blade.php'), /sweetalert2\.css/);
     assert.doesNotMatch(read('resources/css/System/fg/modules/organization.css'), /\.swal2-modal\.swal2-popup \.swal2-title\s*\{/);
     assert.doesNotMatch(read('resources/css/Shared/feedback.css'), /!important/);

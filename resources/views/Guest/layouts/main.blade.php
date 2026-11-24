@@ -1,17 +1,8 @@
 <!DOCTYPE html>
 
-@php
-    $ownerApp = config("app.owner_app");
-    $systemAssetsPath = rtrim(asset('System/assets'), '/').'/';
-@endphp
+@php($ownerApp = config("app.owner_app"))
 
-<html
-    lang="es"
-    class="light-style layout-navbar-fixed layout-wide"
-    dir="ltr"
-    data-theme="theme-default"
-    data-assets-path="{{ $systemAssetsPath }}"
-    data-template="front-pages-no-customizer">
+<html lang="es" dir="ltr">
     <head>
         @include('Guest.layouts.partials.up')
         @vite(['resources/css/Guest/app.css', 'resources/js/Shared/disabled-controls.js'])
@@ -25,88 +16,32 @@
             window.publicAttendanceAccess = @json($publicAttendanceAccess ?? null);
         </script>
     </head>
-    <style>
-        .bg-down-color-primary {
-            background-color: #212121 !important;
-        }
-
-        .bg-down-color-secondary {
-            background-color: #2c2c2c !important;
-        }
-
-        .bg-primary-custom {
-            background-color: #ba60d7 !important;
-        }
-
-        .text-primary-custom {
-            color: #ba60d7 !important;
-        }
-
-        .a-primary-custom {
-            transition: color 0.3s ease-in-out;;
-        }
-
-        .a-primary-custom:hover {
-            color: #ba60d7 !important;
-        }
-
-        .text-white-custom {
-            color: #f4f4f4 !important;
-        }
-
-        .navbar-logomark {
-            height: 100px;
-            width: auto;
-            position: absolute;
-            top: 5px;
-            bottom: 0;
-            left: 1px;
-        }
-    </style>
     <body class="fg-theme fg-guest-page">
         @if($withMenu ?? true)
-            <nav class="layout-navbar shadow-none">
+            <nav class="fg-guest-nav" aria-label="Navegación del portal">
                 <div class="container">
-                    <div class="navbar navbar-expand-lg px-3 px-md-5 py-2 py-md-4 mt-3 shadow-sm bg-down-color-primary">
-                        <div class="navbar-brand app-brand">
-                            <button class="navbar-toggler text-white-custom me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                                <i class="ti ti-menu-2 ti-sm align-middle"></i>
-                            </button>
-                            <div class="d-none d-lg-block">
-                                <img src="{{ asset($company->logomark ? ('storage/'.$company->logomark) : $ownerApp->assets->img->logomark) }}" class="navbar-logomark">
-                            </div>
-                        </div>
-                        <div class="collapse navbar-collapse landing-nav-menu" id="navbarMenu">
-                            <button class="navbar-toggler border-0 position-absolute end-0 top-0 text-white-custom" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                                <i class="fa fa-times"></i>
-                            </button>
-                            <ul class="navbar-nav me-auto d-flex gap-4 mx-3 mx-md-5 px-0 px-md-4">
+                    <div class="navbar navbar-expand-lg fg-guest-nav__bar">
+                        <button class="navbar-toggler fg-button fg-button--icon fg-guest-nav__toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Alternar menú">
+                            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                        </button>
+                        <img src="{{ asset($company->logomark ? ('storage/'.$company->logomark) : $ownerApp->assets->img->logomark) }}" class="fg-guest-nav__logo" alt="{{ $company->commercial_name }}">
+                        <div class="collapse navbar-collapse" id="navbarMenu">
+                            <ul class="navbar-nav fg-guest-nav__links">
                                 <li class="nav-item">
-                                    <a class="fw-semibold text-white-custom a-primary-custom" href="{{ url($company->slug.'/home') }}">
-                                        <span class="text-uppercase">Inicio</span>
-                                    </a>
+                                    <a class="nav-link" href="{{ url($company->slug.'/home') }}">Inicio</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="fw-semibold text-white-custom a-primary-custom" href="{{ url($company->slug.'/book_complaints') }}">
-                                        <span class="text-uppercase">Libro de reclamaciones</span>
-                                    </a>
+                                    <a class="nav-link" href="{{ url($company->slug.'/book_complaints') }}">Libro de reclamaciones</a>
                                 </li>
-                            </ul>
-                            <ul class="navbar-nav flex-row align-items-center ms-auto">
-                                {{--  --}}
                             </ul>
                         </div>
                     </div>
                 </div>
             </nav>
         @endif
-        <div data-bs-spy="scroll" class="scrollspy-example">
-            <div>
-                @yield('content')
-                <div class="content-backdrop fade"></div>
-            </div>
-        </div>
+        @yield('content')
 
         @include("Guest.layouts.partials.down")
+        @vite('resources/js/Guest/Layout/main.js')
     </body>
 </html>
