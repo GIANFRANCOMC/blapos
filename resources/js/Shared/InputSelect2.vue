@@ -4,7 +4,7 @@
             <slot name="default"></slot>
             <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
             <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-            <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
+            <div :class="['input-group', 'fg-form-control-group', {'is-invalid': hasError}]">
                 <slot name="inputGroupPrepend"></slot>
                 <div class="position-relative w-100">
                     <select
@@ -20,7 +20,7 @@
                 <slot name="inputGroupAppend"></slot>
             </div>
             <div v-if="hasTextBottom">
-                <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
+                <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'fg-form-error']" v-text="textBottom"></small>
             </div>
         </div>
     </template>
@@ -28,7 +28,7 @@
         <slot name="default"></slot>
         <label v-if="!!title" v-text="title" :class="[...titleClass]"></label>
         <label v-if="isRequired" v-text="requiredLabel" :class="[...requiredClass]"></label>
-        <div :class="['input-group', 'br-form-control-group', {'is-invalid': hasError}]">
+        <div :class="['input-group', 'fg-form-control-group', {'is-invalid': hasError}]">
             <slot name="inputGroupPrepend"></slot>
             <div class="position-relative w-100">
                 <select
@@ -44,7 +44,7 @@
             <slot name="inputGroupAppend"></slot>
         </div>
         <div v-if="hasTextBottom">
-            <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'br-form-error']" v-text="textBottom"></small>
+            <small v-if="textBottomType === 'first'" :class="[...textBottomClass, 'fg-form-error']" v-text="textBottom"></small>
         </div>
     </template>
 </template>

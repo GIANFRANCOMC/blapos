@@ -5,7 +5,6 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "build:css:system": "node scripts/build-system-css.mjs",
         "test:frontend": "node --test"
     },
     "devDependencies": {

@@ -20,7 +20,7 @@ test("el skeleton conserva las proporciones del workspace y respeta movimiento r
 
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando tu espacio"/);
     assert.doesNotMatch(skeleton, /br-workspace-skeleton__eyebrow/);
-    assert.match(skeleton, /br-workspace__layout[\s\S]*?br-workspace__main[\s\S]*?br-workspace__aside[\s\S]*?br-workspace__support/);
+    assert.match(skeleton, /fg-workspace__layout[\s\S]*?fg-workspace__main[\s\S]*?fg-workspace__aside[\s\S]*?fg-workspace__support/);
     assert.match(skeleton, /v-for="index in 6"/);
     assert.match(skeleton, /<CompanyCardSkeleton\/>/);
     assert.match(companySkeleton, /v-for="index in 3"[\s\S]*?v-for="index in 4"/);

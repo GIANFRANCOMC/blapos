@@ -8,7 +8,7 @@
 [data-bs-theme=light] {
   --bs-blue: #007bff;
   --bs-indigo: #6610f2;
-  --bs-purple: var(--br-vuexy-primary);
+  --bs-purple: var(--fg-primary);
   --bs-pink: #e83e8c;
   --bs-red: #ea5455;
   --bs-orange: #fd7e14;
@@ -22,7 +22,7 @@
   --bs-gray-dark: rgba(75, 70, 92, 0.8);
   --bs-gray-25: rgba(75, 70, 92, 0.015);
   --bs-gray-50: rgba(75, 70, 92, 0.03);
-  --bs-primary: var(--br-vuexy-primary);
+  --bs-primary: var(--fg-primary);
   --bs-secondary: #a8aaae;
   --bs-success: #28c76f;
   --bs-info: #00cfe8;
@@ -66,7 +66,7 @@
   --bs-dark-border-subtle: rgba(75, 70, 92, 0.5);
   --bs-white-rgb: 255, 255, 255;
   --bs-black-rgb: 75, 70, 92;
-  --bs-font-sans-serif: "Inter", sans-serif;
+  --bs-font-sans-serif: var(--fg-font, sans-serif);
   --bs-font-monospace: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), transparent);
   --bs-root-font-size: 16px;
@@ -76,7 +76,7 @@
   --bs-body-line-height: 1.47;
   --bs-body-color: #6f6b7d;
   --bs-body-color-rgb: 111, 107, 125;
-  --bs-body-bg: var(--br-vuexy-body-bg);
+  --bs-body-bg: var(--fg-canvas);
   --bs-body-bg-rgb: 248, 247, 250;
   --bs-emphasis-color: #4b465c;
   --bs-emphasis-color-rgb: 75, 70, 92;
@@ -89,10 +89,10 @@
   --bs-tertiary-bg: rgba(75, 70, 92, 0.05);
   --bs-tertiary-bg-rgb: 75, 70, 92;
   --bs-heading-color: #5d596c;
-  --bs-link-color: var(--br-vuexy-primary);
+  --bs-link-color: var(--fg-primary);
   --bs-link-color-rgb: 115, 103, 240;
   --bs-link-decoration: none;
-  --bs-link-hover-color: var(--br-vuexy-primary-hover);
+  --bs-link-hover-color: var(--fg-primary-hover);
   --bs-link-hover-color-rgb: 104, 93, 216;
   --bs-code-color: #e83e8c;
   --bs-highlight-color: #6f6b7d;
@@ -1804,7 +1804,7 @@ progress {
   --bs-table-striped-color: var(--bs-body-color);
   --bs-table-striped-bg: #fbfbfc;
   --bs-table-active-color: var(--bs-body-color);
-  --bs-table-active-bg: var(--br-vuexy-primary-alpha-08);
+  --bs-table-active-bg: color-mix(in srgb, var(--fg-primary) 8%, transparent);
   --bs-table-hover-color: var(--bs-body-color);
   --bs-table-hover-bg: rgba(75, 70, 92, 0.04);
   width: 100%;
@@ -1874,13 +1874,13 @@ progress {
 
 .table-primary {
   --bs-table-color: #4b465c;
-  --bs-table-bg: var(--br-vuexy-primary-soft-table);
+  --bs-table-bg: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface));
   --bs-table-border-color: #d2d0de;
-  --bs-table-striped-bg: var(--br-vuexy-primary-table-striped);
+  --bs-table-striped-bg: color-mix(in srgb, var(--fg-primary-soft) 64%, var(--fg-surface));
   --bs-table-striped-color: #4b465c;
-  --bs-table-active-bg: var(--br-vuexy-primary-table-active);
+  --bs-table-active-bg: color-mix(in srgb, var(--fg-primary-soft) 74%, var(--fg-border));
   --bs-table-active-color: #4b465c;
-  --bs-table-hover-bg: var(--br-vuexy-primary-soft-hover);
+  --bs-table-hover-bg: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
   --bs-table-hover-color: #4b465c;
   color: var(--bs-table-color);
   border-color: var(--bs-table-border-color);
@@ -2075,7 +2075,7 @@ progress {
 .form-control:focus {
   color: #6f6b7d;
   background-color: #fff;
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
   outline: 0;
   box-shadow: 0 0.125rem 0.25rem rgba(165, 163, 174, 0.3);
 }
@@ -2220,7 +2220,7 @@ textarea.form-control-lg {
   }
 }
 .form-select:focus {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
   outline: 0;
   box-shadow: 0 0.125rem 0.25rem rgba(165, 163, 174, 0.3);
 }
@@ -2301,13 +2301,13 @@ textarea.form-control-lg {
   filter: brightness(90%);
 }
 .form-check-input:focus {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
   outline: 0;
   box-shadow: 0 0.125rem 0.25rem rgba(165, 163, 174, 0.3);
 }
 .form-check-input:checked {
-  background-color: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
+  border-color: var(--fg-primary);
 }
 .form-check-input:checked[type=checkbox] {
   --bs-form-check-bg-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='13' viewBox='0 0 15 14' fill='none'%3E%3Cpath d='M3.41667 7L6.33333 9.91667L12.1667 4.08333' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -2316,8 +2316,8 @@ textarea.form-control-lg {
   --bs-form-check-bg-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='5' y='5' width='8' height='8' rx='4' fill='%23fff'/%3E%3C/svg%3E%0A");
 }
 .form-check-input[type=checkbox]:indeterminate {
-  background-color: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
+  border-color: var(--fg-primary);
   --bs-form-check-bg-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.5 9H12.5' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
 }
 .form-check-input:disabled {
@@ -2839,10 +2839,10 @@ textarea.form-control-lg {
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-dropdown-box-shadow: 0 0.25rem 1rem rgba(165, 163, 174, 0.45);
   --bs-dropdown-link-color: #5d596c;
-  --bs-dropdown-link-hover-color: var(--br-vuexy-primary);
-  --bs-dropdown-link-hover-bg: var(--br-vuexy-primary-alpha-08);
+  --bs-dropdown-link-hover-color: var(--fg-primary);
+  --bs-dropdown-link-hover-bg: color-mix(in srgb, var(--fg-primary) 8%, transparent);
   --bs-dropdown-link-active-color: #fff;
-  --bs-dropdown-link-active-bg: var(--br-vuexy-primary);
+  --bs-dropdown-link-active-bg: var(--fg-primary);
   --bs-dropdown-link-disabled-color: #c9c8ce;
   --bs-dropdown-item-padding-x: 1rem;
   --bs-dropdown-item-padding-y: 0.42rem;
@@ -3110,7 +3110,7 @@ textarea.form-control-lg {
   --bs-dropdown-divider-bg: #dbdade;
   --bs-dropdown-link-hover-bg: rgba(255, 255, 255, 0.15);
   --bs-dropdown-link-active-color: #fff;
-  --bs-dropdown-link-active-bg: var(--br-vuexy-primary);
+  --bs-dropdown-link-active-bg: var(--fg-primary);
   --bs-dropdown-link-disabled-color: rgba(75, 70, 92, 0.5);
   --bs-dropdown-header-color: rgba(75, 70, 92, 0.5);
 }
@@ -3262,7 +3262,7 @@ textarea.form-control-lg {
   --bs-nav-tabs-border-color: transparent;
   --bs-nav-tabs-border-radius: var(--bs-border-radius);
   --bs-nav-tabs-link-hover-border-color: var(--bs-secondary-bg) var(--bs-secondary-bg) transparent;
-  --bs-nav-tabs-link-active-color: var(--br-vuexy-primary);
+  --bs-nav-tabs-link-active-color: var(--fg-primary);
   --bs-nav-tabs-link-active-bg: #fff;
   --bs-nav-tabs-link-active-border-color: var(--bs-border-color) var(--bs-border-color) #fff;
   border-bottom: var(--bs-nav-tabs-border-width) solid var(--bs-nav-tabs-border-color);
@@ -3292,7 +3292,7 @@ textarea.form-control-lg {
 .nav-pills {
   --bs-nav-pills-border-radius: var(--bs-border-radius);
   --bs-nav-pills-link-active-color: #fff;
-  --bs-nav-pills-link-active-bg: var(--br-vuexy-primary);
+  --bs-nav-pills-link-active-bg: var(--fg-primary);
 }
 .nav-pills .nav-link {
   border-radius: var(--bs-nav-pills-border-radius);
@@ -3975,7 +3975,7 @@ textarea.form-control-lg {
   --bs-accordion-btn-icon-transform: rotate(90deg);
   --bs-accordion-btn-icon-transition: transform 0.2s ease-in-out;
   --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3Csvg width='20' height='21' viewBox='0 0 20 21' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.5 5.5L12.5 10.5L7.5 15.5' stroke='%235d596c' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M7.5 5.5L12.5 10.5L7.5 15.5' stroke='white' stroke-opacity='0.1' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
-  --bs-accordion-btn-focus-border-color: var(--br-vuexy-primary);
+  --bs-accordion-btn-focus-border-color: var(--fg-primary);
   --bs-accordion-btn-focus-box-shadow: none;
   --bs-accordion-body-padding-x: 1.125rem;
   --bs-accordion-body-padding-y: 0.82rem;
@@ -4141,8 +4141,8 @@ textarea.form-control-lg {
   --bs-pagination-focus-bg: rgba(75, 70, 92, 0.16);
   --bs-pagination-focus-box-shadow: none;
   --bs-pagination-active-color: #fff;
-  --bs-pagination-active-bg: var(--br-vuexy-primary);
-  --bs-pagination-active-border-color: var(--br-vuexy-primary);
+  --bs-pagination-active-bg: var(--fg-primary);
+  --bs-pagination-active-border-color: var(--fg-primary);
   --bs-pagination-disabled-color: #a5a3ae;
   --bs-pagination-disabled-bg: rgba(75, 70, 92, 0.08);
   --bs-pagination-disabled-border-color: rgba(75, 70, 92, 0.08);
@@ -4355,7 +4355,7 @@ textarea.form-control-lg {
   --bs-progress-border-radius: 3.125rem;
   --bs-progress-box-shadow: var(--bs-box-shadow-inset);
   --bs-progress-bar-color: #fff;
-  --bs-progress-bar-bg: var(--br-vuexy-primary);
+  --bs-progress-bar-bg: var(--fg-primary);
   --bs-progress-bar-transition: width 0.6s ease;
   display: flex;
   height: var(--bs-progress-height);
@@ -4413,15 +4413,15 @@ textarea.form-control-lg {
   --bs-list-group-item-padding-x: 1.25rem;
   --bs-list-group-item-padding-y: 0.57rem;
   --bs-list-group-action-color: var(--bs-secondary-color);
-  --bs-list-group-action-hover-color: var(--br-vuexy-primary);
-  --bs-list-group-action-hover-bg: var(--br-vuexy-primary-soft-table);
-  --bs-list-group-action-active-color: var(--br-vuexy-primary);
-  --bs-list-group-action-active-bg: var(--br-vuexy-primary-soft-table);
+  --bs-list-group-action-hover-color: var(--fg-primary);
+  --bs-list-group-action-hover-bg: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface));
+  --bs-list-group-action-active-color: var(--fg-primary);
+  --bs-list-group-action-active-bg: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface));
   --bs-list-group-disabled-color: #a5a3ae;
   --bs-list-group-disabled-bg: transparent;
   --bs-list-group-active-color: #fff;
-  --bs-list-group-active-bg: var(--br-vuexy-primary);
-  --bs-list-group-active-border-color: var(--br-vuexy-primary);
+  --bs-list-group-active-bg: var(--fg-primary);
+  --bs-list-group-active-border-color: var(--fg-primary);
   display: flex;
   flex-direction: column;
   padding-left: 0;
@@ -8695,7 +8695,7 @@ html:not([dir=rtl]) .input-group > .btn-group:last-child > .btn:not([class*=btn-
 .nav-tabs .nav-link:not(.active):hover, .nav-tabs .nav-link:not(.active):focus,
 .nav-pills .nav-link:not(.active):hover,
 .nav-pills .nav-link:not(.active):focus {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .nav-tabs:not(.nav-fill):not(.nav-justified) .nav-link,
 .nav-pills:not(.nav-fill):not(.nav-justified) .nav-link {
@@ -8742,12 +8742,12 @@ html:not([dir=rtl]) .input-group > .btn-group:last-child > .btn:not([class*=btn-
   }
 }
 .nav-tabs.widget-nav-tabs .nav-link.active {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
   box-shadow: none !important;
 }
 .nav-tabs.widget-nav-tabs .nav-link.active .badge {
-  background-color: var(--br-vuexy-primary-alpha-08) !important;
-  color: var(--br-vuexy-primary) !important;
+  background-color: color-mix(in srgb, var(--fg-primary) 8%, transparent) !important;
+  color: var(--fg-primary) !important;
 }
 @media (max-width: 767.98px) {
   .nav-tabs.widget-nav-tabs .nav-link .tab-widget-title {
@@ -10814,11 +10814,11 @@ html:not([dir=rtl]) .progress .progress-bar:first-child {
 
 .breadcrumb-item,
 .breadcrumb-item a {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 
 .breadcrumb-item.active a:hover, .breadcrumb-item.active a:focus {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .breadcrumb-item.active a:not(:hover, :focus) {
   color: #4b465c;
@@ -12168,7 +12168,7 @@ html:not([dir=rtl]) .card .card-separator {
 }
 
 .border-primary {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .border-secondary {
@@ -13633,7 +13633,7 @@ html:not([dir=rtl]) .card .card-separator {
 
 .bg-body {
   --bs-bg-opacity: 1;
-  background-color: var(--br-vuexy-body-bg) !important;
+  background-color: var(--fg-canvas) !important;
 }
 
 .bg-transparent {
@@ -20707,7 +20707,7 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
   color: #6f6b7d;
 }
 .layout-navbar .navbar-search-wrapper .navbar-search-suggestion .suggestion:hover, .layout-navbar .navbar-search-wrapper .navbar-search-suggestion .suggestion.active {
-  background: var(--br-vuexy-body-bg);
+  background: var(--fg-canvas);
   color: #6f6b7d;
 }
 .layout-navbar .navbar-search-wrapper .navbar-search-suggestion .suggestions-header {
@@ -21591,7 +21591,7 @@ html:not([dir=rtl]) .app-brand-text {
 
 .custom-option-icon.checked i,
 .custom-option-icon.checked svg {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .custom-option-icon .custom-option-content {
   text-align: center;
@@ -21809,7 +21809,7 @@ html:not([dir=rtl]) .app-brand-text {
 }
 
 .switch-input:checked ~ .switch-toggle-slider {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
 }
 .switch-input:checked ~ .switch-toggle-slider:after {
   background: #fff;
@@ -22031,7 +22031,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-secondary.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid #a8aaae;
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-success.switch .switch-input:checked ~ .switch-toggle-slider {
@@ -22046,7 +22046,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-success.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid #28c76f;
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-info.switch .switch-input:checked ~ .switch-toggle-slider {
@@ -22061,7 +22061,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-info.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid #00cfe8;
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-warning.switch .switch-input:checked ~ .switch-toggle-slider {
@@ -22076,7 +22076,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-warning.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid #ff9f43;
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-danger.switch .switch-input:checked ~ .switch-toggle-slider {
@@ -22091,7 +22091,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-danger.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid #ea5455;
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-dark.switch .switch-input:checked ~ .switch-toggle-slider {
@@ -22106,7 +22106,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-dark.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid #4b4b4b;
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-gray.switch .switch-input:checked ~ .switch-toggle-slider {
@@ -22121,7 +22121,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 
 .switch-gray.switch .switch-input:focus ~ .switch-toggle-slider {
   border: 1px solid rgba(75, 70, 92, 0.05);
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch .valid-feedback,
@@ -22436,7 +22436,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 }
 .timeline .timeline-item .timeline-indicator i,
 .timeline .timeline-item .timeline-indicator-advanced i {
-  background-color: var(--br-vuexy-body-bg);
+  background-color: var(--fg-canvas);
 }
 .card .timeline .timeline-item .timeline-indicator i,
 .card .timeline .timeline-item .timeline-indicator-advanced i {
@@ -22444,7 +22444,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
 }
 .timeline .timeline-item .timeline-indicator i,
 .timeline .timeline-item .timeline-indicator-advanced i {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .timeline .timeline-item .timeline-indicator-advanced {
   background-color: #fff;
@@ -22459,7 +22459,7 @@ html:not([dir=rtl]) .switches-stacked .switch {
   height: 0.75rem;
   width: 0.75rem;
   border-radius: 50%;
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
 }
 .timeline .timeline-item.timeline-item-transparent .timeline-event {
   top: -1.4rem;

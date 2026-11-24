@@ -3,11 +3,9 @@
  */
 'use strict';
 
-let isRtl = window.Helpers.isRtl(),
-  isDarkStyle = window.Helpers.isDarkStyle();
-
 (function () {
-  const menu = document.getElementById('navbarSupportedContent'),
+  const isRtl = window.Helpers.isRtl(),
+    menu = document.getElementById('navbarMenu'),
     nav = document.querySelector('.layout-navbar'),
     navItemLink = document.querySelectorAll('.navbar-nav .nav-link');
 
@@ -36,29 +34,22 @@ let isRtl = window.Helpers.isRtl(),
   }
 
   // Navbar
-  window.addEventListener('scroll', e => {
-    if (window.scrollY > 10) {
-      nav.classList.add('navbar-active');
-    } else {
-      nav.classList.remove('navbar-active');
-    }
-  });
-  window.addEventListener('load', e => {
-    if (window.scrollY > 10) {
-      nav.classList.add('navbar-active');
-    } else {
-      nav.classList.remove('navbar-active');
-    }
-  });
+  if (nav) {
+    const updateNavbar = () => nav.classList.toggle('navbar-active', window.scrollY > 10);
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+    updateNavbar();
+  }
 
   // Function to close the mobile menu
   function closeMenu() {
-    menu.classList.remove('show');
+    if (menu?.classList.contains('show')) {
+      bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false }).hide();
+    }
   }
 
   document.addEventListener('click', function (event) {
     // Check if the clicked element is inside mobile menu
-    if (!menu.contains(event.target)) {
+    if (menu && !menu.contains(event.target) && !event.target.closest('[data-bs-target="#navbarMenu"]')) {
       closeMenu();
     }
   });

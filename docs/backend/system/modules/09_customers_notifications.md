@@ -41,4 +41,4 @@ Permite revisar emails relacionados a membresías y su estado de envio.
 - El disparador HTTP heredado permanece autenticado, limitado y protegido por permisos; no existe una ruta pública de envío.
 - La vista System permite filtrar por estado, ver destinatario, asunto, fecha, intentos, próximo intento y último error.
 - El reintento manual se muestra solo para registros `failed`, usa Swal de carga y refresca la lista conservando filtros.
-- El detalle se abre en modal estática `br-entity-modal`; el usuario cierra explícitamente por X o footer.
+- El detalle se abre en modal estática `fg-modal`; el usuario cierra explícitamente por X o footer.

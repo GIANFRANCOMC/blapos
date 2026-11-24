@@ -1,21 +1,21 @@
 <template>
-    <main class="br-entity br-roles br-roles-skeleton fg-skeleton" role="status" aria-live="polite" aria-label="Cargando perfiles de acceso">
+    <main class="fg-entity fg-roles fg-roles-skeleton fg-skeleton" role="status" aria-live="polite" aria-label="Cargando perfiles de acceso">
         <span class="visually-hidden">Cargando perfiles de acceso</span>
 
-        <section class="br-filter-bar br-roles-skeleton__filters" aria-hidden="true">
-            <div class="br-roles-skeleton__search">
-                <span class="fg-skeleton-line br-roles-skeleton__label"></span>
-                <span class="fg-skeleton-control"><span class="fg-skeleton-line br-roles-skeleton__search-value"></span></span>
+        <section class="fg-filter-bar fg-roles-skeleton__filters" aria-hidden="true">
+            <div class="fg-roles-skeleton__search">
+                <span class="fg-skeleton-line fg-roles-skeleton__label"></span>
+                <span class="fg-skeleton-control"><span class="fg-skeleton-line fg-roles-skeleton__search-value"></span></span>
             </div>
-            <div class="br-filter-bar__actions">
-                <span class="fg-skeleton-line br-roles-skeleton__button"></span>
-                <span class="fg-skeleton-line br-roles-skeleton__button br-roles-skeleton__button--add"></span>
+            <div class="fg-filter-bar__actions">
+                <span class="fg-skeleton-line fg-roles-skeleton__button"></span>
+                <span class="fg-skeleton-line fg-roles-skeleton__button fg-roles-skeleton__button--add"></span>
             </div>
         </section>
 
-        <section class="br-entity-list" aria-hidden="true">
+        <section class="fg-entity-list" aria-hidden="true">
             <div class="table-responsive">
-                <table class="table br-entity-table mb-0">
+                <table class="table fg-entity-table mb-0">
                     <colgroup>
                         <col style="width: 34%">
                         <col style="width: 29%">
@@ -23,7 +23,7 @@
                         <col style="width: 14%">
                         <col style="width: 7%">
                     </colgroup>
-                    <thead class="br-table-header-surface">
+                    <thead class="fg-table-header-surface">
                         <tr>
                             <th>Perfil de acceso</th>
                             <th>Módulos permitidos</th>
@@ -33,7 +33,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="br-table-state">
+                        <tr class="fg-table__state">
                             <td colspan="5" class="py-4"><Loader/></td>
                         </tr>
                     </tbody>

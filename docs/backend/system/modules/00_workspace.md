@@ -42,7 +42,7 @@ La propia ruta `workspace.index`, endpoints AJAX, respuestas JSON y errores no s
 - `app/Services/System/Essentials/UserNavigationService.php`
 - `routes/System/Essentials/Workspace.php`
 - `resources/views/System/general/Essentials/workspace/main.blade.php`
-- `resources/css/System/br-branding/52-workspace.css`
+- `resources/css/System/fg/modules/workspace.css`
 - `database/migrations/2024_01_11_223124_create_init_masters_table.php`
 - `database/seeders/SystemNavigationSeeder.php`
 

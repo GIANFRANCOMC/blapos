@@ -23,7 +23,7 @@ test("el navbar usa la navegación autorizada y conserva avisos y empresa", () =
  const styles=readFileSync(new URL("../../resources/css/System/fg/navigation.css",import.meta.url),"utf8");
  const behavior=readFileSync(new URL("../../resources/js/System/Layout/Menu.js",import.meta.url),"utf8");
  assert.match(layout,/id="brNavbarSearchInput"[\s\S]*?aria-controls="brNavbarSearchPanel"/);
- assert.match(layout,/@foreach\(\$navigationSections as \$section\)[\s\S]*?@foreach\(\$section->subSections as \$subSection\)[\s\S]*?data-br-search-item/);
+ assert.match(layout,/@foreach\(\$navigationSections as \$section\)[\s\S]*?@foreach\(\$section->subSections as \$subSection\)[\s\S]*?data-fg-search-item/);
  assert.match(styles,/\.fg-global-search__panel\[hidden\]/);
  assert.match(styles,/\.fg-user__identity/);
  assert.match(behavior,/event.ctrlKey \|\| event.metaKey/);

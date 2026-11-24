@@ -6,18 +6,18 @@
         $seeLoginForm = $hasCompany;
     @endphp
 
-    <div class="br-auth-login-page container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center">
-        <div class="row w-100 br-auth-login-card {{ $seeLoginForm ? "overflow-hidden" : "br-auth-login-card--no-access" }}" style="max-width: 480px;">
-            <div class="col-lg-12 px-3 px-md-5 {{ $seeLoginForm ? "pt-4 pt-md-5 pb-3 pb-md-4" : "py-4 py-md-5" }} {{ $seeLoginForm ? "bg-white" : "br-auth-login-inner--no-access" }}">
-                <header class="br-auth-login-header text-center">
+    <div class="fg-auth-login-page container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center">
+        <div class="row w-100 fg-auth-login-card {{ $seeLoginForm ? "overflow-hidden" : "fg-auth-login-card--no-access" }}" style="max-width: 480px;">
+            <div class="col-lg-12 px-3 px-md-5 {{ $seeLoginForm ? "pt-4 pt-md-5 pb-3 pb-md-4" : "py-4 py-md-5" }} {{ $seeLoginForm ? "bg-white" : "fg-auth-login-inner--no-access" }}">
+                <header class="fg-auth-login-header text-center">
                     @if($seeLoginForm)
-                        <p class="br-auth-login-eyebrow mb-2">Bienvenido</p>
+                        <p class="fg-auth-login-eyebrow mb-2">Bienvenido</p>
                     @endif
-                    <h1 class="br-auth-login-title br-login-brand-name">
+                    <h1 class="fg-auth-login-title fg-login-brand-name">
                         {{ $hasCompany ? $data->company->commercial_name : $ownerApp->commercial_name }}
                     </h1>
                     @if($seeLoginForm)
-                        <p class="br-auth-login-sub mt-2 mb-0">Inicia sesión para continuar</p>
+                        <p class="fg-auth-login-sub mt-2 mb-0">Inicia sesión para continuar</p>
                     @endif
                 </header>
                 @if($seeLoginForm)
@@ -34,9 +34,9 @@
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label colon-at-end">Contraseña</label>
-                            <div class="br-auth-password-field position-relative">
-                                <input type="password" class="form-control br-auth-password-input" id="password" name="password" placeholder="•••••••" required autocomplete="current-password"/>
-                                <button type="button" class="br-auth-password-toggle" id="br-auth-password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">
+                            <div class="fg-auth-password-field position-relative">
+                                <input type="password" class="form-control fg-auth-password-input" id="password" name="password" placeholder="•••••••" required autocomplete="current-password"/>
+                                <button type="button" class="fg-auth-password-toggle" id="fg-auth-password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">
                                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -55,37 +55,37 @@
                             @endif
                         </div>
                         <div class="d-flex justify-content-center align-items-center flex-wrap">
-                            <button class="btn btn-primary waves-effect w-100" type="submit">
+                            <button class="fg-button w-100" type="submit">
                                 <i class="fa fa-sign-in"></i>
                                 <span class="ms-2">Iniciar sesión</span>
                             </button>
                         </div>
                     </form>
                 @else
-                    <div class="br-auth-access-denied mt-3 mt-md-4">
-                        <div class="br-auth-access-denied__notice" role="alert" aria-live="polite">
-                            <span class="br-auth-access-denied__notice-icon" aria-hidden="true"><i class="ti ti-lock"></i></span>
+                    <div class="fg-auth-access-denied mt-3 mt-md-4">
+                        <div class="fg-auth-access-denied__notice" role="alert" aria-live="polite">
+                            <span class="fg-auth-access-denied__notice-icon" aria-hidden="true"><i class="ti ti-lock"></i></span>
                             <div>
-                                <h2 class="br-auth-access-denied__title">Acceso no disponible por ahora</h2>
-                                <p class="br-auth-access-denied__text">
-                                    En este momento <strong class="br-auth-access-denied__strong-danger">no puedes iniciar sesión</strong> porque la <strong>membresía o el plan</strong> de tu empresa no está activo o ya venció.
+                                <h2 class="fg-auth-access-denied__title">Acceso no disponible por ahora</h2>
+                                <p class="fg-auth-access-denied__text">
+                                    En este momento <strong class="fg-auth-access-denied__strong-danger">no puedes iniciar sesión</strong> porque la <strong>membresía o el plan</strong> de tu empresa no está activo o ya venció.
                                 </p>
-                                <p class="br-auth-access-denied__hint mb-0">
-                                    Renueva el plan o pide a quien administra la cuenta que lo actualice. Si <strong class="br-auth-access-denied__strong-success">ya pagaste</strong>, el cambio puede tardar unos minutos en reflejarse.
+                                <p class="fg-auth-access-denied__hint mb-0">
+                                    Renueva el plan o pide a quien administra la cuenta que lo actualice. Si <strong class="fg-auth-access-denied__strong-success">ya pagaste</strong>, el cambio puede tardar unos minutos en reflejarse.
                                 </p>
                             </div>
                         </div>
-                        <aside class="br-auth-support-bar br-auth-support-bar--transparent mb-0" aria-labelledby="br-auth-contactanos-heading-denied">
-                            <div class="br-auth-support-bar__layout">
-                                <p id="br-auth-contactanos-heading-denied" class="br-auth-support-bar__kicker">Contáctanos</p>
-                                <div class="br-auth-support-bar__inner">
-                                    <div class="br-auth-support-bar__channel">
-                                        <span class="br-auth-support-bar__label">Correo electrónico</span>
-                                        <a href="mailto:{{ $supportContact['email'] }}" class="br-link">{{ $supportContact['email'] }}</a>
+                        <aside class="fg-auth-support-bar fg-auth-support-bar--transparent mb-0" aria-labelledby="fg-auth-contactanos-heading-denied">
+                            <div class="fg-auth-support-bar__layout">
+                                <p id="fg-auth-contactanos-heading-denied" class="fg-auth-support-bar__kicker">Contáctanos</p>
+                                <div class="fg-auth-support-bar__inner">
+                                    <div class="fg-auth-support-bar__channel">
+                                        <span class="fg-auth-support-bar__label">Correo electrónico</span>
+                                        <a href="mailto:{{ $supportContact['email'] }}" class="fg-link">{{ $supportContact['email'] }}</a>
                                     </div>
-                                    <div class="br-auth-support-bar__channel br-auth-support-bar__channel--phone">
-                                        <span class="br-auth-support-bar__label">Teléfono</span>
-                                        <a href="tel:{{ $supportContact['phone_href'] }}" class="br-link">{{ $supportContact['phone'] }}</a>
+                                    <div class="fg-auth-support-bar__channel fg-auth-support-bar__channel--phone">
+                                        <span class="fg-auth-support-bar__label">Teléfono</span>
+                                        <a href="tel:{{ $supportContact['phone_href'] }}" class="fg-link">{{ $supportContact['phone'] }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@
         </div>
         @if($seeLoginForm)
             <div class="text-center mt-3 mt-md-4 px-2">
-                <small class="br-auth-help-footer d-inline-block mb-0">
+                <small class="fg-auth-help-footer d-inline-block mb-0">
                     @include("shared.support-contact")
                 </small>
             </div>
@@ -149,7 +149,7 @@
             });
 
             const passwordInput      = document.getElementById("password");
-            const passwordToggle     = document.getElementById("br-auth-password-toggle");
+            const passwordToggle     = document.getElementById("fg-auth-password-toggle");
             const passwordToggleIcon = passwordToggle?.querySelector("i");
 
             passwordToggle?.addEventListener("click", function() {

@@ -3,55 +3,36 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 import postcss from "postcss";
 
-const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
+const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("el fondo de los selectores se aplica al campo redondeado", () => {
-    const controls = read("resources/css/System/br-branding/03-form-controls.css");
-    const purchases = read("resources/css/System/br-branding/83-purchases-suppliers.css");
+function declarations(css, selector) {
+    const rule = postcss.parse(css).nodes.find(node => node.selectors?.includes(selector));
+    assert.ok(rule, selector);
+    return Object.fromEntries(rule.nodes.map(node => [node.prop, node.value]));
+}
 
-    assert.match(controls, /body \.v-select:not\(\.vs--disabled\) \.vs__dropdown-toggle,\s*body \.select2-container\.select2-container--default:not\(\.select2-container--disabled\) \.select2-selection\s*\{[^}]*background-color: var\(--br-surface-elevated\);/);
-    assert.doesNotMatch(purchases, /\.br-document-settlement \.v-select\s*\{[^}]*background/);
-    for(const file of ["System/Helpers/Constants.js", "Guest/Helpers/Constants.js", "System/Helpers/ModuleConstants.js"]) {
-        assert.doesNotMatch(read(`resources/js/${file}`), /select2:\s*"bg-white"/i);
-    }
+test("los selectores pintan el campo redondeado y comparten el hover suave", () => {
+    const controls = read("resources/css/Shared/controls.css");
+    const components = read("resources/css/Shared/components.css");
+    const native = declarations(controls, ".fg-theme :is(.form-control, .form-select, .input-group-text, .select2-selection)");
+    const vueSelect = declarations(components, ":is(.fg-select, .fg-theme .v-select) .vs__dropdown-toggle");
+    assert.equal(native["background-color"], "var(--fg-surface)");
+    assert.equal(native["border-radius"], "var(--fg-radius)");
+    assert.equal(vueSelect.background, "var(--fg-surface)");
+    assert.match(controls, /\.select2-container:not\(\.select2-container--open, \.select2-container--disabled\) \.select2-selection:hover,[\s\S]*?\.vs__dropdown-toggle:hover[^}]*background-color: var\(--fg-surface-subtle\)/);
+    const placeholder = declarations(controls, ".fg-theme .select2-selection__placeholder");
+    assert.equal(placeholder.font, "inherit");
+    assert.equal(placeholder["font-style"], "normal");
 });
 
-test("select2 y vue-select comparten placeholder recto y hover suave con los inputs", () => {
-
-    const styles = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");
-    const controls = read("resources/css/System/br-branding/03-form-controls.css");
-    const legacyStyles = read("resources/css/System/br-branding/81-core-roles-entities.css");
-    const hover = postcss.parse(styles).nodes.find(rule => rule.selector?.startsWith(".br-layout .form-control:not(:disabled)")
-        && rule.selector.includes(".vs__dropdown-toggle:hover"))?.toString() ?? "";
-
-    assert.doesNotMatch(legacyStyles, /\.vs__search::placeholder\s*\{[^}]*font-style:\s*italic/);
-    assert.match(controls, /::placeholder,\s*body \.select2-container\.select2-container--default \.select2-selection__placeholder \{[^}]*font: inherit;[^}]*font-style: normal/);
-    assert.doesNotMatch(styles, /--br-placeholder-font-size/);
-    assert.match(hover, /\.v-select:not\(\.vs--disabled\):not\(\.vs--open\):not\(:focus-within\) \.vs__dropdown-toggle:hover/);
-    assert.match(hover, /\.select2-selection--single:hover/);
-    assert.match(hover, /background-color: var\(--br-surface-subtle\) !important/);
-    assert.match(styles, /\.select2-results__option--highlighted\[aria-selected\]\s*\{[^}]*background: var\(--br-primary-soft\)/);
-
-});
-
-test("los campos de una línea comparten tamaño y los selectores múltiples pueden crecer", () => {
-    const controls = postcss.parse(read("resources/css/System/br-branding/03-form-controls.css"));
-    const value = (selector, property) => controls.nodes
-        .filter(rule => rule.selectors?.includes(selector))
-        .flatMap(rule => rule.nodes)
-        .find(node => node.prop === property)?.value;
-    for(const selector of [
-        "body :is(input.form-control, select.form-control, .form-select, .input-group-text)",
-        "body .v-select.vs--single .vs__dropdown-toggle",
-        "body .select2-container.select2-container--default .select2-selection--single"
-    ]) {
-        assert.equal(value(selector, "height"), "var(--br-control-height)", selector);
-    }
-    assert.equal(value("input", "font-size"), "var(--br-font-size-ui)");
-    assert.equal(value("body .v-select", "--vs-font-size"), "var(--br-font-size-ui)");
-    const multiple = "body .select2-container.select2-container--default .select2-selection--multiple .select2-selection__rendered";
-    assert.equal(value(multiple, "flex-wrap"), "wrap");
-    assert.equal(value(multiple, "height"), undefined);
-    assert.match(read("resources/css/Platform/app.css"), /@import "\.\.\/System\/br-branding\/03-form-controls\.css"/);
-    assert.match(read("public/System/assets/css/br-branding.css"), /Source: resources\/css\/System\/br-branding\/03-form-controls\.css/);
+test("los campos de una línea comparten altura y los selectores múltiples pueden crecer", () => {
+    const controls = read("resources/css/Shared/controls.css");
+    const components = read("resources/css/Shared/components.css");
+    const native = declarations(controls, ".fg-theme :is(input.form-control, .form-select, .input-group-text, .select2-selection--single)");
+    const vueSelect = declarations(components, ":is(.fg-select, .fg-theme .v-select) .vs__dropdown-toggle");
+    const multiple = declarations(controls, ".fg-theme .select2-selection--multiple .select2-selection__rendered");
+    assert.equal(native["min-height"], "var(--fg-control-height)");
+    assert.equal(vueSelect["min-height"], native["min-height"]);
+    assert.equal(multiple["flex-wrap"], "wrap");
+    assert.equal(multiple.height, undefined);
 });

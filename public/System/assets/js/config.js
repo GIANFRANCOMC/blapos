@@ -7,12 +7,12 @@
 
 'use strict';
 
-const brRoot = document.documentElement;
-const brRootStyles = window.getComputedStyle(brRoot);
+const fgRoot = document.documentElement;
+const fgRootStyles = window.getComputedStyle(fgRoot);
 
-const brCssToken = (name, fallback = '') => brRootStyles.getPropertyValue(name).trim() || fallback;
+const fgCssToken = (name, fallback = '') => fgRootStyles.getPropertyValue(name).trim() || fallback;
 
-const brColorWithAlpha = (color, alphaHex = '29') => {
+const fgColorWithAlpha = (color, alphaHex = '29') => {
   const normalized = color.trim();
   const shortHex = normalized.match(/^#([0-9a-f]{3})$/i);
   const longHex = normalized.match(/^#([0-9a-f]{6})$/i);
@@ -33,7 +33,7 @@ const brColorWithAlpha = (color, alphaHex = '29') => {
   return `color-mix(in srgb, ${normalized} ${alphaPercent}%, transparent)`;
 };
 
-const brNormalizeAssetsPath = value => {
+const fgNormalizeAssetsPath = value => {
   const fallback = '/System/assets/';
   const source = (value || fallback).trim();
   const isAbsoluteUrl = /^[a-z][a-z\d+\-.]*:\/\//i.test(source) || source.startsWith('//');
@@ -54,50 +54,50 @@ const brNormalizeAssetsPath = value => {
 // JS global variables
 let config = {
   typography: {
-    fontFamily: brCssToken("--br-font-sans", "sans-serif")
+    get fontFamily() { return fgCssToken("--fg-font", "\"Source Sans 3\", sans-serif"); },
   },
   colors: {
-    primary: brCssToken('--br-primary'),
-    secondary: brCssToken('--br-secondary'),
-    success: brCssToken('--br-success'),
-    info: brCssToken('--br-info'),
-    warning: brCssToken('--br-warning'),
-    danger: brCssToken('--br-danger'),
-    dark: brCssToken('--br-neutral-900'),
-    black: brCssToken('--br-black'),
-    white: brCssToken('--br-white'),
-    cardColor: brCssToken('--br-surface-elevated'),
-    bodyBg: brCssToken('--br-surface'),
-    bodyColor: brCssToken('--br-text'),
-    headingColor: brCssToken('--br-secondary'),
-    textMuted: brCssToken('--br-text-muted'),
-    borderColor: brCssToken('--br-border')
+    get primary() { return fgCssToken('--fg-primary'); },
+    get secondary() { return fgCssToken('--fg-heading'); },
+    get success() { return fgCssToken('--fg-success'); },
+    get info() { return fgCssToken('--fg-info'); },
+    get warning() { return fgCssToken('--fg-warning'); },
+    get danger() { return fgCssToken('--fg-danger'); },
+    get dark() { return fgCssToken('--fg-neutral-900'); },
+    get black() { return fgCssToken('--fg-black'); },
+    get white() { return fgCssToken('--fg-surface'); },
+    get cardColor() { return fgCssToken('--fg-surface'); },
+    get bodyBg() { return fgCssToken('--fg-canvas'); },
+    get bodyColor() { return fgCssToken('--fg-text'); },
+    get headingColor() { return fgCssToken('--fg-heading'); },
+    get textMuted() { return fgCssToken('--fg-muted'); },
+    get borderColor() { return fgCssToken('--fg-border'); },
   },
   colors_label: {
-    primary: brColorWithAlpha(brCssToken('--br-primary')),
-    secondary: brColorWithAlpha(brCssToken('--br-secondary')),
-    success: brColorWithAlpha(brCssToken('--br-success')),
-    info: brColorWithAlpha(brCssToken('--br-info')),
-    warning: brColorWithAlpha(brCssToken('--br-warning')),
-    danger: brColorWithAlpha(brCssToken('--br-danger')),
-    dark: brColorWithAlpha(brCssToken('--br-neutral-900'))
+    get primary() { return fgColorWithAlpha(fgCssToken('--fg-primary')); },
+    get secondary() { return fgColorWithAlpha(fgCssToken('--fg-heading')); },
+    get success() { return fgColorWithAlpha(fgCssToken('--fg-success')); },
+    get info() { return fgColorWithAlpha(fgCssToken('--fg-info')); },
+    get warning() { return fgColorWithAlpha(fgCssToken('--fg-warning')); },
+    get danger() { return fgColorWithAlpha(fgCssToken('--fg-danger')); },
+    get dark() { return fgColorWithAlpha(fgCssToken('--fg-neutral-900')); },
   },
   colors_dark: {
-    cardColor: brCssToken('--br-secondary-hover'),
-    bodyBg: brCssToken('--br-secondary-active'),
-    bodyColor: brCssToken('--br-secondary-soft'),
-    headingColor: brCssToken('--br-on-secondary'),
-    textMuted: brCssToken('--br-secondary-muted'),
-    borderColor: brCssToken('--br-template-dark-border')
+    get cardColor() { return fgCssToken('--fg-secondary-hover'); },
+    get bodyBg() { return fgCssToken('--fg-secondary-active'); },
+    get bodyColor() { return fgCssToken('--fg-secondary-soft'); },
+    get headingColor() { return fgCssToken('--fg-surface'); },
+    get textMuted() { return fgCssToken('--fg-secondary-muted'); },
+    get borderColor() { return fgCssToken('--fg-template-dark-border'); },
   },
   enableMenuLocalStorage: true // Enable menu state with local storage support
 };
 
-let assetsPath = brNormalizeAssetsPath(brRoot.getAttribute('data-assets-path')),
+let assetsPath = fgNormalizeAssetsPath(fgRoot.getAttribute('data-assets-path')),
   templateName = document.documentElement.getAttribute('data-template'),
   rtlSupport = true; // set true for rtl support (rtl + ltr), false for ltr only.
 
-brRoot.setAttribute('data-assets-path', assetsPath);
+fgRoot.setAttribute('data-assets-path', assetsPath);
 window.assetsPath = assetsPath;
 
 /**

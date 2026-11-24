@@ -1,5 +1,5 @@
 <template>
-    <section class="br-filter-bar">
+    <section class="fg-filter-bar">
         <div class="row align-items-end g-2">
             <InputSlot
                 hasDiv
@@ -19,14 +19,14 @@
                         append-to-body>
                         <template #selected-option="option">
                             <span
-                                class="br-select-selected-text"
+                                class="fg-select-selected-text"
                                 :title="getOptionLabel(option)">
                                 {{ getOptionLabel(option) }}
                             </span>
                         </template>
                         <template #option="option">
                             <span
-                                class="br-select-option-text"
+                                class="fg-select-option-text"
                                 :title="getOptionLabel(option)">
                                 {{ getOptionLabel(option) }}
                             </span>
@@ -52,20 +52,20 @@
             <InputSlot
                 hasDiv
                 :isInputGroup="false"
-                :divInputClass="['br-filter-bar__actions']"
+                :divInputClass="['fg-filter-bar__actions']"
                 xl="5"
                 lg="5">
                 <template v-slot:input>
                     <SearchButton
                         v-if="showSearchButton"
-                        class="br-btn-sm"
+                        class="fg-button--small"
                         @click="$emit('search')"
                         :disabled="loading"/>
                     <ClearFiltersButton v-if="showClearButton" :disabled="loading" @clear="clearFilters"/>
                     <button
                         v-if="showAddButton"
                         type="button"
-                        class="br-btn br-btn-sm br-btn-action-open-create waves-effect"
+                        class="fg-button fg-button--small waves-effect"
                         @click="$emit('add')"
                         :disabled="loading">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i>
@@ -92,7 +92,7 @@
                     <button
                         v-if="showImportButton && !groupSecondaryActions"
                         type="button"
-                        class="br-btn br-btn-sm br-btn-action-import waves-effect"
+                        class="fg-button fg-button--small fg-button--secondary waves-effect"
                         @click="$emit('import')"
                         :disabled="loading || importing"
                         data-bs-toggle="tooltip"
@@ -100,17 +100,17 @@
                         :title="importButtonTooltip"
                         :aria-label="importButtonTooltip">
                         <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
-                        <span class="br-btn-action-import__label" v-text="importButtonText"></span>
+                        <span class="fg-button__label" v-text="importButtonText"></span>
                     </button>
                     <button
                         v-if="showDownloadButton && !groupSecondaryActions"
                         type="button"
                         :class="[
-                            'br-btn',
-                            'br-btn-sm',
+                            'fg-button',
+                            'fg-button--small',
                             downloadButtonClass,
                             'waves-effect',
-                            {'br-btn-action-export--desktop-icon': downloadIconOnlyOnDesktop}
+                            {'fg-button--desktop-icon': downloadIconOnlyOnDesktop}
                         ]"
                         @click="$emit('download')"
                         :disabled="loading || downloading"
@@ -119,7 +119,7 @@
                         :title="downloadButtonTooltip"
                         :aria-label="downloadButtonTooltip">
                         <i :class="downloadButtonIcon" aria-hidden="true"></i>
-                        <span class="br-btn-action-export__label" v-text="downloadButtonText"></span>
+                        <span class="fg-button__label" v-text="downloadButtonText"></span>
                     </button>
                     <slot name="secondaryActions"></slot>
                 </template>
@@ -253,7 +253,7 @@ export default {
         downloadButtonClass: {
             type: String,
             required: false,
-            default: "br-btn-action-export"
+            default: "fg-button--secondary"
         },
         downloading: {
             type: Boolean,

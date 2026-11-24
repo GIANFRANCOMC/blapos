@@ -1,0 +1,68 @@
+/* Original SVGs from Componentes. Preserve the native control and its events. */
+.fg-chevron,
+:is(.fg-select, .fg-theme .v-select) .vs__open-indicator,
+.fg-theme .select2-selection__arrow::before {
+    display: inline-block;
+    flex: none;
+    width: var(--fg-control-icon-size);
+    height: var(--fg-control-icon-size);
+    background-color: currentColor;
+    mask: url("../../assets/fg/controls/chevron-down.svg") center / contain no-repeat;
+    transform: rotate(0deg);
+    transform-origin: center;
+    transition: transform var(--fg-control-motion);
+    pointer-events: none;
+}
+:is(.fg-select, .fg-theme .v-select) .vs__open-indicator { color: var(--fg-muted); }
+:is(.fg-select, .fg-theme .v-select) .vs__open-indicator > * { visibility: hidden; }
+:is(.fg-select, .fg-theme .v-select).vs--open .vs__open-indicator,
+details[open] > summary > .fg-chevron,
+[aria-expanded="true"] > .fg-chevron,
+.fg-theme .select2-container--open .select2-selection__arrow::before { transform: rotate(180deg); }
+:is(.fg-select, .fg-theme .v-select) :is(.vs__clear, .vs__deselect) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    padding: 0;
+    min-width: 20px;
+    min-height: 24px;
+    border: 0;
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+}
+:is(.fg-select, .fg-theme .v-select) .vs__deselect { min-width: 16px; min-height: 20px; color: inherit; }
+:is(.fg-select, .fg-theme .v-select).vs--disabled .vs__clear { display: none; }
+:is(.fg-select, .fg-theme .v-select) .vs__deselect:disabled { cursor: not-allowed; opacity: .55; }
+:is(.fg-select, .fg-theme .v-select) :is(.vs__clear, .vs__deselect) > svg { display: none; }
+:is(.fg-select, .fg-theme .v-select) .vs__clear::before,
+.fg-theme .select2-selection__clear::before {
+    content: "";
+    display: block;
+    width: var(--fg-control-icon-size);
+    height: var(--fg-control-icon-size);
+    background-color: currentColor;
+    mask: url("../../assets/fg/controls/clear.svg") center / contain no-repeat;
+}
+:is(.fg-select, .fg-theme .v-select) .vs__deselect::before,
+.fg-theme .select2-selection__choice__remove::before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: currentColor;
+    mask: url("../../assets/fg/controls/tag-clear.svg") center / contain no-repeat;
+}
+.fg-theme .select2-container .select2-selection--single .select2-selection__arrow { display: flex; align-items: center; justify-content: center; top: 0; height: 100%; color: var(--fg-muted); }
+.fg-theme .select2-selection__arrow::before { content: ""; }
+.fg-theme .select2-selection__arrow b { display: none; }
+.fg-theme .select2-container .select2-selection :is(.select2-selection__clear, .select2-selection__choice__remove) { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; min-height: 24px; font-size: 0; color: var(--fg-muted); }
+.fg-theme .select2-container .select2-selection .select2-selection__choice__remove { top: 50%; transform: translateY(-50%); min-width: 16px; min-height: 20px; opacity: 1; color: inherit; }
+.fg-theme .select2-container--disabled .select2-selection :is(.select2-selection__clear, .select2-selection__choice__remove) { display: none; }
+.fg-theme .select2-selection__clear > span { display: none; }
+@media (prefers-reduced-motion: reduce) {
+    .fg-chevron,
+    :is(.fg-select, .fg-theme .v-select) .vs__open-indicator,
+    .fg-theme .select2-selection__arrow::before { transition: none; }
+}

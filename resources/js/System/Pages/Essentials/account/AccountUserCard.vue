@@ -1,13 +1,13 @@
 <template>
-    <section class="br-workspace__panel br-workspace__company br-account-page__user-card" aria-labelledby="account-user-card-title">
-        <div class="br-workspace__company-head br-account-page__user-head">
-            <span class="br-navbar-user__avatar br-account-page__user-avatar" aria-hidden="true">{{ initials }}</span>
-            <div class="br-workspace__company-identity">
+    <section class="fg-workspace__panel fg-workspace__company fg-account-page__user-card" aria-labelledby="account-user-card-title">
+        <div class="fg-workspace__company-head fg-account-page__user-head">
+            <span class="fg-navbar-user__avatar fg-account-page__user-avatar" aria-hidden="true">{{ initials }}</span>
+            <div class="fg-workspace__company-identity">
                 <h2 id="account-user-card-title">{{ account.name || 'Usuario' }}</h2>
-                <p class="br-workspace__company-document">
+                <p class="fg-workspace__company-document">
                     <span class="visually-hidden">Documento:</span>
                     <span>{{ documentType }}</span>
-                    <span class="br-copy-value">
+                    <span class="fg-copy-value">
                         <span>{{ account.document_number || 'Sin información' }}</span>
                         <CopyButton v-if="account.document_number" :value="account.document_number" label="Número de documento"/>
                     </span>
@@ -15,14 +15,14 @@
             </div>
         </div>
 
-        <dl class="br-workspace__company-details">
+        <dl class="fg-workspace__company-details">
             <div v-for="detail in details" :key="detail.label"
-                 :class="['br-workspace__company-detail', detail.full ? 'br-workspace__company-detail--full' : 'br-workspace__company-detail--compact']">
-                <span class="br-workspace__company-detail-icon" aria-hidden="true"><i :class="detail.icon"></i></span>
-                <div class="br-workspace__company-detail-content">
+                 :class="['fg-workspace__company-detail', detail.full ? 'fg-workspace__company-detail--full' : 'fg-workspace__company-detail--compact']">
+                <span class="fg-workspace__company-detail-icon" aria-hidden="true"><i :class="detail.icon"></i></span>
+                <div class="fg-workspace__company-detail-content">
                     <dt class="colon-at-end">{{ detail.label }}</dt>
-                    <dd :class="['br-workspace__company-value', {'is-empty': !detail.value}]">
-                        <span class="br-workspace__company-text">{{ detail.value || 'Sin información' }}</span>
+                    <dd :class="['fg-workspace__company-value', {'is-empty': !detail.value}]">
+                        <span class="fg-workspace__company-text">{{ detail.value || 'Sin información' }}</span>
                     </dd>
                 </div>
             </div>

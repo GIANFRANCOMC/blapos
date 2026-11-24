@@ -3,9 +3,9 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" :table="activeMode !== 'new'"/>
-        <div v-else class="br-page-content">
-            <main class="br-entity br-purchases">
-                <section v-if="activeMode === 'new'" class="br-purchases__workspace">
+        <div v-else class="fg-page-content">
+            <main class="fg-entity fg-purchases">
+                <section v-if="activeMode === 'new'" class="fg-purchases__workspace">
                     <div class="row g-4">
                         <div class="col-lg-9 col-12">
                             <div class="card">
@@ -73,14 +73,14 @@
                                                             <td class="text-center">
                                                                 <InputNumber v-model="detail.unitCost" :hasNegative="false">
                                                                     <template #inputGroupPrepend>
-                                                                        <span class="input-group-text br-currency-prefix">{{ purchaseForm.currency?.sign || "S/" }}</span>
+                                                                        <span class="input-group-text fg-currency-prefix">{{ purchaseForm.currency?.sign || "S/" }}</span>
                                                                     </template>
                                                                 </InputNumber>
                                                             </td>
                                                             <td class="text-end pe-3">
-                                                                <span class="br-amount-inline">
-                                                                    <span class="br-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
-                                                                    <span class="br-amount-inline__amount">{{ separatorNumber(lineTotal(detail)) }}</span>
+                                                                <span class="fg-amount-inline">
+                                                                    <span class="fg-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
+                                                                    <span class="fg-amount-inline__amount">{{ separatorNumber(lineTotal(detail)) }}</span>
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
@@ -89,28 +89,28 @@
                                                                 </button>
                                                             </td>
                                                         </tr>
-                                                        <tr class="br-table-footer-stripe">
-                                                            <td colspan="4" class="text-end br-table-footer-stripe__label">
+                                                        <tr class="fg-table-footer-stripe">
+                                                            <td colspan="4" class="text-end fg-table-footer-stripe__label">
                                                                 <span class="text-uppercase">Importe total:</span>
                                                             </td>
                                                             <td class="text-end pe-3">
-                                                                <span class="br-amount-inline br-amount-inline--emphasis">
-                                                                    <span class="br-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
-                                                                    <span class="br-amount-inline__amount">{{ separatorNumber(purchaseSubtotal) }}</span>
+                                                                <span class="fg-amount-inline fg-amount-inline--emphasis">
+                                                                    <span class="fg-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
+                                                                    <span class="fg-amount-inline__amount">{{ separatorNumber(purchaseSubtotal) }}</span>
                                                                 </span>
                                                             </td>
                                                             <td></td>
                                                         </tr>
                                                     </template>
-                                                    <tr class="br-table-state" v-else>
+                                                    <tr class="fg-table__state" v-else>
                                                         <td class="pt-1 pb-0 border-0" colspan="99">
-                                                            <div class="br-table-detail-empty">
-                                                                <div class="br-table-detail-empty__top">
-                                                                    <div class="br-table-detail-empty__body">
-                                                                        <img class="br-table-detail-empty__img" :src="purchaseDetailEmptyImageUrl" alt="" width="100" height="84" loading="lazy" decoding="async"/>
-                                                                        <p class="br-table-detail-empty__text">
+                                                            <div class="fg-table-detail-empty">
+                                                                <div class="fg-table-detail-empty__top">
+                                                                    <div class="fg-table-detail-empty__body">
+                                                                        <img class="fg-table-detail-empty__img" :src="purchaseDetailEmptyImageUrl" alt="" width="100" height="84" loading="lazy" decoding="async"/>
+                                                                        <p class="fg-table-detail-empty__text">
                                                                             <span>No hay productos en el detalle. Agréguelos con la acción </span>
-                                                                            <a href="javascript:void(0)" class="br-link br-table-detail-empty__link" @click.prevent="addPurchaseItem">Agregar producto</a>
+                                                                            <a href="javascript:void(0)" class="fg-link fg-table-detail-empty__link" @click.prevent="addPurchaseItem">Agregar producto</a>
                                                                             <span>.</span>
                                                                         </p>
                                                                     </div>
@@ -127,54 +127,54 @@
                         </div>
 
                         <div class="col-lg-3 col-12">
-                            <aside class="br-purchases__settlement">
-                                <div class="br-document-settlement br-sale-settlement mb-2 mb-md-3">
+                            <aside class="fg-purchases__settlement">
+                                <div class="fg-document-settlement fg-sale-settlement mb-2 mb-md-3">
                                     <div>
-                                        <div class="br-document-settlement__header">
+                                        <div class="fg-document-settlement__header">
                                             <label class="form-label">Observaciones</label>
                                             <button
                                                 type="button"
-                                                class="br-btn br-btn-xs br-btn-action-import br-document-payment-config waves-effect"
+                                                class="fg-button fg-button--compact fg-button--secondary fg-document-payment-config waves-effect"
                                                 @click="openObservationsModal">
                                                 <span>Cambiar</span>
                                             </button>
                                         </div>
-                                        <div class="br-document-observation-summary">
+                                        <div class="fg-document-observation-summary">
                                             <span
                                                 v-if="observationHasContent"
-                                                class="br-document-observation-summary__value"
+                                                class="fg-document-observation-summary__value"
                                                 :title="observationPreviewTooltip"
                                                 v-text="observationDisplayPreview">
                                             </span>
-                                            <p v-else class="br-document-settlement__empty mb-0">
+                                            <p v-else class="fg-document-settlement__empty mb-0">
                                                 Sin observaciones para esta compra.
                                             </p>
                                         </div>
                                     </div>
                                     <div>
                                         <label class="form-label">Impuestos extras</label>
-                                        <div class="br-document-settlement__taxes" v-if="optionalPurchaseTaxes.length">
+                                        <div class="fg-document-settlement__taxes" v-if="optionalPurchaseTaxes.length">
                                             <template v-for="tax in optionalPurchaseTaxes" :key="`optional-purchase-tax-page-${tax.code}`">
-                                                <label class="br-entity-switch br-document-settlement__tax-option">
+                                                <label class="fg-entity-switch fg-document-settlement__tax-option">
                                                     <input v-model="purchaseForm.selectedTaxes" class="form-check-input" type="checkbox" :value="tax.code" @change="syncSelectedTaxQuantity(tax.data)">
                                                     <span>
                                                         <strong>{{ tax.data.name }}</strong>
                                                         <small>{{ taxLabel(tax.data) }}</small>
                                                     </span>
                                                 </label>
-                                                <InputNumber v-if="isFixedTax(tax.data) && (purchaseForm.selectedTaxes || []).includes(tax.code)" v-model="purchaseForm.selectedTaxQuantities[tax.code]" title="" :inputClass="['form-control', 'br-tax-quantity']" :decimals="0" :minValue="taxQuantityMinimum(tax.data)" :maxValue="taxQuantityMaximum(tax.data)" :hasNegative="false" @change="normalizeSelectedTaxQuantity(tax.code)">
+                                                <InputNumber v-if="isFixedTax(tax.data) && (purchaseForm.selectedTaxes || []).includes(tax.code)" v-model="purchaseForm.selectedTaxQuantities[tax.code]" title="" :inputClass="['form-control', 'fg-tax-quantity']" :decimals="0" :minValue="taxQuantityMinimum(tax.data)" :maxValue="taxQuantityMaximum(tax.data)" :hasNegative="false" @change="normalizeSelectedTaxQuantity(tax.code)">
                                                     <template #inputGroupPrepend>
-                                                        <span class="input-group-text br-tax-quantity__label">Veces</span>
+                                                        <span class="input-group-text fg-tax-quantity__label">Veces</span>
                                                     </template>
                                                 </InputNumber>
                                             </template>
                                         </div>
-                                        <p v-else class="br-document-settlement__empty mb-0">Sin impuestos extras para esta compra.</p>
+                                        <p v-else class="fg-document-settlement__empty mb-0">Sin impuestos extras para esta compra.</p>
                                     </div>
                                     <div>
                                         <label class="form-label">Métodos de pago</label>
-                                        <div class="br-document-payments">
-                                            <div v-for="(payment, index) in purchaseForm.payments" :key="payment.key" class="br-document-payment-row">
+                                        <div class="fg-document-payments">
+                                            <div v-for="(payment, index) in purchaseForm.payments" :key="payment.key" class="fg-document-payment-row">
                                                 <v-select
                                                     v-model="payment.method"
                                                     :options="purchasePaymentMethods"
@@ -183,14 +183,14 @@
                                                     append-to-body
                                                     @update:modelValue="syncPurchasePaymentVariant(payment)">
                                                     <template #selected-option="{ label, data }">
-                                                        <span class="br-payment-select-option">
-                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                                        <span class="fg-payment-select-option">
+                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                                             <span>{{ label }}</span>
                                                         </span>
                                                     </template>
                                                     <template #option="{ label, data }">
-                                                        <span class="br-payment-select-option">
-                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                                        <span class="fg-payment-select-option">
+                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                                             <span>{{ label }}</span>
                                                         </span>
                                                     </template>
@@ -204,38 +204,38 @@
                                                     append-to-body
                                                     placeholder="Variante">
                                                     <template #selected-option="{ label, data }">
-                                                        <span class="br-payment-select-option">
-                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                                        <span class="fg-payment-select-option">
+                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                                             <span>{{ label }}</span>
                                                         </span>
                                                     </template>
                                                     <template #option="{ label, data }">
-                                                        <span class="br-payment-select-option">
-                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                                        <span class="fg-payment-select-option">
+                                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                                             <span>{{ label }}</span>
                                                         </span>
                                                     </template>
                                                 </v-select>
-                                                <InputNumber v-model="payment.amount" title="" :titleClass="[]" :inputClass="['form-control', 'br-document-payment-amount']" :minValue="0" :placeholder="separatorNumber(purchaseTotal)">
+                                                <InputNumber v-model="payment.amount" title="" :titleClass="[]" :inputClass="['form-control', 'fg-document-payment-amount']" :minValue="0" :placeholder="separatorNumber(purchaseTotal)">
                                                     <template #inputGroupPrepend>
-                                                        <span class="input-group-text br-currency-prefix">{{ purchaseForm.currency?.sign }}</span>
+                                                        <span class="input-group-text fg-currency-prefix">{{ purchaseForm.currency?.sign }}</span>
                                                     </template>
                                                 </InputNumber>
                                                 <input v-if="paymentRequiresReference(payment)" v-model.trim="payment.reference" type="text" class="form-control" maxlength="100" placeholder="Referencia">
-                                                <button type="button" class="br-icon-action" :disabled="purchaseForm.payments.length <= 1" title="Quitar método" @click="removePurchasePayment(index)">
+                                                <button type="button" class="fg-icon-action" :disabled="purchaseForm.payments.length <= 1" title="Quitar método" @click="removePurchasePayment(index)">
                                                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                                 </button>
                                             </div>
-                                            <button type="button" class="br-document-payment-add" @click="addPurchasePayment">
+                                            <button type="button" class="fg-document-payment-add" @click="addPurchasePayment">
                                                 <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
                                                 <span>Agregar método</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="br-document-summary-card mb-2 mb-md-3">
-                                    <h3 class="br-document-summary-card__title">Resumen</h3>
-                                    <div class="br-document-settlement__summary">
+                                <div class="fg-document-summary-card mb-2 mb-md-3">
+                                    <h3 class="fg-document-summary-card__title">Resumen</h3>
+                                    <div class="fg-document-settlement__summary">
                                         <span>Subtotal</span>
                                         <strong>{{ purchaseForm.currency?.sign }} {{ separatorNumber(purchaseSubtotal) }}</strong>
                                         <template v-if="purchaseTaxBreakdown.length">
@@ -254,17 +254,17 @@
                                         </strong>
                                     </div>
                                 </div>
-                                <div class="br-sale-sidebar-actions">
-                                    <div class="br-sale-sidebar-actions__pair">
-                                        <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="addPurchaseItem">
+                                <div class="fg-sale-sidebar-actions">
+                                    <div class="fg-sale-sidebar-actions__pair">
+                                        <button type="button" class="fg-button fg-button--small waves-effect" @click="addPurchaseItem">
                                             <span>Agregar producto</span>
                                         </button>
-                                        <button type="button" class="br-btn br-btn-sm br-btn-secondary waves-effect" @click="preparePurchase">
+                                        <button type="button" class="fg-button fg-button--small fg-button--secondary waves-effect" @click="preparePurchase">
                                             <span>Limpiar</span>
                                         </button>
                                     </div>
-                                    <div class="br-sale-sidebar-actions__pair">
-                                        <button type="button" class="br-btn br-btn-action-create br-sale-sidebar-actions__cta" :disabled="saving" @click="savePurchase">
+                                    <div class="fg-sale-sidebar-actions__pair">
+                                        <button type="button" class="fg-button fg-sale-sidebar-actions__cta" :disabled="saving" @click="savePurchase">
                                             <span v-text="saving ? 'Registrando' : 'Registrar compra'"></span>
                                         </button>
                                     </div>
@@ -274,10 +274,10 @@
                     </div>
                 </section>
 
-                <div id="purchaseObservationsModal" class="modal fade br-modal-standard" data-bs-backdrop="static" tabindex="-1" role="dialog">
+                <div id="purchaseObservationsModal" class="modal fade fg-modal" data-bs-backdrop="static" tabindex="-1" role="dialog">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
-                            <div class="modal-header br-modal-header">
+                            <div class="modal-header fg-modal-header">
                                 <h5 class="modal-title text-uppercase fw-bold">Cambiar observación</h5>
                                 <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
                                     <i class="fa fa-times icon-close-modal" aria-hidden="true"></i>
@@ -294,15 +294,15 @@
                                     showCharCounter
                                     placeholder="Escribe aquí la observación de la compra..."/>
                             </div>
-                            <div class="modal-footer br-entity-modal__footer">
-                                <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                                <button type="button" class="br-btn br-btn-primary" @click="saveObservationsModal">Cambiar observación</button>
+                            <div class="modal-footer fg-modal__footer">
+                                <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="button" class="fg-button" @click="saveObservationsModal">Cambiar observación</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <section v-if="['list', 'receipts'].includes(activeMode)" class="br-filter-bar">
+                <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-filter-bar">
                     <div class="row align-items-end g-2">
                         <SearchInput
                             v-model="filters.word"
@@ -321,12 +321,12 @@
                                 :searchable="false"/>
                         </div>
                         <div class="form-group col-xl-4 col-lg-4 col-md-12">
-                            <div class="br-filter-bar__actions">
-                                <SearchButton class="br-btn-sm" @click="listPurchases({applyFilters: true})"/>
+                            <div class="fg-filter-bar__actions">
+                                <SearchButton class="fg-button--small" @click="listPurchases({applyFilters: true})"/>
                                 <button
                                     v-if="activeMode === 'list'"
                                     type="button"
-                                    class="br-btn br-btn-sm br-btn-action-open-create"
+                                    class="fg-button fg-button--small"
                                     @click="changeMode('new')">
                                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                                     <span>Nuevo</span>
@@ -334,22 +334,22 @@
                                 <button
                                     v-if="activeMode === 'list'"
                                     type="button"
-                                    class="br-btn br-btn-sm br-btn-action-export br-btn-action-export--desktop-icon"
+                                    class="fg-button fg-button--small fg-button--secondary fg-button--desktop-icon"
                                     title="Descargar compras"
                                     data-bs-toggle="tooltip"
                                     @click="exportPurchases">
                                     <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                    <span class="br-btn-action-export__label">Descargar</span>
+                                    <span class="fg-button__label">Descargar</span>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section v-if="['list', 'receipts'].includes(activeMode)" class="br-entity-list">
+                <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-entity-list">
                     <div class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Documento</th>
                                     <th>Proveedor</th>
@@ -361,43 +361,43 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="br-table-state" v-if="loading">
+                                <tr class="fg-table__state" v-if="loading">
                                     <td colspan="7" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="records.total > 0">
                                     <tr v-for="purchase in records.data" :key="purchase.id">
                                         <td>
                                             <strong>{{ purchase.formatted_document_type }}</strong>
-                                            <span class="br-purchases__meta">
+                                            <span class="fg-purchases__meta">
                                                 {{ purchaseDocumentReference(purchase) }}
                                                 ? {{ formatDate(purchase.issue_date) }}
                                             </span>
                                         </td>
                                         <td>
                                             <strong>{{ purchase.supplier?.name }}</strong>
-                                            <span class="br-purchases__meta">{{ purchase.supplier?.document_number }}</span>
+                                            <span class="fg-purchases__meta">{{ purchase.supplier?.document_number }}</span>
                                         </td>
                                         <td>{{ purchase.warehouse?.name }}</td>
                                         <td class="text-end">
-                                            <strong class="br-amount-inline__amount">{{ purchase.currency?.sign }} {{ separatorNumber(purchase.total) }}</strong>
+                                            <strong class="fg-amount-inline__amount">{{ purchase.currency?.sign }} {{ separatorNumber(purchase.total) }}</strong>
                                         </td>
                                         <td>
-                                            <span class="br-purchases__progress-label">{{ purchase.receipt_progress }}%</span>
-                                            <div class="br-purchases__progress">
+                                            <span class="fg-purchases__progress-label">{{ purchase.receipt_progress }}%</span>
+                                            <div class="fg-purchases__progress">
                                                 <span :style="{width: `${purchase.receipt_progress}%`}"></span>
                                             </div>
                                         </td>
                                         <td>
-                                            <span :class="['br-purchase-status', `is-${purchase.status}`]">
+                                            <span :class="['fg-purchase-status', `is-${purchase.status}`]">
                                                 {{ purchase.formatted_status }}
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <div class="br-purchases__actions">
+                                            <div class="fg-purchases__actions">
                                                 <button
                                                     v-if="['confirmed', 'partial'].includes(purchase.status)"
                                                     type="button"
-                                                    class="br-icon-action br-icon-action-edit"
+                                                    class="fg-icon-action fg-icon-action-edit"
                                                     title="Registrar recepción"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#purchaseReceiptModal"
@@ -407,7 +407,7 @@
                                                 <button
                                                     v-if="purchase.status === 'confirmed'"
                                                     type="button"
-                                                    class="br-icon-action br-purchases__cancel"
+                                                    class="fg-icon-action fg-purchases__cancel"
                                                     title="Anular compra"
                                                     @click="cancelPurchase(purchase)">
                                                     <i class="fa-solid fa-ban" aria-hidden="true"></i>
@@ -416,7 +416,7 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <tr class="br-table-state" v-else>
+                                <tr class="fg-table__state" v-else>
                                     <td colspan="7"><WithoutData type="image"/></td>
                                 </tr>
                             </tbody>
@@ -429,31 +429,31 @@
 
         </div>
     </InitialLoadTransition>
-    <div id="purchaseReceiptModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div id="purchaseReceiptModal" class="modal fade fg-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Compras</p>
-                        <h2 class="modal-title br-entity-modal__title">Recibir mercadería</h2>
-                        <p class="br-purchases__modal-help">Solo las cantidades recibidas ingresarán al inventario.</p>
+                        <p class="fg-entity-modal__eyebrow mb-1">Compras</p>
+                        <h2 class="modal-title fg-modal__title">Recibir mercadería</h2>
+                        <p class="fg-purchases__modal-help">Solo las cantidades recibidas ingresarán al inventario.</p>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div v-if="loadingReceipt" class="py-4"><Loader/></div>
                     <template v-else>
-                        <div class="br-purchases__receipt-summary">
+                        <div class="fg-purchases__receipt-summary">
                             <strong>{{ receiptForm.purchase?.supplier?.name }}</strong>
                             <span>{{ receiptForm.purchase?.warehouse?.name }}</span>
                         </div>
-                        <div class="br-purchases__receipt-items">
-                            <div v-for="detail in receiptForm.items" :key="detail.purchaseItemId" class="br-purchases__receipt-row">
+                        <div class="fg-purchases__receipt-items">
+                            <div v-for="detail in receiptForm.items" :key="detail.purchaseItemId" class="fg-purchases__receipt-row">
                                 <div>
                                     <ProductIdentity :product="detail.product"/>
-                                    <span class="br-purchases__receipt-pending">Pendiente: {{ separatorNumber(detail.remaining) }}</span>
+                                    <span class="fg-purchases__receipt-pending">Pendiente: {{ separatorNumber(detail.remaining) }}</span>
                                 </div>
                                 <InputNumber v-model="detail.quantity" title="Cantidad recibida" :titleClass="[config.forms.classes.title]" :hasNegative="false"/>
                             </div>
@@ -470,9 +470,9 @@
                         </div>
                     </template>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button ref="closeReceiptModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" :disabled="savingReceipt || loadingReceipt" @click="saveReceipt">Confirmar recepción</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button ref="closeReceiptModal" type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="savingReceipt || loadingReceipt" @click="saveReceipt">Confirmar recepción</button>
                 </div>
             </div>
         </div>

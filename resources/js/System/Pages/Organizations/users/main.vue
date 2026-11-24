@@ -3,7 +3,7 @@
 
     <InitialLoadTransition>
         <CatalogListSkeleton v-if="initialLoading" kind="users" label="colaboradores"/>
-        <main v-else class="br-entity">
+        <main v-else class="fg-entity">
             <!-- Filters -->
             <FiltersSection
                 :filter-by-value="filterByValue"
@@ -41,9 +41,9 @@
                 @imported="listEntity({})"/>
 
             <!-- Records -->
-            <section class="br-entity-list br-users-list" aria-label="Listado de colaboradores">
+            <section class="fg-entity-list fg-users-list" aria-label="Listado de colaboradores">
               <div class="table-responsive">
-                <table class="table br-entity-table br-entity-table--directory mb-0">
+                <table class="table fg-entity-table fg-entity-table--directory mb-0">
                     <colgroup>
                         <col style="width: 20%;">
                         <col style="width: 20%;">
@@ -52,7 +52,7 @@
                         <col style="width: 9%;">
                         <col style="width: 6%;">
                     </colgroup>
-                    <thead class="br-table-header-surface">
+                    <thead class="fg-table-header-surface">
                         <tr>
                             <th>Identificación</th>
                             <th>Colaborador</th>
@@ -63,47 +63,47 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="br-table-state" v-if="entityList.extras.loading">
+                        <tr class="fg-table__state" v-if="entityList.extras.loading">
                             <td colspan="6" class="py-4">
                                 <Loader/>
                             </td>
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
                             <tr v-for="record in entityList.records.data" :key="record.id">
-                                <td class="br-entity-table__identification-cell">
-                                    <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                        <div class="br-entity-identifier">
-                                            <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                            <span class="br-copy-value">
-                                                <span class="br-entity-code" v-text="record.document_number || '—'"></span>
+                                <td class="fg-entity-table__identification-cell">
+                                    <div class="fg-entity-identifiers fg-entity-identifiers--plain">
+                                        <div class="fg-entity-identifier">
+                                            <span class="fg-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
+                                            <span class="fg-copy-value">
+                                                <span class="fg-entity-code" v-text="record.document_number || '—'"></span>
                                                 <CopyButton v-if="record.document_number" :value="record.document_number" label="Número de documento"/>
                                             </span>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="br-users-list__stack">
-                                        <span class="br-entity-table__name" v-text="record.name"></span>
+                                    <div class="fg-users-list__stack">
+                                        <span class="fg-entity-table__name" v-text="record.name"></span>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="br-users-list__stack">
-                                        <span class="br-users-list__role" v-text="record?.role?.name || 'Sin perfil'"></span>
-                                        <span class="br-entity-table__meta" v-text="branchAccessLabel(record)"></span>
+                                    <div class="fg-users-list__stack">
+                                        <span class="fg-users-list__role" v-text="record?.role?.name || 'Sin perfil'"></span>
+                                        <span class="fg-entity-table__meta" v-text="branchAccessLabel(record)"></span>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="br-users-list__stack">
-                                        <span v-if="isDefined(record.email)" class="br-copy-value">
-                                            <a :href="`mailto:${record.email}`" class="br-entity-table__meta br-users-contact__link" v-text="record.email"></a>
+                                    <div class="fg-users-list__stack">
+                                        <span v-if="isDefined(record.email)" class="fg-copy-value">
+                                            <a :href="`mailto:${record.email}`" class="fg-entity-table__meta fg-users-contact__link" v-text="record.email"></a>
                                             <CopyButton :value="record.email" label="Correo electrónico"/>
                                         </span>
-                                        <span v-else class="br-entity-table__meta">Sin correo electrónico</span>
-                                        <span v-if="isDefined(record.phone_number)" class="br-copy-value">
-                                            <a :href="`tel:${record.phone_number}`" class="br-entity-table__meta br-users-contact__link" v-text="record.phone_number"></a>
+                                        <span v-else class="fg-entity-table__meta">Sin correo electrónico</span>
+                                        <span v-if="isDefined(record.phone_number)" class="fg-copy-value">
+                                            <a :href="`tel:${record.phone_number}`" class="fg-entity-table__meta fg-users-contact__link" v-text="record.phone_number"></a>
                                             <CopyButton :value="record.phone_number" label="Celular"/>
                                         </span>
-                                        <span v-else class="br-entity-table__meta">Sin celular</span>
+                                        <span v-else class="fg-entity-table__meta">Sin celular</span>
                                     </div>
                                 </td>
                                 <td class="text-center">
@@ -133,9 +133,9 @@
                                 </td>
                             </tr>
                         </template>
-                        <tr class="br-table-state" v-else>
+                        <tr class="fg-table__state" v-else>
                             <td colspan="6" class="py-4">
-                                <WithoutData class="br-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
+                                <WithoutData class="fg-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
                             </td>
                         </tr>
                     </tbody>
@@ -151,8 +151,8 @@
     <!-- Modal: Authentication events -->
     <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false">
         <template #body>
-                    <p v-if="authenticationEvents.user" class="br-entity-table__meta mb-3" v-text="authenticationEvents.user.name"></p>
-                    <section class="br-filter-bar br-auth-events__filters">
+                    <p v-if="authenticationEvents.user" class="fg-entity-table__meta mb-3" v-text="authenticationEvents.user.name"></p>
+                    <section class="fg-filter-bar fg-auth-events__filters">
                         <div class="row align-items-end g-2">
                             <InputSlot hasDiv title="Evento" :titleClass="[config.forms.classes.title]" xl="3" lg="3">
                                 <template #input>
@@ -193,12 +193,12 @@
                             <InputSlot
                                 hasDiv
                                 :isInputGroup="false"
-                                :divInputClass="['br-filter-bar__actions']"
+                                :divInputClass="['fg-filter-bar__actions']"
                                 xl="2"
                                 lg="2">
                                 <template #input>
                                     <SearchButton
-                                        class="br-btn-sm"
+                                        class="fg-button--small"
                                         :disabled="authenticationEvents.loading"
                                         @click="listAuthenticationEvents({})"/>
                                 </template>
@@ -206,8 +206,8 @@
                         </div>
                     </section>
 
-                    <div class="table-responsive br-entity-table-wrap">
-                        <table class="table br-entity-table mb-0">
+                    <div class="table-responsive fg-entity-table-wrap">
+                        <table class="table fg-entity-table mb-0">
                             <thead>
                                 <tr>
                                     <th style="width: 18%;">Fecha</th>
@@ -218,31 +218,31 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="br-table-state" v-if="authenticationEvents.loading">
+                                <tr class="fg-table__state" v-if="authenticationEvents.loading">
                                     <td colspan="5" class="text-center py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="authenticationEvents.records.total > 0">
                                     <tr v-for="event in authenticationEvents.records.data" :key="event.id">
                                         <td>{{ legibleFormatDate({dateString: event.occurred_at, type: 'datetime'}) }}</td>
                                         <td>
-                                            <strong class="br-entity-primary">{{ authEventLabel(event.event_type) }}</strong>
+                                            <strong class="fg-entity-primary">{{ authEventLabel(event.event_type) }}</strong>
                                         </td>
                                         <td>
-                                            <span :class="['br-status-label', event.result === 'success' ? 'br-status-active' : 'br-status-inactive']">
+                                            <span :class="['fg-badge', event.result === 'success' ? 'fg-status-active' : 'fg-status-inactive']">
                                                 {{ authResultLabel(event.result) }}
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="br-entity-table__meta">IP {{ event.ip_address || "No registrada" }}</span>
-                                            <span class="br-entity-table__meta">Tenant {{ event.tenant_key || "Actual" }}</span>
+                                            <span class="fg-entity-table__meta">IP {{ event.ip_address || "No registrada" }}</span>
+                                            <span class="fg-entity-table__meta">Tenant {{ event.tenant_key || "Actual" }}</span>
                                         </td>
                                         <td>
-                                            <span class="br-entity-table__meta">{{ event.reason || "Sin observación" }}</span>
-                                            <span class="br-auth-events__agent" :title="event.user_agent">{{ event.user_agent || "Agente no registrado" }}</span>
+                                            <span class="fg-entity-table__meta">{{ event.reason || "Sin observación" }}</span>
+                                            <span class="fg-auth-events__agent" :title="event.user_agent">{{ event.user_agent || "Agente no registrado" }}</span>
                                         </td>
                                     </tr>
                                 </template>
-                                <tr class="br-table-state" v-else>
+                                <tr class="fg-table__state" v-else>
                                     <td colspan="5"><WithoutData type="image" text="Sin eventos de acceso" description="Prueba otros filtros o revisa más adelante."/></td>
                                 </tr>
                             </tbody>
@@ -258,8 +258,8 @@
         :modal-id="collaboratorFormModalId"
         :title="isUpdate ? 'EDITAR COLABORADOR' : 'AGREGAR COLABORADOR'"
         modal-size="modal-lg"
-        modal-class="br-entity-modal--tabbed"
-        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        modal-class="fg-entity-modal--tabbed"
+        :submit-button-class="isUpdate ? 'fg-button--edit' : ''"
         :submit-disabled="isSaving"
         @submit="saveEntity">
         <template #body>
@@ -276,7 +276,7 @@
                     v-show="activeFormTab === 'access'"
                     :id="`${collaboratorFormModalId}-tab-access`"
                     :aria-labelledby="`${collaboratorFormModalId}-tab-trigger-access`"
-                    class="br-entity-form-section"
+                    class="fg-entity-form-section"
                     role="tabpanel">
                         <div class="row g-3">
                             <InputSlot
@@ -298,13 +298,13 @@
                                         append-to-body
                                         @close="tooltips({show: true, time: 500})">
                                         <template #option="{label, data}">
-                                            <span class="br-select-option-text" :title="label">
+                                            <span class="fg-select-option-text" :title="label">
                                                 {{ label }}
-                                                <small v-if="data?.is_full_access" class="br-users-profile-option">Acceso total</small>
+                                                <small v-if="data?.is_full_access" class="fg-users-profile-option">Acceso total</small>
                                             </span>
                                         </template>
                                         <template #selected-option="{label}">
-                                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                            <span class="fg-select-selected-text" :title="label">{{ label }}</span>
                                         </template>
                                     </v-select>
                                 </template>
@@ -329,10 +329,10 @@
                                         placeholder="Heredar sucursales del perfil"
                                         @close="tooltips({show: true, time: 500})">
                                         <template #option="{label}">
-                                            <span class="br-select-option-text" :title="label">{{ label }}</span>
+                                            <span class="fg-select-option-text" :title="label">{{ label }}</span>
                                         </template>
                                         <template #selected-option="{label}">
-                                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                            <span class="fg-select-selected-text" :title="label">{{ label }}</span>
                                         </template>
                                     </v-select>
                                 </template>
@@ -357,7 +357,7 @@
                                         placeholder="Heredar cajas del perfil"
                                         @close="tooltips({show: true, time: 500})">
                                         <template #selected-option="{label}">
-                                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                            <span class="fg-select-selected-text" :title="label">{{ label }}</span>
                                         </template>
                                     </v-select>
                                 </template>
@@ -382,7 +382,7 @@
                                         placeholder="Heredar almacenes del perfil"
                                         @close="tooltips({show: true, time: 500})">
                                         <template #selected-option="{label}">
-                                            <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                            <span class="fg-select-selected-text" :title="label">{{ label }}</span>
                                         </template>
                                     </v-select>
                                 </template>
@@ -400,7 +400,7 @@
                     v-show="activeFormTab === 'collaborator'"
                     :id="`${collaboratorFormModalId}-tab-collaborator`"
                     :aria-labelledby="`${collaboratorFormModalId}-tab-trigger-collaborator`"
-                    class="br-entity-form-section"
+                    class="fg-entity-form-section"
                     role="tabpanel">
                         <div class="row g-3">
                             <InputSlot
@@ -476,7 +476,7 @@
                     v-show="activeFormTab === 'contact'"
                     :id="`${collaboratorFormModalId}-tab-contact`"
                     :aria-labelledby="`${collaboratorFormModalId}-tab-trigger-contact`"
-                    class="br-entity-form-section"
+                    class="fg-entity-form-section"
                     role="tabpanel">
                         <div class="row g-3">
                             <InputText
@@ -541,11 +541,11 @@
         modal-size="modal-md"
         :keyboard="false"
         submit-button-text="Guardar contraseña"
-        submit-button-class="br-btn-action-update"
+        submit-button-class="fg-button"
         :submit-disabled="passwordModal.saving"
         @submit="savePassword">
         <template #body>
-                    <p v-if="passwordModal.user" class="br-entity-table__meta mb-3" v-text="passwordModal.user.name"></p>
+                    <p v-if="passwordModal.user" class="fg-entity-table__meta mb-3" v-text="passwordModal.user.name"></p>
                     <div class="row g-3">
                         <div class="form-group col-12">
                             <label class="form-label">Nueva contraseña</label>
@@ -574,7 +574,7 @@
                             <small class="text-danger">{{ errorMessage(passwordModal.errors?.password_confirmation) }}</small>
                         </div>
                     </div>
-                    <p class="br-entity-table__meta mb-0">Este cambio cerrará las sesiones activas.</p>
+                    <p class="fg-entity-table__meta mb-0">Este cambio cerrará las sesiones activas.</p>
         </template>
     </FormModal>
 </template>

@@ -201,14 +201,14 @@ final class UserWorkspaceTest extends TestCase {
 
         $page = $this->get(route("workspace.index"));
         $page->assertOk()->assertSee('id="app" data-endpoint="'.route("workspace.data").'"', false);
-        $page->assertDontSee('class="br-workspace__layout"', false);
-        $page->assertSee('class="br-navbar-brand"', false);
+        $page->assertDontSee('class="fg-workspace__layout"', false);
+        $page->assertSee('class="fg-topbar"', false);
         $page->assertSee(
-            '<span class="br-navbar-user__company" title="EMPRESA DE PRUEBAS S.A.C.">EMPRESA DE PRUEBAS S.A.C.</span>',
+            '<small>EMPRESA DE PRUEBAS S.A.C.</small>',
             false
         );
         $page->assertSee(
-            'src="'.asset(config("app.owner_app")->assets->img->combinationmark).'" alt="Marca combinada de Blapos"',
+            'alt="Isotipo de EMPRESA DE PRUEBAS S.A.C."',
             false
         );
 

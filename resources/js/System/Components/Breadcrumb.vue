@@ -1,15 +1,15 @@
 <template>
     <nav
         v-if="visibleItems.length"
-        class="br-breadcrumb"
+        class="fg-breadcrumb"
         aria-label="Ubicación actual">
-        <ol class="br-breadcrumb__list">
+        <ol class="fg-breadcrumb__list">
             <li
                 v-for="(item, index) in visibleItems"
                 :key="`${item.title}-${index}`"
-                :class="['br-breadcrumb__item', {'is-current': item.active || index === visibleItems.length - 1}]"
+                :class="['fg-breadcrumb__item', {'is-current': item.active || index === visibleItems.length - 1}]"
                 :aria-current="item.active || index === visibleItems.length - 1 ? 'page' : undefined">
-                <i v-if="index > 0" class="fa-solid fa-chevron-right br-breadcrumb__separator" aria-hidden="true"></i>
+                <i v-if="index > 0" class="fa-solid fa-chevron-right fg-breadcrumb__separator" aria-hidden="true"></i>
                 <span>{{ item.title }}</span>
             </li>
         </ol>

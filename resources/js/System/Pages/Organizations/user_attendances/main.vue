@@ -3,9 +3,9 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <section class="br-entity-list">
-                <div class="br-filter-bar mb-3">
+        <div v-else class="fg-page-content">
+            <section class="fg-entity-list">
+                <div class="fg-filter-bar mb-3">
                     <div class="row g-2 align-items-end w-100">
                         <div class="col-xl-3 col-md-6">
                             <label class="form-label">Sucursal</label>
@@ -23,7 +23,7 @@
                             <SearchButton @click="searchAttendance" :disabled="loading"/>
                             <button
                                 type="button"
-                                class="br-btn br-btn-action-export"
+                                class="fg-button fg-button--secondary"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Exportar nómina"
@@ -37,14 +37,14 @@
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-4">
-                        <div class="br-home-section h-100 p-3">
+                        <div class="fg-home-section h-100 p-3">
                             <small class="text-muted">Horas de la semana</small>
                             <strong class="d-block text-secondary">{{ summary.total_hours || 0 }} h</strong>
                             <span class="text-muted">{{ summary.week_start || '-' }} al {{ summary.week_end || '-' }}</span>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="br-home-section h-100 p-3">
+                        <div class="fg-home-section h-100 p-3">
                             <small class="text-muted">Estado actual</small>
                             <strong class="d-block" :class="activeAttendance ? 'text-success' : 'text-secondary'">
                                 {{ activeAttendance ? 'Jornada en curso' : 'Sin jornada abierta' }}
@@ -53,10 +53,10 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="br-home-section h-100 p-3 d-flex align-items-center justify-content-end gap-2">
+                        <div class="fg-home-section h-100 p-3 d-flex align-items-center justify-content-end gap-2">
                             <button
                                 type="button"
-                                class="br-btn br-btn-success"
+                                class="fg-button fg-button--success"
                                 :disabled="saving || !canOperate || Boolean(activeAttendance)"
                                 @click="checkIn">
                                 <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
@@ -64,7 +64,7 @@
                             </button>
                             <button
                                 type="button"
-                                class="br-btn br-btn-danger"
+                                class="fg-button fg-button--danger"
                                 :disabled="saving || !activeAttendance"
                                 @click="checkOut">
                                 <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
@@ -77,7 +77,7 @@
                 <Loader v-if="loading"/>
                 <template v-else>
                     <div class="table-responsive">
-                        <table class="table br-entity-table mb-0">
+                        <table class="table fg-entity-table mb-0">
                             <thead>
                                 <tr>
                                     <th>Colaborador</th>
@@ -99,30 +99,30 @@
                                     <td>{{ formatDateTime(record.checked_out_at) }}</td>
                                     <td class="text-end fw-medium">{{ formatMinutes(record.worked_minutes) }}</td>
                                     <td class="text-end">
-                                        <div class="br-attendance-metrics">
+                                        <div class="fg-attendance-metrics">
                                             <strong>{{ formatMinutes(record.ordinary_minutes) }}</strong>
                                             <small>Extra: {{ formatMinutes(record.overtime_minutes) }}</small>
                                             <small v-if="record.late_minutes" class="text-danger">Tardanza: {{ formatMinutes(record.late_minutes) }}</small>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="br-entity-table__meta d-block">
+                                        <span class="fg-entity-table__meta d-block">
                                             Pausas: {{ formatMinutes(record.break_minutes) }}
                                         </span>
-                                        <span v-if="activeBreak(record)" class="br-status-label br-status-label--warning">Pausa en curso</span>
-                                        <span v-if="pendingCorrection(record)" class="br-status-label br-status-inactive">Corrección pendiente</span>
+                                        <span v-if="activeBreak(record)" class="fg-badge fg-badge--warning">Pausa en curso</span>
+                                        <span v-if="pendingCorrection(record)" class="fg-badge fg-status-inactive">Corrección pendiente</span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="br-status-label" :class="statusClass(record.status)">
+                                        <span class="fg-badge" :class="statusClass(record.status)">
                                             {{ statusLabel(record.status) }}
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <div class="br-table-actions">
+                                        <div class="fg-table-actions">
                                             <button
                                                 v-if="record.status === 'active' && !activeBreak(record)"
                                                 type="button"
-                                                class="br-icon-action br-icon-action-info"
+                                                class="fg-icon-action fg-icon-action-info"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Iniciar pausa"
@@ -132,7 +132,7 @@
                                             <button
                                                 v-if="record.status === 'active' && activeBreak(record)"
                                                 type="button"
-                                                class="br-icon-action br-icon-action-primary"
+                                                class="fg-icon-action fg-icon-action-primary"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Finalizar pausa"
@@ -141,7 +141,7 @@
                                             </button>
                                             <button
                                                 type="button"
-                                                class="br-icon-action br-icon-action-edit"
+                                                class="fg-icon-action fg-icon-action-edit"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Solicitar corrección"
@@ -151,7 +151,7 @@
                                             <button
                                                 v-if="pendingCorrection(record)"
                                                 type="button"
-                                                class="br-icon-action br-icon-action-primary"
+                                                class="fg-icon-action fg-icon-action-primary"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Aprobar corrección"
@@ -161,7 +161,7 @@
                                             <button
                                                 v-if="pendingCorrection(record)"
                                                 type="button"
-                                                class="br-icon-action br-icon-action-danger"
+                                                class="fg-icon-action fg-icon-action-danger"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Rechazar corrección"
@@ -321,10 +321,10 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: "Iniciar pausa",
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--question",
-                    confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--question",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal fg-swal--confirm",
+                    confirmButton: "fg-button",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 }
             });
 
@@ -362,10 +362,10 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: "Solicitar corrección",
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--question",
-                    confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--question",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal fg-swal--confirm",
+                    confirmButton: "fg-button",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 },
                 preConfirm: () => {
                     const reason = document.getElementById("brCorrectionReason")?.value?.trim();
@@ -411,10 +411,10 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: approve ? "Aprobar corrección" : "Rechazar corrección",
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: approve ? "br-swal-alert br-swal-alert--question" : "br-swal-alert br-swal-alert--warning",
-                    confirmButton: approve ? "br-btn br-swal-alert__confirm br-swal-alert__confirm--question" : "br-btn br-swal-alert__confirm br-swal-alert__confirm--warning",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: approve ? "fg-swal fg-swal--confirm" : "fg-swal fg-swal--confirm",
+                    confirmButton: approve ? "fg-button" : "fg-button fg-button--danger",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 },
                 preConfirm: value => {
                     if(!approve && !value?.trim()) {
@@ -467,7 +467,7 @@ export default {
             return {active: "En curso", finalized: "Finalizada", canceled: "Cancelada"}[status] || status;
         },
         statusClass(status) {
-            return {active: "br-status-active", finalized: "br-status-inactive", canceled: "br-status-inactive"}[status];
+            return {active: "fg-status-active", finalized: "fg-status-inactive", canceled: "fg-status-inactive"}[status];
         },
         activeBreak(record) {
             return (record.breaks || []).find(item => item.status === "active") || null;

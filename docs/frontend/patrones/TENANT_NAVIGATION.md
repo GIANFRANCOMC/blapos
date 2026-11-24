@@ -72,11 +72,7 @@ Los componentes Vue marcan el mundo y la página con `navbarItem()` de `Menu.js`
 
 Los submódulos sin `menu_group_id` aparecen juntos al inicio del panel contextual, sin encabezado. Luego aparecen los grupos por `menu_groups.order`; dentro de cada grupo se conserva el orden de las opciones habilitadas para la empresa.
 
-Las opciones del panel contextual se colocan en filas consecutivas de altura mínima `--br-btn-height-xs`. El estilo compartido alinea los textos de los encabezados y las opciones y usa `--br-grid-gap-3` entre icono y texto. Los grupos consecutivos se distinguen por su encabezado y un margen vertical de `--br-grid-gap-4`.
-
-El título del módulo, la descripción, los encabezados de grupo y las opciones comparten `--br-font-size-061`. El peso y el color distinguen cada nivel.
-
-El panel contextual usa `--br-navigation-context-width` (`11.75rem`). Las variables históricas `--br-sidebar-width` y `--br-sidebar-collapsed-width` se proyectan sobre las dimensiones compartidas para alinear el navbar, el menú y el contenido.
+El panel contextual organiza los submódulos en filas compactas y usa encabezados discretos para separar grupos. Los ajustes de ancho, tipografía y separación viven en `resources/css/System/fg/navigation.css`.
 
 Las solicitudes de inicialización tienen un límite de 20 segundos. Ante error o timeout se cierra siempre el loader global y se muestra el mensaje correspondiente, evitando overlays permanentes cuando un endpoint no responde.
 
@@ -96,19 +92,19 @@ El seguimiento captura el nombre de ruta y la URL solicitada antes de ejecutar e
 
 - `resources/views/System/layouts/main.blade.php`: resolución y marcado accesible.
 - `resources/js/System/Layout/Menu.js` reúne el cambio de mundo, la búsqueda del navbar, los favoritos, el marcado de la página activa y la salida de sesión.
-- `resources/css/System/br-branding/51-two-level-navigation.css`: diseño responsive de dos niveles.
+- `resources/css/System/fg/navigation.css`: diseño responsive de dos niveles.
 - `app/Services/System/Organizations/Companies/CompanySectionService.php`: permisos y módulos disponibles.
 - `database/seeders/SystemNavigationSeeder.php`: catálogo de módulos, secciones y páginas.
 - `app/Services/System/Essentials/UserNavigationService.php`: contadores y accesos frecuentes.
 - `app/Http/Middleware/TrackUserNavigation.php`: registro no intrusivo de navegación.
 - `resources/views/System/general/Essentials/workspace/main.blade.php`: pantalla Mi espacio.
-- `resources/css/System/br-branding/52-workspace.css`: presentación responsive de Mi espacio.
+- `resources/css/System/fg/modules/workspace.css`: presentación responsive de Mi espacio.
 - `app/Http/Controllers/System/Essentials/AccountController.php`: edición segura de la cuenta autenticada.
 - `resources/views/System/general/Essentials/account/main.blade.php`: formulario de datos personales.
-- `resources/css/System/br-branding/53-account.css`: presentación responsive de Mi cuenta.
+- `resources/css/System/fg/modules/index.css`: presentación responsive de Mi cuenta.
 
 Después de modificar estilos ejecutar:
 
 ```bash
-npm run build:css:system
+npm run build
 ```

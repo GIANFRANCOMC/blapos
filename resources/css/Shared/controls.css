@@ -1,0 +1,66 @@
+/* Native Bootstrap controls and Select2 use the same field tokens as Vue inputs. */
+.fg-theme :is(.form-control, .form-select, .input-group-text, .select2-selection) {
+    border-color: var(--fg-control-border);
+    border-radius: var(--fg-radius);
+    color: var(--fg-text);
+    background-color: var(--fg-surface);
+    font-family: var(--fg-font);
+    font-size: var(--fg-body-size);
+}
+
+.fg-theme :is(input.form-control, .form-select, .input-group-text, .select2-selection--single) {
+    min-height: var(--fg-control-height);
+}
+
+.fg-theme :is(.form-control, .form-select):not(:disabled, [readonly], :focus, .is-invalid):hover,
+.fg-theme .select2-container:not(.select2-container--open, .select2-container--disabled) .select2-selection:hover,
+:is(.fg-select, .fg-theme .v-select):not(.vs--disabled, .vs--open, :focus-within) .vs__dropdown-toggle:hover {
+    background-color: var(--fg-surface-subtle);
+}
+
+.fg-theme :is(.form-control, .form-select):focus,
+.fg-theme .select2-container--open .select2-selection {
+    border-color: var(--fg-primary);
+    box-shadow: var(--fg-focus);
+}
+
+.fg-theme .form-control::placeholder,
+.fg-theme .vs__search::placeholder,
+.fg-theme .select2-selection__placeholder {
+    color: var(--fg-muted);
+    font: inherit;
+    font-style: normal;
+    opacity: 1;
+}
+
+.fg-theme .input-group:not(.is-invalid):has(
+    > :is(input, textarea, select):focus:not([readonly], .is-invalid, [type="button"], [type="submit"], [type="reset"], [type="image"]),
+    > .v-select:not(.vs--disabled, .is-invalid) .vs__search:focus,
+    > .select2-container:not(.select2-container--disabled, .is-invalid):is(:focus-within, .select2-container--open)
+) > :is(span, .input-group-text):not(
+    button, a[href], [role="button"], [role="link"], [tabindex], .btn, .fg-input-action, .select2-container, .v-select
+):not(:has(button, a[href], input, textarea, select, [role="button"], [role="link"])) {
+    color: var(--fg-primary);
+}
+
+.fg-theme .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.fg-theme .form-label {
+    margin-block-end: var(--fg-field-gap);
+    color: var(--fg-text);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-label-weight);
+}
+
+.colon-at-end::after { content: ":"; }
+
+.fg-theme :is(.modal.fade, .modal-backdrop.fade) { transition: opacity var(--fg-control-motion); }
+.fg-theme .modal.fade .modal-dialog { transition: transform var(--fg-control-motion); }
+
+@media (prefers-reduced-motion: reduce) {
+    .fg-theme :is(.modal.fade, .modal-backdrop.fade, .modal.fade .modal-dialog) { transition: none; }
+}

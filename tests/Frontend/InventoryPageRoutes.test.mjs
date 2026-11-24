@@ -123,7 +123,7 @@ test("la operación conserva tipo, motivo, plantilla, productos y costo opcional
 test("los filtros y las acciones se muestran juntos con la tabla y paginación fuera de la botonera", () => {
     const listing = read(inventoryPath + "InventoryListing.vue");
     const table = read(inventoryPath + "InventoryTable.vue");
-    const css = read("resources/css/System/fg/products.css");
+    const css = read("resources/css/Shared/responsive-tables.css");
     for(const name of ["stock", "transfers", "guides", "kardex", "valued-kardex"]) {
         const page = read(inventoryPath + name + ".vue");
         assert.match(page, /<InventoryListing[^>]*@search="searchCurrentView"[^>]*@page="listCurrentView"/);
@@ -138,10 +138,10 @@ test("los filtros y las acciones se muestran juntos con la tabla y paginación f
     assert.match(filterActions, /<FgButton v-if="showClear" :tone="clearTone"[^>]*>\{\{ clearLabel \}\}<\/FgButton>/);
     assert.match(filterActions, /clearLabel: \{type: String, default: "Limpiar"\}/);
     assert.match(filterActions, /clearTone: \{type: String, default: "link"\}/);
-    assert.match(table, /<ResponsiveTable fg[\s\S]*?<table class="fg-table fg-inventory-table"[\s\S]*?<FgListLoading[\s\S]*?<FgEmptyState/);
+    assert.match(table, /<ResponsiveTable[\s\S]*?<table class="fg-table fg-inventory-table"[\s\S]*?<FgListLoading[\s\S]*?<FgEmptyState/);
     assert.match(css, /\.fg-table th \{[^}]*vertical-align: middle/);
     assert.match(css, /\.fg-table td \{[^}]*vertical-align: middle/);
-    assert.match(css, /tbody tr:not\(\.fg-table__state\):hover/);
+    assert.match(css, /tbody tr:not\(\.fg-table__state, :has\(\.fg-empty, \.fg-loader\)\):hover/);
     assert.match(readInventory(), /Alerts\.confirmDownload/);
 });
 

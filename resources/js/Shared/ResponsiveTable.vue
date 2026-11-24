@@ -1,7 +1,7 @@
 <template>
     <div
         ref="viewport"
-        :class="fg ? 'fg-table-scroll' : 'table-responsive br-scroll-table'"
+        class="fg-table-scroll"
         :tabindex="canScroll ? 0 : undefined"
         :role="canScroll ? 'region' : undefined"
         :aria-label="canScroll ? (scrollY ? 'Desplazamiento de la tabla' : 'Desplazamiento horizontal de la tabla') : undefined">
@@ -12,7 +12,7 @@
 <script>
 export default {
     name: "ResponsiveTable",
-    props: {fg: Boolean, scrollY: Boolean},
+    props: {scrollY: Boolean},
     data() {
         return {canScroll: false};
     },

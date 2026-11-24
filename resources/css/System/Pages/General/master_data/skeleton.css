@@ -1,45 +1,45 @@
-.br-master-skeleton__header-copy,
-.br-master-skeleton__field {
+.fg-master-skeleton__header-copy,
+.fg-master-skeleton__field {
   display: grid;
   gap: 0.2rem;
   min-width: 0;
 }
 
-.br-master-skeleton__title { width: 10rem; height: 0.9rem; }
-.br-master-skeleton__subtitle { width: min(35rem, 70vw); height: 0.66rem; }
-.br-master-skeleton__header-button { width: 8.5rem; height: var(--br-btn-height); background: var(--br-primary-soft); }
+.fg-master-skeleton__title { width: 10rem; height: 0.9rem; }
+.fg-master-skeleton__subtitle { width: min(35rem, 70vw); height: 0.66rem; }
+.fg-master-skeleton__header-button { width: 8.5rem; height: var(--fg-control-height); background: var(--fg-primary-soft); }
 
-.br-master-skeleton__search {
+.fg-master-skeleton__search {
   flex: 1;
 }
 
-.br-master-skeleton__search-value { width: 55%; height: 0.62rem; }
-.br-master-skeleton__form-title { width: 9rem; height: 0.78rem; }
+.fg-master-skeleton__search-value { width: 55%; height: 0.62rem; }
+.fg-master-skeleton__form-title { width: 9rem; height: 0.78rem; }
 
-.br-master-skeleton__notice {
+.fg-master-skeleton__notice {
   margin: 0.8rem 0.8rem 0;
   padding: 0.7rem;
-  border-radius: var(--br-radius-sm);
-  background: var(--br-primary-soft);
+  border-radius: var(--fg-radius);
+  background: var(--fg-primary-soft);
 }
 
-.br-master-skeleton__notice-line { width: 80%; height: 0.62rem; }
+.fg-master-skeleton__notice-line { width: 80%; height: 0.62rem; }
 
-.br-master-skeleton__fields {
+.fg-master-skeleton__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--br-grid-gap-3);
+  gap: var(--fg-space-4);
   padding: 0.8rem;
 }
 
-.br-master-skeleton__field--full { grid-column: 1 / -1; }
-.br-master-skeleton__label { width: 6.7rem; height: 0.58rem; }
+.fg-master-skeleton__field--full { grid-column: 1 / -1; }
+.fg-master-skeleton__label { width: 6.7rem; height: 0.58rem; }
 
-.br-master-skeleton__field-value { width: 55%; height: 0.62rem; }
-.br-master-skeleton__footer-button { width: 5.5rem; height: var(--br-btn-height); }
-.br-master-skeleton__footer-button--save { width: 8.5rem; background: var(--br-primary-soft); }
+.fg-master-skeleton__field-value { width: 55%; height: 0.62rem; }
+.fg-master-skeleton__footer-button { width: 5.5rem; height: var(--fg-control-height); }
+.fg-master-skeleton__footer-button--save { width: 8.5rem; background: var(--fg-primary-soft); }
 
 @media (max-width: 767.98px) {
-  .br-master-skeleton__fields { grid-template-columns: 1fr; }
-  .br-master-skeleton__field--full { grid-column: auto; }
+  .fg-master-skeleton__fields { grid-template-columns: 1fr; }
+  .fg-master-skeleton__field--full { grid-column: auto; }
 }

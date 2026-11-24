@@ -15,7 +15,7 @@ test("toma física descarga plantilla y revisa el archivo antes de guardar", () 
     const controller = read("app/Http/Controllers/System/Warehouses/StockManagementController.php");
     const alerts = read("resources/js/System/Helpers/Alerts.js");
     const picker = read("resources/js/System/Components/Generics/TemplateFilePicker.vue");
-    const pickerStyles = read("resources/css/System/fg/components.css");
+    const pickerStyles = read("resources/css/Shared/components.css");
     const inventoryStyles = read("resources/css/System/fg/inventory.css");
 
     assert.match(page, /Productos incluidos[\s\S]*?<TemplateFilePicker[\s\S]*?id="operationFile"[\s\S]*?@download="downloadOperationTemplate"[\s\S]*?@select="previewOperation"/);

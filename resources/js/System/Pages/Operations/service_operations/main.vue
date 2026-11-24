@@ -188,7 +188,7 @@
                     </div>
 
                     <section class="fg-service-list" aria-label="Listado de atenciones">
-                        <ResponsiveTable fg class="fg-sales-table-scroll">
+                        <ResponsiveTable class="fg-sales-table-scroll">
                         <table class="fg-service-list__table mb-0 fg-table">
                             <colgroup>
                                 <col style="width: 15%;">

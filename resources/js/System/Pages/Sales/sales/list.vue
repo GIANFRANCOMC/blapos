@@ -128,7 +128,7 @@
                 </div>
             </FgResponsiveFilters>
 
-            <ResponsiveTable fg class="fg-sales-table-scroll">
+            <ResponsiveTable class="fg-sales-table-scroll">
                 <table role="table" class="mb-0 fg-table fg-record-table fg-record-table--list">
                     <thead role="rowgroup">
                         <tr role="row">

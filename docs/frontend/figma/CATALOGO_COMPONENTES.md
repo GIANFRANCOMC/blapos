@@ -134,7 +134,7 @@ Primitivas Línea y Control con tokens compartidos. Catálogo ofrece Dispositivo
 
 ## Vue Select / Múltiple
 
-Regla transversal de campos no editables: Campo en Estado=Lectura y selects en Estado=Deshabilitado comparten los tokens `disabled/*`. Usar el mismo fondo, borde y texto gris en texto, número, importe, fecha y descripción, incluidos contador y prefijos; la implementación común está en `fg/unavailable-controls.css`.
+Regla transversal de campos no editables: Campo en Estado=Lectura y selects en Estado=Deshabilitado comparten los tokens `disabled/*`. Usar el mismo fondo, borde y texto gris en texto, número, importe, fecha y descripción, incluidos contador y prefijos; la implementación común está en `Shared/unavailable-controls.css`.
 
 [Maestro en Componentes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=7-86) · 03 · Campos y selección
 

@@ -3,41 +3,41 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <section class="br-receivables">
-                <header class="br-receivables__header">
+        <div v-else class="fg-page-content">
+            <section class="fg-receivables">
+                <header class="fg-receivables__header">
                     <div>
-                        <p class="br-receivables__eyebrow">Gestión de compras</p>
+                        <p class="fg-receivables__eyebrow">Gestión de compras</p>
                         <h1>Cuentas por pagar</h1>
                         <p>Controla saldos, vencimientos y pagos generados por compras a crédito.</p>
                     </div>
-                    <div class="br-receivables__header-meta">
+                    <div class="fg-receivables__header-meta">
                         <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
                         <span><strong>{{ summary.accounts || 0 }}</strong> cuentas registradas</span>
                     </div>
                 </header>
 
-                <div class="br-receivables__metrics">
-                    <article v-for="metric in metrics" :key="metric.key" class="br-receivables-metric" :class="`br-receivables-metric--${metric.tone}`">
-                        <span class="br-receivables-metric__icon"><i :class="metric.icon" aria-hidden="true"></i></span>
+                <div class="fg-receivables__metrics">
+                    <article v-for="metric in metrics" :key="metric.key" class="fg-receivables-metric" :class="`fg-receivables-metric--${metric.tone}`">
+                        <span class="fg-receivables-metric__icon"><i :class="metric.icon" aria-hidden="true"></i></span>
                         <div>
                             <small>{{ metric.label }}</small>
-                            <strong class="br-amount-inline__amount">{{ summaryAmount(metric.key) }}</strong>
+                            <strong class="fg-amount-inline__amount">{{ summaryAmount(metric.key) }}</strong>
                             <span v-if="metric.key === 'overdue'">{{ summary.overdue_accounts || 0 }} cuentas vencidas</span>
                             <span v-else>{{ metric.description }}</span>
                         </div>
                     </article>
                 </div>
 
-                <section class="br-filter-bar br-receivables__filters">
-                    <label class="br-filter-bar__field br-receivables__search">
+                <section class="fg-filter-bar fg-receivables__filters">
+                    <label class="fg-filter-bar__field fg-receivables__search">
                         <span class="form-label">Búsqueda</span>
-                        <span class="br-receivables__search-control">
+                        <span class="fg-receivables__search-control">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <SearchInput v-model.trim="filters.search" placeholder="Proveedor o documento de compra"/>
                         </span>
                     </label>
-                    <label class="br-filter-bar__field">
+                    <label class="fg-filter-bar__field">
                         <span class="form-label">Estado</span>
                         <select v-model="filters.status" class="form-select">
                             <option value="">Todos</option>
@@ -48,28 +48,28 @@
                             <option value="canceled">Anuladas</option>
                         </select>
                     </label>
-                    <label class="br-filter-bar__field">
+                    <label class="fg-filter-bar__field">
                         <span class="form-label">Desde</span>
                         <input v-model="filters.date_from" type="date" class="form-control">
                     </label>
-                    <label class="br-filter-bar__field">
+                    <label class="fg-filter-bar__field">
                         <span class="form-label">Hasta</span>
                         <input v-model="filters.date_to" type="date" class="form-control">
                     </label>
-                    <div class="br-filter-bar__actions">
+                    <div class="fg-filter-bar__actions">
                         <SearchButton @click="searchAccounts" :disabled="loading.list"/>
-                        <ClearFiltersButton button-class="br-btn br-btn-cancel" :disabled="!hasFilters" @clear="clearFilters">
+                        <ClearFiltersButton button-class="fg-button fg-button--secondary" :disabled="!hasFilters" @clear="clearFilters">
                             <span>Limpiar</span>
                         </ClearFiltersButton>
                     </div>
                 </section>
 
-                <section class="br-receivables__panel">
+                <section class="fg-receivables__panel">
                     <Loader v-if="loading.list"/>
                     <template v-else-if="accounts.data?.length">
                         <div class="table-responsive">
-                            <table class="table br-entity-table br-receivables-table mb-0">
-                                <thead class="br-table-header-surface">
+                            <table class="table fg-entity-table fg-receivables-table mb-0">
+                                <thead class="fg-table-header-surface">
                                     <tr>
                                         <th>Compra</th>
                                         <th>Proveedor</th>
@@ -84,7 +84,7 @@
                                 <tbody>
                                     <tr v-for="account in accounts.data" :key="account.id">
                                         <td>
-                                            <strong class="br-receivables-table__document">{{ account.document }}</strong>
+                                            <strong class="fg-receivables-table__document">{{ account.document }}</strong>
                                             <small>{{ account.branch }} · {{ account.warehouse }}</small>
                                         </td>
                                         <td>
@@ -92,14 +92,14 @@
                                             <small>{{ account.supplier.document_number }}</small>
                                         </td>
                                         <td>{{ formatDate(account.due_date) }}</td>
-                                        <td class="text-end br-amount-inline__amount">{{ money(account, account.total_amount) }}</td>
-                                        <td class="text-end br-amount-inline__amount">{{ money(account, account.paid_amount) }}</td>
-                                        <td class="text-end br-amount-inline__amount br-receivables-table__pending">{{ money(account, account.pending_amount) }}</td>
+                                        <td class="text-end fg-amount-inline__amount">{{ money(account, account.total_amount) }}</td>
+                                        <td class="text-end fg-amount-inline__amount">{{ money(account, account.paid_amount) }}</td>
+                                        <td class="text-end fg-amount-inline__amount fg-receivables-table__pending">{{ money(account, account.pending_amount) }}</td>
                                         <td>
-                                            <span class="br-receivables-status" :class="`br-receivables-status--${account.status}`">{{ statusLabel(account.status) }}</span>
+                                            <span class="fg-receivables-status" :class="`fg-receivables-status--${account.status}`">{{ statusLabel(account.status) }}</span>
                                         </td>
                                         <td class="text-center">
-                                            <button type="button" class="br-icon-action br-icon-action-edit" title="Ver cronograma" @click="openDetail(account)">
+                                            <button type="button" class="fg-icon-action fg-icon-action-edit" title="Ver cronograma" @click="openDetail(account)">
                                                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </td>
@@ -113,31 +113,31 @@
                     <Paginator :links="accounts.links" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts"/>
                 </section>
 
-                <section v-if="selectedAccount" class="br-receivables__panel mt-3">
+                <section v-if="selectedAccount" class="fg-receivables__panel mt-3">
                     <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                         <div>
-                            <p class="br-receivables__eyebrow mb-1">Detalle de cuenta</p>
+                            <p class="fg-receivables__eyebrow mb-1">Detalle de cuenta</p>
                             <h2 class="h5 mb-1">{{ selectedAccount.document }} · {{ selectedAccount.supplier.name }}</h2>
-                            <span class="br-receivables-status" :class="`br-receivables-status--${selectedAccount.status}`">{{ statusLabel(selectedAccount.status) }}</span>
+                            <span class="fg-receivables-status" :class="`fg-receivables-status--${selectedAccount.status}`">{{ statusLabel(selectedAccount.status) }}</span>
                         </div>
-                        <button type="button" class="br-modal-close" aria-label="Cerrar detalle" @click="selectedAccount = null">
+                        <button type="button" class="fg-modal-close" aria-label="Cerrar detalle" @click="selectedAccount = null">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                     </div>
                     <Loader v-if="loading.detail"/>
                     <div v-else class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr><th>Cuota</th><th>Vencimiento</th><th class="text-end">Importe</th><th class="text-end">Pagado</th><th class="text-end">Pendiente</th><th>Estado</th></tr>
                             </thead>
                             <tbody>
                                 <tr v-for="installment in selectedAccount.installments" :key="installment.id">
                                     <td>#{{ installment.number }}</td>
                                     <td>{{ formatDate(installment.due_date) }}</td>
-                                    <td class="text-end br-amount-inline__amount">{{ money(selectedAccount, installment.amount) }}</td>
-                                    <td class="text-end br-amount-inline__amount">{{ money(selectedAccount, installment.paid_amount) }}</td>
-                                    <td class="text-end br-amount-inline__amount">{{ money(selectedAccount, installment.pending_amount) }}</td>
-                                    <td><span class="br-receivables-status" :class="`br-receivables-status--${installment.status}`">{{ statusLabel(installment.status) }}</span></td>
+                                    <td class="text-end fg-amount-inline__amount">{{ money(selectedAccount, installment.amount) }}</td>
+                                    <td class="text-end fg-amount-inline__amount">{{ money(selectedAccount, installment.paid_amount) }}</td>
+                                    <td class="text-end fg-amount-inline__amount">{{ money(selectedAccount, installment.pending_amount) }}</td>
+                                    <td><span class="fg-receivables-status" :class="`fg-receivables-status--${installment.status}`">{{ statusLabel(installment.status) }}</span></td>
                                 </tr>
                             </tbody>
                         </table>

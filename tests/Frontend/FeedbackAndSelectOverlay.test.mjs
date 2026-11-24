@@ -9,7 +9,7 @@ test('feedback removes application theme classes without changing decisions, cal
     const calls = [];
     const Swal = {fire(options) { calls.push({receiver: this, options}); return Promise.resolve(result); }};
     let opened;
-    const original = {title: '¿Continuar?', showCancelButton: true, customClass: {popup: 'br-swal', confirmButton: 'br-btn-danger'}, input: 'textarea', inputAttributes: {maxlength: '255'}, willOpen(popup) { opened = popup; }};
+    const original = {title: '¿Continuar?', showCancelButton: true, customClass: {popup: 'fg-swal', confirmButton: 'fg-button--danger'}, input: 'textarea', inputAttributes: {maxlength: '255'}, willOpen(popup) { opened = popup; }};
     initializeFeedback(Swal);
     const wrapped = Swal.fire;
     initializeFeedback(Swal);
@@ -24,7 +24,7 @@ test('feedback removes application theme classes without changing decisions, cal
     assert.equal(options.customClass.confirmButton, 'fg-button fg-button--danger');
     assert.match(options.customClass.popup, /fg-swal--confirm/);
     assert.doesNotMatch(Object.values(options.customClass).join(' '), /br-/);
-    assert.equal(original.customClass.popup, 'br-swal');
+    assert.equal(original.customClass.popup, 'fg-swal');
     const popup = {style: {setProperty() {}}};
     options.willOpen(popup);
     assert.equal(opened, popup);
@@ -61,9 +61,9 @@ test('FG owns feedback and select focus without competing global theme rules', (
     const read = path => readFileSync(new URL('../../' + path, import.meta.url), 'utf8');
     assert.match(read('resources/css/System/fg/index.css'), /sweetalert2\.css" layer\(fg-vendor\)/);
     assert.doesNotMatch(read('resources/views/System/layouts/partials/fg-up.blade.php'), /sweetalert2\.css/);
-    assert.doesNotMatch(read('resources/css/System/br-branding/81-core-roles-entities.css'), /\.swal2-modal\.swal2-popup \.swal2-title\s*\{/);
-    assert.doesNotMatch(read('resources/css/System/fg/feedback.css'), /!important/);
-    const fields = read('resources/css/System/fg/components.css');
+    assert.doesNotMatch(read('resources/css/System/fg/modules/organization.css'), /\.swal2-modal\.swal2-popup \.swal2-title\s*\{/);
+    assert.doesNotMatch(read('resources/css/Shared/feedback.css'), /!important/);
+    const fields = read('resources/css/Shared/components.css');
     assert.match(fields, /\.vs__search:focus-visible\s*\{\s*outline: none/);
     assert.match(fields, /fg-field__actions > :not\(:first-child\)/);
     const select = read('resources/js/System/Components/Figma/FgSelect.vue');

@@ -1,26 +1,21 @@
-# CSS System
+# Estilos de Blapos
 
-FG es el único sistema visual del ERP System. La fuente editable es [fg/](fg/); se carga globalmente desde el layout. Consultar la [guía de implementación, componentes y verificación](../../../docs/frontend/figma/IMPLEMENTACION_FG.md).
+[Shared/ui.css](../Shared/ui.css) es la entrada visual común. Importa [tokens.css](../Shared/tokens.css) y las reglas compartidas de tipografía, controles, tablas, carga, foco y SweetAlert. System, acceso, Guest y Platform la consumen desde sus propias entradas.
 
-## Editar estilos
+| Superficie | Entrada Vite |
+| --- | --- |
+| System autenticado | [fg/index.css](fg/index.css) |
+| Acceso System | [fg/auth.css](fg/auth.css) |
+| Guest | [Guest/app.css](../Guest/app.css) |
+| Platform | [Platform/app.css](../Platform/app.css) |
+| Errores HTML | [Shared/error-page.css](../Shared/error-page.css) |
 
-- Declarar colores, tipografía y medidas compartidas en fg/00-tokens.css.
-- Usar clases fg-* y variables --fg-* en código nuevo.
-- Cambiar la fuente compartida por función y revisar sus consumidores.
-- Iconos y loaders heredan el color del texto del botón.
-- No agregar banderas por página, duplicar la biblioteca ni usar !important para competir con plantillas.
-- Conservar contratos, modelos, opciones remotas, estados disabled y validaciones.
-- Enlazar el CSS desde el head mediante Vite, antes de montar Vue.
-- Scroll y foco compartidos viven en `../Shared/viewport.css`, consumido también por Guest y Platform. Usar sus tokens FG y conservar el scroll nativo; no agregar barras mediante otra biblioteca ni quitar el foco de teclado para corregir los cuadros de Shift.
+Pon en Shared toda regla con un uso transversal. Reserva [fg/modules/](fg/modules/) para composiciones de módulos de System. Reutiliza componentes y tokens por función, y usa el prefijo FG en clases y atributos visuales propios. Respeta los permisos, datos y contratos de cada superficie.
 
-## Compilación
+`npm run build` genera las hojas y fuentes con hash. Blade consume el manifiesto mediante `@vite`. `npm run dev` actualiza las entradas durante el desarrollo. Consulta los [estándares de interfaz](../../../docs/frontend/fundamentos/ESTANDARES_UI.md) para añadir o revisar estilos.
 
-npm run build genera assets FG, fuentes y manifest de Vite. npm run dev mantiene su recarga durante el desarrollo.
+## Verificación
 
-## Archivos anteriores todavía referenciados
-
-br-branding/, br-login/, custom/, demo/ y platform.css son fuentes previas que siguen alimentando Guest y autenticación. System autenticado ya no carga la apariencia de Vuexy ni esos bundles.
-
-npm run build:css:system continúa generando archivos públicos para esas referencias. No editar la salida de public/System/assets/css ni eliminarla mientras tenga consumidores. Las siguientes migraciones deben adoptar FG y retirar la referencia anterior cuando corresponda.
-
-La paginación, el contador, los loaders y los controles conservan sus contratos funcionales. La presentación nueva se resuelve en FG.
+- La compilación de producción emitió las cinco entradas. Se compilaron las vistas Blade y se revisaron las hojas referenciadas por el manifiesto.
+- Pasaron 292 pruebas de frontend y seis pruebas Laravel de errores, Mi espacio y navegación con sesión de prueba. `ThemeNamespace.test.mjs` revisa las fuentes, la configuración de Vite y las personalizaciones de plantilla para impedir que vuelva el prefijo retirado.
+- En la demo se revisaron los accesos de System y Platform, el error 404 y el Libro de reclamaciones. En Guest se comprobó el menú a 390 px y el cambio entre registro y consulta, sin enviar formularios. Las pantallas autenticadas se verificaron mediante las pruebas Laravel.

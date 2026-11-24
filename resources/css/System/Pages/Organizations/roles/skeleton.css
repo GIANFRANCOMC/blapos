@@ -1,29 +1,29 @@
-.br-roles-skeleton__filters {
+.fg-roles-skeleton__filters {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: var(--br-grid-gap-2);
+  gap: var(--fg-space-3);
   align-items: end;
 }
 
-.br-roles-skeleton__search {
+.fg-roles-skeleton__search {
   display: grid;
   gap: 0.2rem;
   min-width: 0;
 }
 
-.br-roles-skeleton__label { width: 5rem; height: 0.58rem; }
+.fg-roles-skeleton__label { width: 5rem; height: 0.58rem; }
 
-.br-roles-skeleton__search-value { width: 28%; height: 0.62rem; }
+.fg-roles-skeleton__search-value { width: 28%; height: 0.62rem; }
 
-.br-roles-skeleton__button {
+.fg-roles-skeleton__button {
   width: 4.6rem;
-  height: var(--br-control-height);
-  background: var(--br-primary-soft);
+  height: var(--fg-control-height);
+  background: var(--fg-primary-soft);
 }
 
-.br-roles-skeleton__button--add { width: 8.4rem; }
+.fg-roles-skeleton__button--add { width: 8.4rem; }
 
 @media (max-width: 991.98px) {
-  .br-roles-skeleton__filters { grid-template-columns: 1fr; }
-  .br-roles-skeleton .br-entity-table { min-width: 45rem; }
+  .fg-roles-skeleton__filters { grid-template-columns: 1fr; }
+  .fg-roles-skeleton .fg-entity-table { min-width: 45rem; }
 }

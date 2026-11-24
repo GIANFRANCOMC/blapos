@@ -4,7 +4,7 @@
     <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <div class="row align-items-end g-3 mb-3 mb-md-4">
                 <InputSlot
                     hasDiv
@@ -292,7 +292,7 @@
                                         </tr>
                                     </template>
                                     <template v-else>
-                                        <tr class="br-table-state">
+                                        <tr class="fg-table__state">
                                             <td class="text-center" colspan="99">
                                                 <WithoutData type="text"/>
                                             </td>

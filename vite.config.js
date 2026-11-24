@@ -2,47 +2,6 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import path from 'node:path';
-import {buildSystemCss} from './scripts/build-system-css.mjs';
-
-function systemBrandingCss() {
-
-    const sourceDirectories = [
-        ...['br-branding', 'br-login', 'demo'].map(directory => path.resolve('resources/css/System', directory)),
-        path.resolve('resources/css/Shared'),
-    ].map(directory => directory + path.sep);
-
-    return {
-        name: 'system-branding-css',
-        buildStart() {
-
-            buildSystemCss();
-
-        },
-        configureServer(server) {
-
-            buildSystemCss();
-            server.watcher.add(sourceDirectories.map(directory => path.join(directory, '*.css')));
-            server.watcher.on('change', changedPath => {
-
-                const file = path.resolve(changedPath);
-
-                if(!file.endsWith('.css') || !sourceDirectories.some(directory => file.startsWith(directory))) {
-
-                    return;
-
-                }
-
-                buildSystemCss();
-                server.ws.send({type: 'full-reload'});
-
-            });
-
-        },
-    };
-
-}
-
 export default defineConfig({
     resolve: {
         alias: {
@@ -51,14 +10,15 @@ export default defineConfig({
         },
     },
     plugins: [
-        systemBrandingCss(),
         vue(),
         laravel({
             input: [
                 'resources/css/System/app.css',
                 'resources/css/System/fg/index.css',
                 'resources/css/Shared/viewport.css',
-                'resources/css/System/platform.css',
+                'resources/css/System/fg/auth.css',
+                'resources/css/Guest/app.css',
+                'resources/css/Shared/error-page.css',
                 'resources/css/Platform/app.css',
                 'resources/js/System/app.js',
                 'resources/js/System/Layout/main.js',

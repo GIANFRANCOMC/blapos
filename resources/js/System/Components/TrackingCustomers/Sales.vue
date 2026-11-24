@@ -20,10 +20,10 @@
                             <span v-text="record.formatted_issue_date" class="d-block"></span>
                             <span
                                 :class="[
-                                    'br-status-label',
+                                    'fg-badge',
                                     'fw-medium',
                                     'mt-1',
-                                    { 'br-status-label--success': record.diff_days_issue_date === 0, 'br-status-label--warning': record.diff_days_issue_date !== 0 }
+                                    { 'fg-badge--success': record.diff_days_issue_date === 0, 'fg-badge--warning': record.diff_days_issue_date !== 0 }
                                 ]"
                                 v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
                         </td>
@@ -37,7 +37,7 @@
                     </tr>
                 </template>
                 <template v-else>
-                    <tr class="br-table-state">
+                    <tr class="fg-table__state">
                         <td class="text-center" colspan="99">
                             <WithoutData type="image"/>
                         </td>

@@ -2,7 +2,7 @@
     <component
         :is="isButton ? 'button' : 'span'"
         ref="control"
-        :class="isButton ? 'br-copy-button' : 'br-copy-icon'"
+        :class="isButton ? 'fg-copy-button' : 'fg-copy-icon'"
         :type="isButton ? 'button' : undefined"
         :disabled="isButton ? disabled : undefined"
         :role="isButton ? undefined : 'button'"

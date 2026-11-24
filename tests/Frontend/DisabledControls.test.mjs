@@ -12,7 +12,7 @@ test("el estado disabled global oculta el cursor en campos nativos, Vue Select y
     const auth = read("resources/views/System/layouts/guests/auth.blade.php");
     const platform = read("resources/views/Platform/layouts/app.blade.php");
     const platformCss = read("resources/css/Platform/app.css");
-    const cssBuilder = read("scripts/build-system-css.mjs");
+    const common = read("resources/css/Shared/ui.css");
 
     assert.match(css, /:is\(input, textarea, select\):disabled,[\s\S]*?\.v-select\.vs--disabled \.vs__search,[\s\S]*?\.select2-container--disabled \.select2-search__field[\s\S]*?caret-color: transparent !important;/);
     assert.match(css, /\.select2-container--disabled \* \{\s*cursor: not-allowed !important;/);
@@ -20,8 +20,8 @@ test("el estado disabled global oculta el cursor en campos nativos, Vue Select y
     for(const view of [guest, auth, platform]) {
         assert.match(view, /@vite\([^\n]*'resources\/js\/Shared\/disabled-controls\.js'/);
     }
-    assert.match(platformCss, /@import "\.\.\/Shared\/disabled-controls\.css"/);
-    assert.match(cssBuilder, /sharedFiles: \[[^\]]*"resources\/css\/Shared\/disabled-controls\.css"[^\]]*\]/);
+    assert.match(platformCss, /@import "\.\.\/Shared\/ui\.css"/);
+    assert.match(common, /@import "\.\/disabled-controls\.css"/);
 });
 
 test("un campo enfocado pierde el foco al deshabilitarse, también dentro de Vue Select", () => {

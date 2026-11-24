@@ -30,7 +30,7 @@ export default {
         disabled: Boolean,
         buttonClass: {
             type: String,
-            default: "br-filter-clear"
+            default: "fg-filter-clear"
         }
     },
     emits: ["clear"],

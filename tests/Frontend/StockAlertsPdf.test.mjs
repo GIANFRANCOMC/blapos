@@ -34,10 +34,10 @@ test("alertas muestra contexto, códigos y cantidades con paginación fuera del 
 });
 
 test("las etiquetas compartidas añaden dos puntos sin duplicarlos", () => {
-    const styles = read("resources/css/System/br-branding/81-core-roles-entities.css");
+    const styles = read("resources/css/Shared/controls.css");
     const guide = read("docs/frontend/desarrollo/GUIA_SYSTEM.md");
 
-    assert.match(styles, /:is\(\.form-label, \.colon-at-end\)::after \{\s*content: ":";/);
+    assert.match(styles, /\.colon-at-end::after \{\s*content: ":";/);
     assert.match(guide, /Toda etiqueta visible de filtro, campo o dato informativo debe terminar en dos puntos/);
 });
 

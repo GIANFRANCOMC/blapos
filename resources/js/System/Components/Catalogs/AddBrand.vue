@@ -4,7 +4,7 @@
         resource-key="brand"
         singular-label="Marca"
         trigger-mode="icon"
-        trigger-class="br-quick-create-trigger--field-label"
+        trigger-class="fg-quick-create-trigger--field-label"
         internal-code-pattern="^[A-Za-z0-9._-]+$"
         internal-code-pattern-message="El código interno solo puede contener letras, números, puntos, guiones y guiones bajos."
         :name-maxlength="100"

@@ -1,12 +1,12 @@
 <template>
-    <div class="br-guest-code-scanner">
+    <div class="fg-guest-code-scanner">
         <select v-model="selectedCameraId" class="form-select mb-2" v-if="cameras.length > 1">
             <option v-for="camera in cameras" :key="camera.id" :value="camera.id">
                 {{ camera.label || `Cámara ${camera.id}` }}
             </option>
         </select>
 
-        <div ref="scannerContainer" class="br-guest-code-scanner__box"></div>
+        <div ref="scannerContainer" class="fg-guest-code-scanner__box"></div>
 
         <div v-if="cameras.length > 0 && showControls" :class="['d-flex gap-2', isScanning ? 'mt-2' : '']">
             <button @click="startScanner()" v-if="!isScanning" type="button" class="btn btn-success btn-sm waves-effect">

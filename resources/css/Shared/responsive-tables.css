@@ -1,16 +1,16 @@
 /* The scroll surface takes the available width, independent of its columns. */
-.table-responsive {
+:is(.table-responsive, .fg-table-scroll) {
   inline-size: 100%;
   min-inline-size: 0;
   container-type: inline-size;
   overflow-x: auto;
 }
 
-:is(.br-scroll-table, .fg-table-scroll):focus-visible {
+.fg-table-scroll:focus-visible {
   outline: none;
 }
 
-:is(.br-scroll-table, .fg-table-scroll)[tabindex="0"]:focus-visible::after {
+.fg-table-scroll[tabindex="0"]:focus-visible::after {
   content: "";
   display: block;
   position: sticky;
@@ -18,18 +18,28 @@
   inline-size: 100cqi;
   block-size: 2px;
   margin-block-start: -2px;
-  border-block-end: 2px solid var(--fg-focus-indicator, var(--br-primary-active));
+  border-block-end: 2px solid var(--fg-focus-indicator, var(--fg-primary));
   pointer-events: none;
 }
 
 /* Keep feedback centered in the visible area of a wide table. */
-.table-responsive > .table > tbody > .br-table-state > td[colspan]:has(> :is(.br-feedback-state, .br-loader)) {
+:is(.table-responsive, .fg-table-scroll) > table > tbody > .fg-table__state > td[colspan]:has(> :is(.fg-empty, .fg-loader)) {
   padding-inline: 0;
 }
 
-.table-responsive > .table > tbody > .br-table-state > td[colspan] > :is(.br-feedback-state, .br-loader) {
-  display: flex;
+:is(.table-responsive, .fg-table-scroll) > table > tbody > .fg-table__state > td[colspan] > :is(.fg-empty, .fg-loader) {
   position: sticky;
   inset-inline-start: 0;
   max-inline-size: 100cqi;
 }
+
+.fg-table-scroll { border: 1px solid var(--fg-border); border-radius: var(--fg-radius); }
+.fg-table { border-collapse: collapse; width: 100%; color: var(--fg-text); font: inherit; table-layout: fixed; }
+.fg-table th { height: 44px; background: var(--fg-table-head); font-weight: var(--fg-label-weight); text-align: left; vertical-align: middle; padding: 10px 16px; color: var(--fg-text); line-height: 1.35; }
+.fg-table td { height: 64px; padding: 12px 16px; vertical-align: middle; border-top: 1px solid var(--fg-border); background: var(--fg-surface); }
+.fg-table tbody tr:not(.fg-table__state, :has(.fg-empty, .fg-loader)):hover td { background: color-mix(in srgb, var(--fg-primary-soft) 40%, var(--fg-surface)); }
+.fg-theme .table tr:is(.fg-table__state, :has(.fg-empty, .fg-loader)) > td { --bs-table-hover-bg: transparent; }
+.fg-table .fg-table__state > td { padding: 0; }
+.fg-table__state .fg-loader { position: sticky; left: 0; width: 100cqw; max-width: 100%; }
+.fg-table .fg-align-end { text-align: right; }
+.fg-table .fg-align-center { text-align: center; }

@@ -6,7 +6,7 @@ import postcss from "postcss";
 
 const root = new URL("../../", import.meta.url);
 const read = file => readFileSync(new URL(file, root), "utf8");
-const sharedPath = "resources/css/Shared/typography-tokens.css";
+const sharedPath = "resources/css/Shared/tokens.css";
 
 function files(directory) {
     return readdirSync(new URL(`${directory}/`, root), {withFileTypes: true}).flatMap(entry => {
@@ -18,7 +18,7 @@ function files(directory) {
 test("los estilos propios consumen tamaños reutilizables en CSS y componentes Vue", () => {
     const sources = [...files("resources/css"), ...files("resources/js")];
     const steps = new Set();
-    postcss.parse(read(sharedPath)).walkDecls(/^--br-font-size-/, declaration => steps.add(declaration.prop));
+    postcss.parse(read(sharedPath)).walkDecls(/^--fg-[\w-]+-size$/, declaration => steps.add(declaration.prop));
     for(const file of sources) {
         if(![".css", ".vue"].includes(path.extname(file)) || file === sharedPath) continue;
         const source = read(file);
@@ -29,50 +29,23 @@ test("los estilos propios consumen tamaños reutilizables en CSS y componentes V
             postcss.parse(style).walkDecls("font-size", declaration => {
                 assert.ok(/^(?:inherit|0|var\(|calc\(var\()/.test(declaration.value), `${file}: ${declaration.toString()}`);
                 assert.doesNotMatch(declaration.value, /\d(?:rem|em|px|vw)\b/, file);
-                for(const [step] of declaration.value.matchAll(/--br-font-size-\d+|--br-font-size-fluid-[\w-]+/g)) {
-                    assert.ok(steps.has(step), `${file}: ${step} debe existir en la escala compartida`);
+                for(const [step] of declaration.value.matchAll(/--fg-[\w-]+-size(?=\))/g)) {
+                    assert.ok(steps.has(step) || source.includes(step + ":"), `${file}: ${step} debe existir en la escala compartida`);
                 }
             });
         }
     }
 });
 
-test("la escala compartida conserva solo los pasos de Control de stock", () => {
+test("los roles de tipografía tienen un único origen y las cantidades de stock comparten tamaño", () => {
     const css = postcss.parse(read(sharedPath));
-    const definitions = new Map();
-    css.walkDecls(declaration => definitions.set(declaration.prop, declaration.value));
-    assert.equal(definitions.get("--br-font-scale"), "1");
-    const steps = [...definitions.keys()].filter(name => name.startsWith("--br-font-size-"));
-    assert.deepEqual(steps, ["061", "066", "067", "068", "0705", "074", "080", "082", "090", "200"].map(step => "--br-font-size-" + step));
-    for(const [name, value] of definitions) {
-        if(/^--br-font-size-\d+$/.test(name)) {
-            assert.match(value, /^calc\([\d.]+rem \* var\(--br-font-scale\)\)$/, name);
-        } else if(name.startsWith("--br-icon-size-")) {
-            assert.match(value, /^[\d.]+em$/, name);
-        }
+    const roles = ["--fg-body-size", "--fg-help-size", "--fg-small-size", "--fg-section-size", "--fg-modal-title-size"];
+    for (const role of roles) {
+        const definitions = [];
+        css.walkDecls(role, declaration => definitions.push(declaration.value));
+        assert.equal(definitions.length, 1, role);
+        assert.match(definitions[0], /^\d+px$/, role);
     }
-    const bundle = read("public/System/assets/css/br-branding.css");
-    const platform = read("resources/css/Platform/app.css");
-    assert.equal(bundle.split("--br-font-scale: 1;").length - 1, 1);
-    assert.match(platform, /@import "\.\.\/Shared\/typography-tokens\.css"/);
-    assert.match(platform, /@import "\.\.\/System\/br-branding\/01-typography\.css"/);
-    assert.doesNotMatch(bundle, /span, small, strong, b, em, label, a, li/);
-    assert.ok(bundle.indexOf("--br-font-scale: 1;") < bundle.indexOf("--br-ui-font-size:"));
-});
-
-test("los roles globales tienen un único origen y stock comparte el mismo tamaño", () => {
-    const tokens = postcss.parse(read("resources/css/System/br-branding/00-tokens.css"));
-    const shared = postcss.parse(read(sharedPath));
-    const definitions = new Map();
-    for(const css of [tokens, shared]) css.walkDecls(d => definitions.set(d.prop, d.value));
-    for(const name of ["--br-ui-font-size", "--br-stock-quantity-font-size", "--br-table-value-font-size", "--br-table-heading-font-size"]) {
-        const reference = definitions.get(name).match(/^var\((--[\w-]+)\)$/)?.[1];
-        assert.ok(definitions.has(reference), `${name} referencia un paso definido`);
-        let count = 0;
-        postcss.parse(read("public/System/assets/css/br-branding.css")).walkDecls(name, () => { count++; });
-        assert.equal(count, 1, `${name} no se redefine en otra capa`);
-    }
-    assert.equal(definitions.get("--br-stock-quantity-font-size"), "var(--br-font-size-080)");
     const inventory = postcss.parse(read("resources/css/System/fg/inventory.css"));
     let sharedRule;
     inventory.walkRules(rule => {

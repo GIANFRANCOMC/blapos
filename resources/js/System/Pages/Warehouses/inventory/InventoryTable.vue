@@ -1,5 +1,5 @@
 <template>
-    <ResponsiveTable fg :scroll-y="scrollRecords" :class="{'fg-table-scroll--records': scrollRecords}">
+    <ResponsiveTable :scroll-y="scrollRecords" :class="{'fg-table-scroll--records': scrollRecords}">
         <table class="fg-table fg-inventory-table" :style="{minWidth}">
             <colgroup><col v-for="column in columns" :key="column.label" :style="{width: column.width}"/></colgroup>
             <thead>

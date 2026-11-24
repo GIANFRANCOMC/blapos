@@ -105,26 +105,26 @@ test("limpiar Producto en alertas solo actualiza el texto y devuelve el foco", (
 });
 
 test("el foco del buscador permanece en el grupo también antes de aparecer la X", () => {
-    const css = postcss.parse(read("resources/css/System/br-branding/30-modals-fields-forms.css"));
+    const css = postcss.parse(read("resources/css/System/fg/modules/form-layouts.css"));
     let focusRule;
     let childRule;
     css.walkRules(rule => {
-        if(rule.selectors?.includes(".br-layout .br-form-control-group:focus-within")) focusRule = rule;
-        if(rule.selectors?.includes(".br-layout .br-form-control-group > :is(.form-control, .form-select, .br-input-action)")) childRule = rule;
+        if(rule.selectors?.includes(".fg-theme .fg-form-control-group:focus-within")) focusRule = rule;
+        if(rule.selectors?.includes(".fg-theme .fg-form-control-group > :is(.form-control, .form-select, .fg-input-action)")) childRule = rule;
     });
-    assert.equal(focusRule?.nodes.find(node => node.prop === "box-shadow")?.value, "var(--br-focus-ring)");
+    assert.equal(focusRule?.nodes.find(node => node.prop === "box-shadow")?.value, "var(--fg-focus)");
     const childShadow = childRule?.nodes.find(node => node.prop === "box-shadow");
     assert.equal(childShadow?.value, "none");
     assert.equal(childShadow?.important, true);
 });
 
 test("los controles agrupados resaltan los complementos informativos sin cambiar el halo ni las acciones", () => {
-    const css = postcss.parse(read("resources/css/System/br-branding/03-form-controls.css"));
+    const css = postcss.parse(read("resources/css/Shared/controls.css"));
     const tint = css.nodes.find(node => node.selector?.includes("> :is(span, .input-group-text)"));
 
     assert.match(tint?.selector ?? "", /> :is\(input, textarea, select\):focus/);
     assert.match(tint?.selector ?? "", /\.vs__search:focus/);
     assert.match(tint?.selector ?? "", /\.select2-container--open/);
     assert.match(tint?.selector ?? "", /> :is\(span, \.input-group-text\):not\(\s*button,/);
-    assert.deepEqual(tint?.nodes.map(node => [node.prop, node.value]), [["color", "var(--br-primary)"]]);
+    assert.deepEqual(tint?.nodes.map(node => [node.prop, node.value]), [["color", "var(--fg-primary)"]]);
 });

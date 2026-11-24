@@ -92,75 +92,75 @@ Los 71 tokens están centralizados en tres colecciones. La sintaxis WEB identifi
 
 | **Colección** | **Token** | **Valor** | **Alias** | **Sintaxis WEB** |
 | --- | --- | --- | --- | --- |
-| Primitivos | primary | #2899e5 | — | `var(--br-ref-primary)` |
-| Primitivos | action | #176fae | — | `var(--br-ref-action)` |
-| Primitivos | soft | #eaf6fd | — | `var(--br-ref-soft)` |
-| Primitivos | navy | #1a1a35 | — | `var(--br-ref-navy)` |
-| Primitivos | text | #1e293b | — | `var(--br-ref-text)` |
-| Primitivos | muted | #607086 | — | `var(--br-ref-muted)` |
-| Primitivos | white | #ffffff | — | `var(--br-ref-white)` |
-| Primitivos | surface | #f4f7fd | — | `var(--br-ref-surface)` |
-| Primitivos | subtle | #f9fbfd | — | `var(--br-ref-subtle)` |
-| Primitivos | chrome | #f1f5f9 | — | `var(--br-ref-chrome)` |
-| Primitivos | border | #d9e3ef | — | `var(--br-ref-border)` |
-| Primitivos | control | #c5d0dc | — | `var(--br-ref-control)` |
-| Primitivos | danger | #c92d35 | — | `var(--br-ref-danger)` |
-| Primitivos | dangerSoft | #fee6e7 | — | `var(--br-ref-dangersoft)` |
-| Primitivos | success | #07875f | — | `var(--br-ref-success)` |
-| Primitivos | successSoft | #dcf8ea | — | `var(--br-ref-successsoft)` |
-| Primitivos | warning | #fff3d4 | — | `var(--br-ref-warning)` |
-| Primitivos | stock-saludable/texto | #066647 | — | `var(--br-ref-stock-saludable-texto)` |
-| Primitivos | control/borde-activo | #8494a7 | — | `var(--br-ref-control-borde-activo)` |
-| Primitivos | plantilla/borde-suave | #b6e6cd | — | `var(--br-ref-plantilla-borde-suave)` |
-| Primitivos | rojo/oscuro | #9f2533 | — | `var(--br-ref-rojo-oscuro)` |
-| Color | color/primary | #2899e5 | primary | `var(--br-primary)` |
-| Color | color/action | #176fae | action | `var(--br-primary-active)` |
-| Color | color/soft | #eaf6fd | soft | `var(--br-primary-soft)` |
-| Color | color/navy | #1a1a35 | navy | `var(--br-secondary)` |
-| Color | color/text | #1e293b | text | `var(--br-text)` |
-| Color | color/muted | #607086 | muted | `var(--br-text-muted)` |
-| Color | color/white | #ffffff | white | `var(--br-surface-elevated)` |
-| Color | color/surface | #f4f7fd | surface | `var(--br-surface)` |
-| Color | color/subtle | #f9fbfd | subtle | `var(--br-modal-surface)` |
-| Color | color/chrome | #f1f5f9 | chrome | `var(--br-table-thead-bg)` |
-| Color | color/border | #d9e3ef | border | `var(--br-border)` |
-| Color | color/control | #c5d0dc | control | `var(--br-border-control)` |
-| Color | color/danger | #c92d35 | danger | `var(--br-danger)` |
-| Color | color/dangerSoft | #fee6e7 | dangerSoft | `var(--br-danger-soft)` |
-| Color | color/success | #07875f | success | `var(--br-success)` |
-| Color | color/successSoft | #dcf8ea | successSoft | `var(--br-success-soft)` |
-| Color | color/warning | #fff3d4 | warning | `var(--br-warning-soft)` |
-| Color | stock-saludable/texto | #066647 | stock-saludable/texto | `var(--br-stock-saludable-texto)` |
-| Color | control/borde-activo | #8494a7 | control/borde-activo | `var(--br-control-borde-activo)` |
-| Color | plantilla/borde-suave | #b6e6cd | plantilla/borde-suave | `var(--br-plantilla-borde-suave)` |
-| Color | badge/success/background | #dcf8ea | successSoft | `var(--br-badge-success-background)` |
-| Color | badge/success/text | #1a1a35 | navy | `var(--br-text)` |
-| Color | badge/warning/background | #fff3d4 | warning | `var(--br-badge-warning-background)` |
-| Color | badge/warning/text | #1a1a35 | navy | `var(--br-text)` |
-| Color | badge/danger/background | #fee6e7 | dangerSoft | `var(--br-badge-danger-background)` |
-| Color | tooltip/world/background | #176fae | action | `var(--br-tooltip-world-background)` |
-| Color | tooltip/logout/background | #c92d35 | danger | `var(--br-tooltip-logout-background)` |
-| Color | logout/background | #fee6e7 | dangerSoft | `var(--br-logout-background)` |
-| Color | required/text | #c92d35 | danger | `var(--br-text)` |
-| Color | badge/danger/text | #1a1a35 | navy | `var(--br-text)` |
-| Color | template/text | #066647 | stock-saludable/texto | `var(--br-template-text)` |
-| Color | template/background | #dcf8ea | successSoft | `var(--br-template-background)` |
-| Color | template/border | #b6e6cd | plantilla/borde-suave | `var(--br-template-border)` |
-| Geometría | radius/sm | 6 px | — | `var(--br-radius-sm)` |
-| Geometría | radius/lg | 12 px | — | `var(--br-radius-lg)` |
-| Geometría | control/compact | 32 px | — | `var(--br-control-compact)` |
-| Geometría | control/escritorio | 36 px | — | `var(--br-control-escritorio)` |
-| Geometría | control/tactil | 44 px | — | `var(--br-control-tactil)` |
-| Geometría | badge/height | 26 px | — | `var(--br-badge-height)` |
-| Geometría | badge/padding-x | 10 px | — | `var(--br-badge-padding-x)` |
-| Geometría | space/4 | 4 px | — | `var(--br-space-4)` |
-| Geometría | space/6 | 6 px | — | `var(--br-space-6)` |
-| Geometría | space/8 | 8 px | — | `var(--br-space-8)` |
-| Geometría | space/10 | 10 px | — | `var(--br-space-10)` |
-| Geometría | space/12 | 12 px | — | `var(--br-space-12)` |
-| Geometría | space/16 | 16 px | — | `var(--br-space-16)` |
-| Geometría | space/20 | 20 px | — | `var(--br-space-20)` |
-| Geometría | space/24 | 24 px | — | `var(--br-space-24)` |
-| Geometría | space/32 | 32 px | — | `var(--br-space-32)` |
-| Geometría | space/48 | 48 px | — | `var(--br-space-48)` |
+| Primitivos | primary | #2899e5 | — | `var(--fg-ref-primary)` |
+| Primitivos | action | #176fae | — | `var(--fg-ref-action)` |
+| Primitivos | soft | #eaf6fd | — | `var(--fg-ref-soft)` |
+| Primitivos | navy | #1a1a35 | — | `var(--fg-ref-navy)` |
+| Primitivos | text | #1e293b | — | `var(--fg-ref-text)` |
+| Primitivos | muted | #607086 | — | `var(--fg-ref-muted)` |
+| Primitivos | white | #ffffff | — | `var(--fg-ref-white)` |
+| Primitivos | surface | #f4f7fd | — | `var(--fg-ref-surface)` |
+| Primitivos | subtle | #f9fbfd | — | `var(--fg-ref-subtle)` |
+| Primitivos | chrome | #f1f5f9 | — | `var(--fg-ref-chrome)` |
+| Primitivos | border | #d9e3ef | — | `var(--fg-ref-border)` |
+| Primitivos | control | #c5d0dc | — | `var(--fg-ref-control)` |
+| Primitivos | danger | #c92d35 | — | `var(--fg-ref-danger)` |
+| Primitivos | dangerSoft | #fee6e7 | — | `var(--fg-ref-dangersoft)` |
+| Primitivos | success | #07875f | — | `var(--fg-ref-success)` |
+| Primitivos | successSoft | #dcf8ea | — | `var(--fg-ref-successsoft)` |
+| Primitivos | warning | #fff3d4 | — | `var(--fg-ref-warning)` |
+| Primitivos | stock-saludable/texto | #066647 | — | `var(--fg-ref-stock-saludable-texto)` |
+| Primitivos | control/borde-activo | #8494a7 | — | `var(--fg-ref-control-borde-activo)` |
+| Primitivos | plantilla/borde-suave | #b6e6cd | — | `var(--fg-ref-plantilla-borde-suave)` |
+| Primitivos | rojo/oscuro | #9f2533 | — | `var(--fg-ref-rojo-oscuro)` |
+| Color | color/primary | #2899e5 | primary | `var(--fg-primary)` |
+| Color | color/action | #176fae | action | `var(--fg-primary)` |
+| Color | color/soft | #eaf6fd | soft | `var(--fg-primary-soft)` |
+| Color | color/navy | #1a1a35 | navy | `var(--fg-heading)` |
+| Color | color/text | #1e293b | text | `var(--fg-text)` |
+| Color | color/muted | #607086 | muted | `var(--fg-muted)` |
+| Color | color/white | #ffffff | white | `var(--fg-surface)` |
+| Color | color/surface | #f4f7fd | surface | `var(--fg-canvas)` |
+| Color | color/subtle | #f9fbfd | subtle | `var(--fg-surface)` |
+| Color | color/chrome | #f1f5f9 | chrome | `var(--fg-table-head)` |
+| Color | color/border | #d9e3ef | border | `var(--fg-border)` |
+| Color | color/control | #c5d0dc | control | `var(--fg-control-border)` |
+| Color | color/danger | #c92d35 | danger | `var(--fg-danger)` |
+| Color | color/dangerSoft | #fee6e7 | dangerSoft | `var(--fg-danger-soft)` |
+| Color | color/success | #07875f | success | `var(--fg-success)` |
+| Color | color/successSoft | #dcf8ea | successSoft | `var(--fg-success-soft)` |
+| Color | color/warning | #fff3d4 | warning | `var(--fg-warning-soft)` |
+| Color | stock-saludable/texto | #066647 | stock-saludable/texto | `var(--fg-stock-saludable-texto)` |
+| Color | control/borde-activo | #8494a7 | control/borde-activo | `var(--fg-control-borde-activo)` |
+| Color | plantilla/borde-suave | #b6e6cd | plantilla/borde-suave | `var(--fg-plantilla-borde-suave)` |
+| Color | badge/success/background | #dcf8ea | successSoft | `var(--fg-badge-success-background)` |
+| Color | badge/success/text | #1a1a35 | navy | `var(--fg-text)` |
+| Color | badge/warning/background | #fff3d4 | warning | `var(--fg-badge-warning-background)` |
+| Color | badge/warning/text | #1a1a35 | navy | `var(--fg-text)` |
+| Color | badge/danger/background | #fee6e7 | dangerSoft | `var(--fg-badge-danger-background)` |
+| Color | tooltip/world/background | #176fae | action | `var(--fg-tooltip-world-background)` |
+| Color | tooltip/logout/background | #c92d35 | danger | `var(--fg-tooltip-logout-background)` |
+| Color | logout/background | #fee6e7 | dangerSoft | `var(--fg-logout-background)` |
+| Color | required/text | #c92d35 | danger | `var(--fg-text)` |
+| Color | badge/danger/text | #1a1a35 | navy | `var(--fg-text)` |
+| Color | template/text | #066647 | stock-saludable/texto | `var(--fg-template-text)` |
+| Color | template/background | #dcf8ea | successSoft | `var(--fg-template-background)` |
+| Color | template/border | #b6e6cd | plantilla/borde-suave | `var(--fg-template-border)` |
+| Geometría | radius/sm | 6 px | — | `var(--fg-radius)` |
+| Geometría | radius/lg | 12 px | — | `var(--fg-panel-radius)` |
+| Geometría | control/compact | 32 px | — | `var(--fg-control-compact)` |
+| Geometría | control/escritorio | 36 px | — | `var(--fg-control-escritorio)` |
+| Geometría | control/tactil | 44 px | — | `var(--fg-control-tactil)` |
+| Geometría | badge/height | 26 px | — | `var(--fg-badge-height)` |
+| Geometría | badge/padding-x | 10 px | — | `var(--fg-badge-padding-x)` |
+| Geometría | space/4 | 4 px | — | `var(--fg-space-4)` |
+| Geometría | space/6 | 6 px | — | `var(--fg-space-6)` |
+| Geometría | space/8 | 8 px | — | `var(--fg-space-8)` |
+| Geometría | space/10 | 10 px | — | `var(--fg-space-10)` |
+| Geometría | space/12 | 12 px | — | `var(--fg-space-12)` |
+| Geometría | space/16 | 16 px | — | `var(--fg-space-16)` |
+| Geometría | space/20 | 20 px | — | `var(--fg-space-20)` |
+| Geometría | space/24 | 24 px | — | `var(--fg-space-24)` |
+| Geometría | space/32 | 32 px | — | `var(--fg-space-32)` |
+| Geometría | space/48 | 48 px | — | `var(--fg-space-48)` |
 

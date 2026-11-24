@@ -4,8 +4,8 @@
     <InitialLoadTransition>
         <RolesSkeleton v-if="initialLoading"/>
 
-        <main v-else class="br-entity br-roles">
-            <section class="br-filter-bar">
+        <main v-else class="fg-entity fg-roles">
+            <section class="fg-filter-bar">
                 <div class="row align-items-end g-2">
                     <SearchInput
                         v-model="filters.word"
@@ -16,11 +16,11 @@
                         xl="8"
                         lg="8"/>
                     <div class="form-group col-xl-4 col-lg-4">
-                        <div class="br-filter-bar__actions">
-                            <SearchButton class="br-btn-sm" @click="listRoles({applyFilters: true})"/>
+                        <div class="fg-filter-bar__actions">
+                            <SearchButton class="fg-button--small" @click="listRoles({applyFilters: true})"/>
                             <button
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-action-open-create"
+                                class="fg-button fg-button--small"
                                 data-bs-toggle="modal"
                                 data-bs-target="#roleModal"
                                 @click="openModal()">
@@ -32,10 +32,10 @@
                 </div>
             </section>
 
-            <section class="br-entity-list">
+            <section class="fg-entity-list">
                 <div class="table-responsive">
-                    <table class="table br-entity-table mb-0">
-                        <thead class="br-table-header-surface">
+                    <table class="table fg-entity-table mb-0">
+                        <thead class="fg-table-header-surface">
                             <tr>
                                 <th>Perfil de acceso</th>
                                 <th>Módulos permitidos</th>
@@ -45,19 +45,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="br-table-state" v-if="loading">
+                            <tr class="fg-table__state" v-if="loading">
                                 <td colspan="5" class="py-4"><Loader/></td>
                             </tr>
                             <template v-else-if="records.total > 0">
                                 <tr v-for="role in records.data" :key="role.id">
                                     <td>
-                                        <strong class="br-roles__name">{{ role.name }}</strong>
-                                        <span class="br-roles__access-type">
+                                        <strong class="fg-roles__name">{{ role.name }}</strong>
+                                        <span class="fg-roles__access-type">
                                             {{ roleAccessType(role) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="br-roles__metric">
+                                        <span class="fg-roles__metric">
                                             {{ roleModuleSummary(role) }}
                                         </span>
                                     </td>
@@ -73,7 +73,7 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr class="br-table-state" v-else>
+                            <tr class="fg-table__state" v-else>
                                 <td colspan="5"><WithoutData type="image"/></td>
                             </tr>
                         </tbody>
@@ -85,19 +85,19 @@
         </main>
     </InitialLoadTransition>
 
-    <div id="roleModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div id="roleModal" class="modal fade fg-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
-                    <h2 class="modal-title br-entity-modal__title br-entity-modal__title--form">
+                <div class="modal-header fg-modal__header">
+                    <h2 class="modal-title fg-modal__title fg-entity-modal__title--form">
                         {{ editingId ? "EDITAR PERFIL DE ACCESO" : "AGREGAR PERFIL DE ACCESO" }}
                     </h2>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
                         <InputText
                             v-model="form.name"
@@ -122,7 +122,7 @@
                             <small v-if="errors.status" class="text-danger">{{ firstError(errors.status) }}</small>
                         </div>
                         <div class="form-group col-xl-4 col-lg-4">
-                            <label class="br-entity-switch br-roles__full-access" for="roleFullAccess">
+                            <label class="fg-entity-switch fg-roles__full-access" for="roleFullAccess">
                                 <input
                                     id="roleFullAccess"
                                     v-model="form.isFullAccess"
@@ -137,37 +137,37 @@
                         </div>
                     </div>
 
-                    <div class="br-roles__permissions">
-                        <div class="br-roles__permissions-head">
+                    <div class="fg-roles__permissions">
+                        <div class="fg-roles__permissions-head">
                             <div>
                                 <strong>Módulos disponibles</strong>
                                 <small>Selecciona los módulos y las acciones permitidas.</small>
                             </div>
                             <button
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-outline-secondary"
+                                class="fg-button fg-button--small fg-button--secondary"
                                 :disabled="form.isFullAccess"
                                 @click="toggleAllModules">
                                 {{ allModulesSelected ? "Quitar selección" : "Seleccionar todo" }}
                             </button>
                         </div>
 
-                        <div class="br-roles__permission-tools">
-                            <div class="br-roles__permission-search">
+                        <div class="fg-roles__permission-tools">
+                            <div class="fg-roles__permission-search">
                                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                 <SearchInput
                                     v-model.trim="moduleSearch"
                                     placeholder="Buscar módulo o sección"
                                     aria-label="Buscar módulo o sección"/>
                             </div>
-                            <label class="br-roles__selected-filter">
+                            <label class="fg-roles__selected-filter">
                                 <input v-model="showSelectedOnly" type="checkbox" :disabled="form.isFullAccess">
                                 <span>Ver solo seleccionados</span>
                             </label>
                         </div>
 
-                        <div class="br-roles__sections">
-                            <article v-for="section in sections" :key="section.id" class="br-roles__section">
+                        <div class="fg-roles__sections">
+                            <article v-for="section in sections" :key="section.id" class="fg-roles__section">
                                 <header>
                                     <div>
                                         <strong>{{ section.dom_label }}</strong>
@@ -175,18 +175,18 @@
                                     </div>
                                     <button
                                         type="button"
-                                        class="br-roles__section-action"
+                                        class="fg-roles__section-action"
                                         :disabled="form.isFullAccess"
                                         @click="toggleSection(section)">
                                         {{ isSectionSelected(section) ? "Quitar" : "Seleccionar" }}
                                     </button>
                                 </header>
-                                <div class="br-roles__modules">
+                                <div class="fg-roles__modules">
                                     <div
                                         v-for="module in section.subSections"
                                         :key="module.id"
-                                        :class="['br-roles__module', {'is-selected': isSelected(module.id), 'is-disabled': form.isFullAccess}]">
-                                        <label class="br-roles__module-main">
+                                        :class="['fg-roles__module', {'is-selected': isSelected(module.id), 'is-disabled': form.isFullAccess}]">
+                                        <label class="fg-roles__module-main">
                                             <input
                                                 type="checkbox"
                                                 :checked="isSelected(module.id)"
@@ -197,7 +197,7 @@
                                                 <small>{{ module.description }}</small>
                                             </span>
                                         </label>
-                                        <div v-if="isSelected(module.id)" class="br-roles__actions" aria-label="Acciones permitidas">
+                                        <div v-if="isSelected(module.id)" class="fg-roles__actions" aria-label="Acciones permitidas">
                                             <label
                                                 v-for="action in actionsForModule(module)"
                                                 :key="`${module.id}-${action.code}`"
@@ -219,14 +219,14 @@
                         </small>
                     </div>
 
-                    <section class="br-roles__scopes">
-                        <header class="br-roles__scopes-head">
+                    <section class="fg-roles__scopes">
+                        <header class="fg-roles__scopes-head">
                             <strong>Alcance operativo</strong>
                             <small>Limita dónde puede trabajar el perfil. Estas restricciones también se validan en el servidor.</small>
                         </header>
-                        <div class="br-roles__scope-grid">
-                            <article v-for="scope in scopeDefinitions" :key="scope.type" class="br-roles__scope">
-                                <label class="br-entity-switch" :for="`role-scope-${scope.type}`">
+                        <div class="fg-roles__scope-grid">
+                            <article v-for="scope in scopeDefinitions" :key="scope.type" class="fg-roles__scope">
+                                <label class="fg-entity-switch" :for="`role-scope-${scope.type}`">
                                     <input
                                         :id="`role-scope-${scope.type}`"
                                         class="form-check-input"
@@ -251,7 +251,7 @@
                                     append-to-body
                                     :placeholder="scope.placeholder">
                                     <template #selected-option="{label}">
-                                        <span class="br-select-selected-text" :title="label">{{ label }}</span>
+                                        <span class="fg-select-selected-text" :title="label">{{ label }}</span>
                                     </template>
                                 </v-select>
                                 <small v-if="errors[scope.errorField]" class="text-danger">
@@ -262,11 +262,11 @@
                     </section>
                 </div>
 
-                <div class="modal-footer br-entity-modal__footer">
-                    <button ref="closeModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button ref="closeModal" type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button
                         type="button"
-                        :class="['br-btn', editingId ? 'br-btn-action-update' : 'br-btn-action-create']"
+                        :class="['fg-button', editingId && 'fg-button--edit']"
                         :disabled="saving"
                         @click="saveRole">
                         Guardar perfil de acceso
@@ -580,10 +580,10 @@ export default {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--warning",
-                    confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--warning",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal fg-swal--confirm",
+                    confirmButton: "fg-button fg-button--danger",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 }
             });
 
@@ -614,11 +614,11 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: "Duplicar perfil",
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--question",
-                    confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--question",
-                    cancelButton: "br-btn br-btn-cancel ms-2",
-                    input: "br-swal-alert__input"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal fg-swal--confirm",
+                    confirmButton: "fg-button",
+                    cancelButton: "fg-button fg-button--secondary ms-2",
+                    input: "fg-swal__input"
                 },
                 inputValidator: value => {
                     const name = String(value || "").trim();

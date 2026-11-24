@@ -3,26 +3,26 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <section class="br-misc-expenses">
-                <header class="br-module-heading">
+        <div v-else class="fg-page-content">
+            <section class="fg-misc-expenses">
+                <header class="fg-module-heading">
                     <div>
-                        <span class="br-module-heading__eyebrow">Control operativo</span>
+                        <span class="fg-module-heading__eyebrow">Control operativo</span>
                         <h1>Gastos varios</h1>
                         <p>Registra egresos no asociados a compras y conserva su responsable y trazabilidad de caja.</p>
                     </div>
-                    <button type="button" class="br-btn br-btn-action-create" @click="openCreate">
+                    <button type="button" class="fg-button" @click="openCreate">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         <span>Registrar gasto</span>
                     </button>
                 </header>
 
-                <section class="br-filter-bar">
-                    <div class="br-filter-bar__field">
+                <section class="fg-filter-bar">
+                    <div class="fg-filter-bar__field">
                         <label class="form-label">Búsqueda</label>
                         <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia"/>
                     </div>
-                    <div class="br-filter-bar__field">
+                    <div class="fg-filter-bar__field">
                         <label class="form-label">Estado</label>
                         <select v-model="filters.status" class="form-select">
                             <option value="">Todos</option>
@@ -30,23 +30,23 @@
                             <option value="canceled">Anulado</option>
                         </select>
                     </div>
-                    <div class="br-filter-bar__field">
+                    <div class="fg-filter-bar__field">
                         <label class="form-label">Sucursal</label>
                         <select v-model="filters.branch_id" class="form-select">
                             <option value="">Todas</option>
                             <option v-for="branch in options.branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
                         </select>
                     </div>
-                    <div class="br-filter-bar__actions">
+                    <div class="fg-filter-bar__actions">
                         <SearchButton @click="searchExpenses" :disabled="loading"/>
                     </div>
                 </section>
 
-                <section class="br-entity-panel">
-                    <div v-if="loading" class="br-loading-state">Cargando gastos...</div>
+                <section class="fg-entity-panel">
+                    <div v-if="loading" class="fg-loading-state">Cargando gastos...</div>
                     <div v-else-if="expenses.data?.length" class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Concepto</th>
@@ -69,14 +69,14 @@
                                         <small v-if="expense.cash_session_id" class="d-block text-muted">Vinculado a caja</small>
                                     </td>
                                     <td>{{ expense.responsible_user?.name || "Sin responsable" }}</td>
-                                    <td class="text-end br-amount-inline__amount">{{ money(expense) }}</td>
+                                    <td class="text-end fg-amount-inline__amount">{{ money(expense) }}</td>
                                     <td class="text-center">
-                                        <span :class="['br-status-label', expense.status === 'active' ? 'br-status-label--success' : 'br-status-label--danger']">
+                                        <span :class="['fg-badge', expense.status === 'active' ? 'fg-badge--success' : 'fg-badge--danger']">
                                             {{ expense.status === "active" ? "Activo" : "Anulado" }}
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <button v-if="expense.status === 'active'" type="button" class="br-icon-action br-icon-action-danger" title="Anular gasto" @click="cancelExpense(expense)">
+                                        <button v-if="expense.status === 'active'" type="button" class="fg-icon-action fg-icon-action-danger" title="Anular gasto" @click="cancelExpense(expense)">
                                             <i class="fa-solid fa-ban" aria-hidden="true"></i>
                                         </button>
                                     </td>
@@ -94,15 +94,15 @@
     </InitialLoadTransition>
     <div class="modal fade" id="miscExpenseModal" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content br-entity-modal">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Egreso operativo</p>
-                        <h5 class="modal-title br-entity-modal__title">Registrar gasto</h5>
+                        <p class="fg-entity-modal__eyebrow mb-1">Egreso operativo</p>
+                        <h5 class="modal-title fg-modal__title">Registrar gasto</h5>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
                         <div class="col-md-8">
                             <label class="form-label">Concepto *</label>
@@ -169,9 +169,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="submit">Registrar gasto</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="submit">Registrar gasto</button>
                 </div>
             </div>
         </div>

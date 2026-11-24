@@ -170,7 +170,7 @@
                                 </div>
                             </div>
                             <div class="fg-sale-detail-table-shell">
-                                <ResponsiveTable fg class="fg-sales-table-scroll">
+                                <ResponsiveTable class="fg-sales-table-scroll">
                                     <table role="table" class="fg-record-table fg-record-table--editor fg-record-table--sale-editor fg-table">
                                         <thead role="rowgroup" class="text-center">
                                             <tr role="row">
@@ -1550,7 +1550,7 @@
                                         <h6>Historial de compras</h6>
                                         <small>Últimos movimientos comerciales del cliente.</small>
                                     </header>
-                                    <ResponsiveTable fg class="fg-sales-table-scroll">
+                                    <ResponsiveTable class="fg-sales-table-scroll">
                                         <table class="table-sm mb-0 fg-table">
                                             <thead>
                                                 <tr>
@@ -1582,7 +1582,7 @@
                                         <h6>Historial de membresías</h6>
                                         <small>Vigentes y anteriores para revisar continuidad.</small>
                                     </header>
-                                    <ResponsiveTable fg class="fg-sales-table-scroll">
+                                    <ResponsiveTable class="fg-sales-table-scroll">
                                         <table class="table-sm mb-0 fg-table">
                                             <thead>
                                                 <tr>

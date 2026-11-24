@@ -67,13 +67,9 @@ test("el paginador compartido muestra primera y última página y bloquea extrem
 });
 
 test("el paginador es compacto sin alterar globalmente los botones deshabilitados", () => {
-    const css = read("resources/css/System/br-branding/99-system-wide-visual-polish.css");
-    const paginationCss = read("resources/css/System/br-branding/50-layout-navbar-sidebar.css");
+    const styles = read("resources/css/Shared/components.css");
+    assert.match(styles, /\.fg-pagination__links \{[^}]*flex-wrap: wrap;[^}]*gap: 4px;/);
+    assert.match(styles, /\.fg-pagination__button:disabled:not\(\[aria-current\]\)/);
+    assert.match(styles, /\.fg-pagination__button\[aria-current="page"\] \{[^}]*background: var\(--fg-primary\)/);
 
-    assert.doesNotMatch(css, /button:disabled:not\(\.br-pagination__link\)|:is\(\.br-btn, \.btn\):disabled/);
-    assert.match(paginationCss, /\.page-item\.disabled \.page-link\.br-pagination__link \{\s*opacity: 1;\s*pointer-events: none;\s*cursor: not-allowed;/);
-    assert.match(paginationCss, /\.page-item:is\(\.disabled, \.active\) \{\s*pointer-events: none;/);
-    assert.match(paginationCss, /\.br-pagination__list \{\s*gap: 0\.22rem;/);
-    assert.match(paginationCss, /\.page-link\.br-pagination__link \{[\s\S]*?margin-left: 0 !important;[\s\S]*?font-weight: var\(--br-font-weight-body\);/);
-    assert.match(paginationCss, /\.page-item\.active \.page-link\.br-pagination__link \{[\s\S]*?font-weight: var\(--br-font-weight-body\);/);
 });

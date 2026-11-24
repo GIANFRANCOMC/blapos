@@ -1,4 +1,4 @@
-.br-inline-text-action {
+.fg-inline-text-action {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
@@ -7,7 +7,7 @@
   contain: inline-size;
 }
 
-.br-inline-text-action__content {
+.fg-inline-text-action__content {
   display: block;
   min-inline-size: 0;
   overflow: hidden;
@@ -15,16 +15,16 @@
   white-space: nowrap;
 }
 
-.br-inline-text-action--expanded {
+.fg-inline-text-action--expanded {
   display: block;
 }
 
-.br-inline-text-action--expanded .br-inline-text-action__content {
+.fg-inline-text-action--expanded .fg-inline-text-action__content {
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
 
-.br-inline-text-action__button {
+.fg-inline-text-action__button {
   flex: 0 0 auto;
   padding: 0;
   border: 0;

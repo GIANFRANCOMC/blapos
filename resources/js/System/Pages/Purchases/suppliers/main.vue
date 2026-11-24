@@ -3,9 +3,9 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <main class="br-entity">
-                <section class="br-filter-bar">
+        <div v-else class="fg-page-content">
+            <main class="fg-entity">
+                <section class="fg-filter-bar">
                     <div class="row align-items-end g-2">
                         <SearchInput
                             v-model="word"
@@ -16,11 +16,11 @@
                             xl="8"
                             lg="8"/>
                         <div class="form-group col-xl-4 col-lg-4">
-                            <div class="br-filter-bar__actions">
-                                <SearchButton class="br-btn-sm" @click="listSuppliers({applyFilters: true})"/>
+                            <div class="fg-filter-bar__actions">
+                                <SearchButton class="fg-button--small" @click="listSuppliers({applyFilters: true})"/>
                                 <button
                                     type="button"
-                                    class="br-btn br-btn-sm br-btn-action-open-create"
+                                    class="fg-button fg-button--small"
                                     data-bs-toggle="modal"
                                     data-bs-target="#supplierModal"
                                     @click="prepareSupplier">
@@ -32,9 +32,9 @@
                     </div>
                 </section>
 
-                <section class="br-entity-list">
+                <section class="fg-entity-list">
                     <div class="table-responsive">
-                        <table class="table br-entity-table br-entity-table--directory mb-0">
+                        <table class="table fg-entity-table fg-entity-table--directory mb-0">
                             <colgroup>
                                 <col style="width: 20%;">
                                 <col style="width: 17%;">
@@ -45,7 +45,7 @@
                                 <col style="width: 7%;">
                                 <col style="width: 5%;">
                             </colgroup>
-                            <thead class="br-table-header-surface">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Identificación</th>
                                     <th>Proveedor</th>
@@ -58,49 +58,49 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="br-table-state" v-if="loading"><td colspan="8" class="py-4"><Loader/></td></tr>
+                                <tr class="fg-table__state" v-if="loading"><td colspan="8" class="py-4"><Loader/></td></tr>
                                 <template v-else-if="records.total > 0">
                                     <tr v-for="supplier in records.data" :key="supplier.id">
-                                        <td class="br-entity-table__identification-cell">
-                                            <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                                <div class="br-entity-identifier">
-                                                    <span class="br-entity-identifier__label colon-at-end" v-text="supplier.document_type || 'Documento'"></span>
-                                                    <span class="br-entity-identifier__value">
-                                                        <span class="br-entity-code" v-text="supplier.document_number || '—'"></span>
+                                        <td class="fg-entity-table__identification-cell">
+                                            <div class="fg-entity-identifiers fg-entity-identifiers--plain">
+                                                <div class="fg-entity-identifier">
+                                                    <span class="fg-entity-identifier__label colon-at-end" v-text="supplier.document_type || 'Documento'"></span>
+                                                    <span class="fg-entity-identifier__value">
+                                                        <span class="fg-entity-code" v-text="supplier.document_number || '—'"></span>
                                                     </span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <strong>{{ supplier.name }}</strong>
-                                            <span class="br-purchases__meta">{{ supplier.address }}</span>
+                                            <span class="fg-purchases__meta">{{ supplier.address }}</span>
                                         </td>
                                         <td>{{ supplier.contact_name || "Sin contacto" }}</td>
                                         <td>
                                             <span>{{ supplier.telephone }}</span>
-                                            <span class="br-purchases__meta">{{ supplier.email }}</span>
+                                            <span class="fg-purchases__meta">{{ supplier.email }}</span>
                                         </td>
                                         <td>
                                             <strong>{{ supplier.payment_term_days || 0 }} días</strong>
-                                            <span class="br-purchases__meta">
+                                            <span class="fg-purchases__meta">
                                                 Crédito: S/ {{ separatorNumber(supplier.credit_limit || 0) }}
                                             </span>
                                         </td>
                                         <td>
                                             <strong>{{ supplier.purchases_count || 0 }} compra{{ Number(supplier.purchases_count || 0) === 1 ? "" : "s" }}</strong>
-                                            <span class="br-purchases__meta">
+                                            <span class="fg-purchases__meta">
                                                 Total: {{ formatCurrencyTotals(supplier.purchase_amounts) }}
                                             </span>
                                         </td>
                                         <td>
-                                            <span :class="['br-status-label', `br-status-${supplier.status}`]">
+                                            <span :class="['fg-badge', `fg-status-${supplier.status}`]">
                                                 {{ supplier.status === "active" ? "Activo" : "Inactivo" }}
                                             </span>
                                         </td>
                                         <td class="text-center">
                                             <button
                                                 type="button"
-                                                class="br-icon-action br-icon-action-edit"
+                                                class="fg-icon-action fg-icon-action-edit"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#supplierModal"
                                                 title="Editar proveedor"
@@ -111,7 +111,7 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <tr class="br-table-state" v-else><td colspan="8"><WithoutData type="image"/></td></tr>
+                                <tr class="fg-table__state" v-else><td colspan="8"><WithoutData type="image"/></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -122,21 +122,21 @@
 
         </div>
     </InitialLoadTransition>
-    <div id="supplierModal" class="modal fade br-entity-modal br-modal-standard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div id="supplierModal" class="modal fade fg-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Compras</p>
-                        <h2 class="modal-title br-entity-modal__title">
+                        <p class="fg-entity-modal__eyebrow mb-1">Compras</p>
+                        <h2 class="modal-title fg-modal__title">
                             {{ editingId ? "Editar proveedor" : "Agregar proveedor" }}
                         </h2>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
                         <InputText v-model="form.name" hasDiv title="Razón social o nombre" :titleClass="[config.forms.classes.title]" isRequired xl="6" lg="6"/>
                         <InputText v-model="form.contact_name" hasDiv title="Persona de contacto" :titleClass="[config.forms.classes.title]" xl="6" lg="6"/>
@@ -147,12 +147,12 @@
                         <InputText v-model="form.address" hasDiv title="Dirección" :titleClass="[config.forms.classes.title]" xl="6" lg="6"/>
                         <InputNumber v-model="form.payment_term_days" title="Plazo de pago" :titleClass="[config.forms.classes.title]" :decimals="0" :hasNegative="false" xl="3" lg="3">
                             <template #inputGroupAppend>
-                                <span class="input-group-text br-internal-code-prefix">días</span>
+                                <span class="input-group-text fg-internal-code-prefix">días</span>
                             </template>
                         </InputNumber>
                         <InputNumber v-model="form.credit_limit" title="Límite de crédito" :titleClass="[config.forms.classes.title]" :hasNegative="false" xl="3" lg="3">
                             <template #inputGroupPrepend>
-                                <span class="input-group-text br-currency-prefix">S/</span>
+                                <span class="input-group-text fg-currency-prefix">S/</span>
                             </template>
                         </InputNumber>
                         <div class="form-group col-xl-6 col-lg-6 col-md-12">
@@ -164,54 +164,54 @@
                                 :searchable="false"/>
                         </div>
                     </div>
-                    <div class="br-supplier-related">
-                        <div class="br-supplier-related__header">
+                    <div class="fg-supplier-related">
+                        <div class="fg-supplier-related__header">
                             <div>
                                 <strong>Contactos</strong>
                                 <small>Personas operativas para compras, entregas o pagos.</small>
                             </div>
-                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="addContact">
+                            <button type="button" class="fg-button fg-button--small fg-button--secondary" @click="addContact">
                                 <i class="fa-solid fa-plus" aria-hidden="true"></i>
                                 <span>Agregar contacto</span>
                             </button>
                         </div>
-                        <div v-for="(contact, index) in form.contacts" :key="contact.key" class="br-supplier-related__row">
+                        <div v-for="(contact, index) in form.contacts" :key="contact.key" class="fg-supplier-related__row">
                             <InputText v-model="contact.name" hasDiv title="Nombre" :titleClass="[config.forms.classes.title]" xl="3" lg="3"/>
                             <InputText v-model="contact.position" hasDiv title="Cargo" :titleClass="[config.forms.classes.title]" xl="3" lg="3"/>
                             <InputText v-model="contact.telephone" hasDiv title="Teléfono" :titleClass="[config.forms.classes.title]" xl="2" lg="2"/>
                             <InputText v-model="contact.email" hasDiv title="Correo" :titleClass="[config.forms.classes.title]" xl="3" lg="3"/>
-                            <button type="button" class="br-icon-action br-icon-action-danger" :disabled="form.contacts.length === 1" @click="removeContact(index)">
+                            <button type="button" class="fg-icon-action fg-icon-action-danger" :disabled="form.contacts.length === 1" @click="removeContact(index)">
                                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="br-supplier-related">
-                        <div class="br-supplier-related__header">
+                    <div class="fg-supplier-related">
+                        <div class="fg-supplier-related__header">
                             <div>
                                 <strong>Cuentas bancarias</strong>
                                 <small>Datos de pago para transferencias y conciliación.</small>
                             </div>
-                            <button type="button" class="br-btn br-btn-sm br-btn-outline-secondary" @click="addBankAccount">
+                            <button type="button" class="fg-button fg-button--small fg-button--secondary" @click="addBankAccount">
                                 <i class="fa-solid fa-plus" aria-hidden="true"></i>
                                 <span>Agregar cuenta</span>
                             </button>
                         </div>
-                        <div v-for="(account, index) in form.bank_accounts" :key="account.key" class="br-supplier-related__row">
+                        <div v-for="(account, index) in form.bank_accounts" :key="account.key" class="fg-supplier-related__row">
                             <InputText v-model="account.bank_name" hasDiv title="Banco" :titleClass="[config.forms.classes.title]" xl="3" lg="3"/>
                             <InputText v-model="account.currency_code" hasDiv title="Moneda" :titleClass="[config.forms.classes.title]" xl="2" lg="2"/>
                             <InputText v-model="account.account_number" hasDiv title="Cuenta" :titleClass="[config.forms.classes.title]" xl="3" lg="3"/>
                             <InputText v-model="account.interbank_code" hasDiv title="CCI" :titleClass="[config.forms.classes.title]" xl="3" lg="3"/>
-                            <button type="button" class="br-icon-action br-icon-action-danger" :disabled="form.bank_accounts.length === 1" @click="removeBankAccount(index)">
+                            <button type="button" class="fg-icon-action fg-icon-action-danger" :disabled="form.bank_accounts.length === 1" @click="removeBankAccount(index)">
                                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button ref="closeModal" type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button ref="closeModal" type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button
                         type="button"
-                        :class="['br-btn', editingId ? 'br-btn-action-update' : 'br-btn-action-create']"
+                        :class="['fg-button', editingId && 'fg-button--edit']"
                         :disabled="saving"
                         @click="saveSupplier">
                         {{ editingId ? "Actualizar proveedor" : "Agregar proveedor" }}

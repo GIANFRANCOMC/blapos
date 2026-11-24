@@ -3,8 +3,8 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <main class="br-entity">
+        <div v-else class="fg-page-content">
+            <main class="fg-entity">
             <FiltersSection
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
@@ -40,9 +40,9 @@
                 :import-route="routeActions.import"
                 @imported="listEntity({})"/>
 
-            <section class="br-entity-list" aria-label="Listado de clientes">
+            <section class="fg-entity-list" aria-label="Listado de clientes">
                 <div class="table-responsive">
-                    <table class="table br-entity-table br-entity-table--directory br-customer-table mb-0">
+                    <table class="table fg-entity-table fg-entity-table--directory fg-customer-table mb-0">
                         <colgroup>
                             <col style="width: 19%;">
                             <col style="width: 23%;">
@@ -51,7 +51,7 @@
                             <col style="width: 8%;">
                             <col style="width: 6%;">
                         </colgroup>
-                        <thead class="br-table-header-surface">
+                        <thead class="fg-table-header-surface">
                             <tr>
                                 <th>Identificación</th>
                                 <th>Cliente</th>
@@ -62,51 +62,51 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="br-table-state" v-if="entityList.extras.loading">
+                            <tr class="fg-table__state" v-if="entityList.extras.loading">
                                 <td colspan="6" class="py-4"><Loader/></td>
                             </tr>
                             <template v-else-if="entityList.records.total > 0">
                                 <tr v-for="record in entityList.records.data" :key="record.id">
-                                    <td class="br-entity-table__identification-cell">
-                                        <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                            <div class="br-entity-identifier">
-                                                <span class="br-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                                <span class="br-copy-value">
-                                                    <span class="br-entity-code" v-text="record.document_number || '—'"></span>
+                                    <td class="fg-entity-table__identification-cell">
+                                        <div class="fg-entity-identifiers fg-entity-identifiers--plain">
+                                            <div class="fg-entity-identifier">
+                                                <span class="fg-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
+                                                <span class="fg-copy-value">
+                                                    <span class="fg-entity-code" v-text="record.document_number || '—'"></span>
                                                     <CopyButton v-if="record.document_number" :value="record.document_number" label="Número de documento"/>
                                                 </span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td><span class="br-entity-table__name" v-text="record.name"></span></td>
+                                    <td><span class="fg-entity-table__name" v-text="record.name"></span></td>
                                     <td>
-                                        <div class="br-customer-table__stack">
-                                            <span v-if="record.email" class="br-customer-table__value br-copy-value">
+                                        <div class="fg-customer-table__stack">
+                                            <span v-if="record.email" class="fg-customer-table__value fg-copy-value">
                                                 <span v-text="record.email"></span>
                                                 <CopyButton :value="record.email" label="Correo electrónico"/>
                                             </span>
-                                            <span v-if="record.phone_number" class="br-customer-table__value br-copy-value">
+                                            <span v-if="record.phone_number" class="fg-customer-table__value fg-copy-value">
                                                 <span v-text="record.phone_number"></span>
                                                 <CopyButton :value="record.phone_number" label="Celular"/>
                                             </span>
-                                            <span v-if="!record.email && !record.phone_number" class="br-customer-table__muted">Sin datos de contacto</span>
+                                            <span v-if="!record.email && !record.phone_number" class="fg-customer-table__muted">Sin datos de contacto</span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="br-entity-offering-details">
+                                        <div class="fg-entity-offering-details">
                                             <span v-if="record.formatted_gender">
                                                 <strong class="colon-at-end">Género</strong>
-                                                <span class="br-entity-offering-details__value">{{ record.formatted_gender }}</span>
+                                                <span class="fg-entity-offering-details__value">{{ record.formatted_gender }}</span>
                                             </span>
                                             <span v-if="record.birthdate">
                                                 <strong class="colon-at-end">Nacimiento</strong>
-                                                <span class="br-entity-offering-details__value">{{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
+                                                <span class="fg-entity-offering-details__value">{{ legibleFormatDate({dateString: record.birthdate, type: 'date'}) }}</span>
                                             </span>
                                             <span v-if="getEmergencyContactLabel(record)">
                                                 <strong class="colon-at-end">Emergencia</strong>
-                                                <span class="br-entity-offering-details__value">{{ getEmergencyContactLabel(record) }}</span>
+                                                <span class="fg-entity-offering-details__value">{{ getEmergencyContactLabel(record) }}</span>
                                             </span>
-                                            <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="br-customer-table__muted">Sin datos adicionales</span>
+                                            <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="fg-customer-table__muted">Sin datos adicionales</span>
                                         </div>
                                     </td>
                                     <td class="text-center">
@@ -136,9 +136,9 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr class="br-table-state" v-else>
+                            <tr class="fg-table__state" v-else>
                                 <td colspan="6" class="py-4">
-                                    <WithoutData class="br-entity-empty-state" type="image"/>
+                                    <WithoutData class="fg-entity-empty-state" type="image"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -156,8 +156,8 @@
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="isUpdate ? 'EDITAR CLIENTE' : 'AGREGAR CLIENTE'"
         modal-size="modal-lg"
-        modal-class="br-entity-modal--tabbed"
-        :submit-button-class="isUpdate ? 'br-btn-action-update' : 'br-btn-action-create'"
+        modal-class="fg-entity-modal--tabbed"
+        :submit-button-class="isUpdate ? 'fg-button--edit' : ''"
         :submit-disabled="isSaving"
         @submit="saveEntity">
         <template #body>
@@ -174,7 +174,7 @@
                     v-show="activeFormTab === 'client'"
                     :id="`${customerFormModalId}-tab-client`"
                     :aria-labelledby="`${customerFormModalId}-tab-trigger-client`"
-                    class="br-entity-form-section"
+                    class="fg-entity-form-section"
                     role="tabpanel">
                         <div class="row g-3">
                             <InputSlot
@@ -250,7 +250,7 @@
                     v-show="activeFormTab === 'contact'"
                     :id="`${customerFormModalId}-tab-contact`"
                     :aria-labelledby="`${customerFormModalId}-tab-trigger-contact`"
-                    class="br-entity-form-section"
+                    class="fg-entity-form-section"
                     role="tabpanel">
                         <div class="row g-3">
                             <InputText
@@ -307,7 +307,7 @@
                     v-show="activeFormTab === 'emergency'"
                     :id="`${customerFormModalId}-tab-emergency`"
                     :aria-labelledby="`${customerFormModalId}-tab-trigger-emergency`"
-                    class="br-entity-form-section"
+                    class="fg-entity-form-section"
                     role="tabpanel">
                     <div class="row g-3">
                         <InputText
@@ -350,7 +350,7 @@
     </FormModal>
     <FormModal :modal-id="forms[entity].carnet.extras.modals.default.id" title="CARNET DEL CLIENTE" :show-submit="false">
         <template #body>
-            <div class="br-entity-form-section">
+            <div class="fg-entity-form-section">
                 <CarnetCustomer :customer="forms[entity].carnet.data"/>
             </div>
         </template>
@@ -359,12 +359,12 @@
         :modal-id="forms[entity].registerBiometric.extras.modals.default.id"
         title="REGISTRAR HUELLA BIOMÉTRICA"
         :submit-button-text="MODULE.texts.modal.registerFingerprint"
-        submit-button-class="br-btn-action-create"
+        submit-button-class="fg-button"
         :submit-disabled="isSavingBiometric"
         @submit="registerBiometricFingerprint">
         <template #body>
-            <div class="br-entity-form-section">
-                    <p class="br-entity-table__meta mb-3">Cliente: <span v-text="forms[entity].registerBiometric.data.customer_name"></span></p>
+            <div class="fg-entity-form-section">
+                    <p class="fg-entity-table__meta mb-3">Cliente: <span v-text="forms[entity].registerBiometric.data.customer_name"></span></p>
                     <div class="row g-3">
                         <InputSlot
                             hasDiv

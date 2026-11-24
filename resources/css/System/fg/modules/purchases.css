@@ -1,0 +1,153 @@
+.fg-purchases__meta,
+.fg-purchases__progress-label,
+.fg-purchases__receipt-summary span,
+.fg-purchases__receipt-pending {
+    display: block;
+    color: var(--fg-muted);
+    font-size: var(--fg-help-size);
+    line-height: 1.35;
+}
+.fg-purchases__progress {
+    width: min(8rem, 100%);
+    height: 0.28rem;
+    margin-top: 0.3rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--fg-table-head);
+}
+.fg-purchases__progress > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fg-primary);
+}
+.fg-purchase-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.35rem;
+    padding: 0.16rem 0.46rem;
+    border-radius: var(--fg-radius);
+    white-space: nowrap;
+}
+.fg-purchase-status.is-confirmed {
+    background: var(--fg-warning-soft);
+    color: var(--fg-on-warning);
+}
+.fg-purchase-status.is-partial {
+    background: var(--fg-primary-soft);
+    color: var(--fg-primary);
+}
+.fg-purchase-status.is-received {
+    background: var(--fg-success-soft);
+    color: var(--fg-success-hover);
+}
+.fg-purchase-status.is-canceled {
+    background: var(--fg-danger-soft);
+    color: var(--fg-danger-strong);
+}
+.fg-purchases__actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+.fg-purchases__cancel {
+    border-color: color-mix(in srgb, var(--fg-danger) 26%, var(--fg-border));
+    background: color-mix(in srgb, var(--fg-danger) 7%, var(--fg-surface));
+    color: var(--fg-danger);
+}
+.fg-purchases__modal-help {
+    margin: 0.22rem 0 0;
+    color: var(--fg-muted);
+    font-size: var(--fg-body-size);
+}
+.fg-purchases__receipt-items {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+.fg-tax-quantity {
+    width: 4.2rem;
+    min-height: 2.1rem;
+    color: var(--fg-heading);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-title-weight);
+    text-align: center;
+}
+.fg-tax-quantity__label {
+    display: inline-flex;
+    align-items: center;
+    min-height: auto;
+    margin: 0;
+    padding: 0 0.42rem;
+    border: 0;
+    border-right: 1px solid var(--fg-border);
+    border-radius: 0;
+    background: var(--fg-secondary-soft);
+    color: var(--fg-heading);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-label-weight);
+    line-height: 1;
+}
+.fg-document-settlement__taxes .fg-form-control-group:has(.fg-tax-quantity) {
+    width: auto;
+}
+.fg-document-settlement__taxes .fg-form-control-group:has(.fg-tax-quantity):focus-within {
+    border-color: var(--fg-primary);
+    box-shadow: var(--fg-focus);
+}
+.fg-document-settlement__taxes .fg-form-control-group:has(.fg-tax-quantity:disabled) {
+    opacity: 0.58;
+}
+.fg-document-payment-amount {
+    min-width: 7rem;
+}
+.fg-document-payment-row .fg-icon-action {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+.fg-document-payment-row .fg-icon-action:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+@media (max-width: 767.98px) {
+    .fg-document-payment-row .fg-icon-action {
+        justify-self: start;
+    }
+}
+.fg-purchases__receipt-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: var(--fg-radius);
+    background: var(--fg-table-head);
+}
+.fg-purchases__receipt-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.4fr);
+    align-items: end;
+    gap: 0.75rem;
+    padding: 0.7rem;
+    border: 1px solid var(--fg-border);
+    border-radius: var(--fg-radius);
+}
+.fg-purchases__receipt-row > div:first-child {
+    display: grid;
+    gap: 0.16rem;
+}
+@media (max-width: 767.98px) {
+    .fg-purchases__receipt-summary {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .fg-purchases__receipt-row {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 767.98px) {
+    .fg-entity-form-section {
+        min-height: 0;
+    }
+}

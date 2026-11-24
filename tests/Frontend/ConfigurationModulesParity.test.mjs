@@ -10,7 +10,7 @@ test("sucursales usa tabla y agrupa auditoría en acciones", () => {
     const modal = read("resources/js/System/Components/Generics/FormModal.vue");
 
     assert.equal(parse(source, {filename: "branches/main.vue"}).errors.length, 0);
-    assert.match(source, /class="table br-entity-table br-entity-table--directory mb-0"/);
+    assert.match(source, /class="table fg-entity-table fg-entity-table--directory mb-0"/);
     assert.match(source, /<CopyButton v-if="record\.internal_code" :value="record\.internal_code" label="Código interno"\/>/);
     assert.match(source, /<TableActionsDropdown/);
     assert.match(source, /#secondaryActions/);
@@ -38,14 +38,15 @@ test("empresa, colaboradores y perfiles mantienen acciones y estilos compartidos
 
 test("modales y botones distinguen guardar una entidad de crear y editar", () => {
     const modal = read("resources/js/System/Components/Generics/FormModal.vue");
-    const buttons = read("resources/css/System/br-branding/40-buttons-quick-create.css");
+    const buttons = read("resources/css/Shared/components.css");
     const roles = read("resources/js/System/Pages/Organizations/roles/main.vue");
     const product = read("resources/js/System/Components/Catalogs/Products/productFormConfig.js");
 
     assert.match(modal, /resolvedSubmitButtonText/);
     assert.match(modal, /(?:AGREGAR\|EDITAR\|CREAR\|REGISTRAR)/);
-    assert.match(buttons, /\.br-btn\.br-btn-action-update \{[^}]*background: var\(--br-warning\);[^}]*color: var\(--br-white\)/);
-    assert.match(buttons, /\.br-btn-action-create \{[^}]*background: var\(--br-primary\)/);
+    assert.match(buttons, /\.fg-button--edit \{[^}]*background: var\(--fg-warning\);[^}]*color: var\(--fg-on-warning\)/);
+    assert.match(buttons, /\.fg-button \{[^}]*background: var\(--fg-primary\)/);
+    assert.match(roles, /editingId && 'fg-button--edit'/);
     assert.match(roles, /Guardar perfil de acceso/);
     assert.match(product, /save: "Guardar producto"/);
 });

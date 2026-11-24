@@ -47,7 +47,7 @@
                     </div>
                 </FgResponsiveFilters>
 
-                <ResponsiveTable fg class="fg-sales-table-scroll">
+                <ResponsiveTable class="fg-sales-table-scroll">
                     <table role="table" class="mb-0 fg-table fg-record-table fg-record-table--quotes">
                         <thead role="rowgroup">
                             <tr role="row">
@@ -234,7 +234,7 @@
                                         </button>
                                     </div>
 
-                                    <ResponsiveTable fg class="fg-sales-table-scroll">
+                                    <ResponsiveTable class="fg-sales-table-scroll">
                                         <table role="table" class="fg-record-table fg-record-table--editor mb-0 fg-table">
                                             <thead role="rowgroup">
                                                 <tr role="row">

@@ -4,8 +4,8 @@
     <InitialLoadTransition>
         <CompanySettingsSkeleton v-if="initialLoading"/>
 
-        <main v-else class="br-company-settings br-entity-modal--tabbed">
-            <section class="br-company-settings__panel" aria-label="Datos de la empresa">
+        <main v-else class="fg-company-settings fg-entity-modal--tabbed">
+            <section class="fg-company-settings__panel" aria-label="Datos de la empresa">
                 <AppTabs
                     v-model="activeTabId"
                     :tabs="tabItems"
@@ -14,7 +14,7 @@
                     controls-prefix="company"
                     variant="descriptive"/>
 
-                <div class="br-company-settings__content">
+                <div class="fg-company-settings__content">
                 <div v-show="activeTabId === 'general'" id="company-tab-general" role="tabpanel" aria-labelledby="company-tab-trigger-general">
                     <div class="row g-3">
                         <InputSlot
@@ -149,7 +149,7 @@
                             xl="6"
                             lg="6">
                             <template v-slot:inputGroupAppend>
-                                <a :href="forms[entity].createUpdate.data.facebook" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.facebook})" aria-label="Abrir Facebook">
+                                <a :href="forms[entity].createUpdate.data.facebook" target="_blank" rel="noopener noreferrer" class="fg-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.facebook})" aria-label="Abrir Facebook">
                                     <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                                 </a>
                             </template>
@@ -164,7 +164,7 @@
                             xl="6"
                             lg="6">
                             <template v-slot:inputGroupAppend>
-                                <a :href="forms[entity].createUpdate.data.instagram" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.instagram})" aria-label="Abrir Instagram">
+                                <a :href="forms[entity].createUpdate.data.instagram" target="_blank" rel="noopener noreferrer" class="fg-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.instagram})" aria-label="Abrir Instagram">
                                     <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                                 </a>
                             </template>
@@ -179,7 +179,7 @@
                             xl="6"
                             lg="6">
                             <template v-slot:inputGroupAppend>
-                                <a :href="forms[entity].createUpdate.data.whatsapp" target="_blank" rel="noopener noreferrer" class="br-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.whatsapp})" aria-label="Abrir WhatsApp">
+                                <a :href="forms[entity].createUpdate.data.whatsapp" target="_blank" rel="noopener noreferrer" class="fg-company-settings__visit" v-if="isValidUrl({url: forms[entity].createUpdate.data.whatsapp})" aria-label="Abrir WhatsApp">
                                     <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                                 </a>
                             </template>
@@ -187,13 +187,13 @@
                     </div>
                 </div>
                 <div v-show="activeTabId === 'branding'" id="company-tab-branding" role="tabpanel" aria-labelledby="company-tab-trigger-branding">
-                    <div class="br-company-settings__brand-intro">
+                    <div class="fg-company-settings__brand-intro">
                         <span class="form-label mb-0">Recursos de marca</span>
                         <span v-text="fileFormatHintText"></span>
                     </div>
-                    <div class="br-company-settings__brand-grid">
-                        <article v-for="item in MODULE.brandingItems" :key="item.formField" class="br-company-settings__brand-item">
-                            <div class="br-company-settings__brand-preview">
+                    <div class="fg-company-settings__brand-grid">
+                        <article v-for="item in MODULE.brandingItems" :key="item.formField" class="fg-company-settings__brand-item">
+                            <div class="fg-company-settings__brand-preview">
                                 <img
                                     v-if="isDefined(forms[entity].createUpdate.data[item.formField])"
                                     :src="getAsset(forms[entity].createUpdate.data[item.formField], {type: 'storage'})"
@@ -203,17 +203,17 @@
                                     :src="getAsset(config.essential.ownerApp.assets.img[item.formField], {type: 'none', back: 1})"
                                     :alt="`Imagen predeterminada: ${MODULE.texts.form[item.formKey]}`"/>
                             </div>
-                            <div class="br-company-settings__brand-details">
+                            <div class="fg-company-settings__brand-details">
                                 <label :for="item.fileInputId" class="form-label" v-text="MODULE.texts.form[item.formKey]"></label>
                                 <p v-text="item.hint"></p>
-                                <div class="br-company-settings__brand-upload">
+                                <div class="fg-company-settings__brand-upload">
                                     <input
                                         type="file"
                                         class="visually-hidden"
                                         :id="item.fileInputId"
                                         accept="image/png, image/jpg, image/jpeg"
                                         @change="onBrandImageChange(item.formField, $event)"/>
-                                    <label :for="item.fileInputId" class="br-btn br-btn-outline-secondary br-btn-sm">
+                                    <label :for="item.fileInputId" class="fg-button fg-button--secondary fg-button--small">
                                         <i class="fa-solid fa-upload" aria-hidden="true"></i>
                                         Seleccionar imagen
                                     </label>
@@ -274,8 +274,8 @@
                     </div>
                 </div>
                 </div>
-                <footer v-if="hasRecord" class="br-company-settings__footer">
-                    <button type="button" class="br-btn br-btn-primary" @click="saveEntity" :disabled="isSaving">
+                <footer v-if="hasRecord" class="fg-company-settings__footer">
+                    <button type="button" class="fg-button" @click="saveEntity" :disabled="isSaving">
                         <span v-text="isSaving ? 'Guardando...' : MODULE.texts.actions.save"></span>
                     </button>
                 </footer>

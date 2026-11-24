@@ -88,7 +88,7 @@
                 </div>
             </FgResponsiveFilters>
 
-            <ResponsiveTable fg class="fg-sales-table-scroll">
+            <ResponsiveTable class="fg-sales-table-scroll">
                 <table role="table" class="mb-0 fg-table fg-record-table fg-record-table--deliveries">
                     <thead role="rowgroup">
                         <tr role="row">
@@ -227,7 +227,7 @@
                         </div>
                     </div>
 
-                    <ResponsiveTable fg class="mt-2 fg-sales-table-scroll">
+                    <ResponsiveTable class="mt-2 fg-sales-table-scroll">
                         <table role="table" class="fg-record-table fg-record-table--delivery-lines mb-0 fg-table">
                             <thead role="rowgroup">
                                 <tr role="row">

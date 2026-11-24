@@ -18,9 +18,9 @@ Inicio y Dashboard se excluyen del directorio de Home porque son accesos estruct
 - Modelo de preferencias: `UserPreference`
 - Vista: `resources/views/System/general/Essentials/home/main.blade.php`
 - Vue: `resources/js/System/Pages/Essentials/home`
-- Estilos: `public/System/assets/css/br-branding.css`, parcial `br-branding/81-core-roles-entities.css`
+- Estilos: `resources/css/Shared/ui.css`, parcial `resources/css/System/fg/modules/organization.css`
 - Layout global: `resources/views/System/layouts/main.blade.php`
-- Branding global de favoritos: `public/System/assets/css/br-branding.css`
+- Branding global de favoritos: `resources/css/Shared/ui.css`
 - Tablas: `users`, `user_preferences`, `companies_sub_sections`, `sections`, `sub_sections`
 
 ## Flujo de lectura
@@ -145,7 +145,7 @@ Estructura:
 - Tooltips descriptivos en controles con iconos.
 - Navegación por teclado y etiquetas `aria-label` en acciones.
 - Responsive en dos o una columna.
-- Colores basados en tokens `--br-*` del branding.
+- Colores basados en tokens `--fg-*` del branding.
 - Contraste mediante azul de marca `#2899E5`, navy `#1A1A35` y sus superficies suaves.
 - Confirmaciones diferenciadas: pregunta al agregar y advertencia al quitar.
 - El título de las confirmaciones se mantiene centrado.
@@ -175,7 +175,7 @@ El acceso global se encuentra dentro de la navbar de `resources/views/System/lay
 - Se cierra mediante botón, clic exterior, fondo o tecla `Escape`.
 - Usa `aria-expanded`, `aria-controls`, `aria-hidden` y foco visible.
 - Al abrirse aplica desenfoque transparente al resto de la interfaz, sin velo gris; botón y panel permanecen nítidos.
-- Reutiliza los tokens de `br-branding.css`; no introduce paletas paralelas.
+- Reutiliza los tokens de `resources/css/Shared/ui.css`; no introduce paletas paralelas.
 - Reemplaza el anterior botón flotante y elimina bloques ocultos duplicados del sidebar.
 
 ## Mejoras aplicadas

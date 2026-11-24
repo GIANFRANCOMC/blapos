@@ -76,174 +76,174 @@ html:not([dir=rtl]) .bg-menu-theme.menu-horizontal .menu-inner > .menu-item > .m
 }
 
 body {
-  background: var(--br-vuexy-body-bg);
+  background: var(--fg-canvas);
 }
 
 .bg-body {
-  background: var(--br-vuexy-body-bg) !important;
+  background: var(--fg-canvas) !important;
 }
 
 .text-primary {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 .text-body[href]:hover {
-  color: var(--br-vuexy-primary-hover) !important;
+  color: var(--fg-primary-hover) !important;
 }
 
 .bg-primary {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
 }
 
 a.bg-primary:hover, a.bg-primary:focus {
-  background-color: var(--br-vuexy-primary-hover) !important;
+  background-color: var(--fg-primary-hover) !important;
 }
 
 .dropdown-notifications-item:not(.mark-as-read) .dropdown-notifications-read span {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
 }
 
 .bg-label-primary {
-  background-color: var(--br-vuexy-primary-soft) !important;
-  color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary-soft) !important;
+  color: var(--fg-primary) !important;
 }
 
 .bg-label-hover-primary {
-  background-color: var(--br-vuexy-primary-soft) !important;
-  color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary-soft) !important;
+  color: var(--fg-primary) !important;
 }
 .bg-label-hover-primary:hover {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
   color: #fff !important;
 }
 
 .bg-gradient-primary {
-  background-image: linear-gradient(45deg, var(--br-vuexy-primary), var(--br-vuexy-primary-muted)) !important;
+  background-image: linear-gradient(45deg, var(--fg-primary), var(--fg-primary-muted)) !important;
 }
 
 .bg-primary.bg-glow {
-  box-shadow: 0px 2px 3px 0px var(--br-vuexy-primary-alpha-30);
+  box-shadow: 0px 2px 3px 0px color-mix(in srgb, var(--fg-primary) 30%, transparent);
 }
 
 .page-item.active .page-link,
 .pagination li.active > a:not(.page-link) {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 
 .page-item > .page-link.active {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 
 .page-item.first .page-link.active, .page-item.last .page-link.active, .page-item.next .page-link.active, .page-item.prev .page-link.active, .page-item.previous .page-link.active {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 
 .progress-bar {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 
 .modal-onboarding .carousel-indicators [data-bs-target] {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
 }
 
 .carousel-control-prev,
 .carousel-control-next {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .carousel-control-prev:hover, .carousel-control-prev:focus,
 .carousel-control-next:hover,
 .carousel-control-next:focus {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 
 .list-group-item-primary {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary-soft-active);
-  border-color: var(--br-vuexy-primary);
-  color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary);
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface));
+  border-color: var(--fg-primary);
+  color: var(--fg-primary) !important;
 }
 
 a.list-group-item-primary,
 button.list-group-item-primary {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 a.list-group-item-primary:hover, a.list-group-item-primary:focus,
 button.list-group-item-primary:hover,
 button.list-group-item-primary:focus {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary-soft-active);
-  color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface));
+  color: var(--fg-primary);
 }
 a.list-group-item-primary.active,
 button.list-group-item-primary.active {
-  border-color: var(--br-vuexy-primary) !important;
-  background-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
+  background-color: var(--fg-primary) !important;
   color: #fff !important;
 }
 
 .list-group-item-action.active, .list-group-item-action.active:hover, .list-group-item-action.active:focus {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 
 .list-group.list-group-timeline .list-group-timeline-primary:before {
-  border-color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
+  background-color: var(--fg-primary);
 }
 
 .alert-primary {
-  background-color: var(--br-vuexy-primary-soft-active);
-  border-color: var(--br-vuexy-primary-soft-active);
-  color: var(--br-vuexy-primary);
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface));
+  border-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface));
+  color: var(--fg-primary);
 }
 .alert-primary .btn-close {
   background-image: url("data:image/svg+xml,%3Csvg width='19' height='18' viewBox='0 0 19 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 4.5L5 13.5' stroke='%237367f0' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M14 4.5L5 13.5' stroke='white' stroke-opacity='0.2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M5 4.5L14 13.5' stroke='%237367f0' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M5 4.5L14 13.5' stroke='white' stroke-opacity='0.2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
 }
 .alert-primary .alert-link {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 
 .alert-primary hr {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
 }
 
 .tooltip-primary .tooltip-inner, .tooltip-primary > .tooltip .tooltip-inner, .ngb-tooltip-primary + ngb-tooltip-window .tooltip-inner {
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
   color: #fff;
 }
 .tooltip-primary.bs-tooltip-auto[data-popper-placement=top] .tooltip-arrow::before, .tooltip-primary > .tooltip.bs-tooltip-auto[data-popper-placement=top] .tooltip-arrow::before, .ngb-tooltip-primary + ngb-tooltip-window.bs-tooltip-auto[data-popper-placement=top] .tooltip-arrow::before {
-  border-top-color: var(--br-vuexy-primary);
+  border-top-color: var(--fg-primary);
 }
 .tooltip-primary.bs-tooltip-auto[data-popper-placement=left] .tooltip-arrow::before, .tooltip-primary > .tooltip.bs-tooltip-auto[data-popper-placement=left] .tooltip-arrow::before, .ngb-tooltip-primary + ngb-tooltip-window.bs-tooltip-auto[data-popper-placement=left] .tooltip-arrow::before {
-  border-left-color: var(--br-vuexy-primary);
+  border-left-color: var(--fg-primary);
 }
 [dir=rtl] .tooltip-primary.bs-tooltip-auto[data-popper-placement=left] .tooltip-arrow::before, [dir=rtl] .tooltip-primary > .tooltip.bs-tooltip-auto[data-popper-placement=left] .tooltip-arrow::before, [dir=rtl] .ngb-tooltip-primary + ngb-tooltip-window.bs-tooltip-auto[data-popper-placement=left] .tooltip-arrow::before {
-  border-right-color: var(--br-vuexy-primary);
+  border-right-color: var(--fg-primary);
 }
 .tooltip-primary.bs-tooltip-auto[data-popper-placement=bottom] .tooltip-arrow::before, .tooltip-primary > .tooltip.bs-tooltip-auto[data-popper-placement=bottom] .tooltip-arrow::before, .ngb-tooltip-primary + ngb-tooltip-window.bs-tooltip-auto[data-popper-placement=bottom] .tooltip-arrow::before {
-  border-bottom-color: var(--br-vuexy-primary);
+  border-bottom-color: var(--fg-primary);
 }
 .tooltip-primary.bs-tooltip-auto[data-popper-placement=right] .tooltip-arrow::before, .tooltip-primary > .tooltip.bs-tooltip-auto[data-popper-placement=right] .tooltip-arrow::before, .ngb-tooltip-primary + ngb-tooltip-window.bs-tooltip-auto[data-popper-placement=right] .tooltip-arrow::before {
-  border-right-color: var(--br-vuexy-primary);
+  border-right-color: var(--fg-primary);
 }
 [dir=rtl] .tooltip-primary.bs-tooltip-auto[data-popper-placement=right] .tooltip-arrow::before, [dir=rtl] .tooltip-primary > .tooltip.bs-tooltip-auto[data-popper-placement=right] .tooltip-arrow::before, [dir=rtl] .ngb-tooltip-primary + ngb-tooltip-window.bs-tooltip-auto[data-popper-placement=right] .tooltip-arrow::before {
-  border-left-color: var(--br-vuexy-primary);
+  border-left-color: var(--fg-primary);
 }
 
 .popover-primary, .popover-primary > .popover, .ngb-popover-primary + ngb-popover-window {
   border-color: transparent;
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
 }
 .popover-primary .popover-header, .popover-primary > .popover .popover-header, .ngb-popover-primary + ngb-popover-window .popover-header {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
   background: transparent;
   color: #fff;
 }
@@ -255,34 +255,34 @@ button.list-group-item-primary.active {
   border-color: transparent;
 }
 .popover-primary.bs-popover-auto[data-popper-placement=top] > .popover-arrow::after, .popover-primary > .popover.bs-popover-auto[data-popper-placement=top] > .popover-arrow::after, .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=top] > .popover-arrow::after {
-  border-top-color: var(--br-vuexy-primary) !important;
+  border-top-color: var(--fg-primary) !important;
 }
 .popover-primary.bs-popover-auto[data-popper-placement=right] > .popover-arrow::after, .popover-primary > .popover.bs-popover-auto[data-popper-placement=right] > .popover-arrow::after, .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=right] > .popover-arrow::after {
-  border-right-color: var(--br-vuexy-primary) !important;
+  border-right-color: var(--fg-primary) !important;
 }
 [dir=rtl] .popover-primary.bs-popover-auto[data-popper-placement=right] > .popover-arrow::after, [dir=rtl] .popover-primary > .popover.bs-popover-auto[data-popper-placement=right] > .popover-arrow::after, [dir=rtl] .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=right] > .popover-arrow::after {
-  border-left-color: var(--br-vuexy-primary) !important;
+  border-left-color: var(--fg-primary) !important;
 }
 .popover-primary.bs-popover-auto[data-popper-placement=bottom] > .popover-arrow::after, .popover-primary > .popover.bs-popover-auto[data-popper-placement=bottom] > .popover-arrow::after, .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=bottom] > .popover-arrow::after {
-  border-bottom-color: var(--br-vuexy-primary) !important;
+  border-bottom-color: var(--fg-primary) !important;
 }
 .popover-primary.bs-popover-auto[data-popper-placement=left] > .popover-arrow::after, .popover-primary > .popover.bs-popover-auto[data-popper-placement=left] > .popover-arrow::after, .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=left] > .popover-arrow::after {
-  border-left-color: var(--br-vuexy-primary) !important;
+  border-left-color: var(--fg-primary) !important;
 }
 [dir=rtl] .popover-primary.bs-popover-auto[data-popper-placement=left] > .popover-arrow::after, [dir=rtl] .popover-primary > .popover.bs-popover-auto[data-popper-placement=left] > .popover-arrow::after, [dir=rtl] .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=left] > .popover-arrow::after {
-  border-right-color: var(--br-vuexy-primary) !important;
+  border-right-color: var(--fg-primary) !important;
 }
 .popover-primary.bs-popover-auto[data-popper-placement=bottom] .popover-header::before, .popover-primary > .popover.bs-popover-auto[data-popper-placement=bottom] .popover-header::before, .ngb-popover-primary + ngb-popover-window.bs-popover-auto[data-popper-placement=bottom] .popover-header::before {
   border-bottom: 1px solid transparent !important;
 }
 
 .table-primary {
-  --bs-table-bg: var(--br-vuexy-primary-soft-table);
-  --bs-table-striped-bg: var(--br-vuexy-primary-table-striped);
+  --bs-table-bg: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface));
+  --bs-table-striped-bg: color-mix(in srgb, var(--fg-primary-soft) 64%, var(--fg-surface));
   --bs-table-striped-color: #4b465c;
-  --bs-table-active-bg: var(--br-vuexy-primary-table-active);
+  --bs-table-active-bg: color-mix(in srgb, var(--fg-primary-soft) 74%, var(--fg-border));
   --bs-table-active-color: #4b465c;
-  --bs-table-hover-bg: var(--br-vuexy-primary-soft-hover);
+  --bs-table-hover-bg: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
   --bs-table-hover-color: #4b465c;
   color: #4b465c;
   border-color: #d2d0de;
@@ -293,122 +293,122 @@ button.list-group-item-primary.active {
 
 .btn-primary {
   color: #fff;
-  background-color: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
+  border-color: var(--fg-primary);
 }
 .btn-primary:hover {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary-hover) !important;
-  border-color: var(--br-vuexy-primary-hover) !important;
+  background-color: var(--fg-primary-hover) !important;
+  border-color: var(--fg-primary-hover) !important;
 }
 .btn-check:focus + .btn-primary, .btn-primary:focus, .btn-primary.focus {
   color: #fff;
-  background-color: var(--br-vuexy-primary-hover);
-  border-color: var(--br-vuexy-primary-hover);
+  background-color: var(--fg-primary-hover);
+  border-color: var(--fg-primary-hover);
   box-shadow: none;
 }
 .btn-check:checked + .btn-primary, .btn-check:active + .btn-primary, .btn-primary:active, .btn-primary.active, .btn-primary.show.dropdown-toggle, .show > .btn-primary.dropdown-toggle {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary-hover) !important;
-  border-color: var(--br-vuexy-primary-hover) !important;
+  background-color: var(--fg-primary-hover) !important;
+  border-color: var(--fg-primary-hover) !important;
 }
 .btn-primary.disabled, .btn-primary:disabled {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary) !important;
-  border-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
+  border-color: var(--fg-primary) !important;
   box-shadow: none !important;
 }
 
 .btn-group .btn-primary,
 .input-group .btn-primary {
-  border-right: var(--bs-border-width) solid var(--br-vuexy-primary-hover);
-  border-left: var(--bs-border-width) solid var(--br-vuexy-primary-hover);
+  border-right: var(--bs-border-width) solid var(--fg-primary-hover);
+  border-left: var(--bs-border-width) solid var(--fg-primary-hover);
 }
 
 .btn-group-vertical .btn-primary {
-  border-top-color: var(--br-vuexy-primary-hover);
-  border-bottom-color: var(--br-vuexy-primary-hover);
+  border-top-color: var(--fg-primary-hover);
+  border-bottom-color: var(--fg-primary-hover);
 }
 
 .btn-label-primary {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
   border-color: transparent;
-  background: var(--br-vuexy-primary-soft-active);
+  background: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface));
 }
 .btn-label-primary.waves-effect .waves-ripple {
-  background: radial-gradient(var(--br-vuexy-primary-alpha-20) 0, var(--br-vuexy-primary-alpha-30) 40%, var(--br-vuexy-primary-alpha-40) 50%, var(--br-vuexy-primary-alpha-50) 60%, transparent 70%);
+  background: radial-gradient(color-mix(in srgb, var(--fg-primary) 20%, transparent) 0, color-mix(in srgb, var(--fg-primary) 30%, transparent) 40%, color-mix(in srgb, var(--fg-primary) 40%, transparent) 50%, color-mix(in srgb, var(--fg-primary) 50%, transparent) 60%, transparent 70%);
 }
 .btn-label-primary:hover {
   border-color: transparent !important;
-  background: var(--br-vuexy-primary-soft-hover) !important;
-  color: var(--br-vuexy-primary) !important;
+  background: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface)) !important;
+  color: var(--fg-primary) !important;
 }
 .btn-label-primary:focus, .btn-label-primary.focus {
-  color: var(--br-vuexy-primary);
-  background: var(--br-vuexy-primary-soft-hover);
+  color: var(--fg-primary);
+  background: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
   box-shadow: none !important;
 }
 .btn-label-primary:active, .btn-label-primary.active, .btn-label-primary.show.dropdown-toggle, .show > .btn-label-primary.dropdown-toggle {
-  color: var(--br-vuexy-primary) !important;
-  background-color: var(--br-vuexy-primary-soft-hover) !important;
+  color: var(--fg-primary) !important;
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface)) !important;
   border-color: transparent !important;
 }
 .btn-label-primary:active:focus, .btn-label-primary.active:focus, .btn-label-primary.show.dropdown-toggle:focus, .show > .btn-label-primary.dropdown-toggle:focus {
   box-shadow: none;
 }
 .btn-label-primary.disabled, .btn-label-primary:disabled {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
   border-color: transparent !important;
-  background: var(--br-vuexy-primary-soft) !important;
+  background: var(--fg-primary-soft) !important;
   box-shadow: none;
 }
 
 .btn-group .btn-label-primary,
 .input-group .btn-label-primary {
-  border-right: var(--bs-border-width) solid var(--br-vuexy-primary-soft-hover);
-  border-left: var(--bs-border-width) solid var(--br-vuexy-primary-soft-hover);
+  border-right: var(--bs-border-width) solid color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
+  border-left: var(--bs-border-width) solid color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
 }
 
 .btn-group-vertical .btn-label-primary {
-  border-top-color: var(--br-vuexy-primary-soft-hover);
-  border-bottom-color: var(--br-vuexy-primary-soft-hover);
+  border-top-color: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
+  border-bottom-color: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface));
 }
 
 .btn-outline-primary {
-  color: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
+  border-color: var(--fg-primary);
   background: transparent;
 }
 .btn-outline-primary.waves-effect .waves-ripple {
-  background: radial-gradient(var(--br-vuexy-primary-alpha-20) 0, var(--br-vuexy-primary-alpha-30) 40%, var(--br-vuexy-primary-alpha-40) 50%, var(--br-vuexy-primary-alpha-50) 60%, transparent 70%);
+  background: radial-gradient(color-mix(in srgb, var(--fg-primary) 20%, transparent) 0, color-mix(in srgb, var(--fg-primary) 30%, transparent) 40%, color-mix(in srgb, var(--fg-primary) 40%, transparent) 50%, color-mix(in srgb, var(--fg-primary) 50%, transparent) 60%, transparent 70%);
 }
 .btn-outline-primary:hover {
-  color: var(--br-vuexy-primary) !important;
-  background-color: var(--br-vuexy-primary-soft-table) !important;
-  border-color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface)) !important;
+  border-color: var(--fg-primary) !important;
 }
 .btn-check:focus + .btn-outline-primary, .btn-outline-primary:focus {
-  color: var(--br-vuexy-primary);
-  background-color: var(--br-vuexy-primary-soft-table);
-  border-color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface));
+  border-color: var(--fg-primary);
   box-shadow: none;
 }
 .btn-check:checked + .btn-outline-primary, .btn-check:active + .btn-outline-primary, .btn-outline-primary:active, .btn-outline-primary.active, .btn-outline-primary.dropdown-toggle.show {
-  color: var(--br-vuexy-primary) !important;
-  background-color: var(--br-vuexy-primary-soft-active) !important;
-  border-color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface)) !important;
+  border-color: var(--fg-primary) !important;
 }
 .btn-check:checked + .btn-outline-primary:focus, .btn-check:active + .btn-outline-primary:focus, .btn-outline-primary:active:focus, .btn-outline-primary.active:focus, .btn-outline-primary.dropdown-toggle.show:focus {
   box-shadow: none;
 }
 .btn-outline-primary.disabled, .btn-outline-primary:disabled {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
   background-color: transparent !important;
 }
 
 .btn-outline-primary .badge {
-  background: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background: var(--fg-primary);
+  border-color: var(--fg-primary);
   color: #fff;
 }
 
@@ -417,24 +417,24 @@ button.list-group-item-primary.active {
 .btn-outline-primary:active .badge,
 .btn-outline-primary.active .badge,
 .show > .btn-outline-primary.dropdown-toggle .badge {
-  background: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background: var(--fg-primary);
+  border-color: var(--fg-primary);
 }
 
 .dropdown-item:not(.disabled).active,
 .dropdown-item:not(.disabled):active {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   color: #fff !important;
 }
 
 .dropdown-menu > li:not(.disabled) > a:not(.dropdown-item):active,
 .dropdown-menu > li.active:not(.disabled) > a:not(.dropdown-item) {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   color: #fff !important;
 }
 
 .nav-pills .nav-link.active, .nav-pills .nav-link.active:hover, .nav-pills .nav-link.active:focus {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 
@@ -442,63 +442,63 @@ button.list-group-item-primary.active {
 .nav-tabs .nav-link.active,
 .nav-tabs .nav-link.active:hover,
 .nav-tabs .nav-link.active:focus {
-  box-shadow: 0 -2px 0 var(--br-vuexy-primary) inset;
+  box-shadow: 0 -2px 0 var(--fg-primary) inset;
 }
 
 .nav-align-bottom .nav-tabs .nav-link.active, .nav-align-bottom .nav-tabs .nav-link.active:hover, .nav-align-bottom .nav-tabs .nav-link.active:focus,
 .nav-align-bottom .nav-tabs .nav-link.active,
 .nav-align-bottom .nav-tabs .nav-link.active:hover,
 .nav-align-bottom .nav-tabs .nav-link.active:focus {
-  box-shadow: 0 2px 0 var(--br-vuexy-primary) inset;
+  box-shadow: 0 2px 0 var(--fg-primary) inset;
 }
 
 .nav-align-left .nav-tabs .nav-link.active, .nav-align-left .nav-tabs .nav-link.active:hover, .nav-align-left .nav-tabs .nav-link.active:focus,
 .nav-align-left .nav-tabs .nav-link.active,
 .nav-align-left .nav-tabs .nav-link.active:hover,
 .nav-align-left .nav-tabs .nav-link.active:focus {
-  box-shadow: -2px 0px 0 var(--br-vuexy-primary) inset;
+  box-shadow: -2px 0px 0 var(--fg-primary) inset;
 }
 
 .nav-align-right .nav-tabs .nav-link.active, .nav-align-right .nav-tabs .nav-link.active:hover, .nav-align-right .nav-tabs .nav-link.active:focus,
 .nav-align-right .nav-tabs .nav-link.active,
 .nav-align-right .nav-tabs .nav-link.active:hover,
 .nav-align-right .nav-tabs .nav-link.active:focus {
-  box-shadow: 2px 0px 0 var(--br-vuexy-primary) inset;
+  box-shadow: 2px 0px 0 var(--fg-primary) inset;
 }
 
 [dir=rtl] .nav-align-left .nav-tabs .nav-link.active, [dir=rtl] .nav-align-left .nav-tabs .nav-link.active:hover, [dir=rtl] .nav-align-left .nav-tabs .nav-link.active:focus,
 [dir=rtl] .nav-align-left .nav-tabs .nav-link.active,
 [dir=rtl] .nav-align-left .nav-tabs .nav-link.active:hover,
 [dir=rtl] .nav-align-left .nav-tabs .nav-link.active:focus {
-  box-shadow: 2px 0px 0 var(--br-vuexy-primary) inset;
+  box-shadow: 2px 0px 0 var(--fg-primary) inset;
 }
 [dir=rtl] .nav-align-right .nav-tabs .nav-link.active, [dir=rtl] .nav-align-right .nav-tabs .nav-link.active:hover, [dir=rtl] .nav-align-right .nav-tabs .nav-link.active:focus,
 [dir=rtl] .nav-align-right .nav-tabs .nav-link.active,
 [dir=rtl] .nav-align-right .nav-tabs .nav-link.active:hover,
 [dir=rtl] .nav-align-right .nav-tabs .nav-link.active:focus {
-  box-shadow: -2px 0px 0 var(--br-vuexy-primary) inset;
+  box-shadow: -2px 0px 0 var(--fg-primary) inset;
 }
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .input-group:focus-within .form-control,
 .input-group:focus-within .input-group-text {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .form-check-input:focus {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
 }
 .form-check-input:checked, .form-check-input[type=checkbox]:indeterminate {
-  background-color: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
+  border-color: var(--fg-primary);
 }
 
 .custom-option.checked {
-  border: 1px solid var(--br-vuexy-primary);
+  border: 1px solid var(--fg-primary);
 }
 
 .form-switch .form-check-input:focus {
@@ -509,15 +509,15 @@ button.list-group-item-primary.active {
 }
 
 .form-control:focus ~ .form-label {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
 }
 .form-control:focus ~ .form-label::after {
   border-color: inherit;
 }
 
 .switch-input:checked ~ .switch-toggle-slider {
-  background: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary);
+  border-color: var(--fg-primary) !important;
   color: #fff;
 }
 
@@ -526,13 +526,13 @@ button.list-group-item-primary.active {
 }
 
 .switch-input:focus ~ .switch-toggle-slider {
-  border: 1px solid var(--br-vuexy-primary);
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  border: 1px solid var(--fg-primary);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .switch-primary.switch .switch-input:checked ~ .switch-toggle-slider {
-  background: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary);
+  border-color: var(--fg-primary) !important;
   color: #fff;
 }
 
@@ -541,35 +541,35 @@ button.list-group-item-primary.active {
 }
 
 .switch-primary.switch .switch-input:focus ~ .switch-toggle-slider {
-  border: 1px solid var(--br-vuexy-primary);
-  box-shadow: 0 0 0.25rem 0.05rem var(--br-vuexy-primary-alpha-10);
+  border: 1px solid var(--fg-primary);
+  box-shadow: 0 0 0.25rem 0.05rem color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 
 .timeline .timeline-item-primary .timeline-event {
-  background-color: var(--br-vuexy-primary-alpha-10);
+  background-color: color-mix(in srgb, var(--fg-primary) 10%, transparent);
 }
 .timeline .timeline-item-primary .timeline-event:before {
-  border-left-color: var(--br-vuexy-primary-alpha-10) !important;
-  border-right-color: var(--br-vuexy-primary-alpha-10) !important;
+  border-left-color: color-mix(in srgb, var(--fg-primary) 10%, transparent) !important;
+  border-right-color: color-mix(in srgb, var(--fg-primary) 10%, transparent) !important;
 }
 
 .timeline .timeline-point-primary {
-  background-color: var(--br-vuexy-primary) !important;
-  box-shadow: 0 0 0 0.1875rem var(--br-vuexy-primary-alpha-16);
+  background-color: var(--fg-primary) !important;
+  box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--fg-primary) 16%, transparent);
 }
 
 .timeline .timeline-indicator-primary i {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 .divider.divider-primary.divider-vertical:before, .divider.divider-primary.divider-vertical:after,
 .divider.divider-primary .divider-text:before,
 .divider.divider-primary .divider-text:after {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
 }
 
 .navbar.bg-primary {
-  background-color: var(--br-vuexy-primary-alpha-95) !important;
+  background-color: color-mix(in srgb, var(--fg-primary) 95%, transparent) !important;
   color: #e2dffc;
 }
 .navbar.bg-primary .navbar-brand,
@@ -587,7 +587,7 @@ button.list-group-item-primary.active {
 }
 .navbar.bg-primary .search-input-wrapper .search-input,
 .navbar.bg-primary .search-input-wrapper .search-toggler {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
   color: #e2dffc;
 }
 .navbar.bg-primary .navbar-nav > .nav-link,
@@ -634,11 +634,11 @@ button.list-group-item-primary.active {
 }
 
 .menu.bg-primary {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
   color: #e2dffc;
 }
 .menu.bg-primary.menu-horizontal {
-  background-color: var(--br-vuexy-primary-alpha-95) !important;
+  background-color: color-mix(in srgb, var(--fg-primary) 95%, transparent) !important;
 }
 .menu.bg-primary .menu-link,
 .menu.bg-primary .menu-horizontal-prev,
@@ -686,10 +686,10 @@ button.list-group-item-primary.active {
 }
 .menu.bg-primary.menu-horizontal .menu-inner .menu-item:not(.menu-item-closing) > .menu-sub,
 .menu.bg-primary.menu-horizontal .menu-inner .menu-item.open > .menu-toggle {
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
 }
 .menu.bg-primary.menu-horizontal .menu-item.active > .menu-link:not(.menu-toggle) {
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
   color: #776bf0 !important;
 }
 .menu.bg-primary .menu-inner > .menu-item.menu-item-closing .menu-item.open .menu-sub,
@@ -698,7 +698,7 @@ button.list-group-item-primary.active {
   color: #fff;
 }
 .menu.bg-primary .menu-inner-shadow {
-  background: linear-gradient(var(--br-vuexy-primary) 41%, var(--br-vuexy-primary-alpha-11) 95%, transparent);
+  background: linear-gradient(var(--fg-primary) 41%, color-mix(in srgb, var(--fg-primary) 11%, transparent) 95%, transparent);
 }
 .menu.bg-primary .menu-text {
   color: #fff;
@@ -720,11 +720,11 @@ button.list-group-item-primary.active {
 }
 
 .layout-footer-fixed .layout-horizontal .footer.bg-primary {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
   color: #e2dffc;
 }
 .layout-footer-fixed .layout-wrapper:not(.layout-horizontal) .footer.bg-primary .footer-container {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
   color: #e2dffc;
 }
 .footer.bg-primary .footer-link {
@@ -752,35 +752,35 @@ button.list-group-item-primary.active {
 .form-floating > .form-control:focus ~ label,
 .form-floating > .form-control:not(:placeholder-shown) ~ label,
 .form-floating > .form-select ~ label {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .form-floating > .form-control:-webkit-autofill ~ label {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 
 .svg-illustration svg {
-  fill: var(--br-vuexy-primary);
+  fill: var(--fg-primary);
 }
 
 .jstree-default .jstree-wholerow-hovered,
 .jstree-default .jstree-hovered {
-  background: var(--br-vuexy-primary-alpha-08);
-  color: var(--br-vuexy-primary);
+  background: color-mix(in srgb, var(--fg-primary) 8%, transparent);
+  color: var(--fg-primary);
 }
 .jstree-default .jstree-wholerow-clicked,
 .jstree-default .jstree-clicked {
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
   color: #fff;
 }
 
 .jstree-default-dark .jstree-wholerow-hovered,
 .jstree-default-dark .jstree-hovered {
-  background: var(--br-vuexy-primary-alpha-08);
-  color: var(--br-vuexy-primary);
+  background: color-mix(in srgb, var(--fg-primary) 8%, transparent);
+  color: var(--fg-primary);
 }
 .jstree-default-dark .jstree-wholerow-clicked,
 .jstree-default-dark .jstree-clicked {
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
   color: #fff;
 }
 
@@ -788,7 +788,7 @@ button.list-group-item-primary.active {
   border-bottom-color: #c7c2f9;
 }
 .card.card-border-shadow-primary:hover::after {
-  border-bottom-color: var(--br-vuexy-primary);
+  border-bottom-color: var(--fg-primary);
 }
 
 .card.card-hover-border-primary:hover,
@@ -798,129 +798,129 @@ button.list-group-item-primary.active {
 
 html:not([dir=rtl]) .border-primary,
 html[dir=rtl] .border-primary {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 a {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 a:hover {
   color: #8176f2;
 }
 
 .fill-primary {
-  fill: var(--br-vuexy-primary);
+  fill: var(--fg-primary);
 }
 
 .noUi-primary .noUi-base .noUi-connect {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 .noUi-primary .noUi-base .noUi-origin .noUi-handle {
   background: #5c52c0 !important;
 }
 
 .select2-container--default.select2-container--focus .select2-selection, .select2-container--default.select2-container--open .select2-selection {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .select2-primary .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  background: var(--br-vuexy-primary-alpha-16) !important;
-  color: var(--br-vuexy-primary) !important;
+  background: color-mix(in srgb, var(--fg-primary) 16%, transparent) !important;
+  color: var(--fg-primary) !important;
 }
 
 .tagify--focus {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .tagify__dropdown__item--active {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 table.dataTable.dtr-column > tbody > tr > td.control:before,
 table.dataTable.dtr-column > tbody > tr > th.control:before {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   border: 2px solid #fff;
   box-shadow: 0 0 3px rgba(75, 70, 92, 0.8);
 }
 
 .bootstrap-select .dropdown-menu.inner a[aria-selected=true] {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff !important;
 }
 .bootstrap-select .dropdown-toggle.show {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
 }
 
 .datepicker table tr td.active, .datepicker table tr td.active.highlighted,
 .datepicker table tr td .focused,
 .datepicker table tr td span.active,
 .datepicker table tr td span.active.disabled, .datepicker table tr td.range-start, .datepicker table tr td.range-end {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff !important;
 }
 .datepicker table tr td.range, .datepicker table tr td.range.highlighted, .datepicker table tr td.range.today {
-  color: var(--br-vuexy-primary) !important;
-  background: var(--br-vuexy-primary-soft-active) !important;
+  color: var(--fg-primary) !important;
+  background: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface)) !important;
 }
 .datepicker table tr td.range.focused, .datepicker table tr td.range.highlighted.focused, .datepicker table tr td.range.today.focused {
-  background: var(--br-vuexy-primary-soft-hover) !important;
+  background: color-mix(in srgb, var(--fg-primary-soft) 78%, var(--fg-surface)) !important;
 }
 .datepicker table tr td.range.disabled, .datepicker table tr td.range.highlighted.disabled, .datepicker table tr td.range.today.disabled {
   background: rgba(233, 231, 253, 0.5) !important;
-  color: var(--br-vuexy-primary-alpha-50) !important;
+  color: color-mix(in srgb, var(--fg-primary) 50%, transparent) !important;
 }
 .datepicker table tr td.today:not(.active) {
-  box-shadow: 0 0 0 1px var(--br-vuexy-primary) inset;
+  box-shadow: 0 0 0 1px var(--fg-primary) inset;
 }
 
 .flatpickr-day.today {
-  border-color: var(--br-vuexy-primary);
+  border-color: var(--fg-primary);
 }
 .flatpickr-day.inRange, .flatpickr-day.nextMonthDay.inRange, .flatpickr-day.prevMonthDay.inRange, .flatpickr-day.today.inRange, .flatpickr-day.prevMonthDay.today.inRange, .flatpickr-day.nextMonthDay.today.inRange {
-  color: var(--br-vuexy-primary) !important;
-  background: var(--br-vuexy-primary-soft-active) !important;
-  border-color: var(--br-vuexy-primary-soft-active) !important;
+  color: var(--fg-primary) !important;
+  background: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface)) !important;
+  border-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface)) !important;
 }
 .flatpickr-day.selected, .flatpickr-day.selected.inRange, .flatpickr-day.selected:focus, .flatpickr-day.selected:hover, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange, .flatpickr-day.startRange.inRange, .flatpickr-day.startRange:focus, .flatpickr-day.startRange:hover, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange, .flatpickr-day.endRange.inRange, .flatpickr-day.endRange:focus, .flatpickr-day.endRange:hover, .flatpickr-day.endRange.nextMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.week.selected {
   color: #fff !important;
-  background: var(--br-vuexy-primary) !important;
-  border-color: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .daterangepicker td.active:not(.off) {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff;
 }
 
 .daterangepicker .start-date:not(.end-date):not(.off),
 .daterangepicker .end-date:not(.start-date):not(.off) {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   color: #fff;
   border: 0 !important;
 }
 .daterangepicker .start-date:not(.end-date):not(.off):hover,
 .daterangepicker .end-date:not(.start-date):not(.off):hover {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
 }
 
 .daterangepicker .input-mini.active {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .daterangepicker td.in-range:not(.start-date):not(.end-date):not(.off) {
-  color: var(--br-vuexy-primary) !important;
-  background-color: var(--br-vuexy-primary-soft-active) !important;
+  color: var(--fg-primary) !important;
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 84%, var(--fg-surface)) !important;
 }
 
 .ranges li.active {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
 }
 
 li.ui-timepicker-selected,
 .ui-timepicker-list .ui-timepicker-selected:hover {
   color: #fff !important;
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 .ql-snow.ql-toolbar button:hover,
@@ -937,7 +937,7 @@ li.ui-timepicker-selected,
 .ql-snow .ql-toolbar .ql-picker-label.ql-active,
 .ql-snow .ql-toolbar .ql-picker-item:hover,
 .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 .ql-snow.ql-toolbar button:hover .ql-fill,
 .ql-snow.ql-toolbar button:focus .ql-fill,
@@ -967,7 +967,7 @@ li.ui-timepicker-selected,
 .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill,
 .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
 .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
-  fill: var(--br-vuexy-primary) !important;
+  fill: var(--fg-primary) !important;
 }
 .ql-snow.ql-toolbar button:hover .ql-stroke,
 .ql-snow.ql-toolbar button:focus .ql-stroke,
@@ -997,22 +997,22 @@ li.ui-timepicker-selected,
 .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
 .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
 .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
-  stroke: var(--br-vuexy-primary) !important;
+  stroke: var(--fg-primary) !important;
 }
 
 .tt-suggestion:active,
 .tt-cursor {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff !important;
 }
 
 .dropzone.dz-drag-hover {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 
 .swiper-pagination-bullet.swiper-pagination-bullet-active,
 .swiper-pagination.swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 .sk-primary.sk-plane,
@@ -1025,134 +1025,134 @@ li.ui-timepicker-selected,
 .sk-primary .sk-circle-fade-dot:before,
 .sk-primary .sk-grid-cube,
 .sk-primary .sk-fold-cube:before {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
 }
 
 .plyr input[type=range]::-ms-fill-lower {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 .plyr input[type=range]:active::-webkit-slider-thumb {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 .plyr input[type=range]:active::-moz-range-thumb {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 .plyr input[type=range]:active::-ms-thumb {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 .plyr--video .plyr__control.plyr__control--overlaid,
 .plyr--video .plyr__controls button.tab-focus:focus,
 .plyr--video .plyr__control[aria-expanded=true],
 .plyr--video .plyr__controls button:hover {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff !important;
 }
 
 .plyr--audio .plyr__controls button.tab-focus:focus,
 .plyr--audio .plyr__control[aria-expanded=true],
 .plyr--audio .plyr__controls button:hover {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff !important;
 }
 
 .plyr__play-large {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
   color: #fff !important;
 }
 
 .plyr__progress--played,
 .plyr__volume--display {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 .plyr--full-ui input[type=range] {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 .fc .fc-event-primary:not(.fc-list-event) {
-  background-color: var(--br-vuexy-primary-soft) !important;
-  color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary-soft) !important;
+  color: var(--fg-primary) !important;
 }
 .fc .fc-event-primary.fc-list-event .fc-list-event-dot {
-  border-color: var(--br-vuexy-primary) !important;
+  border-color: var(--fg-primary) !important;
 }
 .fc .fc-button-primary:not(.fc-prev-button):not(.fc-next-button) {
-  background-color: var(--br-vuexy-primary-alpha-16) !important;
+  background-color: color-mix(in srgb, var(--fg-primary) 16%, transparent) !important;
   border: 0;
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 .fc .fc-button-primary:not(.fc-prev-button):not(.fc-next-button).fc-button-active, .fc .fc-button-primary:not(.fc-prev-button):not(.fc-next-button):hover {
-  background-color: var(--br-vuexy-primary-alpha-24) !important;
-  color: var(--br-vuexy-primary);
+  background-color: color-mix(in srgb, var(--fg-primary) 24%, transparent) !important;
+  color: var(--fg-primary);
 }
 
 .swal2-progress-steps[class] .swal2-progress-step.swal2-active-progress-step,
 .swal2-progress-steps[class] .swal2-progress-step-line,
 .swal2-progress-steps[class] .swal2-active-progress-step,
 .swal2-progress-steps[class] .swal2-progress-step {
-  background: var(--br-vuexy-primary);
+  background: var(--fg-primary);
   color: #fff;
 }
 
 .swal2-progress-steps[class] .swal2-progress-step.swal2-active-progress-step ~ .swal2-progress-step,
 .swal2-progress-steps[class] .swal2-progress-step.swal2-active-progress-step ~ .swal2-progress-step-line {
-  background: var(--br-vuexy-primary-soft);
+  background: var(--fg-primary-soft);
 }
 
 .pcr-app .pcr-type.active,
 .pcr-app .pcr-save {
-  background: var(--br-vuexy-primary) !important;
+  background: var(--fg-primary) !important;
 }
 
 .icon-card.active {
-  outline: 1px solid var(--br-vuexy-primary);
+  outline: 1px solid var(--fg-primary);
 }
 .icon-card.active i,
 .icon-card.active svg {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 
 .shepherd-element .shepherd-button:not(:disabled).btn-primary {
   color: #fff;
-  background-color: var(--br-vuexy-primary);
-  border-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
+  border-color: var(--fg-primary);
 }
 .shepherd-element .shepherd-button:not(:disabled).btn-primary:hover {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary-hover) !important;
-  border-color: var(--br-vuexy-primary-hover) !important;
+  background-color: var(--fg-primary-hover) !important;
+  border-color: var(--fg-primary-hover) !important;
 }
 .btn-check:focus + .shepherd-element .shepherd-button:not(:disabled).btn-primary, .shepherd-element .shepherd-button:not(:disabled).btn-primary:focus, .shepherd-element .shepherd-button:not(:disabled).btn-primary.focus {
   color: #fff;
-  background-color: var(--br-vuexy-primary-hover);
-  border-color: var(--br-vuexy-primary-hover);
+  background-color: var(--fg-primary-hover);
+  border-color: var(--fg-primary-hover);
   box-shadow: none;
 }
 .btn-check:checked + .shepherd-element .shepherd-button:not(:disabled).btn-primary, .btn-check:active + .shepherd-element .shepherd-button:not(:disabled).btn-primary, .shepherd-element .shepherd-button:not(:disabled).btn-primary:active, .shepherd-element .shepherd-button:not(:disabled).btn-primary.active, .shepherd-element .shepherd-button:not(:disabled).btn-primary.show.dropdown-toggle, .show > .shepherd-element .shepherd-button:not(:disabled).btn-primary.dropdown-toggle {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary-hover) !important;
-  border-color: var(--br-vuexy-primary-hover) !important;
+  background-color: var(--fg-primary-hover) !important;
+  border-color: var(--fg-primary-hover) !important;
 }
 .shepherd-element .shepherd-button:not(:disabled).btn-primary.disabled, .shepherd-element .shepherd-button:not(:disabled).btn-primary:disabled {
   color: #fff !important;
-  background-color: var(--br-vuexy-primary) !important;
-  border-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
+  border-color: var(--fg-primary) !important;
   box-shadow: none !important;
 }
 .shepherd-element .btn-group .shepherd-button:not(:disabled).btn-primary,
 .shepherd-element .input-group .shepherd-button:not(:disabled).btn-primary {
-  border-right: var(--bs-border-width) solid var(--br-vuexy-primary-hover);
-  border-left: var(--bs-border-width) solid var(--br-vuexy-primary-hover);
+  border-right: var(--bs-border-width) solid var(--fg-primary-hover);
+  border-left: var(--bs-border-width) solid var(--fg-primary-hover);
 }
 .shepherd-element .btn-group-vertical .shepherd-button:not(:disabled).btn-primary {
-  border-top-color: var(--br-vuexy-primary-hover);
-  border-bottom-color: var(--br-vuexy-primary-hover);
+  border-top-color: var(--fg-primary-hover);
+  border-bottom-color: var(--fg-primary-hover);
 }
 .shepherd-element .shepherd-button:not(:disabled).btn-label-secondary {
   color: #a8aaae;
@@ -1197,41 +1197,41 @@ li.ui-timepicker-selected,
 }
 
 .bs-stepper .step.active .bs-stepper-circle {
-  background-color: var(--br-vuexy-primary);
+  background-color: var(--fg-primary);
   color: #fff;
 }
 .bs-stepper .step.active .bs-stepper-icon svg {
-  fill: var(--br-vuexy-primary) !important;
+  fill: var(--fg-primary) !important;
 }
 .bs-stepper .step.active .bs-stepper-icon i,
 .bs-stepper .step.active .bs-stepper-label {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 .bs-stepper .step.crossed .step-trigger .bs-stepper-circle {
-  background-color: var(--br-vuexy-primary-soft-table) !important;
+  background-color: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface)) !important;
   color: #aba4f6 !important;
 }
 .bs-stepper .step.crossed .step-trigger .bs-stepper-icon svg {
-  fill: var(--br-vuexy-primary) !important;
+  fill: var(--fg-primary) !important;
 }
 .bs-stepper .step.crossed .step-trigger .bs-stepper-icon i {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 .bs-stepper.wizard-icons .step.crossed .bs-stepper-label {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 .bs-stepper.wizard-icons .step.crossed + .line i {
-  color: var(--br-vuexy-primary);
+  color: var(--fg-primary);
 }
 
 .app-chat .sidebar-body .chat-contact-list li.active {
-  background: linear-gradient(72.47deg, var(--br-vuexy-primary) 22.16%, var(--br-vuexy-primary-alpha-70) 76.47%);
+  background: linear-gradient(72.47deg, var(--fg-primary) 22.16%, color-mix(in srgb, var(--fg-primary) 70%, transparent) 76.47%);
 }
 [dir=rtl] .app-chat .sidebar-body .chat-contact-list li.active {
-  background: linear-gradient(72.47deg, var(--br-vuexy-primary-alpha-70) 22.16%, var(--br-vuexy-primary) 76.47%) !important;
+  background: linear-gradient(72.47deg, color-mix(in srgb, var(--fg-primary) 70%, transparent) 22.16%, var(--fg-primary) 76.47%) !important;
 }
 .app-chat .app-chat-history .chat-history .chat-message.chat-message-right .chat-message-text {
-  background-color: var(--br-vuexy-primary) !important;
+  background-color: var(--fg-primary) !important;
 }
 
 .navbar.landing-navbar .navbar-nav .show > .nav-link,
@@ -1239,14 +1239,14 @@ li.ui-timepicker-selected,
 .navbar.landing-navbar .navbar-nav .nav-link.show,
 .navbar.landing-navbar .navbar-nav .nav-link.active,
 .navbar.landing-navbar .navbar-nav .nav-link:hover {
-  color: var(--br-vuexy-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 .landing-features .features-icon-wrapper .features-icon-box .features-icon {
-  border: 2px solid var(--br-vuexy-primary-alpha-20);
+  border: 2px solid color-mix(in srgb, var(--fg-primary) 20%, transparent);
 }
 .landing-features .features-icon-wrapper .features-icon-box:hover .features-icon {
-  background-color: var(--br-vuexy-primary-alpha-05);
+  background-color: color-mix(in srgb, var(--fg-primary) 5%, transparent);
 }
 
 .bg-navbar-theme {
@@ -1334,8 +1334,8 @@ li.ui-timepicker-selected,
 .layout-navbar-fixed .layout-page:before {
   backdrop-filter: saturate(200%) blur(10px);
   background: linear-gradient(180deg, rgba(248, 247, 250, 0.7) 44%, rgba(248, 247, 250, 0.43) 73%, rgba(248, 247, 250, 0));
-  -webkit-mask: linear-gradient(var(--br-vuexy-body-bg), var(--br-vuexy-body-bg) 18%, transparent 100%);
-  mask: linear-gradient(var(--br-vuexy-body-bg), var(--br-vuexy-body-bg) 18%, transparent 100%);
+  -webkit-mask: linear-gradient(var(--fg-canvas), var(--fg-canvas) 18%, transparent 100%);
+  mask: linear-gradient(var(--fg-canvas), var(--fg-canvas) 18%, transparent 100%);
 }
 
 .bg-menu-theme {
@@ -1372,21 +1372,21 @@ li.ui-timepicker-selected,
   color: #5d596c;
 }
 .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
-  background: linear-gradient(72.47deg, var(--br-vuexy-primary) 22.16%, var(--br-vuexy-primary-alpha-70) 76.47%);
-  box-shadow: 0px 2px 6px 0px var(--br-vuexy-primary-alpha-48);
+  background: linear-gradient(72.47deg, var(--fg-primary) 22.16%, color-mix(in srgb, var(--fg-primary) 70%, transparent) 76.47%);
+  box-shadow: 0px 2px 6px 0px color-mix(in srgb, var(--fg-primary) 48%, transparent);
   color: #fff !important;
 }
 [dir=rtl] .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
-  background: linear-gradient(72.47deg, var(--br-vuexy-primary-alpha-70) 22.16%, var(--br-vuexy-primary) 76.47%) !important;
+  background: linear-gradient(72.47deg, color-mix(in srgb, var(--fg-primary) 70%, transparent) 22.16%, var(--fg-primary) 76.47%) !important;
 }
 .bg-menu-theme.menu-horizontal .menu-inner > .menu-item.active > .menu-link.menu-toggle {
-  background: linear-gradient(72.47deg, var(--br-vuexy-primary) 22.16%, var(--br-vuexy-primary-alpha-70) 76.47%);
+  background: linear-gradient(72.47deg, var(--fg-primary) 22.16%, color-mix(in srgb, var(--fg-primary) 70%, transparent) 76.47%);
   color: #fff !important;
-  box-shadow: 0px 2px 6px 0px var(--br-vuexy-primary-alpha-48);
+  box-shadow: 0px 2px 6px 0px color-mix(in srgb, var(--fg-primary) 48%, transparent);
 }
 [dir=rtl] .bg-menu-theme.menu-horizontal .menu-inner > .menu-item.active > .menu-link.menu-toggle {
-  background: linear-gradient(72.47deg, var(--br-vuexy-primary-alpha-70) 22.16%, var(--br-vuexy-primary) 76.47%);
-  box-shadow: 0px 2px 6px 0px var(--br-vuexy-primary-alpha-48);
+  background: linear-gradient(72.47deg, color-mix(in srgb, var(--fg-primary) 70%, transparent) 22.16%, var(--fg-primary) 76.47%);
+  box-shadow: 0px 2px 6px 0px color-mix(in srgb, var(--fg-primary) 48%, transparent);
   color: #fff !important;
 }
 .bg-menu-theme.menu-horizontal .menu-inner .menu-item:not(.menu-item-closing) > .menu-sub,
@@ -1394,8 +1394,8 @@ li.ui-timepicker-selected,
   background: #fff;
 }
 .bg-menu-theme.menu-horizontal .menu-item.active > .menu-link:not(.menu-toggle) {
-  background: var(--br-vuexy-primary-soft-table);
-  color: var(--br-vuexy-primary) !important;
+  background: color-mix(in srgb, var(--fg-primary-soft) 54%, var(--fg-surface));
+  color: var(--fg-primary) !important;
 }
 .bg-menu-theme .menu-inner > .menu-item.menu-item-closing .menu-item.open .menu-sub,
 .bg-menu-theme .menu-inner > .menu-item.menu-item-closing .menu-item.open .menu-toggle {

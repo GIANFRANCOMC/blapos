@@ -71,7 +71,7 @@
                                 lg="6">
                                 <template v-slot:inputGroupPrepend v-if="!isUpdate">
                                     <template v-if="isDocumentTypeSearchable">
-                                        <SearchButton fg @click="searchDocumentNumber"/>
+                                        <SearchButton @click="searchDocumentNumber"/>
                                     </template>
                                 </template>
                             </InputText>

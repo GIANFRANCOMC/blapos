@@ -4,7 +4,7 @@
     <!-- Filters -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <FiltersSection
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
@@ -34,7 +34,7 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0 bg-white">
-                        <tr class="br-table-state" v-if="entityList.extras.loading">
+                        <tr class="fg-table__state" v-if="entityList.extras.loading">
                             <td colspan="99">
                                 <Loader/>
                             </td>
@@ -58,7 +58,7 @@
                                 </td>
                             </tr>
                         </template>
-                        <tr class="br-table-state" v-else>
+                        <tr class="fg-table__state" v-else>
                             <td colspan="99">
                                 <WithoutData type="image"/>
                             </td>
@@ -127,7 +127,7 @@
                                 <template v-slot:defaultAppend>
                                     <button
                                         type="button"
-                                        class="br-quick-create-trigger br-quick-create-trigger--link"
+                                        class="fg-quick-create-trigger fg-quick-create-trigger--link"
                                         @click="openAssetCategoryModal">
                                         <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
                                         <span>Agregar</span>
@@ -193,19 +193,19 @@
             </div>
         </div>
     </div>
-    <div class="modal fade br-entity-modal" id="assetCategoryQuickModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal fade fg-modal" id="assetCategoryQuickModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-modal="true">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Activos</p>
-                        <h2 class="modal-title br-entity-modal__title">Agregar categoría</h2>
+                        <p class="fg-entity-modal__eyebrow mb-1">Activos</p>
+                        <h2 class="modal-title fg-modal__title">Agregar categoría</h2>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
                         <InputText
                             v-model="quickCategory.name"
@@ -230,9 +230,9 @@
                             lg="12"/>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-create" :disabled="quickCategory.saving" @click="saveAssetCategory">
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="quickCategory.saving" @click="saveAssetCategory">
                         Agregar categoría
                     </button>
                 </div>

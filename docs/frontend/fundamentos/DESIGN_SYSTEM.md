@@ -9,10 +9,10 @@ Blapos es un ERP SaaS multiempresa y multisectorial. Una persona que recibe merc
 
 | Capa | Fuente editable y responsabilidad |
 | --- | --- |
-| Fundamentos | [Tokens compartidos](../../../resources/css/Shared/typography-tokens.css) y [branding](../../../resources/css/System/br-branding/00-tokens.css). Definen escala, roles y valores visuales. |
-| Controles y composición | [Parciales de System](../../../resources/css/System/br-branding) y [CSS compartido](../../../resources/css/Shared). Cada regla pertenece al control, patrón o layout que la utiliza. |
+| Fundamentos | [Tokens compartidos](../../../resources/css/Shared/tokens.css). Definen la escala, los roles y la paleta FG. |
+| Controles y composición | [CSS compartido](../../../resources/css/Shared) y [composición de System](../../../resources/css/System/fg). Cada regla pertenece al control, patrón o layout que la utiliza. |
 | Componentes y flujos | [Componentes Vue de System](../../../resources/js/System/Components), [comunes](../../../resources/js/Shared) y guías por módulo de [System](../../backend/system/README.md) y [Guest](../../backend/guest/README.md). |
-| Integración | Blade carga los assets por superficie. Vite integra las entradas; `npm run build:css:system` genera las hojas públicas desde los parciales. [CSS System](../../../resources/css/System/README.md). |
+| Integración | Blade carga los assets por superficie. Vite integra las entradas; `npm run build` genera las hojas públicas desde los parciales. [CSS System](../../../resources/css/System/README.md). |
 
 System usa Vue 3 y la plantilla Bootstrap/Vuexy. El repositorio también tiene una configuración de Tailwind. Verifica la hoja y el punto de entrada del área antes de elegir sus utilidades. La [auditoría](../calidad/AUDIT.md) registra las versiones encontradas y el alcance de la revisión.
 

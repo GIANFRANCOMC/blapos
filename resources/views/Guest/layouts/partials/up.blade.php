@@ -28,9 +28,6 @@
 <!-- Favicon -->
 <link rel="icon" type="image/x-icon" href="{{ $company->logomark ? asset('storage/'.$company->logomark) : asset(config("app.owner_app")->assets->img->logomark) }}"/>
 
-<!-- Fonts -->
-@include("shared.font-inter")
-
 <!-- Icons -->
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/tabler-icons.css') }}" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/fontawesome.css') }}" />
@@ -39,7 +36,6 @@
 <!-- Core CSS -->
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/core.css') }}" class="template-customizer-core-css" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
-<link rel="stylesheet" href="{{ asset('System/assets/css/demo.css') }}" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/pages/front-page.css') }}" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/pages/front-page-landing.css') }}" />
 
@@ -55,7 +51,6 @@
 
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/select2/select2.css') }}" />
 <link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/bootstrap-select/bootstrap-select.css') }}" />
-<link rel="stylesheet" href="{{ asset("System/assets/css/br-branding.css") }}?v={{ filemtime(public_path("System/assets/css/br-branding.css")) }}" />
 
 <!-- Helpers -->
 <script src="{{ asset('System/assets/vendor/js/helpers.js') }}"></script>

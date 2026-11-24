@@ -1,39 +1,39 @@
 <template>
-    <section class="br-workspace__panel br-workspace__company" :aria-labelledby="headingId">
-        <div class="br-workspace__company-head">
-            <span class="br-workspace__company-logo">
+    <section class="fg-workspace__panel fg-workspace__company" :aria-labelledby="headingId">
+        <div class="fg-workspace__company-head">
+            <span class="fg-workspace__company-logo">
                 <img :src="company.logomark_url" :alt="`Isotipo de ${company.commercial_name || company.name}`">
             </span>
-            <div class="br-workspace__company-identity">
+            <div class="fg-workspace__company-identity">
                 <h2 :id="headingId">{{ company.name }}</h2>
-                <p class="br-workspace__company-document">
+                <p class="fg-workspace__company-document">
                     <span class="visually-hidden">Tipo de documento:</span>
-                    <span class="br-workspace__company-document-type">{{ company.document_type || 'Sin información' }}</span>
+                    <span class="fg-workspace__company-document-type">{{ company.document_type || 'Sin información' }}</span>
                     <span class="visually-hidden">Número de documento:</span>
-                    <span class="br-copy-value">
-                        <span class="br-workspace__company-document-number">{{ company.document_number || 'Sin información' }}</span>
+                    <span class="fg-copy-value">
+                        <span class="fg-workspace__company-document-number">{{ company.document_number || 'Sin información' }}</span>
                         <CopyButton v-if="company.document_number" :value="company.document_number" label="Número de documento"/>
                     </span>
                 </p>
-                <p v-if="company.tagline" class="br-workspace__company-tagline">{{ company.tagline }}</p>
+                <p v-if="company.tagline" class="fg-workspace__company-tagline">{{ company.tagline }}</p>
             </div>
         </div>
 
-        <dl class="br-workspace__company-details">
+        <dl class="fg-workspace__company-details">
             <div
                 v-for="detail in details"
                 :key="detail.label"
                 :class="[
-                    'br-workspace__company-detail',
-                    detail.full ? 'br-workspace__company-detail--full' : 'br-workspace__company-detail--compact',
-                    {'br-workspace__company-detail--divider': detail.divider},
-                    detail.tone ? `br-workspace__company-detail--${detail.tone}` : ''
+                    'fg-workspace__company-detail',
+                    detail.full ? 'fg-workspace__company-detail--full' : 'fg-workspace__company-detail--compact',
+                    {'fg-workspace__company-detail--divider': detail.divider},
+                    detail.tone ? `fg-workspace__company-detail--${detail.tone}` : ''
                 ]">
-                <span class="br-workspace__company-detail-icon" aria-hidden="true"><i :class="detail.icon"></i></span>
-                <div class="br-workspace__company-detail-content">
+                <span class="fg-workspace__company-detail-icon" aria-hidden="true"><i :class="detail.icon"></i></span>
+                <div class="fg-workspace__company-detail-content">
                     <dt class="colon-at-end">{{ detail.label }}</dt>
-                    <dd class="br-workspace__company-value br-copy-value" :class="{'is-empty': !cleanValue(detail.value)}">
-                        <span class="br-workspace__company-text">{{ cleanValue(detail.value) || 'Sin información' }}</span>
+                    <dd class="fg-workspace__company-value fg-copy-value" :class="{'is-empty': !cleanValue(detail.value)}">
+                        <span class="fg-workspace__company-text">{{ cleanValue(detail.value) || 'Sin información' }}</span>
                         <CopyButton v-if="detail.copyable && cleanValue(detail.value)" :value="detail.value" :label="detail.label"/>
                     </dd>
                 </div>

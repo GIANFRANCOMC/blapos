@@ -18,11 +18,11 @@ const modules = [
 
 test("el precio principal usa la escala tipográfica compartida de tablas", () => {
 
-    const tokens = readFileSync(new URL("../../resources/css/System/br-branding/00-tokens.css", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/System/br-branding/81-core-roles-entities.css", import.meta.url), "utf8");
+    const tokens = readFileSync(new URL("../../resources/css/Shared/tokens.css", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/System/fg/products.css", import.meta.url), "utf8");
 
-    assert.match(tokens, /--br-table-value-font-size: var\(--br-font-size-082\)/);
-    assert.match(branding, /\.br-entity-price-row\.is-sale strong \{[^}]*font-size: var\(--br-table-value-font-size\);[^}]*font-weight: var\(--br-font-weight-value\);/);
+    assert.match(tokens, /--fg-body-size: [\d.]+px/);
+    assert.match(branding, /\.fg-price__sale strong \{[^}]*font-weight: var\(--fg-label-weight\);[^}]*font-variant-numeric: tabular-nums/);
 
 });
 
@@ -59,10 +59,10 @@ test("copiar usa un icono interactivo por defecto y permite un botón explícito
     component.render = new Function("Vue", code)(Vue);
 
     const icon = await renderToString(Vue.h(component, {value: "PROD-1"}));
-    assert.match(icon, /^<span[^>]*class="br-copy-icon"[^>]*role="button"[^>]*tabindex="0"[^>]*title="Copiar"/);
+    assert.match(icon, /^<span[^>]*class="fg-copy-icon"[^>]*role="button"[^>]*tabindex="0"[^>]*title="Copiar"/);
     assert.match(icon, /fa-solid fa-clipboard/);
     const nativeButton = await renderToString(Vue.h(component, {type: "button", value: "PROD-1"}));
-    assert.match(nativeButton, /^<button[^>]*class="br-copy-button"[^>]*type="button"/);
+    assert.match(nativeButton, /^<button[^>]*class="fg-copy-button"[^>]*type="button"/);
 
     const disabledIcon = await renderToString(Vue.h(component, {disabled: true, value: "PROD-1"}));
     assert.match(disabledIcon, /aria-disabled="true"/);
@@ -87,7 +87,7 @@ test("los tres editores comparten pestañas accesibles y navegables en móvil", 
  const tabs=readFileSync(new URL("../../resources/js/Shared/AppTabs.vue",import.meta.url),"utf8");
  assert.equal(parse(tabs).errors.length,0);
  for(const marker of ['role="tablist"', '@keydown="handleKeydown"', ':aria-controls="sharedControlsId ||', ':aria-selected="modelValue === tab.id"', 'ArrowUp:', 'ArrowDown:', 'Home:', 'End:']) assert.ok(tabs.includes(marker),marker);
- const css=readFileSync(new URL("../../resources/css/System/fg/components.css",import.meta.url),"utf8");
+ const css=readFileSync(new URL("../../resources/css/Shared/components.css",import.meta.url),"utf8");
  assert.match(css,/\.fg-tabs__list/);
  assert.match(css,/@media \(max-width: 767px\)/);
 

@@ -13,7 +13,7 @@
     <Teleport to="body">
         <div
             :id="modalId"
-            class="modal fade br-entity-modal br-quick-create-modal"
+            class="modal fade fg-modal fg-quick-create-modal"
             data-bs-backdrop="static"
             data-bs-keyboard="false"
             tabindex="-1"
@@ -24,17 +24,17 @@
             @shown.bs.modal="handleShown">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
-                    <div class="modal-header br-entity-modal__header">
+                    <div class="modal-header fg-modal__header">
                         <div>
-                            <p class="br-entity-modal__eyebrow mb-1">Compras</p>
-                            <h2 class="modal-title br-entity-modal__title">Agregar proveedor</h2>
+                            <p class="fg-entity-modal__eyebrow mb-1">Compras</p>
+                            <h2 class="modal-title fg-modal__title">Agregar proveedor</h2>
                         </div>
-                        <button type="button" class="br-modal-close" aria-label="Cerrar" @click="closeModal">
+                        <button type="button" class="fg-modal-close" aria-label="Cerrar" @click="closeModal">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                     </div>
 
-                    <div class="modal-body br-entity-modal__body br-quick-create-modal__body">
+                    <div class="modal-body fg-modal__body fg-quick-create-modal__body">
                         <form @submit.prevent="saveSupplier">
                             <div class="row g-3">
                                 <InputSlot
@@ -122,9 +122,9 @@
                         </form>
                     </div>
 
-                    <div class="modal-footer br-entity-modal__footer">
-                        <button type="button" class="br-btn br-btn-cancel" @click="closeModal">Cerrar</button>
-                        <button type="button" class="br-btn br-btn-action-create" :disabled="isSaving" @click="saveSupplier">
+                    <div class="modal-footer fg-modal__footer">
+                        <button type="button" class="fg-button fg-button--secondary" @click="closeModal">Cerrar</button>
+                        <button type="button" class="fg-button" :disabled="isSaving" @click="saveSupplier">
                             <span v-text="isSaving ? 'Agregando' : 'Agregar proveedor'"></span>
                         </button>
                     </div>
@@ -177,9 +177,9 @@ export default {
     computed: {
         triggerClasses() {
             return [
-                "br-link",
-                "br-quick-create-trigger",
-                "br-quick-create-trigger--link",
+                "fg-link",
+                "fg-quick-create-trigger",
+                "fg-quick-create-trigger--link",
                 "ms-1",
                 "d-inline-flex",
                 "align-items-center"
@@ -205,7 +205,7 @@ export default {
             Alerts.modals({type: "hide", id: this.modalId});
         },
         handleClose() {
-            document.querySelectorAll(".br-quick-create-backdrop").forEach(backdrop => backdrop.remove());
+            document.querySelectorAll(".fg-quick-create-backdrop").forEach(backdrop => backdrop.remove());
 
             if(document.querySelector(".modal.show")) {
                 document.body.classList.add("modal-open");
@@ -213,7 +213,7 @@ export default {
         },
         handleShown() {
             const backdrops = document.querySelectorAll(".modal-backdrop");
-            backdrops[backdrops.length - 1]?.classList.add("br-quick-create-backdrop");
+            backdrops[backdrops.length - 1]?.classList.add("fg-quick-create-backdrop");
         },
         async saveSupplier() {
             if(this.isSaving) return;

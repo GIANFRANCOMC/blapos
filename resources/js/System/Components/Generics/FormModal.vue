@@ -41,7 +41,7 @@
                         <button
                             v-if="showSubmit"
                             type="button"
-                            :class="['fg-button']"
+                            :class="['fg-button', submitButtonClass]"
                             :disabled="submitDisabled"
                             @click="$emit('submit')">
                             <i v-if="submitButtonIcon" :class="submitButtonIcon" aria-hidden="true"></i>
@@ -118,7 +118,7 @@ export default {
         },
         submitButtonClass: {
             type: String,
-            default: "fg-button"
+            default: ""
         },
         submitButtonIcon: {
             type: String,

@@ -18,7 +18,7 @@ final class ErrorPagesTest extends TestCase {
             $html = view("errors.{$code}")->render();
 
             $this->assertStringContainsString("Error {$code}", $html);
-            $this->assertStringContainsString('class="br-error-page"', $html);
+            $this->assertStringContainsString('class="fg-error-page"', $html);
             $this->assertStringContainsString("¿Necesitas ayuda?", $html);
             $this->assertStringContainsString('href="mailto:gianfranco_29_01@hotmail.com"', $html);
             $this->assertStringContainsString('href="tel:+51987057624"', $html);
@@ -64,7 +64,7 @@ final class ErrorPagesTest extends TestCase {
 
         $this->assertSame(403, $response->getStatusCode());
         $this->assertStringContainsString("application/json", (string) $response->headers->get("Content-Type"));
-        $this->assertStringNotContainsString("br-error-page", $response->getContent());
+        $this->assertStringNotContainsString("fg-error-page", $response->getContent());
 
     }
 

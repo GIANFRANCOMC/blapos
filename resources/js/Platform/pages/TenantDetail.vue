@@ -2,7 +2,7 @@
     <section>
         <InitialLoadTransition>
             <div v-if="loading" class="platform-detail-skeleton"><div></div><div></div><div></div></div>
-            <div v-else-if="tenant" class="br-page-content">
+            <div v-else-if="tenant" class="fg-page-content">
                 <div class="platform-heading platform-heading--detail">
                     <div class="d-flex align-items-start gap-3">
                         <button class="platform-icon-button" type="button" title="Volver a clientes" @click="$emit('back')"><i class="fa-solid fa-arrow-left"></i></button>

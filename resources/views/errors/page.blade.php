@@ -15,30 +15,29 @@
     <meta name="robots" content="noindex, nofollow"/>
     <title>{{ $code }} · {{ $heading }} | {{ $appName }}</title>
     <link rel="icon" href="{{ asset($ownerApp->assets->img->logomark) }}"/>
-    @include("shared.font-inter")
-    <link rel="stylesheet" href="{{ asset('System/assets/css/br-branding.css') }}"/>
+    @vite('resources/css/Shared/error-page.css')
 </head>
-<body class="br-error-page">
-    <div class="br-error-shell">
-        <header class="br-error-brand">
+<body class="fg-error-page">
+    <div class="fg-error-shell">
+        <header class="fg-error-brand">
             <img src="{{ asset($ownerApp->assets->img->logomark) }}" alt="" width="36" height="36"/>
             <span>{{ $appName }}</span>
         </header>
 
-        <main class="br-error-content">
-            <span class="br-error-code">Error {{ $code }}</span>
+        <main class="fg-error-content">
+            <span class="fg-error-code">Error {{ $code }}</span>
             <h1>{{ $heading }}</h1>
-            <p class="br-error-description">{{ $description }}</p>
+            <p class="fg-error-description">{{ $description }}</p>
 
             @if($detail !== "")
-                <p class="br-error-detail">{{ $detail }}</p>
+                <p class="fg-error-detail">{{ $detail }}</p>
             @endif
 
-            <a class="br-error-action" href="{{ $actionHref }}">
+            <a class="fg-error-action" href="{{ $actionHref }}">
                 {{ $actionText }}
             </a>
         </main>
-        <footer class="br-error-support" aria-label="Ayuda de Blapos">
+        <footer class="fg-error-support" aria-label="Ayuda de Blapos">
             @include("shared.support-contact")
         </footer>
     </div>

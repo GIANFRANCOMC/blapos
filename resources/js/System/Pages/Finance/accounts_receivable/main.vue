@@ -55,7 +55,7 @@
                 </FgResponsiveFilters>
 
                 <section class="fg-receivables__panel">
-                        <ResponsiveTable fg class="fg-sales-table-scroll">
+                        <ResponsiveTable class="fg-sales-table-scroll">
                             <table role="table" class="fg-receivables-table mb-0 fg-table fg-record-table fg-record-table--receivables">
                                 <thead role="rowgroup">
                                     <tr role="row">
@@ -181,7 +181,7 @@
                                 <h3 class="fg-section-title mb-0">Cronograma de cuotas</h3>
                                 <span class="fg-help">{{ selectedAccount.installments.length }} {{ selectedAccount.installments.length === 1 ? "cuota" : "cuotas" }}</span>
                             </div>
-                            <ResponsiveTable fg class="fg-sales-table-scroll">
+                            <ResponsiveTable class="fg-sales-table-scroll">
                                 <table role="table" class="fg-record-table fg-record-table--installments mb-0 fg-table">
                                     <thead role="rowgroup">
                                         <tr role="row">

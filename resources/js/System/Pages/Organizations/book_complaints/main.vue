@@ -4,7 +4,7 @@
     <!-- Filters Section -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <FiltersSection
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
@@ -162,7 +162,7 @@
                                                     <a
                                                         v-for="attachment in forms[entity].createUpdate.data.attachments"
                                                         :key="attachment.id"
-                                                        class="br-book-complaint-attachment"
+                                                        class="fg-book-complaint-attachment"
                                                         :href="bookComplaintAttachmentUrl(attachment)"
                                                         target="_blank"
                                                         rel="noopener noreferrer">
@@ -174,8 +174,8 @@
                                             </div>
                                             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                                                 <span class="text-dark fw-bold colon-at-end d-block mb-2" v-text="MODULE.texts.form.statusHistory"></span>
-                                                <div v-if="(forms[entity].createUpdate.data.status_histories ?? []).length > 0" class="br-book-complaint-history">
-                                                    <span v-for="history in forms[entity].createUpdate.data.status_histories" :key="history.id" class="br-book-complaint-history__item">
+                                                <div v-if="(forms[entity].createUpdate.data.status_histories ?? []).length > 0" class="fg-book-complaint-history">
+                                                    <span v-for="history in forms[entity].createUpdate.data.status_histories" :key="history.id" class="fg-book-complaint-history__item">
                                                         <strong v-text="getStatusHistoryLabel(history)"></strong>
                                                         <small v-text="legibleFormatDate({dateString: history.changed_at || history.created_at, type: 'datetime'})"></small>
                                                     </span>

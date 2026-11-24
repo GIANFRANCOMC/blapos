@@ -1,0 +1,196 @@
+body.fg-theme .modal-header.fg-modal-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 0.5rem 1rem;
+    background-color: var(--fg-table-head);
+    background-image: none;
+    border-bottom: 1px solid var(--fg-border);
+}
+body.fg-theme .modal-header.fg-modal-header .modal-title {
+    flex: 1 1 auto;
+    margin: 0 auto !important;
+    padding: 0 0.35rem;
+    text-align: center;
+    color: var(--fg-heading);
+    letter-spacing: 0.045em;
+}
+.fg-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.85rem;
+    z-index: 2;
+    display: inline-grid;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--fg-radius);
+    background: transparent;
+    color: var(--fg-modal-close-muted);
+    place-items: center;
+    transition: color 0.16s ease;
+}
+.fg-modal-close:hover,
+.fg-modal-close:focus-visible {
+    background: transparent;
+    color: var(--fg-danger);
+    box-shadow: none;
+    transform: none;
+}
+.fg-modal-close:focus-visible {
+    outline: none;
+    box-shadow: var(--fg-focus);
+}
+.fg-modal-close:active {
+    background: transparent;
+}
+.fg-modal-close:disabled,
+.fg-modal-close:disabled:hover {
+    color: var(--fg-modal-close-muted);
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.fg-field-help {
+    display: inline-grid;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-left: 0.3rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--fg-text-placeholder);
+    font-size: var(--fg-help-size);
+    vertical-align: middle;
+    place-items: center;
+}
+.fg-field-help:hover,
+.fg-field-help:focus-visible {
+    color: var(--fg-primary);
+}
+.fg-field-help:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--fg-primary-muted);
+}
+.fg-input-action {
+    display: inline-flex;
+    align-self: stretch;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    min-width: 2.2rem;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--bs-border-color, var(--fg-border));
+    border-left: 0;
+    border-radius: 0 var(--fg-radius) var(--fg-radius) 0;
+    background: var(--fg-surface);
+    color: var(--fg-heading);
+    transition: var(--fg-transition);
+}
+.fg-theme .input-group:has(.fg-input-action) .form-control {
+    border-right: 0 !important;
+    padding-right: 0.45rem;
+}
+.fg-theme .input-group:has(.fg-input-action) .fg-input-action {
+    border-color: var(--bs-border-color, var(--fg-border));
+}
+.fg-theme .input-group:has(.fg-currency-prefix) .fg-currency-prefix {
+    border-right: 0 !important;
+}
+.fg-theme .input-group:has(.fg-currency-prefix) .form-control {
+    border-left: 0 !important;
+    padding-left: 0.24rem;
+}
+.fg-theme .input-group:has(.fg-input-unit-suffix) .form-control {
+    border-right: 0 !important;
+    padding-right: 0.24rem;
+}
+.fg-input-unit-suffix {
+    min-width: 2.2rem;
+    justify-content: center;
+    border-color: var(--bs-border-color, var(--fg-border)) !important;
+    background: var(--fg-surface) !important;
+    color: var(--fg-muted) !important;
+    line-height: 1;
+}
+.fg-theme .fg-form-control-group {
+    border-radius: var(--fg-radius);
+    transition: box-shadow 0.16s ease;
+}
+.fg-theme .fg-form-control-group:hover:not(.is-invalid):not(:focus-within):not(:has(:disabled, [readonly], .vs--disabled, .select2-container--disabled)) {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--fg-primary) 24%, transparent);
+}
+.fg-theme .fg-form-control-group:hover:not(.is-invalid):not(:focus-within):not(:has(:disabled, [readonly], .vs--disabled, .select2-container--disabled))
+  :is(.form-control, .form-select, .input-group-text, .fg-input-action, .vs__dropdown-toggle, .select2-selection) {
+    border-color: color-mix(in srgb, var(--fg-primary) 32%, var(--fg-border)) !important;
+}
+.fg-theme .fg-form-control-group.is-invalid {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--fg-danger) 16%, transparent);
+}
+.fg-theme .fg-form-control-group.is-invalid .form-control,
+.fg-theme .fg-form-control-group.is-invalid .form-select,
+.fg-theme .fg-form-control-group.is-invalid .input-group-text,
+.fg-theme .fg-form-control-group.is-invalid .fg-input-action,
+.fg-theme .fg-form-control-group.is-invalid .vs__dropdown-toggle,
+.fg-theme .fg-form-control-group.is-invalid .select2-selection {
+    border-color: var(--fg-danger) !important;
+    box-shadow: none !important;
+}
+.fg-theme .fg-form-control-group.is-invalid > .fg-input-unit-suffix {
+    color: var(--fg-danger) !important;
+}
+.fg-theme .fg-form-error {
+    display: block;
+    margin-top: 0.16rem;
+    color: var(--fg-danger) !important;
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-label-weight);
+    line-height: 1.25;
+}
+.fg-input-action:hover,
+.fg-input-action:focus-visible {
+    color: var(--fg-primary);
+    outline: 0;
+}
+.fg-input-action:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+.fg-theme .fg-form-control-group:focus-within,
+.fg-theme .input-group:has(.fg-input-action):focus-within,
+.fg-theme .input-group:has(.fg-currency-prefix):focus-within,
+.fg-theme .input-group:has(.fg-input-unit-suffix):focus-within {
+    border-radius: var(--fg-radius);
+    box-shadow: var(--fg-focus);
+}
+.fg-theme .fg-form-control-group.is-invalid:focus-within {
+    box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--fg-danger) 17%, transparent);
+}
+.fg-theme .fg-form-control-group > :is(.form-control, .form-select, .fg-input-action),
+.fg-theme .input-group:has(.fg-input-action):focus-within .form-control,
+.fg-theme .input-group:has(.fg-input-action):focus-within .fg-input-action,
+.fg-theme .input-group:has(.fg-currency-prefix):focus-within .form-control,
+.fg-theme .input-group:has(.fg-currency-prefix):focus-within .fg-currency-prefix,
+.fg-theme .input-group:has(.fg-input-unit-suffix):focus-within .form-control,
+.fg-theme .input-group:has(.fg-input-unit-suffix):focus-within .fg-input-unit-suffix {
+    box-shadow: none !important;
+}
+.fg-currency-prefix {
+    min-width: 1.25rem;
+    padding-inline: 0.14rem;
+    justify-content: center;
+    border-color: var(--bs-border-color, var(--fg-border)) !important;
+    background: var(--fg-surface) !important;
+    color: var(--fg-muted) !important;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+}

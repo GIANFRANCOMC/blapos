@@ -4,7 +4,7 @@
     <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <div class="row align-items-start g-3 mb-3 mb-md-4">
                 <div class="col-lg-9 col-12">
                     <div class="row g-3">
@@ -102,7 +102,7 @@
                     lg="12">
                     <template v-slot:input>
                         <SearchButton @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
-                        <button type="button" class="br-btn br-btn-action-create waves-effect" @click="createManualEntity">
+                        <button type="button" class="fg-button waves-effect" @click="createManualEntity">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             <span>Agregar membresía</span>
                         </button>
@@ -123,7 +123,7 @@
                     </thead>
                     <tbody class="table-border-bottom-0 bg-white">
                         <template v-if="lists.entity.extras.loading">
-                            <tr class="br-table-state text-center">
+                            <tr class="fg-table__state text-center">
                                 <td colspan="99" class="py-4">
                                     <Loader/>
                                 </td>
@@ -172,7 +172,7 @@
                                 </tr>
                             </template>
                             <template v-else>
-                                <tr class="br-table-state">
+                                <tr class="fg-table__state">
                                     <td class="text-center" colspan="99">
                                         <WithoutData type="image"/>
                                     </td>
@@ -477,8 +477,8 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Agregar membresía",
                 customClass: {
-                    confirmButton: "br-btn br-btn-action-create",
-                    cancelButton: "br-btn br-btn-cancel ms-3"
+                    confirmButton: "fg-button",
+                    cancelButton: "fg-button fg-button--secondary ms-3"
                 },
                 didOpen() {
                     self.fillSwalSelect("manualBranch", self.branches, self.lists.entity.filters.branch?.code);

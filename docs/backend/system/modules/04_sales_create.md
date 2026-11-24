@@ -100,7 +100,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - La venta normal y POS venta respetan `taxes.min_apply_quantity` y `taxes.max_apply_quantity` para tributos fijos opcionales. El frontend normaliza la cantidad con `InputNumber` y el backend recalcula el importe final para evitar diferencias.
 - `sales_header.warehouse_id` guarda el almacen afectado por la venta.
 - El frontend muestra el selector de almacen junto a Sucursal y Tipo de comprobante. Si la sucursal solo tiene un almacen, lo selecciona automaticamente.
-- Nueva venta muestra `br-operational-scope` con sucursal, almacen y serie activos para que el usuario identifique el alcance antes de confirmar.
+- Nueva venta muestra `fg-operational-scope` con sucursal, almacen y serie activos para que el usuario identifique el alcance antes de confirmar.
 - `SaleService::resolveWarehouse()` valida que el almacen pertenezca a la sucursal y a la empresa autenticada. Si hay varios almacenes y no se envia uno, el backend rechaza la venta con un mensaje accionable.
 - `sales_header.cash_session_id` permite vincular la venta con una caja abierta cuando el modulo de caja este activo.
 - Si la venta incluye `cash_session_id`, cada pago genera un registro en `cash_movements`, manteniendo trazabilidad por metodo de pago para apertura, cierre, arqueo y resumen de caja.
@@ -155,7 +155,7 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - El panel derecho trabaja como ticket fijo: caja/sucursal arriba, productos agregados al centro y el bloque de subtotal, impuestos, total y revision de venta anclado al final para mantener siempre visible el cierre de la operacion.
 - En escritorio, el POS divide la vista en dos columnas: catalogo a la izquierda con scroll propio y ticket a la derecha fijo. El scroll del ticket solo afecta el detalle de productos agregados, no el resumen ni el boton de revision.
 - La caja activa se muestra como contexto superior del ticket con fondo anaranjado para que el cajero identifique rapidamente caja y sucursal.
-- POS muestra además `br-operational-scope` con caja, sucursal y almacen activos, usando el mismo patrón visual transversal de Inventario y Caja.
+- POS muestra además `fg-operational-scope` con caja, sucursal y almacen activos, usando el mismo patrón visual transversal de Inventario y Caja.
 - La pantalla POS reutiliza `sales.store` para generar la venta, por lo que conserva validaciones y trazabilidad del modulo de ventas.
 - El ticket lateral prioriza trazabilidad de caja, detalle de productos y cierre de venta, manteniendo el boton de revision junto al resumen final.
 - La caja abierta es el selector principal del POS y muestra a que sucursal pertenece. La sucursal se deriva desde la caja.

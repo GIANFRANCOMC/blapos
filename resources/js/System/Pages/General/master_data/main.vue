@@ -4,7 +4,7 @@
     <InitialLoadTransition>
         <MasterDataSkeleton v-if="initialLoading"/>
 
-        <section v-else class="br-master-data">
+        <section v-else class="fg-master-data">
             <AppTabs
                 :model-value="selectedResourceCode"
                 :tabs="resourceTabs"
@@ -16,38 +16,38 @@
 
             <main
                 id="master-data-panel"
-                class="br-master-data__workspace"
+                class="fg-master-data__workspace"
                 role="tabpanel"
                 :aria-labelledby="`master-data-tab-trigger-${selectedResourceCode}`">
-                <header class="br-master-data__header">
+                <header class="fg-master-data__header">
                     <div>
                         <h1>{{ selectedResource.label }}</h1>
                         <p>{{ selectedResource.help }}</p>
                     </div>
-                    <button v-if="selectedResourceCode !== 'automatic'" type="button" class="br-btn br-btn-action-create" @click="startCreate">
+                    <button v-if="selectedResourceCode !== 'automatic'" type="button" class="fg-button" @click="startCreate">
                         <span>Agregar {{ selectedResource.singular }}</span>
                     </button>
                 </header>
 
-                <section v-if="selectedResourceCode === 'automatic'" class="br-master-data-automatic" aria-label="Datos automáticos">
-                    <div class="br-master-data__records-head">
-                        <div class="br-master-data-search">
+                <section v-if="selectedResourceCode === 'automatic'" class="fg-master-data-automatic" aria-label="Datos automáticos">
+                    <div class="fg-master-data__records-head">
+                        <div class="fg-master-data-search">
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <SearchInput v-model.trim="searchTerm" placeholder="Buscar dato automático" aria-label="Buscar dato automático"/>
                         </div>
-                        <SearchButton class="br-btn-sm" @click="applySearch"/>
+                        <SearchButton class="fg-button--small" @click="applySearch"/>
                         <span>{{ filteredRecords.length }} dato{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                     </div>
                     <Loader v-if="loading"/>
                     <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin datos automáticos" description="No hay datos que coincidan con la búsqueda."/>
-                    <div v-else class="br-master-data-automatic__list">
-                        <article v-for="record in filteredRecords" :key="record.code" class="br-master-data-automatic__item">
-                            <div class="br-master-data-automatic__detail">
+                    <div v-else class="fg-master-data-automatic__list">
+                        <article v-for="record in filteredRecords" :key="record.code" class="fg-master-data-automatic__item">
+                            <div class="fg-master-data-automatic__detail">
                                 <strong>{{ record.name }}</strong>
                                 <span>{{ record.description }}</span>
                                 <small>Condición: {{ record.condition_label }} · Origen: {{ record.source }}</small>
                             </div>
-                            <div class="br-master-data-automatic__value">
+                            <div class="fg-master-data-automatic__value">
                                 <StatusBadge :status="record.value ? 'active' : 'inactive'" :formatted-status="record.value ? 'Activo' : 'Inactivo'"/>
                                 <small>Valor: {{ record.value ? "Sí" : "No" }}</small>
                             </div>
@@ -55,32 +55,32 @@
                     </div>
                 </section>
 
-                <div v-else class="br-master-data__grid">
-                    <section class="br-entity-list br-master-data__records">
-                        <div class="br-master-data__records-head">
-                            <div class="br-master-data-search">
+                <div v-else class="fg-master-data__grid">
+                    <section class="fg-entity-list fg-master-data__records">
+                        <div class="fg-master-data__records-head">
+                            <div class="fg-master-data-search">
                                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                 <SearchInput v-model.trim="searchTerm" placeholder="Buscar registro" aria-label="Buscar registro"/>
                             </div>
-                            <SearchButton class="br-btn-sm" @click="applySearch"/>
+                            <SearchButton class="fg-button--small" @click="applySearch"/>
                             <span>{{ filteredRecords.length }} registro{{ filteredRecords.length === 1 ? "" : "s" }}</span>
                         </div>
 
                         <Loader v-if="loading"/>
                         <WithoutData v-else-if="filteredRecords.length === 0" type="image" text="Sin registros disponibles" description="Agrega un registro o prueba otra búsqueda."/>
-                        <div v-else class="br-master-data-list">
+                        <div v-else class="fg-master-data-list">
                             <article
                                 v-for="record in filteredRecords"
                                 :key="record.id"
-                                :class="['br-master-data-row', {'is-selected': form.id === record.id}]">
-                                <div class="br-master-data-row__body">
+                                :class="['fg-master-data-row', {'is-selected': form.id === record.id}]">
+                                <div class="fg-master-data-row__body">
                                     <strong>{{ recordTitle(record) }}</strong>
                                     <span>{{ recordSubtitle(record) }}</span>
                                     <small>{{ recordMeta(record) }}</small>
                                 </div>
-                                <div class="br-master-data-row__actions">
+                                <div class="fg-master-data-row__actions">
                                     <StatusBadge :status="record.status" :formatted-status="statusLabel(record.status)"/>
-                                    <button type="button" class="br-icon-action br-icon-action-edit" data-bs-toggle="tooltip" title="Editar" @click="startEdit(record)">
+                                    <button type="button" class="fg-icon-action fg-icon-action-edit" data-bs-toggle="tooltip" title="Editar" @click="startEdit(record)">
                                         <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                     </button>
                                 </div>
@@ -88,17 +88,17 @@
                         </div>
                     </section>
 
-                    <section class="br-master-data-form">
+                    <section class="fg-master-data-form">
                         <header>
                             <div>
                                 <h2>{{ isEditing ? recordTitle(form) : `Agregar ${selectedResource.singular}` }}</h2>
                             </div>
-                            <button v-if="isEditing" type="button" class="br-btn br-btn-sm br-btn-cancel" @click="startCreate">
+                            <button v-if="isEditing" type="button" class="fg-button fg-button--small fg-button--secondary" @click="startCreate">
                                 Limpiar
                             </button>
                         </header>
 
-                        <div class="br-master-data-form__notice">
+                        <div class="fg-master-data-form__notice">
                             <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                             <span>{{ selectedResource.notice }}</span>
                         </div>
@@ -117,7 +117,7 @@
                                                 {{ precision }} {{ precision === 1 ? "decimal" : "decimales" }}
                                             </option>
                                         </select>
-                                        <small class="br-master-data-help">Se aplica a cantidades y montos de toda la empresa.</small>
+                                        <small class="fg-master-data-help">Se aplica a cantidades y montos de toda la empresa.</small>
                                     </template>
 
                                     <template v-else-if="field.type === 'select'">
@@ -133,7 +133,7 @@
                                     </template>
 
                                     <template v-else-if="field.type === 'checkbox'">
-                                        <label class="br-master-data-check">
+                                        <label class="fg-master-data-check">
                                             <input v-model="form[field.key]" type="checkbox" class="form-check-input">
                                             <span>{{ field.help }}</span>
                                         </label>
@@ -145,7 +145,7 @@
 
                                     <template v-else-if="field.type === 'file'">
                                         <input ref="imageInput" class="form-control" type="file" accept="image/png,image/jpeg,image/webp" @change="onImageChange">
-                                        <small v-if="form.image_path" class="br-master-data-help">Imagen actual: {{ form.image_path }}</small>
+                                        <small v-if="form.image_path" class="fg-master-data-help">Imagen actual: {{ form.image_path }}</small>
                                     </template>
 
                                     <template v-else>
@@ -158,13 +158,13 @@
                                             :disabled="(isEditing && isDecimalPrecision && ['group', 'key'].includes(field.key)) || field.disabled?.(form) || false">
                                     </template>
 
-                                    <small class="br-form-error">{{ firstError(field.key) }}</small>
-                                    <small v-if="field.help && field.type !== 'checkbox'" class="br-master-data-help">{{ field.help }}</small>
+                                    <small class="fg-form-error">{{ firstError(field.key) }}</small>
+                                    <small v-if="field.help && field.type !== 'checkbox'" class="fg-master-data-help">{{ field.help }}</small>
                                 </div>
                             </template>
                         </div>
 
-                        <section v-if="isEditing && statusCode === 'inactive'" class="br-master-data-warning">
+                        <section v-if="isEditing && statusCode === 'inactive'" class="fg-master-data-warning">
                             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                             <div>
                                 <strong>Revisa el impacto antes de inactivar</strong>
@@ -173,8 +173,8 @@
                         </section>
 
                         <footer>
-                            <button type="button" class="br-btn br-btn-cancel" @click="startCreate">Cancelar</button>
-                            <button type="button" :class="['br-btn', isEditing ? 'br-btn-action-update' : 'br-btn-action-create']" :disabled="saving" @click="saveRecord">
+                            <button type="button" class="fg-button fg-button--secondary" @click="startCreate">Cancelar</button>
+                            <button type="button" :class="['fg-button', isEditing && 'fg-button--edit']" :disabled="saving" @click="saveRecord">
                                 <span>{{ saving ? "Guardando..." : `Guardar ${selectedResource.singular.toLocaleLowerCase('es-PE')}` }}</span>
                             </button>
                         </footer>
@@ -595,10 +595,10 @@ export default {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--warning",
-                    confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--warning",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal fg-swal--confirm",
+                    confirmButton: "fg-button fg-button--danger",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 }
             });
 

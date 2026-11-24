@@ -4,41 +4,16 @@ import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("Inter se carga una sola vez por layout y sustituye la fuente base de la plantilla", () => {
-
-    const font = read("resources/views/shared/font-inter.blade.php");
-    const layouts = [
-        "resources/views/System/layouts/partials/up.blade.php",
-        "resources/views/Guest/layouts/partials/up.blade.php",
-        "resources/views/Platform/layouts/app.blade.php",
-        "resources/views/errors/page.blade.php"
+test("Source Sans 3 se sirve desde una sola fuente en las superficies FG", () => {
+    const entries = [
+        "resources/css/System/fg/index.css", "resources/css/System/fg/auth.css",
+        "resources/css/Guest/app.css", "resources/css/Platform/app.css"
     ];
-
-    assert.match(font, /fonts\.googleapis\.com\/css2\?family=Inter/);
-
-    for(const layout of layouts) {
-
-        const source = read(layout);
-
-        assert.equal(source.match(/@include\("shared\.font-inter"\)/g)?.length, 1, layout);
-        assert.doesNotMatch(source, /Public\+Sans|family=Inter/);
-
-    }
-
-    assert.match(read("resources/css/System/br-branding/00-tokens.css"), /--br-font-sans: "Inter", sans-serif/);
-    assert.match(read("tailwind.config.js"), /sans: \['Inter'/);
-
-    for(const core of [
-        "public/System/assets/vendor/css/core.css",
-        "public/System/assets/vendor/css/rtl/core.css",
-        "public/System/assets/vendor/css/rtl/core-dark.css"
-    ]) {
-
-        assert.match(read(core), /--bs-font-sans-serif: "Inter", sans-serif/);
-        assert.doesNotMatch(read(core), /Public Sans/);
-
-    }
-
+    for (const entry of entries) assert.match(read(entry), /Shared\/ui\.css/, entry);
+    assert.match(read("resources/css/Shared/ui.css"), /@import "\.\/tokens\.css"/);
+    assert.match(read("resources/css/Shared/tokens.css"), /@font-face[\s\S]*?source-sans-3\.ttf/);
+    assert.match(read("resources/css/Shared/tokens.css"), /--fg-font: "Source Sans 3", sans-serif/);
+    assert.match(read("resources/css/Shared/error-page.css"), /@import "\.\/tokens\.css"/);
 });
 
 test("los gráficos usan la familia tipográfica centralizada de CSS", () => {
@@ -57,7 +32,7 @@ test("los gráficos usan la familia tipográfica centralizada de CSS", () => {
         "dashboards-crm.js"
     ];
 
-    assert.match(config, /fontFamily: brCssToken\("--br-font-sans", "sans-serif"\)/);
+    assert.match(config, /get fontFamily\(\) \{ return fgCssToken\("--fg-font",/);
     assert.match(main, /Chart\.defaults\.font\.family = config\.typography\.fontFamily/);
 
     for(const chart of charts) {

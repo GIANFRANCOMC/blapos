@@ -80,7 +80,7 @@ test("los títulos de confirmación formulan preguntas con verbo y sustantivo", 
 
 test("las confirmaciones tienen presentación común sin icono y guía UX documentada", () => {
 
- const alerts=read("resources/js/System/Helpers/Alerts.js"),css=read("resources/css/System/fg/feedback.css");
+ const alerts=read("resources/js/System/Helpers/Alerts.js"),css=read("resources/css/Shared/feedback.css");
  const confirmation=alerts.slice(alerts.indexOf("function actionConfirmation("),alerts.indexOf("function setMessageWidth("));
  assert.match(confirmation,/showCancelButton: true/);
  assert.match(confirmation,/showCloseButton: true/);
@@ -95,7 +95,7 @@ test("las confirmaciones tienen presentación común sin icono y guía UX docume
 
 test("todos los mensajes de estado usan iconos completos y ancho ampliable sin afectar confirmaciones", () => {
 
- const alerts=read("resources/js/System/Helpers/Alerts.js"),css=read("resources/css/System/fg/feedback.css");
+ const alerts=read("resources/js/System/Helpers/Alerts.js"),css=read("resources/css/Shared/feedback.css");
  const feedback=read("resources/js/System/Helpers/Feedback.js");
  assert.match(feedback,/--fg-swal-width/);
  assert.match(alerts,/Number.isFinite\(width\)[\s\S]*?--fg-swal-width/);

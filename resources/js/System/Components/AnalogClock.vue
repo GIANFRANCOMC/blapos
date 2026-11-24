@@ -120,11 +120,11 @@ export default {
 
 <style scoped>
 .digital-clock {
-    font-family: var(--br-font-sans);
+    font-family: var(--fg-font);
     font-variant-numeric: tabular-nums;
     background-color: #000;
     color: #0f0;
-    font-weight: var(--br-font-weight-emphasis);
+    font-weight: var(--fg-title-weight);
     padding: 4px 14px;
     border-radius: 6px;
     display: inline-flex;
@@ -144,7 +144,7 @@ export default {
 }
 
 .date {
-    font-size: var(--br-ui-font-size);
+    font-size: var(--fg-body-size);
     /* margin-bottom: 4px; */
     letter-spacing: 1px;
     opacity: 0.85;
@@ -154,7 +154,7 @@ export default {
 .time {
     display: flex;
     align-items: center;
-    font-size: var(--br-table-value-font-size);
+    font-size: var(--fg-section-size);
 }
 
 .digits {
@@ -174,14 +174,14 @@ export default {
 }
 
 .ampm {
-    font-size: var(--br-ui-font-size);
+    font-size: var(--fg-body-size);
     margin-left: 6px;
     text-transform: uppercase;
     opacity: 0.7;
 }
 
 .static-label {
-    font-size: var(--br-table-caption-font-size);
+    font-size: var(--fg-help-size);
     color: #00f0ff;
     margin-top: 4px;
     font-style: italic;

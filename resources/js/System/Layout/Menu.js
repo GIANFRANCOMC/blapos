@@ -243,7 +243,7 @@ function initializeNavbarSearch() {
     const panel = root.querySelector("#brNavbarSearchPanel");
     const results = root.querySelector("#brNavbarSearchResults");
     const empty = root.querySelector("#brNavbarSearchEmpty");
-    const items = Array.from(root.querySelectorAll("[data-br-search-item]"))
+    const items = Array.from(root.querySelectorAll("[data-fg-search-item]"))
         .map(element => ({
             element,
             label: element.dataset.searchLabel,

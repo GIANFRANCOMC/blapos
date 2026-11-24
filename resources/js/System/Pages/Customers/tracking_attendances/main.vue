@@ -4,7 +4,7 @@
     <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <div class="d-flex justify-content-end mb-2" v-if="!lists.entity.extras.loading">
                 <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
                     <i class="fa fa-check-circle"></i>
@@ -150,7 +150,7 @@
                             <i class="fa fa-globe"></i>
                             <span class="ms-2">Modo público</span>
                         </button>
-                        <button type="button" class="br-btn br-btn-action-export waves-effect" @click="exportEntity" :disabled="lists.entity.extras.loading" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar asistencias">
+                        <button type="button" class="fg-button fg-button--secondary waves-effect" @click="exportEntity" :disabled="lists.entity.extras.loading" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar asistencias">
                             <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
                             <span class="ms-2 d-inline d-md-none">Exportar</span>
                         </button>
@@ -177,7 +177,7 @@
                     </thead>
                     <tbody class="table-border-bottom-0 bg-white">
                         <template v-if="lists.entity.extras.loading">
-                            <tr class="br-table-state text-center">
+                            <tr class="fg-table__state text-center">
                                 <td colspan="99" class="py-4">
                                     <Loader/>
                                 </td>
@@ -186,7 +186,7 @@
                         <template v-else>
                             <template v-if="lists.entity.records.total > 0">
                                 <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
-                                    <td :class="[{ 'br-status-surface--success': ['active'].includes(record.status), 'br-status-surface--primary': ['finalized'].includes(record.status), 'br-status-surface--danger': ['canceled'].includes(record.status), 'br-status-surface--warning': ['inactive'].includes(record.status) }]">
+                                    <td :class="[{ 'fg-status-surface--success': ['active'].includes(record.status), 'fg-status-surface--primary': ['finalized'].includes(record.status), 'fg-status-surface--danger': ['canceled'].includes(record.status), 'fg-status-surface--warning': ['inactive'].includes(record.status) }]">
                                         <span class="d-block fw-medium small" v-text="record.formatted_status"></span>
                                         <InputSlot
                                             v-if="['active', 'finalized'].includes(record?.status)"
@@ -212,11 +212,11 @@
                                     <td class="text-start">
                                         <span v-text="record.customer?.name" class="fw-medium d-block"></span>
                                         <small v-text="record.customer?.document_number" class="d-block"></small>
-                                        <small class="br-attendance-device-detail">
+                                        <small class="fg-attendance-device-detail">
                                             <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
                                             <span v-text="getAttendanceDeviceLabel(record)"></span>
                                         </small>
-                                        <small v-if="latestAttendanceCorrection(record)" class="br-attendance-device-detail is-warning">
+                                        <small v-if="latestAttendanceCorrection(record)" class="fg-attendance-device-detail is-warning">
                                             <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
                                             <span v-text="latestAttendanceCorrectionLabel(record)"></span>
                                         </small>
@@ -228,7 +228,7 @@
                                         </template>
                                         <span v-else class="d-block fw-medium text-dark">Pendiente</span>
                                     </td>
-                                    <td :class="[{ 'br-status-surface--secondary': ['active'].includes(record.status) }]">
+                                    <td :class="[{ 'fg-status-surface--secondary': ['active'].includes(record.status) }]">
                                         <template v-if="isDefined({value: record.end_date})">
                                             <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-medium"></span>
                                             <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-medium"></span>
@@ -238,7 +238,7 @@
                                 </tr>
                             </template>
                             <template v-else>
-                                <tr class="br-table-state">
+                                <tr class="fg-table__state">
                                     <td class="text-center" colspan="99">
                                         <WithoutData type="image"/>
                                     </td>
@@ -465,7 +465,7 @@
                                                 </template>
                                             </template>
                                             <template v-else>
-                                                <tr class="br-table-state">
+                                                <tr class="fg-table__state">
                                                     <td class="text-center" colspan="99">
                                                         <WithoutData type="text"/>
                                                     </td>
@@ -702,7 +702,7 @@
                                         </tr>
                                     </template>
                                     <template v-else>
-                                        <tr class="br-table-state">
+                                        <tr class="fg-table__state">
                                             <td class="text-center" colspan="99">
                                                 <WithoutData type="image"/>
                                             </td>

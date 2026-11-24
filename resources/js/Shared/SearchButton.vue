@@ -2,7 +2,8 @@
     <button
         ref="button"
         type="button"
-        :class="[buttonClass, !fg && 'br-search-button waves-effect waves-light']"
+        class="fg-button fg-button--search waves-effect waves-light"
+        :class="buttonClass"
         title="Buscar"
         aria-label="Buscar"
         data-bs-toggle="tooltip"
@@ -18,10 +19,9 @@ import {tooltipOptionsFor} from "@System/Helpers/TooltipOptions.js";
 export default {
     name: "SearchButton",
     props: {
-        fg: Boolean,
         buttonClass: {
             type: String,
-            default: (props) => props.fg ? "fg-button fg-button--icon" : "br-btn br-btn-search"
+            default: ""
         }
     },
     emits: ["click"],
@@ -40,20 +40,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-button.br-search-button:not(.fg-button) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    inline-size: var(--br-control-height, 2rem);
-    min-inline-size: var(--br-control-height, 2rem);
-    padding-inline: 0;
-}
-
-button.br-search-button:not(.fg-button) .fa-magnifying-glass {
-    font-size: var(--br-font-size-082);
-    line-height: 1;
-}
-</style>

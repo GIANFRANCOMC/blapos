@@ -56,7 +56,7 @@ El método inicial es promedio ponderado por producto y almacén. Los impuestos 
 - La recepción muestra únicamente cantidades pendientes.
 - El progreso diferencia pendiente, parcial, recibido y anulado.
 - La exportación usa los mismos filtros del listado y no aplica paginación.
-- Las modales usan backdrop estático y los estilos reutilizables `br-entity-modal` y `br-modal-standard`.
+- Las modales usan backdrop estático y los estilos reutilizables `fg-modal` y `fg-modal`.
 
 ## Estado de mejoras
 

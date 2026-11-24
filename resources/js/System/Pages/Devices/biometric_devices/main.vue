@@ -4,7 +4,7 @@
     <!-- Filters -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <FiltersSection
                 :filter-by-value="filterByValue"
                 @update:filterByValue="filterByValue = $event"
@@ -37,7 +37,7 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0 bg-white">
-                        <tr class="br-table-state" v-if="entityList.extras.loading">
+                        <tr class="fg-table__state" v-if="entityList.extras.loading">
                             <td colspan="99">
                                 <Loader/>
                             </td>
@@ -70,10 +70,10 @@
                                     <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
                                 </td>
                                 <td class="text-center">
-                                    <div class="br-table-actions justify-content-center">
+                                    <div class="fg-table-actions justify-content-center">
                                         <button
                                             type="button"
-                                            class="br-icon-action br-icon-action-info"
+                                            class="fg-icon-action fg-icon-action-info"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
                                             title="Ver eventos"
@@ -82,21 +82,21 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="br-icon-action br-icon-action-primary"
+                                            class="fg-icon-action fg-icon-action-primary"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
                                             title="Rotar credenciales"
                                             @click="rotateCredentials(record)">
                                             <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="br-icon-action br-icon-action-edit" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.actions.edit" @click="openModal(record)">
+                                        <button type="button" class="fg-icon-action fg-icon-action-edit" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.actions.edit" @click="openModal(record)">
                                             <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                         </template>
-                        <tr class="br-table-state" v-else>
+                        <tr class="fg-table__state" v-else>
                             <td colspan="99">
                                 <WithoutData type="image"/>
                             </td>
@@ -287,51 +287,51 @@
             </div>
         </div>
     </div>
-    <div class="modal fade br-entity-modal br-modal-standard" :id="secretModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="secretModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Credenciales</p>
-                        <h2 class="modal-title br-entity-modal__title">Secreto visible una sola vez</h2>
+                        <p class="fg-entity-modal__eyebrow mb-1">Credenciales</p>
+                        <h2 class="modal-title fg-modal__title">Secreto visible una sola vez</h2>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
-                    <p class="br-field-help mb-3">Guarda estas credenciales ahora. Por seguridad, el secreto no podrá consultarse nuevamente.</p>
-                    <div class="br-credential-box">
+                <div class="modal-body fg-modal__body">
+                    <p class="fg-field-help mb-3">Guarda estas credenciales ahora. Por seguridad, el secreto no podrá consultarse nuevamente.</p>
+                    <div class="fg-credential-box">
                         <small>Access key</small>
                         <strong>{{ secretModal.data.access_key }}</strong>
                     </div>
-                    <div class="br-credential-box mt-2">
+                    <div class="fg-credential-box mt-2">
                         <small>Secreto</small>
                         <strong>{{ secretModal.data.secret }}</strong>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade br-entity-modal br-modal-standard" :id="eventsModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="eventsModal.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Biométricos</p>
-                        <h2 class="modal-title br-entity-modal__title">Eventos del dispositivo</h2>
-                        <p v-if="eventsModal.device" class="br-entity-table__meta mb-0">{{ eventsModal.device.name }} - {{ eventsModal.device.branch?.name }}</p>
+                        <p class="fg-entity-modal__eyebrow mb-1">Biométricos</p>
+                        <h2 class="modal-title fg-modal__title">Eventos del dispositivo</h2>
+                        <p v-if="eventsModal.device" class="fg-entity-table__meta mb-0">{{ eventsModal.device.name }} - {{ eventsModal.device.branch?.name }}</p>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
-                    <div class="table-responsive br-entity-table-wrap">
-                        <table class="table br-entity-table mb-0">
+                <div class="modal-body fg-modal__body">
+                    <div class="table-responsive fg-entity-table-wrap">
+                        <table class="table fg-entity-table mb-0">
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
@@ -343,7 +343,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="br-table-state" v-if="eventsModal.loading">
+                                <tr class="fg-table__state" v-if="eventsModal.loading">
                                     <td colspan="6" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="eventsModal.records.total > 0">
@@ -352,11 +352,11 @@
                                         <td>{{ eventTypeLabel(event.event_type) }}</td>
                                         <td>{{ event.subject_type }} #{{ event.device_user_id }}</td>
                                         <td>{{ event.attempts }}</td>
-                                        <td><span :class="['br-status-label', eventStatusClass(event.processing_status)]">{{ eventStatusLabel(event.processing_status) }}</span></td>
+                                        <td><span :class="['fg-badge', eventStatusClass(event.processing_status)]">{{ eventStatusLabel(event.processing_status) }}</span></td>
                                         <td>{{ event.last_error || "-" }}</td>
                                     </tr>
                                 </template>
-                                <tr class="br-table-state" v-else>
+                                <tr class="fg-table__state" v-else>
                                     <td colspan="6"><WithoutData type="image"/></td>
                                 </tr>
                             </tbody>
@@ -364,8 +364,8 @@
                     </div>
                     <Paginator :links="eventsModal.records.links" :pagination="eventsModal.records" :loading="eventsModal.loading" @clickPage="listEvents"/>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -629,10 +629,10 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: "Rotar credenciales",
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--warning",
-                    confirmButton: "br-btn br-swal-alert__confirm br-swal-alert__confirm--warning",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal fg-swal--confirm",
+                    confirmButton: "fg-button fg-button--danger",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 }
             });
 
@@ -812,11 +812,11 @@ export default {
         eventStatusClass(status) {
 
             return {
-                pending: "br-status-label--warning",
-                processed: "br-status-active",
-                failed: "br-status-inactive",
-                ignored: "br-status-inactive"
-            }[status] || "br-status-inactive";
+                pending: "fg-badge--warning",
+                processed: "fg-status-active",
+                failed: "fg-status-inactive",
+                ignored: "fg-status-inactive"
+            }[status] || "fg-status-inactive";
 
         },
         eventTypeLabel(type) {

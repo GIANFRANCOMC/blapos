@@ -37,7 +37,7 @@
                     </tr>
                 </template>
                 <template v-else>
-                    <tr class="br-table-state">
+                    <tr class="fg-table__state">
                         <td class="text-center" colspan="99">
                             <WithoutData type="image"/>
                         </td>

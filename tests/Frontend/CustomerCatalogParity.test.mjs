@@ -8,11 +8,11 @@ test("clientes comparte tabla, acciones y modales del catálogo sin perder carne
     const source = readFileSync(new URL("../../resources/js/System/Pages/Customers/customers/main.vue", import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: "customers/main.vue"}).errors.length, 0);
-    assert.match(source, /class="table br-entity-table br-entity-table--directory br-customer-table mb-0"/);
+    assert.match(source, /class="table fg-entity-table fg-entity-table--directory fg-customer-table mb-0"/);
     assert.match(source, /<TableActionsDropdown/);
     assert.match(source, /edit: "Editar cliente"/);
     assert.doesNotMatch(source, /br-entity-person__avatar/);
-    assert.match(source, /class="br-entity-table__name" v-text="record.name"/);
+    assert.match(source, /class="fg-entity-table__name" v-text="record.name"/);
     assert.match(source, /<CopyButton :value="record.email"/);
     assert.match(source, /<CopyButton :value="record.phone_number"/);
     assert.match(source, /@click="openCarnetModal\(record\)"/);

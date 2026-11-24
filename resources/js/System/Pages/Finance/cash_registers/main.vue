@@ -3,15 +3,15 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <section class="br-cash">
-                <div class="br-cash__context">
-                    <div class="br-cash__heading">
-                        <p class="br-cash__eyebrow mb-1">Operación de caja</p>
-                        <h1 class="br-cash__title mb-0">{{ activeViewMeta.label }}</h1>
-                        <p class="br-cash__subtitle mb-0">{{ activeViewMeta.description }}</p>
+        <div v-else class="fg-page-content">
+            <section class="fg-cash">
+                <div class="fg-cash__context">
+                    <div class="fg-cash__heading">
+                        <p class="fg-cash__eyebrow mb-1">Operación de caja</p>
+                        <h1 class="fg-cash__title mb-0">{{ activeViewMeta.label }}</h1>
+                        <p class="fg-cash__subtitle mb-0">{{ activeViewMeta.description }}</p>
                     </div>
-                    <div class="br-cash__selector">
+                    <div class="fg-cash__selector">
                         <label class="form-label">Caja de trabajo</label>
                         <v-select
                             v-model="registerFilter"
@@ -20,26 +20,26 @@
                             :searchable="false"
                             append-to-body
                             placeholder="Seleccione una caja"/>
-                        <p class="br-operational-scope mt-2 mb-0">
+                        <p class="fg-operational-scope mt-2 mb-0">
                             <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
                             <span>{{ selectedRegister ? `${selectedRegister.name} · ${selectedRegister.branch?.name || 'Sucursal no definida'}` : 'Seleccione una caja para definir el alcance' }}</span>
                         </p>
                     </div>
                 </div>
 
-                <section class="br-filter-bar br-cash__toolbar">
-                    <div class="br-filter-bar__field">
+                <section class="fg-filter-bar fg-cash__toolbar">
+                    <div class="fg-filter-bar__field">
                         <label class="form-label">Búsqueda</label>
                         <SearchInput
                             v-model="filters.search"
                             placeholder="Buscar caja, responsable o referencia"/>
                     </div>
-                    <div class="br-filter-bar__actions">
+                    <div class="fg-filter-bar__actions">
                         <SearchButton @click="searchActiveView"/>
                         <button
                             v-if="activeView === 'registers'"
                             type="button"
-                            class="br-btn br-btn-action-create"
+                            class="fg-button"
                             data-bs-toggle="tooltip"
                             title="Agregar caja a una sucursal"
                             @click="openModal('register')">
@@ -49,7 +49,7 @@
                         <button
                             v-if="activeView === 'movements'"
                             type="button"
-                            class="br-btn br-btn-action-update"
+                            class="fg-button"
                             data-bs-toggle="tooltip"
                             title="Registrar ingreso, salida o ajuste manual"
                             :disabled="!currentSession"
@@ -59,7 +59,7 @@
                         </button>
                         <button
                             type="button"
-                            class="br-btn br-btn-action-download"
+                            class="fg-button fg-button--template"
                             data-bs-toggle="tooltip"
                             title="Descargar movimientos"
                             @click="downloadMovements">
@@ -69,11 +69,11 @@
                     </div>
                 </section>
 
-                <section v-if="activeView === 'registers'" class="br-cash__panel">
+                <section v-if="activeView === 'registers'" class="fg-cash__panel">
                     <Loader v-if="loading.registers"/>
                     <div v-else-if="registers.length" class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Caja</th>
                                     <th>Sucursal</th>
@@ -87,16 +87,16 @@
                                 <tr v-for="register in registers" :key="register.id">
                                     <td>
                                         <strong>{{ register.name }}</strong>
-                                        <span class="br-cash__muted d-block">{{ register.code }}</span>
+                                        <span class="fg-cash__muted d-block">{{ register.code }}</span>
                                     </td>
                                     <td>{{ register.branch?.name || 'Sin sucursal' }}</td>
                                     <td>
-                                        <span v-if="register.is_open" class="br-status br-status-active">Abierta</span>
-                                        <span v-else class="br-status br-status-inactive">Sin apertura</span>
+                                        <span v-if="register.is_open" class="fg-status fg-status-active">Abierta</span>
+                                        <span v-else class="fg-status fg-status-inactive">Sin apertura</span>
                                     </td>
                                     <td class="text-end fw-medium">S/ {{ separatorNumber(register.current_amount) }}</td>
                                     <td class="text-center">
-                                        <span :class="['br-status-label', register.status === 'active' ? 'br-status-active' : 'br-status-inactive']">
+                                        <span :class="['fg-badge', register.status === 'active' ? 'fg-status-active' : 'fg-status-inactive']">
                                             {{ register.status === 'active' ? 'Activa' : 'Inactiva' }}
                                         </span>
                                     </td>
@@ -104,7 +104,7 @@
                                         <button
                                             v-if="register.is_open"
                                             type="button"
-                                            class="br-icon-action br-icon-action-edit"
+                                            class="fg-icon-action fg-icon-action-edit"
                                             data-bs-toggle="tooltip"
                                             title="Cerrar caja"
                                             @click="openModal('close', register)">
@@ -113,7 +113,7 @@
                                         <button
                                             v-else
                                             type="button"
-                                            class="br-icon-action br-icon-action-primary"
+                                            class="fg-icon-action fg-icon-action-primary"
                                             data-bs-toggle="tooltip"
                                             title="Abrir caja"
                                             @click="openModal('open', register)">
@@ -127,11 +127,11 @@
                     <WithoutData v-else/>
                 </section>
 
-                <section v-if="activeView === 'sessions'" class="br-cash__panel">
+                <section v-if="activeView === 'sessions'" class="fg-cash__panel">
                     <Loader v-if="loading.sessions"/>
                     <div v-else-if="sessions.data?.length" class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Caja</th>
                                     <th>Apertura</th>
@@ -146,7 +146,7 @@
                                 <tr v-for="session in sessions.data" :key="session.id">
                                     <td>
                                         <strong>{{ session.register?.name }}</strong>
-                                        <span class="br-cash__muted d-block">{{ session.branch?.name }}</span>
+                                        <span class="fg-cash__muted d-block">{{ session.branch?.name }}</span>
                                     </td>
                                     <td>{{ formatDateTime(session.opened_at) }}</td>
                                     <td>{{ session.closed_at ? formatDateTime(session.closed_at) : 'En curso' }}</td>
@@ -156,7 +156,7 @@
                                         S/ {{ separatorNumber(session.difference_amount) }}
                                     </td>
                                     <td class="text-center">
-                                        <span :class="['br-status-label', session.status === 'open' ? 'br-status-active' : 'br-status-inactive']">
+                                        <span :class="['fg-badge', session.status === 'open' ? 'fg-status-active' : 'fg-status-inactive']">
                                             {{ session.status === 'open' ? 'Abierta' : 'Cerrada' }}
                                         </span>
                                     </td>
@@ -169,29 +169,29 @@
                     <Paginator :links="sessions.links" :pagination="sessions" :loading="loading.sessions" @clickPage="getSessions"/>
                 </section>
 
-                <section v-if="activeView === 'summary'" class="br-cash__panel">
+                <section v-if="activeView === 'summary'" class="fg-cash__panel">
                     <Loader v-if="loading.summary"/>
-                    <div v-else class="br-cash-summary">
-                        <article class="br-cash-summary__card">
+                    <div v-else class="fg-cash-summary">
+                        <article class="fg-cash-summary__card">
                             <span>Fondo inicial</span>
                             <strong>S/ {{ separatorNumber(summary.totals.opening) }}</strong>
                         </article>
-                        <article class="br-cash-summary__card">
+                        <article class="fg-cash-summary__card">
                             <span>Esperado</span>
                             <strong>S/ {{ separatorNumber(summary.totals.expected) }}</strong>
                         </article>
-                        <article class="br-cash-summary__card">
+                        <article class="fg-cash-summary__card">
                             <span>Contado</span>
                             <strong>S/ {{ separatorNumber(summary.totals.counted) }}</strong>
                         </article>
-                        <article class="br-cash-summary__card">
+                        <article class="fg-cash-summary__card">
                             <span>Diferencia</span>
                             <strong :class="differenceClass(summary.totals.difference)">S/ {{ separatorNumber(summary.totals.difference) }}</strong>
                         </article>
                     </div>
                     <div v-if="summary.payments.length" class="table-responsive mt-3">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Método de pago</th>
                                     <th class="text-end">Importe</th>
@@ -207,11 +207,11 @@
                     </div>
                 </section>
 
-                <section v-if="activeView === 'movements'" class="br-cash__panel">
+                <section v-if="activeView === 'movements'" class="fg-cash__panel">
                     <Loader v-if="loading.movements"/>
                     <div v-else-if="movements.data?.length" class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Caja</th>
@@ -229,7 +229,7 @@
                                     <td>{{ movement.payment_method?.name || 'Efectivo / caja' }}</td>
                                     <td>
                                         <strong>{{ movement.reference || '-' }}</strong>
-                                        <span v-if="movement.user?.name" class="br-cash__muted d-block">{{ movement.user.name }}</span>
+                                        <span v-if="movement.user?.name" class="fg-cash__muted d-block">{{ movement.user.name }}</span>
                                     </td>
                                     <td class="text-end fw-medium">S/ {{ separatorNumber(movement.amount) }}</td>
                                 </tr>
@@ -246,17 +246,17 @@
     </InitialLoadTransition>
     <div class="modal fade" id="cashRegisterModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content br-entity-modal">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Caja</p>
-                        <h5 class="modal-title br-entity-modal__title">Agregar caja</h5>
+                        <p class="fg-entity-modal__eyebrow mb-1">Caja</p>
+                        <h5 class="modal-title fg-modal__title">Agregar caja</h5>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot hasDiv title="Sucursal" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.branch_id">
                         <template v-slot:input>
                             <v-select
@@ -296,9 +296,9 @@
                         </template>
                     </InputSlot>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="submitRegister">
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="submitRegister">
                         Agregar caja
                     </button>
                 </div>
@@ -307,17 +307,17 @@
     </div>
     <div class="modal fade" id="cashOpenModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content br-entity-modal">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Caja</p>
-                        <h5 class="modal-title br-entity-modal__title">Abrir caja</h5>
+                        <p class="fg-entity-modal__eyebrow mb-1">Caja</p>
+                        <h5 class="modal-title fg-modal__title">Abrir caja</h5>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot hasDiv title="Caja" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.cash_register_id">
                         <template v-slot:input>
                             <v-select
@@ -342,27 +342,27 @@
                         :titleClass="['form-label']"
                         maxlength="300"/>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="submitOpen">Abrir caja</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="submitOpen">Abrir caja</button>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal fade" id="cashCloseModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content br-entity-modal">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Arqueo</p>
-                        <h5 class="modal-title br-entity-modal__title">Cerrar caja</h5>
+                        <p class="fg-entity-modal__eyebrow mb-1">Arqueo</p>
+                        <h5 class="modal-title fg-modal__title">Cerrar caja</h5>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
-                    <div class="br-cash-close-summary">
+                <div class="modal-body fg-modal__body">
+                    <div class="fg-cash-close-summary">
                         <span>Esperado</span>
                         <strong>S/ {{ separatorNumber(forms.close.expected_amount) }}</strong>
                     </div>
@@ -377,29 +377,29 @@
                             xl="6"
                             lg="6"/>
                     </div>
-                    <section v-if="forms.close.requires_inventory_count" class="br-cash-inventory-count mt-3">
-                        <header class="br-cash-inventory-count__header">
+                    <section v-if="forms.close.requires_inventory_count" class="fg-cash-inventory-count mt-3">
+                        <header class="fg-cash-inventory-count__header">
                             <div>
                                 <strong>Conteo físico de inventario</strong>
                                 <span>Revisa las existencias reales antes de cerrar la caja principal.</span>
                             </div>
                             <button
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-outline-secondary"
+                                class="fg-button fg-button--small fg-button--secondary"
                                 @click="fillInventoryCountWithSystemStock">
                                 <i class="fa-solid fa-check-double" aria-hidden="true"></i>
                                 <span>Usar saldo sistema</span>
                             </button>
                         </header>
-                        <div class="br-cash-inventory-count__summary">
+                        <div class="fg-cash-inventory-count__summary">
                             <span>{{ forms.close.inventory_counts.length }} productos por almacén</span>
                             <strong :class="differenceClass(inventoryCountDifferenceTotal)">
                                 Diferencia neta: {{ separatorNumber(inventoryCountDifferenceTotal) }}
                             </strong>
                         </div>
                         <div v-if="forms.close.inventory_counts.length" class="table-responsive">
-                            <table class="table br-entity-table mb-0">
-                                <thead class="br-table-header-surface">
+                            <table class="table fg-entity-table mb-0">
+                                <thead class="fg-table-header-surface">
                                     <tr>
                                         <th>Producto</th>
                                         <th>Almacén</th>
@@ -413,13 +413,13 @@
                                     <tr v-for="row in forms.close.inventory_counts" :key="`${row.warehouse_id}-${row.item_id}`">
                                         <td>
                                             <strong>{{ row.item_name }}</strong>
-                                            <span class="br-cash__muted d-block">
+                                            <span class="fg-cash__muted d-block">
                                                 {{ [row.item_internal_code, row.brand_name].filter(Boolean).join(' · ') || 'Producto sin referencia' }}
                                             </span>
                                         </td>
                                         <td>
                                             <span>{{ row.warehouse_name }}</span>
-                                            <span class="br-cash__muted d-block">{{ row.branch_name }}</span>
+                                            <span class="fg-cash__muted d-block">{{ row.branch_name }}</span>
                                         </td>
                                         <td class="text-end fw-medium">{{ separatorNumber(row.system_quantity) }}</td>
                                         <td class="text-end">
@@ -445,7 +445,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p v-else class="br-cash-inventory-count__empty mb-0">
+                        <p v-else class="fg-cash-inventory-count__empty mb-0">
                             No hay productos con stock configurado para la sucursal de esta caja.
                         </p>
                     </section>
@@ -456,26 +456,26 @@
                         :titleClass="['form-label']"
                         maxlength="300"/>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-update" :disabled="saving" @click="submitClose">Cerrar caja</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="submitClose">Cerrar caja</button>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal fade" id="cashMovementModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content br-entity-modal">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Movimiento manual</p>
-                        <h5 class="modal-title br-entity-modal__title">Registrar operación</h5>
+                        <p class="fg-entity-modal__eyebrow mb-1">Movimiento manual</p>
+                        <h5 class="modal-title fg-modal__title">Registrar operación</h5>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot hasDiv title="Tipo de movimiento" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.movement_type">
                         <template v-slot:input>
                             <v-select
@@ -517,9 +517,9 @@
                         :titleClass="['form-label']"
                         maxlength="300"/>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-update" :disabled="saving" @click="submitMovement">Registrar operación</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="submitMovement">Registrar operación</button>
                 </div>
             </div>
         </div>

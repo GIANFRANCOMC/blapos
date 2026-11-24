@@ -11,14 +11,13 @@
     <link rel="icon" type="image/png" href="{{ asset('System/assets/img/utils/owner_app/logomark.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('System/assets/img/utils/owner_app/logomark.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('System/assets/img/utils/owner_app/logomark.png') }}">
-    @include("shared.font-inter")
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/css/rtl/core.css') }}">
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/fonts/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ asset('System/assets/vendor/libs/sweetalert2/sweetalert2.css') }}">
     @vite('resources/css/Platform/app.css')
     @vite('resources/js/Shared/disabled-controls.js')
 </head>
-<body class="platform-body" data-platform="landlord">
+<body class="fg-theme platform-body" data-platform="landlord">
 <div class="platform-shell">
     <main>
         @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif

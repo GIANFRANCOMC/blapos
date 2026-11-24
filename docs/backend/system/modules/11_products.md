@@ -24,7 +24,7 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 - Disparador reutilizable: `resources/js/System/Components/Catalogs/Products/AddProduct.vue`
 - Configuración del formulario: `resources/js/System/Components/Catalogs/Products/productFormConfig.js`
 - Generador PNG reutilizable: `resources/js/System/Components/BarcodeDownloadButton.vue`
-- Estilos: `public/System/assets/css/br-branding.css`, parciales `br-branding/40-buttons-quick-create.css`, `br-branding/70-visual-density-brand-refresh.css` y `br-branding/81-core-roles-entities.css`
+- Estilos: `resources/css/Shared/ui.css`, parciales `resources/css/Shared/components.css`, `resources/css/System/fg/modules/document-details.css` y `resources/css/System/fg/modules/organization.css`
 - Tablas: `items`, `measurement_units`, `brands`, `category_items`, `categories`, `warehouses`, `warehouse_items`
 
 ## Exportación Excel
@@ -183,7 +183,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El inventario resume cantidad total y almacenes que alcanzaron su mínimo.
 - La descripción, si existe, aparece debajo del nombre del producto.
 - El formulario se organiza en tres pestañas. Producto incluye la descripción comercial, las categorías y la marca. Inventario agrupa el stock por almacén. Configuración reúne los controles de IGV y visibilidad para clientes. El editor usa la variante descriptiva de `AppTabs`, compartida con Servicios y Membresías.
-- Los controles de texto, número, `vue-select` y Select2 toman globalmente `--br-control-height` de `--br-btn-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
+- Los controles de texto, número, `vue-select` y Select2 toman globalmente `--fg-control-height` de `--fg-control-height`; el tamaño de letra no cambia. Las selecciones múltiples pueden crecer al mostrar varias opciones.
 - Los placeholders heredan el tamaño y el peso del campo en inputs, `vue-select` y Select2.
 - El estado sin registros del listado usa la ilustración compartida `public/System/assets/img/utils/without_data/empty_records.png` mediante `WithoutData`.
 - Producto sigue el orden: código interno, código de barras, nombre, precio de venta, precio mínimo, precio máximo y estado.
@@ -199,14 +199,14 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Los selectores reutilizan una `X` tipográfica compacta y centrada ópticamente con la flecha para limpiar valores, evitando deformaciones del SVG y manteniendo un área clicable cómoda.
 - Las cinco pestañas se ajustan al contenido. El icono acompaña al título y la descripción. La pestaña activa cambia de color y conserva su posición. Si el ancho es insuficiente, la barra admite desplazamiento horizontal.
 - El modal permanece centrado y utiliza el desplazamiento natural de Bootstrap. La navegación `nav-pills` permanece en el flujo del formulario. Al cambiar de pestaña, el panel aparece con una transición breve que respeta la preferencia de movimiento reducido.
-- En la pestaña Inventario, justo encima de la tabla de almacenes, la etiqueta `Producto:` y el nombre en la línea siguiente usan los estilos compartidos de `br-field-summary`, igual que `Almacén de trabajo` en Alertas de stock. El resumen muestra el nombre ingresado en el formulario o `Sin nombre` si el campo está vacío.
+- En la pestaña Inventario, justo encima de la tabla de almacenes, la etiqueta `Producto:` y el nombre en la línea siguiente usan los estilos compartidos de `fg-field-summary`, igual que `Almacén de trabajo` en Alertas de stock. El resumen muestra el nombre ingresado en el formulario o `Sin nombre` si el campo está vacío.
 - Al existir errores, se marca la pestaña afectada y se abre automáticamente la primera que requiere corrección.
 - Cada apertura reemplaza completamente los datos del formulario y genera nuevos códigos al crear, evitando mezclar información entre creación y edición.
 - La X y el botón Cerrar cierran la modal. El evento `hidden.bs.modal` limpia datos, errores y pestaña activa.
 - En la pestaña Inventario, la papelera quita una fila del formulario, incluida la última. **Restaurar almacenes** recupera las filas omitidas con sus valores originales y conserva los cambios de las filas que siguen visibles. El alta o la edición requiere al menos una fila y los almacenes omitidos conservan su configuración guardada.
 - Los campos de stock reutilizan `InputNumber`. Muestran «Stock inicial» o «Stock mínimo» cuando están vacíos y ocultan el placeholder al recibir el foco.
 - Sede, Almacén y Estado del stock tienen columnas propias. En móvil, cada fila muestra primero Sede y Almacén, luego las cantidades y al final el estado, con sus etiquetas visibles.
-- Los controles y estados usan los tokens `--br-*` del branding.
+- Los controles y estados usan los tokens `--fg-*` del branding.
 - Los botones de generación y edición usan iconos con tooltip.
 - Los generadores de código interno y código de barras permanecen disponibles tanto al agregar como al editar. Esto evita exigir que el usuario conozca los formatos válidos; al utilizarlos, reemplazan el valor actual y las reglas backend vuelven a comprobar formato y unicidad.
 
@@ -239,29 +239,28 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Sincronización transaccional de inventario.
 - Alertas de stock basadas en configuración real.
 - UI responsive y alineada al branding.
-- Cierre con una `X` simple y sin borde mediante la clase reutilizable `br-modal-close`.
-- Footer de modal compacto y equilibrado mediante `br-entity-modal__footer`, con padding vertical simétrico y separación prudente entre acciones.
-- Footer de modal con superficie gris `#f7f8fa`, configurable mediante `--br-entity-modal-footer-bg`.
-- Body de modal sin reserva lateral fija del scrollbar y con padding horizontal interno reducido mediante variables reutilizables de `br-entity-modal`.
+- Cierre con una `X` simple y sin borde mediante la clase reutilizable `fg-modal-close`.
+- Footer de modal compacto y equilibrado mediante `fg-modal__footer`, con padding vertical simétrico y separación prudente entre acciones.
+- Body de modal sin reserva lateral fija del scrollbar y con padding horizontal interno reducido mediante variables reutilizables de `fg-modal`.
 - Pestañas con fondo blanco y contenido del formulario en gris suave; las secciones no usan altura mínima fija para evitar scroll innecesario en pestañas cortas.
 - Pestañas sin sombra superior y con fondo blanco; las inactivas mantienen borde superior gris y la activa solo cambia el borde superior y el círculo secuencial a secondary navy.
-- Switches comerciales con fondo y borde verde suave cuando están activados; el color del checkbox marcado se hereda desde la regla global reutilizable de `br-branding.css`.
+- Switches comerciales con fondo y borde verde suave cuando están activados; el color del checkbox marcado se hereda desde la regla global reutilizable de `resources/css/Shared/ui.css`.
 - Encabezados y cantidades de inventario alineados a la derecha para comparar stock actual y mínimo sin añadir recuadros decorativos.
 - Tooltips explican que el código interno es privado para la empresa y que el código de barras identifica la etiqueta visible o escaneable del producto.
-- Botones de generación compactos mediante `br-input-action`, integrados al input como una sola unidad: sin divisor interno, mismo borde del campo, foco compartido en el grupo y hover solo en el icono.
-- `br-input-action` se adapta automáticamente a la altura real del input para mantener bordes superiores e inferiores nivelados.
+- Botones de generación compactos mediante `fg-input-action`, integrados al input como una sola unidad: sin divisor interno, mismo borde del campo, foco compartido en el grupo y hover solo en el icono.
+- `fg-input-action` se adapta automáticamente a la altura real del input para mantener bordes superiores e inferiores nivelados.
 - Prefijos de moneda y contadores de caracteres siguen el mismo patrón de control compuesto: sin divisor interno, borde unificado y foco compartido con el input.
 - Los prefijos y contadores compactan el padding del borde compartido para evitar separaciones excesivas entre el addon y el valor editable.
-- Los contadores de caracteres reutilizan `br-character-counter`, con fondo blanco, tamaño reducido y jerarquía visual equivalente a los símbolos e iconos integrados.
+- Los contadores de caracteres reutilizan `fg-character-counter`, con fondo blanco, tamaño reducido y jerarquía visual equivalente a los símbolos e iconos integrados.
 - Los select2 basados en `vue-select` conservan únicamente una flecha de despliegue pequeña, completa en ambos sentidos y sin fondo; su color comunica reposo o apertura sin añadir ruido visual.
 - Estado y Categorías renderizan sus opciones mediante `append-to-body`; el menú queda sobre la modal y su footer, sin aumentar el scroll interno del formulario.
 - El selector reutilizable de filtros conserva una sola línea aunque la opción sea extensa; muestra el contenido completo al mantener el cursor sobre el texto truncado.
 - Los selectores de filtro, Estado y Categorías comparten menú flotante, altura, flecha, colores, elipsis y visualización completa por hover; ninguna opción extensa genera saltos de línea ni scroll horizontal.
-- Los selectores de Productos reutilizan `SelectNoOptions` para comunicar `No hay opciones disponibles.` en español con un estado compacto. `br-branding.css` ofrece el mismo texto como cobertura visual para selectores System todavía no migrados al slot reutilizable.
-- Botón Cerrar con borde gris visible y hover suave mediante `br-btn-cancel`.
-- Las ayudas de campo reutilizan `br-field-help`; los controles compartidos residen en `br-branding.css` y no dependen del módulo Productos.
+- Los selectores de Productos reutilizan `SelectNoOptions` para comunicar `No hay opciones disponibles.` en español con un estado compacto. `resources/css/Shared/ui.css` ofrece el mismo texto como cobertura visual para selectores System todavía no migrados al slot reutilizable.
+- Botón Cerrar con borde gris visible y hover suave mediante `fg-button--secondary`.
+- Las ayudas de campo reutilizan `fg-field-help`; los controles compartidos residen en `resources/css/Shared/ui.css` y no dependen del módulo Productos.
 - El campo Estado se mantiene como select2 no buscable para conservar consistencia con los formularios existentes.
-- Los prefijos de moneda reutilizan `br-currency-prefix`, con fondo blanco integrado al input, símbolo compacto tipo icono, color secondary suavizado y borde compartido.
+- Los prefijos de moneda reutilizan `fg-currency-prefix`, con fondo blanco integrado al input, símbolo compacto tipo icono, color secondary suavizado y borde compartido.
 - El código interno usa `company_settings.internal_code_prefixes.product` (`PROD` por defecto). El formulario muestra y envía el código completo. `InternalCodeService` valida el prefijo recibido.
 - Al crear, stock inicial y stock mínimo comienzan vacíos para permitir escritura directa; el payload normaliza los campos no informados a cero. Mientras ambos estén vacíos, el almacén muestra discretamente la advertencia `Pendiente de registrar`.
 - Las altas rápidas de Marca y Categoría usan modales Bootstrap reales. El loader SweetAlert se muestra por encima de toda la interfaz y bloquea la interacción durante el guardado.
@@ -270,15 +269,15 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - Ante errores en otra pestaña, el resumen se muestra primero y el formulario cambia a la primera sección afectada solo después de cerrar el aviso. Así se evita movimiento visual detrás de SweetAlert.
 - El editor de productos desactiva la animación de entrada del contenido y acorta la transición de las pestañas para agilizar el cambio de sección; otros formularios conservan sus transiciones.
 - El listado muestra nombre, marca y descripción. Se retiró la cantidad de categorías para reducir ruido visual.
-- El prefijo monetario usa `br-currency-prefix__symbol` para controlar su escala de forma independiente, con color secondary, peso medio y separación compacta respecto del importe.
+- El prefijo monetario usa `fg-currency-prefix__symbol` para controlar su escala de forma independiente, con color secondary, peso medio y separación compacta respecto del importe.
 - El CTA utiliza “Agregar producto” o “Editar producto”; durante el proceso muestra “Agregando” o “Editando” sin puntos suspensivos.
 - El CTA principal no usa un icono fijo, porque su acción cambia entre agregar y editar.
-- Las acciones reutilizan variantes semánticas: `br-btn-action-search`, `br-btn-action-open-create`, `br-btn-action-create`, `br-btn-action-update` y `br-icon-action-edit`.
+- Las acciones reutilizan variantes semánticas: `fg-btn-action-search`, `fg-button`, `fg-button`, `fg-button--edit` y `fg-icon-action-edit`.
 - Buscar usa celeste informativo, agregar usa el azul primario de marca y editar usa el secundario navy; apertura y confirmación conservan el color correspondiente a su intención.
-- Abrir el alta usa `br-btn-action-open-create` y confirmar el alta usa `br-btn-action-create`, ambos con azul primario.
-- Abrir y confirmar una edición usan `br-icon-action-edit` y `br-btn-action-update` respectivamente, ambos con amarillo de advertencia y texto blanco.
+- Abrir el alta usa `fg-button` y confirmar el alta usa `fg-button`, ambos con azul primario.
+- Abrir y confirmar una edición usan `fg-icon-action-edit` y `fg-button--edit` respectivamente, ambos con amarillo de advertencia y texto blanco.
 - Agregar y editar se distinguen entre sí por color; apertura y confirmación conservan la semántica cromática de su acción.
-- `FiltersSection` usa la barra reutilizable `br-filter-bar`: controles compactos, etiquetas discretas y acciones alineadas al final.
+- `FiltersSection` usa la barra reutilizable `fg-filter-bar`: controles compactos, etiquetas discretas y acciones alineadas al final.
 - Todos los `vue-select` de System usan un indicador compacto con superficie neutral; al desplegar rota y adopta el azul de marca.
 - Las acciones de la barra se alinean al inicio para evitar espacios muertos después del campo de búsqueda.
 - La tabla usa `table-layout: fixed` y un `colgroup` con proporciones estables; Precio gana espacio y Producto se compacta para separar mejor los importes de Identificación.
@@ -288,7 +287,7 @@ Si un almacén activo no tiene valores explícitos, se crea con cantidad y míni
 - El loading de persistencia informa la acción actual: `Agregando producto` o `Editando producto`.
 - El menú reutilizable de cada fila agrupa `Editar` y `Descargar cód. barras`. La segunda opción utiliza `BarcodeDownloadButton` para generar un PNG individual; la impresión de etiquetas por lote fue retirada.
 - En pantallas pequeñas, los identificadores conservan su contenido completo y nunca usan puntos suspensivos. La tabla prioriza exactitud mediante desplazamiento horizontal antes que recortar un código interno o código de barras.
-- `StatusBadge` añade automáticamente una clase normalizada desde la BD, como `br-status-active` o `br-status-inactive`, además de la variante semántica existente.
+- `StatusBadge` añade automáticamente una clase normalizada desde la BD, como `fg-status-active` o `fg-status-inactive`, además de la variante semántica existente.
 - Las etiquetas de estado son compactas y se perciben como información, no como botones.
 - La tabla de Productos se adapta al ancho disponible en escritorio; el ancho mínimo y scroll horizontal se reservan para resoluciones de hasta `991.98px`.
 - La barra de filtros no usa divisor inferior para mantener una composición minimalista.
@@ -336,27 +335,25 @@ La operación usa `GET /products/import` para descargar la plantilla y `POST /pr
 - Las pestañas reutilizan `nav-pills`, tienen una separación superior más amplia respecto al encabezado y márgenes laterales alineados con los campos del formulario.
 - La navegación ya no usa posición sticky ni desenfoque: forma parte del flujo normal del modal, evitando superposiciones y filtraciones de texto durante el desplazamiento.
 - En escritorio se muestran las cinco pestañas; en pantallas más estrechas se desplazan horizontalmente y ofrecen controles discretos de anterior/siguiente. La navegación también admite flechas del teclado, Inicio y Fin, y desplaza automáticamente la pestaña seleccionada a la vista.
-- Los márgenes horizontales de la navegación y del contenido comparten la variable `--br-entity-modal-content-space-x`, ampliada para mejorar la respiración del formulario y ajustada de forma responsive.
-- La separación superior entre el encabezado del modal y la navegación se controla mediante `--br-entity-modal-body-space-y`, incrementada para mejorar la jerarquía y respiración visual.
-- La distancia entre navegación y campos se controla de manera independiente con `--br-entity-modal-tabs-content-space-y`; es más compacta que la separación superior y se reduce adicionalmente en móvil.
+- La distancia entre navegación y campos se controla de manera independiente con `--fg-entity-modal-tabs-content-space-y`; es más compacta que la separación superior y se reduce adicionalmente en móvil.
 - Las pestañas mantienen una separación intermedia de `0.48rem`, suficiente para distinguir cada etapa sin fragmentar visualmente el flujo.
-- En pantallas de hasta `767.98px`, `br-entity-modal` elimina el límite intermedio de Bootstrap y usa casi todo el ancho disponible, dejando únicamente `0.375rem` por lado.
+- En pantallas de hasta `767.98px`, `fg-modal` elimina el límite intermedio de Bootstrap y usa casi todo el ancho disponible, dejando únicamente `0.375rem` por lado.
 - `AddCategory` y `AddBrand` reutilizan `QuickCreateCatalogEntity` y `QuickCreateTrigger`. El disparador admite modos `link`, `button` e `icon`, además de texto, icono, título, clases y estado deshabilitado parametrizables.
 - El alta rápida se abre con el icono de círculo con signo más antes de Marca o Categorías. Solicita nombre y descripción y muestra el código completo generado antes de guardar. Una nota indica que el registro se creará activo.
 - Presionar Enter desde Nombre o Descripción ejecuta el alta. Al completarse, un SweetAlert success confirma que el registro quedó activo y disponible para seleccionarlo, sin alterar la selección existente.
 - Mientras se registra una Marca o Categoría, el loader global bloquea el resto de acciones y el botón permanece deshabilitado para evitar solicitudes duplicadas.
-- Los SweetAlert de validación y resultado usan la capa global máxima `br-swal-backdrop`, por encima de la modal rápida de Marca o Categoría y de la modal principal de Producto.
+- Los SweetAlert de validación y resultado usan la capa global máxima `fg-swal-layer`, por encima de la modal rápida de Marca o Categoría y de la modal principal de Producto.
 - Los errores frontend y backend usan mensajes breves sin repetir el nombre del campo. `Campo obligatorio.` es el estándar para obligatoriedad.
 - Los inputs inválidos muestran un contorno rojo sobre el control completo, incluyendo moneda, contadores, botones anexos y `vue-select`; el texto de error usa una escala menor que el label.
-- El modal rápido usa Bootstrap y se teletransporta a `body`. Su backdrop se identifica con `br-quick-create-backdrop`, conserva la modal de Producto debajo y devuelve el foco al contexto anterior al cerrarse.
+- El modal rápido usa Bootstrap y se teletransporta a `body`. Su backdrop se identifica con `fg-quick-create-backdrop`, conserva la modal de Producto debajo y devuelve el foco al contexto anterior al cerrarse.
 - Los errores de validación se muestran dentro del modal rápido y bajo sus campos. SweetAlert se reserva para confirmar una creación exitosa.
-- `br-branding.css` utiliza versionado por fecha de modificación en el layout System para evitar que el navegador conserve estilos anteriores durante las mejoras visuales.
+- Vite genera los assets de Producto con hash de contenido y Blade los carga mediante el manifiesto.
 - El breadcrumb global es compacto, se alinea a la derecha y resalta únicamente la ubicación actual con el azul de marca.
 - El listado omite la columna Publicación; esa configuración se consulta y modifica dentro del formulario.
 - Los generadores ocultan únicamente su propio tooltip mediante `Alerts.dismissTooltip()`; no destruyen las instancias de otros controles.
 - “Descripción comercial adicional” se conserva en etiqueta, filtros, validaciones frontend y atributos de error del backend.
 - Las respuestas del backend mantienen el mismo lenguaje: “Producto agregado exitosamente” y “Producto editado exitosamente”.
-- Los estilos comunes del módulo se exponen mediante el namespace reutilizable `br-entity-*`; no se mantienen selectores `br-products-*`.
+- Los estilos comunes del módulo se exponen mediante el namespace reutilizable `fg-entity-*`; no se mantienen selectores `fg-products-*`.
 
 ## Evolución
 

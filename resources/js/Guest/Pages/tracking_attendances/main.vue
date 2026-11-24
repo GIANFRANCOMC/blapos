@@ -1,16 +1,16 @@
 <template>
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
-    <main class="br-guest-section br-guest-attendance">
-        <div class="br-guest-container br-guest-attendance__grid">
-            <aside class="br-guest-attendance__context">
-                <img :src="companyLogo" :alt="companyName" class="br-guest-attendance__logo">
-                <p class="br-guest-eyebrow">Asistencia pública</p>
+        <div v-else class="fg-page-content">
+    <main class="fg-guest-section fg-guest-attendance">
+        <div class="fg-guest-container fg-guest-attendance__grid">
+            <aside class="fg-guest-attendance__context">
+                <img :src="companyLogo" :alt="companyName" class="fg-guest-attendance__logo">
+                <p class="fg-guest-eyebrow">Asistencia pública</p>
                 <h1>Escanea tu carnet</h1>
                 <p>Este enlace solo funciona para la sucursal indicada y durante el tiempo autorizado por la empresa.</p>
 
-                <div class="br-guest-attendance__branch">
+                <div class="fg-guest-attendance__branch">
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                     <div>
                         <strong>{{ access.branch_name || branch.name }}</strong>
@@ -18,14 +18,14 @@
                     </div>
                 </div>
 
-                <div class="br-guest-attendance__expires" v-if="access.expires_at">
+                <div class="fg-guest-attendance__expires" v-if="access.expires_at">
                     <span>Enlace vigente hasta</span>
                     <strong>{{ expiresAtLabel }}</strong>
                 </div>
             </aside>
 
-            <section class="br-guest-card br-guest-attendance__scanner">
-                <div class="br-guest-scanner-state" :class="scannerStateClass">
+            <section class="fg-guest-card fg-guest-attendance__scanner">
+                <div class="fg-guest-scanner-state" :class="scannerStateClass">
                     <i :class="scannerStateIcon" aria-hidden="true"></i>
                     <div>
                         <strong>{{ scannerStateTitle }}</strong>
@@ -42,7 +42,7 @@
                     :canProcess="!processing"
                     @result="onScanCustomer"/>
 
-                <p class="br-guest-help mt-3 mb-0">
+                <p class="fg-guest-help mt-3 mb-0">
                     Si el lector no reconoce el código, ajusta la distancia, mejora la luz o solicita apoyo al personal.
                 </p>
             </section>

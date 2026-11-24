@@ -29,7 +29,7 @@
                 </div>
 
                 <section class="fg-products-list" :aria-label="`Listado de ${plural}`">
-                    <ResponsiveTable fg>
+                    <ResponsiveTable>
                         <table class="fg-table fg-table--catalog">
                             <colgroup><col v-for="column in columns" :key="column.title" :style="{width: column.width}"/></colgroup>
                             <thead><tr><th v-for="column in columns" :key="column.title" scope="col" :class="column.align">{{ column.title }}</th></tr></thead>

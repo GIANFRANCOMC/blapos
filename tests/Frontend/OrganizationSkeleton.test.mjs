@@ -15,12 +15,12 @@ test("Mi empresa conserva pestañas, formulario y botón durante la carga inicia
 
     assert.equal(parse(page, {filename: "companies/main.vue"}).errors.length, 0);
     assert.equal(parse(skeleton, {filename: "CompanySettingsSkeleton.vue"}).errors.length, 0);
-    assert.match(page, /<CompanySettingsSkeleton v-if="initialLoading"\/>[\s\S]*?<main v-else class="br-company-settings br-entity-modal--tabbed">/);
+    assert.match(page, /<CompanySettingsSkeleton v-if="initialLoading"\/>[\s\S]*?<main v-else class="fg-company-settings fg-entity-modal--tabbed">/);
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.initOthers\(\)/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando empresa"/);
-    assert.match(skeleton, /v-for="index in 3"[\s\S]*?v-for="index in 6"[\s\S]*?br-company-settings__footer/);
+    assert.match(skeleton, /v-for="index in 3"[\s\S]*?v-for="index in 6"[\s\S]*?fg-company-settings__footer/);
     assert.match(readSharedSkeleton(), /height: var\(--fg-control-height, 36px\)/);
-    assert.match(styles, /height: var\(--br-btn-height\)/);
+    assert.match(styles, /height: var\(--fg-control-height\)/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /Organizations\/companies\/skeleton\.css/);
 });
@@ -41,7 +41,7 @@ test("Sucursales y Usuarios muestran su tabla esqueleto hasta terminar initParam
         assert.ok(branches[1].props.some(prop => prop.type === 7 && prop.name === "else"), route);
         assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/, route);
         assert.match(page, /this\.\$nextTick\(\(\) => Alerts\.tooltips\(\{\}\)\)/, route);
-        assert.match(page, /<tr class="br-table-state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);
+        assert.match(page, /<tr class="fg-table__state" v-if="entityList\.extras\.loading">[\s\S]*?<Loader\/>/, route);
         assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/, route);
         assert.doesNotMatch(entry, /catalog-list-skeleton\.css/, route);
         const columns = readFileSync(new URL("../../resources/js/System/Components/Catalogs/catalogColumns.js", import.meta.url), "utf8");

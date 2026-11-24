@@ -1038,8 +1038,8 @@ final class SystemNavigationProvisioningTest extends TestCase {
         ])->get(route("dashboard.index"));
 
         $response->assertOk();
-        $response->assertSee("br-navigation__rail", false);
-        $response->assertSee("br-navigation has-context", false);
+        $response->assertSee('class="fg-rail"', false);
+        $response->assertSee('class="fg-navigation has-context"', false);
         $response->assertSee("id=\"menu-parent-workspace\"", false);
         $response->assertSee('href="'.route("workspace.index").'"', false);
         $response->assertSee('data-navigation-count="2"', false);

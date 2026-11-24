@@ -1,25 +1,25 @@
 <template>
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
-            <main :class="['br-home', {'br-home--compact': !showDescriptions}]">
+        <div v-else class="fg-page-content">
+            <main :class="['fg-home', {'fg-home--compact': !showDescriptions}]">
                 <Breadcrumb :list="breadcrumbItems"/>
 
-                <header class="br-home__header">
-                    <div class="br-home__filters">
-                        <div class="br-home-search">
-                            <i class="fa-solid fa-magnifying-glass br-home-search__icon" aria-hidden="true"></i>
+                <header class="fg-home__header">
+                    <div class="fg-home__filters">
+                        <div class="fg-home-search">
+                            <i class="fa-solid fa-magnifying-glass fg-home-search__icon" aria-hidden="true"></i>
                             <input
                                 id="homeModuleSearch"
                                 v-model.trim="searchTerm"
                                 type="search"
-                                class="form-control br-home-search__input"
+                                class="form-control fg-home-search__input"
                                 :placeholder="page.filters.search.placeholder"
                                 :aria-label="page.filters.search.ariaLabel">
                             <button
                                 v-if="searchTerm"
                                 type="button"
-                                class="br-home-search__clear"
+                                class="fg-home-search__clear"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 :title="page.filters.search.clearTooltip"
@@ -29,7 +29,7 @@
                             </button>
                         </div>
 
-                        <div class="form-check form-switch br-home__filter">
+                        <div class="form-check form-switch fg-home__filter">
                             <input
                                 id="toggleFavorites"
                                 class="form-check-input"
@@ -45,7 +45,7 @@
                             </label>
                         </div>
 
-                        <div class="form-check form-switch br-home__filter">
+                        <div class="form-check form-switch fg-home__filter">
                             <input
                                 id="toggleDescriptions"
                                 class="form-check-input"
@@ -65,26 +65,26 @@
 
                 <section
                     v-if="sections.length === 0"
-                    class="br-home__empty">
+                    class="fg-home__empty">
                     <WithoutData type="image" :text="emptyStateText"/>
                 </section>
 
-                <section v-else class="br-home__grid" :aria-label="page.modulesAriaLabel">
-                    <article v-for="section in sections" :key="section.id" class="br-home-section">
-                        <header class="br-home-section__header">
-                            <i :class="[section.dom_icon, 'br-home-section__icon']" aria-hidden="true"></i>
-                            <h2 class="br-home-section__title">{{ section.dom_label }}</h2>
+                <section v-else class="fg-home__grid" :aria-label="page.modulesAriaLabel">
+                    <article v-for="section in sections" :key="section.id" class="fg-home-section">
+                        <header class="fg-home-section__header">
+                            <i :class="[section.dom_icon, 'fg-home-section__icon']" aria-hidden="true"></i>
+                            <h2 class="fg-home-section__title">{{ section.dom_label }}</h2>
                         </header>
 
-                        <nav class="br-home-section__links" :aria-label="section.dom_label">
+                        <nav class="fg-home-section__links" :aria-label="section.dom_label">
                             <div
-                                class="br-home-access"
+                                class="fg-home-access"
                                 v-for="subSection in section.sub_sections"
                                 :key="subSection.id">
-                                <a class="br-home-access__link" :href="subSection.dom_route_url">
-                                    <span class="br-home-access__content">
-                                        <span class="br-home-access__label">{{ subSection.dom_label }}</span>
-                                        <span v-if="showDescriptions && subSection.description" class="br-home-access__description">
+                                <a class="fg-home-access__link" :href="subSection.dom_route_url">
+                                    <span class="fg-home-access__content">
+                                        <span class="fg-home-access__label">{{ subSection.dom_label }}</span>
+                                        <span v-if="showDescriptions && subSection.description" class="fg-home-access__description">
                                             {{ subSection.description }}
                                         </span>
                                     </span>
@@ -93,7 +93,7 @@
                                 <button
                                     :key="`${subSection.id}-${isFavorite(subSection) ? 'favorite' : 'available'}`"
                                     type="button"
-                                    :class="['br-home-favorite', {'is-active': isFavorite(subSection)}]"
+                                    :class="['fg-home-favorite', {'is-active': isFavorite(subSection)}]"
                                     :disabled="isSaving"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
@@ -206,11 +206,11 @@ function createConfirmationContent(section, subSection, confirmation) {
     const referenceValue = document.createElement("strong");
     const message = document.createElement("p");
 
-    container.className = "br-home-confirmation__content";
-    reference.className = "br-home-confirmation__reference";
-    referenceLabel.className = "br-home-confirmation__reference-label";
-    referenceValue.className = "br-home-confirmation__reference-value";
-    message.className = "br-home-confirmation__message";
+    container.className = "fg-home-confirmation__content";
+    reference.className = "fg-home-confirmation__reference";
+    referenceLabel.className = "fg-home-confirmation__reference-label";
+    referenceValue.className = "fg-home-confirmation__reference-value";
+    message.className = "fg-home-confirmation__message";
 
     referenceLabel.textContent = section?.has_sub_menu ? "Módulo y acceso" : "Módulo";
     referenceValue.textContent = section?.has_sub_menu
@@ -457,11 +457,11 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: confirmation.confirmText,
                 customClass: {
-                    popup: `br-home-confirmation br-home-confirmation--${shouldFavorite ? "question" : "warning"}`,
+                    popup: `fg-home-confirmation fg-home-confirmation--${shouldFavorite ? "question" : "warning"}`,
                     confirmButton: shouldFavorite
-                        ? "br-btn br-btn-secondary"
-                        : "br-btn br-btn-danger",
-                    cancelButton: "br-btn br-btn-outline-secondary ms-2"
+                        ? "fg-button fg-button--secondary"
+                        : "fg-button fg-button--danger",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 }
             });
 

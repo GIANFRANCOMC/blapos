@@ -5,10 +5,14 @@ import axios from "axios";
 import {createOptionSearch, fetchOptions, select2Ajax} from "../../resources/js/Shared/Options.js";
 
 test("Vue Select y Select2 marcan la selección persistente con un indicador distinto del foco", () => {
-    const controls = readFileSync(new URL("../../resources/css/System/br-branding/03-form-controls.css", import.meta.url), "utf8");
-    const selection = /:is\(body \.vs__dropdown-menu \.vs__dropdown-option--selected,\s*body \.select2-container--default \.select2-results__option\[aria-selected="true"\]\)/;
-    assert.match(controls, new RegExp(`${selection.source} \\{[^}]*background-color: var\\(--br-primary-soft\\);`));
-    assert.match(controls, new RegExp(`${selection.source}::after \\{[^}]*content: "";`));
+    const components = readFileSync(new URL("../../resources/css/Shared/components.css", import.meta.url), "utf8");
+    const overlay = readFileSync(new URL("../../resources/css/Shared/select-overlay.css", import.meta.url), "utf8");
+    assert.match(components, /\.select2-results__option\[aria-selected="true"\]::after[^}]*content: "✓"/);
+    assert.match(components, /\.select2-results__option\[aria-selected="true"\][^{}]*\{ border-inline-start-color: var\(--fg-primary\)/);
+    assert.match(components, /\.select2-results__option--highlighted\[aria-selected\][^{}]*\{ border-inline-start-color: var\(--fg-border-strong\)/);
+    assert.match(components, /\.vs__dropdown-option--selected::after[^}]*content: "✓"/);
+    assert.match(overlay, /\.vs__dropdown-option--selected::after[^}]*content: "✓"/);
+
 });
 
 test("las opciones solicitan la entidad en su origen y Select2 conserva los datos de cada opción", async ({mock}) => {

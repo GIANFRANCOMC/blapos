@@ -223,7 +223,7 @@ export default {
 
             this.errors = {};
             this.generalError = "";
-            document.querySelectorAll(".br-quick-create-backdrop").forEach(backdrop => backdrop.remove());
+            document.querySelectorAll(".fg-quick-create-backdrop").forEach(backdrop => backdrop.remove());
 
             if(document.querySelector(".modal.show")) {
                 document.body.classList.add("modal-open");
@@ -235,7 +235,7 @@ export default {
             const backdrops = document.querySelectorAll(".modal-backdrop");
             const backdrop = backdrops[backdrops.length - 1];
 
-            backdrop?.classList.add("br-quick-create-backdrop");
+            backdrop?.classList.add("fg-quick-create-backdrop");
             this.focusNameInput();
 
         },

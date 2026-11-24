@@ -1,0 +1,16 @@
+/* Pesos para utilidades y contenido que usan los controles FG. */
+b,
+strong {
+  font-weight: var(--fg-title-weight);
+}
+
+.fw-bold,
+.fw-bolder,
+.fw-semibold {
+  font-weight: var(--fg-title-weight) !important;
+}
+
+.fw-medium { font-weight: var(--fg-label-weight) !important; }
+.fw-normal,
+.fw-light,
+.fw-lighter { font-weight: var(--fg-regular-weight) !important; }

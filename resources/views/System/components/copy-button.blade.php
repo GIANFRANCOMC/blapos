@@ -5,11 +5,11 @@
 @if($copyValue !== "")
     <{{ $copyTag }}
         @if($copyTag === 'button')
-            type="button" class="br-copy-button"
+            type="button" class="fg-copy-button"
         @else
-            class="br-copy-icon" role="button" tabindex="0"
+            class="fg-copy-icon" role="button" tabindex="0"
         @endif
-        data-br-copy-value="{{ $copyValue }}"
+        data-fg-copy-value="{{ $copyValue }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
         title="Copiar"

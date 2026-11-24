@@ -318,7 +318,6 @@ No ejecutar manualmente estos procesos de manera habitual; el scheduler ya los c
 | `composer check:php-syntax` | Comprueba sintaxis PHP. |
 | `npm run dev` | Inicia Vite. |
 | `npm run build` | Genera assets de producción. |
-| `npm run build:css:system` | Compila el CSS de System. |
 
 ### Laravel operativo
 

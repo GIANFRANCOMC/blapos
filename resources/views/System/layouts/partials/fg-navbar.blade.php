@@ -1,5 +1,5 @@
 <header class="fg-topbar" id="layout-navbar">
-    <button type="button" class="fg-button fg-button--icon" data-fg-menu-toggle aria-controls="fg-layout-menu" aria-expanded="false" aria-label="Alternar menú lateral"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+    <button type="button" class="fg-button--icon" data-fg-menu-toggle aria-controls="fg-layout-menu" aria-expanded="false" aria-label="Alternar menú lateral"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     <div class="fg-global-search" id="brNavbarSearch">
         <div class="fg-global-search__control"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="brNavbarSearchInput" type="search" autocomplete="off" placeholder="Buscar en Blapos…" aria-label="Buscar módulos y funciones" aria-controls="brNavbarSearchPanel" aria-expanded="false"><kbd>Ctrl + K</kbd></div>
         <div class="fg-global-search__panel" id="brNavbarSearchPanel" role="region" aria-label="Resultados de búsqueda" hidden>
@@ -8,7 +8,7 @@
                 @foreach($navigationSections as $section)
                     @foreach($section->subSections as $subSection)
                         @if($subSection->dom_route_url !== '#')
-                            <a href="{{ $subSection->dom_route_url }}" class="fg-global-search__item" data-br-search-item data-search-label="{{ $subSection->dom_label }}" data-search-world="{{ $section->dom_label }}" data-search-description="{{ $subSection->description }}"><strong>{{ $subSection->dom_label }}</strong><small>{{ $section->dom_label }}</small></a>
+                            <a href="{{ $subSection->dom_route_url }}" class="fg-global-search__item" data-fg-search-item data-search-label="{{ $subSection->dom_label }}" data-search-world="{{ $section->dom_label }}" data-search-description="{{ $subSection->description }}"><strong>{{ $subSection->dom_label }}</strong><small>{{ $section->dom_label }}</small></a>
                         @endif
                     @endforeach
                 @endforeach
@@ -18,7 +18,7 @@
     </div>
     <div class="fg-topbar__actions">
         @if($favoritesEnabled)
-            <div class="fg-menu" id="brFabFavorites"><button id="brFabFavoritesToggle" class="fg-button fg-button--icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir favoritos"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
+            <div class="fg-menu" id="brFabFavorites"><button id="brFabFavoritesToggle" class="fg-button--icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir favoritos"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
                 <div class="dropdown-menu dropdown-menu-end fg-menu__panel fg-topbar__panel">
                     <strong class="fg-section-title">Favoritos</strong><span class="fg-help" id="brFabFavoritesCount" @if($favoriteCount === 0) hidden @endif>{{ $favoriteCount }}</span>
                     <div id="brFabFavoritesBody">
@@ -30,7 +30,7 @@
                 </div>
             </div>
         @endif
-        <div class="fg-menu"><button class="fg-button fg-button--icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir avisos{{ $navbarAnnouncementCount > 0 ? ', '.$navbarAnnouncementCount.' vigentes' : '' }}"><i class="fa-regular fa-bell" aria-hidden="true"></i>@if($navbarAnnouncementCount > 0)<span class="fg-topbar__count">{{ $navbarAnnouncementCount }}</span>@endif</button>
+        <div class="fg-menu"><button class="fg-button--icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir avisos{{ $navbarAnnouncementCount > 0 ? ', '.$navbarAnnouncementCount.' vigentes' : '' }}"><i class="fa-regular fa-bell" aria-hidden="true"></i>@if($navbarAnnouncementCount > 0)<span class="fg-topbar__count">{{ $navbarAnnouncementCount }}</span>@endif</button>
             <div class="dropdown-menu dropdown-menu-end fg-menu__panel fg-topbar__panel">
                 <strong class="fg-section-title">Notificaciones</strong>
                 @forelse(($tenantAnnouncements ?? collect()) as $announcement)

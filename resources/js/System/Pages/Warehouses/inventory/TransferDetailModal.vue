@@ -137,7 +137,7 @@
                         </details>
                     </section>
                     <section v-show="activeTab === 'history'" aria-label="Recorrido del traslado">
-                        <ResponsiveTable fg v-if="transfer.status_history?.length">
+                        <ResponsiveTable v-if="transfer.status_history?.length">
                             <StatusRoadmap :events="transfer.status_history" :format-date="formatDate" label="Estados y operaciones del traslado"/>
                         </ResponsiveTable>
                         <p v-else class="fg-help">No hay cambios de estado registrados.</p>

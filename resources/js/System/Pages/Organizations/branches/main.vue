@@ -3,7 +3,7 @@
 
     <InitialLoadTransition>
         <CatalogListSkeleton v-if="initialLoading" kind="branches" label="sucursales"/>
-        <main v-else class="br-entity">
+        <main v-else class="fg-entity">
             <!-- Filters -->
             <FiltersSection
                 :filter-by-value="filterByValue"
@@ -41,8 +41,8 @@
                 </template>
             </FiltersSection>
 
-            <section v-if="seriesAudit.visible" class="br-entity-list br-branch-series-audit">
-                <div class="br-branch-series-audit__summary">
+            <section v-if="seriesAudit.visible" class="fg-entity-list fg-branch-series-audit">
+                <div class="fg-branch-series-audit__summary">
                     <span>
                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                         Bitácora de emisiones, anulaciones y saltos de correlativo.
@@ -53,8 +53,8 @@
                 </div>
                 <Loader v-if="seriesAudit.loading"/>
                 <div v-else-if="seriesAudit.records.total > 0" class="table-responsive">
-                    <table class="table br-entity-table mb-0">
-                        <thead class="br-table-header-surface">
+                    <table class="table fg-entity-table mb-0">
+                        <thead class="fg-table-header-surface">
                             <tr>
                                 <th>Fecha</th>
                                 <th>Sucursal</th>
@@ -70,11 +70,11 @@
                                 <td>{{ formatDateTime(record.occurred_at) }}</td>
                                 <td>{{ record.branch_name || '-' }}</td>
                                 <td>
-                                    <strong class="br-entity-primary">{{ record.serie_code }}{{ record.serie_number }}</strong>
+                                    <strong class="fg-entity-primary">{{ record.serie_code }}{{ record.serie_number }}</strong>
                                 </td>
                                 <td class="text-end fw-medium">{{ record.sequential }}</td>
                                 <td>
-                                    <span :class="['br-status-label', record.action === 'issued' ? 'br-status-active' : 'br-status-inactive']">
+                                    <span :class="['fg-badge', record.action === 'issued' ? 'fg-status-active' : 'fg-status-inactive']">
                                         {{ seriesActionLabel(record.action) }}
                                     </span>
                                 </td>
@@ -90,9 +90,9 @@
             </section>
 
             <!-- Records -->
-            <section class="br-entity-list br-branches-list" aria-label="Listado de sucursales">
+            <section class="fg-entity-list fg-branches-list" aria-label="Listado de sucursales">
                 <div class="table-responsive">
-                    <table class="table br-entity-table br-entity-table--directory mb-0">
+                    <table class="table fg-entity-table fg-entity-table--directory mb-0">
                         <colgroup>
                             <col style="width: 20%;">
                             <col style="width: 18%;">
@@ -102,7 +102,7 @@
                             <col style="width: 8%;">
                             <col style="width: 6%;">
                         </colgroup>
-                        <thead class="br-table-header-surface">
+                        <thead class="fg-table-header-surface">
                             <tr>
                                 <th>Identificación</th>
                                 <th>Sucursal</th>
@@ -114,32 +114,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="br-table-state" v-if="entityList.extras.loading">
+                            <tr class="fg-table__state" v-if="entityList.extras.loading">
                                 <td colspan="7" class="py-4"><Loader/></td>
                             </tr>
                             <template v-else-if="entityList.records.total > 0">
                                 <tr v-for="record in entityList.records.data" :key="record.id">
-                                    <td class="br-entity-table__identification-cell">
-                                        <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                            <div class="br-entity-identifier">
-                                                <span class="br-entity-identifier__label colon-at-end">Cód. interno</span>
-                                                <span class="br-copy-value">
-                                                    <span class="br-entity-code" v-text="record.internal_code || '—'"></span>
+                                    <td class="fg-entity-table__identification-cell">
+                                        <div class="fg-entity-identifiers fg-entity-identifiers--plain">
+                                            <div class="fg-entity-identifier">
+                                                <span class="fg-entity-identifier__label colon-at-end">Cód. interno</span>
+                                                <span class="fg-copy-value">
+                                                    <span class="fg-entity-code" v-text="record.internal_code || '—'"></span>
                                                     <CopyButton v-if="record.internal_code" :value="record.internal_code" label="Código interno"/>
                                                 </span>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="br-entity-table__name" v-text="record.name"></span>
+                                        <span class="fg-entity-table__name" v-text="record.name"></span>
                                     </td>
                                     <td>
-                                        <span class="br-branches-list__primary" v-text="record.address || 'Sin dirección'"></span>
-                                        <span v-if="record.reference" class="br-entity-table__meta" v-text="record.reference"></span>
+                                        <span class="fg-branches-list__primary" v-text="record.address || 'Sin dirección'"></span>
+                                        <span v-if="record.reference" class="fg-entity-table__meta" v-text="record.reference"></span>
                                     </td>
                                     <td>
-                                        <span class="br-branches-list__primary" v-text="record.telephone || 'Sin teléfono'"></span>
-                                        <span v-if="record.email" class="br-entity-table__meta" v-text="record.email"></span>
+                                        <span class="fg-branches-list__primary" v-text="record.telephone || 'Sin teléfono'"></span>
+                                        <span v-if="record.email" class="fg-entity-table__meta" v-text="record.email"></span>
                                     </td>
                                     <td class="text-center" v-text="record.capacity ?? '—'"></td>
                                     <td class="text-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
@@ -161,8 +161,8 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr class="br-table-state" v-else>
-                                <td colspan="7"><WithoutData class="br-entity-empty-state" type="image"/></td>
+                            <tr class="fg-table__state" v-else>
+                                <td colspan="7"><WithoutData class="fg-entity-empty-state" type="image"/></td>
                             </tr>
                         </tbody>
                     </table>
@@ -178,7 +178,7 @@
     <FormModal
         :modal-id="forms[entity].createUpdate.extras.modals.default.id"
         :title="isUpdate ? 'EDITAR SUCURSAL' : 'AGREGAR SUCURSAL'"
-        modal-class="br-entity-modal--tabbed"
+        modal-class="fg-entity-modal--tabbed"
         modal-size="modal-lg"
         :show-submit="false">
         <template #body>
@@ -190,7 +190,7 @@
                 shared-controls-id="branch-form-panel"
                 variant="descriptive"
                 label="Secciones de la sucursal"/>
-            <form class="br-entity-form-section br-branch-form-section" @submit.prevent="saveEntity">
+            <form class="fg-entity-form-section fg-branch-form-section" @submit.prevent="saveEntity">
                 <div id="branch-form-panel" class="row g-3" role="tabpanel" :aria-labelledby="`branch-tab-trigger-${activeFormTab}`">
                             <InternalCodeInput
                                 v-show="activeFormTab === 'general'"
@@ -206,7 +206,7 @@
                                 xl="4"
                                 lg="4">
                                 <template v-slot:inputGroupAppend v-if="!isUpdate">
-                                    <button type="button" class="br-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
+                                    <button type="button" class="fg-input-action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
                                         <i class="fa fa-rotate"></i>
                                     </button>
                                 </template>
@@ -325,7 +325,7 @@
         <template #footer>
             <button
                 type="button"
-                :class="['br-btn', isUpdate ? 'br-btn-action-edit' : 'br-btn-action-create']"
+                :class="['fg-button', isUpdate ? 'fg-button--secondary' : 'fg-button']"
                 @click="saveEntity"
                 :disabled="isSaving">
                 <span v-text="MODULE.texts.modal.save"></span>
@@ -902,12 +902,12 @@ export default {
 </script>
 
 <style scoped>
-.br-branch-form-section {
+.fg-branch-form-section {
     min-height: 10rem;
 }
 
 @media (max-width: 575.98px) {
-    .br-branch-form-section {
+    .fg-branch-form-section {
         min-height: 0;
     }
 }

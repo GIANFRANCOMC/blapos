@@ -4,7 +4,7 @@
     <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
+        <div v-else class="fg-page-content">
             <div class="row align-items-end g-3 mb-3 mb-md-2">
                 <InputSlot
                     hasDiv
@@ -14,7 +14,7 @@
                     lg="12">
                     <template v-slot:input>
                         <template v-if="isDefined({value: customerCurrent?.customer})">
-                            <SearchButton class="br-btn-sm" @click="modalCreateUpdateEntity({})"/>
+                            <SearchButton class="fg-button--small" @click="modalCreateUpdateEntity({})"/>
                             <button type="button" class="btn btn-info-1 btn-sm waves-effect" @click="getTrackingCustomers({refresh: true})">
                                 <i class="fa fa-sync"></i>
                                 <span class="ms-2">Refrescar expediente</span>
@@ -34,39 +34,39 @@
                     <Timeline :data="customerCurrent ?? {}">
                         <template v-slot:statisticsPrepend>
                             <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12">
-                                <div class="br-customer-tracking-profile">
-                                    <span class="br-customer-tracking-profile__avatar">
+                                <div class="fg-customer-tracking-profile">
+                                    <span class="fg-customer-tracking-profile__avatar">
                                         <i class="fa-solid fa-user" aria-hidden="true"></i>
                                     </span>
                                     <div class="flex-grow-1 flex-min-w-0">
-                                        <span class="br-customer-tracking-profile__name" v-text="customerCurrent?.customer?.name ?? ''"></span>
-                                        <span class="br-customer-tracking-profile__meta">
+                                        <span class="fg-customer-tracking-profile__name" v-text="customerCurrent?.customer?.name ?? ''"></span>
+                                        <span class="fg-customer-tracking-profile__meta">
                                             <strong v-text="customerCurrent?.customer?.identity_document_type?.name ?? ''"></strong>
                                             <span v-text="customerCurrent?.customer?.document_number ?? ''"></span>
                                         </span>
-                                        <span class="br-customer-tracking-profile__period" v-text="periodTypeCurrent"></span>
+                                        <span class="fg-customer-tracking-profile__period" v-text="periodTypeCurrent"></span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12">
-                                <div class="br-customer-tracking-summary">
-                                    <article v-for="item in trackingSummaryCards" :key="item.key" class="br-customer-tracking-summary__item">
-                                        <span :class="['br-customer-tracking-summary__icon', item.tone]">
+                                <div class="fg-customer-tracking-summary">
+                                    <article v-for="item in trackingSummaryCards" :key="item.key" class="fg-customer-tracking-summary__item">
+                                        <span :class="['fg-customer-tracking-summary__icon', item.tone]">
                                             <i :class="item.icon" aria-hidden="true"></i>
                                         </span>
-                                        <span class="br-customer-tracking-summary__label" v-text="item.label"></span>
-                                        <strong class="br-customer-tracking-summary__value" v-text="item.value"></strong>
+                                        <span class="fg-customer-tracking-summary__label" v-text="item.label"></span>
+                                        <strong class="fg-customer-tracking-summary__value" v-text="item.value"></strong>
                                     </article>
                                 </div>
                             </div>
                             <div class="col-12">
-                                <div class="br-customer-tracking-memberships" v-if="(customerCurrent?.extras?.options?.information ?? []).some(e => ['sales', 'subscriptions', 'attendances'].includes(e))">
-                                    <span class="br-customer-tracking-memberships__title">
+                                <div class="fg-customer-tracking-memberships" v-if="(customerCurrent?.extras?.options?.information ?? []).some(e => ['sales', 'subscriptions', 'attendances'].includes(e))">
+                                    <span class="fg-customer-tracking-memberships__title">
                                         <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
                                         Membresía vigente hasta
                                     </span>
                                     <template v-if="(customerCurrent?.functions?.subscription_end_dates ?? []).length > 0">
-                                        <ul class="br-customer-tracking-memberships__list">
+                                        <ul class="fg-customer-tracking-memberships__list">
                                             <li v-for="(record, indexRecord) in (customerCurrent?.functions?.subscription_end_dates ?? [])" :key="indexRecord">
                                                 <strong v-text="record?.branch?.name"></strong>
                                                 <span v-text="legibleFormatDate({dateString: record?.max_end_date})"></span>
@@ -74,7 +74,7 @@
                                         </ul>
                                     </template>
                                     <template v-else>
-                                        <span class="br-customer-tracking-memberships__empty">Sin membresías vigentes en el periodo.</span>
+                                        <span class="fg-customer-tracking-memberships__empty">Sin membresías vigentes en el periodo.</span>
                                     </template>
                                 </div>
                             </div>

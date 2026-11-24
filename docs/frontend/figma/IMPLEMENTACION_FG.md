@@ -4,16 +4,9 @@ Actualizada: 20 de noviembre de 2026. Alcance: frontend del ERP tenant (System).
 
 ## 1. Un solo sistema visual
 
-FG es el estándar global de System. No hay banderas por Productos ni proveedores de tema por componente. El layout carga siempre la navegación y el navbar FG.
+FG es el estándar de System, Guest y Platform. El layout de System carga la navegación y el navbar FG. Cada superficie mantiene su propia entrada de Vite.
 
-La fuente editable está en `resources/css/System/fg/`:
-
-- `00-tokens.css`: colores, fuente, tamaños, pesos, alturas, bordes y espacios.
-- `components.css`: controles, botones, pestañas, badges, modales, paginación y estados.
-- `navigation.css`: mundos, submódulos, navbar y contenedor común.
-- `feedback.css`: SweetAlert, capas y tooltips.
-- `Shared/viewport.css`: scroll nativo y foco transversal, también cargado en Guest y Platform.
-- `products.css`: composición del listado, edición, inventario e importación.
+La [base compartida](../../../resources/css/Shared/ui.css) reúne los tokens, controles, tablas, estados, diálogos y navegación por teclado. En `resources/css/System/fg/` se mantiene la composición de módulos y la navegación de System.
 
 El entry `index.css` se enlaza desde el head con Vite, antes de montar Vue, para evitar la carga tardía de estilos desde JavaScript. En producción Vite genera CSS y fuentes con hash. Source Sans 3 está alojada en `resources/fonts/`, con licencia OFL; no requiere Google Fonts en ejecución.
 
@@ -151,7 +144,7 @@ Figma: publicadas juntas Línea, Control y Catálogo (Escritorio/Móvil) en Comp
 
 ### Campos no editables
 
-`fg/unavailable-controls.css`, importado después de `control-icons.css`, unifica texto, textarea, número, importe, fecha, Vue Select, Select2 y select nativo con los tokens `--fg-disabled-bg`, `--fg-disabled-text`, `--fg-disabled-border` y `--fg-disabled-tag-bg`. Aplica a disabled, readonly y estados ARIA equivalentes existentes. La superficie exterior es gris y los fondos internos son transparentes; prefijos, contadores, etiquetas múltiples, texto y flecha usan tonos neutros. Readonly conserva copia y foco de teclado. Se excluyen los inputs de búsqueda internos de un selector activo. No cambia selección, permisos, envío de valores ni contratos.
+`Shared/unavailable-controls.css`, importado después de `control-icons.css`, unifica texto, textarea, número, importe, fecha, Vue Select, Select2 y select nativo con los tokens `--fg-disabled-bg`, `--fg-disabled-text`, `--fg-disabled-border` y `--fg-disabled-tag-bg`. Aplica a disabled, readonly y estados ARIA equivalentes existentes. La superficie exterior es gris y los fondos internos son transparentes; prefijos, contadores, etiquetas múltiples, texto y flecha usan tonos neutros. Readonly conserva copia y foco de teclado. Se excluyen los inputs de búsqueda internos de un selector activo. No cambia selección, permisos, envío de valores ni contratos.
 
 Verificado con los componentes reales en una muestra temporal: Vue Select único vacío/con valor, múltiple y Select2 único/múltiple. Sin franjas blancas; fondo calculado #f3f4f6 y texto/flecha #6b7280. Compilación de producción y 13 pruebas específicas correctas. La muestra temporal se retira tras la revisión.
 

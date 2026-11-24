@@ -3,10 +3,10 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
-            <section class="br-reports">
+        <div v-else class="fg-page-content">
+            <section class="fg-reports">
                 <FiltersSection
-                    class="br-reports__parameters"
+                    class="fg-reports__parameters"
                     :filter-by-value="forms.entity.createUpdate.data.report"
                     @update:filterByValue="changeReport"
                     :filter-word-value="quickSearch"
@@ -162,15 +162,15 @@
                     </template>
                 </FiltersSection>
 
-                <section class="br-reports__help">
+                <section class="fg-reports__help">
                     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                     <span>{{ selectedReportHelp }}</span>
                 </section>
 
-                <section v-if="selectedReportCode === 'settlements'" class="br-entity-list br-reports__results">
+                <section v-if="selectedReportCode === 'settlements'" class="fg-entity-list fg-reports__results">
                     <div class="table-responsive">
-                        <table class="table br-entity-table mb-0">
-                            <thead class="br-table-header-surface">
+                        <table class="table fg-entity-table mb-0">
+                            <thead class="fg-table-header-surface">
                                 <tr>
                                     <th>Alcance</th>
                                     <th>Concepto</th>
@@ -181,17 +181,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="br-table-state" v-if="settlements.loading">
+                                <tr class="fg-table__state" v-if="settlements.loading">
                                     <td colspan="6" class="py-4"><Loader/></td>
                                 </tr>
                                 <template v-else-if="settlements.records.length">
                                     <tr v-for="(record, index) in settlements.records" :key="`${record.scope}-${record.name}-${index}`">
                                         <td>
-                                            <span class="br-status-label br-status-active">{{ scopeLabel(record.scope) }}</span>
+                                            <span class="fg-badge fg-status-active">{{ scopeLabel(record.scope) }}</span>
                                         </td>
                                         <td>
-                                            <strong class="br-entity-primary">{{ record.name }}</strong>
-                                            <span v-if="record.calculation_type" class="br-entity-table__meta">
+                                            <strong class="fg-entity-primary">{{ record.name }}</strong>
+                                            <span v-if="record.calculation_type" class="fg-entity-table__meta">
                                                 {{ settlementCalculationLabel(record) }}
                                             </span>
                                         </td>
@@ -201,10 +201,10 @@
                                         <td class="text-end fw-medium">{{ amountLabel(record.amount, record) }}</td>
                                     </tr>
                                 </template>
-                                <tr class="br-table-state" v-else>
+                                <tr class="fg-table__state" v-else>
                                     <td colspan="6">
                                         <WithoutData v-if="settlements.hasConsulted" type="image"/>
-                                        <span v-else class="br-reports__empty-hint">Consulta un resumen financiero para visualizar resultados.</span>
+                                        <span v-else class="fg-reports__empty-hint">Consulta un resumen financiero para visualizar resultados.</span>
                                     </td>
                                 </tr>
                             </tbody>

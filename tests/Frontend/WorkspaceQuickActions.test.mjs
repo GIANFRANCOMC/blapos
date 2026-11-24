@@ -8,14 +8,14 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     const service = readFileSync(new URL("../../app/Services/System/Essentials/UserNavigationService.php", import.meta.url), "utf8");
     const controller = readFileSync(new URL("../../app/Http/Controllers/System/Essentials/WorkspaceController.php", import.meta.url), "utf8");
     const seeder = readFileSync(new URL("../../database/seeders/SystemNavigationSeeder.php", import.meta.url), "utf8");
-    const styles = readFileSync(new URL("../../resources/css/System/br-branding/52-workspace.css", import.meta.url), "utf8");
+    const styles = readFileSync(new URL("../../resources/css/System/fg/modules/workspace.css", import.meta.url), "utf8");
 
     assert.doesNotMatch(view, /Accesos rápidos|br-workspace__section-eyebrow/);
     assert.match(view, /¿Qué deseas hacer hoy, \{\{ firstName \}\}\?/);
     assert.match(view, /Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla/);
     assert.doesNotMatch(view, /br-workspace__hero|Buenos días/);
     assert.match(controller, /\$firstName = Str::before\(trim\(\$user->name\), " "\);/);
-    assert.match(view, /br-workspace__link-icon[^>]*><i :class="item\.icon"/);
+    assert.match(view, /fg-workspace__link-icon[^>]*><i :class="item\.icon"/);
     assert.match(view, /item\.description/);
     assert.match(view, /fa-solid fa-chevron-right/);
     assert.match(service, /"icon" => \$subSection->dom_icon/);
@@ -25,11 +25,11 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     const records = items.split("\n").filter(line => line.includes('"dom_route" =>'));
     assert.ok(records.length > 0);
     assert.ok(records.every(line => /"dom_icon" => "fa-(?:solid|regular) fa-[a-z-]+"/.test(line)));
-    assert.match(styles, /\.br-workspace__link-icon\s*\{[^}]*border-radius: 50%;/);
-    assert.match(styles, /\.br-workspace__links\s*\{[^}]*grid-auto-rows: minmax\(5rem, 1fr\);/);
-    assert.match(styles, /\.br-workspace__link-icon i\s*\{[^}]*font-size: var\(--br-font-size-200\);/);
-    assert.match(styles, /\.br-workspace__support-icon\s*\{[^}]*font-size: var\(--br-font-size-200\);/);
-    assert.match(styles, /#workspace-popular-title\s*\{[^}]*font-size: var\(--br-table-value-font-size\) !important;/);
+    assert.match(styles, /\.fg-workspace__link-icon\s*\{[^}]*border-radius: 50%;/);
+    assert.match(styles, /\.fg-workspace__links\s*\{[^}]*grid-auto-rows: minmax\(5rem, 1fr\);/);
+    assert.match(styles, /\.fg-workspace__link-icon i\s*\{[^}]*font-size: var\(--fg-status-icon-size\);/);
+    assert.match(styles, /\.fg-workspace__support-icon\s*\{[^}]*font-size: var\(--fg-status-icon-size\);/);
+    assert.match(styles, /#workspace-popular-title\s*\{[^}]*font-size: var\(--fg-section-size\) !important;/);
     assert.doesNotMatch(styles, /\.br-workspace__section-eyebrow\s*\{/);
 
 });

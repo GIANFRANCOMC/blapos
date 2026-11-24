@@ -20,7 +20,7 @@ if (document.getElementById('layout-menu')) {
   isHorizontalLayout = document.getElementById('layout-menu').classList.contains('menu-horizontal');
 }
 
-const customNavigation = document.querySelector('#layout-menu.br-navigation');
+const customNavigation = document.querySelector('#layout-menu.fg-navigation');
 
 function setCustomNavigationCollapsed(collapsed) {
   if (!customNavigation) return false;
@@ -49,7 +49,7 @@ function setCustomNavigationCollapsed(collapsed) {
 
     // Register buttons added after Waves.init before its delegated handler runs.
     const attachButtonWaves = event => {
-      const button = event.target.closest?.('button, a.btn, a.br-btn, [role="button"]');
+      const button = event.target.closest?.('button, a.btn, a.fg-button, [role="button"]');
       if (button instanceof HTMLElement && !button.matches(':disabled, .disabled, [aria-disabled="true"], .waves-effect')) {
         Waves.attach(button);
       }
@@ -64,7 +64,7 @@ function setCustomNavigationCollapsed(collapsed) {
 
   let layoutMenuEl = document.querySelectorAll('#layout-menu');
   layoutMenuEl.forEach(function (element) {
-    if (element.classList.contains('br-navigation')) return;
+    if (element.classList.contains('fg-navigation')) return;
 
     menu = new Menu(element, {
       orientation: isHorizontalLayout ? 'horizontal' : 'vertical',

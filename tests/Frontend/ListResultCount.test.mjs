@@ -11,20 +11,20 @@ const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "ut
 
 test("el scroll horizontal de las tablas se mantiene local incluso con el menú de fila abierto", () => {
     const styles = read("resources/css/Shared/responsive-tables.css");
-    const system = read("resources/css/System/platform.css");
+    const system = read("resources/css/System/fg/index.css");
     const platform = read("resources/css/Platform/app.css");
     const actions = read("resources/js/System/Components/Generics/ActionsButton.vue");
     const sales = read("resources/js/System/Pages/Sales/sales/main.vue");
 
-    assert.match(styles, /\.table-responsive\s*\{[^}]*inline-size: 100%;[^}]*container-type: inline-size;[^}]*overflow-x: auto;/);
-    assert.match(styles, /\.br-table-state > td\[colspan\] > :is\(\.br-feedback-state, \.br-loader\)\s*\{[^}]*position: sticky;[^}]*max-inline-size: 100cqi;/);
+    assert.match(styles, /:is\(\.table-responsive, \.fg-table-scroll\)\s*\{[^}]*inline-size: 100%;[^}]*container-type: inline-size;[^}]*overflow-x: auto;/);
+    assert.match(styles, /\.fg-table__state > td\[colspan\] > :is\(\.fg-empty, \.fg-loader\)\s*\{[^}]*position: sticky;[^}]*max-inline-size: 100cqi;/);
     for(const entry of [system, platform]) {
-        assert.match(entry, /@import "\.\.\/Shared\/responsive-tables\.css";/);
+        assert.match(entry, /@import "[^"]*Shared\/ui\.css";/);
     }
     assert.match(actions, /data-bs-config='\{"popperConfig":\{"strategy":"fixed"\}\}'/);
     assert.match(sales, /<TableActionsDropdown[\s\S]*?class="fg-sale-detail-actions"/);
-    for(const file of ["40-buttons-quick-create.css", "70-visual-density-brand-refresh.css"]) {
-        assert.doesNotMatch(read(`resources/css/System/br-branding/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
+    for(const file of ["inline-actions.css", "operational-layouts.css"]) {
+        assert.doesNotMatch(read(`resources/css/System/fg/modules/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
     }
 });
 
@@ -98,7 +98,7 @@ test("el pie se oculta al cargar y muestra el total al terminar, incluso con cer
             pagination: {total, data: [{id: 1}]}, loading, links: pageLinks
         }));
         if(loading) {
-            assert.doesNotMatch(html, /br-list-footer|br-pagination|br-list-result-count|Resultado:|<button/);
+            assert.doesNotMatch(html, /fg-pagination|Mostrando|<button/);
             continue;
         }
         assert.ok(html.includes("de "+total+" "));
@@ -106,7 +106,7 @@ test("el pie se oculta al cargar y muestra el total al terminar, incluso con cer
         assert.doesNotMatch(html, /aria-hidden="true"|visibility:\s*hidden/);
     }
     const countWhileLoading = await renderToString(Vue.createSSRApp(ListResultCount, {pagination: {total: 75}, loading: true}));
-    assert.doesNotMatch(countWhileLoading, /Resultado:|75|br-list-result-count/);
+    assert.doesNotMatch(countWhileLoading, /Mostrando|75/);
 });
 
 test("todos los listados paginados comparten el pie, total y estado de carga sin ocultarlo al quedar vacíos", () => {

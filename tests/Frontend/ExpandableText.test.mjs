@@ -11,10 +11,8 @@ test("el catálogo usa el control compartido para las descripciones de sus tabla
     assert.match(descriptor.template.content, /v-if="hasOverflow"[\s\S]*?:aria-expanded="expanded"[\s\S]*?expanded \? "Ver menos" : "Ver más"/);
     assert.match(descriptor.template.content, /fg-product-description__text/);
     const styles = read("resources/css/Shared/inline-text-action.css");
-    assert.match(styles, /\.br-inline-text-action__content\s*\{[^}]*display: block;[^}]*text-overflow: ellipsis;\s*white-space: nowrap;/);
-    assert.match(styles, /\.br-inline-text-action--expanded \.br-inline-text-action__content\s*\{[^}]*overflow-wrap: anywhere;\s*white-space: pre-line;/);
-    assert.match(read("resources/css/System/br-branding/81-core-roles-entities.css"),
-        /:where\(\.br-entity-table__description, \.br-entity-table__meta\)\s*\{\s*display: block;/);
+    assert.match(styles, /\.fg-inline-text-action__content\s*\{[^}]*display: block;[^}]*text-overflow: ellipsis;\s*white-space: nowrap;/);
+    assert.match(styles, /\.fg-inline-text-action--expanded \.fg-inline-text-action__content\s*\{[^}]*overflow-wrap: anywhere;\s*white-space: pre-line;/);
     for(const page of ["products", "services", "subscriptions", "categories", "brands"]) {
         assert.match(read(`resources/js/System/Pages/Catalogs/${page}/main.vue`),
             /<ExpandableText v-if="record\.description" :text="record\.description"\/>/);

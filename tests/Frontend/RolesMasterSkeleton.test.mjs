@@ -13,12 +13,12 @@ test("Roles cubre solo los parámetros iniciales con un skeleton proporcional", 
 
     assert.equal(parse(page, {filename: "roles/main.vue"}).errors.length, 0);
     assert.equal(parse(skeleton, {filename: "RolesSkeleton.vue"}).errors.length, 0);
-    assert.match(page, /<RolesSkeleton v-if="initialLoading"\/>[\s\S]*?<main v-else class="br-entity br-roles">/);
+    assert.match(page, /<RolesSkeleton v-if="initialLoading"\/>[\s\S]*?<main v-else class="fg-entity fg-roles">/);
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listRoles\(\{\}\)/);
     assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/);
-    assert.match(page, /<tr class="br-table-state" v-if="loading">[\s\S]*?<Loader\/>/);
+    assert.match(page, /<tr class="fg-table__state" v-if="loading">[\s\S]*?<Loader\/>/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando perfiles de acceso"/);
-    assert.match(skeleton, /br-filter-bar[\s\S]*?br-entity-list[\s\S]*?colspan="5" class="py-4"><Loader\/>/);
+    assert.match(skeleton, /fg-filter-bar[\s\S]*?fg-entity-list[\s\S]*?colspan="5" class="py-4"><Loader\/>/);
     assert.match(readSharedSkeleton(), /height: var\(--fg-control-height, 36px\)/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /Organizations\/roles\/skeleton\.css/);
@@ -31,11 +31,11 @@ test("Datos maestros reserva pestañas, listado y formulario durante el primer l
 
     assert.equal(parse(page, {filename: "master_data/main.vue"}).errors.length, 0);
     assert.equal(parse(skeleton, {filename: "MasterDataSkeleton.vue"}).errors.length, 0);
-    assert.match(page, /<MasterDataSkeleton v-if="initialLoading"\/>[\s\S]*?<section v-else class="br-master-data">/);
+    assert.match(page, /<MasterDataSkeleton v-if="initialLoading"\/>[\s\S]*?<section v-else class="fg-master-data">/);
     assert.match(page, /try \{[\s\S]*?this\.startCreate\(\)[\s\S]*?await this\.loadRecords\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false/);
     assert.match(page, /async selectResource\(resourceCode\)[\s\S]*?await this\.loadRecords\(\)/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando datos maestros"/);
-    assert.match(skeleton, /br-tabs--descriptive[\s\S]*?br-master-data__grid[\s\S]*?br-master-data__records[\s\S]*?<Loader\/>[\s\S]*?br-master-data-form/);
+    assert.match(skeleton, /fg-tabs--descriptive[\s\S]*?fg-master-data__grid[\s\S]*?fg-master-data__records[\s\S]*?<Loader\/>[\s\S]*?fg-master-data-form/);
     assert.match(readSharedSkeleton(), /height: var\(--fg-control-height, 36px\)/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /General\/master_data\/skeleton\.css/);
@@ -47,7 +47,7 @@ test("la documentación general define el skeleton inicial como estándar", () =
 
     assert.match(general, /### Carga inicial con skeleton/);
     assert.match(general, /InitialPageMixin.*PageSkeleton/);
-    assert.match(general, /Loader.*br-table-state/);
+    assert.match(general, /Loader.*fg-table__state/);
     assert.match(general, /liberar `initialLoading` en el `finally`/);
     assert.match(guide, /ESTANDARES_UI\.md#carga-inicial-con-skeleton/);
 });

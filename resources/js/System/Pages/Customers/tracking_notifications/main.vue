@@ -3,9 +3,9 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <section class="br-entity-page br-tracking-notifications">
-                <section class="br-filter-bar">
+        <div v-else class="fg-page-content">
+            <section class="fg-entity-page fg-tracking-notifications">
+                <section class="fg-filter-bar">
                     <div class="row align-items-end g-2">
                         <InputSlot
                             hasDiv
@@ -27,12 +27,12 @@
                         <InputSlot
                             hasDiv
                             :isInputGroup="false"
-                            :divInputClass="['br-filter-bar__actions']"
+                            :divInputClass="['fg-filter-bar__actions']"
                             xl="9"
                             lg="9">
                             <template #input>
                                 <SearchButton
-                                    class="br-btn-sm"
+                                    class="fg-button--small"
                                     :disabled="lists.entity.extras.loading"
                                     @click="listEntity({applyFilters: true})"/>
                             </template>
@@ -40,8 +40,8 @@
                     </div>
                 </section>
 
-                <div class="table-responsive br-entity-table-wrap">
-                    <table class="table br-entity-table mb-0">
+                <div class="table-responsive fg-entity-table-wrap">
+                    <table class="table fg-entity-table mb-0">
                         <thead>
                             <tr>
                                 <th style="width: 26%;">Destinatario</th>
@@ -52,7 +52,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="br-table-state" v-if="lists.entity.extras.loading">
+                            <tr class="fg-table__state" v-if="lists.entity.extras.loading">
                                 <td colspan="5" class="text-center py-4">
                                     <Loader/>
                                 </td>
@@ -60,30 +60,30 @@
                             <template v-else-if="lists.entity.records.total > 0">
                                 <tr v-for="record in lists.entity.records.data" :key="record.id">
                                     <td>
-                                        <strong class="br-entity-primary">{{ customerName(record) }}</strong>
-                                        <span class="br-entity-table__meta">
+                                        <strong class="fg-entity-primary">{{ customerName(record) }}</strong>
+                                        <span class="fg-entity-table__meta">
                                             <i class="fa-solid fa-envelope" aria-hidden="true"></i>
                                             {{ record.to || "Sin correo" }}
                                         </span>
-                                        <span v-if="customerPhone(record)" class="br-entity-table__meta">
+                                        <span v-if="customerPhone(record)" class="fg-entity-table__meta">
                                             <i class="fa-solid fa-phone" aria-hidden="true"></i>
                                             {{ customerPhone(record) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <strong class="br-entity-primary">{{ record.subject || "Sin asunto" }}</strong>
-                                        <span class="br-entity-table__meta">
+                                        <strong class="fg-entity-primary">{{ record.subject || "Sin asunto" }}</strong>
+                                        <span class="fg-entity-table__meta">
                                             Creada {{ formatDate(record.created_at) }}
                                         </span>
-                                        <span v-if="record.last_error" class="br-notification-error">
+                                        <span v-if="record.last_error" class="fg-notification-error">
                                             {{ record.last_error }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="br-notification-attempts">
+                                        <span class="fg-notification-attempts">
                                             {{ record.attempts || 0 }} / {{ record.max_attempts || 0 }}
                                         </span>
-                                        <span v-if="record.next_attempt_at" class="br-entity-table__meta">
+                                        <span v-if="record.next_attempt_at" class="fg-entity-table__meta">
                                             Próximo {{ formatDate(record.next_attempt_at) }}
                                         </span>
                                     </td>
@@ -91,10 +91,10 @@
                                         <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
                                     </td>
                                     <td class="text-center">
-                                        <div class="br-table-actions">
+                                        <div class="fg-table-actions">
                                             <button
                                                 type="button"
-                                                class="br-icon-action br-icon-action-info"
+                                                class="fg-icon-action fg-icon-action-info"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Ver detalle"
@@ -105,7 +105,7 @@
                                             <button
                                                 v-if="canRetry(record)"
                                                 type="button"
-                                                class="br-icon-action br-icon-action-retry"
+                                                class="fg-icon-action fg-icon-action-retry"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Reintentar"
@@ -118,7 +118,7 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr class="br-table-state" v-else>
+                            <tr class="fg-table__state" v-else>
                                 <td colspan="5">
                                     <WithoutData type="image"/>
                                 </td>
@@ -134,18 +134,18 @@
     </InitialLoadTransition>
     <div class="modal fade" :id="detailModalId" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content br-entity-modal">
-                <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal">
+                <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
-                <div class="modal-header br-entity-modal__header">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Seguimiento</p>
+                        <p class="fg-entity-modal__eyebrow mb-1">Seguimiento</p>
                         <h5 class="modal-title">Detalle de notificación</h5>
                     </div>
                 </div>
-                <div class="modal-body br-entity-modal__body">
-                    <div class="br-notification-detail">
+                <div class="modal-body fg-modal__body">
+                    <div class="fg-notification-detail">
                         <div>
                             <span>Destinatario</span>
                             <strong>{{ selectedRecord?.to || "Sin correo" }}</strong>
@@ -164,13 +164,13 @@
                         </div>
                     </div>
 
-                    <section class="br-notification-preview">
+                    <section class="fg-notification-preview">
                         <h6>Contenido enviado</h6>
                         <div v-html="selectedRecord?.body || '<p>Sin contenido.</p>'"></div>
                     </section>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>

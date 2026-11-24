@@ -11,13 +11,13 @@ initializeMenu(createTooltip);
 
 const copyResetTimers = new WeakMap();
 
-document.querySelectorAll("[data-br-copy-value]").forEach(control => createTooltip(control));
+document.querySelectorAll("[data-fg-copy-value]").forEach(control => createTooltip(control));
 
 document.addEventListener("keydown", function (event) {
 
     if(event.key !== "Enter" && event.key !== " ") return;
 
-    const icon = event.target.closest('[data-br-copy-value][role="button"]');
+    const icon = event.target.closest('[data-fg-copy-value][role="button"]');
     if(!icon) return;
 
     event.preventDefault();
@@ -27,13 +27,13 @@ document.addEventListener("keydown", function (event) {
 
 document.addEventListener("click", async function (event) {
 
-    const button = event.target.closest("[data-br-copy-value]");
+    const button = event.target.closest("[data-fg-copy-value]");
 
     if(!button) return;
 
     try {
 
-        await writeClipboard(button.dataset.brCopyValue);
+        await writeClipboard(button.dataset.fgCopyValue);
         createTooltip(button, "Copiado")?.show();
 
     }catch(error) {

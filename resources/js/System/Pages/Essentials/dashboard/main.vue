@@ -3,94 +3,94 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
-            <div class="br-dashboard">
-                <div class="row mb-4 align-items-start br-dashboard__split">
+        <div v-else class="fg-page-content">
+            <div class="fg-dashboard">
+                <div class="row mb-4 align-items-start fg-dashboard__split">
                     <div class="col-12 col-md-6 col-lg-8">
-                        <section class="br-dashboard__kpis br-dashboard__kpis--split row g-2 mb-0" :aria-label="MODULE.texts.chart.kpiSectionAria">
+                        <section class="fg-dashboard__kpis fg-dashboard__kpis--split row g-2 mb-0" :aria-label="MODULE.texts.chart.kpiSectionAria">
                             <div class="col-12 col-sm-6 col-lg-4 col-xl">
-                                <div class="br-dashboard-kpi br-dashboard-kpi--success h-100">
-                                    <div class="br-dashboard-kpi__inner">
-                                        <div class="br-dashboard-kpi__icon" aria-hidden="true">
+                                <div class="fg-dashboard-kpi fg-dashboard-kpi--success h-100">
+                                    <div class="fg-dashboard-kpi__inner">
+                                        <div class="fg-dashboard-kpi__icon" aria-hidden="true">
                                             <i class="fa-solid fa-sack-dollar"></i>
                                         </div>
-                                        <div class="br-dashboard-kpi__body">
-                                            <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.salesTotal"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="formatCurrencyTotals(forms.entity.dashboard.data.sales?.net?.amounts)"></p>
+                                        <div class="fg-dashboard-kpi__body">
+                                            <p class="fg-dashboard-kpi__label" v-text="MODULE.texts.kpi.salesTotal"></p>
+                                            <p class="fg-dashboard-kpi__value" v-text="formatCurrencyTotals(forms.entity.dashboard.data.sales?.net?.amounts)"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-sm-6 col-lg-4 col-xl">
-                                <div class="br-dashboard-kpi br-dashboard-kpi--danger h-100">
-                                    <div class="br-dashboard-kpi__inner">
-                                        <div class="br-dashboard-kpi__icon" aria-hidden="true">
+                                <div class="fg-dashboard-kpi fg-dashboard-kpi--danger h-100">
+                                    <div class="fg-dashboard-kpi__inner">
+                                        <div class="fg-dashboard-kpi__icon" aria-hidden="true">
                                             <i class="fa-solid fa-sack-xmark"></i>
                                         </div>
-                                        <div class="br-dashboard-kpi__body">
-                                            <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.salesCanceled"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="formatCurrencyTotals(forms.entity.dashboard.data.sales?.canceled?.amounts)"></p>
+                                        <div class="fg-dashboard-kpi__body">
+                                            <p class="fg-dashboard-kpi__label" v-text="MODULE.texts.kpi.salesCanceled"></p>
+                                            <p class="fg-dashboard-kpi__value" v-text="formatCurrencyTotals(forms.entity.dashboard.data.sales?.canceled?.amounts)"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-sm-6 col-lg-4 col-xl">
-                                <div class="br-dashboard-kpi br-dashboard-kpi--info h-100">
-                                    <div class="br-dashboard-kpi__inner">
-                                        <div class="br-dashboard-kpi__icon" aria-hidden="true">
+                                <div class="fg-dashboard-kpi fg-dashboard-kpi--info h-100">
+                                    <div class="fg-dashboard-kpi__inner">
+                                        <div class="fg-dashboard-kpi__icon" aria-hidden="true">
                                             <i class="fa-solid fa-clipboard-user"></i>
                                         </div>
-                                        <div class="br-dashboard-kpi__body">
-                                            <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.attendancesToday"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.attendances?.count ?? 0, 0)"></p>
+                                        <div class="fg-dashboard-kpi__body">
+                                            <p class="fg-dashboard-kpi__label" v-text="MODULE.texts.kpi.attendancesToday"></p>
+                                            <p class="fg-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.attendances?.count ?? 0, 0)"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-sm-6 col-lg-4 col-xl">
-                                <div class="br-dashboard-kpi br-dashboard-kpi--primary h-100">
-                                    <div class="br-dashboard-kpi__inner">
-                                        <div class="br-dashboard-kpi__icon" aria-hidden="true">
+                                <div class="fg-dashboard-kpi fg-dashboard-kpi--primary h-100">
+                                    <div class="fg-dashboard-kpi__inner">
+                                        <div class="fg-dashboard-kpi__icon" aria-hidden="true">
                                             <i class="fa-solid fa-calendar-days"></i>
                                         </div>
-                                        <div class="br-dashboard-kpi__body">
-                                            <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.expiringSubscriptions"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.expiringSubscriptions?.count ?? 0, 0)"></p>
+                                        <div class="fg-dashboard-kpi__body">
+                                            <p class="fg-dashboard-kpi__label" v-text="MODULE.texts.kpi.expiringSubscriptions"></p>
+                                            <p class="fg-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.expiringSubscriptions?.count ?? 0, 0)"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-sm-6 col-lg-4 col-xl">
-                                <div class="br-dashboard-kpi br-dashboard-kpi--warning h-100">
-                                    <div class="br-dashboard-kpi__inner">
-                                        <div class="br-dashboard-kpi__icon" aria-hidden="true">
+                                <div class="fg-dashboard-kpi fg-dashboard-kpi--warning h-100">
+                                    <div class="fg-dashboard-kpi__inner">
+                                        <div class="fg-dashboard-kpi__icon" aria-hidden="true">
                                             <i class="fa-solid fa-building-user"></i>
                                         </div>
-                                        <div class="br-dashboard-kpi__body">
-                                            <p class="br-dashboard-kpi__label" v-text="MODULE.texts.kpi.branchesActive"></p>
-                                            <p class="br-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.branches?.active_count ?? 0, 0)"></p>
+                                        <div class="fg-dashboard-kpi__body">
+                                            <p class="fg-dashboard-kpi__label" v-text="MODULE.texts.kpi.branchesActive"></p>
+                                            <p class="fg-dashboard-kpi__value" v-text="separatorNumber(forms.entity.dashboard.data.branches?.active_count ?? 0, 0)"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </section>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 br-dashboard__split-date align-self-stretch mt-3 mt-md-2 px-4 px-md-3">
-                        <section class="br-dashboard__split-pane h-100 d-flex flex-column" :aria-label="MODULE.texts.date.sectionAria">
-                            <div class="br-dashboard-date br-dashboard-date--split br-dashboard-date--split-fill flex-grow-1 d-flex flex-column">
-                                <div class="br-dashboard-date__content flex-grow-1 d-flex flex-column">
-                                    <div class="br-dashboard-date__main flex-grow-1 d-flex flex-column">
+                    <div class="col-12 col-md-6 col-lg-4 fg-dashboard__split-date align-self-stretch mt-3 mt-md-2 px-4 px-md-3">
+                        <section class="fg-dashboard__split-pane h-100 d-flex flex-column" :aria-label="MODULE.texts.date.sectionAria">
+                            <div class="fg-dashboard-date fg-dashboard-date--split fg-dashboard-date--split-fill flex-grow-1 d-flex flex-column">
+                                <div class="fg-dashboard-date__content flex-grow-1 d-flex flex-column">
+                                    <div class="fg-dashboard-date__main flex-grow-1 d-flex flex-column">
                                         <template v-if="!forms.entity.dashboard.data.dateEditing">
-                                            <p class="br-dashboard-date__eyebrow" v-text="MODULE.texts.date.eyebrow"></p>
-                                            <p class="br-dashboard-date__value" :title="reportDateLabel" v-text="consultationDateLong"></p>
-                                            <div class="br-dashboard-date__actions">
-                                                <button type="button" class="br-btn br-btn-sm br-btn-secondary" @click="startDashboardDateEdit">
+                                            <p class="fg-dashboard-date__eyebrow" v-text="MODULE.texts.date.eyebrow"></p>
+                                            <p class="fg-dashboard-date__value" :title="reportDateLabel" v-text="consultationDateLong"></p>
+                                            <div class="fg-dashboard-date__actions">
+                                                <button type="button" class="fg-button fg-button--small fg-button--secondary" @click="startDashboardDateEdit">
                                                     <span v-text="MODULE.texts.date.consultButton"></span>
                                                 </button>
                                             </div>
                                         </template>
                                         <div v-else
-                                            class="br-dashboard-date__editor br-dashboard-date__editor--stack d-flex flex-wrap align-items-end justify-content-end gap-2 pt-1 w-100"
+                                            class="fg-dashboard-date__editor fg-dashboard-date__editor--stack d-flex flex-wrap align-items-end justify-content-end gap-2 pt-1 w-100"
                                             role="group"
                                             :aria-label="MODULE.texts.date.editorAria">
                                             <div class="flex-grow-1 align-self-end" style="min-width: 10rem;">
@@ -101,19 +101,19 @@
                                                     isRequired
                                                     :max="dashboardConsultDateMax"
                                                     :titleClass="['form-label', 'colon-at-end', 'mb-1']"
-                                                    :divClass="['mb-0', 'br-dashboard-date__input-wrap']"/>
+                                                    :divClass="['mb-0', 'fg-dashboard-date__input-wrap']"/>
                                             </div>
                                             <div class="d-flex flex-column gap-1 flex-shrink-0 align-self-end">
                                                 <button
                                                     type="button"
-                                                    class="br-btn br-btn-xs br-btn-danger"
+                                                    class="fg-button fg-button--compact fg-button--danger"
                                                     :aria-label="MODULE.texts.date.cancelAria"
                                                     @click="cancelDashboardDateEdit">
                                                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="br-btn br-btn-xs br-btn-success"
+                                                    class="fg-button fg-button--compact fg-button--success"
                                                     :aria-label="MODULE.texts.date.applyAria"
                                                     :disabled="!canApplyDashboardDate"
                                                     @click="applyDashboardDate">
@@ -128,25 +128,25 @@
                     </div>
                 </div>
 
-                <section class="row g-3 mb-4 pt-2" aria-labelledby="br-dashboard-chart-title">
+                <section class="row g-3 mb-4 pt-2" aria-labelledby="fg-dashboard-chart-title">
                     <div class="col-12">
-                        <div class="br-dashboard-chart-section__title-wrap">
-                            <h2 id="br-dashboard-chart-title" class="br-dashboard-chart-section__title" v-text="MODULE.texts.chart.sectionTitle"></h2>
-                            <p class="br-dashboard-chart-section__subtitle" v-text="dashboardChartHoursRangeCaption"></p>
-                            <p v-if="!dashboardChartNoSales" class="br-dashboard-chart-scroll-hint" v-text="MODULE.texts.chart.scrollHint"></p>
+                        <div class="fg-dashboard-chart-section__title-wrap">
+                            <h2 id="fg-dashboard-chart-title" class="fg-dashboard-chart-section__title" v-text="MODULE.texts.chart.sectionTitle"></h2>
+                            <p class="fg-dashboard-chart-section__subtitle" v-text="dashboardChartHoursRangeCaption"></p>
+                            <p v-if="!dashboardChartNoSales" class="fg-dashboard-chart-scroll-hint" v-text="MODULE.texts.chart.scrollHint"></p>
                         </div>
-                        <div class="br-dashboard-chart-panel">
+                        <div class="fg-dashboard-chart-panel">
                             <div
                                 v-if="!dashboardChartNoSales"
-                                class="br-dashboard-chart-scroll"
+                                class="fg-dashboard-chart-scroll"
                                 role="region"
                                 :aria-label="MODULE.texts.chart.chartScrollRegionAria">
                                 <div
-                                    class="br-dashboard-chart-scroll-inner br-dashboard-chart-wrap br-dashboard-chart-wrap--hourly"
+                                    class="fg-dashboard-chart-scroll-inner fg-dashboard-chart-wrap fg-dashboard-chart-wrap--hourly"
                                     :style="dashboardChartScrollInnerStyle">
                                     <canvas
                                         id="dashboardSalesHourlyChart"
-                                        class="chartjs br-dashboard-chart-canvas"
+                                        class="chartjs fg-dashboard-chart-canvas"
                                         data-height="300"
                                         :aria-label="MODULE.texts.chart.canvasAria"
                                         role="img"></canvas>
@@ -154,12 +154,12 @@
                             </div>
                             <div
                                 v-else
-                                class="br-dashboard-chart-wrap br-dashboard-chart-wrap--hourly br-dashboard-chart-wrap--hourly-empty">
+                                class="fg-dashboard-chart-wrap fg-dashboard-chart-wrap--hourly fg-dashboard-chart-wrap--hourly-empty">
                                 <div
-                                    class="br-dashboard-chart-empty-overlay"
+                                    class="fg-dashboard-chart-empty-overlay"
                                     role="status"
                                     aria-live="polite">
-                                    <span class="br-dashboard-chart-empty-overlay__text" v-text="MODULE.texts.chart.noSales"></span>
+                                    <span class="fg-dashboard-chart-empty-overlay__text" v-text="MODULE.texts.chart.noSales"></span>
                                 </div>
                             </div>
                         </div>

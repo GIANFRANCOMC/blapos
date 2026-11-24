@@ -12,7 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                sans: ['Source Sans 3', ...defaultTheme.fontFamily.sans],
             },
         },
     },

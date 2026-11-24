@@ -8,8 +8,8 @@ test("colaboradores reutiliza tabla, menú y modal con pestañas sin perder acce
     const source = readFileSync(new URL("../../resources/js/System/Pages/Organizations/users/main.vue", import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: "users/main.vue"}).errors.length, 0);
-    assert.match(source, /class="table br-entity-table br-entity-table--directory mb-0"/);
-    assert.match(source, /class="br-users-list__stack"/);
+    assert.match(source, /class="table fg-entity-table fg-entity-table--directory mb-0"/);
+    assert.match(source, /class="fg-users-list__stack"/);
     assert.doesNotMatch(source, /br-users-profile-label/);
     assert.match(source, /<CopyButton v-if="record\.document_number" :value="record\.document_number" label="Número de documento"\/>/);
     assert.match(source, /<CopyButton :value="record.email"/);

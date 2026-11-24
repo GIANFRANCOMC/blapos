@@ -7,7 +7,6 @@ test("servicios en curso conserva sus acciones y distingue su interfaz de restau
 
     const source = readFileSync(new URL("../../resources/js/System/Pages/Operations/service_operations/main.vue", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/System/fg/sales.css", import.meta.url), "utf8");
-    const bundledStyles = readFileSync(new URL("../../public/System/assets/css/br-branding.css", import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: "service_operations/main.vue"}).errors.length, 0);
     assert.match(source, /fg-service-page--sessions/);
@@ -27,6 +26,5 @@ test("servicios en curso conserva sus acciones y distingue su interfaz de restau
     assert.match(styles, /\.fg-service-toolbar--sessions/);
     assert.match(styles, /\.fg-service-report-grid/);
     assert.match(styles, /\.fg-service-detail__content/);
-    assert.doesNotMatch(bundledStyles, /\.br-(?:service|pos)-/);
 
 });

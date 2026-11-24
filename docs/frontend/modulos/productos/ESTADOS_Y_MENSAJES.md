@@ -19,7 +19,7 @@ Agregar abre directamente el formulario. El Swal de operación empieza cuando se
 - Popup blanco de 420 px de referencia, 358 px en móvil, radio de 12 px y fondo oscurecido. Adaptar a contenido y viewport.
 - Icono de estado, título de 16 px, explicación de 13 px y botón Entendido. Éxito verde, error rojo, carga azul.
 - Carga con circle-notch giratorio y ayuda **Espera un momento, por favor.** Sin porcentaje ficticio, botón Entendido, cierre exterior ni interrupción accidental.
-- Reutilizar fa-solid fa-circle-notch y br-loader__icon del helper Alerts; fa-spin representa el mismo giro solicitado, sin superponer dos animaciones.
+- Reutilizar fa-solid fa-circle-notch y fg-loader__icon del helper Alerts; fa-spin representa el mismo giro solicitado, sin superponer dos animaciones.
 - Mantener el texto cuando se reduzca o desactive el movimiento. El estado se anuncia mediante role=status, aria-live y aria-busy.
 - Un solo nivel de foco activo. No acumular Swal, modal y toast para el mismo resultado.
 

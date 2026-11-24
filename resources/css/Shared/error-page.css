@@ -1,0 +1,124 @@
+@import "./tokens.css";
+
+.fg-error-page {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--fg-canvas);
+    color: var(--fg-text);
+    font-family: var(--fg-font);
+}
+.fg-error-shell {
+    display: flex;
+    flex-direction: column;
+    width: min(100% - 2.5rem, 68rem);
+    min-height: 100vh;
+    margin-inline: auto;
+    padding-block: clamp(1.25rem, 4vh, 2.5rem);
+}
+.fg-error-brand {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 0.6rem;
+    color: var(--fg-heading);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-title-weight);
+    letter-spacing: 0.025em;
+}
+.fg-error-brand img {
+    display: block;
+    width: 2.25rem;
+    height: 2.25rem;
+    object-fit: contain;
+}
+.fg-error-content {
+    width: min(100%, 34rem);
+    margin: auto;
+    padding-block: 3rem;
+}
+.fg-error-code {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--fg-primary);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-title-weight);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.fg-error-content h1 {
+    margin: 0;
+    color: var(--fg-heading);
+    font-size: var(--fg-section-size);
+    font-weight: var(--fg-title-weight);
+    line-height: 1.18;
+}
+.fg-error-description {
+    max-width: 30rem;
+    margin: 0.9rem 0 0;
+    color: var(--fg-muted);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-regular-weight);
+    line-height: 1.6;
+}
+.fg-error-detail {
+    margin: 1.15rem 0 0;
+    padding: 0.7rem 0.85rem;
+    border-left: 2px solid var(--fg-primary-muted);
+    background: var(--fg-surface);
+    color: var(--fg-text);
+    font-size: var(--fg-body-size);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.fg-error-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    margin-top: 1.8rem;
+    padding: 0.55rem 1.05rem;
+    border-radius: var(--fg-radius);
+    background: var(--fg-primary);
+    color: var(--fg-surface);
+    font-size: var(--fg-body-size);
+    font-weight: var(--fg-title-weight);
+    text-decoration: none;
+    transition: background-color 0.16s ease;
+}
+.fg-error-action:hover,
+.fg-error-action:focus-visible {
+    background: var(--fg-primary-hover);
+    color: var(--fg-surface);
+    text-decoration: none;
+}
+.fg-error-action:focus-visible {
+    outline: 2px solid var(--fg-primary);
+    outline-offset: 3px;
+}
+.fg-error-support {
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--fg-border);
+    color: var(--fg-muted);
+    font-size: var(--fg-body-size);
+    line-height: 1.6;
+}
+.fg-error-support .fg-support-contact__question {
+    color: var(--fg-heading);
+    font-weight: var(--fg-title-weight);
+}
+.fg-error-support .fg-link {
+    font-weight: var(--fg-title-weight);
+}
+@media (max-width: 575.98px) {
+    .fg-error-shell {
+        width: min(100% - 2rem, 34rem);
+    }
+    .fg-error-content {
+        padding-block: 2.5rem;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .fg-error-action {
+        transition: none;
+    }
+}

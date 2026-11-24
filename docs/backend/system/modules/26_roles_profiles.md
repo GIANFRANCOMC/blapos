@@ -23,7 +23,7 @@ Define qué módulos, acciones, sucursales, cajas y almacenes puede utilizar cad
 - El listado permite crear, editar y duplicar perfiles de acceso.
 - La acción `Duplicar perfil` solicita un nombre nuevo, copia permisos y alcances mediante `POST /roles/{id}/duplicate` y refresca el listado al terminar.
 - El nombre sugerido usa `Copia de {perfil}` y evita repetir nombres ya visibles en la página actual; la validación final queda en el backend por empresa.
-- Las acciones de tabla se mantienen compactas con `br-table-actions` y botones `br-icon-action-*` para conservar la línea visual de Productos.
+- Las acciones de tabla se mantienen compactas con `fg-table-actions` y botones `fg-icon-action-*` para conservar la línea visual de Productos.
 - El listado presenta cada perfil en una fila, con el tipo bajo el nombre, el alcance de módulos y el número de colaboradores como datos sin badges decorativos. La edición usa secciones de permisos de una sola columna con filas y separadores suaves; las acciones aparecen alineadas junto al módulo.
 - Durante `initParams`, el skeleton muestra la barra de búsqueda, los cinco encabezados y el `Loader` habitual dentro de la tabla. `InitialLoadTransition` funde el contenido al terminar los parámetros. El listado conserva su propio loader durante las consultas y mantiene el paginador oculto mientras carga.
 

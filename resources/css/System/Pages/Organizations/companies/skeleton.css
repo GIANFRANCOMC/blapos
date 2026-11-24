@@ -1,37 +1,37 @@
-.br-company-skeleton__fields {
+.fg-company-skeleton__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--br-grid-gap-3);
+  gap: var(--fg-space-4);
 }
 
-.br-company-skeleton__field {
+.fg-company-skeleton__field {
   display: grid;
   align-content: start;
   gap: 0.16rem;
   min-width: 0;
 }
 
-.br-company-skeleton__field--full { grid-column: 1 / -1; }
+.fg-company-skeleton__field--full { grid-column: 1 / -1; }
 
-.br-company-skeleton__label {
+.fg-company-skeleton__label {
   width: 7.5rem;
   height: 0.62rem;
   margin-bottom: 0.1rem;
 }
 
-.br-company-skeleton__value {
+.fg-company-skeleton__value {
   width: 35%;
   height: 0.62rem;
 }
 
-.br-company-skeleton__field--full .br-company-skeleton__value { width: 24%; }
+.fg-company-skeleton__field--full .fg-company-skeleton__value { width: 24%; }
 
-.br-company-skeleton__button {
+.fg-company-skeleton__button {
   width: 9rem;
-  height: var(--br-btn-height);
+  height: var(--fg-control-height);
   background: #dceafb;
 }
 
 @media (max-width: 991.98px) {
-  .br-company-skeleton__fields { grid-template-columns: 1fr; }
+  .fg-company-skeleton__fields { grid-template-columns: 1fr; }
 }

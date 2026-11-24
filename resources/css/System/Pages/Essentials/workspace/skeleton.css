@@ -1,121 +1,121 @@
-.br-workspace-skeleton {
+.fg-workspace-skeleton {
   display: grid;
   gap: 1.1rem;
 }
 
-.br-workspace-skeleton .fg-skeleton-line { flex: none; }
+.fg-workspace-skeleton .fg-skeleton-line { flex: none; }
 
-.br-workspace-skeleton__breadcrumb {
+.fg-workspace-skeleton__breadcrumb {
   min-height: 1rem;
   align-items: center;
 }
 
-.br-workspace-skeleton__breadcrumb .fg-skeleton-line {
+.fg-workspace-skeleton__breadcrumb .fg-skeleton-line {
   height: 0.68rem;
 }
 
-.br-workspace-skeleton__heading {
+.fg-workspace-skeleton__heading {
   display: grid;
   justify-items: start;
   gap: 0.36rem;
 }
 
-.br-workspace-skeleton__title {
+.fg-workspace-skeleton__title {
   width: min(88%, 30rem);
   height: clamp(1.8rem, 1.42rem + 1vw, 2.25rem);
   margin-top: 0.55rem;
 }
 
-.br-workspace-skeleton__subtitle {
+.fg-workspace-skeleton__subtitle {
   width: min(96%, 34rem);
   height: 0.78rem;
 }
 
-.br-workspace-skeleton__link {
+.fg-workspace-skeleton__link {
   box-shadow: none;
 }
 
-.br-workspace-skeleton__action-icon,
-.br-workspace-skeleton__logo {
+.fg-workspace-skeleton__action-icon,
+.fg-workspace-skeleton__logo {
   width: 3.4rem;
   height: 3.4rem;
 }
 
-.br-workspace-skeleton__action-icon {
+.fg-workspace-skeleton__action-icon {
   border-radius: 50%;
   background: #e5f1ff;
 }
 
-.br-workspace-skeleton__action-copy,
-.br-workspace-skeleton__company-head-copy,
-.br-workspace-skeleton__detail-copy,
-.br-workspace-skeleton__support-copy {
+.fg-workspace-skeleton__action-copy,
+.fg-workspace-skeleton__company-head-copy,
+.fg-workspace-skeleton__detail-copy,
+.fg-workspace-skeleton__support-copy {
   display: grid;
   align-content: center;
   gap: 0.32rem;
   min-width: 0;
 }
 
-.br-workspace-skeleton__action-title {
+.fg-workspace-skeleton__action-title {
   width: 58%;
   height: 0.76rem;
 }
 
-.br-workspace-skeleton__action-description {
+.fg-workspace-skeleton__action-description {
   width: 92%;
   height: 0.62rem;
 }
 
-.br-workspace-skeleton__action-description--short {
+.fg-workspace-skeleton__action-description--short {
   width: 66%;
 }
 
-.br-workspace-skeleton__logo {
+.fg-workspace-skeleton__logo {
   flex: 0 0 3.4rem;
   border-radius: 0.55rem;
   background: #daeafa;
 }
 
-.br-workspace-skeleton__company-head-copy {
+.fg-workspace-skeleton__company-head-copy {
   flex: 1;
 }
 
-.br-workspace-skeleton__detail {
+.fg-workspace-skeleton__detail {
   min-height: 2.5rem;
 }
 
-.br-workspace-skeleton__detail--compact {
+.fg-workspace-skeleton__detail--compact {
   min-height: 2.15rem;
 }
 
-.br-workspace-skeleton__detail-icon {
+.fg-workspace-skeleton__detail-icon {
   width: 0.9rem;
   height: 0.9rem;
   border-radius: 0.25rem;
 }
 
-.br-workspace-skeleton__detail-label {
+.fg-workspace-skeleton__detail-label {
   width: 65%;
   height: 0.62rem;
 }
 
-.br-workspace-skeleton__detail-value {
+.fg-workspace-skeleton__detail-value {
   width: 82%;
   height: 0.7rem;
 }
 
-.br-workspace-skeleton__support-copy {
+.fg-workspace-skeleton__support-copy {
   width: 100%;
 }
 
-.br-workspace-skeleton__support-symbol {
+.fg-workspace-skeleton__support-symbol {
   width: 2.45rem;
   height: 2.45rem;
   border-radius: 50%;
   background: #cfe3fb;
 }
 
-.br-workspace-skeleton__support-button {
+.fg-workspace-skeleton__support-button {
   width: 7.8rem;
   height: 2.65rem;
   background: #d1e4fa;
