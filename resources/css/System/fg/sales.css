@@ -135,6 +135,7 @@
 .fg-sale-delivery-trace > article > div { display: grid; }
 .fg-sale-delivery-trace > article > div > span { font-size: var(--fg-help-size); color: var(--fg-muted); }
 .fg-sale-delivery-trace__item, .fg-receivable-detail__payments > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--fg-space-2); border-block-start: 1px solid var(--fg-border); padding-block: var(--fg-space-2); }
+.fg-receivable-detail__payments > div > span { min-width: 0; overflow-wrap: anywhere; }
 .fg-sale-delivery-progress__bar, .fg-receivables-progress > span { display: block; block-size: 6px; background: var(--fg-border); border-radius: var(--fg-radius); overflow: hidden; }
 .fg-sale-delivery-progress__bar > *, .fg-receivables-progress > span > i { display: block; height: 100%; background: var(--fg-primary); }
 .fg-receivables__metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--fg-space-3); margin-block-end: var(--fg-space-4); }
