@@ -11,14 +11,15 @@ test("Diferencia conserva signo, unidad y tono en ambas tablas de stock", () => 
     const page = read("resources/js/System/Pages/Warehouses/inventory/stock.vue");
     const modal = read("resources/js/System/Pages/Warehouses/inventory/StockAlertsModal.vue");
     const style = read("resources/css/System/fg/inventory.css");
+    const values = read("resources/css/Shared/table-values.css");
     const columns = read("resources/js/System/Pages/Warehouses/inventory/inventoryPresentation.js");
     const {descriptor, errors} = parse(source);
     assert.equal(errors.length, 0);
     assert.match(page, /<StockDifference :current="record\.stock_quantity" :minimum="record\.minimum_stock"/);
     assert.match(modal, /<StockDifference :current="alert\.quantity" :minimum="alert\.minimum_stock"/);
     assert.match(columns, /label: "Diferencia", align: "end"/);
-    assert.match(style, /\.fg-value-positive \{ color: var\(--fg-success\); \}/);
-    assert.match(style, /\.fg-value-negative \{ color: var\(--fg-danger\); \}/);
+    assert.match(values, /\.fg-value-positive \{ color: var\(--fg-success\); \}/);
+    assert.match(values, /\.fg-value-negative \{ color: var\(--fg-danger\); \}/);
     assert.match(style, /\.fg-inventory-quantity \{ font-size: var\(--fg-section-size\);/);
     assert.match(descriptor.template.content, /<QuantityValue[^>]*:value="difference" :unit="unit" signed/);
 

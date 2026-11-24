@@ -1,10 +1,5 @@
-@import "./list-layouts.css";
-@import "./statuses-and-totals.css";
-@import "./form-layouts.css";
-@import "./inline-actions.css";
 @import "./workspace.css";
 @import "./dashboard.css";
-@import "./document-details.css";
 @import "./organization.css";
 @import "./purchases.css";
 @import "./commercial-credit.css";

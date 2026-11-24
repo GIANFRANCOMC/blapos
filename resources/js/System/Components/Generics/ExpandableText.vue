@@ -1,6 +1,6 @@
 <template>
-    <span ref="container" :class="['fg-product-description', {'fg-product-description--expanded': expanded}]">
-        <span ref="content" :id="textId" :class="'fg-product-description__text'" v-text="text"></span>
+    <span ref="container" :class="['fg-inline-text-action', {'fg-inline-text-action--expanded': expanded}]">
+        <span ref="content" :id="textId" :class="'fg-inline-text-action__text'" v-text="text"></span>
         <button
             v-if="hasOverflow"
             type="button"

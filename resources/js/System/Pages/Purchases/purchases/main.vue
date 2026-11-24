@@ -255,7 +255,7 @@
                                     </div>
                                 </div>
                                 <div class="fg-sale-sidebar-actions">
-                                    <div class="fg-sale-sidebar-actions__pair">
+                                    <div class="fg-purchases-sidebar-actions">
                                         <button type="button" class="fg-button fg-button--small waves-effect" @click="addPurchaseItem">
                                             <span>Agregar producto</span>
                                         </button>
@@ -263,7 +263,7 @@
                                             <span>Limpiar</span>
                                         </button>
                                     </div>
-                                    <div class="fg-sale-sidebar-actions__pair">
+                                    <div class="fg-purchases-sidebar-actions">
                                         <button type="button" class="fg-button fg-sale-sidebar-actions__cta" :disabled="saving" @click="savePurchase">
                                             <span v-text="saving ? 'Registrando' : 'Registrar compra'"></span>
                                         </button>
@@ -302,24 +302,18 @@
                     </div>
                 </div>
 
-                <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-filter-bar">
+                <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-filter-bar fg-filter-bar--compact">
                     <div class="row align-items-end g-2">
-                        <SearchInput
-                            v-model="filters.word"
-                            hasDiv
-                            title="Búsqueda"
-                            :titleClass="[config.forms.classes.title]"
-                            placeholder="Proveedor, documento o producto"
-                            xl="5"
-                            lg="5"/>
-                        <div class="form-group col-xl-3 col-lg-3 col-md-12">
-                            <label class="form-label">{{ activeMode === "receipts" ? "Estado del ingreso" : "Estado" }}</label>
-                            <v-select
+                        <div class="col-12 col-lg-5">
+                            <SearchInput v-model="filters.word" title="Búsqueda" placeholder="Proveedor, documento o producto"/>
+                        </div>
+                        <FgField class="col-12 col-lg-3" :label="activeMode === 'receipts' ? 'Estado del ingreso' : 'Estado'" input-id="purchase-filter-status">
+                            <FgSelect
                                 v-model="filters.status"
                                 :options="statuses"
                                 :clearable="false"
                                 :searchable="false"/>
-                        </div>
+                        </FgField>
                         <div class="form-group col-xl-4 col-lg-4 col-md-12">
                             <div class="fg-filter-bar__actions">
                                 <SearchButton class="fg-button--small" @click="listPurchases({applyFilters: true})"/>
@@ -370,7 +364,7 @@
                                             <strong>{{ purchase.formatted_document_type }}</strong>
                                             <span class="fg-purchases__meta">
                                                 {{ purchaseDocumentReference(purchase) }}
-                                                ? {{ formatDate(purchase.issue_date) }}
+                                                · {{ formatDate(purchase.issue_date) }}
                                             </span>
                                         </td>
                                         <td>
@@ -429,15 +423,11 @@
 
         </div>
     </InitialLoadTransition>
-    <div id="purchaseReceiptModal" class="modal fade fg-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div id="purchaseReceiptModal" class="modal fade fg-modal" aria-labelledby="purchase-receipt-title" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Compras</p>
-                        <h2 class="modal-title fg-modal__title">Recibir mercadería</h2>
-                        <p class="fg-purchases__modal-help">Solo las cantidades recibidas ingresarán al inventario.</p>
-                    </div>
+                    <h2 id="purchase-receipt-title" class="modal-title fg-modal__title">Recibir mercadería</h2>
                     <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
@@ -445,6 +435,7 @@
                 <div class="modal-body fg-modal__body">
                     <div v-if="loadingReceipt" class="py-4"><Loader/></div>
                     <template v-else>
+                        <p class="fg-purchases__modal-help mb-3">Solo las cantidades recibidas ingresarán al inventario.</p>
                         <div class="fg-purchases__receipt-summary">
                             <strong>{{ receiptForm.purchase?.supplier?.name }}</strong>
                             <span>{{ receiptForm.purchase?.warehouse?.name }}</span>
@@ -460,12 +451,12 @@
                         </div>
                         <div class="row g-3 mt-1">
                             <div class="col-md-5">
-                                <label class="form-label">Fecha y hora de recepción</label>
-                                <input v-model="receiptForm.receivedAt" type="datetime-local" class="form-control">
+                                <label for="purchase-receipt-date" class="form-label">Fecha y hora de recepción</label>
+                                <input id="purchase-receipt-date" v-model="receiptForm.receivedAt" type="datetime-local" class="form-control">
                             </div>
                             <div class="col-md-7">
-                                <label class="form-label">Observación</label>
-                                <textarea v-model.trim="receiptForm.observation" class="form-control" rows="2"></textarea>
+                                <label for="purchase-receipt-observation" class="form-label">Observación</label>
+                                <textarea id="purchase-receipt-observation" v-model.trim="receiptForm.observation" class="form-control" rows="2"></textarea>
                             </div>
                         </div>
                     </template>
@@ -489,10 +480,12 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, ProductIdentity, SearchInput},
+    components: {SearchButton, ProductIdentity, SearchInput, FgField, FgSelect},
     async mounted() {
         this.activeMode = this.initialModeFromPath();
         navbarItem("menu-parent-purchases", {addClass: "open"});

@@ -1,0 +1,9 @@
+.fg-product-identity { display: block; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.fg-product-identity--expandable .fg-product-identity__codes { margin-inline-start: calc(26px + var(--fg-space-2)); }
+
+.fg-product-identity__toggle { display: inline-flex; align-items: center; gap: var(--fg-space-2); max-inline-size: 100%; padding: 2px var(--fg-space-2) 2px 2px; border: 0; border-radius: var(--fg-radius); background: transparent; color: var(--fg-text); text-align: start; }
+.fg-product-identity__toggle:hover { background: var(--fg-primary-soft); }
+.fg-product-identity__icon { display: grid; place-items: center; flex: 0 0 24px; block-size: 24px; border-radius: var(--fg-radius); background: var(--fg-primary-soft); color: var(--fg-primary); font-size: var(--fg-help-size); }
+.fg-product-identity__codes { display: flex; flex-wrap: wrap; column-gap: var(--fg-space-3); row-gap: var(--fg-space-1); margin-top: var(--fg-space-1); }
+.fg-product-identity__code { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--fg-space-1); font-variant-numeric: tabular-nums; }
+.fg-product-identity__label { color: var(--fg-muted); font-size: var(--fg-help-size); white-space: nowrap; }

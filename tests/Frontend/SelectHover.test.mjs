@@ -31,8 +31,10 @@ test("los campos de una línea comparten altura y los selectores múltiples pued
     const native = declarations(controls, ".fg-theme :is(input.form-control, .form-select, .input-group-text, .select2-selection--single)");
     const vueSelect = declarations(components, ":is(.fg-select, .fg-theme .v-select) .vs__dropdown-toggle");
     const multiple = declarations(controls, ".fg-theme .select2-selection--multiple .select2-selection__rendered");
+    const selected = declarations(components, ":is(.fg-select, .fg-theme .v-select).vs--single .vs__selected-options");
     assert.equal(native["min-height"], "var(--fg-control-height)");
     assert.equal(vueSelect["min-height"], native["min-height"]);
+    assert.equal(selected["flex-wrap"], "nowrap");
     assert.equal(multiple["flex-wrap"], "wrap");
     assert.equal(multiple.height, undefined);
 });

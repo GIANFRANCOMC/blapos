@@ -66,55 +66,6 @@
     gap: 0.6rem;
     margin-top: 1rem;
 }
-.fg-tax-quantity {
-    width: 4.2rem;
-    min-height: 2.1rem;
-    color: var(--fg-heading);
-    font-size: var(--fg-body-size);
-    font-weight: var(--fg-title-weight);
-    text-align: center;
-}
-.fg-tax-quantity__label {
-    display: inline-flex;
-    align-items: center;
-    min-height: auto;
-    margin: 0;
-    padding: 0 0.42rem;
-    border: 0;
-    border-right: 1px solid var(--fg-border);
-    border-radius: 0;
-    background: var(--fg-secondary-soft);
-    color: var(--fg-heading);
-    font-size: var(--fg-body-size);
-    font-weight: var(--fg-label-weight);
-    line-height: 1;
-}
-.fg-document-settlement__taxes .fg-form-control-group:has(.fg-tax-quantity) {
-    width: auto;
-}
-.fg-document-settlement__taxes .fg-form-control-group:has(.fg-tax-quantity):focus-within {
-    border-color: var(--fg-primary);
-    box-shadow: var(--fg-focus);
-}
-.fg-document-settlement__taxes .fg-form-control-group:has(.fg-tax-quantity:disabled) {
-    opacity: 0.58;
-}
-.fg-document-payment-amount {
-    min-width: 7rem;
-}
-.fg-document-payment-row .fg-icon-action {
-    width: 2.25rem;
-    height: 2.25rem;
-}
-.fg-document-payment-row .fg-icon-action:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-}
-@media (max-width: 767.98px) {
-    .fg-document-payment-row .fg-icon-action {
-        justify-self: start;
-    }
-}
 .fg-purchases__receipt-summary {
     display: flex;
     align-items: center;
@@ -146,8 +97,26 @@
         grid-template-columns: 1fr;
     }
 }
-@media (max-width: 767.98px) {
-    .fg-entity-form-section {
-        min-height: 0;
+
+.fg-purchases-sidebar-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    width: 100%;
+}
+.fg-purchases-sidebar-actions .fg-button {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+    min-height: 2.65rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+@media (max-width: 575.98px) {
+    .fg-purchases-sidebar-actions {
+        grid-template-columns: 1fr;
     }
 }

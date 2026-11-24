@@ -44,3 +44,16 @@
 .fg-theme .select2-container.select2-container--disabled :is(.select2-selection__rendered, .select2-selection__placeholder, .select2-search__field, .select2-selection__arrow) { background: transparent; color: var(--fg-disabled-text); opacity: 1; }
 .fg-theme .select2-container.select2-container--disabled .select2-selection__choice { background: var(--fg-disabled-tag-bg); border-color: var(--fg-disabled-border); color: var(--fg-disabled-text); }
 .fg-theme .select2-container.select2-container--disabled .select2-search__field::placeholder { color: var(--fg-disabled-text); opacity: 1; }
+
+.fg-theme .input-group:has(.form-control:is(:disabled, [readonly])) .fg-input-action {
+    border-color: var(--fg-disabled-border);
+    background: var(--fg-disabled-bg);
+    color: var(--fg-disabled-text);
+    opacity: 1;
+    cursor: not-allowed;
+    transition: none;
+}
+:is(.fg-select, .fg-theme .v-select).vs--disabled .fg-select-selected-text {
+    color: var(--fg-disabled-text);
+    -webkit-text-fill-color: currentColor;
+}

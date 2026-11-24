@@ -1,59 +1,4 @@
-body.fg-theme .modal-header.fg-modal-header {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    padding: 0.5rem 1rem;
-    background-color: var(--fg-table-head);
-    background-image: none;
-    border-bottom: 1px solid var(--fg-border);
-}
-body.fg-theme .modal-header.fg-modal-header .modal-title {
-    flex: 1 1 auto;
-    margin: 0 auto !important;
-    padding: 0 0.35rem;
-    text-align: center;
-    color: var(--fg-heading);
-    letter-spacing: 0.045em;
-}
-.fg-modal-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.85rem;
-    z-index: 2;
-    display: inline-grid;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: 0;
-    border-radius: var(--fg-radius);
-    background: transparent;
-    color: var(--fg-modal-close-muted);
-    place-items: center;
-    transition: color 0.16s ease;
-}
-.fg-modal-close:hover,
-.fg-modal-close:focus-visible {
-    background: transparent;
-    color: var(--fg-danger);
-    transform: none;
-}
-.fg-modal-close:focus-visible {
-    outline: none;
-    box-shadow: var(--fg-focus);
-}
-.fg-modal-close:active {
-    background: transparent;
-}
-.fg-modal-close:disabled,
-.fg-modal-close:disabled:hover {
-    color: var(--fg-modal-close-muted);
-    opacity: 0.45;
-    cursor: not-allowed;
-}
+/* Shared input addons, validation and focus rings. */
 .fg-field-help {
     display: inline-grid;
     width: 1.15rem;
@@ -114,12 +59,12 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
     border-right: 0 !important;
     padding-right: 0.24rem;
 }
-.fg-input-unit-suffix {
+.fg-theme .input-group .fg-input-unit-suffix {
     min-width: 2.2rem;
     justify-content: center;
     border-color: var(--bs-border-color, var(--fg-border)) !important;
     background: var(--fg-surface) !important;
-    color: var(--fg-muted) !important;
+    color: var(--fg-muted);
     line-height: 1;
 }
 .fg-theme .fg-form-control-group {
@@ -156,15 +101,8 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
     font-weight: var(--fg-label-weight);
     line-height: 1.25;
 }
-.fg-input-action:hover,
-.fg-input-action:focus-visible {
-    color: var(--fg-primary);
-    outline: 0;
-}
-.fg-input-action:focus-visible {
-    outline: none;
-    box-shadow: none;
-}
+.fg-input-action:is(:hover, :focus-visible) { color: var(--fg-primary); }
+
 .fg-theme .fg-form-control-group:focus-within,
 .fg-theme .input-group:has(.fg-input-action):focus-within,
 .fg-theme .input-group:has(.fg-currency-prefix):focus-within,
@@ -184,14 +122,61 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
 .fg-theme .input-group:has(.fg-input-unit-suffix):focus-within .fg-input-unit-suffix {
     box-shadow: none !important;
 }
-.fg-currency-prefix {
+.fg-theme .input-group .fg-currency-prefix {
     min-width: 1.25rem;
     padding-inline: 0.14rem;
     justify-content: center;
     border-color: var(--bs-border-color, var(--fg-border)) !important;
     background: var(--fg-surface) !important;
-    color: var(--fg-muted) !important;
+    color: var(--fg-muted);
     line-height: 1;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0;
+}
+
+.fg-theme .input-group:not(:where(.is-invalid)):not(:focus-within):not(:has(:disabled, [readonly])):hover .fg-input-action {
+    border-color: color-mix(in srgb, var(--fg-primary) 26%, var(--fg-border-strong)) !important;
+    background-color: var(--fg-surface-subtle) !important;
+}
+.fg-theme .input-group:focus-within .fg-input-action {
+    background-color: var(--fg-surface);
+    border-color: var(--fg-primary);
+}
+
+.fg-entity-switch {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    min-height: 3.9rem;
+    padding: 0.66rem 0.8rem;
+    border: 1px solid var(--fg-border);
+    border-radius: 6px;
+    background: var(--fg-surface-soft);
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.fg-entity-switch.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.fg-entity-switch:has(.form-check-input:checked) {
+    border-color: color-mix(in srgb, var(--fg-success) 32%, var(--fg-border));
+    background: color-mix(in srgb, var(--fg-success-soft) 68%, var(--fg-surface));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg-success) 12%, transparent);
+}
+.fg-entity-switch .form-check-input {
+    flex: 0 0 auto;
+    margin: 0.15rem 0 0;
+}
+.fg-entity-switch strong,
+.fg-entity-switch small {
+    display: block;
+}
+.fg-entity-switch strong {
+    color: var(--fg-heading);
+}
+.fg-entity-switch small {
+    margin-top: 0.12rem;
+    color: var(--fg-muted);
+    line-height: 1.35;
 }

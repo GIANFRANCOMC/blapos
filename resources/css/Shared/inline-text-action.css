@@ -1,35 +1,3 @@
-.fg-inline-text-action {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  min-inline-size: 0;
-  max-inline-size: 100%;
-  contain: inline-size;
-}
-
-.fg-inline-text-action__content {
-  display: block;
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.fg-inline-text-action--expanded {
-  display: block;
-}
-
-.fg-inline-text-action--expanded .fg-inline-text-action__content {
-  overflow-wrap: anywhere;
-  white-space: pre-line;
-}
-
-.fg-inline-text-action__button {
-  flex: 0 0 auto;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: inherit;
-  line-height: inherit;
-  white-space: nowrap;
-}
+.fg-inline-text-action { display: block; margin-top: 3px; color: var(--fg-muted); font-size: var(--fg-help-size); line-height: 1.35; }
+.fg-inline-text-action__text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fg-inline-text-action--expanded .fg-inline-text-action__text { white-space: normal; overflow-wrap: anywhere; }

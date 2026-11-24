@@ -105,7 +105,7 @@ test("limpiar Producto en alertas solo actualiza el texto y devuelve el foco", (
 });
 
 test("el foco del buscador permanece en el grupo también antes de aparecer la X", () => {
-    const css = postcss.parse(read("resources/css/System/fg/modules/form-layouts.css"));
+    const css = postcss.parse(read("resources/css/Shared/control-groups.css"));
     let focusRule;
     let childRule;
     css.walkRules(rule => {

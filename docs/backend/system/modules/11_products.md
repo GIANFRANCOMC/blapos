@@ -24,7 +24,7 @@ Aunque productos, servicios y membresías comparten la tabla `items`, este módu
 - Disparador reutilizable: `resources/js/System/Components/Catalogs/Products/AddProduct.vue`
 - Configuración del formulario: `resources/js/System/Components/Catalogs/Products/productFormConfig.js`
 - Generador PNG reutilizable: `resources/js/System/Components/BarcodeDownloadButton.vue`
-- Estilos: `resources/css/Shared/ui.css`, parciales `resources/css/Shared/components.css`, `resources/css/System/fg/modules/document-details.css` y `resources/css/System/fg/modules/organization.css`
+- Estilos en la base `resources/css/Shared/ui.css` y en `resources/css/System/fg/products.css` para la composición propia del módulo.
 - Tablas: `items`, `measurement_units`, `brands`, `category_items`, `categories`, `warehouses`, `warehouse_items`
 
 ## Exportación Excel

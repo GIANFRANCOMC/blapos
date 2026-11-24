@@ -16,15 +16,15 @@ test("el scroll horizontal de las tablas se mantiene local incluso con el menú 
     const actions = read("resources/js/System/Components/Generics/ActionsButton.vue");
     const sales = read("resources/js/System/Pages/Sales/sales/main.vue");
 
-    assert.match(styles, /:is\(\.table-responsive, \.fg-table-scroll\)\s*\{[^}]*inline-size: 100%;[^}]*container-type: inline-size;[^}]*overflow-x: auto;/);
+    assert.match(styles, /:is\(\.table-responsive, \.fg-table-scroll\)\s*\{[^}]*position: relative;[^}]*inline-size: 100%;[^}]*container-type: inline-size;[^}]*overflow-x: auto;/);
     assert.match(styles, /\.fg-table__state > td\[colspan\] > :is\(\.fg-empty, \.fg-loader\)\s*\{[^}]*position: sticky;[^}]*max-inline-size: 100cqi;/);
     for(const entry of [system, platform]) {
         assert.match(entry, /@import "[^"]*Shared\/ui\.css";/);
     }
     assert.match(actions, /data-bs-config='\{"popperConfig":\{"strategy":"fixed"\}\}'/);
     assert.match(sales, /<TableActionsDropdown[\s\S]*?class="fg-sale-detail-actions"/);
-    for(const file of ["inline-actions.css", "operational-layouts.css"]) {
-        assert.doesNotMatch(read(`resources/css/System/fg/modules/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
+    for(const file of ["Shared/inline-actions.css", "System/fg/modules/operational-layouts.css"]) {
+        assert.doesNotMatch(read(`resources/css/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
     }
 });
 

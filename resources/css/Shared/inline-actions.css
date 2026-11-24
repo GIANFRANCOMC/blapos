@@ -1,3 +1,4 @@
+/* Shared icon actions, copy controls and empty feedback. */
 .fg-filter-clear {
     display: inline-flex;
     align-items: center;
@@ -192,7 +193,6 @@
     font-size: var(--fg-help-size);
     font-weight: var(--fg-title-weight);
     line-height: 1;
-    text-decoration: none;
     vertical-align: middle;
     cursor: pointer;
     transition: var(--fg-transition);
@@ -240,23 +240,6 @@
     width: 1rem;
     height: 1rem;
     margin-inline: 0 0.2rem;
-}
-.fg-quick-create-modal {
-    z-index: 1095 !important;
-}
-.modal-backdrop.fg-quick-create-backdrop {
-    z-index: 1090;
-}
-.fg-quick-create-modal .modal-dialog {
-    width: min(36rem, calc(100vw - 1rem));
-    max-width: 36rem;
-}
-.fg-quick-create-modal .modal-content {
-    overflow: hidden;
-}
-.fg-quick-create-modal .modal-body.fg-quick-create-modal__body {
-    padding: 1rem 1.15rem 1.1rem !important;
-    background: var(--fg-table-head);
 }
 .fg-internal-code-prefix {
     min-width: 2.25rem;
@@ -355,11 +338,6 @@
 .fg-quick-create-trigger:focus-visible {
     text-decoration: none !important;
 }
-@keyframes fg-loader-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
 @media (max-width: 575.98px) {
     .fg-quick-create-modal .modal-dialog {
         width: calc(100vw - 0.75rem);
@@ -370,3 +348,6 @@
         padding-left: 0.9rem !important;
     }
 }
+
+.fg-icon-danger.fg-button { color: var(--fg-danger); }
+.fg-icon-danger.fg-button:hover { background: var(--fg-danger-soft); }

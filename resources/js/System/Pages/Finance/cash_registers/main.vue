@@ -12,14 +12,14 @@
                         <p class="fg-cash__subtitle mb-0">{{ activeViewMeta.description }}</p>
                     </div>
                     <div class="fg-cash__selector">
-                        <label class="form-label">Caja de trabajo</label>
-                        <v-select
-                            v-model="registerFilter"
-                            :options="registerOptions"
-                            :clearable="false"
-                            :searchable="false"
-                            append-to-body
-                            placeholder="Seleccione una caja"/>
+                        <FgField label="Caja de trabajo" input-id="cash-work-register">
+                            <FgSelect
+                                v-model="registerFilter"
+                                :options="registerOptions"
+                                :clearable="false"
+                                :searchable="false"
+                                placeholder="Seleccione una caja"/>
+                        </FgField>
                         <p class="fg-operational-scope mt-2 mb-0">
                             <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
                             <span>{{ selectedRegister ? `${selectedRegister.name} · ${selectedRegister.branch?.name || 'Sucursal no definida'}` : 'Seleccione una caja para definir el alcance' }}</span>
@@ -27,12 +27,12 @@
                     </div>
                 </div>
 
-                <section class="fg-filter-bar fg-cash__toolbar">
+                <section class="fg-filter-bar fg-filter-bar--compact fg-cash__toolbar">
                     <div class="fg-filter-bar__field">
-                        <label class="form-label">Búsqueda</label>
                         <SearchInput
                             v-model="filters.search"
-                            placeholder="Buscar caja, responsable o referencia"/>
+                            title="Búsqueda"
+                            :placeholder="activeView === 'registers' ? 'Nombre, código o sucursal' : 'Caja, responsable o referencia'"/>
                     </div>
                     <div class="fg-filter-bar__actions">
                         <SearchButton @click="searchActiveView"/>
@@ -60,6 +60,7 @@
                         <button
                             type="button"
                             class="fg-button fg-button--template"
+                            aria-label="Descargar movimientos"
                             data-bs-toggle="tooltip"
                             title="Descargar movimientos"
                             @click="downloadMovements">
@@ -71,7 +72,7 @@
 
                 <section v-if="activeView === 'registers'" class="fg-cash__panel">
                     <Loader v-if="loading.registers"/>
-                    <div v-else-if="registers.length" class="table-responsive">
+                    <div v-else-if="visibleRegisters.length" class="table-responsive">
                         <table class="table fg-entity-table mb-0">
                             <thead class="fg-table-header-surface">
                                 <tr>
@@ -84,7 +85,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="register in registers" :key="register.id">
+                                <tr v-for="register in visibleRegisters" :key="register.id">
                                     <td>
                                         <strong>{{ register.name }}</strong>
                                         <span class="fg-cash__muted d-block">{{ register.code }}</span>
@@ -244,29 +245,24 @@
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" id="cashRegisterModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal fade fg-modal fg-modal--compact" id="cashRegisterModal" tabindex="-1" aria-labelledby="cashRegisterModalTitle" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content fg-modal">
+            <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Caja</p>
-                        <h5 class="modal-title fg-modal__title">Agregar caja</h5>
-                    </div>
+                    <h2 id="cashRegisterModalTitle" class="modal-title fg-modal__title">Agregar caja</h2>
                     <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body fg-modal__body">
-                    <InputSlot hasDiv title="Sucursal" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.branch_id">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="forms.register.branch"
-                                :options="branchOptions"
-                                :clearable="false"
-                                :searchable="branchOptions.length > 6"
-                                placeholder="Seleccione sucursal"/>
-                        </template>
-                    </InputSlot>
+                <div class="modal-body fg-modal__body fg-stack">
+                    <FgField label="Sucursal" required :error="errors.branch_id">
+                        <FgSelect
+                            v-model="forms.register.branch"
+                            :options="branchOptions"
+                            :clearable="false"
+                            :searchable="branchOptions.length > 6"
+                            placeholder="Seleccione sucursal"/>
+                    </FgField>
                     <InputText
                         v-model="forms.register.name"
                         hasDiv
@@ -286,15 +282,9 @@
                         hasTextBottom
                         :textBottomInfo="errors.code"
                         placeholder="Se genera automáticamente si lo dejas vacío"/>
-                    <InputSlot hasDiv title="Estado" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.status">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="forms.register.status"
-                                :options="statusOptions"
-                                :clearable="false"
-                                :searchable="false"/>
-                        </template>
-                    </InputSlot>
+                    <FgField label="Estado" required :error="errors.status">
+                        <FgSelect v-model="forms.register.status" :options="statusOptions" :clearable="false" :searchable="false"/>
+                    </FgField>
                 </div>
                 <div class="modal-footer fg-modal__footer">
                     <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -305,29 +295,24 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="cashOpenModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal fade fg-modal fg-modal--compact" id="cashOpenModal" tabindex="-1" aria-labelledby="cashOpenModalTitle" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content fg-modal">
+            <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Caja</p>
-                        <h5 class="modal-title fg-modal__title">Abrir caja</h5>
-                    </div>
+                    <h2 id="cashOpenModalTitle" class="modal-title fg-modal__title">Abrir caja</h2>
                     <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body fg-modal__body">
-                    <InputSlot hasDiv title="Caja" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.cash_register_id">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="forms.open.cash_register"
-                                :options="registerOptions"
-                                :clearable="false"
-                                :searchable="false"
-                                placeholder="Seleccione una caja"/>
-                        </template>
-                    </InputSlot>
+                <div class="modal-body fg-modal__body fg-stack">
+                    <FgField label="Caja" required :error="errors.cash_register_id">
+                        <FgSelect
+                            v-model="forms.open.cash_register"
+                            :options="registerOptions"
+                            :clearable="false"
+                            :searchable="false"
+                            placeholder="Seleccione una caja"/>
+                    </FgField>
                     <InputNumber
                         v-model="forms.open.opening_amount"
                         hasDiv
@@ -349,19 +334,16 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="cashCloseModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal fade fg-modal" id="cashCloseModal" tabindex="-1" aria-labelledby="cashCloseModalTitle" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content fg-modal">
+            <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Arqueo</p>
-                        <h5 class="modal-title fg-modal__title">Cerrar caja</h5>
-                    </div>
+                    <h2 id="cashCloseModalTitle" class="modal-title fg-modal__title">Cerrar caja</h2>
                     <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body fg-modal__body">
+                <div class="modal-body fg-modal__body fg-stack">
                     <div class="fg-cash-close-summary">
                         <span>Esperado</span>
                         <strong>S/ {{ separatorNumber(forms.close.expected_amount) }}</strong>
@@ -463,39 +445,31 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="cashMovementModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal fade fg-modal fg-modal--compact" id="cashMovementModal" tabindex="-1" aria-labelledby="cashMovementModalTitle" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content fg-modal">
+            <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Movimiento manual</p>
-                        <h5 class="modal-title fg-modal__title">Registrar operación</h5>
-                    </div>
+                    <h2 id="cashMovementModalTitle" class="modal-title fg-modal__title">Registrar operación</h2>
                     <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body fg-modal__body">
-                    <InputSlot hasDiv title="Tipo de movimiento" :titleClass="['form-label']" isRequired hasTextBottom :textBottomInfo="errors.movement_type">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="forms.movement.type"
-                                :options="movementTypeOptions"
-                                :clearable="false"
-                                :searchable="false"
-                                placeholder="Seleccione"/>
-                        </template>
-                    </InputSlot>
-                    <InputSlot hasDiv title="Método de pago" :titleClass="['form-label']" hasTextBottom :textBottomInfo="errors.payment_method_id">
-                        <template v-slot:input>
-                            <v-select
-                                v-model="forms.movement.payment_method"
-                                :options="paymentMethodOptions"
-                                :clearable="true"
-                                :searchable="false"
-                                placeholder="Efectivo / caja"/>
-                        </template>
-                    </InputSlot>
+                <div class="modal-body fg-modal__body fg-stack">
+                    <FgField label="Tipo de movimiento" required :error="errors.movement_type">
+                        <FgSelect
+                            v-model="forms.movement.type"
+                            :options="movementTypeOptions"
+                            :clearable="false"
+                            :searchable="false"
+                            placeholder="Seleccione"/>
+                    </FgField>
+                    <FgField label="Método de pago" :error="errors.payment_method_id">
+                        <FgSelect
+                            v-model="forms.movement.payment_method"
+                            :options="paymentMethodOptions"
+                            :searchable="false"
+                            placeholder="Efectivo / caja"/>
+                    </FgField>
                     <InputNumber
                         v-model="forms.movement.amount"
                         hasDiv
@@ -534,6 +508,8 @@ import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 
 const MODULE = {
     entity: "cash_registers",
@@ -550,7 +526,7 @@ const VIEW_MENU_MAP = {
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, SearchInput},
+    components: {SearchButton, SearchInput, FgField, FgSelect},
     props: {
         initialView: {
             type: String,
@@ -619,6 +595,14 @@ export default {
                 ...register,
                 label: `${register.name} - ${register.branch?.name || 'Sin sucursal'}`
             }));
+        },
+        visibleRegisters() {
+            const search = this.appliedSearch.trim().toLocaleLowerCase("es-PE");
+            if(!search) return this.registers;
+
+            return this.registers.filter(register =>
+                [register.name, register.code, register.branch?.name]
+                    .some(value => String(value ?? "").toLocaleLowerCase("es-PE").includes(search)));
         },
         branchOptions() {
             return this.options.branches.map(branch => ({...branch, label: branch.name}));

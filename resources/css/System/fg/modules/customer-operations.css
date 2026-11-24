@@ -194,7 +194,6 @@
     font-size: var(--fg-section-size);
 }
 .fg-customer-tracking-profile__name,
-.fg-customer-tracking-profile__meta,
 .fg-customer-tracking-profile__period {
     display: block;
 }
@@ -208,13 +207,13 @@
 }
 .fg-customer-tracking-profile__meta,
 .fg-customer-tracking-profile__period {
-    color: var(--fg-muted);
     font-size: var(--fg-help-size);
     font-weight: var(--fg-regular-weight);
 }
 .fg-customer-tracking-profile__meta {
     display: flex;
     gap: 0.35rem;
+    color: var(--fg-muted);
 }
 .fg-customer-tracking-profile__period {
     color: var(--fg-primary);
@@ -470,12 +469,15 @@
     gap: 0.75rem;
     min-width: 0;
 }
+.fg-master-data-form,
+.fg-master-data__records {
+    background: var(--fg-surface);
+}
 .fg-master-data__workspace,
 .fg-master-data-form,
 .fg-master-data__records {
     border: 1px solid var(--fg-border);
     border-radius: var(--fg-radius);
-    background: var(--fg-surface);
 }
 .fg-master-data__workspace {
     display: grid;
@@ -553,6 +555,9 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.75rem;
+}
+.fg-master-data__records-head,
+.fg-master-data-form > header {
     border-bottom: 1px solid var(--fg-border);
 }
 .fg-master-data__records-head span {
@@ -629,9 +634,6 @@
     align-items: center;
     gap: 0.45rem;
 }
-.fg-master-data-form {
-    background: var(--fg-surface);
-}
 .fg-master-data-form > header {
     background: var(--fg-surface);
 }
@@ -640,7 +642,6 @@
 }
 .fg-master-data-form > footer {
     border-top: 1px solid var(--fg-border);
-    border-bottom: 0;
     background: var(--fg-table-head);
 }
 .fg-master-data-form__notice,
@@ -652,10 +653,12 @@
     padding: 0.55rem 0.65rem;
     border: 1px solid color-mix(in srgb, var(--fg-primary) 22%, var(--fg-border));
     border-radius: var(--fg-radius);
-    background: color-mix(in srgb, var(--fg-primary-soft) 46%, var(--fg-surface));
     color: var(--fg-heading);
     font-size: var(--fg-help-size);
     font-weight: var(--fg-regular-weight);
+}
+.fg-master-data-form__notice {
+    background: color-mix(in srgb, var(--fg-primary-soft) 46%, var(--fg-surface));
 }
 .fg-master-data-form__notice i {
     margin-top: 0.12rem;
@@ -674,19 +677,13 @@
     font-size: var(--fg-body-size);
     font-weight: var(--fg-title-weight);
 }
-.fg-master-data-help,
-.fg-form-error {
+.fg-master-data-help {
     display: block;
     margin-top: 0.18rem;
     font-size: var(--fg-help-size);
     font-weight: var(--fg-title-weight);
     line-height: 1.35;
-}
-.fg-master-data-help {
     color: var(--fg-muted);
-}
-.fg-form-error {
-    color: var(--fg-danger);
 }
 .fg-master-data-warning {
     border-color: color-mix(in srgb, var(--fg-warning) 38%, var(--fg-border));

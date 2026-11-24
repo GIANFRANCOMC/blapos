@@ -44,7 +44,17 @@ if(typeof document !== "undefined") {
 
     }, true);
 
-    document.addEventListener("show.bs.modal", event => prepareModal(event.target), true);
+    document.addEventListener("show.bs.modal", event => {
+        const modal = event.target;
+        prepareModal(modal);
+
+        const Tooltip = window.bootstrap?.Tooltip;
+        if(!Tooltip) return;
+
+        document.querySelectorAll("[aria-describedby]").forEach(trigger => {
+            if(!modal.contains(trigger)) Tooltip.getInstance(trigger)?.hide();
+        });
+    }, true);
 
     document.addEventListener("hidden.bs.modal", () => {
 

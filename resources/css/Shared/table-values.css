@@ -1,25 +1,6 @@
-.fg-sale-sidebar-actions__pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    width: 100%;
-}
-.fg-sale-sidebar-actions__pair .fg-button {
-    width: 100%;
-    min-width: 0;
-    justify-content: center;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.3;
-    min-height: 2.65rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
-@media (max-width: 575.98px) {
-    .fg-sale-sidebar-actions__pair {
-        grid-template-columns: 1fr;
-    }
-}
+.fg-value-positive { color: var(--fg-success); }
+.fg-value-negative { color: var(--fg-danger); }
+
 .fg-theme td.fg-status-surface--success {
     background-color: var(--fg-success-soft) !important;
 }
@@ -75,12 +56,12 @@ body.fg-theme .fg-table-footer-stripe__label {
     font-size: var(--fg-micro-size);
     font-weight: var(--fg-label-weight);
     letter-spacing: 0.04em;
-    color: var(--fg-surface);
+    color: var(--fg-heading);
     font-variant-numeric: tabular-nums;
 }
 body.fg-theme .fg-table-footer-stripe .fg-amount-inline__sign,
 body.fg-theme .fg-table-footer-stripe .fg-amount-inline__amount {
-    color: var(--fg-surface);
+    color: var(--fg-heading);
 }
 @media (max-width: 575.98px) {
     .fg-amount-inline__sign {
@@ -121,7 +102,13 @@ body.fg-theme .fg-table-footer-stripe .fg-amount-inline__amount {
     .fg-table-detail-empty__top {
         padding: 0.36rem 1.25rem 0.68rem;
     }
-    .fg-table-detail-empty__text {
-        font-size: var(--fg-body-size);
-    }
 }
+
+.fg-price { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+
+.fg-price__sale strong { font-weight: var(--fg-label-weight); font-variant-numeric: tabular-nums; }
+.fg-price__summary { display: inline-flex; align-items: center; gap: var(--fg-space-1); font-size: var(--fg-help-size); color: var(--fg-primary); cursor: pointer; list-style: none; }
+.fg-price__summary::-webkit-details-marker { display: none; }
+.fg-price__values { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; font-size: var(--fg-help-size); }
+.fg-price__limit { display: flex; gap: 10px; justify-content: space-between; }
+.fg-price__label { font-weight: var(--fg-regular-weight); color: var(--fg-muted); }

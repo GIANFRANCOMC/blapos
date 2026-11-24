@@ -68,7 +68,7 @@ test("el breadcrumb usa la navegación activa como fuente para todos los módulo
 });
 
 test("el breadcrumb deja espacio uniforme antes del contenido de los submódulos", () => {
-    const shared = readFileSync(new URL("../../resources/css/System/fg/modules/list-layouts.css", import.meta.url), "utf8");
+    const shared = readFileSync(new URL("../../resources/css/Shared/list-layouts.css", import.meta.url), "utf8");
     const workspace = readFileSync(new URL("../../resources/css/System/fg/modules/workspace.css", import.meta.url), "utf8");
     const account = readFileSync(new URL("../../resources/css/System/Pages/Essentials/account/main.css", import.meta.url), "utf8");
 

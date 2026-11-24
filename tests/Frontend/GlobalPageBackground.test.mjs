@@ -11,6 +11,6 @@ test("las páginas comparten el fondo azul grisáceo y conservan superficies bla
     assert.match(tokens, /--fg-surface: #fff;/);
     assert.match(tokens, /--fg-border: #d9e3ef;/);
     assert.match(styles, /\.fg-theme\s*\{[^}]*background: var\(--fg-canvas\);/);
-    assert.match(styles, /\.fg-modal__content[^{}]*\{[^}]*background: var\(--fg-surface\);/);
+    assert.match(read("resources/css/Shared/modals.css"), /\.fg-modal__content[^{}]*\{[^}]*background: var\(--fg-surface\);/);
 
 });

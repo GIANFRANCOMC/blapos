@@ -158,11 +158,11 @@
 .fg-guest-section__header,
 .fg-guest-contact {
     display: flex;
-    align-items: flex-end;
     justify-content: space-between;
     gap: 1.25rem;
     margin-bottom: 1rem;
 }
+.fg-guest-section__header { align-items: flex-end; }
 .fg-guest-catalog-count {
     display: inline-flex;
     align-items: center;

@@ -9,10 +9,10 @@ const {descriptor, errors} = parse(read("resources/js/System/Components/Generics
 test("el catálogo usa el control compartido para las descripciones de sus tablas", () => {
     assert.deepEqual(errors, []);
     assert.match(descriptor.template.content, /v-if="hasOverflow"[\s\S]*?:aria-expanded="expanded"[\s\S]*?expanded \? "Ver menos" : "Ver más"/);
-    assert.match(descriptor.template.content, /fg-product-description__text/);
+    assert.match(descriptor.template.content, /fg-inline-text-action__text/);
     const styles = read("resources/css/Shared/inline-text-action.css");
-    assert.match(styles, /\.fg-inline-text-action__content\s*\{[^}]*display: block;[^}]*text-overflow: ellipsis;\s*white-space: nowrap;/);
-    assert.match(styles, /\.fg-inline-text-action--expanded \.fg-inline-text-action__content\s*\{[^}]*overflow-wrap: anywhere;\s*white-space: pre-line;/);
+    assert.match(styles, /\.fg-inline-text-action__text\s*\{[^}]*display: block;[^}]*text-overflow: ellipsis;\s*white-space: nowrap;/);
+    assert.match(styles, /\.fg-inline-text-action--expanded \.fg-inline-text-action__text\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: anywhere;/);
     for(const page of ["products", "services", "subscriptions", "categories", "brands"]) {
         assert.match(read(`resources/js/System/Pages/Catalogs/${page}/main.vue`),
             /<ExpandableText v-if="record\.description" :text="record\.description"\/>/);

@@ -23,6 +23,8 @@ test("Productos usa skeleton solo durante initParams", () => {
 test("el skeleton de Productos conserva filtros y columnas con el loader real de la tabla", () => {
     const skeleton = readFileSync(new URL("../../resources/js/System/Components/Catalogs/CatalogListSkeleton.vue", import.meta.url), "utf8");
     const styles = readFileSync(new URL("../../resources/css/Shared/skeleton.css", import.meta.url), "utf8");
+    const filters = readFileSync(new URL("../../resources/js/System/Components/Figma/FgSkeletonFilters.vue", import.meta.url), "utf8");
+    const layoutStyles = readFileSync(new URL("../../resources/css/Shared/list-layouts.css", import.meta.url), "utf8");
 
     const {descriptor, errors} = parse(skeleton, {filename: "CatalogListSkeleton.vue"});
     assert.deepEqual(errors, []);
@@ -37,6 +39,7 @@ test("el skeleton de Productos conserva filtros y columnas con el loader real de
     assert.deepEqual(columns.map(column => column.width), ["22%", "40%", "16%", "13%", "9%"]);
     assert.equal(columns[2].align, "fg-align-end");
     assert.match(styles, /height: var\(--fg-control-height, 36px\)/);
-    assert.match(styles, /@media \(max-width: 767px\)/);
+    assert.match(filters, /class="fg-filters"/);
+    assert.match(layoutStyles, /@media \(max-width: 767px\)[\s\S]*?\.fg-filters > :is\(\.fg-field, \.fg-catalog-skeleton__field\) \{ grid-column: 1 \/ -1;/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
 });

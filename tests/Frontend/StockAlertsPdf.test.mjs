@@ -11,7 +11,7 @@ test("alertas muestra contexto, códigos y cantidades con paginación fuera del 
     const page=read(base + "stock.vue");
     const state=read(base + "inventoryState.js");
     const table=read(base + "InventoryTable.vue");
-    const css=read("resources/css/System/fg/inventory.css");
+    const css=read("resources/css/Shared/responsive-tables.css");
     assert.deepEqual(parse(modal).errors, []);
     assert.match(modal, /Almacén de trabajo<\/span>[\s\S]*?class="fg-inventory-quantity"[\s\S]*?warehouse\?\.displayLabel/);
     assert.match(modal, /<SearchInput id="inventoryAlertProduct" title="Producto"[\s\S]*?:placeholder="productSearchPlaceholder"/);

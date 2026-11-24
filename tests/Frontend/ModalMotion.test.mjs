@@ -4,7 +4,7 @@ import test from "node:test";
 
 test("las modales usan la misma transición al abrir y cerrar sin perder el centrado", () => {
 
-    const branding = readFileSync(new URL("../../resources/css/Shared/controls.css", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/Shared/modals.css", import.meta.url), "utf8");
     const formModal = readFileSync(new URL("../../resources/js/System/Components/Generics/FormModal.vue", import.meta.url), "utf8");
 
     assert.match(branding, /:is\(\.modal\.fade, \.modal-backdrop\.fade\) \{ transition: opacity var\(--fg-control-motion\)/);

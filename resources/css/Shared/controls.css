@@ -57,10 +57,3 @@
 }
 
 .colon-at-end::after { content: ":"; }
-
-.fg-theme :is(.modal.fade, .modal-backdrop.fade) { transition: opacity var(--fg-control-motion); }
-.fg-theme .modal.fade .modal-dialog { transition: transform var(--fg-control-motion); }
-
-@media (prefers-reduced-motion: reduce) {
-    .fg-theme :is(.modal.fade, .modal-backdrop.fade, .modal.fade .modal-dialog) { transition: none; }
-}

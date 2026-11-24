@@ -3,11 +3,6 @@
     text-transform: none;
 }
 
-.fg-form-groups {
-    display: grid;
-    gap: 1.15rem;
-}
-
 .fg-form-group {
     display: grid;
     min-inline-size: 0;
@@ -62,3 +57,5 @@
         padding-block-start: 0.15rem;
     }
 }
+
+.fg-section-divider { height: 1px; background: var(--fg-border); width: 100%; }

@@ -19,7 +19,7 @@ const modules = [
 test("el precio principal usa la escala tipográfica compartida de tablas", () => {
 
     const tokens = readFileSync(new URL("../../resources/css/Shared/tokens.css", import.meta.url), "utf8");
-    const branding = readFileSync(new URL("../../resources/css/System/fg/products.css", import.meta.url), "utf8");
+    const branding = readFileSync(new URL("../../resources/css/Shared/table-values.css", import.meta.url), "utf8");
 
     assert.match(tokens, /--fg-body-size: [\d.]+px/);
     assert.match(branding, /\.fg-price__sale strong \{[^}]*font-weight: var\(--fg-label-weight\);[^}]*font-variant-numeric: tabular-nums/);

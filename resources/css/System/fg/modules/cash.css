@@ -34,9 +34,20 @@
     background: color-mix(in srgb, var(--fg-primary-soft) 28%, var(--fg-surface));
 }
 .fg-cash__toolbar {
+    display: flex;
+    flex-wrap: wrap;
     align-items: end;
+    gap: var(--fg-space-3);
     border-bottom: 0;
     background: transparent;
+}
+.fg-cash__toolbar .fg-filter-bar__field {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+.fg-cash__toolbar .fg-filter-bar__actions {
+    width: auto;
+    max-width: 100%;
 }
 .fg-cash__panel {
     padding: 0;
@@ -73,8 +84,8 @@
     padding: 0.85rem 1rem;
     border: 1px solid var(--fg-border);
     border-radius: var(--fg-radius);
-    background: var(--fg-surface);
 }
+.fg-cash-summary__card { background: var(--fg-surface); }
 .fg-cash-summary__card span,
 .fg-cash-close-summary span {
     color: var(--fg-muted);
@@ -149,4 +160,9 @@
     .fg-cash-summary {
         grid-template-columns: 1fr;
     }
+}
+
+.fg-cash__panel .fg-entity-table td,
+.fg-cash-inventory-count .fg-entity-table td {
+    padding: var(--fg-space-2) var(--fg-space-4);
 }
