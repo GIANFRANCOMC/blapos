@@ -31,7 +31,7 @@ Permite dar seguimiento a ventas cuya entrega física queda pendiente. La venta 
 
 - La pantalla usa filtros por sucursal, almacén, cliente, estado y búsqueda libre.
 - La columna pendiente muestra progreso, cantidad pendiente y hasta tres productos pendientes como referencia rápida.
-- La modal de entrega es estática y obliga cierre explícito, siguiendo `br-entity-modal`.
+- La modal FG de entrega requiere cierre explícito y muestra cuánto quedará pendiente antes de confirmar.
 - La cantidad a entregar usa `InputNumber` y se limita al pendiente de cada línea.
 
 ## Pendientes sugeridos

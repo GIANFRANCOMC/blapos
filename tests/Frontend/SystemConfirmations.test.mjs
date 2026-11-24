@@ -112,9 +112,13 @@ test("limpiar filtros muestra el aviso informativo de Toastr y usa el botón com
 
     assert.match(alerts, /export function showFiltersCleared\(\) \{\s*toastrs\(\{type: "info", title: "Se limpiaron los filtros correctamente\."\}\);\s*\}/);
     assert.match(button, /<svg[^>]*viewBox="0 0 384 560"[^>]*fill="currentColor"[^>]*aria-hidden="true"/);
-    for(const page of ["Sales/sales/list.vue", "Sales/sales/deliveries.vue", "Finance/accounts_receivable/main.vue", "Finance/accounts_payable/main.vue"]) {
+    const fgFilters = read("resources/js/System/Components/Figma/FgResponsiveFilters.vue");
+    const payable = read("resources/js/System/Pages/Finance/accounts_payable/main.vue");
+    assert.match(fgFilters, /<FgFilterActions[^>]*@clear="\$emit\('clear'\)"/);
+    assert.match(payable, /<ClearFiltersButton[^>]*@clear="clearFilters"/);
+    for(const page of ["Sales/sales/list.vue", "Sales/sales/deliveries.vue", "Sales/quotations/main.vue", "Finance/accounts_receivable/main.vue"]) {
         const source = read(`resources/js/System/Pages/${page}`);
-        assert.match(source, /<ClearFiltersButton[^>]*@clear="clearFilters"/);
+        assert.match(source, /<FgResponsiveFilters[^>]*@clear="clearFilters"/);
         assert.match(source, /Alerts\.showFiltersCleared\(\)/);
     }
 });

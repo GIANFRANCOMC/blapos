@@ -29,7 +29,7 @@ Administra pisos, mesas, pedidos y tiempos antes del cobro. La atención operati
 
 - Plano por piso con fondo configurable, arrastre de mesas y edición directa.
 - Panel lateral de atención con KDS por detalle, timeline visible, responsable, pausa, reanudación y cancelación.
-- Botones compactos y colores alineados al branding `br-*`.
+- Controles, estados y plano de mesas integrados al sistema visual FG.
 
 ## Mejoras Sugeridas
 

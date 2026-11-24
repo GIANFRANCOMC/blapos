@@ -68,6 +68,7 @@ return [
         "users.password.update" => "update",
         "users.authentication-events" => "view",
         "reports.sale" => "export",
+        "reports.sale.share-link" => "export",
         "reports.customers" => "export",
         "reports.items" => "export",
         "reports.branches" => "export",
@@ -109,6 +110,7 @@ return [
         "assets.categories.update" => ["assets.index"],
         "sales.initParams" => ["sales.index", "sales.create", "sales.deliveries.index", "sales.pos"],
         "options.sales-create" => ["sales.create"],
+        "options.sales-pos" => ["sales.pos"],
         "options.sales-list" => ["sales.index"],
         "options.sales-deliveries" => ["sales.deliveries.index"],
         "options.quotations-create" => ["quotations.create"],
@@ -118,6 +120,7 @@ return [
         "sales.list" => ["sales.index"],
         "sales.cancel" => ["sales.index"],
         "sales.store" => ["sales.create", "sales.pos"],
+        "reports.sale.share-link" => ["reports.index", "sales.index", "sales.create"],
         "sales.deliveries" => ["sales.deliveries.index"],
         "sales.deliveries.deliver" => ["sales.deliveries.index"],
 

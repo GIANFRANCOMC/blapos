@@ -1,16 +1,20 @@
 ﻿<template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Nueva venta" description="Registra los ítems y revisa los importes antes de guardar.">
+        <template #actions><a href="/sales" class="fg-button fg-button--secondary">Ver listado</a></template>
+    </FgPageHeader>
 
     <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
-            <div class="br-sale-create-grid">
-                <div class="br-sale-create-main">
-                    <div class="card">
-                        <div class="card-body">
+        <div v-else>
+            <div class="fg-sale-create-grid">
+                <div class="fg-sale-create-main">
+                    <div class="fg-sales-panel">
+                        <div class="fg-sales-panel__body">
+                            <h2 class="fg-section-title fg-panel-heading">Datos del comprobante</h2>
                             <div class="row g-2 mb-2">
-                                <InputSlot
+                                <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                                    <InputSlot
                                     hasDiv
                                     :title="MODULE.texts.form.branch"
                                     :titleClass="[config.forms.classes.title]"
@@ -20,16 +24,17 @@
                                     xl="4"
                                     lg="4">
                                     <template v-slot:input>
-                                        <v-select
+                                        <FgSelect
                                             v-model="forms[entity].createUpdate.data.branch"
                                             :options="branches"
-                                            :class="config.forms.classes.select2"
                                             :clearable="false"
                                             :searchable="false"
                                             placeholder="Seleccione"/>
                                     </template>
                                 </InputSlot>
-                                <InputSlot
+                                </div>
+                                <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                                    <InputSlot
                                     hasDiv
                                     :title="MODULE.texts.form.serie"
                                     :titleClass="[config.forms.classes.title]"
@@ -39,28 +44,28 @@
                                     xl="4"
                                     lg="4">
                                     <template v-slot:input>
-                                        <v-select
+                                        <FgSelect
                                             v-model="forms[entity].createUpdate.data.serie"
                                             :options="series"
-                                            :class="config.forms.classes.select2"
                                             :clearable="false"
                                             :searchable="false"
                                             placeholder="Seleccione">
                                             <template #selected-option="option">
-                                                <span class="br-document-serie-option">
+                                                <span class="fg-document-serie-option">
                                                     <strong v-text="option.label"></strong>
                                                     <small v-text="option.description"></small>
                                                 </span>
                                             </template>
                                             <template #option="option">
-                                                <span class="br-document-serie-option">
+                                                <span class="fg-document-serie-option">
                                                     <strong v-text="option.label"></strong>
                                                     <small v-text="option.description"></small>
                                                 </span>
                                             </template>
-                                        </v-select>
+                                        </FgSelect>
                                     </template>
                                 </InputSlot>
+                                </div>
                                 <div v-if="saleConfigurationIssue" class="col-12">
                                     <div class="alert alert-warning d-flex align-items-start gap-2 px-3 py-2 mb-0" role="alert">
                                         <i class="fa-solid fa-triangle-exclamation mt-1" aria-hidden="true"></i>
@@ -70,7 +75,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <InputDate
+                                <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                                    <InputDate
                                     v-model="forms[entity].createUpdate.data.issue_date"
                                     hasDiv
                                     :title="MODULE.texts.form.issueDate"
@@ -81,7 +87,9 @@
                                     :textBottomInfo="forms[entity].createUpdate.errors?.issue_date"
                                     xl="4"
                                     lg="4"/>
-                                <InputSlot
+                                </div>
+                                <div class="fg-field-cell col-12 col-sm-6 col-lg-8">
+                                    <InputSlot
                                     hasDiv
                                     :title="MODULE.texts.form.holder"
                                     :titleClass="[config.forms.classes.title]"
@@ -93,13 +101,14 @@
                                     <template v-slot:default>
                                         <AddCustomer
                                             v-if="!hasQuotationApplied"
+                                            trigger-label="Agregar cliente"
                                             :options="customerOptions"
                                             @postAction="addCustomerPostAction"/>
                                     </template>
                                     <template v-slot:defaultAppend>
                                         <a
                                             href="javascript:void(0)"
-                                            class="br-link br-quick-create-trigger br-quick-create-trigger--link br-sale-customer-history-trigger ms-2"
+                                            class="fg-link fg-sale-customer-history-trigger ms-2"
                                             :aria-disabled="!forms[entity].createUpdate.data.holder"
                                             :title="MODULE.texts.actions.viewCustomerHistory"
                                             @click.prevent="forms[entity].createUpdate.data.holder && viewCustomerHistory()">
@@ -107,10 +116,9 @@
                                         </a>
                                     </template>
                                     <template v-slot:input>
-                                        <v-select
+                                        <FgSelect
                                             v-model="forms[entity].createUpdate.data.holder"
                                             :options="holders"
-                                            :class="config.forms.classes.select2"
                                             :clearable="false"
                                             :disabled="hasQuotationApplied"
                                             :searchable="true"
@@ -120,72 +128,74 @@
                                             @search="searchOptions('customers', $event)"
                                             placeholder="Seleccione">
                                             <template #selected-option="option">
-                                                <span class="br-document-holder-option">
+                                                <span class="fg-document-holder-option">
                                                     <strong v-text="holderDocumentTypeLabel(option)"></strong>
                                                     <span v-text="holderDocumentDescription(option)"></span>
                                                 </span>
                                             </template>
                                             <template #option="option">
-                                                <span class="br-document-holder-option">
+                                                <span class="fg-document-holder-option">
                                                     <strong v-text="holderDocumentTypeLabel(option)"></strong>
                                                     <span v-text="holderDocumentDescription(option)"></span>
                                                 </span>
                                             </template>
                                             <template #list-footer>
                                                 <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
-                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
+                                                    <button type="button" class="w-100 text-start fg-button fg-button--link" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
                                                 </li>
                                             </template>
                                             <template #no-options>Sin clientes para esta búsqueda.</template>
-                                        </v-select>
+                                        </FgSelect>
                                     </template>
                                 </InputSlot>
+                                </div>
                             </div>
-                            <div class="br-sale-detail-toolbar">
-                                <label
-                                    class="form-label br-sale-detail-toolbar__counter"
+                            <div class="fg-sale-detail-toolbar">
+                                <h2
+                                    class="fg-field__label fg-sale-detail-toolbar__counter"
                                     v-text="`Detalle de la venta · ${forms[entity].createUpdate.data.details.length} ${forms[entity].createUpdate.data.details.length === 1 ? 'ítem' : 'ítems'}`">
-                                </label>
-                                <div class="br-sale-detail-toolbar__actions">
-                                    <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="modalAddDetail({})">
-                                        <span v-text="MODULE.texts.actions.addDetail"></span>
-                                    </button>
+                                </h2>
+                                <div class="fg-sale-detail-toolbar__actions">
                                     <button
                                         type="button"
-                                        class="br-btn br-btn-sm br-sale-detail-toolbar__clear waves-effect"
+                                        class="fg-button fg-button--secondary"
                                         :disabled="forms[entity].createUpdate.data.details.length <= 0"
                                         @click="clearDetails">
                                         <span>Limpiar</span>
                                     </button>
+                                    <button type="button" class="fg-button" @click="modalAddDetail({})">
+                                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                        <span v-text="MODULE.texts.actions.addDetail"></span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="br-sale-detail-table-shell">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead class="text-center">
-                                            <tr>
-                                                <th style="width: 5%;">#</th>
-                                                <th class="min-w-150px" style="width: 18%;">ÍTEM</th>
-                                                <th class="min-w-120px text-end" style="width: 11%;">CANTIDAD</th>
-                                                <th class="min-w-170px text-center" style="width: 18%;">PRECIO UNITARIO</th>
-                                                <th class="min-w-130px text-end br-sale-detail-calc-head" style="width: 14%;">SUBTOTAL</th>
-                                                <th class="min-w-110px text-end br-sale-detail-calc-head" style="width: 10%;">IGV</th>
-                                                <th class="min-w-120px text-end pe-3 br-sale-detail-calc-head br-sale-detail-calc-head--total" style="width: 12%;">TOTAL</th>
-                                                <th style="width: 4%;" aria-label="Acciones"></th>
+                            <div class="fg-sale-detail-table-shell">
+                                <ResponsiveTable fg class="fg-sales-table-scroll">
+                                    <table role="table" class="fg-record-table fg-record-table--editor fg-record-table--sale-editor fg-table">
+                                        <thead role="rowgroup" class="text-center">
+                                            <tr role="row">
+                                                <th scope="col" role="columnheader" style="width: 5%;">#</th>
+                                                <th scope="col" role="columnheader" style="width: 18%;">ÍTEM</th>
+                                                <th scope="col" role="columnheader" class="text-end" style="width: 11%;">CANTIDAD</th>
+                                                <th scope="col" role="columnheader" class="text-center" style="width: 18%;">PRECIO UNITARIO</th>
+                                                <th scope="col" role="columnheader" class="text-end fg-sale-detail-calc-head" style="width: 14%;">SUBTOTAL</th>
+                                                <th scope="col" role="columnheader" class="text-end fg-sale-detail-calc-head" style="width: 10%;">IGV</th>
+                                                <th scope="col" role="columnheader" class="text-end pe-3 fg-sale-detail-calc-head fg-sale-detail-calc-head--total" style="width: 12%;">TOTAL</th>
+                                                <th scope="col" role="columnheader" style="width: 4%;" aria-label="Acciones"></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="table-border-bottom-0 bg-white">
+                                        <tbody role="rowgroup" class="table-border-bottom-0 bg-white">
                                             <template v-if="(forms[entity].createUpdate.data.details).length > 0">
                                                 <template v-for="(record, keyRecord) in forms[entity].createUpdate.data.details" :key="record.id">
-                                                    <tr>
-                                                        <td class="text-center fw-medium" :rowspan="isSubscription(record?.type) && record?.extras?.showDetail ? 2 : 1">
+                                                    <tr role="row" class="fg-sale-line">
+                                                        <td role="cell" class="text-center fw-medium fg-sale-line__number" :rowspan="isSubscription(record?.type) && record?.extras?.showDetail ? 2 : 1">
                                                             <span v-text="keyRecord + 1"></span>
                                                         </td>
-                                                        <td class="text-start">
-                                                            <div class="br-sale-detail-item-cell">
+                                                        <td role="cell" class="text-start fg-record-table__identity">
+                                                            <div class="fg-sale-detail-item-cell">
                                                                 <span class="text-break" v-text="record.name"></span>
                                                                 <span
-                                                                    class="br-sale-detail-igv-label"
+                                                                    class="fg-sale-detail-igv-label"
                                                                     :class="detailTaxInclusionInfo(record).className"
                                                                     data-bs-toggle="tooltip"
                                                                     data-bs-placement="top"
@@ -194,50 +204,65 @@
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td class="text-center">
-                                                            <InputNumber
-                                                                v-model="record.quantity"
-                                                                @change="calculateDuration({mode: 'record', record})"
-                                                                :decimals="getItemDecimals({mode: 'result', record})"/>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <div class="br-sale-detail-price-cell">
-                                                                <InputNumber v-model="record.price">
-                                                                    <template v-slot:inputGroupPrepend v-if="isDefined({value: record?.currency})">
-                                                                        <span class="input-group-text br-currency-prefix" v-text="record?.currency?.sign"></span>
-                                                                    </template>
-                                                                </InputNumber>
+                                                        <td role="cell" class="text-center">
+                                                            <span class="fg-record-table__label" aria-hidden="true">Cantidad</span>
+                                                            <div class="fg-record-table__value">
+                                                                <InputNumber
+                                                                    v-model="record.quantity"
+                                                                    @change="calculateDuration({mode: 'record', record})"
+                                                                    :decimals="getItemDecimals({mode: 'result', record})"/>
                                                             </div>
                                                         </td>
-                                                        <td class="text-end br-sale-detail-calc-cell">
-                                                            <span class="br-amount-inline">
-                                                                <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
-                                                                <span class="br-amount-inline__amount" v-text="separatorNumber(detailLineBaseTotal(record))"></span>
-                                                            </span>
+                                                        <td role="cell" class="text-end">
+                                                            <span class="fg-record-table__label" aria-hidden="true">Precio unitario</span>
+                                                            <div class="fg-record-table__value">
+                                                                <div class="fg-sale-detail-price-cell">
+                                                                    <InputNumber v-model="record.price">
+                                                                        <template v-slot:inputGroupPrepend v-if="isDefined({value: record?.currency})">
+                                                                            <span class="fg-field__prefix" v-text="record?.currency?.sign"></span>
+                                                                        </template>
+                                                                    </InputNumber>
+                                                                </div>
+                                                            </div>
                                                         </td>
-                                                        <td class="text-end br-sale-detail-calc-cell">
-                                                            <span v-if="detailIgvInfo(record).isAmount" class="br-amount-inline br-sale-detail-tax-amount">
-                                                                <span class="br-amount-inline__sign" v-text="detailIgvInfo(record).sign"></span>
-                                                                <span class="br-amount-inline__amount" v-text="detailIgvInfo(record).amount"></span>
-                                                            </span>
-                                                            <span
-                                                                v-else
-                                                                class="br-sale-detail-tax"
-                                                                :class="detailIgvInfo(record).className"
-                                                                v-text="detailIgvInfo(record).label">
-                                                            </span>
+                                                        <td role="cell" class="text-end fg-sale-detail-calc-cell">
+                                                            <span class="fg-record-table__label" aria-hidden="true">Subtotal</span>
+                                                            <div class="fg-record-table__value">
+                                                                <span class="fg-money">
+                                                                    <span class="fg-money__unit" v-text="record.currency?.sign ?? ''"></span>
+                                                                    <span class="fg-money__value" v-text="separatorNumber(detailLineBaseTotal(record))"></span>
+                                                                </span>
+                                                            </div>
                                                         </td>
-                                                        <td class="text-end pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total" :title="MODULE.texts.form.total">
-                                                            <span class="br-amount-inline">
-                                                                <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
-                                                                <span class="br-amount-inline__amount" v-text="separatorNumber(detailFinalTotal(record))"></span>
-                                                            </span>
+                                                        <td role="cell" class="text-end fg-sale-detail-calc-cell">
+                                                            <span class="fg-record-table__label" aria-hidden="true">IGV</span>
+                                                            <div class="fg-record-table__value">
+                                                                <span v-if="detailIgvInfo(record).isAmount" class="fg-money fg-sale-detail-tax-amount">
+                                                                    <span class="fg-money__unit" v-text="detailIgvInfo(record).sign"></span>
+                                                                    <span class="fg-money__value" v-text="detailIgvInfo(record).amount"></span>
+                                                                </span>
+                                                                <span
+                                                                    v-else
+                                                                    class="fg-sale-detail-tax"
+                                                                    :class="detailIgvInfo(record).className"
+                                                                    v-text="detailIgvInfo(record).label">
+                                                                </span>
+                                                            </div>
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td role="cell" class="text-end pe-3 fg-sale-detail-calc-cell fg-sale-detail-calc-cell--total" :title="MODULE.texts.form.total">
+                                                            <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                                            <div class="fg-record-table__value">
+                                                                <span class="fg-money">
+                                                                    <span class="fg-money__unit" v-text="record.currency?.sign ?? ''"></span>
+                                                                    <span class="fg-money__value" v-text="separatorNumber(detailFinalTotal(record))"></span>
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td role="cell" class="text-center fg-record-table__actions">
                                                             <TableActionsDropdown
-                                                                class="br-sale-detail-actions"
+                                                                class="fg-sale-detail-actions"
                                                                 label="Acciones del ítem"
-                                                                menu-class="br-sale-detail-actions__menu">
+                                                                menu-class="fg-sale-detail-actions__menu">
                                                                 <li>
                                                                     <button type="button" class="dropdown-item" @click="modalEditDetail({record, keyRecord})">
                                                                         <i class="fa-solid fa-pen" aria-hidden="true"></i>
@@ -258,7 +283,7 @@
                                                                 </li>
                                                                 <li><hr class="dropdown-divider"></li>
                                                                 <li>
-                                                                    <button type="button" class="dropdown-item br-sale-detail-actions__delete" @click="deleteDetail({record, keyRecord})">
+                                                                    <button type="button" class="dropdown-item fg-sale-detail-actions__delete" @click="deleteDetail({record, keyRecord})">
                                                                         <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                                                         <span>Eliminar</span>
                                                                     </button>
@@ -268,21 +293,21 @@
                                                     </tr>
                                                     <template v-if="record?.extras?.showDetail">
                                                         <template v-if="isSubscription(record?.type)">
-                                                            <tr class="br-sale-detail-membership-row">
-                                                                <td colspan="7">
-                                                                    <div class="br-sale-detail-membership">
-                                                                        <div class="br-sale-detail-membership__heading">
+                                                            <tr role="row" class="fg-sale-detail-membership-row">
+                                                                <td role="cell" colspan="7">
+                                                                    <div class="fg-sale-detail-membership">
+                                                                        <div class="fg-sale-detail-membership__heading">
                                                                             <strong class="colon-at-end" v-text="MODULE.texts.form.detailRowMembershipLabel"></strong>
                                                                             <small>Vigencia aplicada al detalle</small>
                                                                         </div>
-                                                                        <div class="br-sale-detail-membership__fields">
-                                                                            <div class="br-sale-detail-membership__timeline">
-                                                                                <div class="br-sale-detail-membership__date">
+                                                                        <div class="fg-sale-detail-membership__fields">
+                                                                            <div class="fg-sale-detail-membership__timeline">
+                                                                                <div class="fg-sale-detail-membership__date">
                                                                                     <span class="colon-at-end">Inicio</span>
                                                                                     <strong v-text="formatSaleDetailDateTime(record.extras.start_date)"></strong>
                                                                                 </div>
                                                                                 <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i>
-                                                                                <div class="br-sale-detail-membership__date">
+                                                                                <div class="fg-sale-detail-membership__date">
                                                                                     <span class="colon-at-end">Fin</span>
                                                                                     <strong v-text="formatSaleDetailDateTime(record.extras.end_date)"></strong>
                                                                                 </div>
@@ -294,49 +319,49 @@
                                                         </template>
                                                     </template>
                                                 </template>
-                                                <tr class="br-table-footer-stripe br-sale-detail-total-row">
-                                                    <td colspan="4" class="text-start ps-3 br-table-footer-stripe__label">
+                                                <tr role="row" class="fg-table-footer-stripe fg-sale-detail-total-row">
+                                                    <td role="cell" colspan="4" class="text-start ps-3 fg-table-footer-stripe__label">
                                                         <span v-text="MODULE.texts.form.footerTotalLabel"></span>
                                                     </td>
-                                                    <td class="text-end br-sale-detail-calc-cell">
-                                                        <span class="br-amount-inline br-amount-inline--emphasis">
-                                                            <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
-                                                            <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailSubtotalTotal)"></span>
+                                                    <td role="cell" class="text-end fg-sale-detail-calc-cell">
+                                                        <span class="fg-money fg-amount-inline--emphasis">
+                                                            <span class="fg-money__unit" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                                            <span class="fg-money__value" v-text="separatorNumber(saleDetailSubtotalTotal)"></span>
                                                         </span>
                                                     </td>
-                                                    <td class="text-end br-sale-detail-calc-cell">
-                                                        <span class="br-amount-inline br-amount-inline--emphasis">
-                                                            <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
-                                                            <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailIgvTotal)"></span>
+                                                    <td role="cell" class="text-end fg-sale-detail-calc-cell">
+                                                        <span class="fg-money fg-amount-inline--emphasis">
+                                                            <span class="fg-money__unit" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                                            <span class="fg-money__value" v-text="separatorNumber(saleDetailIgvTotal)"></span>
                                                         </span>
                                                     </td>
-                                                    <td class="text-end pe-3 br-sale-detail-calc-cell br-sale-detail-calc-cell--total">
-                                                        <span class="br-amount-inline br-amount-inline--emphasis">
-                                                            <span class="br-amount-inline__sign" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
-                                                            <span class="br-amount-inline__amount" v-text="separatorNumber(saleDetailFinalTotal)"></span>
+                                                    <td role="cell" class="text-end pe-3 fg-sale-detail-calc-cell fg-sale-detail-calc-cell--total">
+                                                        <span class="fg-money fg-amount-inline--emphasis">
+                                                            <span class="fg-money__unit" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                                            <span class="fg-money__value" v-text="separatorNumber(saleDetailFinalTotal)"></span>
                                                         </span>
                                                     </td>
-                                                    <td></td>
+                                                    <td role="cell"></td>
                                                 </tr>
                                             </template>
                                             <template v-else>
-                                                <tr>
-                                                    <td class="pt-1 pb-0 border-0" colspan="99">
-                                                        <div class="br-table-detail-empty">
-                                                            <div class="br-table-detail-empty__top">
-                                                                <div class="br-table-detail-empty__body">
+                                                <tr role="row" class="fg-table__state">
+                                                    <td role="cell" class="pt-1 pb-0 border-0" colspan="99">
+                                                        <div class="fg-table-detail-empty">
+                                                            <div class="fg-table-detail-empty__top">
+                                                                <div class="fg-table-detail-empty__body">
                                                                     <img
-                                                                        class="br-table-detail-empty__img"
+                                                                        class="fg-table-detail-empty__img"
                                                                         :src="saleDetailEmptyImageUrl"
                                                                         alt=""
                                                                         width="100"
                                                                         height="84"
                                                                         loading="lazy"
                                                                         decoding="async"/>
-                                                                    <strong class="br-table-detail-empty__title" v-text="MODULE.texts.emptySaleDetailTitle"></strong>
-                                                                    <p class="br-table-detail-empty__text">
+                                                                    <strong class="fg-table-detail-empty__title" v-text="MODULE.texts.emptySaleDetailTitle"></strong>
+                                                                    <p class="fg-table-detail-empty__text">
                                                                         <span v-text="MODULE.texts.emptySaleDetailPrefix"></span>
-                                                                        <a href="javascript:void(0)" class="br-link br-table-detail-empty__link" @click.prevent="modalAddDetail({})" v-text="MODULE.texts.actions.addDetail"></a>
+                                                                        <a href="javascript:void(0)" class="fg-link fg-table-detail-empty__link" @click.prevent="modalAddDetail({})" v-text="MODULE.texts.actions.addDetail"></a>
                                                                         <span v-text="MODULE.texts.emptySaleDetailSuffix"></span>
                                                                     </p>
                                                                 </div>
@@ -347,96 +372,96 @@
                                             </template>
                                         </tbody>
                                     </table>
-                                </div>
+                                </ResponsiveTable>
                                 <!-- <small :class="config.forms.errors.styles.default" v-html="isDefined({value: forms[entity].createUpdate.errors?.details}) ? forms[entity].createUpdate.errors?.details : ''"></small> -->
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="br-sale-create-side">
-                    <div class="br-document-settlement br-sale-settlement bg-white">
-                        <div class="br-document-settlement__group-header">
-                            <h3 class="br-document-settlement__group-title">Información</h3>
-                            <button type="button" class="br-sale-section-edit" @click="openInformationSectionModal">
+                <div class="fg-sale-create-side">
+                    <div class="fg-document-settlement fg-sale-settlement bg-white">
+                        <div class="fg-document-settlement__group-header">
+                            <h3 class="fg-document-settlement__group-title">Información</h3>
+                            <button type="button" class="fg-sale-section-edit" @click="openInformationSectionModal">
                                 <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                 <span>Editar</span>
                             </button>
                         </div>
-                        <div class="br-document-settlement__field br-document-settlement__field--inline">
-                            <label class="form-label colon-at-end">Vendedor</label>
-                            <span v-if="forms[entity].createUpdate.data.seller" class="br-document-delivery-summary__value" v-text="sellerLabel"></span>
-                            <span v-else class="br-document-settlement__field-value--empty">Sin vendedor</span>
+                        <div class="fg-document-settlement__field fg-document-settlement__field--inline">
+                            <label class="fg-field__label colon-at-end">Vendedor</label>
+                            <span v-if="forms[entity].createUpdate.data.seller" class="fg-document-delivery-summary__value" v-text="sellerLabel"></span>
+                            <span v-else class="fg-document-settlement__field-value--empty">Sin vendedor</span>
                             <small v-if="forms[entity].createUpdate.errors?.seller" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.seller"></small>
                         </div>
-                        <div class="br-document-settlement__field br-document-settlement__field--inline">
-                            <label class="form-label colon-at-end">Cotización</label>
+                        <div class="fg-document-settlement__field fg-document-settlement__field--inline">
+                            <label class="fg-field__label colon-at-end">Cotización</label>
                             <span
                                 v-if="hasQuotationApplied"
-                                class="br-document-delivery-summary__value"
+                                class="fg-document-delivery-summary__value"
                                 :title="quotationSummaryLabel"
                                 v-text="forms[entity].createUpdate.data.quotation?.data?.reference || 'Cotización aplicada'">
                             </span>
-                            <span v-else class="br-document-settlement__field-value--empty">Sin cotización</span>
+                            <span v-else class="fg-document-settlement__field-value--empty">Sin cotización</span>
                         </div>
-                        <div class="br-document-settlement__field br-document-settlement__field--inline">
-                            <label class="form-label colon-at-end">Observaciones</label>
+                        <div class="fg-document-settlement__field fg-document-settlement__field--inline">
+                            <label class="fg-field__label colon-at-end">Observaciones</label>
                             <span
                                 v-if="observationHasContent"
-                                class="br-document-delivery-summary__value"
+                                class="fg-document-delivery-summary__value"
                                 v-text="observationDisplayPreview">
                             </span>
-                            <span v-else class="br-document-settlement__field-value--empty">Sin observaciones</span>
+                            <span v-else class="fg-document-settlement__field-value--empty">Sin observaciones</span>
                             <p
                                 v-if="forms[entity].createUpdate.errors?.observation?.length"
                                 class="small mb-0 mt-2"
                                 :class="config.forms.errors.styles.default"
                                 v-html="observationErrorsDisplay"></p>
                         </div>
-                        <div class="br-document-settlement__group-header">
-                            <h3 class="br-document-settlement__group-title">Entrega</h3>
-                            <button type="button" class="br-sale-section-edit" @click="openDeliverySectionModal">
+                        <div class="fg-document-settlement__group-header">
+                            <h3 class="fg-document-settlement__group-title">Entrega</h3>
+                            <button type="button" class="fg-sale-section-edit" @click="openDeliverySectionModal">
                                 <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                 <span>Editar</span>
                             </button>
                         </div>
-                        <div class="br-document-settlement__field br-document-settlement__field--inline">
-                            <label class="form-label colon-at-end">Entrega</label>
-                            <span class="br-document-delivery-summary__value" v-text="deliverySummaryLabel"></span>
+                        <div class="fg-document-settlement__field fg-document-settlement__field--inline">
+                            <label class="fg-field__label colon-at-end">Entrega</label>
+                            <span class="fg-document-delivery-summary__value" v-text="deliverySummaryLabel"></span>
                             <small v-if="forms[entity].createUpdate.errors?.delivery_method" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.delivery_method"></small>
                             <small v-if="forms[entity].createUpdate.errors?.delivery_status" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.delivery_status"></small>
                         </div>
-                        <div class="br-document-settlement__field br-document-settlement__field--inline">
-                            <label class="form-label colon-at-end">Almacén</label>
-                            <span v-if="forms[entity].createUpdate.data.warehouse" class="br-document-delivery-summary__value" v-text="warehouseLabel"></span>
-                            <span v-else class="br-document-settlement__field-value--empty">Sin almacén</span>
+                        <div class="fg-document-settlement__field fg-document-settlement__field--inline">
+                            <label class="fg-field__label colon-at-end">Almacén</label>
+                            <span v-if="forms[entity].createUpdate.data.warehouse" class="fg-document-delivery-summary__value" v-text="warehouseLabel"></span>
+                            <span v-else class="fg-document-settlement__field-value--empty">Sin almacén</span>
                             <small v-if="forms[entity].createUpdate.errors?.warehouse" :class="config.forms.errors.styles.default" v-html="forms[entity].createUpdate.errors.warehouse"></small>
                         </div>
-                        <div class="br-document-settlement__group-header">
-                            <h3 class="br-document-settlement__group-title">Pago</h3>
+                        <div class="fg-document-settlement__group-header">
+                            <h3 class="fg-document-settlement__group-title">Pago</h3>
                             <button
                                 v-if="canChangeTaxes || canChangePaymentMethods"
                                 type="button"
-                                class="br-sale-section-edit"
+                                class="fg-sale-section-edit"
                                 @click="openPaymentSectionModal">
                                 <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                 <span>Editar</span>
                             </button>
                         </div>
                         <div
-                            class="br-document-settlement__field"
-                            :class="{'br-document-settlement__field--inline': !saleOptionalTaxSummary.length}">
-                            <label class="form-label" :class="{'colon-at-end': !saleOptionalTaxSummary.length}">Impuestos extras</label>
-                            <span v-if="!saleOptionalTaxSummary.length" class="br-document-settlement__field-value--empty">Sin impuestos extras</span>
-                            <div v-if="saleOptionalTaxSummary.length" class="br-document-tax-summary">
+                            class="fg-document-settlement__field"
+                            :class="{'fg-document-settlement__field--inline': !saleOptionalTaxSummary.length}">
+                            <label class="fg-field__label" :class="{'colon-at-end': !saleOptionalTaxSummary.length}">Impuestos extras</label>
+                            <span v-if="!saleOptionalTaxSummary.length" class="fg-document-settlement__field-value--empty">Sin impuestos extras</span>
+                            <div v-if="saleOptionalTaxSummary.length" class="fg-document-tax-summary">
                                     <div
                                         v-for="tax in saleOptionalTaxSummary"
                                         :key="tax.key"
-                                        class="br-document-tax-summary__row">
+                                        class="fg-document-tax-summary__row">
                                         <span>
-                                            <strong class="br-document-delivery-summary__value" v-text="tax.name"></strong>
+                                            <strong class="fg-document-delivery-summary__value" v-text="tax.name"></strong>
                                             <small v-if="tax.description" v-text="tax.description"></small>
                                         </span>
-                                        <b class="br-document-delivery-summary__value br-amount-inline__amount">
+                                        <b class="fg-document-delivery-summary__value fg-money__value">
                                             {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                             {{ separatorNumber(tax.amount) }}
                                         </b>
@@ -444,96 +469,96 @@
                             </div>
                         </div>
                         <div
-                            class="br-document-settlement__field"
-                            :class="{'br-document-settlement__field--inline': !salePaymentSummary.length}">
-                            <label class="form-label" :class="{'colon-at-end': !salePaymentSummary.length}">Métodos de pago</label>
-                            <span v-if="!salePaymentSummary.length" class="br-document-settlement__field-value--empty">Sin métodos de pago</span>
-                            <div v-if="salePaymentSummary.length" class="br-document-payment-summary">
+                            class="fg-document-settlement__field"
+                            :class="{'fg-document-settlement__field--inline': !salePaymentSummary.length}">
+                            <label class="fg-field__label" :class="{'colon-at-end': !salePaymentSummary.length}">Métodos de pago</label>
+                            <span v-if="!salePaymentSummary.length" class="fg-document-settlement__field-value--empty">Sin métodos de pago</span>
+                            <div v-if="salePaymentSummary.length" class="fg-document-payment-summary">
                                     <div
                                         v-for="payment in salePaymentSummary"
                                         :key="payment.key"
-                                        class="br-document-payment-summary__row">
+                                        class="fg-document-payment-summary__row">
                                         <span>
-                                            <strong class="br-document-delivery-summary__value br-document-payment-summary__method">
+                                            <strong class="fg-document-delivery-summary__value fg-document-payment-summary__method">
                                                 <img
                                                     v-if="payment.imageUrl"
                                                     :src="payment.imageUrl"
                                                     alt=""
-                                                    class="br-payment-select-option__image br-document-payment-summary__image">
+                                                    class="fg-payment-select-option__image fg-document-payment-summary__image">
                                                 <span v-text="payment.label"></span>
                                             </strong>
                                             <small v-if="payment.reference" v-text="payment.reference"></small>
                                         </span>
-                                        <b class="br-document-delivery-summary__value br-document-payment-summary__amount br-amount-inline__amount">
+                                        <b class="fg-document-delivery-summary__value fg-document-payment-summary__amount fg-money__value">
                                             {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                             {{ separatorNumber(payment.amount) }}
                                         </b>
                                     </div>
                             </div>
                         </div>
-                        <div class="br-document-settlement__group-header">
-                            <h3 class="br-document-settlement__group-title">Resumen</h3>
+                        <div class="fg-document-settlement__group-header">
+                            <h3 class="fg-document-settlement__group-title">Resumen</h3>
                         </div>
-                        <div class="br-document-settlement__summary-section">
-                            <div class="br-document-settlement__summary">
-                                <span class="br-document-settlement__summary-label">Subtotal</span>
-                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                        <div class="fg-document-settlement__summary-section">
+                            <div class="fg-document-settlement__summary">
+                                <span class="fg-document-settlement__summary-label">Subtotal</span>
+                                <strong class="fg-document-settlement__summary-value fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleDetailSubtotalTotal) }}
                                 </strong>
-                                <span class="br-document-settlement__summary-label">IGV</span>
-                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                <span class="fg-document-settlement__summary-label">IGV</span>
+                                <strong class="fg-document-settlement__summary-value fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleDetailIgvTotal) }}
                                 </strong>
-                                <span class="br-document-settlement__summary-label">Impuestos extras</span>
-                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                <span class="fg-document-settlement__summary-label">Impuestos extras</span>
+                                <strong class="fg-document-settlement__summary-value fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleExtraTaxTotal) }}
                                 </strong>
                                 <template v-if="saleUsesInstallments">
-                                    <span class="br-document-settlement__summary-label">Recargo por cuotas</span>
-                                    <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                    <span class="fg-document-settlement__summary-label">Recargo por cuotas</span>
+                                    <strong class="fg-document-settlement__summary-value fg-money__value">
                                         {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                         {{ separatorNumber(saleInstallmentExtraAmount) }}
                                     </strong>
                                 </template>
-                                <div class="br-document-settlement__summary-divider" aria-hidden="true"></div>
-                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--total">Total a pagar</span>
-                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--total br-amount-inline__amount">
+                                <div class="fg-document-settlement__summary-divider" aria-hidden="true"></div>
+                                <span class="fg-document-settlement__summary-label fg-document-settlement__summary-label--total">Total a pagar</span>
+                                <strong class="fg-document-settlement__summary-value fg-document-settlement__summary-value--total fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(total) }}
                                 </strong>
-                                <span class="br-document-settlement__summary-label">Pagado</span>
-                                <strong class="br-document-settlement__summary-value br-amount-inline__amount">
+                                <span class="fg-document-settlement__summary-label">Pagado</span>
+                                <strong class="fg-document-settlement__summary-value fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(salePaidTotal) }}
                                 </strong>
                                 <div
                                     v-if="(forms[entity].createUpdate.data.details || []).length > 0"
-                                    class="br-document-settlement__summary-status"
+                                    class="fg-document-settlement__summary-status"
                                     :class="salePaymentStatusInfo.className">
                                     <span>
                                         <i :class="['fa-solid', salePaymentStatusInfo.icon]" aria-hidden="true"></i>
                                         <span v-text="salePaymentStatusInfo.label"></span>
                                     </span>
-                                    <strong v-if="salePaymentStatusInfo.amount !== null" class="br-amount-inline__amount">
+                                    <strong v-if="salePaymentStatusInfo.amount !== null" class="fg-money__value">
                                         {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                         {{ separatorNumber(salePaymentStatusInfo.amount) }}
                                     </strong>
                                 </div>
                             </div>
                         </div>
-                        <div class="br-document-settlement__submit-section">
+                        <div class="fg-document-settlement__submit-section">
                             <span
-                                class="br-sale-submit-tooltip"
+                                class="fg-sale-submit-tooltip"
                                 :data-bs-toggle="!saleHasDetails ? 'tooltip' : null"
                                 data-bs-placement="top"
                                 :tabindex="!saleHasDetails ? 0 : null"
                                 :title="!saleHasDetails ? 'Agrega al menos un ítem para continuar' : null">
                                 <button
                                     type="button"
-                                    class="br-btn br-btn-success br-sale-sidebar-actions__cta waves-effect"
+                                    class="fg-button fg-sale-sidebar-actions__cta"
                                     :disabled="Boolean(saleSubmitBlocker)"
                                     @click="createUpdateEntity()">
                                     <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
@@ -549,16 +574,16 @@
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.branch.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.branch.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Cambiar sucursal</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Cambiar sucursal</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot
                         hasDiv
                         :title="MODULE.texts.form.branch"
@@ -569,34 +594,32 @@
                         xl="12"
                         lg="12">
                         <template v-slot:input>
-                            <v-select
+                            <FgSelect
                                 v-model="forms[entity].createUpdate.data.branch"
                                 :options="branches"
-                                :class="config.forms.classes.select2"
                                 :clearable="false"
                                 :searchable="false"
-                                append-to-body
                                 placeholder="Seleccione"/>
                         </template>
                     </InputSlot>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar sucursal</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Cambiar sucursal</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.warehouse.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.warehouse.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Cambiar almacén</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Cambiar almacén</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot
                         hasDiv
                         :title="MODULE.texts.form.warehouse"
@@ -607,39 +630,38 @@
                         xl="12"
                         lg="12">
                         <template v-slot:input>
-                            <v-select
+                            <FgSelect
                                 v-model="forms[entity].createUpdate.data.warehouse"
                                 :options="warehouses"
-                                :class="config.forms.classes.select2"
                                 :clearable="false"
                                 :searchable="false"
-                                append-to-body
                                 placeholder="Seleccione"/>
                         </template>
                     </InputSlot>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar almacén</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Cambiar almacén</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.delivery.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.delivery.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Editar entrega</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Editar entrega</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
+                <div class="modal-body fg-modal__body">
                     <div v-if="!saleRequiresStockContext" class="alert alert-info py-2 mb-3">
                         Esta venta no contiene ítems que requieran entrega física. La modalidad no aplica y el estado será Entregado.
                     </div>
                     <div class="row g-2">
-                        <InputSlot
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                            <InputSlot
                             hasDiv
                             :title="MODULE.texts.form.warehouse"
                             :titleClass="[config.forms.classes.title]"
@@ -649,18 +671,18 @@
                             xl="4"
                             lg="4">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.data.warehouse"
                                     :options="warehouses"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="warehouses.length > 6"
                                     :disabled="!saleRequiresStockContext"
-                                    append-to-body
                                     placeholder="Sin almacén"/>
                             </template>
                         </InputSlot>
-                        <InputSlot
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                            <InputSlot
                             hasDiv
                             title="Modalidad de entrega"
                             :titleClass="[config.forms.classes.title]"
@@ -670,18 +692,18 @@
                             xl="4"
                             lg="4">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.data.delivery_method"
                                     :options="deliveryMethods"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="false"
                                     :disabled="!saleRequiresStockContext"
-                                    append-to-body
                                     placeholder="No aplica"/>
                             </template>
                         </InputSlot>
-                        <InputSlot
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                            <InputSlot
                             hasDiv
                             title="Estado de entrega"
                             :titleClass="[config.forms.classes.title]"
@@ -691,35 +713,34 @@
                             xl="4"
                             lg="4">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.data.delivery_status"
                                     :options="deliveryStatuses"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="false"
-                                    :disabled="!saleRequiresStockContext"
-                                    append-to-body/>
+                                    :disabled="!saleRequiresStockContext"/>
                             </template>
                         </InputSlot>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Guardar entrega</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Guardar entrega</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.quotation.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.quotation.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Cambiar cotización</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Cambiar cotización</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot
                         hasDiv
                         :title="MODULE.texts.form.quotation"
@@ -727,38 +748,36 @@
                         xl="12"
                         lg="12">
                         <template v-slot:input>
-                            <v-select
+                            <FgSelect
                                 v-model="forms[entity].createUpdate.data.quotation"
                                 :options="quotationOptions"
-                                :class="config.forms.classes.select2"
                                 :clearable="false"
                                 :searchable="true"
-                                append-to-body
                                 placeholder="Seleccione cotización"
                                 @option:selected="applyQuotationDraft"/>
                         </template>
                     </InputSlot>
-                    <p class="br-document-settlement__empty mb-0 mt-2">
+                    <p class="fg-document-settlement__empty mb-0 mt-2">
                         Al aplicar una cotización, el cliente queda bloqueado para conservar la trazabilidad.
                     </p>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar cotización</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Cambiar cotización</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.seller.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.seller.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Cambiar vendedor</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Cambiar vendedor</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
+                <div class="modal-body fg-modal__body">
                     <InputSlot
                         hasDiv
                         title="Vendedor"
@@ -766,49 +785,47 @@
                         xl="12"
                         lg="12">
                         <template v-slot:input>
-                            <v-select
+                            <FgSelect
                                 v-model="forms[entity].createUpdate.data.seller"
                                 :options="users"
-                                :class="config.forms.classes.select2"
                                 :clearable="false"
                                 :searchable="true"
-                                append-to-body
                                 placeholder="Seleccione vendedor"/>
                         </template>
                     </InputSlot>
-                    <p class="br-document-settlement__empty mb-0 mt-2">
+                    <p class="fg-document-settlement__empty mb-0 mt-2">
                         Las comisiones de la venta quedarán asociadas al vendedor seleccionado.
                     </p>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar vendedor</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Cambiar vendedor</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.taxes.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.taxes.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Cambiar impuestos extras</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Cambiar impuestos extras</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
-                    <p class="br-document-payment-intro">
+                <div class="modal-body fg-modal__body">
+                    <p class="fg-document-payment-intro">
                         Activa solo los cargos adicionales que correspondan.
                     </p>
-                    <div class="br-document-taxes-modal" v-if="optionalSaleTaxes.length">
+                    <div class="fg-document-taxes-modal" v-if="optionalSaleTaxes.length">
                         <div
                             v-for="tax in optionalSaleTaxes"
                             :key="`optional-sale-tax-modal-${tax.code}`"
-                            class="br-document-tax-option">
-                            <label class="br-entity-switch br-document-tax-option__switch">
+                            class="fg-document-tax-option">
+                            <label class="fg-check fg-document-tax-option__switch">
                                 <input
                                     v-model="forms[entity].createUpdate.data.selected_taxes"
-                                    class="form-check-input"
+
                                     type="checkbox"
                                     :value="tax.code"
                                     @change="syncSelectedTaxQuantity(tax.data)">
@@ -821,51 +838,51 @@
                                 v-if="isFixedTax(tax.data) && selectedTaxIds().includes(tax.code)"
                                 v-model="forms[entity].createUpdate.data.selected_tax_quantities[tax.code]"
                                 title=""
-                                :inputClass="['form-control', 'br-tax-quantity']"
+                                :inputClass="['form-control', 'fg-tax-quantity']"
                                 :decimals="0"
                                 :minValue="taxQuantityMinimum(tax.data)"
                                 :maxValue="taxQuantityMaximum(tax.data)"
                                 :hasNegative="false"
                                 @change="normalizeSelectedTaxQuantity(tax.code)">
                                 <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-tax-quantity__label">Veces</span>
+                                    <span class="fg-field__prefix fg-tax-quantity__label">Veces</span>
                                 </template>
                             </InputNumber>
                         </div>
                     </div>
-                    <p v-else class="br-document-settlement__empty mb-0">
+                    <p v-else class="fg-document-settlement__empty mb-0">
                         No hay impuestos extras configurados para ventas.
                     </p>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Cambiar impuestos</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Cambiar impuestos</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.payments.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.payments.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Editar pago</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Editar pago</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
-                    <section v-if="canChangeTaxes" class="br-sale-section-modal__block">
+                <div class="modal-body fg-modal__body">
+                    <section v-if="canChangeTaxes" class="fg-sale-section-modal__block">
                         <h6>Impuestos extras</h6>
-                        <p class="br-document-payment-intro">Activa solo los cargos adicionales que correspondan.</p>
-                        <div v-if="optionalSaleTaxes.length" class="br-document-taxes-modal">
+                        <p class="fg-document-payment-intro">Activa solo los cargos adicionales que correspondan.</p>
+                        <div v-if="optionalSaleTaxes.length" class="fg-document-taxes-modal">
                             <div
                                 v-for="tax in optionalSaleTaxes"
                                 :key="`optional-sale-tax-section-${tax.code}`"
-                                class="br-document-tax-option">
-                                <label class="br-entity-switch br-document-tax-option__switch">
+                                class="fg-document-tax-option">
+                                <label class="fg-check fg-document-tax-option__switch">
                                     <input
                                         v-model="forms[entity].createUpdate.data.selected_taxes"
-                                        class="form-check-input"
+
                                         type="checkbox"
                                         :value="tax.code"
                                         @change="syncSelectedTaxQuantity(tax.data)">
@@ -878,28 +895,28 @@
                                     v-if="isFixedTax(tax.data) && selectedTaxIds().includes(tax.code)"
                                     v-model="forms[entity].createUpdate.data.selected_tax_quantities[tax.code]"
                                     title=""
-                                    :inputClass="['form-control', 'br-tax-quantity']"
+                                    :inputClass="['form-control', 'fg-tax-quantity']"
                                     :decimals="0"
                                     :minValue="taxQuantityMinimum(tax.data)"
                                     :maxValue="taxQuantityMaximum(tax.data)"
                                     :hasNegative="false"
                                     @change="normalizeSelectedTaxQuantity(tax.code)">
                                     <template v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-tax-quantity__label">Veces</span>
+                                        <span class="fg-field__prefix fg-tax-quantity__label">Veces</span>
                                     </template>
                                 </InputNumber>
                             </div>
                         </div>
-                        <p v-else class="br-document-settlement__empty mb-0">No hay impuestos extras configurados.</p>
+                        <p v-else class="fg-document-settlement__empty mb-0">No hay impuestos extras configurados.</p>
                     </section>
-                    <section v-if="canChangePaymentMethods" class="br-sale-section-modal__block">
+                    <section v-if="canChangePaymentMethods" class="fg-sale-section-modal__block">
                         <h6>Modalidad de pago</h6>
-                        <p class="br-document-payment-intro">Define si el saldo se paga ahora o se registra en cuentas por cobrar.</p>
-                        <div class="br-sale-credit-mode" role="radiogroup" aria-label="Modalidad de pago">
+                        <p class="fg-document-payment-intro">Define si el saldo se paga ahora o se registra en cuentas por cobrar.</p>
+                        <div class="fg-sale-credit-mode" role="radiogroup" aria-label="Modalidad de pago">
                             <label
                                 v-for="modality in salePaymentModalities"
                                 :key="modality.code"
-                                class="br-sale-credit-mode__option"
+                                class="fg-sale-credit-mode__option"
                                 :class="{'is-selected': forms[entity].createUpdate.data.payment_modality === modality.code}">
                                 <input
                                     v-model="forms[entity].createUpdate.data.payment_modality"
@@ -915,108 +932,106 @@
                             </label>
                         </div>
                     </section>
-                    <section v-if="canChangePaymentMethods" class="br-sale-section-modal__block">
+                    <section v-if="canChangePaymentMethods" class="fg-sale-section-modal__block">
                         <h6>Métodos de pago</h6>
-                    <p class="br-document-payment-intro">
+                    <p class="fg-document-payment-intro">
                         {{ saleUsesInstallments
                             ? 'Registra solo el pago inicial. El saldo restante se financiará.'
                             : 'Distribuye el importe total entre uno o más métodos configurados para ventas.' }}
                     </p>
-                    <div class="br-document-payments br-document-payments--modal">
+                    <div class="fg-document-payments fg-document-payments--modal">
                         <div
                             v-for="(payment, index) in forms[entity].createUpdate.data.payments"
                             :key="payment.key"
-                            class="br-document-payment-row">
-                            <v-select
+                            class="fg-document-payment-row">
+                            <FgSelect
                                 v-model="payment.method"
                                 :options="salePaymentMethods"
                                 :clearable="false"
                                 :searchable="true"
-                                append-to-body
                                 @update:modelValue="syncSalePaymentVariant(payment)">
                                 <template #selected-option="{ label, data }">
-                                    <span class="br-payment-select-option">
+                                    <span class="fg-payment-select-option">
                                         <img
                                             v-if="paymentAssetUrl(data)"
                                             :src="paymentAssetUrl(data)"
                                             alt=""
-                                            class="br-payment-select-option__image">
+                                            class="fg-payment-select-option__image">
                                         <span>{{ label }}</span>
                                     </span>
                                 </template>
                                 <template #option="{ label, data }">
-                                    <span class="br-payment-select-option">
+                                    <span class="fg-payment-select-option">
                                         <img
                                             v-if="paymentAssetUrl(data)"
                                             :src="paymentAssetUrl(data)"
                                             alt=""
-                                            class="br-payment-select-option__image">
+                                            class="fg-payment-select-option__image">
                                         <span>{{ label }}</span>
                                     </span>
                                 </template>
-                            </v-select>
-                            <v-select
+                            </FgSelect>
+                            <FgSelect
                                 v-if="salePaymentVariantOptions(payment).length"
                                 v-model="payment.variant"
                                 :options="salePaymentVariantOptions(payment)"
                                 :clearable="false"
                                 :searchable="true"
-                                append-to-body
                                 placeholder="Variante">
                                 <template #selected-option="{ label, data }">
-                                    <span class="br-payment-select-option">
+                                    <span class="fg-payment-select-option">
                                         <img
                                             v-if="paymentAssetUrl(data)"
                                             :src="paymentAssetUrl(data)"
                                             alt=""
-                                            class="br-payment-select-option__image">
+                                            class="fg-payment-select-option__image">
                                         <span>{{ label }}</span>
                                     </span>
                                 </template>
                                 <template #option="{ label, data }">
-                                    <span class="br-payment-select-option">
+                                    <span class="fg-payment-select-option">
                                         <img
                                             v-if="paymentAssetUrl(data)"
                                             :src="paymentAssetUrl(data)"
                                             alt=""
-                                            class="br-payment-select-option__image">
+                                            class="fg-payment-select-option__image">
                                         <span>{{ label }}</span>
                                     </span>
                                 </template>
-                            </v-select>
+                            </FgSelect>
                             <InputNumber
                                 v-model="payment.amount"
                                 title=""
                                 :titleClass="[]"
-                                :inputClass="['form-control', 'br-document-payment-amount']"
+                                :inputClass="['form-control', 'fg-document-payment-amount']"
                                 :minValue="0"
                                 :maxValue="saleUsesInstallments ? saleBaseTotal : total"
                                 :placeholder="separatorNumber(saleUsesInstallments ? 0 : total)">
                                 <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-currency-prefix" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
+                                    <span class="fg-field__prefix" v-text="forms[entity].createUpdate.data.currency?.data?.sign ?? ''"></span>
                                 </template>
                             </InputNumber>
                             <input
                                 v-if="paymentRequiresReference(payment)"
                                 v-model.trim="payment.reference"
                                 type="text"
-                                class="form-control"
+                                class="fg-native-input"
                                 maxlength="100"
                                 placeholder="Referencia">
                             <button
                                 type="button"
-                                class="br-icon-action"
+                                class="fg-button fg-button--icon"
                                 :disabled="forms[entity].createUpdate.data.payments.length <= 1"
                                 title="Quitar método"
                                 @click="removeSalePayment(index)">
                                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                             </button>
                         </div>
-                        <button type="button" class="br-document-payment-add" @click="addSalePayment">
+                        <button type="button" class="fg-document-payment-add" @click="addSalePayment">
                             <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
                             <span>Agregar método</span>
                         </button>
-                        <div class="br-document-payment-modal-total">
+                        <div class="fg-document-payment-modal-total">
                             <span v-text="saleUsesInstallments ? 'Pago inicial' : 'Diferencia'"></span>
                             <strong :class="!saleUsesInstallments && Number(salePaymentDifference) !== 0 ? 'text-danger' : 'text-success'">
                                 {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
@@ -1025,54 +1040,54 @@
                         </div>
                     </div>
                     </section>
-                    <section v-if="saleUsesInstallments" class="br-sale-section-modal__block br-sale-credit-terms">
+                    <section v-if="saleUsesInstallments" class="fg-sale-section-modal__block fg-sale-credit-terms">
                         <h6>Condiciones del crédito</h6>
-                        <p class="br-document-payment-intro">El recargo se calcula únicamente sobre el capital pendiente, no sobre lo pagado hoy.</p>
-                        <div class="br-sale-credit-terms__fields">
-                            <label class="br-sale-credit-terms__field">
+                        <p class="fg-document-payment-intro">El recargo se calcula únicamente sobre el capital pendiente, no sobre lo pagado hoy.</p>
+                        <div class="fg-sale-credit-terms__fields">
+                            <label class="fg-sale-credit-terms__field">
                                 <span>Número de cuotas</span>
                                 <input
                                     v-model.number="forms[entity].createUpdate.data.installment_count"
                                     type="number"
-                                    class="form-control"
+                                    class="fg-native-input"
                                     min="1"
                                     max="120"
                                     step="1">
                             </label>
-                            <label class="br-sale-credit-terms__field">
+                            <label class="fg-sale-credit-terms__field">
                                 <span>Vencimiento de la primera cuota</span>
                                 <input
                                     v-model="forms[entity].createUpdate.data.first_due_date"
                                     type="date"
-                                    class="form-control"
+                                    class="fg-native-input"
                                     :min="forms[entity].createUpdate.data.issue_date">
                             </label>
                         </div>
-                        <div class="br-sale-credit-preview">
+                        <div class="fg-sale-credit-preview">
                             <div>
                                 <span>Capital pendiente</span>
-                                <strong class="br-amount-inline__amount">
+                                <strong class="fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleFinancedPrincipal) }}
                                 </strong>
                             </div>
                             <div>
                                 <span>Recargo ({{ separatorNumber(saleInstallmentExtraPercentage) }} %)</span>
-                                <strong class="br-amount-inline__amount">
+                                <strong class="fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleInstallmentExtraAmount) }}
                                 </strong>
                             </div>
-                            <div class="br-sale-credit-preview__total">
+                            <div class="fg-sale-credit-preview__total">
                                 <span>Total por cobrar</span>
-                                <strong class="br-amount-inline__amount">
+                                <strong class="fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleReceivableTotal) }}
                                 </strong>
                             </div>
                             <small>
                                 {{ forms[entity].createUpdate.data.installment_count || 1 }} cuotas aproximadas de
-                                <span class="br-amount-inline__amount">
+                                <span class="fg-money__value">
                                     {{ forms[entity].createUpdate.data.currency?.data?.sign ?? '' }}
                                     {{ separatorNumber(saleInstallmentAmount) }}
                                 </span>
@@ -1080,25 +1095,26 @@
                         </div>
                     </section>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" data-bs-dismiss="modal">Guardar pago</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" data-bs-dismiss="modal">Guardar pago</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.details.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.details.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalDetailsTitle"></h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title" v-text="modalDetailsTitle"></h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
-                        <InputSlot
+                        <div class="fg-field-cell col-12">
+                            <InputSlot
                             hasDiv
                             :title="MODULE.texts.form.commercialCatalog"
                             :titleClass="[config.forms.classes.title]"
@@ -1106,10 +1122,9 @@
                             hasTextBottom
                             :textBottomInfo="forms[entity].createUpdate.extras.modals.details.errors?.item_id">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.extras.modals.details.data.item"
                                     :options="items"
-                                    :class="config.forms.classes.select2"
                                     @close="tooltips({show: true, time: 500})"
                                     :clearable="false"
                                     :disabled="isModalDetailUpdate"
@@ -1118,43 +1133,42 @@
                                     :loading="remoteOptions.items.loading"
                                     @open="openOptions('items')"
                                     @search="searchOptions('items', $event)"
-                                    append-to-body
                                     placeholder="Seleccione">
                                     <template #selected-option="{ label }">
-                                        <span class="br-sale-catalog-selected-option">
-                                            <span class="br-sale-catalog-selected-option__label" v-text="label"></span>
+                                        <span class="fg-sale-catalog-selected-option">
+                                            <span class="fg-sale-catalog-selected-option__label" v-text="label"></span>
                                         </span>
                                     </template>
                                     <template #option="{ data }">
-                                        <div class="br-sale-catalog-option">
-                                            <div class="br-sale-catalog-option__head">
+                                        <div class="fg-sale-catalog-option">
+                                            <div class="fg-sale-catalog-option__head">
                                                 <strong v-text="data?.name"></strong>
-                                                <span v-if="data?.formatted_type" class="br-sale-catalog-option__type" v-text="data?.formatted_type"></span>
+                                                <span v-if="data?.formatted_type" class="fg-sale-catalog-option__type" v-text="data?.formatted_type"></span>
                                             </div>
-                                            <div class="br-sale-catalog-option__line">
-                                                <div class="br-sale-catalog-option__meta">
-                                                    <span class="br-sale-catalog-option__meta-card is-price">
+                                            <div class="fg-sale-catalog-option__line">
+                                                <div class="fg-sale-catalog-option__meta">
+                                                    <span class="fg-sale-catalog-option__meta-card is-price">
                                                         <i class="fa fa-money-bill" aria-hidden="true"></i>
                                                         <small>Venta</small>
                                                         <strong v-text="`${data?.currency?.sign ?? ''} ${separatorNumber(data?.price)}`"></strong>
                                                     </span>
-                                                    <span v-if="isDefined({value: data?.min_price})" class="br-sale-catalog-option__meta-card is-range is-min">
+                                                    <span v-if="isDefined({value: data?.min_price})" class="fg-sale-catalog-option__meta-card is-range is-min">
                                                         <i class="fa fa-arrow-down" aria-hidden="true"></i>
                                                         <small>Mín.</small>
                                                         <strong v-text="`${data?.currency?.sign ?? ''} ${separatorNumber(data?.min_price)}`"></strong>
                                                     </span>
-                                                    <span v-if="isDefined({value: data?.max_price})" class="br-sale-catalog-option__meta-card is-range is-max">
+                                                    <span v-if="isDefined({value: data?.max_price})" class="fg-sale-catalog-option__meta-card is-range is-max">
                                                         <i class="fa fa-arrow-up" aria-hidden="true"></i>
                                                         <small>Máx.</small>
                                                         <strong v-text="`${data?.currency?.sign ?? ''} ${separatorNumber(data?.max_price)}`"></strong>
                                                     </span>
-                                                    <span v-if="isSubscription(data?.type)" class="br-sale-catalog-option__meta-card is-duration">
+                                                    <span v-if="isSubscription(data?.type)" class="fg-sale-catalog-option__meta-card is-duration">
                                                         <i class="fa fa-clock" aria-hidden="true"></i>
                                                         <small>Duración</small>
                                                         <strong v-text="data?.formatted_duration" class="text-lowercase"></strong>
                                                     </span>
                                                 </div>
-                                                <div class="br-sale-catalog-option__codes">
+                                                <div class="fg-sale-catalog-option__codes">
                                                     <small v-if="data?.internal_code">
                                                         <span>Cód. interno</span>
                                                         <strong v-text="data.internal_code"></strong>
@@ -1169,48 +1183,50 @@
                                     </template>
                                     <template #list-footer>
                                         <li v-if="remoteOptions.items.hasMore" class="px-2 py-1">
-                                            <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('items')">Cargar más ítems</button>
+                                            <button type="button" class="w-100 text-start fg-button fg-button--link" @mousedown.prevent @click.stop="loadMoreOptions('items')">Cargar más ítems</button>
                                         </li>
                                     </template>
                                     <template #no-options>Sin ítems para esta búsqueda.</template>
-                                </v-select>
+                                </FgSelect>
                             </template>
                         </InputSlot>
-                        <InputSlot
+                        </div>
+                        <div class="fg-field-cell col-12">
+                            <InputSlot
                             v-if="selectedModalItem"
                             hasDiv
                             :title="selectedModalCatalogSectionTitle"
                             :titleClass="[config.forms.classes.title, 'colon-at-end']"
                             :isInputGroup="false"
-                            :divInputClass="['br-sale-selected-catalog']"
+                            :divInputClass="['fg-sale-selected-catalog']"
                             xl="12"
                             lg="12">
                             <template v-slot:input>
-                                <div class="br-sale-catalog-option br-sale-catalog-option--selected">
-                                    <div class="br-sale-catalog-option__line">
-                                        <div class="br-sale-catalog-option__meta">
-                                            <span class="br-sale-catalog-option__meta-card is-price">
+                                <div class="fg-sale-catalog-option fg-sale-catalog-option--selected">
+                                    <div class="fg-sale-catalog-option__line">
+                                        <div class="fg-sale-catalog-option__meta">
+                                            <span class="fg-sale-catalog-option__meta-card is-price">
                                                 <i class="fa fa-money-bill" aria-hidden="true"></i>
                                                 <small>Venta</small>
                                                 <strong v-text="`${selectedModalItem?.currency?.sign ?? ''} ${separatorNumber(selectedModalItem?.price)}`"></strong>
                                             </span>
-                                            <span v-if="isDefined({value: selectedModalItem?.min_price})" class="br-sale-catalog-option__meta-card is-range is-min">
+                                            <span v-if="isDefined({value: selectedModalItem?.min_price})" class="fg-sale-catalog-option__meta-card is-range is-min">
                                                 <i class="fa fa-arrow-down" aria-hidden="true"></i>
                                                 <small>Mín.</small>
                                                 <strong v-text="`${selectedModalItem?.currency?.sign ?? ''} ${separatorNumber(selectedModalItem?.min_price)}`"></strong>
                                             </span>
-                                            <span v-if="isDefined({value: selectedModalItem?.max_price})" class="br-sale-catalog-option__meta-card is-range is-max">
+                                            <span v-if="isDefined({value: selectedModalItem?.max_price})" class="fg-sale-catalog-option__meta-card is-range is-max">
                                                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
                                                 <small>Máx.</small>
                                                 <strong v-text="`${selectedModalItem?.currency?.sign ?? ''} ${separatorNumber(selectedModalItem?.max_price)}`"></strong>
                                             </span>
-                                            <span v-if="isSubscription(selectedModalItem?.type)" class="br-sale-catalog-option__meta-card is-duration">
+                                            <span v-if="isSubscription(selectedModalItem?.type)" class="fg-sale-catalog-option__meta-card is-duration">
                                                 <i class="fa fa-clock" aria-hidden="true"></i>
                                                 <small>Duración</small>
                                                 <strong v-text="selectedModalItem?.formatted_duration" class="text-lowercase"></strong>
                                             </span>
                                         </div>
-                                        <div class="br-sale-catalog-option__codes">
+                                        <div class="fg-sale-catalog-option__codes">
                                             <small v-if="selectedModalItem?.internal_code">
                                                 <span>Cód. interno</span>
                                                 <strong v-text="selectedModalItem.internal_code"></strong>
@@ -1221,19 +1237,19 @@
                                             </small>
                                         </div>
                                     </div>
-                                    <div class="br-sale-catalog-info-toggle">
+                                    <div class="fg-sale-catalog-info-toggle">
                                         <button
                                             type="button"
-                                            class="br-link br-link-primary"
+                                            class="fg-link"
                                             @click="selectedCatalogInfoExpanded = !selectedCatalogInfoExpanded"
                                             v-text="selectedCatalogInfoExpanded ? 'Ocultar información adicional' : 'Mostrar información adicional'">
                                         </button>
                                     </div>
-                                    <div v-if="selectedCatalogInfoExpanded" class="br-sale-catalog-info">
+                                    <div v-if="selectedCatalogInfoExpanded" class="fg-sale-catalog-info">
                                         <div
                                             v-for="detail in selectedModalItemAdditionalDetails"
                                             :key="detail.label"
-                                            class="br-sale-catalog-info__item">
+                                            class="fg-sale-catalog-info__item">
                                             <span class="colon-at-end" v-text="detail.label"></span>
                                             <strong v-if="detail.strong" v-text="detail.value"></strong>
                                             <small v-else v-text="detail.value"></small>
@@ -1242,7 +1258,9 @@
                                 </div>
                             </template>
                         </InputSlot>
-                        <InputNumber
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                            <InputNumber
                             v-model="forms[entity].createUpdate.extras.modals.details.data.quantity"
                             @change="calculateDuration({mode: 'record', record: forms[entity].createUpdate.extras.modals.details.data})"
                             hasDiv
@@ -1254,7 +1272,9 @@
                             :textBottomInfo="forms[entity].createUpdate.extras.modals.details.errors?.quantity"
                             xl="6"
                             lg="6"/>
-                        <InputNumber
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                            <InputNumber
                             v-model="modalUnitPriceDisplay"
                             hasDiv
                             :title="MODULE.texts.form.price"
@@ -1268,10 +1288,12 @@
                             xl="6"
                             lg="6">
                             <template v-slot:inputGroupPrepend v-if="isDefined({value: forms[entity].createUpdate.extras.modals.details.data.item?.data?.currency})">
-                                <span class="input-group-text br-currency-prefix" v-text="forms[entity].createUpdate.extras.modals.details.data.item?.data?.currency?.sign"></span>
+                                <span class="fg-field__prefix" v-text="forms[entity].createUpdate.extras.modals.details.data.item?.data?.currency?.sign"></span>
                             </template>
                         </InputNumber>
-                        <InputSlot
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                            <InputSlot
                             v-if="false && selectedModalItem"
                             hasDiv
                             :title="MODULE.texts.form.commissionType"
@@ -1279,18 +1301,19 @@
                             xl="6"
                             lg="6">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.extras.modals.details.data.commission_type"
                                     :options="commissionTypeOptions"
                                     :reduce="option => option.code"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="false"
                                     :disabled="true"
                                     @close="tooltips({show: true, time: 500})"/>
                             </template>
                         </InputSlot>
-                        <InputNumber
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                            <InputNumber
                             v-if="false && selectedModalItem"
                             v-model="forms[entity].createUpdate.extras.modals.details.data.commission_value"
                             hasDiv
@@ -1303,10 +1326,11 @@
                             lg="6">
                             <template v-slot:inputGroupPrepend>
                                 <span
-                                    class="input-group-text br-currency-prefix"
+                                    class="fg-field__prefix"
                                     v-text="forms[entity].createUpdate.extras.modals.details.data.commission_type === 'percentage' ? '%' : (forms[entity].createUpdate.extras.modals.details.data.item?.data?.currency?.sign || forms[entity].createUpdate.data.currency?.data?.sign || '')"></span>
                             </template>
                         </InputNumber>
+                        </div>
                         <template v-if="isSubscription(forms[entity].createUpdate.extras.modals.details.data.type)">
                             <InputDatetime
                                 v-model="forms[entity].createUpdate.extras.modals.details.data.extras.start_date"
@@ -1338,7 +1362,7 @@
                                         <div class="form-check form-check-primary">
                                             <label class="form-check-label fw-semibold">
                                                 <input
-                                                    class="form-check-input"
+
                                                     type="checkbox"
                                                     v-model="forms[entity].createUpdate.extras.modals.details.data.extras.set_end_of_day"
                                                     @change="calculateDuration({mode: 'record', record: forms[entity].createUpdate.extras.modals.details.data})"/>
@@ -1348,16 +1372,16 @@
                                         <div class="form-check form-check-primary fw-semibold">
                                             <label class="form-check-label">
                                                 <input
-                                                    class="form-check-input"
+
                                                     type="checkbox"
                                                     v-model="forms[entity].createUpdate.extras.modals.details.data.extras.force"/>
                                                 Tomar en cuenta la membresías activas
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="br-sale-membership-duration justify-content-center">
-                                        <span class="br-sale-membership-duration__title colon-at-end">Duración total calculada</span>
-                                        <div class="br-sale-membership-duration__formula">
+                                    <div class="fg-sale-membership-duration justify-content-center">
+                                        <span class="fg-sale-membership-duration__title colon-at-end">Duración total calculada</span>
+                                        <div class="fg-sale-membership-duration__formula">
                                             <span>
                                                 <small>Base</small>
                                                 <strong class="text-lowercase" v-text="forms[entity].createUpdate.extras.modals.details.data.extras.formatted_duration"></strong>
@@ -1381,11 +1405,11 @@
                         </template>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel br-modal-shell__footer-left waves-effect" data-bs-dismiss="modal" v-text="MODULE.texts.actions.close"></button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary fg-modal-shell__footer-left" data-bs-dismiss="modal" v-text="MODULE.texts.actions.close"></button>
                     <button
                         type="button"
-                        class="br-btn br-btn-primary br-modal-shell__footer-right waves-effect"
+                        class="fg-button fg-modal-shell__footer-right"
                         :disabled="!selectedModalItem"
                         @click="addDetail()">
                         <span v-text="modalDetailsActionLabel"></span>
@@ -1394,53 +1418,54 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.observations.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.observations.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold">Editar información</h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" :aria-label="MODULE.texts.actions.close">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title">Editar información</h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" :aria-label="MODULE.texts.actions.close">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body">
-                    <div class="row g-3 br-sale-section-modal">
-                        <InputSlot
+                <div class="modal-body fg-modal__body">
+                    <div class="row g-3 fg-sale-section-modal">
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                            <InputSlot
                             hasDiv
                             title="Vendedor"
                             :titleClass="[config.forms.classes.title]"
                             xl="6"
                             lg="6">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.data.seller"
                                     :options="users"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="true"
-                                    append-to-body
                                     placeholder="Seleccione vendedor"/>
                             </template>
                         </InputSlot>
-                        <InputSlot
+                        </div>
+                        <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                            <InputSlot
                             hasDiv
                             :title="MODULE.texts.form.quotation"
                             :titleClass="[config.forms.classes.title]"
                             xl="6"
                             lg="6">
                             <template v-slot:input>
-                                <v-select
+                                <FgSelect
                                     v-model="forms[entity].createUpdate.data.quotation"
                                     :options="quotationOptions"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="true"
-                                    append-to-body
                                     placeholder="Seleccione cotización"
                                     @option:selected="applyQuotationDraft"/>
                             </template>
                         </InputSlot>
-                        <InputTextArea
+                        </div>
+                        <div class="fg-field-cell col-12">
+                            <InputTextArea
                             v-model="forms[entity].createUpdate.extras.modals.observations.draft"
                             hasDiv
                             title="Observaciones"
@@ -1449,17 +1474,18 @@
                             :rows="4"
                             xl="12"
                             lg="12"/>
+                        </div>
                         <div v-if="hasQuotationApplied" class="col-12">
-                            <button type="button" class="br-sale-section-modal__remove" @click="clearQuotation">
+                            <button type="button" class="fg-sale-section-modal__remove" @click="clearQuotation">
                                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                 <span>Quitar cotización aplicada</span>
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary waves-effect" @click="saveInformationSectionModal">
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" @click="saveInformationSectionModal">
                         <i class="fa fa-save"></i>
                         <span class="ms-2">Guardar información de venta</span>
                     </button>
@@ -1467,28 +1493,28 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.subscriptions.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" :id="forms[entity].createUpdate.extras.modals.subscriptions.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-modal-header br-modal-shell__header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="MODULE.texts.modal.activeMemberships"></h5>
-                    <button type="button" class="br-modal-close br-modal-shell__close" data-bs-dismiss="modal" aria-label="Cerrar">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
+                    <h5 class="modal-title text-uppercase fw-bold fg-modal__title" v-text="MODULE.texts.modal.activeMemberships"></h5>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body br-sale-customer-history">
-                    <div class="br-sale-customer-history__header">
-                        <div class="br-sale-customer-history__avatar" aria-hidden="true">
+                <div class="modal-body fg-modal__body fg-sale-customer-history">
+                    <div class="fg-sale-customer-history__header">
+                        <div class="fg-sale-customer-history__avatar" aria-hidden="true">
                             <i class="fa-solid fa-user"></i>
                         </div>
-                        <div class="br-sale-customer-history__identity">
-                            <span class="br-sale-customer-history__eyebrow">Cliente seleccionado</span>
+                        <div class="fg-sale-customer-history__identity">
+                            <span class="fg-sale-customer-history__eyebrow">Cliente seleccionado</span>
                             <strong v-text="forms[entity].createUpdate.data.holder?.data?.name ?? 'Sin cliente'"></strong>
                             <small v-text="forms[entity].createUpdate.data.holder?.data?.document_number ?? ''"></small>
                         </div>
                         <button
                             type="button"
-                            class="br-icon-action br-sale-customer-history__refresh"
+                            class="fg-button fg-button--icon fg-sale-customer-history__refresh"
                             @click="refreshCustomerHistory()"
                             data-bs-toggle="tooltip"
                             title="Actualizar">
@@ -1497,12 +1523,12 @@
                     </div>
 
                     <template v-if="forms[entity].createUpdate.extras.modals.subscriptions.data.loading">
-                        <div class="br-sale-customer-history__loader">
-                            <Loader/>
+                        <div class="fg-sale-customer-history__loader">
+                            <FgListLoading label="Cargando el historial del cliente…"/>
                         </div>
                     </template>
                     <template v-else>
-                        <div class="br-sale-customer-history__summary">
+                        <div class="fg-sale-customer-history__summary">
                             <article>
                                 <span><i class="fa-solid fa-receipt" aria-hidden="true"></i> Compras</span>
                                 <strong v-text="customerHistorySummary.salesCount"></strong>
@@ -1519,13 +1545,13 @@
 
                         <div class="row g-3">
                             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                                <section class="br-sale-customer-history__panel">
+                                <section class="fg-sale-customer-history__panel">
                                     <header>
                                         <h6>Historial de compras</h6>
                                         <small>Últimos movimientos comerciales del cliente.</small>
                                     </header>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover br-entity-table mb-0">
+                                    <ResponsiveTable fg class="fg-sales-table-scroll">
+                                        <table class="table-sm mb-0 fg-table">
                                             <thead>
                                                 <tr>
                                                     <th>Fecha</th>
@@ -1547,17 +1573,17 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </ResponsiveTable>
                                 </section>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                                <section class="br-sale-customer-history__panel">
+                                <section class="fg-sale-customer-history__panel">
                                     <header>
                                         <h6>Historial de membresías</h6>
                                         <small>Vigentes y anteriores para revisar continuidad.</small>
                                     </header>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover br-entity-table mb-0">
+                                    <ResponsiveTable fg class="fg-sales-table-scroll">
+                                        <table class="table-sm mb-0 fg-table">
                                             <thead>
                                                 <tr>
                                                     <th>Inicio</th>
@@ -1574,20 +1600,20 @@
                                                     <td v-text="legibleFormatDate({dateString: record.end_date})"></td>
                                                     <td class="text-center">
                                                         <span
-                                                            :class="['br-status-label', record.status === 'active' ? 'br-status-active' : 'br-status-inactive']"
+                                                            :class="['fg-badge', record.status === 'active' ? 'fg-badge--success' : 'fg-badge--danger']"
                                                             v-text="record.status === 'active' ? 'Activa' : 'Historial'"></span>
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </ResponsiveTable>
                                 </section>
                             </div>
                         </div>
                     </template>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
-                    <button type="button" class="br-btn br-btn-cancel waves-effect" data-bs-dismiss="modal" v-text="MODULE.texts.actions.close"></button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal" v-text="MODULE.texts.actions.close"></button>
                 </div>
             </div>
         </div>
@@ -1614,7 +1640,7 @@
                 <div class="text-center">
                     <button
                         type="button"
-                        class="br-btn br-btn-sm br-btn-success waves-effect p-3 rounded mb-1 d-inline-flex align-items-center justify-content-center"
+                        class="fg-button p-3 rounded mb-1 d-inline-flex align-items-center justify-content-center"
                         data-bs-dismiss="modal">
                         <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
                     </button>
@@ -1622,29 +1648,33 @@
                 </div>
             </div>
             <div class="row g-2 justify-content-center my-4 px-1 px-md-5">
-                <InputText
+                <div class="fg-field-cell col-12">
+                    <InputText
                     hasDiv
                     :placeholder="MODULE.texts.form.whatsappPlaceholder"
                     v-model="forms[entity].createUpdate.extras.modals.finished.data.whatsapp">
                     <template v-slot:inputGroupAppend>
-                        <button class="btn btn-success waves-effect" type="button" @click="sendWhatsapp({data: forms[entity].createUpdate.extras.modals.finished.data})" :disabled="!isDefined({value: forms[entity].createUpdate.extras.modals.finished.data.whatsapp})">
+                        <button class="fg-button" type="button" @click="sendWhatsapp({data: forms[entity].createUpdate.extras.modals.finished.data})" :disabled="!isDefined({value: forms[entity].createUpdate.extras.modals.finished.data.whatsapp})">
                             <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                             <span class="d-none d-sm-inline ms-sm-2" v-text="MODULE.texts.actions.send"></span>
                         </button>
                     </template>
                 </InputText>
-                <InputText
+                </div>
+                <div class="fg-field-cell col-12">
+                    <InputText
                     v-if="false"
                     hasDiv
                     title="Correo electrónico"
                     v-model="forms[entity].createUpdate.extras.modals.finished.data.email">
                     <template v-slot:inputGroupAppend>
-                        <button class="btn btn-info-1 waves-effect" type="button" @click="sendEmail({data: forms[entity].createUpdate.extras.modals.finished.data})" :disabled="!isDefined({value: forms[entity].createUpdate.extras.modals.finished.data.email})">
+                        <button class="fg-button" type="button" @click="sendEmail({data: forms[entity].createUpdate.extras.modals.finished.data})" :disabled="!isDefined({value: forms[entity].createUpdate.extras.modals.finished.data.email})">
                             <i class="fa fa-envelope"></i>
                             <span class="ms-2">Enviar</span>
                         </button>
                     </template>
                 </InputText>
+                </div>
             </div>
         </template>
     </PrintSale>
@@ -2095,7 +2125,7 @@ export default {
                     sign,
                     amount: this.separatorNumber(0),
                     label: `${sign} ${this.separatorNumber(0)}`.trim(),
-                    className: "br-sale-detail-tax--exempt"
+                    className: "fg-sale-detail-tax--exempt"
                 };
 
             }
@@ -2104,7 +2134,7 @@ export default {
 
             if(!tax) {
 
-                return {label: "No aplica", className: "br-sale-detail-tax--muted"};
+                return {label: "No aplica", className: "fg-sale-detail-tax--muted"};
 
             }
 
@@ -2113,7 +2143,7 @@ export default {
 
             if(rate <= 0 || lineTotal <= 0) {
 
-                return {label: "No aplica", className: "br-sale-detail-tax--muted"};
+                return {label: "No aplica", className: "fg-sale-detail-tax--muted"};
 
             }
 
@@ -2124,7 +2154,7 @@ export default {
                 sign,
                 amount: this.separatorNumber(amount),
                 label: `${sign} ${this.separatorNumber(amount)}`.trim(),
-                className: this.detailIncludesTax(detail) ? "br-sale-detail-tax--included" : "br-sale-detail-tax--charged"
+                className: this.detailIncludesTax(detail) ? "fg-sale-detail-tax--included" : "fg-sale-detail-tax--charged"
             };
 
         },
@@ -2135,7 +2165,7 @@ export default {
                 return {
                     label: "Exonerado",
                     title: "Operación exonerada: no se calcula IGV.",
-                    className: "br-sale-detail-igv-label--not-applicable"
+                    className: "fg-sale-detail-igv-label--not-applicable"
                 };
 
             }
@@ -2145,7 +2175,7 @@ export default {
                 return {
                     label: "IGV incluido",
                     title: "El precio ingresado ya contiene el IGV",
-                    className: "br-sale-detail-igv-label--yes"
+                    className: "fg-sale-detail-igv-label--yes"
                 };
 
             }
@@ -2153,7 +2183,7 @@ export default {
             return {
                 label: "+ IGV adicional",
                 title: "El precio no incluye IGV; se calcula por separado y se suma al total.",
-                className: "br-sale-detail-igv-label--no"
+                className: "fg-sale-detail-igv-label--no"
             };
 
         },
@@ -2745,8 +2775,8 @@ export default {
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Limpiar detalle",
                 customClass: {
-                    confirmButton: "br-btn br-btn-danger waves-effect",
-                    cancelButton: "br-btn br-btn-cancel waves-effect ms-3"
+                    confirmButton: "fg-button fg-button--danger waves-effect",
+                    cancelButton: "fg-button fg-button--secondary waves-effect ms-3"
                 }
             }).then(result => {
 
@@ -3177,12 +3207,12 @@ export default {
                                         <div class="d-block mt-1">
                                             <i class="fa-regular fa-calendar"></i>
                                             <span class="fw-semibold ms-1">F. inicio:</span>
-                                            <span class="br-status-label br-status-label--primary fw-bold">${this.legibleFormatDate({dateString: e?.start_date})}</span>
+                                            <span class="fg-badge fw-bold">${this.legibleFormatDate({dateString: e?.start_date})}</span>
                                         </div>
                                         <div class="d-block mt-1">
                                             <i class="fa-regular fa-calendar"></i>
                                             <span class="fw-semibold ms-1">F. final.:</span>
-                                            <span class="br-status-label br-status-label--success fw-bold">${this.legibleFormatDate({dateString: e?.end_date})}</span>
+                                            <span class="fg-badge fg-badge--success fw-bold">${this.legibleFormatDate({dateString: e?.end_date})}</span>
                                         </div>
                                     </div>`
                                 );
@@ -3539,6 +3569,7 @@ export default {
 
             const phoneNumber = this.forms[this.entity].createUpdate.extras.modals.finished.data.whatsapp;
             const url = await Requests.saleReportShareUrl({document: data?.id, type: "a4"});
+            if(!url) return;
             const message = Utils.getMessageWhatsapp({data, action, url});
 
             Utils.sendWhatsapp({phoneNumber, message});
@@ -3548,6 +3579,7 @@ export default {
 
             let route = Requests.config({entity: "helpers", type: "sendEmail"});
             const url = await Requests.saleReportShareUrl({document: data?.id, type: "a4"});
+            if(!url) return;
             const formJson = {id: data?.id, serie_sequential: data?.serie_sequential, email: data?.email, message: Utils.getMessageWhatsapp({data, action, url})};
 
             Alerts.swals({});
@@ -4183,7 +4215,7 @@ export default {
 
                 return {
                     amount: null,
-                    className: "br-document-payment-status--empty",
+                    className: "fg-document-payment-status--empty",
                     icon: "fa-circle-info",
                     label: "Sin ítems"
                 };
@@ -4196,7 +4228,7 @@ export default {
 
                 return {
                     amount: null,
-                    className: "br-document-payment-status--complete",
+                    className: "fg-document-payment-status--complete",
                     icon: "fa-check",
                     label: "Pago completo"
                 };
@@ -4207,7 +4239,7 @@ export default {
 
                 return {
                     amount: difference,
-                    className: "br-document-payment-status--pending",
+                    className: "fg-document-payment-status--pending",
                     icon: "fa-clock",
                     label: this.saleUsesInstallments ? "Crédito en cuotas" : "Pendiente"
                 };
@@ -4216,7 +4248,7 @@ export default {
 
             return {
                 amount: Math.abs(difference),
-                className: "br-document-payment-status--overpaid",
+                className: "fg-document-payment-status--overpaid",
                 icon: "fa-triangle-exclamation",
                 label: "Pago excedido"
             };

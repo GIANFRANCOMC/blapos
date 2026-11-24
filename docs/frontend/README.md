@@ -14,6 +14,7 @@ Guía de trabajo para construir y revisar interfaces del ERP conservando la iden
 | Mantener listados y formularios del catálogo | [Catálogo comercial](patrones/CATALOGO_COMERCIAL.md) |
 | Mantener tablas y flujos de almacén | [Inventario](patrones/INVENTARIO.md) |
 | Consultar Productos implementado y sus flujos | [Productos: experiencia e interfaz](modulos/productos/README.md) · [Estados y mensajes](modulos/productos/ESTADOS_Y_MENSAJES.md) |
+| Consultar los diseños de Nueva venta y Listado de ventas | [Ventas en Figma](modulos/ventas/README.md) |
 | Reutilizar el sistema FG global | [Implementación y verificaciones](figma/IMPLEMENTACION_FG.md) · [Biblioteca Componentes: uso y registro](figma/README.md) · [Catálogo](figma/CATALOGO_COMPONENTES.md) · [Fundamentos y diccionario](figma/FUNDAMENTOS_Y_DICCIONARIO.md) · [Mensajes](figma/MENSAJES.md) |
 | Componer navegación, listados, detalle o pantallas transaccionales | [Estructuras](patrones/LAYOUTS.md) |
 | Cambiar el menú, los mundos o el navbar | [Navegación tenant](patrones/TENANT_NAVIGATION.md) |

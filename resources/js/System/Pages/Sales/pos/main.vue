@@ -1,115 +1,124 @@
 ﻿<template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="POS venta" description="Busca productos y revisa el ticket antes de cobrar."/>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="br-page-content">
-            <section class="br-pos">
-                <main class="br-pos__catalog">
+        <div v-else>
+            <section class="fg-pos" :class="{'fg-pos--with-items': cart.length > 0}">
+                <div class="fg-pos__catalog">
 
-                    <Loader v-if="loading"/>
+                    <FgListLoading label="Cargando el catálogo…" v-if="loading"/>
                     <template v-else>
-                        <nav class="br-pos-categories" aria-label="Categorías">
+                        <nav class="fg-pos-categories" aria-label="Categorías">
                             <button
                                 type="button"
-                                class="br-pos-category"
-                                :class="{'is-active': selectedCategoryId === null}"
+                                class="fg-pos-category"
+                                :class="{'is-active': selectedCategoryId === null}" :aria-pressed="selectedCategoryId === null"
                                 @click="selectedCategoryId = null">
                                 <span>
                                     <strong>Todos</strong>
                                 </span>
-                                <small class="br-pos-category__count">{{ items.length }}</small>
+                                <small class="fg-pos-category__count">{{ catalogTotal }}</small>
                             </button>
                             <button
                                 v-for="category in visibleCategories"
                                 :key="category.id"
                                 type="button"
-                                class="br-pos-category"
-                                :class="{'is-active': selectedCategoryId === category.id}"
+                                class="fg-pos-category"
+                                :class="{'is-active': selectedCategoryId === category.id}" :aria-pressed="selectedCategoryId === category.id"
                                 @click="selectedCategoryId = category.id">
                                 <span>
                                     <strong>{{ category.name }}</strong>
                                 </span>
-                                <small class="br-pos-category__count">{{ countByCategory(category.id) }}</small>
+                                <small class="fg-pos-category__count">{{ category.sale_items_count }}</small>
                             </button>
                         </nav>
-                        <div class="br-pos-search">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <div>
                             <SearchInput
                                 v-model.trim="search"
-                                placeholder="Buscar producto, código o marca"
+                                title="Producto" placeholder="Buscar por nombre, código o marca"
                                 aria-label="Buscar producto"/>
                         </div>
 
-                        <section class="br-pos-products" aria-label="Productos">
+                        <FgListLoading v-if="remoteOptions.items.loading && !remoteOptions.items.page" label="Buscando productos…"/>
+                        <section v-else class="fg-pos-products" aria-label="Productos">
                             <article
-                                v-for="item in filteredItems"
+                                v-for="item in options.items.records"
                                 :key="item.id"
-                                class="br-pos-product"
+                                class="fg-pos-product"
                                 :style="itemCardStyle(item)">
-                                <div class="br-pos-product__body">
-                                    <span class="br-pos-product__image" :style="itemImageStyle(item)" aria-hidden="true">
+                                <div class="fg-pos-product__body">
+                                    <span class="fg-pos-product__image" :style="itemImageStyle(item)" aria-hidden="true">
                                         <i :class="itemIcon(item)"></i>
                                     </span>
-                                    <span class="br-pos-product__info">
+                                    <div class="fg-pos-product__info">
                                         <ProductIdentity :product="item"/>
-                                        <small v-if="item.description" class="br-pos-product__description">
-                                            {{ item.description || 'Producto disponible' }}
+                                        <small v-if="item.description" class="fg-pos-product__description">
+                                            {{ item.description }}
                                         </small>
-                                        <span v-if="item.brand?.name" class="br-pos-product__meta">
-                                            <span class="br-pos-product__meta-row is-brand">
+                                        <span v-if="item.brand?.name" class="fg-pos-product__meta">
+                                            <span class="fg-pos-product__meta-row is-brand">
                                                 <b>Marca</b>
                                                 <em>{{ item.brand.name }}</em>
                                             </span>
                                         </span>
-                                    </span>
+                                    </div>
                                 </div>
-                                <footer class="br-pos-product__footer">
+                                <footer class="fg-pos-product__footer">
                                     <strong>{{ currencySign(item) }} {{ separatorNumber(item.price) }}</strong>
-                                    <div class="br-pos-product__actions">
+                                    <div class="fg-pos-product__actions">
                                         <button
                                             type="button"
-                                            class="br-pos-detail"
+                                            class="fg-button fg-button--icon"
                                             data-bs-toggle="tooltip"
                                             title="Ver detalle"
                                             @click="openItemDetail(item)"
-                                            aria-label="Ver detalle del catálogo">
-                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                            :aria-label="`Ver detalle de ${item.name}`">
+                                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                         </button>
                                         <button
                                             v-if="quantityInCart(item.id)"
                                             type="button"
-                                            class="br-pos-remove br-btn-danger"
+                                            class="fg-button fg-button--icon fg-icon-danger"
                                             @click="decreaseItem(item.id)"
-                                            aria-label="Quitar del detalle">
+                                            :aria-label="`Quitar una unidad de ${item.name}`">
                                             <i class="fa-solid fa-minus" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="br-pos-add" @click="addItem(item)" aria-label="Agregar al detalle">
+                                        <button type="button" class="fg-button fg-pos-add" @click="addItem(item)" :aria-label="`Agregar ${item.name} al detalle`">
                                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                            <span v-if="quantityInCart(item.id)">{{ quantityInCart(item.id) }}</span>
+                                            <span>Agregar<span v-if="quantityInCart(item.id)"> · {{ quantityInCart(item.id) }}</span></span>
                                         </button>
                                     </div>
                                 </footer>
                             </article>
                         </section>
-                        <WithoutData v-if="!filteredItems.length"/>
+                        <div v-if="remoteOptions.items.error" class="fg-sales-message" role="status">
+                            No pudimos cargar el catálogo.
+                            <button type="button" class="fg-button fg-button--link" @click="loadOptions('items', remoteOptions.items.page + 1)">Volver a intentar</button>
+                        </div>
+                        <FgEmptyState v-else-if="remoteOptions.items.loaded && !options.items.records.length" title="No encontramos productos" description="Prueba con otro nombre, código o marca."/>
+                        <div v-if="remoteOptions.items.hasMore && !remoteOptions.items.error" class="text-center">
+                            <button type="button" class="fg-button fg-button--secondary" :disabled="remoteOptions.items.loading" @click="loadMoreOptions('items')">
+                                {{ remoteOptions.items.loading ? "Buscando productos…" : "Cargar más productos" }}
+                            </button>
+                        </div>
                     </template>
-                </main>
+                </div>
 
-                <aside class="br-pos-ticket" aria-label="Resumen de venta">
-                    <section class="br-pos-ticket__config">
-                        <div v-if="!hasOpenCashSessions" class="br-pos-alert br-pos-alert--danger mb-0">
+                <aside class="fg-pos-ticket" aria-label="Resumen de venta">
+                    <section class="fg-pos-ticket__config">
+                        <div v-if="!hasOpenCashSessions" class="fg-pos-alert fg-pos-alert--danger mb-0">
                             <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
                             <span>Abre una caja para registrar ventas POS.</span>
                         </div>
-                        <div v-else-if="hasSingleCashSession" class="br-pos-cash-static">
+                        <div v-else-if="hasSingleCashSession" class="fg-pos-cash-static">
                             <span>Caja activa</span>
                             <strong>{{ selectedCashSession?.register?.name || 'Caja' }}</strong>
                             <small>{{ selectedCashSession?.branch?.name || 'Sucursal no definida' }}</small>
                         </div>
                         <label v-else>
                             <span>Caja</span>
-                            <v-select
+                            <FgSelect
                                 v-model="selectedCashSession"
                                 :options="cashSessionOptions"
                                 :clearable="true"
@@ -119,43 +128,45 @@
                         </label>
                         <label v-if="hasOpenCashSessions && showWarehouseInput">
                             <span>Almacén</span>
-                            <v-select
+                            <FgSelect
                                 v-model="selectedWarehouse"
                                 :options="warehouseOptions"
                                 :clearable="false"
                                 :searchable="false"
                                 placeholder="Seleccione almacén"/>
                         </label>
-                        <div v-if="posConfigurationIssue" class="br-pos-alert br-pos-alert--danger mb-0">
+                        <div v-if="posConfigurationIssue" class="fg-pos-alert fg-pos-alert--danger mb-0">
                             <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
                             <span>{{ posConfigurationIssue }}</span>
                         </div>
-                        <p v-if="hasOpenCashSessions" class="br-operational-scope mb-0">
+                        <p v-if="hasOpenCashSessions" class="fg-help mb-0">
                             <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
                             <span>{{ activePosScopeLabel }}</span>
                         </p>
                     </section>
 
-                    <section class="br-pos-ticket__items">
-                        <article v-for="line in cart" :key="line.item.id" class="br-pos-ticket-item">
+                    <section class="fg-pos-ticket__items">
+                        <h2 class="fg-section-title">Detalle de la venta</h2>
+                        <p v-if="!cart.length" class="fg-help">Agrega productos para preparar el ticket.</p>
+                        <article v-for="line in cart" :key="line.item.id" class="fg-pos-ticket-item">
                             <div>
                                 <ProductIdentity :product="line.item"/>
                                 <small><b>{{ line.quantity }}</b> x <b>{{ currencySign(line.item) }} {{ separatorNumber(line.price) }}</b></small>
                             </div>
-                            <div class="br-pos-ticket-item__side">
+                            <div class="fg-pos-ticket-item__side">
                                 <strong>{{ currencySign(line.item) }} {{ separatorNumber(lineTotal(line)) }}</strong>
-                                <div class="br-pos-ticket-item__qty">
-                                    <button type="button" class="is-danger br-btn-danger" @click="decreaseItem(line.item.id)">-</button>
+                                <div class="fg-pos-ticket-item__qty">
+                                    <button type="button" class="fg-button fg-button--icon fg-icon-danger" :aria-label="'Quitar una unidad de ' + line.item.name" @click="decreaseItem(line.item.id)">−</button>
                                     <span>{{ line.quantity }}</span>
-                                    <button type="button" @click="addItem(line.item)">+</button>
+                                    <button type="button" class="fg-button fg-button--icon" :aria-label="'Agregar una unidad de ' + line.item.name" @click="addItem(line.item)">+</button>
                                 </div>
                             </div>
                         </article>
                     </section>
 
-                    <section v-if="hasOpenCashSessions" class="br-pos-ticket__checkout" aria-label="Cierre de venta">
-                        <section class="br-pos-total-box" aria-label="Total de venta">
-                            <div class="br-pos-ticket__totals">
+                    <section v-if="hasOpenCashSessions" class="fg-pos-ticket__checkout" aria-label="Cierre de venta">
+                        <section class="fg-pos-total-box" aria-label="Total de venta">
+                            <div class="fg-pos-ticket__totals">
                                 <div>
                                     <span>Subtotal</span>
                                     <strong>S/ {{ separatorNumber(subtotal) }}</strong>
@@ -170,15 +181,15 @@
                                 </div>
                             </div>
 
-                            <header class="br-pos-ticket__header">
+                            <header class="fg-pos-ticket__header">
                                 <div>
                                     <p>Total</p>
                                     <h2>S/ {{ separatorNumber(total) }}</h2>
-                                    <span>{{ totalQuantity }} ?tems agregados</span>
+                                    <span>{{ totalQuantity }} ítems agregados</span>
                                 </div>
                                 <button
                                     type="button"
-                                    class="br-icon-action br-btn-danger"
+                                    class="fg-button fg-button--icon fg-icon-danger"
                                     data-bs-toggle="tooltip"
                                     title="Limpiar venta"
                                     :disabled="!cart.length"
@@ -190,7 +201,7 @@
 
                         <button
                             type="button"
-                            class="br-btn br-btn-success br-pos-ticket__pay"
+                            class="fg-button fg-pos-ticket__pay"
                             :disabled="saving || !cart.length || Boolean(posConfigurationIssue)"
                             :title="posConfigurationIssue || 'Revisar venta'"
                             @click="openSaleConfirmation">
@@ -204,31 +215,31 @@
         </div>
     </InitialLoadTransition>
     <div
-        class="modal fade br-entity-modal br-pos-detail-modal"
-        id="brPosItemDetailModal"
+        class="modal fade fg-modal fg-pos-detail-modal"
+        id="fgPosItemDetailModal"
         data-bs-backdrop="static"
         tabindex="-1"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="brPosItemDetailModalTitle">
+        aria-labelledby="fgPosItemDetailModalTitle">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Catálogo comercial</p>
-                        <h2 id="brPosItemDetailModalTitle" class="modal-title br-entity-modal__title">
+                        <p class="fg-help mb-1">Catálogo comercial</p>
+                        <h2 id="fgPosItemDetailModalTitle" class="modal-title fg-modal__title">
                             Detalle del catálogo
                         </h2>
                         <ProductIdentity v-if="selectedItemDetail" class="mt-1" :product="selectedItemDetail"/>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <div class="modal-body br-entity-modal__body br-pos-detail-modal__body">
-                    <div class="br-pos-detail-modal__hero" :style="itemCardStyle(selectedItemDetail || {})">
-                        <span class="br-pos-product__image" :style="itemImageStyle(selectedItemDetail || {})" aria-hidden="true">
+                <div class="modal-body fg-modal__body fg-pos-detail-modal__body">
+                    <div class="fg-pos-detail-modal__hero" :style="itemCardStyle(selectedItemDetail || {})">
+                        <span class="fg-pos-product__image" :style="itemImageStyle(selectedItemDetail || {})" aria-hidden="true">
                             <i :class="itemIcon(selectedItemDetail || {})"></i>
                         </span>
                         <div>
@@ -237,7 +248,7 @@
                         </div>
                     </div>
 
-                    <dl class="br-pos-detail-modal__list">
+                    <dl class="fg-pos-detail-modal__list">
                         <div>
                             <dt>Marca</dt>
                             <dd>{{ selectedItemDetail?.brand?.name || 'Sin marca' }}</dd>
@@ -261,9 +272,9 @@
                     </dl>
                 </div>
 
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-primary" @click="addItem(selectedItemDetail)" data-bs-dismiss="modal">
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" @click="addItem(selectedItemDetail)" data-bs-dismiss="modal">
                         <span>Agregar al detalle</span>
                     </button>
                 </div>
@@ -271,68 +282,77 @@
         </div>
     </div>
     <div
-        class="modal fade br-entity-modal br-pos-sale-modal"
-        id="brPosSaleConfirmationModal"
+        class="modal fade fg-modal fg-pos-sale-modal"
+        id="fgPosSaleConfirmationModal"
         data-bs-backdrop="static"
         tabindex="-1"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="brPosSaleConfirmationModalTitle">
+        aria-labelledby="fgPosSaleConfirmationModalTitle">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">POS venta</p>
-                        <h2 id="brPosSaleConfirmationModalTitle" class="modal-title br-entity-modal__title">
+                        <p class="fg-help mb-1">POS venta</p>
+                        <h2 id="fgPosSaleConfirmationModalTitle" class="modal-title fg-modal__title">
                             Confirmar venta
                         </h2>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <div class="modal-body br-entity-modal__body br-pos-sale-modal__body">
-                    <section class="br-pos-sale-document" aria-label="Comprobante de pago">
+                <div class="modal-body fg-modal__body fg-pos-sale-modal__body">
+                    <section class="fg-pos-sale-document" aria-label="Comprobante de pago">
                         <label v-if="hasMultipleSeries">
-                            <span class="br-pos-field-label">
+                            <span class="fg-pos-field-label">
                                 <span>Comprobante</span>
                             </span>
-                            <v-select
+                            <FgSelect
                                 v-model="selectedSerie"
                                 :options="serieOptions"
                                 :clearable="false"
                                 :searchable="false"
-                                append-to-body
                                 placeholder="Seleccione comprobante"/>
                         </label>
-                        <div v-else class="br-pos-sale-static-field">
+                        <div v-else class="fg-pos-sale-static-field">
                             <span>Comprobante</span>
                             <strong>{{ selectedSerieLabel }}</strong>
                             <small v-if="!selectedSerie">No hay comprobantes disponibles para esta sucursal.</small>
                         </div>
                     </section>
 
-                    <section class="br-pos-sale-customer" aria-label="Cliente de la venta">
+                    <section class="fg-pos-sale-customer" aria-label="Cliente de la venta">
                         <label>
-                            <span class="br-pos-field-label">
+                            <span class="fg-pos-field-label">
                                 <span>Cliente</span>
                                 <AddCustomer
                                     triggerLabel="Agregar"
                                     :options="customerQuickCreateOptions"
                                     @postAction="addCustomerPostAction"/>
                             </span>
-                            <v-select
+                            <FgSelect
                                 v-model="selectedCustomer"
+                                aria-label="Cliente"
                                 :options="customerOptions"
                                 :clearable="false"
                                 :searchable="true"
-                                append-to-body
-                                placeholder="Seleccione cliente"/>
+                                :filterable="false"
+                                :loading="remoteOptions.customers.loading"
+                                placeholder="Seleccione cliente"
+                                @open="openOptions('customers')"
+                                @search="searchOptions('customers', $event)">
+                                <template #list-footer>
+                                    <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
+                                        <button type="button" class="fg-button fg-button--link" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
+                                    </li>
+                                </template>
+                            </FgSelect>
                         </label>
                     </section>
 
-                    <section class="br-pos-sale-summary" aria-label="Resumen de importes">
+                    <section class="fg-pos-sale-summary" aria-label="Resumen de importes">
                         <div>
                             <span>Subtotal</span>
                             <strong>S/ {{ separatorNumber(subtotal) }}</strong>
@@ -350,13 +370,13 @@
                             <strong>S/ {{ separatorNumber(total) }}</strong>
                         </div>
                     </section>
-                    <section v-if="optionalTaxes.length" class="br-document-settlement__taxes" aria-label="Impuestos extras">
-                        <label class="form-label">Impuestos extras</label>
+                    <section v-if="optionalTaxes.length" class="fg-document-settlement__taxes" aria-label="Impuestos extras">
+                        <label class="fg-field__label">Impuestos extras</label>
                         <template v-for="tax in optionalTaxes" :key="`pos-optional-tax-${tax.id}`">
-                            <label class="br-entity-switch br-document-settlement__tax-option">
+                            <label class="fg-check fg-document-settlement__tax-option">
                                 <input
                                     v-model="selectedTaxIds"
-                                    class="form-check-input"
+
                                     type="checkbox"
                                     :value="tax.id"
                                     @change="syncSelectedTaxQuantity(tax)">
@@ -369,41 +389,41 @@
                                 v-if="isFixedTax(tax) && selectedTaxIds.includes(tax.id)"
                                 v-model="selectedTaxQuantities[tax.id]"
                                 title=""
-                                :inputClass="['form-control', 'br-tax-quantity']"
+                                :inputClass="['form-control', 'fg-tax-quantity']"
                                 :decimals="0"
                                 :minValue="taxQuantityMinimum(tax)"
                                 :maxValue="taxQuantityMaximum(tax)"
                                 :hasNegative="false"
                                 @change="normalizeSelectedTaxQuantity(tax.id)">
                                 <template v-slot:inputGroupPrepend>
-                                    <span class="input-group-text br-tax-quantity__label">Veces</span>
+                                    <span class="fg-field__prefix fg-tax-quantity__label">Veces</span>
                                 </template>
                             </InputNumber>
                         </template>
                     </section>
 
-                    <section class="br-pos-sale-payments" aria-label="Pagos de la venta">
+                    <section class="fg-pos-sale-payments" aria-label="Pagos de la venta">
                         <header>
                             <div>
                                 <strong>Métodos de pago</strong>
                                 <small>{{ showPaymentEditor ? 'Ajusta los importes antes de confirmar si el pago es mixto.' : 'Revisa cómo se registrará el pago de esta venta.' }}</small>
                             </div>
-                            <button type="button" class="br-pos-payments__add" @click="showPaymentEditor = !showPaymentEditor">
+                            <button type="button" class="fg-pos-payments__add" @click="showPaymentEditor = !showPaymentEditor">
                                 <i class="fa-solid" :class="showPaymentEditor ? 'fa-eye-slash' : 'fa-pen-to-square'" aria-hidden="true"></i>
                                 <span>{{ showPaymentEditor ? 'Ocultar edición' : 'Cambiar método de pago' }}</span>
                             </button>
                         </header>
 
-                        <div v-if="!showPaymentEditor" class="br-pos-payments-summary">
+                        <div v-if="!showPaymentEditor" class="fg-pos-payments-summary">
                             <div v-for="payment in paymentSummary" :key="`confirm-summary-${payment.uid}`">
                                 <span>{{ payment.label }}</span>
                                 <strong>S/ {{ separatorNumber(payment.amount) }}</strong>
                             </div>
                         </div>
 
-                        <div v-else class="br-pos-payments-editor">
-                            <article v-for="(payment, index) in payments" :key="`confirm-${payment.uid}`" class="br-pos-payment">
-                                <v-select
+                        <div v-else class="fg-pos-payments-editor">
+                            <article v-for="(payment, index) in payments" :key="`confirm-${payment.uid}`" class="fg-pos-payment">
+                                <FgSelect
                                     v-model="payment.method"
                                     :options="paymentMethodOptions"
                                     :clearable="false"
@@ -411,52 +431,52 @@
                                     placeholder="Método"
                                     @update:modelValue="syncPaymentVariant(payment)">
                                     <template #selected-option="{ label, data }">
-                                        <span class="br-payment-select-option">
-                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                        <span class="fg-payment-select-option">
+                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                             <span>{{ label }}</span>
                                         </span>
                                     </template>
                                     <template #option="{ label, data }">
-                                        <span class="br-payment-select-option">
-                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                        <span class="fg-payment-select-option">
+                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                             <span>{{ label }}</span>
                                         </span>
                                     </template>
-                                </v-select>
-                                <v-select
+                                </FgSelect>
+                                <FgSelect
                                     v-if="paymentVariantOptions(payment).length"
                                     v-model="payment.variant"
                                     :options="paymentVariantOptions(payment)"
                                     :clearable="false"
                                     :searchable="true"
-                                    append-to-body
                                     placeholder="Variante">
                                     <template #selected-option="{ label, data }">
-                                        <span class="br-payment-select-option">
-                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                        <span class="fg-payment-select-option">
+                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                             <span>{{ label }}</span>
                                         </span>
                                     </template>
                                     <template #option="{ label, data }">
-                                        <span class="br-payment-select-option">
-                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="br-payment-select-option__image">
+                                        <span class="fg-payment-select-option">
+                                            <img v-if="paymentAssetUrl(data)" :src="paymentAssetUrl(data)" alt="" class="fg-payment-select-option__image">
                                             <span>{{ label }}</span>
                                         </span>
                                     </template>
-                                </v-select>
+                                </FgSelect>
                                 <InputNumber
                                     v-model="payment.amount"
+                                    :aria-label="`Importe del método ${index + 1}`"
                                     title=""
                                     :titleClass="[]"
-                                    :inputClass="['form-control', 'br-document-payment-amount']"
+                                    :inputClass="['form-control', 'fg-document-payment-amount']"
                                     :minValue="0">
                                     <template v-slot:inputGroupPrepend>
-                                        <span class="input-group-text br-currency-prefix">S/</span>
+                                        <span class="fg-field__prefix">S/</span>
                                     </template>
                                 </InputNumber>
                                 <button
                                     type="button"
-                                    class="br-pos-payment__remove br-btn-danger"
+                                    class="fg-pos-payment__remove fg-button--danger"
                                     :disabled="payments.length === 1"
                                     @click="removePayment(index)"
                                     aria-label="Quitar método de pago">
@@ -464,24 +484,25 @@
                                 </button>
                             </article>
 
-                            <button type="button" class="br-pos-payments__add br-pos-payments__add-row" @click="addPayment(false)">
+                            <button type="button" class="fg-pos-payments__add fg-pos-payments__add-row" @click="addPayment(false)">
                                 <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
                                 <span>Agregar método</span>
                             </button>
                         </div>
 
-                        <p v-if="paymentDifference !== 0" class="br-pos-payments__difference">
-                            Falta cuadrar S/ {{ separatorNumber(Math.abs(paymentDifference)) }}
+                        <p v-if="paymentDifference !== 0" class="fg-pos-payments__difference" role="status">
+                            {{ paymentDifference > 0 ? "Falta registrar" : "El pago supera el total por" }}
+                            S/ {{ separatorNumber(Math.abs(paymentDifference)) }}.
                         </p>
                     </section>
                 </div>
 
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button
                         type="button"
-                        class="br-btn br-btn-success"
-                        :disabled="saving || !cart.length"
+                        class="fg-button"
+                        :disabled="saving || !canSubmit"
                         @click="confirmSale">
                         <span>{{ saving ? 'Confirmando venta' : 'Confirmar venta' }}</span>
                     </button>
@@ -497,6 +518,7 @@ import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
+import {createOptionSearch} from "@/Shared/Options.js";
 import AddCustomer from "@System/Components/Customers/AddCustomer.vue";
 import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
@@ -506,7 +528,7 @@ import ProductIdentity from "@System/Components/Generics/ProductIdentity.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
-    mixins: [InitialPageMixin],
+    mixins: [InitialPageMixin, createOptionSearch("items", "customers")],
     components: {
         ProductIdentity,
         SearchInput,
@@ -526,9 +548,10 @@ export default {
             selectedCategoryId: null,
             branches: [],
             warehouses: [],
-            customers: [],
+            optionOrigin: "sales-pos",
+            options: {items: {records: []}, customers: {records: []}},
             customerConfig: {},
-            items: [],
+            catalogTotal: 0,
             categories: [],
             currencies: [],
             taxes: [],
@@ -546,7 +569,8 @@ export default {
             payments: [],
             cart: [],
             serviceSessionId: null,
-            serviceSession: null
+            serviceSession: null,
+            serviceSessionUnavailable: false
         };
     },
     computed: {
@@ -577,7 +601,7 @@ export default {
             return this.selectedSerie ? this.serieLabel(this.selectedSerie) : "Sin comprobante asignado";
         },
         customerOptions() {
-            return this.customers.map(customer => ({...customer, label: customer.name}));
+            return this.options.customers.records.map(customer => ({...customer, label: customer.name}));
         },
         customerQuickCreateOptions() {
             return {
@@ -623,26 +647,10 @@ export default {
             const branch = this.selectedBranch?.name || this.selectedCashSession?.branch?.name || "Sucursal no seleccionada";
             const warehouse = this.selectedWarehouse?.name || "Almacén no seleccionado";
 
-            return `${cash} ? ${branch} ? ${warehouse}`;
+            return [cash, branch, warehouse].join(" · ");
         },
         visibleCategories() {
-            return this.categories.filter(category => this.countByCategory(category.id) > 0);
-        },
-        filteredItems() {
-            const text = this.search.toLowerCase();
-
-            return this.items.filter(item => {
-                const matchesCategory = this.selectedCategoryId === null || this.itemCategoryIds(item).includes(this.selectedCategoryId);
-                const matchesSearch = !text || [
-                    item.name,
-                    item.internal_code,
-                    item.barcode,
-                    item.brand?.name,
-                    item.description
-                ].some(value => String(value || "").toLowerCase().includes(text));
-
-                return matchesCategory && matchesSearch;
-            });
+            return this.categories.filter(category => category.sale_items_count > 0);
         },
         totalQuantity() {
             return Utils.sum(this.cart.map(line => line.quantity));
@@ -714,6 +722,7 @@ export default {
         },
         canSubmit() {
             return this.cart.length > 0
+                && !this.serviceSessionUnavailable
                 && this.hasOpenCashSessions
                 && this.selectedBranch
                 && this.selectedSerie
@@ -726,6 +735,13 @@ export default {
         }
     },
     watch: {
+        search(value) {
+            this.searchOptions("items", value);
+        },
+        selectedCategoryId() {
+            this.resetOptions("items");
+            this.searchOptions("items", this.search);
+        },
         total() {
             this.syncDefaultPaymentAmount();
         }
@@ -733,10 +749,17 @@ export default {
     async mounted() {
         navbarItem("menu-parent-sales", {addClass: "open"});
         navbarItem("menu-sales-pos", {addClass: "active"});
-        const initialized = await this.loadInitialParams(() => this.initParams());
-        if(initialized) await this.preloadServiceSession();
+        const initialized = await this.loadInitialParams(async () => {
+            if(!await this.initParams()) return false;
+            await this.preloadServiceSession();
+            return true;
+        });
+        if(initialized) await this.openOptions("items");
     },
     methods: {
+        optionFilters(entity) {
+            return entity === "items" ? {category_id: this.selectedCategoryId} : undefined;
+        },
         taxLabel(tax = {}) {
             const name = tax?.name || "IGV";
             const rate = Number(tax?.rate || 0);
@@ -819,8 +842,8 @@ export default {
             this.branches = data.branches?.records || [];
             this.warehouses = data.warehouses?.records || [];
             this.customerConfig = data.customers || {};
-            this.customers = data.customers?.records || [];
-            this.items = data.items?.records || [];
+            const defaultCustomer = data.customers?.records?.[0];
+            this.catalogTotal = data.items?.total || 0;
             this.categories = data.categories?.records || [];
             this.currencies = data.currencies?.records || [];
             this.taxes = data.taxes?.records || [];
@@ -828,7 +851,7 @@ export default {
             this.cashSessions = data.cashSessions?.records || [];
 
             this.selectedBranch = this.branchOptions[0] || null;
-            this.selectedCustomer = this.customerOptions[0] || null;
+            this.selectedCustomer = defaultCustomer ? {...defaultCustomer, label: defaultCustomer.name} : null;
             this.selectedPaymentMethod = this.paymentMethodOptions[0] || null;
             this.selectedCashSession = this.cashSessionOptions[0] || null;
             this.syncFromCashSession();
@@ -860,20 +883,21 @@ export default {
             this.selectedCashSession = this.cashSessionOptions.find(cash => cash.branch_id === session.branch_id) || null;
             this.syncFromCashSession();
 
-            if(session.customer_id) {
-                this.selectedCustomer = this.customerOptions.find(customer => customer.id === session.customer_id) || this.selectedCustomer;
+            if(session.customer) {
+                this.selectedCustomer = {...session.customer, label: session.customer.name};
             }
 
-            this.cart = (session.items || []).map(detail => {
-                const item = this.items.find(record => record.id === detail.item_id);
-                if(!item) return null;
-
-                return {
-                    item,
-                    quantity: Number(detail.quantity || 1),
-                    price: Number(detail.unit_price ?? item.price ?? 0)
-                };
-            }).filter(Boolean);
+            const details = session.items || [];
+            if(details.some(detail => !detail.item)) {
+                this.serviceSessionUnavailable = true;
+                Alerts.toastrs({type: "warning", subtitle: "Hay ítems de la atención que ya no están disponibles. Revisa el pedido antes de cobrar."});
+                return;
+            }
+            this.cart = details.map(detail => ({
+                item: detail.item,
+                quantity: Number(detail.quantity || 1),
+                price: Number(detail.unit_price ?? detail.item.price ?? 0)
+            }));
             this.resetPayments();
 
             if(!this.cart.length) {
@@ -993,14 +1017,6 @@ export default {
             this.payments.splice(index, 1);
             this.syncDefaultPaymentAmount();
         },
-        itemCategoryIds(item) {
-            return (item.category_items || item.categoryItems || [])
-                .map(row => row.category_id || row.category?.id)
-                .filter(Boolean);
-        },
-        countByCategory(categoryId) {
-            return this.items.filter(item => this.itemCategoryIds(item).includes(categoryId)).length;
-        },
         addItem(item) {
             const line = this.cart.find(row => row.item.id === item.id);
 
@@ -1075,39 +1091,39 @@ export default {
 
             if(item?.type === "subscription") {
                 return {
-                    background: "color-mix(in srgb, var(--br-success-soft) 74%, #ffffff)",
-                    color: "var(--br-success-hover)"
+                    background: "color-mix(in srgb, var(--fg-success-soft) 74%, #ffffff)",
+                    color: "var(--fg-success)"
                 };
             }
 
             return {
-                background: "color-mix(in srgb, var(--br-primary-soft) 78%, #ffffff)",
-                color: "var(--br-primary-active)"
+                background: "color-mix(in srgb, var(--fg-primary-soft) 78%, #ffffff)",
+                color: "var(--fg-primary-hover)"
             };
         },
         itemCardStyle(item) {
             if(item?.type === "service") {
                 return {
-                    "--br-pos-item-accent": "#b45309",
-                    "--br-pos-item-hover": "color-mix(in srgb, #fef3c7 68%, #ffffff)"
+                    "--fg-pos-item-accent": "#b45309",
+                    "--fg-pos-item-hover": "color-mix(in srgb, #fef3c7 68%, #ffffff)"
                 };
             }
 
             if(item?.type === "subscription") {
                 return {
-                    "--br-pos-item-accent": "var(--br-success-hover)",
-                    "--br-pos-item-hover": "color-mix(in srgb, var(--br-success-soft) 68%, #ffffff)"
+                    "--fg-pos-item-accent": "var(--fg-success)",
+                    "--fg-pos-item-hover": "color-mix(in srgb, var(--fg-success-soft) 68%, #ffffff)"
                 };
             }
 
             return {
-                "--br-pos-item-accent": "var(--br-primary)",
-                "--br-pos-item-hover": "color-mix(in srgb, var(--br-primary-soft) 68%, #ffffff)"
+                "--fg-pos-item-accent": "var(--fg-primary)",
+                "--fg-pos-item-hover": "color-mix(in srgb, var(--fg-primary-soft) 68%, #ffffff)"
             };
         },
         openItemDetail(item) {
             this.selectedItemDetail = item;
-            Alerts.modals({type: "show", id: "brPosItemDetailModal"});
+            Alerts.modals({type: "show", id: "fgPosItemDetailModal"});
         },
         itemTypeLabel(item) {
             if(item?.type === "service") return "Servicio";
@@ -1137,7 +1153,7 @@ export default {
             }
 
             this.showPaymentEditor = false;
-            Alerts.modals({type: "show", id: "brPosSaleConfirmationModal"});
+            Alerts.modals({type: "show", id: "fgPosSaleConfirmationModal"});
         },
         confirmSale() {
             if(!this.canSubmit) {
@@ -1145,19 +1161,13 @@ export default {
                 return;
             }
 
-            Alerts.modals({type: "hide", id: "brPosSaleConfirmationModal"});
+            Alerts.modals({type: "hide", id: "fgPosSaleConfirmationModal"});
             this.submitSale();
         },
         addCustomerPostAction({response = null}) {
             if(!Requests.valid({result: response}) || !response?.data?.customer) return;
 
             const customer = response.data.customer;
-            const exists = this.customers.some(record => record.id === customer.id);
-
-            if(!exists) {
-                this.customers.push(customer);
-            }
-
             this.selectedCustomer = {...customer, label: customer.name};
         },
         buildPayload() {

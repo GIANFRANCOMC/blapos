@@ -14,6 +14,7 @@ final class OptionController extends Controller {
 
     public const ENTITIES_BY_ORIGIN = [
         "sales-create" => ["customers", "items"],
+        "sales-pos" => ["customers", "items"],
         "sales-list" => ["customers"],
         "sales-deliveries" => ["customers"],
         "quotations-create" => ["customers", "items"],
@@ -29,6 +30,7 @@ final class OptionController extends Controller {
         $data = $request->validate([
             "search" => ["nullable", "string", "max:100"],
             "page" => ["nullable", "integer", "min:1", "max:10000"],
+            "category_id" => ["nullable", "integer", "min:1"],
         ]);
 
         $search = trim($data["search"] ?? "");
@@ -36,6 +38,13 @@ final class OptionController extends Controller {
 
         $options = match($origin) {
             "sales-create", "quotations-create" => CommercialSelectionService::search($entity, $search, $page),
+            "sales-pos" => CommercialSelectionService::search(
+                $entity,
+                $search,
+                $page,
+                isset($data["category_id"]) ? (int) $data["category_id"] : null,
+                includeBrand: true
+            ),
             "sales-list", "sales-deliveries" => CommercialSelectionService::searchCustomerFilters($search, $page),
             "inventory-transfers" => StockManagementService::searchTransferProducts($search, $page),
             "restaurant", "service-sessions" => [

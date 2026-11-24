@@ -1,31 +1,34 @@
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgResponsiveFilters from "@System/Components/Figma/FgResponsiveFilters.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import { createApp } from "vue";
-import VueSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
 
 import App from "./main.vue";
-import Breadcrumb from "@System/Components/Breadcrumb.vue";
 import InputDate from "@System/Components/InputDate.vue";
 import InputNumber from "@System/Components/InputNumber.vue";
 import InputSlot from "@System/Components/InputSlot.vue";
 import InputText from "@System/Components/InputText.vue";
 import InputTextArea from "@System/Components/InputTextArea.vue";
-import Loader from "@System/Components/Loader.vue";
 import Paginator from "@System/Components/Paginator.vue";
-import WithoutData from "@System/Components/WithoutData.vue";
 import AddCustomer from "@System/Components/Customers/AddCustomer.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 
 createApp(App)
-    .component("v-select", VueSelect)
-    .component("Breadcrumb", Breadcrumb)
     .component("InputDate", InputDate)
     .component("InputNumber", InputNumber)
     .component("InputSlot", InputSlot)
     .component("InputText", InputText)
     .component("InputTextArea", InputTextArea)
-    .component("Loader", Loader)
     .component("Paginator", Paginator)
-    .component("WithoutData", WithoutData)
     .component("AddCustomer", AddCustomer)
     .component("StatusBadge", StatusBadge)
+    .component("FgPageHeader", FgPageHeader)
+    .component("FgSelect", FgSelect)
+    .component("FgResponsiveFilters", FgResponsiveFilters)
+    .component("FgListLoading", FgListLoading)
+    .component("FgEmptyState", FgEmptyState)
+    .component("ResponsiveTable", ResponsiveTable)
     .mount("#app");

@@ -77,8 +77,10 @@ final class ServiceOperationPerformanceTest extends TestCase {
 
         $posParams = SaleConfigService::getInitParams("pos", $this->userId);
 
-        $this->assertCount(80, $posParams->config->items->records);
-        $this->assertCount(81, $posParams->config->customers->records);
+        $this->assertSame([], $posParams->config->items->records);
+        $this->assertSame(80, $posParams->config->items->total);
+        $this->assertCount(1, $posParams->config->customers->records);
+        $this->assertLessThan(45000, strlen(json_encode($posParams, JSON_THROW_ON_ERROR)));
 
         $first = CommercialSelectionService::search("items", "Servicio", 1);
         $second = CommercialSelectionService::search("items", "Servicio", 2);
@@ -132,6 +134,11 @@ final class ServiceOperationPerformanceTest extends TestCase {
             ->assertOk()
             ->assertJsonPath("data.records.0.name", "Cliente 40");
 
+        $this->getJson(route("options.sales-pos", ["entity" => "items", "page" => 2]))
+            ->assertOk()
+            ->assertJsonCount(15, "data.records")
+            ->assertJsonPath("data.has_more", false);
+
         $this->getJson(route("options.sales-create", ["entity" => "items", "page" => 0]))
             ->assertUnprocessable();
         $this->getJson("/options/sales-list/items")->assertNotFound();
@@ -160,6 +167,8 @@ final class ServiceOperationPerformanceTest extends TestCase {
             ->assertForbidden();
 
         $this->getJson(route("options.quotations-create", ["entity" => "customers"]))
+            ->assertForbidden();
+        $this->getJson(route("options.sales-pos", ["entity" => "items"]))
             ->assertForbidden();
 
         $deliveriesId = (int) DB::table("sub_sections")

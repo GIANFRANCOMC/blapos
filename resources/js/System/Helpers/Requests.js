@@ -498,10 +498,12 @@ export async function saleReportShareUrl({document = null, type = "a4"} = {}) {
 
     }
 
-    return routeReport({
-        resource: "sale",
-        params: {document, type},
-        extras: {action: "reportSale"}
+    Alerts.toastrs({
+        type: "error",
+        subtitle: response.code === 403
+            ? "Tu perfil no puede exportar este comprobante."
+            : response.data?.msg || "No pudimos generar el enlace del comprobante. Intenta nuevamente."
     });
+    return null;
 
 }

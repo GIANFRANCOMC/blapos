@@ -14,10 +14,10 @@ function cancelOptionSearch(state) {
     controller?.abort();
 }
 
-export async function fetchOptions({origin, entity, search = "", page = 1}, signal) {
+export async function fetchOptions({origin, entity, search = "", page = 1, filters = {}}, signal) {
     const url = `/options/${encodeURIComponent(origin)}/${encodeURIComponent(entity)}`;
     const {data: response} = await axios.get(url, {
-        params: {search: String(search ?? "").trim(), page},
+        params: {...filters, search: String(search ?? "").trim(), page},
         headers: {Accept: "application/json"},
         signal,
         timeout: 20000
@@ -74,7 +74,13 @@ export function createOptionSearch(...entities) {
                 state.error = false;
 
                 try {
-                    const result = await fetchOptions({origin: this.optionOrigin, entity, search: state.term, page}, controller.signal);
+                    const result = await fetchOptions({
+                        origin: this.optionOrigin,
+                        entity,
+                        search: state.term,
+                        page,
+                        filters: this.optionFilters?.(entity)
+                    }, controller.signal);
                     if(state.controller !== controller) return;
                     if(!result) {
                         state.error = true;

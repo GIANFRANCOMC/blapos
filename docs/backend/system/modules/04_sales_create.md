@@ -182,7 +182,9 @@ Permite crear una venta con productos, servicios o membresias. Una venta puede g
 - Los pagos mixtos usan el mismo contrato en venta normal y POS: cada fila conserva `payment_method_id`, nombre histórico, referencia opcional y monto aplicado; el total pagado debe cuadrar con el total del documento.
 - El cliente también se selecciona dentro de **Confirmar venta**, junto al resumen y los pagos, para que la pantalla principal quede enfocada en armar el detalle.
 - El botón **Revisar venta** queda visible cuando hay caja abierta y solo se bloquea si el detalle está vacío.
-- El botón **Confirmar venta** dentro de la modal se mantiene visible y solo se bloquea si el detalle está vacío; las validaciones de cliente, caja y pagos se comunican al confirmar.
+- El botón **Confirmar venta** se habilita cuando están completos el detalle, el cliente, la caja y los pagos. La modal indica cuánto falta registrar o cuánto supera el pago al total.
+- POS inicializa los datos de caja, totales del catálogo y cliente general. Los ítems y clientes se consultan en páginas de 25 con el origen `sales-pos` de Opciones. El catálogo permite buscar por nombre, código, marca o descripción y filtrar por categoría.
+- Al cobrar una atención de restaurante, el ticket se precarga desde el pedido guardado para conservar sus ítems, cantidades y precios aunque no aparezcan en la página actual del catálogo.
 - El botón principal de la vista se mantiene como **Revisar venta** para reforzar que la venta se confirma en un segundo paso.
 - Las cajas disponibles se limitan por las sucursales permitidas del colaborador. Si el usuario no tiene sucursales configuradas, mantiene acceso a todas las sucursales de la empresa.
 - Los ítems con estado `inactive` no se cargan para POS venta ni para el flujo transaccional de ventas.

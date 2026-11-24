@@ -479,54 +479,6 @@
 /* -------------------------------------------------------------------------
  * [br] Anular venta (SweetAlert, sales/list.vue) — aviso amarillo
  * ------------------------------------------------------------------------- */
-.br-sale-cancel-hint {
-  --br-sale-cancel-hint-pad-y: clamp(0.65rem, 2vw, 1rem);
-  --br-sale-cancel-hint-pad-x: clamp(0.75rem, 2.5vw, 1.125rem);
-  --br-sale-cancel-hint-line-height: 1.55;
-  --br-sale-cancel-hint-accent: clamp(3px, 0.5vw, 4px);
-
-  display: block;
-  margin: 0;
-  padding: var(--br-sale-cancel-hint-pad-y) var(--br-sale-cancel-hint-pad-x);
-  border-radius: var(--br-radius);
-  border: 1px solid color-mix(in srgb, var(--br-warning) 28%, var(--br-border));
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--br-warning-soft) 92%, white) 0%,
-    var(--br-warning-soft) 100%
-  );
-  border-inline-start: var(--br-sale-cancel-hint-accent) solid var(--br-warning-hover);
-  box-shadow: var(--br-shadow-sm);
-  text-align: start;
-}
-
-.br-sale-cancel-hint__label {
-  display: inline;
-  font-weight: var(--br-font-weight-label);
-  color: var(--br-on-warning);
-  margin-inline-end: 0.28em;
-}
-
-.br-sale-cancel-hint__body {
-  margin: 0;
-  line-height: var(--br-sale-cancel-hint-line-height);
-  color: var(--br-secondary);
-  font-weight: var(--br-font-weight-body);
-}
-
-.br-sale-cancel-hint__term {
-  color: var(--br-secondary);
-  font-weight: var(--br-font-weight-emphasis);
-  font-style: normal;
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--br-border-strong) 65%, transparent);
-  text-underline-offset: 0.15em;
-}
-
-.br-sale-cancel-hint__risk {
-  color: var(--br-danger);
-  font-weight: var(--br-font-weight-emphasis);
-}
 
 /* --- [br-layout] Navbar compacto con usuario --- */
 html.layout-navbar-fixed body.br-layout .layout-wrapper:not(.layout-without-menu) .layout-page,

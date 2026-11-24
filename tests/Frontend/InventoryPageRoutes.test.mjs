@@ -135,7 +135,9 @@ test("los filtros y las acciones se muestran juntos con la tabla y paginación f
     assert.match(read("resources/js/System/Pages/Catalogs/products/main.vue"), /<FgFilterActions submit[^>]*@clear="clearProductFilters"/);
     const filterActions = read("resources/js/System/Components/Figma/FgFilterActions.vue");
     assert.match(filterActions, /icon="fa-solid fa-magnifying-glass"[^>]*:loading="loading"[^>]*>Buscar<\/FgButton>/);
-    assert.match(filterActions, /<FgButton v-if="showClear" tone="link"[^>]*>Limpiar<\/FgButton>/);
+    assert.match(filterActions, /<FgButton v-if="showClear" :tone="clearTone"[^>]*>\{\{ clearLabel \}\}<\/FgButton>/);
+    assert.match(filterActions, /clearLabel: \{type: String, default: "Limpiar"\}/);
+    assert.match(filterActions, /clearTone: \{type: String, default: "link"\}/);
     assert.match(table, /<ResponsiveTable fg[\s\S]*?<table class="fg-table fg-inventory-table"[\s\S]*?<FgListLoading[\s\S]*?<FgEmptyState/);
     assert.match(css, /\.fg-table th \{[^}]*vertical-align: middle/);
     assert.match(css, /\.fg-table td \{[^}]*vertical-align: middle/);

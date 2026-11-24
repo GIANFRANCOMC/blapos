@@ -13,7 +13,13 @@ final class CommercialSelectionService {
 
     private const PAGE_SIZE = 25;
 
-    public static function search(string $resource, string $search = "", int $page = 1): array {
+    public static function search(
+        string $resource,
+        string $search = "",
+        int $page = 1,
+        ?int $categoryId = null,
+        bool $includeBrand = false
+    ): array {
 
         $search = trim($search);
         $page = max(1, $page);
@@ -29,11 +35,20 @@ final class CommercialSelectionService {
             $query = Item::query()
                 ->availableForSale()
                 ->with(["currency", "brand", "categoryItems.category", "warehouseItems.warehouse"])
-                ->when($search !== "", fn($query) => $query->where(function($query) use ($search) {
+                ->when($categoryId !== null, fn($query) => $query->whereHas(
+                    "categoryItems",
+                    fn($categories) => $categories->where("category_id", $categoryId)
+                ))
+                ->when($search !== "", fn($query) => $query->where(function($query) use ($search, $includeBrand) {
 
                     $query->where("name", "like", "%{$search}%")
                         ->orWhere("internal_code", "like", "%{$search}%")
                         ->orWhere("barcode", "like", "%{$search}%");
+
+                    if($includeBrand) {
+                        $query->orWhereHas("brand", fn($brands) => $brands->where("name", "like", "%{$search}%"))
+                            ->orWhere("description", "like", "%{$search}%");
+                    }
 
                 }))
                 ->orderBy("type")

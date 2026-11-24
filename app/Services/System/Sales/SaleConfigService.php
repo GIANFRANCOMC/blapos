@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\System\Sales;
 
-use App\Models\System\Catalogs\{Item};
+use App\Models\System\Catalogs\{Category, Item};
 use App\Models\System\Customers\{Customer};
 use App\Models\System\Finance\{CashSession};
 use App\Models\System\Sales\{QuotationHeader, SaleHeader};
@@ -26,6 +26,11 @@ final class SaleConfigService extends BaseConfigService {
 
         return ["main", "pos", "list", "deliveries"];
 
+    }
+
+    public static function cacheKey(string $page = "main", ?int $userId = null): string {
+        $key = parent::cacheKey($page, $userId);
+        return strtolower(trim($page)) === "pos" ? $key.":paged-catalog" : $key;
     }
 
     protected static function buildConfig(string $page, ?int $userId = null): stdClass {
@@ -76,24 +81,31 @@ final class SaleConfigService extends BaseConfigService {
                 "records" => MasterReferenceDataService::currencies(),
             ]),
             "customers" => self::data([
-                "records" => $isPos
-                    ? $references->activeCustomers()
-                    : Customer::query()
-                        ->where("status", "active")
-                        ->where("document_number", "999999999")
-                        ->with("identityDocumentType")
-                        ->limit(1)
-                        ->get(),
+                "records" => Customer::query()
+                    ->where("status", "active")
+                    ->where("document_number", "999999999")
+                    ->with("identityDocumentType")
+                    ->limit(1)
+                    ->get(),
                 "identityDocumentTypes" => MasterReferenceDataService::customerIdentityDocuments(),
                 "genders" => Customer::getGenders(),
                 "statuses" => Customer::getStatuses(),
             ]),
             "items" => self::data([
                 "durationTypes" => Item::getDurationTypes(),
-                "records" => $isPos ? $references->saleItems() : [],
+                "records" => [],
+                "total" => $isPos ? Item::query()->availableForSale()->count() : 0,
             ]),
             "categories" => self::data([
-                "records" => $references->categories(),
+                "records" => $isPos
+                    ? Category::query()->active()
+                        ->withCount(["items as sale_items_count" => fn($categories) => $categories->whereHas(
+                            "item",
+                            fn($items) => $items->availableForSale()
+                        )])
+                        ->orderBy("name")
+                        ->get()
+                    : $references->categories(),
             ]),
             "taxes" => self::data([
                 "records" => $references->taxesFor("sale"),

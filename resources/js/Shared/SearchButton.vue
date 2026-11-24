@@ -2,8 +2,7 @@
     <button
         ref="button"
         type="button"
-        class="br-search-button waves-effect waves-light"
-        :class="buttonClass"
+        :class="[buttonClass, !fg && 'br-search-button waves-effect waves-light']"
         title="Buscar"
         aria-label="Buscar"
         data-bs-toggle="tooltip"
@@ -19,9 +18,10 @@ import {tooltipOptionsFor} from "@System/Helpers/TooltipOptions.js";
 export default {
     name: "SearchButton",
     props: {
+        fg: Boolean,
         buttonClass: {
             type: String,
-            default: "br-btn br-btn-search"
+            default: (props) => props.fg ? "fg-button fg-button--icon" : "br-btn br-btn-search"
         }
     },
     emits: ["click"],

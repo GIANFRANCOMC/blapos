@@ -1,54 +1,57 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader v-if="isRestaurant" title="POS restaurante" description="Consulta las mesas y gestiona el servicio por piso."/>
+    <Breadcrumb v-else :list="breadcrumbTitles"/>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" :table="!isRestaurant"/>
-        <div v-else class="br-page-content">
-            <main class="br-service-page" :class="{'br-service-page--sessions br-entity': !isRestaurant}">
-                <div class="br-service-toolbar" :class="{'br-service-toolbar--sessions br-filter-bar': !isRestaurant}">
-                    <div class="br-service-toolbar__field">
-                        <label class="form-label colon-at-end">Sucursal</label>
-                        <v-select
+        <div v-else>
+            <div class="fg-service-page" :class="{'fg-service-page--sessions': !isRestaurant}" :inert="Boolean(selectedSession)">
+                <div class="fg-service-toolbar" :class="{'fg-service-toolbar--sessions': !isRestaurant}">
+                    <div class="fg-service-toolbar__field">
+                        <label class="fg-field__label colon-at-end">Sucursal</label>
+                        <FgSelect
                             v-model="selectedBranch"
+                            aria-label="Sucursal"
                             :options="branchOptions"
                             :clearable="false"
                             :searchable="true"
                             :disabled="loading"
                             @option:selected="handleBranchChange"/>
                     </div>
-                    <div v-if="!isRestaurant" class="br-service-toolbar__field">
-                        <label class="form-label colon-at-end">Estado</label>
-                        <v-select
+                    <div v-if="!isRestaurant" class="fg-service-toolbar__field">
+                        <label class="fg-field__label colon-at-end">Estado</label>
+                        <FgSelect
                             v-model="selectedStatus"
+                            aria-label="Estado de la atención"
                             :options="statusOptions"
                             :clearable="false"
                             :searchable="false"
                             :disabled="loading || !selectedBranch"
                             @option:selected="getSessions()"/>
                     </div>
-                    <div class="br-service-toolbar__actions">
+                    <div class="fg-service-toolbar__actions">
                         <button
                             v-if="isRestaurant"
                             type="button"
-                            class="br-btn br-btn-secondary"
-                            @click="openFloorModal">
+                            class="fg-button fg-button--secondary"
+                            @click="openFloorModal()">
                             <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
                             <span>Agregar piso</span>
                         </button>
                         <button
                             v-if="isRestaurant"
                             type="button"
-                            class="br-btn br-btn-action-create"
+                            class="fg-button"
                             :disabled="!selectedFloor"
                             :title="selectedFloor ? 'Agregar mesa al piso actual' : 'Primero agrega un piso'"
-                            @click="openStationModal">
+                            @click="openStationModal()">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             <span>Agregar mesa</span>
                         </button>
                         <button
                             v-else
                             type="button"
-                            class="br-btn br-btn-sm br-btn-action-open-create"
+                            class="fg-button"
                             :disabled="loading || !selectedBranch"
                             @click="openSessionModal()">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
@@ -57,18 +60,18 @@
                     </div>
                 </div>
 
-                <Loader v-if="isRestaurant && loading"/>
+                <FgListLoading label="Cargando las mesas…" v-if="isRestaurant && loading"/>
 
                 <template v-if="isRestaurant && !loading">
                     <template v-if="floors.length">
-                        <div class="br-service-floor-nav">
+                        <div class="fg-service-floor-nav">
                             <div
                                 v-for="floor in floors"
                                 :key="floor.id"
-                                class="br-service-floor-nav__group">
+                                class="fg-service-floor-nav__group">
                                 <button
                                     type="button"
-                                    class="br-service-floor-nav__item"
+                                    class="fg-service-floor-nav__item"
                                     :class="{'is-active': selectedFloor?.id === floor.id}"
                                     @click="selectFloor(floor)">
                                     <span>{{ floor.name }}</span>
@@ -76,7 +79,7 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="br-service-floor-nav__edit"
+                                    class="fg-button fg-button--icon"
                                     data-bs-toggle="tooltip"
                                     title="Editar piso"
                                     aria-label="Editar piso"
@@ -86,29 +89,32 @@
                             </div>
                         </div>
 
-                        <div class="br-service-floor-meta">
-                            <div class="br-service-legend" aria-label="Leyenda de disponibilidad">
-                                <span><i class="is-available"></i> Disponible</span>
-                                <span><i class="is-pending"></i> Pendiente</span>
-                                <span><i class="is-progress"></i> En atención</span>
+                        <div class="fg-service-floor-meta" :class="{'fg-service-floor-meta--plan': showMobileFloorPlan}">
+                            <div class="fg-service-legend" aria-label="Leyenda de disponibilidad">
+                                <span><i class="is-available" aria-hidden="true"></i> Disponibles {{ stationCounts.available }}</span>
+                                <span><i class="is-pending" aria-hidden="true"></i> Pendientes {{ stationCounts.pending }}</span>
+                                <span><i class="is-progress" aria-hidden="true"></i> En atención {{ stationCounts.progress }}</span>
                             </div>
-                            <small><i class="fa-solid fa-arrows-up-down-left-right" aria-hidden="true"></i> Arrastra desde el asa para ordenar el plano.</small>
+                            <small class="fg-service-floor-hint"><i class="fa-solid fa-arrows-up-down-left-right" aria-hidden="true"></i> Arrastra desde el asa para ordenar el plano.</small>
+                            <button type="button" class="fg-button fg-button--secondary fg-service-floor-toggle" :aria-pressed="showMobileFloorPlan" @click="showMobileFloorPlan = !showMobileFloorPlan">
+                                {{ showMobileFloorPlan ? "Ver lista" : "Ver plano" }}
+                            </button>
                         </div>
 
-                        <div class="br-service-floor-plan-scroll">
+                        <div class="fg-service-floor-plan-scroll" :class="{'fg-service-floor-plan-scroll--plan': showMobileFloorPlan}" role="region" aria-label="Mesas del piso" tabindex="0">
                             <div
                                 ref="floorPlan"
-                                class="br-service-floor-plan"
-                                :style="{backgroundColor: selectedFloor?.background_color || '#f7f8fa'}">
+                                class="fg-service-floor-plan"
+                                :style="{backgroundColor: selectedFloor?.background_color || 'var(--fg-table-head)'}">
                             <article
                                 v-for="station in stations"
                                 :key="station.id"
-                                class="br-service-map-station"
+                                class="fg-service-map-station"
                                 :class="[stationClass(station), `is-${station.shape || 'round'}`]"
                                 :style="stationPositionStyle(station)">
                                 <button
                                     type="button"
-                                    class="br-service-map-station__drag"
+                                    class="fg-service-map-station__drag"
                                     title="Mover mesa"
                                     aria-label="Mover mesa"
                                     @pointerdown.prevent="startStationDrag($event, station)">
@@ -116,7 +122,7 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="br-service-map-station__color"
+                                    class="fg-service-map-station__color"
                                     title="Cambiar color"
                                     aria-label="Cambiar color"
                                     @click.stop="cycleStationColor(station)">
@@ -124,7 +130,7 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="br-service-map-station__edit"
+                                    class="fg-service-map-station__edit"
                                     title="Editar mesa"
                                     aria-label="Editar mesa"
                                     @click.stop="openStationModal(station)">
@@ -132,15 +138,18 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="br-service-map-station__body"
+                                    class="fg-service-map-station__body"
                                     @click="station.active_session ? selectSession(station.active_session) : openSessionModal(station)">
                                     <strong>{{ station.name }}</strong>
                                     <small>{{ station.capacity }} personas</small>
-                                    <span>{{ station.active_session ? elapsedLabel(station.active_session) : 'Disponible' }}</span>
+                                    <span class="fg-badge" :class="station.active_session ? (station.active_session.status === 'in_progress' ? 'fg-service-badge--progress' : 'fg-badge--warning') : 'fg-badge--success'">
+                                        {{ station.active_session ? (station.active_session.status === "in_progress" ? "En atención" : "Pendiente") : "Disponible" }}
+                                    </span>
+                                    <small v-if="station.active_session">{{ elapsedLabel(station.active_session) }}</small>
                                 </button>
                             </article>
 
-                                <div v-if="!stations.length" class="br-service-floor-plan__empty">
+                                <div v-if="!stations.length" class="fg-service-floor-plan__empty">
                                     <i class="fa-solid fa-utensils" aria-hidden="true"></i>
                                     <strong>Este piso aún no tiene mesas</strong>
                                     <span>Agrega una mesa para comenzar a diseñar la distribución.</span>
@@ -148,14 +157,14 @@
                             </div>
                         </div>
                     </template>
-                    <WithoutData
+                    <FgEmptyState
                         v-else
-                        text="Aún no hay pisos registrados"
+                        title="Aún no hay pisos registrados"
                         description="Crea el primer piso o zona para ubicar las mesas de esta sucursal."/>
                 </template>
 
                 <template v-if="!isRestaurant">
-                    <div v-if="reports" class="br-service-report-grid" aria-label="Resumen del mes">
+                    <div v-if="reports" class="fg-service-report-grid" aria-label="Resumen del mes">
                         <article>
                             <span>Atenciones del mes</span>
                             <strong>{{ reports.summary.total_sessions }}</strong>
@@ -178,9 +187,9 @@
                         </article>
                     </div>
 
-                    <section class="br-entity-list br-service-list" aria-label="Listado de atenciones">
-                        <div class="table-responsive">
-                        <table class="table br-entity-table br-service-list__table mb-0">
+                    <section class="fg-service-list" aria-label="Listado de atenciones">
+                        <ResponsiveTable fg class="fg-sales-table-scroll">
+                        <table class="fg-service-list__table mb-0 fg-table">
                             <colgroup>
                                 <col style="width: 15%;">
                                 <col style="width: 20%;">
@@ -191,7 +200,7 @@
                                 <col style="width: 8%;">
                                 <col style="width: 6%;">
                             </colgroup>
-                            <thead class="br-table-header-surface">
+                            <thead>
                                 <tr>
                                     <th>Identificación</th>
                                     <th>Servicio</th>
@@ -204,30 +213,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="br-table-state" v-if="loading">
-                                    <td colspan="8" class="py-4"><Loader/></td>
+                                <tr class="fg-table__state" v-if="loading">
+                                    <td colspan="8" class="py-4"><FgListLoading label="Cargando las mesas…"/></td>
                                 </tr>
                                 <template v-else-if="sessions.data.length">
                                 <tr v-for="session in sessions.data" :key="session.id">
-                                    <td class="br-entity-table__identification-cell">
-                                        <div class="br-entity-identifiers br-entity-identifiers--plain">
-                                            <div class="br-entity-identifier">
-                                                <span class="br-entity-identifier__label colon-at-end">Atención</span>
-                                                <span class="br-copy-value">
-                                                    <span class="br-entity-code">{{ session.reference || '—' }}</span>
+                                    <td class="fg-entity-table__identification-cell">
+                                        <div class="fg-product-codes">
+                                            <div class="fg-product-identity__code">
+                                                <span class="fg-product-identity__label colon-at-end">Atención</span>
+                                                <span class="fg-copy-value">
+                                                    <span class="fg-entity-code">{{ session.reference || '—' }}</span>
                                                     <CopyButton v-if="session.reference" :value="session.reference" label="Número de atención"/>
                                                 </span>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="br-entity-table__name">{{ session.items?.[0]?.name || 'Sin servicio inicial' }}</span>
-                                        <span v-if="session.items?.length > 1" class="br-entity-table__meta">+ {{ session.items.length - 1 }} {{ session.items.length === 2 ? 'servicio' : 'servicios' }}</span>
+                                        <span class="fg-row-title">{{ session.items?.[0]?.name || 'Sin servicio inicial' }}</span>
+                                        <span v-if="session.items?.length > 1" class="fg-table-note">+ {{ session.items.length - 1 }} {{ session.items.length === 2 ? 'servicio' : 'servicios' }}</span>
                                     </td>
-                                    <td><span :class="{'br-service-list__muted': !session.customer}">{{ session.customer?.name || 'Cliente general' }}</span></td>
-                                    <td><span :class="{'br-service-list__muted': !session.assigned_user}">{{ session.assigned_user?.name || 'Sin asignar' }}</span></td>
-                                    <td class="br-service-list__date">{{ formatDateTime(session.started_at || session.created_at) }}</td>
-                                    <td class="br-service-list__time">{{ elapsedLabel(session) }}</td>
+                                    <td><span :class="{'fg-service-list__muted': !session.customer}">{{ session.customer?.name || 'Cliente general' }}</span></td>
+                                    <td><span :class="{'fg-service-list__muted': !session.assigned_user}">{{ session.assigned_user?.name || 'Sin asignar' }}</span></td>
+                                    <td class="fg-service-list__date">{{ formatDateTime(session.started_at || session.created_at) }}</td>
+                                    <td class="fg-service-list__time">{{ elapsedLabel(session) }}</td>
                                     <td class="text-center">
                                         <StatusBadge :status="session.status" :formatted-status="statusLabel(session.status)" :custom-variants="sessionStatusVariants"/>
                                     </td>
@@ -238,48 +247,49 @@
                                     </td>
                                 </tr>
                                 </template>
-                                <tr class="br-table-state" v-else>
+                                <tr class="fg-table__state" v-else>
                                     <td colspan="8" class="py-4">
-                                        <WithoutData v-if="selectedBranch" class="br-entity-empty-state" type="image"/>
-                                        <WithoutData v-else class="br-entity-empty-state" type="image" text="No hay sucursales disponibles" description="Solicita acceso a una sucursal para gestionar atenciones."/>
+                                        <FgEmptyState title="No se encontraron registros" v-if="selectedBranch"/>
+                                        <FgEmptyState v-else title="No hay sucursales disponibles" description="Solicita acceso a una sucursal para gestionar atenciones."/>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-                        </div>
+                        </ResponsiveTable>
                     </section>
                     <Paginator aria-label="Paginación de atenciones" :links="sessions.links" :pagination="sessions" :loading="loading" @clickPage="getSessions"/>
                 </template>
 
-                <div v-if="selectedSession" class="br-service-detail-backdrop" aria-hidden="true" @click="selectedSession = null"></div>
-                <aside v-if="selectedSession" class="br-service-detail" :class="{'br-service-detail--sessions': !isRestaurant}" aria-label="Detalle de la atención">
-                    <header class="br-service-detail__header">
+            </div>
+                <div v-if="selectedSession" class="fg-service-detail-backdrop" aria-hidden="true" @click="selectedSession = null"></div>
+                <aside v-if="selectedSession" ref="sessionDetail" class="fg-service-detail" :class="{'fg-service-detail--sessions': !isRestaurant}" role="dialog" aria-modal="true" aria-labelledby="fg-service-detail-title" @keydown="handleDetailKeydown">
+                    <header class="fg-service-detail__header">
                         <div>
                             <small>Atención {{ selectedSession.reference }}</small>
-                            <h2>{{ selectedSession.station?.name || selectedSession.items?.[0]?.name || 'Atención de servicio' }}</h2>
+                            <h2 id="fg-service-detail-title" class="fg-title mb-0">{{ selectedSession.station?.name || selectedSession.items?.[0]?.name || 'Atención de servicio' }}</h2>
                             <p>
                                 {{ selectedSession.customer?.name || 'Cliente general' }}
                                 <span v-if="selectedSession.assigned_user"> · {{ selectedSession.assigned_user.name }}</span>
                             </p>
                         </div>
-                        <button type="button" class="br-modal-close" aria-label="Cerrar detalle" @click="selectedSession = null">
+                        <button ref="closeSessionDetail" type="button" class="fg-button fg-button--icon" aria-label="Cerrar detalle" @click="selectedSession = null">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                     </header>
 
-                    <div class="br-service-detail__content">
-                    <div class="br-service-detail__metrics">
+                    <div class="fg-service-detail__content">
+                    <div class="fg-service-detail__metrics">
                         <span><small>Estado</small><strong>{{ statusLabel(selectedSession.status) }}</strong></span>
                         <span><small>Tiempo</small><strong>{{ elapsedLabel(selectedSession) }}</strong></span>
                         <span><small>{{ isRestaurant ? 'Detalles' : 'Servicios' }}</small><strong>{{ selectedSession.items?.length || 0 }}</strong></span>
                     </div>
 
-                    <section v-if="['pending', 'in_progress'].includes(selectedSession.status)" class="br-service-detail__section" aria-label="Gestión de la atención">
+                    <section v-if="['pending', 'in_progress'].includes(selectedSession.status)" class="fg-service-detail__section" aria-label="Gestión de la atención">
                         <h3>Gestión de la atención</h3>
-                        <div class="br-service-detail__operations">
-                            <div class="br-service-detail__field">
-                                <label class="form-label colon-at-end">Responsable</label>
-                                <v-select
+                        <div class="fg-service-detail__operations">
+                            <div class="fg-service-detail__field">
+                                <label class="fg-field__label colon-at-end">Responsable</label>
+                                <FgSelect
                                     v-model="operationForm.user"
                                     :options="userOptions"
                                     :clearable="true"
@@ -288,26 +298,26 @@
                             </div>
                             <button
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-secondary"
+                                class="fg-button fg-button--secondary"
                                 :disabled="saving || !operationForm.user"
                                 @click="reassignSession">
                                 Reasignar
                             </button>
                         </div>
-                        <div class="br-service-detail__field">
-                            <label class="form-label colon-at-end">Motivo o nota</label>
+                        <div class="fg-service-detail__field">
+                            <label class="fg-field__label colon-at-end">Motivo o nota</label>
                             <input
                                 v-model.trim="operationForm.note"
                                 type="text"
-                                class="form-control"
+                                class="fg-native-input"
                                 maxlength="500"
                                 placeholder="Opcional para pausa; obligatorio para cancelar"/>
                         </div>
-                        <div class="br-service-detail__quick-actions">
+                        <div class="fg-service-detail__quick-actions">
                             <button
                                 v-if="!isSessionPaused(selectedSession)"
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-action-import"
+                                class="fg-button"
                                 :disabled="saving"
                                 @click="pauseSession">
                                 Pausar
@@ -315,14 +325,14 @@
                             <button
                                 v-else
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-success"
+                                class="fg-button"
                                 :disabled="saving"
                                 @click="resumeSession">
                                 Reanudar
                             </button>
                             <button
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-danger"
+                                class="fg-button fg-button--danger"
                                 :disabled="saving || !operationForm.note"
                                 @click="cancelSession">
                                 Cancelar atención
@@ -330,12 +340,12 @@
                         </div>
                     </section>
 
-                    <section class="br-service-detail__section" aria-label="Servicios de la atención">
+                    <section class="fg-service-detail__section" aria-label="Servicios de la atención">
                         <h3>{{ isRestaurant ? 'Detalle de la mesa' : 'Servicios de la atención' }}</h3>
-                        <div v-if="['pending', 'in_progress'].includes(selectedSession.status)" class="br-service-add-item">
-                            <div class="br-service-detail__field">
-                                <label class="form-label colon-at-end">{{ isRestaurant ? 'Producto o servicio' : 'Servicio' }}</label>
-                                <v-select
+                        <div v-if="['pending', 'in_progress'].includes(selectedSession.status)" class="fg-service-add-item">
+                            <div class="fg-service-detail__field">
+                                <label class="fg-field__label colon-at-end">{{ isRestaurant ? 'Producto o servicio' : 'Servicio' }}</label>
+                                <FgSelect
                                     v-model="detailForm.item"
                                     :options="itemOptions"
                                     :clearable="false"
@@ -346,9 +356,9 @@
                                     @search="searchOptions('items', $event)"
                                     placeholder="Seleccionar"/>
                             </div>
-                            <div class="br-service-detail__field">
-                                <label class="form-label colon-at-end">Responsable</label>
-                                <v-select
+                            <div class="fg-service-detail__field">
+                                <label class="fg-field__label colon-at-end">Responsable</label>
+                                <FgSelect
                                     v-model="detailForm.user"
                                     :options="userOptions"
                                     :clearable="true"
@@ -357,51 +367,51 @@
                             </div>
                             <button
                                 type="button"
-                                class="br-btn br-btn-action-create"
+                                class="fg-button"
                                 :disabled="saving || !detailForm.item"
                                 @click="addSessionItem">
                                 Agregar
                             </button>
                         </div>
 
-                    <div class="br-service-detail__items">
+                    <div class="fg-service-detail__items">
                         <article v-for="item in selectedSession.items" :key="item.id">
                             <div>
                                 <strong>{{ item.name }}</strong>
                                 <small>{{ item.assigned_user?.name || 'Sin responsable' }} · {{ elapsedLabel(item) }}</small>
                             </div>
-                            <span v-if="isRestaurant" class="br-status-label" :class="preparationStatusClass(item.preparation_status)">
+                            <span v-if="isRestaurant" class="fg-badge" :class="preparationStatusClass(item.preparation_status)">
                                 {{ preparationStatusLabel(item.preparation_status) }}
                             </span>
-                            <span v-else class="br-status-label" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+                            <span v-else class="fg-badge" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
                             <button
                                 v-if="isRestaurant && nextPreparationAction(item)"
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-secondary"
+                                class="fg-button fg-button--secondary"
                                 @click="changePreparationStatus(item, nextPreparationAction(item).status)">
                                 {{ nextPreparationAction(item).label }}
                             </button>
-                            <span v-else-if="isRestaurant" class="br-status-label br-status-completed">Entregado</span>
+                            <span v-else-if="isRestaurant" class="fg-badge fg-badge--success">Entregado</span>
                             <button
                                 v-if="item.status === 'pending' && ['pending', 'in_progress'].includes(selectedSession.status)"
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-secondary"
+                                class="fg-button fg-button--secondary"
                                 @click="changeItemStatus(item, 'start')">
                                 Iniciar
                             </button>
                             <button
                                 v-else-if="item.status === 'in_progress' && ['pending', 'in_progress'].includes(selectedSession.status)"
                                 type="button"
-                                class="br-btn br-btn-sm br-btn-success"
+                                class="fg-button"
                                 @click="changeItemStatus(item, 'complete')">
                                 Finalizar
                             </button>
                         </article>
-                        <p v-if="!selectedSession.items?.length" class="br-service-detail__empty">Aún no hay {{ isRestaurant ? 'productos' : 'servicios' }} en esta atención.</p>
+                        <p v-if="!selectedSession.items?.length" class="fg-service-detail__empty">Aún no hay {{ isRestaurant ? 'productos' : 'servicios' }} en esta atención.</p>
                     </div>
                     </section>
 
-                    <section v-if="selectedSession.events?.length" class="br-service-timeline" aria-label="Línea de tiempo">
+                    <section v-if="selectedSession.events?.length" class="fg-service-timeline" aria-label="Línea de tiempo">
                         <h3>Línea de tiempo</h3>
                         <ol>
                             <li v-for="event in selectedSession.events" :key="event.id">
@@ -419,11 +429,11 @@
                     </section>
                     </div>
 
-                    <footer class="br-service-detail__footer">
+                    <footer class="fg-service-detail__footer">
                         <button
                             v-if="selectedSession.status === 'pending'"
                             type="button"
-                            class="br-btn br-btn-action-create"
+                            class="fg-button"
                             :disabled="saving"
                             @click="changeSessionStatus('start')">
                             <i class="fa-solid fa-play" aria-hidden="true"></i>
@@ -432,7 +442,7 @@
                         <button
                             v-if="selectedSession.items?.length"
                             type="button"
-                            class="br-btn br-btn-success"
+                            class="fg-button"
                             :disabled="saving"
                             @click="goToPos">
                             <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
@@ -441,38 +451,45 @@
                         <button
                             v-if="selectedSession.status === 'in_progress'"
                             type="button"
-                            class="br-btn br-btn-primary"
+                            class="fg-button"
                             :disabled="saving"
                             @click="changeSessionStatus('complete')">
                             <span>Finalizar sin venta</span>
                         </button>
                     </footer>
                 </aside>
-            </main>
 
         </div>
     </InitialLoadTransition>
-    <div id="brServiceFloorModal" class="modal fade br-entity-modal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div id="fgServiceFloorModal" class="modal fade fg-modal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Restaurante POS</p>
-                        <h2 class="modal-title br-entity-modal__title">{{ editingFloorId ? 'Editar piso' : 'Agregar piso' }}</h2>
+                        <p class="fg-help mb-1">Restaurante POS</p>
+                        <h2 class="modal-title fg-modal__title">{{ editingFloorId ? 'Editar piso' : 'Agregar piso' }}</h2>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
-                        <InputText v-model="floorForm.name" title="Nombre" :isRequired="true" :xl="8" :lg="8" :md="12" :sm="12"/>
-                        <InputText v-model="floorForm.code" title="Código" :isRequired="true" :xl="4" :lg="4" :md="12" :sm="12"/>
-                        <InputNumber v-model="floorForm.levelNumber" title="Nivel" :hasNegative="true" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
-                        <InputNumber v-model="floorForm.sortOrder" title="Orden" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
+                        <div class="fg-field-cell col-12">
+                            <InputText v-model="floorForm.name" title="Nombre" :isRequired="true" :xl="8" :lg="8" :md="12" :sm="12"/>
+                        </div>
+                        <div class="fg-field-cell col-12">
+                            <InputText v-model="floorForm.code" title="Código" :isRequired="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        </div>
+                        <div class="fg-field-cell col-12">
+                            <InputNumber v-model="floorForm.levelNumber" title="Nivel" isRequired :hasNegative="true" :minValue="-20" :maxValue="200" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
+                        </div>
+                        <div class="fg-field-cell col-12">
+                            <InputNumber v-model="floorForm.sortOrder" title="Orden" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
+                        </div>
                         <div class="form-group col-md-6">
-                            <label class="form-label">Fondo del plano</label>
-                            <div class="br-service-color-options">
+                            <label class="fg-field__label">Fondo del plano</label>
+                            <div class="fg-service-color-options">
                                 <button
                                     v-for="color in floorBackgroundColors"
                                     :key="color"
@@ -485,43 +502,49 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="saveFloor">
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="saveFloor">
                         {{ editingFloorId ? 'Editar piso' : 'Agregar piso' }}
                     </button>
                 </div>
             </div>
         </div>
     </div>
-    <div id="brServiceStationModal" class="modal fade br-entity-modal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div id="fgServiceStationModal" class="modal fade fg-modal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header br-entity-modal__header">
+            <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Restaurante y servicios</p>
-                        <h2 class="modal-title br-entity-modal__title">{{ editingStationId ? 'Editar mesa' : 'Agregar mesa' }}</h2>
+                        <p class="fg-help mb-1">Restaurante y servicios</p>
+                        <h2 class="modal-title fg-modal__title">{{ editingStationId ? 'Editar mesa' : 'Agregar mesa' }}</h2>
                     </div>
-                    <button type="button" class="br-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body">
+                <div class="modal-body fg-modal__body">
                     <div class="row g-3">
                         <div class="form-group col-12">
-                            <label class="form-label">Piso</label>
-                            <v-select v-model="stationForm.floor" :options="floorOptions" :clearable="false" :searchable="false"/>
+                            <label class="fg-field__label">Piso</label>
+                            <FgSelect v-model="stationForm.floor" :options="floorOptions" :clearable="false" :searchable="false"/>
                         </div>
-                        <InputText v-model="stationForm.name" title="Nombre" :isRequired="true" :xl="8" :lg="8" :md="12" :sm="12"/>
-                        <InputText v-model="stationForm.code" title="Código" :isRequired="true" :xl="4" :lg="4" :md="12" :sm="12"/>
-                        <div class="form-group col-md-8">
-                            <label class="form-label">Tipo</label>
-                            <v-select v-model="stationForm.type" :options="stationTypeOptions" :clearable="false"/>
+                        <div class="fg-field-cell col-12">
+                            <InputText v-model="stationForm.name" title="Nombre" :isRequired="true" :xl="8" :lg="8" :md="12" :sm="12"/>
                         </div>
-                        <InputNumber v-model="stationForm.capacity" title="Capacidad" :minValue="1" :decimals="0" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        <div class="fg-field-cell col-12">
+                            <InputText v-model="stationForm.code" title="Código" :isRequired="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        </div>
                         <div class="form-group col-md-8">
-                            <label class="form-label">Color de referencia</label>
-                            <div class="br-service-color-options">
+                            <label class="fg-field__label">Tipo</label>
+                            <FgSelect v-model="stationForm.type" :options="stationTypeOptions" :clearable="false"/>
+                        </div>
+                        <div class="fg-field-cell col-12">
+                            <InputNumber v-model="stationForm.capacity" title="Capacidad" :minValue="1" :decimals="0" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label class="fg-field__label">Color de referencia</label>
+                            <div class="fg-service-color-options">
                                 <button
                                     v-for="color in stationColorOptions"
                                     :key="color"
@@ -533,14 +556,14 @@
                             </div>
                         </div>
                         <div class="form-group col-md-4">
-                            <label class="form-label">Forma</label>
-                            <v-select v-model="stationForm.shape" :options="stationShapeOptions" :clearable="false" :searchable="false"/>
+                            <label class="fg-field__label">Forma</label>
+                            <FgSelect v-model="stationForm.shape" :options="stationShapeOptions" :clearable="false" :searchable="false"/>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer br-entity-modal__footer">
-                    <button type="button" class="br-btn br-btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="br-btn br-btn-action-create" :disabled="saving" @click="saveStation">
+                <div class="modal-footer fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="fg-button" :disabled="saving" @click="saveStation">
                         {{ editingStationId ? 'Editar mesa' : 'Agregar mesa' }}
                     </button>
                 </div>
@@ -548,10 +571,10 @@
         </div>
     </div>
     <FormModal
-        modal-id="brServiceSessionModal"
+        modal-id="fgServiceSessionModal"
         :title="isRestaurant ? 'ABRIR MESA' : 'INICIAR ATENCIÓN'"
         modal-size="modal-lg"
-        :modal-class="isRestaurant ? '' : 'br-entity-modal--tabbed'"
+        :modal-class="isRestaurant ? '' : 'fg-entity-modal--tabbed'"
         :submit-disabled="saving || !selectedBranch"
         :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar atención'"
         @submit="saveSession">
@@ -569,30 +592,32 @@
                 :id="isRestaurant ? undefined : 'service-session-tab-attention'"
                 :aria-labelledby="isRestaurant ? undefined : 'service-session-tab-trigger-attention'"
                 :role="isRestaurant ? undefined : 'tabpanel'"
-                class="br-entity-form-section">
+                class="fg-stack">
                 <div class="row g-3">
                         <div v-if="sessionForm.station" class="col-12">
-                            <div class="br-service-selected-station">
+                            <div class="fg-service-selected-station">
                                 <i class="fa-solid fa-utensils" aria-hidden="true"></i>
                                 <span><small>Mesa</small><strong>{{ sessionForm.station.name }}</strong></span>
                             </div>
                         </div>
                         <div class="form-group col-md-6">
-                            <label class="form-label colon-at-end">Cliente</label>
-                            <v-select v-model="sessionForm.customer" :options="customerOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.customers.loading" @open="openOptions('customers')" @search="searchOptions('customers', $event)" placeholder="Cliente general"/>
+                            <label class="fg-field__label colon-at-end">Cliente</label>
+                            <FgSelect v-model="sessionForm.customer" :options="customerOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.customers.loading" @open="openOptions('customers')" @search="searchOptions('customers', $event)" placeholder="Cliente general"/>
                         </div>
                         <div class="form-group col-md-6">
-                            <label class="form-label colon-at-end">Responsable</label>
-                            <v-select v-model="sessionForm.user" :options="userOptions" :clearable="true" :searchable="true" placeholder="Sin asignar"/>
+                            <label class="fg-field__label colon-at-end">Responsable</label>
+                            <FgSelect v-model="sessionForm.user" :options="userOptions" :clearable="true" :searchable="true" placeholder="Sin asignar"/>
                         </div>
                         <div class="form-group" :class="sessionForm.item ? 'col-md-8' : 'col-12'">
-                            <label class="form-label colon-at-end">{{ isRestaurant ? 'Primer producto o servicio' : 'Servicio inicial' }}</label>
-                            <v-select v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.items.loading" @open="openOptions('items')" @search="searchOptions('items', $event)" placeholder="Opcional · puedes agregarlo después"/>
+                            <label class="fg-field__label colon-at-end">{{ isRestaurant ? 'Primer producto o servicio' : 'Servicio inicial' }}</label>
+                            <FgSelect v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.items.loading" @open="openOptions('items')" @search="searchOptions('items', $event)" placeholder="Opcional · puedes agregarlo después"/>
                         </div>
-                        <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="quantityStep" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        <div class="fg-field-cell col-12">
+                            <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="quantityStep" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        </div>
                         <div class="col-12">
-                            <label class="br-entity-switch" for="startServiceImmediately">
-                                <input id="startServiceImmediately" v-model="sessionForm.startImmediately" class="form-check-input" type="checkbox" role="switch">
+                            <label class="fg-check" for="startServiceImmediately">
+                                <input id="startServiceImmediately" v-model="sessionForm.startImmediately"  type="checkbox" role="switch">
                                 <span>
                                     <strong>Iniciar ahora</strong>
                                     <small>Comienza a medir el tiempo desde que confirmes la atención.</small>
@@ -606,19 +631,23 @@
                 v-show="sessionFormTab === 'schedule'"
                 id="service-session-tab-schedule"
                 aria-labelledby="service-session-tab-trigger-schedule"
-                class="br-entity-form-section"
+                class="fg-stack"
                 role="tabpanel">
                 <div class="row g-3">
                     <div class="form-group col-md-6">
-                        <label class="form-label colon-at-end">Fecha programada</label>
-                        <input v-model="sessionForm.scheduledAt" type="datetime-local" class="form-control">
+                        <label class="fg-field__label colon-at-end">Fecha programada</label>
+                        <input v-model="sessionForm.scheduledAt" type="datetime-local" class="fg-native-input">
                     </div>
                     <div class="form-group col-md-6">
-                        <label class="form-label colon-at-end">Fin esperado</label>
-                        <input v-model="sessionForm.expectedEndAt" type="datetime-local" class="form-control">
+                        <label class="fg-field__label colon-at-end">Fin esperado</label>
+                        <input v-model="sessionForm.expectedEndAt" type="datetime-local" class="fg-native-input">
                     </div>
-                    <InputNumber v-model="sessionForm.toleranceMinutes" title="Tolerancia (min)" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
-                    <InputText v-model="sessionForm.queueCode" title="Código de turno" :xl="6" :lg="6" :md="12" :sm="12"/>
+                    <div class="fg-field-cell col-12">
+                        <InputNumber v-model="sessionForm.toleranceMinutes" title="Tolerancia (min)" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
+                    </div>
+                    <div class="fg-field-cell col-12">
+                        <InputText v-model="sessionForm.queueCode" title="Código de turno" :xl="6" :lg="6" :md="12" :sm="12"/>
+                    </div>
                 </div>
             </section>
         </template>
@@ -673,6 +702,7 @@ export default {
             sessions: {data: [], links: []},
             reports: null,
             selectedSession: null,
+            showMobileFloorPlan: false,
             sessionFormTab: SESSION_FORM_TABS[0].id,
             loading: false,
             sessionsRequestSequence: 0,
@@ -702,7 +732,22 @@ export default {
             operationForm: {user: null, note: ""}
         };
     },
+    watch: {
+        selectedSession(current, previous) {
+            if(current && !previous) {
+                this.detailTrigger = document.activeElement;
+                this.$nextTick(() => this.$refs.closeSessionDetail?.focus());
+            } else if(!current && previous) {
+                this.$nextTick(() => this.detailTrigger?.focus());
+            }
+        }
+    },
     computed: {
+        stationCounts() {
+            const counts = {available: 0, pending: 0, progress: 0};
+            this.stations.forEach(station => counts[this.stationClass(station).slice(3)]++);
+            return counts;
+        },
         quantityStep() {
             return Utils.decimalStep();
         },
@@ -776,6 +821,23 @@ export default {
         this.removeStationDragListeners();
     },
     methods: {
+        handleDetailKeydown(event) {
+            if(event.defaultPrevented || this.$refs.sessionDetail.querySelector(".vs--open")) return;
+
+            if(event.key === "Escape") {
+                this.selectedSession = null;
+                return;
+            }
+            if(event.key !== "Tab") return;
+
+            const focusable = [...this.$refs.sessionDetail.querySelectorAll("button:not(:disabled), input:not(:disabled), [href], [tabindex=\"0\"]")]
+                .filter(element => element.tabIndex >= 0 && element.getClientRects().length);
+            const endpoint = event.shiftKey ? focusable[0] : focusable.at(-1);
+            if(endpoint !== document.activeElement) return;
+
+            event.preventDefault();
+            (event.shiftKey ? focusable.at(-1) : focusable[0])?.focus();
+        },
         async initParams() {
             this.loading = true;
             const result = await Requests.get({
@@ -939,7 +1001,7 @@ export default {
                     positionX: station.position_x,
                     positionY: station.position_y
                 };
-                Alerts.modals({type: "show", id: "brServiceStationModal"});
+                Alerts.modals({type: "show", id: "fgServiceStationModal"});
                 return;
             }
 
@@ -956,7 +1018,7 @@ export default {
                 positionX: null,
                 positionY: null
             };
-            Alerts.modals({type: "show", id: "brServiceStationModal"});
+            Alerts.modals({type: "show", id: "fgServiceStationModal"});
         },
         openFloorModal(floor = null) {
             this.editingFloorId = floor?.id || null;
@@ -969,7 +1031,7 @@ export default {
                     sortOrder: floor.sort_order,
                     backgroundColor: floor.background_color || "#f7f8fa"
                 };
-                Alerts.modals({type: "show", id: "brServiceFloorModal"});
+                Alerts.modals({type: "show", id: "fgServiceFloorModal"});
                 return;
             }
 
@@ -981,7 +1043,7 @@ export default {
                 sortOrder: sequence,
                 backgroundColor: "#f7f8fa"
             };
-            Alerts.modals({type: "show", id: "brServiceFloorModal"});
+            Alerts.modals({type: "show", id: "fgServiceFloorModal"});
         },
         async saveFloor() {
             if(!this.floorForm.name?.trim() || !this.floorForm.code?.trim()) {
@@ -1011,7 +1073,7 @@ export default {
                 return;
             }
 
-            Alerts.modals({type: "hide", id: "brServiceFloorModal"});
+            Alerts.modals({type: "hide", id: "fgServiceFloorModal"});
             await this.getFloors();
             this.selectedFloor = this.floors.find(floor => floor.id === result.data.data?.id) || this.selectedFloor;
             await this.getStations();
@@ -1032,7 +1094,7 @@ export default {
                 toleranceMinutes: 0,
                 queueCode: ""
             };
-            Alerts.modals({type: "show", id: "brServiceSessionModal"});
+            Alerts.modals({type: "show", id: "fgServiceSessionModal"});
         },
         async saveStation() {
             if(!this.stationForm.name?.trim() || !this.stationForm.code?.trim()) {
@@ -1058,7 +1120,7 @@ export default {
                         status: "active"
                     }
                 }),
-                modalId: "brServiceStationModal",
+                modalId: "fgServiceStationModal",
                 afterSuccess: () => { this.editingStationId = null; }
             });
         },
@@ -1082,7 +1144,7 @@ export default {
                         queue_code: this.sessionForm.queueCode || null
                     }
                 }),
-                modalId: "brServiceSessionModal",
+                modalId: "fgServiceSessionModal",
                 selectResult: true
             });
         },
@@ -1213,9 +1275,9 @@ export default {
         },
         stationPositionStyle(station) {
             return {
-                left: `${Number(station.position_x || 10)}%`,
-                top: `${Number(station.position_y || 15)}%`,
-                "--br-station-color": station.color || "#2899e5"
+                "--fg-station-x": `${Number(station.position_x || 10)}%`,
+                "--fg-station-y": `${Number(station.position_y || 15)}%`,
+                "--fg-station-color": station.color || "var(--fg-primary)"
             };
         },
         startStationDrag(event, station) {
@@ -1276,7 +1338,8 @@ export default {
             }
         },
         notify(result, fallback, type = "error") {
-            Alerts.toastrs({type, subtitle: result?.data?.msg || fallback});
+            const fieldError = Object.values(result?.errors || {}).flat()[0];
+            Alerts.toastrs({type, subtitle: fieldError || result?.data?.msg || fallback});
         },
         goToPos() {
             window.location.href = `/sales/pos?service_session_id=${this.selectedSession.id}`;
@@ -1289,14 +1352,14 @@ export default {
             return {pending: "Pendiente", in_progress: "En curso", completed: "Finalizada", canceled: "Cancelada"}[status] || status;
         },
         preparationStatusLabel(status) {
-            return {pending: "Pendiente", preparing: "Preparando", ready: "Listo", delivered: "Entregado"}[status || "pending"] || status;
+            return {pending: "Por preparar", preparing: "En preparación", ready: "Listo", delivered: "Entregado"}[status || "pending"] || status;
         },
         preparationStatusClass(status) {
             return {
-                pending: "br-status-pending",
-                preparing: "br-status-active",
-                ready: "br-status-completed",
-                delivered: "br-status-completed"
+                pending: "fg-badge--warning",
+                preparing: "fg-service-badge--progress",
+                ready: "fg-badge--success",
+                delivered: "fg-badge--success"
             }[status || "pending"];
         },
         nextPreparationAction(item) {
@@ -1332,10 +1395,10 @@ export default {
         },
         statusClass(status) {
             return {
-                pending: "br-status-pending",
-                in_progress: "br-status-active",
-                completed: "br-status-completed",
-                canceled: "br-status-inactive"
+                pending: "fg-badge--warning",
+                in_progress: "fg-badge--success",
+                completed: "fg-badge--success",
+                canceled: "fg-badge--danger"
             }[status];
         },
         elapsedLabel(record) {

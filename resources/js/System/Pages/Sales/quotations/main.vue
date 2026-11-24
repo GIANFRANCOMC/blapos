@@ -1,171 +1,161 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader :title="isListPage ? 'Cotizaciones registradas' : 'Nueva cotización'" :description="isListPage ? 'Consulta la vigencia y el estado de tus cotizaciones.' : 'Prepara una propuesta con sus productos, precios y condiciones.'">
+        <template #actions>
+            <a v-if="isListPage" :href="createUrl" class="fg-button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Nueva cotización</a>
+            <a v-else :href="listUrl" class="fg-button fg-button--secondary">Ver cotizaciones</a>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" :table="isListPage"/>
-        <div v-else class="br-page-content">
+        <div v-else>
             <template v-if="isListPage">
-                <section class="br-filter-bar br-sales-list__filters">
-                    <div class="row align-items-end g-2">
+                <FgResponsiveFilters
+                    id="sales-filters-quotes"
+                    class="fg-responsive-filters--quotes"
+                    label="Filtros de cotizaciones"
+                    :loading="loading.list"
+                    @search="listQuotations({applyFilters: true})"
+                    @clear="clearFilters">
+                    <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
                         <SearchInput
-                            v-model="filters.word"
-                            hasDiv
-                            title="Búsqueda"
-                            :titleClass="[config.forms.classes.title]"
-                            placeholder="Buscar por cotización o cliente"
-                            xl="5"
-                            lg="6"/>
-
-                        <InputSlot
-                            hasDiv
-                            title="Estado"
-                            :titleClass="[config.forms.classes.title]"
-                            xl="3"
-                            lg="6">
-                            <template #input>
-                                <v-select
-                                    v-model="filters.status"
-                                    :options="statusOptions"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="true"
-                                    :searchable="false"
-                                    placeholder="Todos"/>
-                            </template>
-                        </InputSlot>
-
-                        <InputSlot
-                            hasDiv
-                            :isInputGroup="false"
-                            :divInputClass="['br-filter-bar__actions']"
-                            xl="4"
-                            lg="12">
-                            <template #input>
-                                <SearchButton
-                                    class="br-btn-sm"
-                                    :disabled="loading.list"
-                                    @click="listQuotations({applyFilters: true})"/>
-                                <a :href="createUrl" class="br-btn br-btn-sm br-btn-primary">
-                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                    <span>Nueva cotización</span>
-                                </a>
-                            </template>
-                        </InputSlot>
+                        v-model="filters.word"
+                        hasDiv
+                        title="Búsqueda"
+                        :titleClass="[config.forms.classes.title]"
+                        placeholder="Buscar por cotización o cliente"
+                        xl="5"
+                        lg="6"/>
                     </div>
-                </section>
 
-                <section class="table-responsive br-entity-table-wrap">
-                    <table class="table br-entity-table mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width: 18%;">Cotización</th>
-                                <th style="width: 26%;">Cliente</th>
-                                <th style="width: 16%;">Sucursal</th>
-                                <th style="width: 14%;">Vigencia</th>
-                                <th class="text-end" style="width: 12%;">Total</th>
-                                <th style="width: 8%;">Estado</th>
-                                <th class="text-center" style="width: 6%;">
+                    <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                        <InputSlot
+                        hasDiv
+                        title="Estado"
+                        :titleClass="[config.forms.classes.title]"
+                        xl="3"
+                        lg="6">
+                        <template #input>
+                            <FgSelect
+                                v-model="filters.status"
+                                :options="statusOptions"
+                                :clearable="true"
+                                :searchable="false"
+                                placeholder="Todos"/>
+                        </template>
+                    </InputSlot>
+                    </div>
+                </FgResponsiveFilters>
+
+                <ResponsiveTable fg class="fg-sales-table-scroll">
+                    <table role="table" class="mb-0 fg-table fg-record-table fg-record-table--quotes">
+                        <thead role="rowgroup">
+                            <tr role="row">
+                                <th scope="col" role="columnheader" style="width: 18%;">Cotización</th>
+                                <th scope="col" role="columnheader" style="width: 26%;">Cliente</th>
+                                <th scope="col" role="columnheader" style="width: 16%;">Sucursal</th>
+                                <th scope="col" role="columnheader" style="width: 14%;">Vigencia</th>
+                                <th scope="col" role="columnheader" class="text-end" style="width: 12%;">Total</th>
+                                <th scope="col" role="columnheader" style="width: 8%;">Estado</th>
+                                <th scope="col" role="columnheader" class="text-center" style="width: 6%;">
                                     <span class="visually-hidden">Acciones</span>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="br-table-state" v-if="loading.list">
-                                <td colspan="7" class="text-center py-4">
-                                    <Loader/>
+                        <tbody role="rowgroup">
+                            <tr role="row" class="fg-table__state" v-if="loading.list">
+                                <td role="cell" colspan="7" class="text-center py-4">
+                                    <FgListLoading label="Buscando cotizaciones…"/>
                                 </td>
                             </tr>
                             <template v-else-if="records.total > 0">
-                                <tr v-for="record in records.data" :key="record.id">
-                                    <td>
-                                        <strong class="br-entity-primary" v-text="record.reference"></strong>
-                                        <span class="br-entity-table__meta" v-text="legibleFormatDate(record.issue_date)"></span>
+                                <tr role="row" v-for="record in records.data" :key="record.id">
+                                    <td role="cell" class="fg-record-table__identity">
+                                        <strong class="fg-row-title" v-text="record.reference"></strong>
+                                        <span class="fg-table-note" v-text="legibleFormatDate(record.issue_date)"></span>
                                     </td>
-                                    <td>
-                                        <strong class="br-entity-primary" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
-                                        <span class="br-entity-table__meta" v-text="record.holder?.document_number || 'Sin documento'"></span>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Cliente</span>
+                                        <div class="fg-record-table__value">
+                                            <strong class="fg-row-title" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
+                                            <span class="fg-table-note" v-text="record.holder?.document_number || 'Sin documento'"></span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <span v-text="record.branch?.name || 'Sin sucursal'"></span>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Sucursal</span>
+                                        <div class="fg-record-table__value">
+                                            <span v-text="record.branch?.name || 'Sin sucursal'"></span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <span v-text="record.valid_until ? legibleFormatDate(record.valid_until) : 'Sin vencimiento'"></span>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Vigencia</span>
+                                        <div class="fg-record-table__value">
+                                            <span v-text="record.valid_until ? legibleFormatDate(record.valid_until) : 'Sin vencimiento'"></span>
+                                        </div>
                                     </td>
-                                    <td class="text-end">
-                                        <span class="br-amount-inline">
-                                            <span class="br-amount-inline__sign" v-text="record.currency?.sign || 'S/'"></span>
-                                            <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
-                                        </span>
+                                    <td role="cell" class="text-end">
+                                        <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                        <div class="fg-record-table__value">
+                                            <span class="fg-money">
+                                                <span class="fg-money__unit" v-text="record.currency?.sign || 'S/'"></span>
+                                                <span class="fg-money__value" v-text="separatorNumber(record.total)"></span>
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td>
+                                    <td role="cell" class="fg-record-table__state">
                                         <span
-                                            class="br-status-label"
+                                            class="fg-badge"
                                             :class="statusClass(record.status)"
                                             v-text="statusLabel(record.status)">
                                         </span>
                                     </td>
-                                    <td>
-                                        <div class="br-table-actions">
-                                            <a
-                                                :href="saleUrl"
-                                                class="br-icon-action br-icon-action-edit"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Usar en venta"
-                                                aria-label="Usar cotización en venta"
-                                                @click="persistQuotationForSale(record)">
-                                                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
-                                            </a>
-                                            <button
-                                                v-if="canCancel(record)"
-                                                type="button"
-                                                class="br-icon-action br-icon-action-danger"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Anular cotización"
-                                                aria-label="Anular cotización"
-                                                @click="cancelQuotation(record)">
-                                                <i class="fa-solid fa-ban" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
+                                    <td role="cell" class="fg-record-table__actions">
+                                        <TableActionsDropdown :label="`Acciones de ${record.reference}`">
+                                            <li><a :href="saleUrl" class="fg-menu__item" @click="persistQuotationForSale(record)">Usar en venta</a></li>
+                                            <li v-if="canCancel(record)"><button type="button" class="fg-menu__item" @click="cancelQuotation(record)">Anular cotización</button></li>
+                                        </TableActionsDropdown>
                                     </td>
                                 </tr>
                             </template>
-                            <tr class="br-table-state" v-else>
-                                <td colspan="7" class="text-center py-4">
-                                    <WithoutData type="image"/>
+                            <tr role="row" class="fg-table__state" v-else>
+                                <td role="cell" colspan="7" class="text-center py-4">
+                                    <FgEmptyState title="No encontramos cotizaciones" description="Revisa la referencia o limpia los filtros para buscar de nuevo."/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </section>
+                </ResponsiveTable>
 
                 <Paginator :links="records.links" :pagination="records" :loading="loading.list" @clickPage="listQuotations"/>
             </template>
 
             <template v-else>
-                <div class="row g-4">
-                    <div class="col-lg-9 col-12">
-                        <div class="card">
-                            <div class="card-body">
+                <div class="fg-sale-create-grid">
+                    <div class="fg-sale-create-main">
+                        <div class="fg-sales-panel">
+                            <div class="fg-sales-panel__body">
+                                <h2 class="fg-section-title fg-panel-heading">Datos de la cotización</h2>
                                 <div class="row g-2 mb-2">
-                                    <InputSlot
+                                    <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                                        <InputSlot
                                         hasDiv
                                         title="Sucursal"
                                         :titleClass="[config.forms.classes.title]"
                                         xl="4"
                                         lg="4">
                                         <template #input>
-                                            <v-select
+                                            <FgSelect
                                                 v-model="form.branch"
                                                 :options="branchOptions"
-                                                :class="config.forms.classes.select2"
                                                 :clearable="false"
                                                 :searchable="branchOptions.length > 6"
                                                 placeholder="Seleccione"/>
                                         </template>
                                     </InputSlot>
+                                    </div>
 
-                                    <InputDate
+                                    <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                                        <InputDate
                                         v-model="form.issue_date"
                                         hasDiv
                                         title="Fecha de emisión"
@@ -173,16 +163,22 @@
                                         isRequired
                                         xl="4"
                                         lg="4"/>
+                                    </div>
 
-                                    <InputDate
+                                    <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                                        <InputDate
                                         v-model="form.valid_until"
                                         hasDiv
                                         title="Válida hasta"
+                                        :has-text-bottom="Boolean(validityError)"
+                                        :text-bottom-info="validityError ? [validityError] : []"
                                         :titleClass="[config.forms.classes.title]"
                                         xl="4"
                                         lg="4"/>
+                                    </div>
 
-                                    <InputSlot
+                                    <div class="fg-field-cell col-12">
+                                        <InputSlot
                                         hasDiv
                                         title="Cliente"
                                         :titleClass="[config.forms.classes.title]"
@@ -190,13 +186,12 @@
                                         xl="12"
                                         lg="12">
                                         <template #default>
-                                            <AddCustomer :options="customerQuickCreateOptions" @postAction="addCustomerPostAction"/>
+                                            <AddCustomer trigger-label="Agregar cliente" :options="customerQuickCreateOptions" @postAction="addCustomerPostAction"/>
                                         </template>
                                         <template #input>
-                                            <v-select
+                                            <FgSelect
                                                 v-model="form.holder"
                                                 :options="holderOptions"
-                                                :class="config.forms.classes.select2"
                                                 :clearable="false"
                                                 :searchable="true"
                                                 :filterable="false"
@@ -206,15 +201,17 @@
                                                 placeholder="Seleccione cliente">
                                                 <template #list-footer>
                                                     <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
-                                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
+                                                        <button type="button" class="w-100 text-start fg-button fg-button--link" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
                                                     </li>
                                                 </template>
                                                 <template #no-options>Sin clientes para esta búsqueda.</template>
-                                            </v-select>
+                                            </FgSelect>
                                         </template>
                                     </InputSlot>
+                                    </div>
 
-                                    <InputTextArea
+                                    <div class="fg-field-cell col-12">
+                                        <InputTextArea
                                         v-model="form.observation"
                                         hasDiv
                                         title="Observaciones"
@@ -222,78 +219,93 @@
                                         placeholder="Condiciones comerciales, alcance o notas para el cliente"
                                         xl="12"
                                         lg="12"/>
+                                    </div>
                                 </div>
 
-                                <section class="br-quotation-builder mt-2">
-                                    <div class="br-quotation-builder__head">
-                                        <strong>Detalle</strong>
-                                        <button type="button" class="br-btn br-btn-sm br-btn-primary" @click="addDetail">
+                                <section class="fg-quotation-builder mt-2">
+                                    <div class="fg-quotation-builder__head">
+                                        <div>
+                                            <h2 class="fg-section-title mb-0">Detalle de la cotización</h2>
+                                            <span class="fg-help">{{ form.details.length }} {{ form.details.length === 1 ? "ítem" : "ítems" }}</span>
+                                        </div>
+                                        <button type="button" class="fg-button" @click="addDetail">
+                                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
                                             <span>Agregar ítem</span>
                                         </button>
                                     </div>
 
-                                    <div class="table-responsive br-entity-table-wrap">
-                                        <table class="table br-entity-table mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Ítem</th>
-                                                    <th class="text-end" style="width: 14%;">Cantidad</th>
-                                                    <th class="text-center" style="width: 18%;">Precio</th>
-                                                    <th class="text-end" style="width: 16%;">Total</th>
-                                                    <th class="text-center" style="width: 7%;">Acciones</th>
+                                    <ResponsiveTable fg class="fg-sales-table-scroll">
+                                        <table role="table" class="fg-record-table fg-record-table--editor mb-0 fg-table">
+                                            <thead role="rowgroup">
+                                                <tr role="row">
+                                                    <th scope="col" role="columnheader">Ítem</th>
+                                                    <th scope="col" role="columnheader" class="text-end" style="width: 14%;">Cantidad</th>
+                                                    <th scope="col" role="columnheader" class="text-center" style="width: 18%;">Precio</th>
+                                                    <th scope="col" role="columnheader" class="text-end" style="width: 16%;">Total</th>
+                                                    <th scope="col" role="columnheader" class="text-center" style="width: 7%;">Acciones</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <tr v-for="(detail, index) in form.details" :key="detail.uid">
-                                                    <td>
-                                                        <v-select
+                                            <tbody role="rowgroup">
+                                                <tr role="row" v-for="(detail, index) in form.details" :key="detail.uid">
+                                                    <td role="cell" class="fg-record-table__identity">
+                                                        <FgSelect
                                                             v-model="detail.item"
+                                                            :aria-label="`Ítem ${index + 1}`"
                                                             :options="itemOptions"
-                                                            :class="config.forms.classes.select2"
                                                             :clearable="false"
                                                             :searchable="true"
                                                             :filterable="false"
                                                             :loading="remoteOptions.items.loading"
                                                             @open="openOptions('items')"
                                                             @search="searchOptions('items', $event)"
-                                                            append-to-body
                                                             placeholder="Seleccione ítem"
                                                             @option:selected="syncDetailItem(detail)">
                                                             <template #list-footer>
                                                                 <li v-if="remoteOptions.items.hasMore" class="px-2 py-1">
-                                                                    <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('items')">Cargar más ítems</button>
+                                                                    <button type="button" class="w-100 text-start fg-button fg-button--link" @mousedown.prevent @click.stop="loadMoreOptions('items')">Cargar más ítems</button>
                                                                 </li>
                                                             </template>
                                                             <template #no-options>Sin ítems para esta búsqueda.</template>
-                                                        </v-select>
+                                                        </FgSelect>
                                                     </td>
-                                                    <td>
-                                                        <InputNumber
-                                                            v-model="detail.quantity"
-                                                            :title="''"
-                                                            :titleClass="[]"
-                                                            :minValue="0"
-                                                            @change="syncDetailTotal(detail)"/>
+                                                    <td role="cell">
+                                                        <span class="fg-record-table__label" aria-hidden="true">Cantidad</span>
+                                                        <div class="fg-record-table__value">
+                                                            <InputNumber
+                                                                v-model="detail.quantity"
+                                                                :aria-label="`Cantidad del ítem ${index + 1}`"
+                                                                :title="''"
+                                                                :titleClass="[]"
+                                                                :minValue="0"
+                                                                @change="syncDetailTotal(detail)"/>
+                                                        </div>
                                                     </td>
-                                                    <td>
-                                                        <InputNumber
-                                                            v-model="detail.price"
-                                                            :title="''"
-                                                            :titleClass="[]"
-                                                            :minValue="0"
-                                                            @change="syncDetailTotal(detail)">
-                                                            <template #inputGroupPrepend>
-                                                                <span class="input-group-text br-currency-prefix" v-text="currencySign"></span>
-                                                            </template>
-                                                        </InputNumber>
+                                                    <td role="cell">
+                                                        <span class="fg-record-table__label" aria-hidden="true">Precio</span>
+                                                        <div class="fg-record-table__value">
+                                                            <InputNumber
+                                                                v-model="detail.price"
+                                                                :aria-label="`Precio del ítem ${index + 1}`"
+                                                                :title="''"
+                                                                :titleClass="[]"
+                                                                :minValue="0"
+                                                                @change="syncDetailTotal(detail)">
+                                                                <template #inputGroupPrepend>
+                                                                    <span class="fg-field__prefix" v-text="currencySign"></span>
+                                                                </template>
+                                                            </InputNumber>
+                                                        </div>
                                                     </td>
-                                                    <td class="text-end">
-                                                        <strong v-text="`${currencySign} ${separatorNumber(lineTotal(detail))}`"></strong>
+                                                    <td role="cell" class="text-end">
+                                                        <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                                        <div class="fg-record-table__value">
+                                                            <strong v-text="`${currencySign} ${separatorNumber(lineTotal(detail))}`"></strong>
+                                                        </div>
                                                     </td>
-                                                    <td class="text-center">
+                                                    <td role="cell" class="text-center fg-record-table__actions">
                                                         <button
                                                             type="button"
-                                                            class="br-icon-action br-icon-action-danger"
+                                                            class="fg-button fg-button--icon fg-icon-danger"
                                                             title="Quitar"
                                                             aria-label="Quitar ítem"
                                                             @click="removeDetail(index)">
@@ -301,36 +313,33 @@
                                                         </button>
                                                     </td>
                                                 </tr>
-                                                <tr class="br-table-state" v-if="form.details.length === 0">
-                                                    <td colspan="5" class="text-center py-4">
-                                                        <WithoutData type="image"/>
-                                                        <p class="br-document-settlement__empty mt-2 mb-0">
-                                                            Aún no hay ítems en la cotización. Usa Agregar ítem para empezar.
-                                                        </p>
+                                                <tr role="row" class="fg-table__state" v-if="form.details.length === 0">
+                                                    <td role="cell" colspan="5" class="text-center py-4">
+                                                        <FgEmptyState title="Aún no hay ítems en la cotización" description="Agrega un ítem para preparar la propuesta."/>
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </ResponsiveTable>
                                 </section>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-12">
-                        <div class="br-document-settlement br-sale-settlement bg-white mb-2 mb-md-3">
-                            <article class="br-document-settlement__section">
-                                <header class="br-document-settlement__section-head">
-                                    <label class="form-label colon-at-end">Impuestos extras</label>
+                    <aside class="fg-sale-create-side" aria-label="Resumen de la cotización">
+                        <div class="fg-document-settlement fg-sale-settlement">
+                            <article class="fg-document-settlement__section">
+                                <header class="fg-document-settlement__section-head">
+                                    <h2 class="fg-section-title mb-0">Impuestos extras</h2>
                                 </header>
-                                <div v-if="optionalTaxes.length" class="br-document-settlement__taxes">
+                                <div v-if="optionalTaxes.length" class="fg-document-settlement__taxes">
                                     <label
                                         v-for="tax in optionalTaxes"
                                         :key="tax.id"
-                                        class="br-entity-switch br-document-settlement__tax-option">
+                                        class="fg-check fg-document-settlement__tax-option">
                                         <input
                                             v-model="form.selected_taxes"
-                                            class="form-check-input"
+
                                             type="checkbox"
                                             :value="tax.id"
                                             @change="syncSelectedTaxQuantity(tax)"/>
@@ -348,41 +357,38 @@
                                             :maxValue="taxQuantityMaximum(tax)"
                                             @change="normalizeSelectedTaxQuantity(tax.id)">
                                             <template #inputGroupPrepend>
-                                                <span class="input-group-text br-tax-quantity__label">Veces</span>
+                                                <span class="fg-field__prefix fg-tax-quantity__label">Veces</span>
                                             </template>
                                         </InputNumber>
                                     </label>
                                 </div>
-                                <p v-else class="br-document-settlement__empty mb-0">Sin impuestos extras configurados.</p>
+                                <p v-else class="fg-document-settlement__empty mb-0">Sin impuestos extras configurados.</p>
                             </article>
-                        </div>
 
-                        <div class="br-document-summary-card mb-2 mb-md-3">
-                            <h3 class="br-document-summary-card__title">Resumen</h3>
-                            <div class="br-document-settlement__summary">
-                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--primary">Subtotal</span>
-                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(subtotal)}`"></strong>
-                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--primary">IGV</span>
-                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(taxTotal)}`"></strong>
-                                <span class="br-document-settlement__summary-label br-document-settlement__summary-label--total">Total</span>
-                                <strong class="br-document-settlement__summary-value br-document-settlement__summary-value--total" v-text="`${currencySign} ${separatorNumber(total)}`"></strong>
+                            <div class="fg-document-summary-card">
+                            <h3 class="fg-document-summary-card__title">Resumen</h3>
+                            <div class="fg-document-settlement__summary">
+                                <span class="fg-document-settlement__summary-label fg-document-settlement__summary-label--primary">Subtotal</span>
+                                <strong class="fg-document-settlement__summary-value fg-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(subtotal)}`"></strong>
+                                <span class="fg-document-settlement__summary-label fg-document-settlement__summary-label--primary">IGV</span>
+                                <strong class="fg-document-settlement__summary-value fg-document-settlement__summary-value--primary" v-text="`${currencySign} ${separatorNumber(taxTotal)}`"></strong>
+                                <span class="fg-document-settlement__summary-label fg-document-settlement__summary-label--total">Total</span>
+                                <strong class="fg-document-settlement__summary-value fg-document-settlement__summary-value--total" v-text="`${currencySign} ${separatorNumber(total)}`"></strong>
                             </div>
                         </div>
 
-                        <div class="br-sale-sidebar-actions br-sale-sidebar-actions--inline">
-                            <button type="button" class="br-btn br-btn-sm br-btn-primary waves-effect" @click="addDetail">
-                                <span>Agregar ítem</span>
-                            </button>
+                            <div class="fg-sale-sidebar-actions fg-sale-sidebar-actions--inline">
                             <button
                                 type="button"
-                                class="br-btn br-btn-success br-sale-sidebar-actions__cta waves-effect"
+                                class="fg-button fg-sale-sidebar-actions__cta"
                                 :disabled="!canSubmit || loading.store"
                                 @click="storeQuotation">
                                 <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
                                 <span v-text="loading.store ? 'Guardando cotización' : 'Guardar cotización'"></span>
                             </button>
+                            </div>
                         </div>
-                    </div>
+                    </aside>
                 </div>
             </template>
         </div>
@@ -390,8 +396,8 @@
 </template>
 
 <script>
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import { generalConfig } from "../../../Helpers/Constants.js";
 import * as Alerts from "../../../Helpers/Alerts.js";
@@ -406,7 +412,7 @@ const MODULE = {
 };
 
 export default {
-    components: {SearchButton, SearchInput},
+    components: {TableActionsDropdown, SearchInput},
     mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
     name: "SalesQuotationsMain",
     data() {
@@ -537,8 +543,14 @@ export default {
 
             return Utils.sum([grossSubtotal, taxImpact]);
         },
+        validityError() {
+            const {issue_date, valid_until} = this.form;
+            return issue_date && valid_until && valid_until < issue_date
+                ? "Usa una fecha igual o posterior a la emisión."
+                : "";
+        },
         canSubmit() {
-            return Boolean(this.form.holder && this.form.currency && this.validDetails.length && this.total > 0);
+            return !this.validityError && Boolean(this.form.holder && this.form.currency && this.validDetails.length && this.total > 0);
         },
         validDetails() {
             return this.form.details.filter(detail => detail.item && Number(detail.quantity || 0) > 0);
@@ -596,6 +608,10 @@ export default {
 
             this.loading.init = false;
             return Requests.valid({result: response});
+        },
+        clearFilters() {
+            this.filters = {word: "", status: null};
+            Alerts.showFiltersCleared();
         },
         async listQuotations({url = null, applyFilters = false} = {}) {
             if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
@@ -773,10 +789,10 @@ export default {
                 buttonsStyling: false,
                 confirmButtonText: "Anular cotización",
                 customClass: {
-                    container: "br-swal-backdrop",
-                    popup: "br-swal-alert br-swal-alert--warning",
-                    confirmButton: "br-btn br-btn-danger",
-                    cancelButton: "br-btn br-btn-cancel ms-2"
+                    container: "fg-swal-layer",
+                    popup: "fg-swal",
+                    confirmButton: "fg-button fg-button--danger",
+                    cancelButton: "fg-button fg-button--secondary ms-2"
                 }
             });
 
@@ -820,13 +836,13 @@ export default {
         },
         statusClass(status) {
             return {
-                draft: "br-status-label--primary",
-                sent: "br-status-label--info",
-                accepted: "br-status-label--success",
-                converted: "br-status-label--success",
-                canceled: "br-status-label--danger",
-                expired: "br-status-label--warning"
-            }[status] || "br-status-label--primary";
+                draft: "fg-badge",
+                sent: "fg-badge",
+                accepted: "fg-badge--success",
+                converted: "fg-badge--success",
+                canceled: "fg-badge--danger",
+                expired: "fg-badge--warning"
+            }[status] || "fg-badge";
         },
         legibleFormatDate(value) {
             return value ? Utils.legibleFormatDate({dateString: value, type: "date", separator: "/"}) : "";

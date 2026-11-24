@@ -1,40 +1,42 @@
 <template>
-    <a
-        href="javascript:void(0)"
-        @click="openModal()"
-        :class="triggerClasses"
+    <button
+        ref="trigger"
+        type="button"
+        @click="openModal"
+        class="fg-button fg-button--link fg-quick-customer"
+        :class="{'fg-quick-customer--icon': !triggerLabel}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        title="Agregar cliente">
+        title="Agregar cliente"
+        aria-label="Agregar cliente">
         <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
         <span v-if="triggerLabel" v-text="triggerLabel"></span>
-    </a>
+    </button>
 
     <Teleport to="body">
         <!-- Modal Create -->
         <div
-            class="modal fade br-entity-modal br-modal-shell br-quick-create-modal"
+            class="modal fade fg-modal fg-quick-customer-modal"
             :id="forms[entity].createUpdate.extras.modals.default.id"
+            ref="modal"
             data-bs-backdrop="static"
             data-bs-keyboard="false"
             tabindex="-1"
             aria-hidden="true"
             role="dialog"
             aria-modal="true"
-            @hidden.bs.modal="handleClose"
-            @shown.bs.modal="handleShown">
+            :aria-labelledby="forms[entity].createUpdate.extras.modals.default.id + '-title'">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content br-entity-modal br-modal-shell">
-                <div class="modal-header br-entity-modal__header br-modal-shell__header">
+                <div class="modal-content fg-modal__content">
+                <div class="modal-header fg-modal__header">
                     <div>
-                        <p class="br-entity-modal__eyebrow mb-1">Gestión de clientes</p>
-                        <h2 class="modal-title br-entity-modal__title" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h2>
+                        <h2 class="modal-title fg-modal__title" :id="forms[entity].createUpdate.extras.modals.default.id + '-title'" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h2>
                     </div>
-                    <button type="button" class="br-modal-close br-modal-shell__close" :aria-label="MODULE.texts.modal.close" @click="closeModal">
+                    <button type="button" class="fg-button fg-button--icon" :aria-label="MODULE.texts.modal.close" @click="closeModal">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body br-entity-modal__body br-modal-shell__body br-quick-create-modal__body">
+                <div class="modal-body fg-modal__body">
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
                             <InputSlot
@@ -47,10 +49,9 @@
                                 xl="6"
                                 lg="6">
                                 <template v-slot:input>
-                                    <v-select
+                                    <FgSelect
                                         v-model="forms[entity].createUpdate.data.identity_document_type"
                                         :options="identityDocumentTypes"
-                                        :class="config.forms.classes.select2"
                                         @close="tooltips({show: true, time: 500})"
                                         :clearable="false"
                                         :searchable="false"/>
@@ -70,7 +71,7 @@
                                 lg="6">
                                 <template v-slot:inputGroupPrepend v-if="!isUpdate">
                                     <template v-if="isDocumentTypeSearchable">
-                                        <SearchButton @click="searchDocumentNumber"/>
+                                        <SearchButton fg @click="searchDocumentNumber"/>
                                     </template>
                                 </template>
                             </InputText>
@@ -118,10 +119,9 @@
                                 xl="4"
                                 lg="4">
                                 <template v-slot:input>
-                                    <v-select
+                                    <FgSelect
                                         v-model="forms[entity].createUpdate.data.gender"
                                         :options="genders"
-                                        :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"/>
                                 </template>
@@ -145,18 +145,17 @@
                                 xl="4"
                                 lg="4">
                                 <template v-slot:input>
-                                    <v-select
+                                    <FgSelect
                                         v-model="forms[entity].createUpdate.data.status"
                                         :options="statuses"
-                                        :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"/>
                                 </template>
                             </InputSlot>
                             <div class="col-12">
-                                <div class="br-customer-optional-block">
-                                    <div class="br-customer-optional-block__header">
-                                        <span class="br-customer-optional-block__icon">
+                                <div class="fg-quick-customer-options">
+                                    <div class="fg-quick-customer-options__header">
+                                        <span class="fg-quick-customer-options__icon">
                                             <i class="fa-solid fa-kit-medical" aria-hidden="true"></i>
                                         </span>
                                         <div>
@@ -204,16 +203,16 @@
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer br-entity-modal__footer br-modal-shell__footer">
+                <div class="modal-footer fg-modal__footer">
                     <button
                         type="button"
-                        class="br-btn br-btn-cancel"
+                        class="fg-button fg-button--secondary"
                         @click="closeModal"
                         v-text="MODULE.texts.modal.close">
                     </button>
                     <button
                         type="button"
-                        :class="['br-btn', isUpdate ? 'br-btn-action-edit' : 'br-btn-action-create']"
+                        class="fg-button"
                         @click="saveEntity"
                         :disabled="isSaving">
                         <span v-text="isSaving ? 'Agregando' : MODULE.texts.modal.save"></span>
@@ -228,6 +227,7 @@
 
 <script>
 import SearchButton from "@/Shared/SearchButton.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import { initCrudModule } from "@System/Helpers/ModuleFactory.js";
 import * as Forms from "@System/Helpers/Forms.js";
@@ -338,6 +338,7 @@ export default {
     name: "AddCustomer",
     components: {
         SearchButton,
+        FgSelect,
         InputDate,
         InputSlot,
         InputText,
@@ -377,10 +378,14 @@ export default {
         };
 
     },
-    mounted: async function() {
+    mounted() {
 
+        this.$refs.modal.addEventListener("hidden.bs.modal", this.restoreTriggerFocus);
         this.isInitialized = true;
 
+    },
+    beforeUnmount() {
+        this.$refs.modal?.removeEventListener("hidden.bs.modal", this.restoreTriggerFocus);
     },
     computed: {
         entity() {
@@ -411,20 +416,6 @@ export default {
         isUpdate() {
 
             return this.isDefined(this.forms[this.entity].createUpdate.data.id);
-
-        },
-        triggerClasses() {
-
-            return [
-                "br-link",
-                "br-quick-create-trigger",
-                "br-quick-create-trigger--link",
-                "me-2",
-                "ms-1",
-                "d-inline-flex",
-                "align-items-center",
-                {"br-quick-create-trigger--icon-only": !this.triggerLabel}
-            ];
 
         },
         modalTitles() {
@@ -502,7 +493,10 @@ export default {
             entityForms.data.gender                 = this.genders.length > 0 ? this.genders[0] : null;
             entityForms.data.status                 = this.statuses.length > 0 ? this.statuses[0] : null;
 
-            Alerts.modals({type: "show", id: entityForms.extras.modals.default.id});
+            const id = entityForms.extras.modals.default.id;
+            const parent = this.$refs.trigger?.closest(".modal.show");
+            if(parent) Alerts.showStackedModal({id, parent});
+            else Alerts.modals({type: "show", id});
             Alerts.tooltips({show: true, time: 500});
 
         },
@@ -513,21 +507,9 @@ export default {
             Alerts.modals({type: "hide", id: this.forms[this.entity].createUpdate.extras.modals.default.id});
 
         },
-        handleClose() {
+        restoreTriggerFocus() {
 
-            document.querySelectorAll(".br-quick-create-backdrop").forEach(backdrop => backdrop.remove());
-
-            if(document.querySelector(".modal.show")) {
-                document.body.classList.add("modal-open");
-            }
-
-        },
-        handleShown() {
-
-            const backdrops = document.querySelectorAll(".modal-backdrop");
-            const backdrop = backdrops[backdrops.length - 1];
-
-            backdrop?.classList.add("br-quick-create-backdrop");
+            this.$nextTick(() => this.$refs.trigger?.focus());
 
         },
         async saveEntity() {

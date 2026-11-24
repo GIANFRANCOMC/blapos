@@ -1,218 +1,209 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Listado de ventas" description="Consulta comprobantes y el estado de las ventas.">
+        <template #actions>
+            <a class="fg-button" href="/sales/create"><i class="fa-solid fa-plus" aria-hidden="true"></i> Nueva venta</a>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="br-page-content">
-            <section class="br-filter-bar br-sales-list__filters">
-                <div class="row align-items-end g-2">
+        <div v-else>
+            <FgResponsiveFilters
+                id="sales-filters-list"
+                class="fg-responsive-filters--list"
+                label="Filtros de ventas"
+                :loading="lists.entity.extras.loading"
+                @search="listEntity({applyFilters: true})"
+                @clear="clearFilters">
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
                     <InputSlot hasDiv title="Sucursal" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                        <template #input>
-                            <v-select
-                                v-model="lists.entity.filters.branch"
-                                :options="branches"
-                                :class="config.forms.classes.select2"
-                                :clearable="true"
-                                :searchable="branches.length > 6"
-                                append-to-body
-                                placeholder="Todas las sucursales">
-                                <template #selected-option="{ label }">
-                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
-                                </template>
-                            </v-select>
-                        </template>
-                    </InputSlot>
-
-                    <InputSlot hasDiv title="Serie" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
-                        <template #input>
-                            <v-select
-                                v-model="lists.entity.filters.serie"
-                                :options="series"
-                                :class="config.forms.classes.select2"
-                                :clearable="true"
-                                :searchable="false"
-                                append-to-body
-                                placeholder="Todas las series">
-                                <template #option="{ data }">
-                                    <span v-text="`${data?.legible_serie} - ${documentTypeLabel(data?.document_type)}`" class="d-block fw-bold"></span>
-                                    <small v-text="data?.branch?.name" class="d-block"></small>
-                                </template>
-                                <template #selected-option="{ label }">
-                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
-                                </template>
-                            </v-select>
-                        </template>
-                    </InputSlot>
-
-                    <SearchInput
-                        v-model="lists.entity.filters.sequential"
-                        hasDiv
-                        title="Secuencia"
-                        :titleClass="[config.forms.classes.title]"
-                        xl="2"
-                        lg="4"/>
-
-                    <InputDate
-                        v-model="lists.entity.filters.start_date"
-                        hasDiv
-                        title="Desde"
-                        :titleClass="[config.forms.classes.title]"
-                        :max="maxIssueDate"
-                        xl="2"
-                        lg="6"/>
-
-                    <InputDate
-                        v-model="lists.entity.filters.end_date"
-                        hasDiv
-                        title="Hasta"
-                        :titleClass="[config.forms.classes.title]"
-                        :max="maxIssueDate"
-                        xl="2"
-                        lg="6"/>
-
-                    <InputSlot hasDiv title="Cliente" :titleClass="[config.forms.classes.title]" xl="4" lg="6">
-                        <template #input>
-                            <v-select
-                                v-model="lists.entity.filters.holder"
-                                :options="holders"
-                                :filterable="false"
-                                :loading="remoteOptions.customers.loading"
-                                :class="config.forms.classes.select2"
-                                :clearable="true"
-                                append-to-body
-                                placeholder="Todos los clientes"
-                                @open="openOptions('customers')"
-                                @search="searchOptions('customers', $event)">
-                                <template #option="{ label }">
-                                    <span v-text="truncate({value: label, length: 50})" class="d-block"></span>
-                                </template>
-                                <template #selected-option="{ label }">
-                                    <span class="br-select-selected-text" :title="label">{{ label }}</span>
-                                </template>
-                                <template #list-footer>
-                                    <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
-                                        <button type="button" class="btn btn-link btn-sm w-100 text-start" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
-                                    </li>
-                                </template>
-                                <template #no-options>Sin clientes para esta búsqueda.</template>
-                            </v-select>
-                        </template>
-                    </InputSlot>
-
-                    <InputSlot hasDiv title="Estado" :titleClass="[config.forms.classes.title]" xl="3" lg="6">
-                        <template #input>
-                            <v-select
-                                v-model="lists.entity.filters.status"
-                                :options="statuses"
-                                :class="config.forms.classes.select2"
-                                :clearable="true"
-                                :searchable="false"
-                                append-to-body
-                                placeholder="Todos los estados"/>
-                        </template>
-                    </InputSlot>
-
-                    <InputSlot
-                        hasDiv
-                        :isInputGroup="false"
-                        :divInputClass="['br-filter-bar__actions']"
-                        xl="5"
-                        lg="6">
-                        <template #input>
-                            <SearchButton class="br-btn-sm" @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
-                            <ClearFiltersButton button-class="br-btn br-btn-sm br-btn-outline-secondary" :disabled="lists.entity.extras.loading" @clear="clearFilters">
-                                <span>Limpiar</span>
-                            </ClearFiltersButton>
-                        </template>
-                    </InputSlot>
+                    <template #input>
+                        <FgSelect
+                            v-model="lists.entity.filters.branch"
+                            :options="branches"
+                            :clearable="true"
+                            :searchable="branches.length > 6"
+                            placeholder="Todas las sucursales">
+                            <template #selected-option="{ label }">
+                                <span class="fg-selection-summary__value" :title="label">{{ label }}</span>
+                            </template>
+                        </FgSelect>
+                    </template>
+                </InputSlot>
                 </div>
-            </section>
 
-            <div class="table-responsive br-entity-table-wrap">
-                <table class="table br-entity-table mb-0">
-                    <thead>
-                        <tr>
-                            <th style="width: 18%;">Documento</th>
-                            <th style="width: 22%;">Cliente</th>
-                            <th style="width: 16%;">Sucursal</th>
-                            <th style="width: 14%;">Emisión</th>
-                            <th class="text-end" style="width: 12%;">Total</th>
-                            <th style="width: 10%;">Estado</th>
-                            <th class="text-center" style="width: 8%;"><span class="visually-hidden">Acciones</span></th>
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                    <InputSlot hasDiv title="Serie" :titleClass="[config.forms.classes.title]" xl="3" lg="4">
+                    <template #input>
+                        <FgSelect
+                            v-model="lists.entity.filters.serie"
+                            :options="series"
+                            :clearable="true"
+                            :searchable="false"
+                            placeholder="Todas las series">
+                            <template #option="{ data }">
+                                <span v-text="`${data?.legible_serie} - ${documentTypeLabel(data?.document_type)}`" class="d-block fw-bold"></span>
+                                <small v-text="data?.branch?.name" class="d-block"></small>
+                            </template>
+                            <template #selected-option="{ label }">
+                                <span class="fg-selection-summary__value" :title="label">{{ label }}</span>
+                            </template>
+                        </FgSelect>
+                    </template>
+                </InputSlot>
+                </div>
+
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                    <SearchInput
+                    v-model="lists.entity.filters.sequential"
+                    hasDiv
+                    title="Secuencia"
+                    :titleClass="[config.forms.classes.title]"
+                    xl="2"
+                    lg="4"/>
+                </div>
+
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                    <InputDate
+                    v-model="lists.entity.filters.start_date"
+                    hasDiv
+                    title="Desde"
+                    :titleClass="[config.forms.classes.title]"
+                    :max="maxIssueDate"
+                    xl="2"
+                    lg="6"/>
+                </div>
+
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                    <InputDate
+                    v-model="lists.entity.filters.end_date"
+                    hasDiv
+                    title="Hasta"
+                    :titleClass="[config.forms.classes.title]"
+                    :max="maxIssueDate"
+                    xl="2"
+                    lg="6"/>
+                </div>
+
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                    <InputSlot hasDiv title="Cliente" :titleClass="[config.forms.classes.title]" xl="4" lg="6">
+                    <template #input>
+                        <FgSelect
+                            v-model="lists.entity.filters.holder"
+                            :options="holders"
+                            :filterable="false"
+                            :loading="remoteOptions.customers.loading"
+                            :clearable="true"
+                            placeholder="Todos los clientes"
+                            @open="openOptions('customers')"
+                            @search="searchOptions('customers', $event)">
+                            <template #option="{ label }">
+                                <span v-text="truncate({value: label, length: 50})" class="d-block"></span>
+                            </template>
+                            <template #selected-option="{ label }">
+                                <span class="fg-selection-summary__value" :title="label">{{ label }}</span>
+                            </template>
+                            <template #list-footer>
+                                <li v-if="remoteOptions.customers.hasMore" class="px-2 py-1">
+                                    <button type="button" class="w-100 text-start fg-button fg-button--link" @mousedown.prevent @click.stop="loadMoreOptions('customers')">Cargar más clientes</button>
+                                </li>
+                            </template>
+                            <template #no-options>Sin clientes para esta búsqueda.</template>
+                        </FgSelect>
+                    </template>
+                </InputSlot>
+                </div>
+
+                <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
+                    <InputSlot hasDiv title="Estado" :titleClass="[config.forms.classes.title]" xl="3" lg="6">
+                    <template #input>
+                        <FgSelect
+                            v-model="lists.entity.filters.status"
+                            :options="statuses"
+                            :clearable="true"
+                            :searchable="false"
+                            placeholder="Todos los estados"/>
+                    </template>
+                </InputSlot>
+                </div>
+            </FgResponsiveFilters>
+
+            <ResponsiveTable fg class="fg-sales-table-scroll">
+                <table role="table" class="mb-0 fg-table fg-record-table fg-record-table--list">
+                    <thead role="rowgroup">
+                        <tr role="row">
+                            <th scope="col" role="columnheader" style="width: 18%;">Documento</th>
+                            <th scope="col" role="columnheader" style="width: 22%;">Cliente</th>
+                            <th scope="col" role="columnheader" style="width: 16%;">Sucursal</th>
+                            <th scope="col" role="columnheader" style="width: 14%;">Emisión</th>
+                            <th scope="col" role="columnheader" class="text-end" style="width: 12%;">Total</th>
+                            <th scope="col" role="columnheader" style="width: 10%;">Estado</th>
+                            <th scope="col" role="columnheader" class="text-center" style="width: 8%;"><span class="visually-hidden">Acciones</span></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr v-if="lists.entity.extras.loading" class="br-table-state text-center">
-                            <td colspan="7" class="py-4">
-                                <Loader/>
+                    <tbody role="rowgroup">
+                        <tr role="row" v-if="lists.entity.extras.loading" class="fg-table__state text-center">
+                            <td role="cell" colspan="7" class="py-4">
+                                <FgListLoading label="Buscando ventas…"/>
                             </td>
                         </tr>
                         <template v-else-if="lists.entity.records.total > 0">
-                            <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
-                                <td class="text-start">
-                                    <strong class="br-entity-primary" v-text="record.serie_sequential"></strong>
-                                    <span class="br-entity-table__meta" v-text="record.serie?.document_type?.name"></span>
+                            <tr role="row" v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
+                                <td role="cell" class="text-start fg-record-table__identity">
+                                    <strong class="fg-row-title" v-text="record.serie_sequential"></strong>
+                                    <span class="fg-table-note" v-text="record.serie?.document_type?.name"></span>
                                 </td>
-                                <td class="text-start">
-                                    <strong class="br-entity-primary" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
-                                    <span class="br-entity-table__meta" v-text="record.holder?.document_number || 'Sin documento'"></span>
+                                <td role="cell" class="text-start">
+                                    <span class="fg-record-table__label" aria-hidden="true">Cliente</span>
+                                    <div class="fg-record-table__value">
+                                        <strong class="fg-row-title" v-text="record.holder?.name || 'Cliente no identificado'"></strong>
+                                        <span class="fg-table-note" v-text="record.holder?.document_number || 'Sin documento'"></span>
+                                    </div>
                                 </td>
-                                <td class="text-start">
-                                    <strong class="br-entity-primary" v-text="record.serie?.branch?.name || 'Sin sucursal'"></strong>
-                                    <span class="br-entity-table__meta" v-text="record.serie?.legible_serie || record.serie?.serie"></span>
+                                <td role="cell" class="text-start">
+                                    <span class="fg-record-table__label" aria-hidden="true">Sucursal</span>
+                                    <div class="fg-record-table__value">
+                                        <strong class="fg-row-title" v-text="record.serie?.branch?.name || 'Sin sucursal'"></strong>
+                                        <span class="fg-table-note" v-text="record.serie?.legible_serie || record.serie?.serie"></span>
+                                    </div>
                                 </td>
-                                <td>
-                                    <span v-text="legibleFormatDate({dateString: record.issue_date, type: 'weekday_date', separator: '/'})" class="d-block fw-medium"></span>
-                                    <span
-                                        :class="['br-sales-relative-pill', { 'br-sales-relative-pill--today': record.diff_days_issue_date === 0 }]"
-                                        v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
+                                <td role="cell">
+                                    <span class="fg-record-table__label" aria-hidden="true">Emisión</span>
+                                    <div class="fg-record-table__value">
+                                        <span v-text="legibleFormatDate({dateString: record.issue_date, type: 'weekday_date', separator: '/'})" class="d-block fw-medium"></span>
+                                        <span
+                                            :class="['fg-sales-relative-pill', { 'fg-sales-relative-pill--today': record.diff_days_issue_date === 0 }]"
+                                            v-text="diffDaysLegible({diff: record.diff_days_issue_date})"></span>
+                                    </div>
                                 </td>
-                                <td class="text-end pe-3" title="Total">
-                                    <span class="br-amount-inline">
-                                        <span class="br-amount-inline__sign" v-text="record.currency?.sign ?? ''"></span>
-                                        <span class="br-amount-inline__amount" v-text="separatorNumber(record.total)"></span>
-                                    </span>
+                                <td role="cell" class="text-end pe-3" title="Total">
+                                    <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                    <div class="fg-record-table__value">
+                                        <span class="fg-money">
+                                            <span class="fg-money__unit" v-text="record.currency?.sign ?? ''"></span>
+                                            <span class="fg-money__value" v-text="separatorNumber(record.total)"></span>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td>
+                                <td role="cell" class="fg-record-table__state">
                                     <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
                                 </td>
-                                <td>
-                                    <InputSlot hasDiv :isInputGroup="false" :divInputClass="['br-table-actions']" xl="12" lg="12">
-                                        <template #input>
-                                            <button
-                                                type="button"
-                                                class="br-icon-action br-icon-action-info"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Ver acciones"
-                                                :aria-label="`Ver acciones de ${record.serie_sequential}`"
-                                                @click="modalActionsEntity({record})">
-                                                <i class="fa-solid fa-gear" aria-hidden="true"></i>
-                                            </button>
-                                            <button
-                                                v-if="record.status === 'active'"
-                                                type="button"
-                                                class="br-icon-action br-icon-action-danger"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Anular venta"
-                                                :aria-label="`Anular venta ${record.serie_sequential}`"
-                                                @click="cancelRecord({record})">
-                                                <i class="fa-solid fa-rectangle-xmark" aria-hidden="true"></i>
-                                            </button>
-                                        </template>
-                                    </InputSlot>
+                                <td role="cell" class="fg-record-table__actions">
+                                    <TableActionsDropdown :label="`Acciones de ${record.serie_sequential}`">
+                                        <li><button type="button" class="fg-menu__item" @click="modalActionsEntity({record})">Ver detalle</button></li>
+                                        <li v-if="record.status === 'active'"><button type="button" class="fg-menu__item" @click="cancelRecord({record})">Anular venta</button></li>
+                                    </TableActionsDropdown>
                                 </td>
                             </tr>
                         </template>
-                        <tr class="br-table-state" v-else>
-                            <td class="text-center" colspan="7">
-                                <WithoutData type="image"/>
+                        <tr role="row" class="fg-table__state" v-else>
+                            <td role="cell" class="text-center" colspan="7">
+                                <FgEmptyState title="No se encontraron registros"/>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </ResponsiveTable>
 
             <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
@@ -221,44 +212,48 @@
     <PrintSale :modalId="forms.entity.createUpdate.extras.modals.actions.id" :data="forms.entity.createUpdate.extras.modals.actions.data">
         <template v-slot:extraGroupAppend>
             <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
-                <div class="text-center cursor-pointer p-1" @click="cancelEntity({})">
+                <button class="fg-button fg-button--link fg-icon-danger" type="button" @click="cancelEntity({})">
                     <div class="badge bg-danger p-3 rounded mb-1">
                         <i class="fa-solid fa-rectangle-xmark"></i>
                     </div>
                     <span class="d-block fw-semibold text-danger">Anular venta</span>
-                </div>
+                </button>
             </div>
             <div class="row g-2 justify-content-center my-4 px-1 px-md-5">
-                <InputText
+                <div class="fg-field-cell col-12">
+                    <InputText
                     hasDiv
                     :placeholder="MODULE.texts.form.whatsappPlaceholder"
                     v-model="forms.entity.createUpdate.extras.modals.actions.data.whatsapp">
                     <template v-slot:inputGroupAppend>
-                        <button class="btn btn-success waves-effect" type="button" @click="sendWhatsapp({data: forms.entity.createUpdate.extras.modals.actions.data})" :disabled="!isDefined({value: forms.entity.createUpdate.extras.modals.actions.data.whatsapp})">
+                        <button class="fg-button" type="button" @click="sendWhatsapp({data: forms.entity.createUpdate.extras.modals.actions.data})" :disabled="!isDefined({value: forms.entity.createUpdate.extras.modals.actions.data.whatsapp})">
                             <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                             <span class="d-none d-sm-inline ms-sm-2" v-text="MODULE.texts.actions.send"></span>
                         </button>
                     </template>
                 </InputText>
-                <InputText
+                </div>
+                <div class="fg-field-cell col-12">
+                    <InputText
                     hasDiv
                     title="Correo electrónico"
                     v-model="forms.entity.createUpdate.extras.modals.actions.data.email">
                     <template v-slot:inputGroupAppend>
-                        <button class="btn btn-info-1 waves-effect" type="button" @click="sendEmail({data: forms.entity.createUpdate.extras.modals.actions.data})" :disabled="!isDefined({value: forms.entity.createUpdate.extras.modals.actions.data.email})">
+                        <button class="fg-button" type="button" @click="sendEmail({data: forms.entity.createUpdate.extras.modals.actions.data})" :disabled="!isDefined({value: forms.entity.createUpdate.extras.modals.actions.data.email})">
                             <i class="fa fa-envelope"></i>
                             <span class="ms-2">Enviar</span>
                         </button>
                     </template>
                 </InputText>
+                </div>
             </div>
         </template>
     </PrintSale>
 </template>
 
 <script>
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -266,7 +261,6 @@ import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 import * as DateUtils from "@System/Helpers/DateUtils.js";
 import {createOptionSearch} from "@/Shared/Options.js";
-import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 const MODULE = {
@@ -281,7 +275,7 @@ const MODULE = {
 };
 
 export default {
-    components: {SearchButton, ClearFiltersButton, SearchInput},
+    components: {TableActionsDropdown, SearchInput},
     mixins: [InitialPageMixin, createOptionSearch("customers")],
     mounted: async function() {
 
@@ -473,10 +467,10 @@ export default {
                     allowEscapeKey: false,
                     title: "¿Anular venta?",
                     html: `<p class="mb-3">La venta <span class="fw-bold">${form?.serie_sequential ?? ""}</span> quedará anulada.</p>
-                            <div class="br-sale-cancel-hint">
-                                <p class="br-sale-cancel-hint__body">
-                                    <span class="br-sale-cancel-hint__label">Importante.</span>
-                                    Si esta venta incluye <span class="br-sale-cancel-hint__term">membresías</span>, estas serán <span class="br-sale-cancel-hint__risk">anuladas</span> automáticamente.
+                            <div class="fg-sale-cancel-hint">
+                                <p class="fg-sale-cancel-hint__body">
+                                    <span class="fg-sale-cancel-hint__label">Importante.</span>
+                                    Si esta venta incluye <span class="fg-sale-cancel-hint__term">membresías</span>, estas serán <span class="fg-sale-cancel-hint__risk">anuladas</span> automáticamente.
                                     El inventario se actualizará según la política configurada para la empresa; revisa el mensaje final para confirmar si hubo devolución de stock.
                                 </p>
                             </div>`,
@@ -593,6 +587,7 @@ export default {
 
             const phoneNumber = this.forms.entity.createUpdate.extras.modals.actions.data.whatsapp;
             const url = await Requests.saleReportShareUrl({document: data?.id, type: "a4"});
+            if(!url) return;
             const message = Utils.getMessageWhatsapp({data, action, url});
 
             Utils.sendWhatsapp({phoneNumber, message});
@@ -602,6 +597,7 @@ export default {
 
             let route = Requests.config({entity: "helpers", type: "sendEmail"});
             const url = await Requests.saleReportShareUrl({document: data?.id, type: "a4"});
+            if(!url) return;
             const formJson = {id: data?.id, serie_sequential: data?.serie_sequential, email: data?.email, message: Utils.getMessageWhatsapp({data, action, url})};
 
             Alerts.swals({});

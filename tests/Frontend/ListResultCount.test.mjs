@@ -22,7 +22,7 @@ test("el scroll horizontal de las tablas se mantiene local incluso con el menú 
         assert.match(entry, /@import "\.\.\/Shared\/responsive-tables\.css";/);
     }
     assert.match(actions, /data-bs-config='\{"popperConfig":\{"strategy":"fixed"\}\}'/);
-    assert.match(sales, /<TableActionsDropdown[\s\S]*?class="br-sale-detail-actions"/);
+    assert.match(sales, /<TableActionsDropdown[\s\S]*?class="fg-sale-detail-actions"/);
     for(const file of ["40-buttons-quick-create.css", "70-visual-density-brand-refresh.css"]) {
         assert.doesNotMatch(read(`resources/css/System/br-branding/${file}`), /\.table-responsive:has\([^{}]*\.show[^{}]*\)\s*\{[^}]*overflow: visible;/);
     }
