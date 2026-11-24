@@ -25,7 +25,7 @@ Agrupa entidades técnicas de soporte usadas por múltiples módulos.
 ## Pantalla administrativa
 
 - Ruta UI: `/master-data`.
-- Entrada de menú: Administración -> Ajustes -> Maestros internos.
+- Maestros internos se encuentra en **Configuración → Configuración del negocio**.
 - Recursos administrables: configuraciones, tributos, métodos de pago, documentos de identidad, tipos de comprobante y monedas.
 - El apartado **Automáticos** muestra el valor actual, su condición y su origen. No ofrece edición.
 - En **Configuraciones**, `subscriptions.default_attendance_limit_per_day` define el límite que se guarda al dejar vacío el campo de asistencias de un plan. Su valor inicial es `1`. Admite un entero de `1` a `1000` o un valor vacío que se guarda como `null`.

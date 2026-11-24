@@ -14,7 +14,7 @@ use App\Models\System\Sales\{SaleHeader};
 use App\Services\System\Catalogs\Products\{ProductService};
 use App\Services\System\Customers\Tracking\{TrackingCustomerBusinessService};
 use App\Services\System\Essentials\{DashboardService};
-use App\Services\System\Finance\{AccountsPayableService, AccountsReceivableService, CommercialCreditAccountService, CommercialDocumentSettlementService, FinancialSettlementReportService};
+use App\Services\System\Finance\{AccountsPayableService, AccountsReceivableService, CashRegisterService, CommercialCreditAccountService, CommercialDocumentSettlementService, FinancialSettlementReportService};
 use App\Services\System\General\{MasterDataService};
 use App\Services\System\Organizations\Companies\{CompanyProvisioningService, CompanySettingService};
 use App\Services\System\Purchases\{PurchaseService, SupplierService};
@@ -288,6 +288,7 @@ final class CompanyDecimalPrecisionTest extends TestCase {
             ],
         ]);
 
+        $this->assertSame($purchase->id, PurchaseService::getFilteredQuery(["word" => $purchase->reference], $userId)->sole()->id);
         $installments = $purchase->accountPayable->installments;
         $this->assertCount(24, $installments);
         $this->assertEquals($purchase->total, $installments->sum("amount"));
@@ -373,6 +374,58 @@ final class CompanyDecimalPrecisionTest extends TestCase {
         $this->assertSame(1, $summary["overdue_accounts"]);
         $this->assertSame($firstInstallment->pending_amount, $summary["amounts"][0]["overdue"]);
         $this->assertSame($account->pending_amount, $summary["amounts"][0]["pending"]);
+
+    }
+
+    public function test_open_cash_session_projects_the_balance_from_active_movements(): void {
+
+        $register = DB::table("cash_registers")->first();
+        $userId = (int) DB::table("users")->value("id");
+        $service = app(CashRegisterService::class);
+        $filters = ["cash_register_id" => $register->id];
+        $session = $service->openSession($userId, $filters + ["opening_amount" => "100.00"]);
+
+        $service->registerMovement($userId, ["cash_session_id" => $session->id, "movement_type" => "income", "amount" => "50.25"]);
+        $canceled = $service->registerMovement($userId, ["cash_session_id" => $session->id, "movement_type" => "income", "amount" => 10]);
+        $canceled->update(["status" => "canceled"]);
+
+        $registerData = $service->listRegisters($userId)->firstWhere("id", $register->id);
+        $this->assertSame(150.25, $registerData["current_amount"]);
+        $this->assertSame("150.25", $registerData["open_session"]->expected_amount);
+        $this->assertSame("150.25", $service->listSessions($filters, 10, $userId)->items()[0]->expected_amount);
+        $this->assertSame("150.25", $service->summary($filters, $userId)["totals"]["expected"]);
+        $this->assertSame("0.00", $service->summary($filters, $userId)["totals"]["difference"]);
+        $this->assertEquals(100, $session->fresh()->expected_amount);
+
+    }
+
+    public function test_receivable_can_be_found_by_its_displayed_document_and_shows_its_payment_trace(): void {
+
+        $userId = (int) DB::table("users")->value("id");
+        $paymentMethod = DB::table("payment_methods")->where("code", "CASH")->first();
+        $sale = SaleHeader::create([
+            "serie_id" => DB::table("series")->value("id"),
+            "sequential" => 123,
+            "holder_id" => DB::table("customers")->value("id"),
+            "seller_id" => $userId,
+            "currency_id" => DB::table("currencies")->value("id"),
+            "issue_date" => now()->toDateString(),
+            "payment_modality" => "cash_on_delivery", "payment_status" => "partial",
+            "installment_extra_percentage" => 0, "installment_extra_amount" => 0,
+            "total" => 100, "paid_amount" => 30, "balance_due" => 70,
+        ]);
+        $account = CommercialCreditAccountService::createReceivable($sale, collect([
+            ["payment_method_id" => $paymentMethod->id, "amount" => 30, "reference" => "QA abono"],
+        ]), 1, now()->addMonth()->toDateString(), $userId);
+
+        $service = app(AccountsReceivableService::class);
+        $list = $service->paginate($userId, ["search" => $sale->serie_sequential], 10);
+        $this->assertSame(1, $list->total());
+        $this->assertSame($account->id, $list->items()[0]["id"]);
+        $detail = $service->find($userId, $account->id);
+        $this->assertSame(70.0, $detail["pending_amount"]);
+        $this->assertSame(30.0, $detail["payments"][0]["amount"]);
+        $this->assertSame("QA abono", $detail["payments"][0]["reference"]);
 
     }
 

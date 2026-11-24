@@ -112,7 +112,9 @@ Dividen el saldo pendiente en cuotas, con número, fecha de vencimiento, monto, 
 
 ### sale_receivable_payments / purchase_payable_payments
 
-Guardan abonos posteriores contra una cuenta por cobrar o por pagar. Conservan método general, variante, referencia, importe y responsable.
+Guardan los pagos aplicados contra una cuenta por cobrar o por pagar, incluidos los adelantos que se imputan a la cuenta. Conservan método general, variante, referencia, importe y responsable.
+
+En una venta contraentrega con pago inicial, el cronograma conserva el saldo restante y muestra el pago aplicado con método, fecha, referencia cuando existe e importe. Cuentas por cobrar acepta la serie y el correlativo completos tal como aparecen en el listado.
 
 ## Reglas de negocio
 

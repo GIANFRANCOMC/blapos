@@ -13,7 +13,8 @@ test("la ficha de empresa usa el isotipo y organiza datos y contactos", () => {
 
     assert.match(view, /<CompanyCard :company="company"\/>/);
     assert.match(card, /<img :src="company\.logomark_url" :alt="`Isotipo de \$\{company\.commercial_name \|\| company\.name\}`">/);
-    assert.match(controller, /\$this->companyCardDataService->forCompany\(\$company\)/);
+    assert.match(controller, /\$this->companyCardDataService->current\(\)/);
+    assert.match(companyCardData, /\$this->companyContext->get\(\)/);
     assert.match(companyCardData, /\$this->logomarkService->url\(\$company->logomark\)/);
     assert.match(resolver, /assets->img->logomark/);
     assert.match(card, /label: "Correo electrónico"[^\n]*divider: true/);

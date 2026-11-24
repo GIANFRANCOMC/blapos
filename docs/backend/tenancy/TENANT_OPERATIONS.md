@@ -43,7 +43,7 @@ El aprovisionador tampoco recibe ni devuelve el ID raíz. `createOrUpdate()`, `e
 
 Los reintentos de `enable()` insertan valores iniciales ausentes y conservan la configuración que el tenant ya modificó, así como estados operativos y series documentarias. `ensureAdminUser()` solo crea el administrador inicial si falta: un reintento no cambia su contraseña, perfil ni estado y tampoco reactiva su acceso a la sucursal. La sucursal raíz se resuelve por su código interno estable. Los comandos programados leen el registro landlord por bloques y emiten informes en lotes fijos para no cargar todos los tenants ni todas las filas de salida simultáneamente. El trabajo por tenant se limita a 1000 registros por ejecución en membresías y asistencias; las notificaciones conservan su límite interno de 500.
 
-Las migraciones tenant administran únicamente el esquema. Los valores iniciales de configuraciones, métodos de pago, variantes, impuestos, rubros, módulos y permisos se concentran en `CompanyProvisioningService`; así una instalación nueva y un reintento ejecutan la misma ruta idempotente y no dependen de datos insertados durante `migrate`.
+Las migraciones tenant administran únicamente el esquema. Los valores iniciales de configuraciones, métodos de pago, variantes, impuestos, módulos y permisos se concentran en `CompanyProvisioningService`; así una instalación nueva y un reintento ejecutan la misma ruta idempotente y no dependen de datos insertados durante `migrate`.
 
 ## Ciclo de vida
 

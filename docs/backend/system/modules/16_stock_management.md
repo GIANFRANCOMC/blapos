@@ -97,7 +97,7 @@ La toma física usa el origen `physical_count`, separado de entradas y salidas m
 - El selector de **Almacén de trabajo** define el contexto del listado, independientemente del almacén elegido al registrar una operación o un traslado. **Acciones** contiene **Descargar Excel**.
 - Las cinco páginas tienen **Buscar**. Elegir otro almacén o cambiar un filtro conserva los resultados anteriores. Buscar aplica los cambios desde la primera página. Los estados vacío y error tienen mensajes independientes.
 - Los selectores de almacén identifican `Sucursal - Almacén`. Traslados ofrece selectores independientes para origen y destino, y cada uno admite consultar todos los almacenes disponibles. Su tabla muestra primero la sede y debajo el almacén. Los nombres se resuelven también para almacenes inactivos, dentro del alcance autorizado. El origen y destino al registrar un traslado deben ser almacenes reales.
-- `Catálogo e inventario` expone los cinco accesos bajo `Inventario`:
+- El mundo **Inventario** agrupa estas páginas en **Existencias**, **Traslados y guías** y **Movimientos y costos**.
   - **Control de stock**: `/inventory/stock`, existencias actuales, mínimos y alertas.
   - **Traslados**: `/inventory/transfers`, movimientos multiproducto entre almacenes.
   - **Guías**: `/inventory/guides`, entradas y salidas numeradas.

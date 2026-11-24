@@ -4,6 +4,8 @@
 
 Genera reportes y exportes de clientes, items, sucursales, ventas, usuarios y comprobantes PDF.
 
+Reportes se encuentra en **Analítica → Indicadores**, junto a Resumen del negocio.
+
 ## Archivos
 
 - Ruta: `routes/System/Essentials/Report.php`

@@ -1,8 +1,8 @@
-# 73 - Asistencias del personal
+# 73 - Asistencia del personal
 
 ## Qué hace
 
-Registra jornadas laborales de colaboradores, separadas de las visitas de clientes. Consolida ingreso, salida, pausas, minutos ordinarios, tardanzas y horas extra, con solicitudes de corrección auditables.
+Registra las jornadas laborales de los colaboradores. Consolida ingreso, salida, pausas, minutos ordinarios, tardanzas y horas extra, con solicitudes de corrección auditables. Se encuentra en **Equipo y activos → Personal**.
 
 ## Tablas
 

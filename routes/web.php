@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\System\Auth\{AuthenticatedSessionController};
-use App\Http\Controllers\System\Essentials\{ReportController};
+use App\Http\Controllers\System\Essentials\{ReportController, WorkspaceController};
 use App\Http\Controllers\System\Notifications\{NotificationController};
 use Illuminate\Support\Facades\{Route};
 
@@ -67,12 +67,16 @@ Route::middleware(["auth", "verified", "module.permission", "resource.scope", "n
 
     // Essentials
     Route::prefix("/account")->group($systemRoute."/Essentials/Account.php");
-    Route::prefix("/workspace")->group($systemRoute."/Essentials/Workspace.php");
+    Route::prefix("/home")->group($systemRoute."/Essentials/Workspace.php");
+    Route::get("/workspace", fn() => redirect()->route("home.index"))->name("workspace.index");
+    Route::get("/workspace/data", [WorkspaceController::class, "data"])->name("workspace.data");
     Route::prefix("/dashboard")->group($systemRoute."/Essentials/Dashboard.php");
+    Route::prefix("/analytics/commercial-performance")->group($systemRoute."/Essentials/CommercialPerformance.php");
+    Route::prefix("/analytics/stock-turnover")->group($systemRoute."/Essentials/StockTurnover.php");
     Route::prefix("/helpers")->group($systemRoute."/Essentials/Helper.php");
     Route::prefix("/options")->group($systemRoute."/Essentials/Option.php");
     Route::prefix("/master-data")->group($systemRoute."/General/MasterData.php");
-    Route::prefix("/home")->group($systemRoute."/Essentials/Home.php");
+    Route::prefix("/favorites")->group($systemRoute."/Essentials/Home.php");
     Route::prefix("/reports")->group($systemRoute."/Essentials/Report.php");
 
     // Customers (Tracking Notifications)
@@ -83,7 +87,6 @@ Route::middleware(["auth", "verified", "module.permission", "resource.scope", "n
     Route::prefix("/branches")->group($systemRoute."/Organizations/Branch.php");
     Route::prefix("/companies")->group($systemRoute."/Organizations/Company.php");
     Route::prefix("/roles")->group($systemRoute."/Organizations/Role.php");
-    Route::prefix("/business_profile")->group($systemRoute."/Organizations/BusinessProfile.php");
     Route::prefix("/users")->group($systemRoute."/Organizations/User.php");
     Route::prefix("/user_attendances")->group($systemRoute."/Organizations/UserAttendance.php");
 

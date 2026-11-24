@@ -1,10 +1,10 @@
 <template>
     <FgCatalogList
         kind="subscriptions"
-        title="Membresías"
+        title="Planes de membresía"
         singular="membresía"
         plural="membresías"
-        list-title="Membresías registradas"
+        list-title="Planes registrados"
         description="Administra tus planes, sus precios y sus condiciones de acceso."
         v-model:filter-by="filterByValue"
         v-model:word="filterWordValue"
@@ -168,10 +168,10 @@ const FORM_TABS = [
 const MODULE_CONFIG = {
     entity: "subscriptions",
     menuId: "menu-items-subscriptions",
-    pageTitle: "Membresías",
+    pageTitle: "Planes de membresía",
     pageTitleSingular: "Membresía",
     internalCodeEntity: "subscription",
-    breadcrumbParent: "Catálogo e inventario",
+    breadcrumbParent: "Catálogo comercial",
     perPage: 10
 };
 

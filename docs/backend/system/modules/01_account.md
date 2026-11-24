@@ -6,7 +6,7 @@
 
 ## Ubicación
 
-El acceso pertenece al mundo `Administración`, dentro del grupo `Ajustes`. Su ruta principal es `account.index`.
+Mi cuenta se encuentra en **Configuración → Preferencias** y en el menú del avatar. Su ruta principal es `account.index`.
 
 ## Datos editables
 

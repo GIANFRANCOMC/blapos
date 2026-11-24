@@ -1,8 +1,8 @@
 # 06 - Historial de cliente
 
-## Que hace
+## Qué hace
 
-Permite consultar ventas, membresias y asistencias de un cliente en un periodo.
+Permite consultar ventas, membresías y asistencias de un cliente en un periodo. Se encuentra en **Operaciones y clientes → Gestión de clientes**.
 
 ## Archivos
 

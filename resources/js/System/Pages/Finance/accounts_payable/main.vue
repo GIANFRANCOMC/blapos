@@ -99,7 +99,7 @@
                                             <span class="fg-receivables-status" :class="`fg-receivables-status--${account.status}`">{{ statusLabel(account.status) }}</span>
                                         </td>
                                         <td class="text-center">
-                                            <button type="button" class="fg-icon-action fg-icon-action-edit" title="Ver cronograma" @click="openDetail(account)">
+                                            <button type="button" class="fg-icon-action fg-icon-action-edit" title="Ver cronograma" :aria-expanded="selectedAccount?.id === account.id" @click="openDetail(account, $event)">
                                                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </td>
@@ -113,14 +113,14 @@
                     <Paginator :links="accounts.links" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts"/>
                 </section>
 
-                <section v-if="selectedAccount" class="fg-receivables__panel mt-3">
+                <section v-if="selectedAccount" class="fg-receivables__panel mt-3" aria-labelledby="payable-schedule-title">
                     <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                         <div>
                             <p class="fg-receivables__eyebrow mb-1">Detalle de cuenta</p>
-                            <h2 class="h5 mb-1">{{ selectedAccount.document }} · {{ selectedAccount.supplier.name }}</h2>
+                            <h2 id="payable-schedule-title" ref="detailHeading" class="h5 mb-1" tabindex="-1">{{ selectedAccount.document }} · {{ selectedAccount.supplier.name }}</h2>
                             <span class="fg-receivables-status" :class="`fg-receivables-status--${selectedAccount.status}`">{{ statusLabel(selectedAccount.status) }}</span>
                         </div>
-                        <button type="button" class="fg-modal-close" aria-label="Cerrar detalle" @click="selectedAccount = null">
+                        <button type="button" class="fg-modal-close" aria-label="Cerrar detalle" @click="closeDetail">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -168,6 +168,8 @@ export default {
             accounts: {data: [], links: []},
             summary: {accounts: 0, overdue_accounts: 0, amounts: []},
             selectedAccount: null,
+            detailRequest: 0,
+            detailTrigger: null,
             filters: {search: "", status: "", date_from: "", date_to: ""},
             appliedFilters: null,
             loading: {list: false, detail: false},
@@ -216,13 +218,26 @@ export default {
                 this.loading.list = false;
             }
         },
-        async openDetail(account) {
+        async openDetail(account, event) {
+            const request = ++this.detailRequest;
+            this.detailTrigger = event.currentTarget;
             this.selectedAccount = account;
             this.loading.detail = true;
+            await this.$nextTick();
+            this.$refs.detailHeading?.focus();
+
             const result = await Requests.get({route: `${this.config.routes.consult}/${account.id}`, showAlert: true});
+            if(request !== this.detailRequest) return;
             this.loading.detail = false;
 
             if(Requests.valid({result})) this.selectedAccount = result.data.data;
+        },
+        closeDetail() {
+            this.detailRequest++;
+            this.selectedAccount = null;
+            this.loading.detail = false;
+            this.detailTrigger?.focus();
+            this.detailTrigger = null;
         },
         clearFilters() {
             this.filters = {search: "", status: "", date_from: "", date_to: ""};
@@ -237,7 +252,8 @@ export default {
         formatDate(value) {
             if(!value) return "Sin fecha";
 
-            return new Intl.DateTimeFormat("es-PE").format(new Date(`${String(value).slice(0, 10)}T00:00:00`));
+            return new Intl.DateTimeFormat("es-PE", {day: "2-digit", month: "2-digit", year: "numeric"})
+                .format(new Date(`${String(value).slice(0, 10)}T00:00:00`));
         },
         statusLabel(status) {
             return {pending: "Pendiente", partial: "Pago parcial", paid: "Pagada", overdue: "Vencida", canceled: "Anulada"}[status] || "Pendiente";

@@ -20,7 +20,7 @@ final class SecurityHeadersTest extends TestCase {
 
         foreach(["application/json", "text/html; charset=UTF-8"] as $contentType) {
 
-            $request = Request::create("/workspace", "GET");
+            $request = Request::create("/home", "GET");
             $request->setLaravelSession(new Store("test", new ArraySessionHandler(30)));
 
             $response = new Response("content", 200, [

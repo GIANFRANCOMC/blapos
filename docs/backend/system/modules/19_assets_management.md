@@ -1,8 +1,8 @@
-# 19 - Gestion de activos
+# 19 - Gestión de activos
 
-## Que hace
+## Qué hace
 
-Gestiona asignaciones de activos a sucursales y usuarios.
+Gestiona asignaciones de activos a sucursales y colaboradores. Se encuentra en **Equipo y activos → Activos**.
 
 ## Archivos
 

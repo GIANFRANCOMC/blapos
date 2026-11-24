@@ -1,6 +1,8 @@
-# 02 - Dashboard
+# 02 - Resumen del negocio
 
 ## Qué hace
+
+Este acceso se encuentra en **Analítica → Indicadores**, junto a Reportes. La página conserva la ruta interna `dashboard.index`.
 
 Entrega indicadores operativos agregados para una fecha empresarial y, opcionalmente, una sucursal permitida. No carga ventas, asistencias ni membresías completas: toda suma y conteo se resuelve en SQL.
 

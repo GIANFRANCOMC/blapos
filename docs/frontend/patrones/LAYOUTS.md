@@ -2,7 +2,7 @@
 
 ## Marco de trabajo
 
-La barra oscura identifica mundos. El menú claro muestra grupos y submódulos del mundo activo. El navbar reúne acciones globales y el breadcrumb ubica el contenido. Respeta la densidad del menú y los estados activo, colapsado y adaptable. La navegación y los permisos están documentados en [Navegación tenant](TENANT_NAVIGATION.md). Su comportamiento compartido vive en [Menu.js](../../../resources/js/System/Layout/Menu.js).
+El navbar ocupa todo el ancho sobre el riel oscuro y el panel de submódulos. Agrupa el isotipo de Inicio con el control del panel a la izquierda, el buscador queda centrado y las acciones de cuenta van a la derecha. El riel permanece visible en escritorio y tablet. El control de panel abre o cierra los submódulos desde 768 px y toda la navegación lateral en móvil. El breadcrumb ubica el contenido. [Navegación tenant](TENANT_NAVIGATION.md) · [Menu.js](../../../resources/js/System/Layout/Menu.js).
 
 ## Composición según la tarea
 

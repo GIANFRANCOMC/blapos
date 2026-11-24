@@ -19,20 +19,19 @@
 
                 <section class="fg-filter-bar">
                     <div class="fg-filter-bar__field">
-                        <label class="form-label">Búsqueda</label>
-                        <SearchInput v-model.trim="filters.word" placeholder="Concepto o referencia"/>
+                        <SearchInput v-model.trim="filters.word" title="Búsqueda" placeholder="Concepto o referencia"/>
                     </div>
                     <div class="fg-filter-bar__field">
-                        <label class="form-label">Estado</label>
-                        <select v-model="filters.status" class="form-select">
+                        <label for="expense-filter-status" class="form-label">Estado</label>
+                        <select id="expense-filter-status" v-model="filters.status" class="form-select">
                             <option value="">Todos</option>
                             <option value="active">Activo</option>
                             <option value="canceled">Anulado</option>
                         </select>
                     </div>
                     <div class="fg-filter-bar__field">
-                        <label class="form-label">Sucursal</label>
-                        <select v-model="filters.branch_id" class="form-select">
+                        <label for="expense-filter-branch" class="form-label">Sucursal</label>
+                        <select id="expense-filter-branch" v-model="filters.branch_id" class="form-select">
                             <option value="">Todas</option>
                             <option v-for="branch in options.branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
                         </select>
@@ -92,80 +91,76 @@
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" id="miscExpenseModal" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal fade fg-modal" id="miscExpenseModal" tabindex="-1" aria-labelledby="expense-modal-title" data-bs-backdrop="static" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content fg-modal">
+            <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Egreso operativo</p>
-                        <h5 class="modal-title fg-modal__title">Registrar gasto</h5>
-                    </div>
-                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                    <h2 id="expense-modal-title" class="modal-title fg-modal__title">Registrar gasto</h2>
+                    <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
                 <div class="modal-body fg-modal__body">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label class="form-label">Concepto *</label>
-                            <input v-model.trim="form.concept" type="text" class="form-control" maxlength="255">
-                            <small v-if="error('concept')" class="text-danger">{{ error("concept") }}</small>
+                            <label for="expense-concept" class="form-label">Concepto *</label>
+                            <input id="expense-concept" v-model.trim="form.concept" type="text" class="form-control" maxlength="255" :aria-invalid="Boolean(error('concept'))" :aria-describedby="error('concept') ? 'expense-concept-error' : undefined">
+                            <small v-if="error('concept')" id="expense-concept-error" class="text-danger">{{ error("concept") }}</small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Fecha *</label>
-                            <input v-model="form.expense_date" type="date" class="form-control">
+                            <label for="expense-date" class="form-label">Fecha *</label>
+                            <input id="expense-date" v-model="form.expense_date" type="date" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Importe *</label>
-                            <InputNumber v-model="form.amount" :has-div="false" :min-value="0"
+                            <InputNumber v-model="form.amount" title="Importe" is-required :has-div="false" :min-value="0"
                                          :has-text-bottom="Boolean(error('amount'))" :text-bottom-info="[error('amount')]"/>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Moneda *</label>
-                            <select v-model="form.currency_id" class="form-select">
+                            <label for="expense-currency" class="form-label">Moneda *</label>
+                            <select id="expense-currency" v-model="form.currency_id" class="form-select">
                                 <option v-for="currency in options.currencies" :key="currency.id" :value="currency.id">{{ currency.name || currency.code }}</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Categoría</label>
-                            <select v-model="form.misc_expense_category_id" class="form-select">
+                            <label for="expense-category" class="form-label">Categoría</label>
+                            <select id="expense-category" v-model="form.misc_expense_category_id" class="form-select">
                                 <option :value="null">Sin categoría</option>
                                 <option v-for="category in options.categories" :key="category.id" :value="category.id">{{ category.name }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Sucursal</label>
-                            <select v-model="form.branch_id" class="form-select">
+                            <label for="expense-branch" class="form-label">Sucursal</label>
+                            <select id="expense-branch" v-model="form.branch_id" class="form-select">
                                 <option :value="null">Sin sucursal</option>
                                 <option v-for="branch in options.branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Sesión de caja</label>
-                            <select v-model="form.cash_session_id" class="form-select">
+                            <label for="expense-cash-session" class="form-label">Sesión de caja</label>
+                            <select id="expense-cash-session" v-model="form.cash_session_id" class="form-select">
                                 <option :value="null">No afectar caja</option>
                                 <option v-for="session in options.cashSessions" :key="session.id" :value="session.id">{{ session.register?.name || `Sesión ${session.id}` }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Método de pago</label>
-                            <select v-model="form.payment_method_id" class="form-select">
+                            <label for="expense-payment-method" class="form-label">Método de pago</label>
+                            <select id="expense-payment-method" v-model="form.payment_method_id" class="form-select">
                                 <option :value="null">Efectivo / caja</option>
                                 <option v-for="method in options.paymentMethods" :key="method.id" :value="method.id">{{ method.name }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Responsable</label>
-                            <select v-model="form.responsible_user_id" class="form-select">
+                            <label for="expense-responsible" class="form-label">Responsable</label>
+                            <select id="expense-responsible" v-model="form.responsible_user_id" class="form-select">
                                 <option :value="null">Sin responsable asignado</option>
                                 <option v-for="user in options.users" :key="user.id" :value="user.id">{{ user.name }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Referencia</label>
-                            <input v-model.trim="form.reference" type="text" class="form-control" maxlength="100">
+                            <label for="expense-reference" class="form-label">Referencia</label>
+                            <input id="expense-reference" v-model.trim="form.reference" type="text" class="form-control" maxlength="100">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Observación</label>
-                            <input v-model.trim="form.observation" type="text" class="form-control" maxlength="2000">
+                            <label for="expense-observation" class="form-label">Observación</label>
+                            <input id="expense-observation" v-model.trim="form.observation" type="text" class="form-control" maxlength="2000">
                         </div>
                     </div>
                 </div>

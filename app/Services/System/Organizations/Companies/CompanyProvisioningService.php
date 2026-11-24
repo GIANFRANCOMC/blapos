@@ -63,7 +63,6 @@ final class CompanyProvisioningService {
             $this->seedSaleDeliveryMethods();
             $this->seedOperationalDefaults();
             $this->seedMiscExpenseCategories();
-            $this->seedBusinessProfiles();
 
             if($enableModules) {
 
@@ -370,92 +369,6 @@ final class CompanyProvisioningService {
 
     }
 
-    private function seedBusinessProfiles(): void {
-
-        if(!Schema::hasTable("business_industries") || !Schema::hasTable("business_industry_module_sets")) {
-
-            return;
-
-        }
-
-        $companyId = $this->rootCompanyId();
-
-        $profiles = [
-            "gym" => [
-                "name" => "Gimnasio y membresías",
-                "description" => "Base para gimnasios, estudios deportivos y negocios con membresías, asistencias y servicios recurrentes.",
-            ],
-            "restaurant" => [
-                "name" => "Restaurante y comida",
-                "description" => "Base para restaurantes, cafeterías y negocios de comida con POS, mesas, recetas y cocina.",
-            ],
-            "retail" => [
-                "name" => "Comercio y retail",
-                "description" => "Base para tiendas con productos, inventario, compras, caja y ventas rápidas.",
-            ],
-        ];
-
-        $now = now();
-        $industryRecords = collect($profiles)
-            ->map(fn($profile, $slug) => $profile + [
-                "slug" => $slug,
-                "status" => "active",
-                "updated_at" => $now,
-            ])
-            ->values()
-            ->all();
-
-        DB::table("business_industries")->insertOrIgnore($industryRecords);
-
-        $industries = DB::table("business_industries")
-            ->whereIn("slug", array_keys($profiles))
-            ->pluck("id", "slug");
-
-        $subSections = DB::table("sub_sections")
-            ->where("status", "active")
-            ->get(["id", "is_enabled_by_default"]);
-
-        $moduleSetRecords = collect($profiles)
-            ->flatMap(function($profile, $slug) use ($industries, $subSections, $now) {
-
-                $industryId = (int) ($industries[$slug] ?? 0);
-
-                if($industryId <= 0) {
-
-                    return [];
-
-                }
-
-                return $subSections->map(fn($subSection) => [
-                    "business_industry_id" => $industryId,
-                    "sub_section_id" => (int) $subSection->id,
-                    "is_enabled_by_default" => (bool) $subSection->is_enabled_by_default,
-                    "reason" => "Módulo disponible para el rubro {$profile["name"]}.",
-                    "status" => "active",
-                    "updated_at" => $now,
-                ]);
-
-            })
-            ->values()
-            ->all();
-
-        if($moduleSetRecords !== []) {
-
-            DB::table("business_industry_module_sets")->insertOrIgnore($moduleSetRecords);
-
-        }
-
-        $defaultIndustryId = (int) DB::table("business_industries")
-            ->where("slug", "gym")
-            ->value("id");
-
-        DB::table("companies")
-            ->where("id", $companyId)
-            ->whereNull("business_industry_id")
-            ->update(["business_industry_id" => $defaultIndustryId]);
-
-    }
-
     private function seedPaymentMethodVariants(): void {
 
         if(!Schema::hasTable("payment_method_variants")) {
@@ -616,7 +529,7 @@ final class CompanyProvisioningService {
 
         }
 
-        $subSectionIds = DB::table("sub_sections")->pluck("id");
+        $subSectionIds = DB::table("sub_sections")->where("status", "active")->pluck("id");
 
         $roleSubSections = $subSectionIds
             ->map(fn($subSectionId) => [

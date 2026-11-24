@@ -2,6 +2,8 @@
 
 Esta carpeta conserva el razonamiento de ampliaciones backend relevantes: seguridad y permisos, ventas/stock/membresías, asistencia/biometría y calidad de datos.
 
+- [Evolución de los indicadores de inventario](05_analytics.md) registra los requisitos de datos para calcular rotación y cobertura.
+
 ## Criterio
 
 - El comportamiento vigente se documenta en `../modules`.

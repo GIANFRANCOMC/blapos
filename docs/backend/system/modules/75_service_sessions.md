@@ -4,6 +4,8 @@
 
 Controla atenciones con inicio y fin reales para barberías, salones, clínicas, talleres, canchas, alquileres, restaurantes y otros rubros. Una sesión puede tener agenda, cola, tolerancia, estación física, cliente, responsable y varios detalles independientes.
 
+Servicios en curso se encuentra en **Operaciones y clientes → Servicios y asistencias**. La definición de servicios y precios está en **Catálogo comercial → Oferta comercial**.
+
 ## Backend
 
 - Tablas principales: `service_sessions` y `service_session_items`.

@@ -271,7 +271,7 @@ export default {
     mixins: [InitialPageMixin],
     mounted: async function() {
 
-        navbarItem("menu-parent-customers", {addClass: "open"});
+        navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initialized = await this.loadInitialParams(() => this.initParams({}));
@@ -329,7 +329,7 @@ export default {
                 entity: {
                     ...Requests.config({entity: "tracking_subscriptions"}),
                     page: {
-                        title: "Membresías",
+                        title: "Membresías de clientes",
                         active: true,
                         menu: {
                             id: "menu-customers-subscriptions"
@@ -850,7 +850,7 @@ export default {
     computed: {
         breadcrumbTitles: function() {
 
-            return [{title: "Seguimiento"}, this.config.entity.page];
+            return [{title: "Operaciones y clientes"}, {title: "Membresías"}, this.config.entity.page];
 
         },
         branches: function() {

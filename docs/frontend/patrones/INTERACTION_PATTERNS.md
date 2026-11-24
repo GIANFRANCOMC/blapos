@@ -13,6 +13,13 @@ Al empezar una consulta, limpia las filas y totales anteriores. Conserva el resu
 - Consulta datos mediante página, panel o modal según su volumen y la necesidad de mantener el contexto. Usa confirmaciones para operaciones destructivas o difíciles de revertir, indicando el alcance y las consecuencias.
 - Reutiliza la [convención de modales y resultados](../fundamentos/ESTANDARES_UI.md#resultado-de-operaciones-en-modales). **Cerrar** descarta la modal. En un éxito, el flujo de resultado gestiona el cierre y el aviso. Los errores que requieren corrección conservan el formulario y restauran su foco.
 
+## Apertura y cierre de paneles
+
+- Define la geometría de los estados abierto y cerrado. En un panel que comparte espacio con la página, coordina el ancho del marco y el espacio reservado al contenido. Si solo cambia lo que muestra el panel, conserva el marco y limita la transición a ese contenido. En una superficie superpuesta, anima el panel y su fondo sin desplazar la página.
+- Coordina entrada y salida con la misma duración y curva y permite invertir el movimiento si cambia la acción. Actualiza el estado de interacción al inicio de cada fase. El contenido que sale puede permanecer visible durante el fundido, con `inert` y `aria-hidden` hasta que termine. Usa el estado del componente y sus propiedades de transición para resolver la salida.
+- Sincroniza `aria-expanded` y `aria-controls` con el disparador. Lleva el foco al destino interactivo que corresponda al abrir y devuélvelo a un control visible al cerrar. Si otra acción abre un destino como el buscador, enfoca ese destino. Con `prefers-reduced-motion: reduce`, aplica el estado final de inmediato y conserva el mismo comportamiento de teclado y foco.
+- Comprueba apertura, cierre y cambio de estado mientras se anima, mediante ratón y teclado. Repite con movimiento reducido y en un ancho estrecho. Observa el ancho, el desplazamiento, el foco y el área que queda disponible para interactuar. [Aplicación en navegación System](TENANT_NAVIGATION.md#colapsado-y-responsive).
+
 ## Estados y recuperación
 
 | Estado | Respuesta de la interfaz |

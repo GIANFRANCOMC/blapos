@@ -18,5 +18,6 @@ Combina tres perspectivas al decidir: quien dirige el negocio necesita control y
 - Para descubrir necesidades, priorizar, digitalizar un proceso o diseñar un flujo multisucursal, consulta [Análisis de negocio y adopción](../../../docs/backend/proyecto/ANALISIS_DE_NEGOCIO.md).
 - Para implementar rutas, validaciones, servicios o transacciones, abre el [índice de Backend](../../../docs/backend/README.md) y las [convenciones de Laravel en Blapos](../../../docs/backend/desarrollo/BACKEND_CONVENTIONS.md).
 - Para cambios que cruzan sucursal, almacén, caja o tenant, consulta el [límite tenant–empresa](../../../docs/backend/tenancy/TENANT_COMPANY_BOUNDARY.md) y el alcance del módulo.
+- Para cambios de navegación, conserva los IDs de los submódulos y distingue el diseño de la habilitación y los permisos. Verifica el arranque desde una base vacía y la conciliación explícita dentro del tenant elegido. [Mapa y contrato del menú](../../../docs/frontend/patrones/00_menu_order.md).
 - Para dinero, cantidades, movimientos, reportes o reglas parametrizables, consulta [Generalidades](../../../docs/backend/desarrollo/GENERALIDADES.md) y el contrato específico. Reutiliza los servicios y parámetros vigentes.
 

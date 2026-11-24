@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\System\Organizations\{User};
+use App\Models\System\Tenancy\{TenantAnnouncement};
 use App\Services\System\Essentials\{UserNavigationService};
 use App\Services\System\Organizations\Companies\{CompanySectionService};
 use App\Services\System\Tenancy\{TenantCompanyContext};
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\{RefreshDatabase};
-use Illuminate\Support\Facades\{Auth, DB, Schema, Storage};
+use Illuminate\Support\Facades\{Auth, DB, Schema, Storage, View};
 use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
@@ -65,7 +66,7 @@ final class UserWorkspaceTest extends TestCase {
             ->join("companies_sub_sections as css", "css.sub_section_id", "=", "ss.id")
             ->where("css.company_id", 1)
             ->where("css.status", "active")
-            ->where("ss.dom_route", "!=", "workspace.index")
+            ->where("ss.dom_route", "!=", "home.index")
             ->orderBy("ss.id")
             ->limit(11)
             ->pluck("ss.dom_route");
@@ -96,7 +97,7 @@ final class UserWorkspaceTest extends TestCase {
             ->join("companies_sub_sections as css", "css.sub_section_id", "=", "ss.id")
             ->where("css.company_id", 1)
             ->where("css.status", "active")
-            ->where("ss.dom_route", "!=", "workspace.index")
+            ->where("ss.dom_route", "!=", "home.index")
             ->orderBy("ss.id")
             ->limit(10)
             ->pluck("ss.dom_route")
@@ -174,12 +175,18 @@ final class UserWorkspaceTest extends TestCase {
 
     }
 
-    public function test_workspace_uses_allowed_actions_when_the_user_has_no_visit_history(): void {
+    public function test_workspace_uses_allowed_actions_in_navigation_order_when_the_user_has_no_visit_history(): void {
 
         $workspace = $this->navigationService->getWorkspace($this->user);
 
-        $this->assertCount(6, $workspace["actions"]);
-        $this->assertSame(6, $workspace["actions"]->pluck("id")->unique()->count());
+        $this->assertSame([
+            route("service_sessions.index"),
+            route("tracking_attendances.index"),
+            route("customers.index"),
+            route("tracking_subscriptions.index"),
+            route("tracking_customers.index"),
+            route("tracking_notifications.index"),
+        ], $workspace["actions"]->pluck("url")->all());
         $this->assertTrue($workspace["actions"]->every(fn(array $item) => !array_key_exists("visit_count", $item)));
 
     }
@@ -197,30 +204,55 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
+            \App\Http\Middleware\ShareTenantAnnouncements::class,
         ]);
+        View::share("tenantAnnouncements", collect([
+            (new TenantAnnouncement([
+                "title" => "Mantenimiento programado",
+                "message" => "El sistema estará disponible después de la revisión.",
+                "severity" => "warning",
+            ]))->forceFill(["created_at" => now()->subHour()]),
+        ]));
 
-        $page = $this->get(route("workspace.index"));
-        $page->assertOk()->assertSee('id="app" data-endpoint="'.route("workspace.data").'"', false);
+        $this->get(route("workspace.index"))->assertRedirect(route("home.index"));
+        $this->getJson(route("workspace.data"))->assertOk()->assertJsonPath("breadcrumb.page", "Inicio");
+
+        $page = $this->get(route("home.index"));
+        $page->assertOk()->assertSee('id="app" data-endpoint="'.route("home.data").'"', false);
         $page->assertDontSee('class="fg-workspace__layout"', false);
         $page->assertSee('class="fg-topbar"', false);
+        $page->assertSee('aria-label="Abrir avisos, 1 vigente"', false)
+            ->assertSee("Mantenimiento programado")
+            ->assertSee('data-severity="warning"', false)
+            ->assertSee('fa-solid fa-triangle-exclamation', false)
+            ->assertSee('<time datetime="'.now()->subHour()->toIso8601String().'">', false);
+        $document = new \DOMDocument("1.0", "UTF-8");
+        $document->loadHTML('<?xml encoding="UTF-8">'.$page->getContent(), LIBXML_NOERROR | LIBXML_NOWARNING);
+        $xpath = new \DOMXPath($document);
+        $this->assertSame(1, $xpath->query('//div[@id="fg-topbar-notices" and @aria-labelledby="fg-topbar-notices-title" and @tabindex="0"]')->length);
+        $homeLinks = $xpath->query('//header[@id="layout-navbar"]//a[@href="'.route("home.index").'"]');
+        $this->assertSame(1, $homeLinks->length);
+        $this->assertSame("fg-topbar__brand", $homeLinks->item(0)->getAttribute("class"));
+        $this->assertSame("Inicio", $homeLinks->item(0)->getAttribute("aria-label"));
+        $this->assertSame("page", $homeLinks->item(0)->getAttribute("aria-current"));
         $page->assertSee(
-            '<small>EMPRESA DE PRUEBAS S.A.C.</small>',
+            '<span>EMPRESA DE PRUEBAS S.A.C.</span>',
             false
         );
         $page->assertSee(
-            'alt="Isotipo de EMPRESA DE PRUEBAS S.A.C."',
+            '<span class="fg-user__avatar" aria-hidden="true">A</span>',
             false
         );
 
-        $this->getJson(route("workspace.index"))
+        $this->getJson(route("home.index"))
             ->assertOk()
-            ->assertSee('id="app" data-endpoint="'.route("workspace.data").'"', false);
+            ->assertSee('id="app" data-endpoint="'.route("home.data").'"', false);
 
-        $response = $this->getJson(route("workspace.data"));
+        $response = $this->getJson(route("home.data"));
         $response->assertOk()
             ->assertJsonPath("first_name", "Administrador")
             ->assertJsonPath("breadcrumb.section", "Inicio")
-            ->assertJsonPath("breadcrumb.page", "Mi espacio")
+            ->assertJsonPath("breadcrumb.page", "Inicio")
             ->assertJsonPath("company.name", "EMPRESA DE PRUEBAS S.A.C.")
             ->assertJsonPath("company.commercial_name", "Empresa de pruebas")
             ->assertJsonPath("company.document_type", "RUC")
@@ -234,7 +266,7 @@ final class UserWorkspaceTest extends TestCase {
         $this->assertNotSame($actions[0]["world"], $actions[0]["description"]);
         $this->assertContains("Nueva venta", array_column($actions, "label"));
         $this->assertSame(asset(config("app.owner_app")->assets->img->logomark), $response->json("company.logomark_url"));
-        $this->assertSame("/workspace", \App\Providers\RouteServiceProvider::HOME);
+        $this->assertSame("/home", \App\Providers\RouteServiceProvider::HOME);
 
     }
 
@@ -254,7 +286,7 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureAuthenticatedSession::class,
                 \App\Http\Middleware\EnsureModulePermission::class,
                 \App\Http\Middleware\EnsureOperationalScope::class,
-            ])->getJson(route("workspace.data"))
+            ])->getJson(route("home.data"))
                 ->assertOk()
                 ->assertJsonPath("first_name", "ANA");
 
@@ -285,7 +317,7 @@ final class UserWorkspaceTest extends TestCase {
                 \App\Http\Middleware\EnsureAuthenticatedSession::class,
                 \App\Http\Middleware\EnsureModulePermission::class,
                 \App\Http\Middleware\EnsureOperationalScope::class,
-            ])->getJson(route("workspace.data"));
+            ])->getJson(route("home.data"));
 
             $response->assertOk();
             $this->assertNotContains($productsId, $workspace["actions"]->pluck("id"));
@@ -320,7 +352,7 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->getJson(route("workspace.data"));
+        ])->getJson(route("home.data"));
 
         $response->assertOk();
         $response->assertJsonPath("company.logomark_url", asset("storage/".$logoPath));
@@ -354,7 +386,7 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->getJson(route("workspace.data"));
+        ])->getJson(route("home.data"));
 
         $response->assertOk();
         $response->assertJsonPath("company.document_number", "20999999999")
@@ -382,7 +414,7 @@ final class UserWorkspaceTest extends TestCase {
             \App\Http\Middleware\EnsureAuthenticatedSession::class,
             \App\Http\Middleware\EnsureModulePermission::class,
             \App\Http\Middleware\EnsureOperationalScope::class,
-        ])->getJson(route("workspace.data"));
+        ])->getJson(route("home.data"));
 
         $response->assertOk();
         $response->assertJsonPath("company.email", null)

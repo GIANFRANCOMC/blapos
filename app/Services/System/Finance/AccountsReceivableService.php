@@ -65,16 +65,26 @@ final class AccountsReceivableService {
 
         if($search !== "") {
 
-            $query->where(function($searchQuery) use ($search) {
+            preg_match('/^(.+)-([0-9]+)$/D', $search, $document);
+
+            $query->where(function($searchQuery) use ($search, $document) {
 
                 $searchQuery
                     ->whereHas("customer", fn($customerQuery) => $customerQuery
                         ->where("name", "like", "%{$search}%")
                         ->orWhere("document_number", "like", "%{$search}%"))
-                    ->orWhereHas("sale", fn($saleQuery) => $saleQuery
-                        ->where("sequential", "like", "%{$search}%")
-                        ->orWhereHas("serie", fn($serieQuery) => $serieQuery
-                            ->whereRaw("CONCAT(code, number) LIKE ?", ["%{$search}%"])));
+                    ->orWhereHas("sale", function($saleQuery) use ($search, $document) {
+                        $saleQuery->where("sequential", "like", "%{$search}%")
+                            ->orWhereHas("serie", fn($serieQuery) => $serieQuery
+                                ->whereRaw("CONCAT(code, number) LIKE ?", ["%{$search}%"]));
+
+                        if($document) {
+                            $saleQuery->orWhere(fn($byDocument) => $byDocument
+                                ->where("sequential", ltrim($document[2], "0") ?: "0")
+                                ->whereHas("serie", fn($serie) => $serie
+                                    ->whereRaw("CONCAT(code, number) = ?", [$document[1]])));
+                        }
+                    });
 
             });
 

@@ -46,7 +46,7 @@ El método inicial es promedio ponderado por producto y almacén. Los impuestos 
 
 - Compras tiene accesos dedicados para **Listado** y **Nuevo**. Ambos reutilizan la misma página Vue, pero el modo inicial se resuelve por la ruta para reducir clics y separar mentalmente consulta vs registro.
 - `/purchases` funciona como equivalente directo a `/sales`; `/purchases/create` funciona como equivalente directo a `/sales/create`. Las rutas `/purchases/page/list` y `/purchases/page/new` se conservan solo como compatibilidad.
-- El listado permite buscar por proveedor, documento o producto y filtrar por estado.
+- El listado permite buscar por proveedor, referencia interna `COM-*`, comprobante con serie y número o producto, y filtrar por estado. Cuando el proveedor todavía no tiene un número de comprobante, la fila muestra la referencia interna de compra.
 - El modo **Nuevo** abre un formulario de página completa, alineado con `sales/create`, con sucursal, almacén, proveedor, comprobante, productos, tributos, pagos mixtos, observaciones y recepción.
 - El proveedor puede crearse desde el mismo flujo mediante el componente rápido `AddSupplier`, de la misma forma que ventas permite crear cliente.
 - La pantalla de nueva compra expone `Recepción`: **Recepción inmediata** envía `delivery_mode = immediate` y **Recepción parcial o pendiente** envía `delivery_mode = pending`.
@@ -56,7 +56,7 @@ El método inicial es promedio ponderado por producto y almacén. Los impuestos 
 - La recepción muestra únicamente cantidades pendientes.
 - El progreso diferencia pendiente, parcial, recibido y anulado.
 - La exportación usa los mismos filtros del listado y no aplica paginación.
-- Las modales usan backdrop estático y los estilos reutilizables `fg-modal` y `fg-modal`.
+- Los diálogos de recepción y observaciones usan los estilos compartidos `fg-modal` y nombres accesibles. El cronograma de cuentas por pagar recibe el foco en el título y lo devuelve al disparador al cerrar.
 
 ## Estado de mejoras
 
@@ -77,7 +77,7 @@ El método inicial es promedio ponderado por producto y almacén. Los impuestos 
 ## Productos disponibles
 
 - Compras solo lista productos con estado `active`.
-- Un producto `inactive` no puede seleccionarse para nuevas órdenes o facturas de compra; primero debe reactivarse desde Catálogo e inventario.
+- Un producto `inactive` debe reactivarse desde Catálogo comercial → Productos antes de seleccionarlo en una nueva compra.
 - Los almacenes disponibles respetan las sucursales permitidas del colaborador.
 
 ## Ingresos pendientes

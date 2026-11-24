@@ -1,7 +1,7 @@
 <template>
     <main class="fg-account-page" aria-labelledby="account-title">
         <div class="fg-account-page__breadcrumb">
-            <Breadcrumb :list="[{title: 'Inicio'}, {title: 'Mi cuenta', active: true}]"/>
+            <Breadcrumb :list="[{title: 'Configuración'}, {title: 'Preferencias'}, {title: 'Mi cuenta', active: true}]"/>
         </div>
 
         <InitialLoadTransition>

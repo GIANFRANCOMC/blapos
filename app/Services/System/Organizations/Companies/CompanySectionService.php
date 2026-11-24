@@ -8,7 +8,7 @@ use App\Models\System\General\{Section, SubSection};
 use App\Models\System\Organizations\{Role};
 use App\Services\System\Organizations\Roles\{RolePermissionService};
 use App\Services\System\Tenancy\{TenantCompanyContext, TenantContext};
-use Illuminate\Database\Eloquent\{Collection};
+use Illuminate\Database\Eloquent\{Builder, Collection};
 use Illuminate\Support\Facades\{Cache, DB, Route};
 
 /**
@@ -18,7 +18,7 @@ final class CompanySectionService {
 
     private const CACHE_TTL = 1800;
 
-    private const CACHE_PREFIX = "company_sections";
+    private const CACHE_PREFIX = "company_sections:v2";
 
     public static function getSections(?int $roleId = null, bool $forceRefresh = false): Collection {
 
@@ -61,18 +61,32 @@ final class CompanySectionService {
 
     public static function isModuleEnabled(string $route): bool {
 
+        return self::enabledModules()->where("dom_route", $route)->exists();
+
+    }
+
+    /**
+     * @param list<string> $routes
+     * @return list<string>
+     */
+    public static function enabledRoutes(array $routes): array {
+
+        return self::enabledModules()->whereIn("dom_route", $routes)->pluck("dom_route")->all();
+
+    }
+
+    private static function enabledModules(): Builder {
+
         $companyId = app(TenantCompanyContext::class)->id();
 
         return SubSection::query()
-            ->where("dom_route", $route)
             ->where("status", "active")
             ->whereHas("section", fn($query) => $query->where("status", "active"))
             ->whereHas("companiesSubSections", function($query) use ($companyId): void {
 
                 $query->where("company_id", $companyId);
 
-            })
-            ->exists();
+            });
 
     }
 

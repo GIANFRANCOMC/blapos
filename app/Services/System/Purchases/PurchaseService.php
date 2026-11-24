@@ -125,6 +125,7 @@ final class PurchaseService {
             $query->where(function($query) use ($word, $hasDocumentSeriesColumn) {
 
                 $query->where("document_number", "like", "%{$word}%")
+                    ->orWhere("reference", "like", "%{$word}%")
                     ->orWhereHas("supplier", fn($query) => $query->where("name", "like", "%{$word}%")
                         ->orWhere("document_number", "like", "%{$word}%")
                     )
@@ -135,7 +136,8 @@ final class PurchaseService {
 
                 if($hasDocumentSeriesColumn) {
 
-                    $query->orWhere("document_series", "like", "%{$word}%");
+                    $query->orWhere("document_series", "like", "%{$word}%")
+                        ->orWhereRaw("CONCAT(document_series, '-', document_number) LIKE ?", ["%{$word}%"]);
 
                 }
 

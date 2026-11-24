@@ -10,7 +10,8 @@ test("el inicio ubica su breadcrumb dentro del contenido", () => {
 
     assert.match(workspace, /<main class="fg-workspace"[\s\S]*?<nav [^>]*class="fg-breadcrumb fg-workspace__breadcrumb"[\s\S]*?<div class="fg-workspace__layout">/);
     assert.match(workspace, /breadcrumb\.section[\s\S]*?breadcrumb\.page/);
-    assert.match(view, /<div id="app" data-endpoint="\{\{ route\('workspace\.data'\) \}\}"><\/div>[\s\S]*?Pages\/Essentials\/workspace\/main\.js/);
+    assert.match(view, /<div id="app" data-endpoint="\{\{ route\('home\.data'\) \}\}"><\/div>[\s\S]*?Pages\/Essentials\/workspace\/main\.js/);
+    assert.match(workspace, /v-if="breadcrumb\.section !== breadcrumb\.page"/);
     assert.doesNotMatch(view, /br-workspace__layout/);
     assert.match(styles, /\.fg-workspace__breadcrumb\s*\{[^}]*justify-content: flex-end;/);
     assert.match(controller, /"breadcrumb" => \[[\s\S]*?"section" => \$breadcrumbSection\?->dom_label[\s\S]*?"page" => \$breadcrumbPage\?->dom_label/);

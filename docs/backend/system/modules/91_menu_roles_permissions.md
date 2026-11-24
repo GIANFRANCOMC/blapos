@@ -9,6 +9,8 @@
 - El orden del menú y el árbol de perfiles provienen de `CompanySectionService`, por lo que conservan la misma estructura.
 - `config/permissions.php` mapea endpoints compartidos con el módulo visible correcto.
 
+La distribución vigente y su procedimiento por tenant se mantienen en el [mapa de navegación](../../../frontend/patrones/00_menu_order.md).
+
 ## Seguridad
 
 El menú es una representación, no una autorización. Toda ruta System exige `module.permission`; los recursos operativos exigen además `resource.scope`. Los perfiles de acceso total siguen sujetos al aislamiento de la conexión tenant.

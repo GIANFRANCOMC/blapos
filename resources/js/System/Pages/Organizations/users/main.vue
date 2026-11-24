@@ -601,7 +601,7 @@ const MODULE_CONFIG = {
     menuId: "menu-configuration-users",
     pageTitle: "Colaboradores",
     pageTitleSingular: "Colaborador",
-    breadcrumbParent: "Administración",
+    breadcrumbParent: "Equipo y activos",
     perPage: 15
 };
 
@@ -794,7 +794,7 @@ export default {
     },
     mounted: async function() {
 
-        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-parent-people", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         let initialized;
@@ -1351,6 +1351,7 @@ export default {
 
             return [
                 {title: this.MODULE.config.breadcrumbParent},
+                {title: "Personal"},
                 this.config.entity.page
             ];
 

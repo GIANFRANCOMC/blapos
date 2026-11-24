@@ -267,14 +267,17 @@ Variantes: Dispositivo=Escritorio, Estado=Reposo; Dispositivo=Escritorio, Estado
 
 [Maestro en Componentes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=7-89) · 04 · Navegación
 
-Correspondencia de implementación: shell y navegación System; implementar foco y tooltips compartidos. Esta entrada no afirma que exista un mapeo Code Connect publicado.
+Correspondencia de implementación: menú de System. El rótulo mide 11 px. El icono secundario mide 10 px, usa una columna fija de 16 px y deja 8 px entre el icono y el nombre. El color es neutro en reposo y azul FG en la página activa. Las filas miden al menos 32 px en escritorio y 44 px en móvil. El panel de submódulos reserva 192 px en la composición de navegación.
 
 Variantes: Estado=Reposo; Estado=Activo.
 
 | **Propiedad** | **Tipo** | **Valores o ejemplo** |
 | --- | --- | --- |
 | Label | TEXT | Productos |
+| Icon | INSTANCE_SWAP | Icono del destino |
 | Estado | VARIANT | Reposo, Activo |
+
+[Apertura y cierre en escritorio](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=152-118) · [Apertura y cierre en móvil](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=152-190). El prototipo usa Smart Animate de 180 ms con la curva FG. La aplicación gestiona el foco y la preferencia de movimiento reducido según el [patrón de navegación](../patrones/TENANT_NAVIGATION.md#colapsado-y-responsive).
 
 ## Marca Blapos
 
@@ -301,13 +304,25 @@ Correspondencia de implementación: marca e iconografía compartida. Esta entrad
 
 ## Barra superior
 
-[Maestro en Componentes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=1-121) · 04 · Navegación
+Barra blanca de 44 px en escritorio y 48 px en móvil. El extremo izquierdo agrupa el isotipo de Inicio y el control del panel. El buscador centrado usa una cápsula sin borde con texto de 12 px y lupa de 11 px. Mide hasta 340 × 28 px en escritorio y se adapta al espacio disponible en móvil. El control del panel, favoritos y avisos usan iconos neutros sobre la barra. Favoritos y avisos miden 12 px y acompañan al avatar de 24 px en el extremo derecho. Implementada en la navegación compartida de System.
 
-Correspondencia de implementación: shell y navegación System; implementar foco y tooltips compartidos. Esta entrada no afirma que exista un mapeo Code Connect publicado.
+[Maestro de escritorio](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=1-121) · [Maestro móvil](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=168-382).
+
+## Navegación / Panel del navbar
+
+Panel de 264 px con cabecera, contenido y pie opcional, alineado a la derecha de la barra superior. Tiene variantes de escritorio y móvil para Favoritos y Notificaciones con contenido y vacíos, y para Cuenta. Favoritos muestra el icono del módulo, Notificaciones identifica el nivel de cada aviso y Cuenta usa una tarjeta con degradado. Reutiliza las filas de 32 px en escritorio y 44 px en móvil. Implementado con el [componente compartido de System](../../../resources/views/System/components/navbar-panel.blade.php).
+
+[Maestro de variantes](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=203-401) · [Ejemplos de escritorio y móvil](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=204-402).
+
+## Navegación / Panel de búsqueda
+
+Lista de módulos autorizados, con el icono, el nombre de 12 px y el mundo de 11 px. El área desplazable muestra hasta seis filas de 36 px en escritorio o 44 px en móvil. El resultado resaltado usa el fondo azul suave FG. La propiedad de fila «Módulo actual» muestra «Estás aquí» a la derecha. Con el buscador vacío, el módulo abierto ocupa la primera fila. Al escribir, se conserva el orden por coincidencia y el indicador se mantiene si el módulo aparece entre los resultados. El buscador vuelve al inicio de la lista al filtrar y permite recorrer los resultados con flechas.
+
+[Panel de búsqueda](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=221-970) · [Ejemplos de escritorio y móvil](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=221-1109).
 
 ## Navegación / Riel de mundos
 
-[Maestro](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=80-85). Riel de 64 px, marca arriba, siete mundos centrados verticalmente y salida abajo. Mundo y sus tooltips son instancias reutilizadas y expuestas. Ajustar el activo en la instancia del mundo correspondiente. Centrado comprobado a 600, 720 y 1120 px de alto. Conservar rutas, permisos y reacciones del consumidor; prever desplazamiento si no hay altura suficiente.
+Riel azul pizarra de 60 px debajo de la barra superior, con los nueve mundos centrados cuando la altura lo permite. Mantiene accesos de 40 × 40 px con 6 px de separación. Ajustar el estado activo en la instancia del mundo correspondiente. Conservar rutas, permisos y reacciones del consumidor. En móvil el riel forma parte del menú lateral y los tooltips se ocultan. [Maestro del riel](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=80-85).
 
 ## Archivo / Seleccionar
 

@@ -123,6 +123,10 @@ Los 71 tokens están centralizados en tres colecciones. La sintaxis WEB identifi
 | Color | color/surface | #f4f7fd | surface | `var(--fg-canvas)` |
 | Color | color/subtle | #f9fbfd | subtle | `var(--fg-surface)` |
 | Color | color/chrome | #f1f5f9 | chrome | `var(--fg-table-head)` |
+| Color | navigation/rail | #23354a | Fondo del riel | `var(--fg-navigation-rail)` |
+| Color | navigation/icon | #bdcad8 | Icono en reposo | `var(--fg-border-strong)` |
+| Color | navigation/indicator | #b7def7 | Indicador y foco en el riel | `var(--fg-primary-muted)` |
+| Color | navigation/rail-hover | Blanco al 10 % | Hover sobre el riel | `color-mix(in srgb, var(--fg-surface) 10%, transparent)` |
 | Color | color/border | #d9e3ef | border | `var(--fg-border)` |
 | Color | color/control | #c5d0dc | control | `var(--fg-control-border)` |
 | Color | color/danger | #c92d35 | danger | `var(--fg-danger)` |

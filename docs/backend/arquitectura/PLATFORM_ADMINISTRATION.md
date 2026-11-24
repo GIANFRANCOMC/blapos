@@ -46,13 +46,7 @@ El textarea de avisos tiene altura fija y no permite redimensionamiento manual. 
 
 `sub_sections.is_enabled_by_default` es la fuente de verdad persistida. `SystemNavigationSeeder` define el valor y `SystemCatalogSyncService` lo proyecta a `companies_sub_sections` al crear la empresa. La plataforma puede activar o desactivar posteriormente cualquier módulo mediante su escritura masiva.
 
-Los siguientes módulos nacen desactivados:
-
-- Dashboard y Reportes.
-- POS restaurante.
-- Historial, Membresías, Asistencias de clientes, Notificaciones y Libro de reclamaciones del mundo Clientes.
-- Membresías y Recetas y platillos de Catálogo e inventario.
-- Activos, Gestión de activos, Dispositivos biométricos y Asistencia del personal de Administración.
+El seeder vigente marca los módulos del catálogo como habilitados por defecto. La configuración de cada empresa determina sus accesos efectivos. [Mapa de navegación de System](../../frontend/patrones/00_menu_order.md).
 
 La autorización siempre intersecta los permisos con los módulos habilitados para la empresa. Al desactivar un módulo se eliminan también sus registros en `role_sub_sections`, se invalidan las cachés de navegación y autorización, y una ruta principal catalogada se resuelve de forma exacta. No puede heredar acceso de otro módulo activo que comparta prefijo, por ejemplo otro `sales.*`. Los roles de acceso completo recuperan el módulo al reactivarlo; los roles restringidos deben recibir nuevamente el permiso de forma explícita.
 

@@ -17,6 +17,27 @@ test("el buscador prioriza nombres y reconoce acentos, mundos y descripciones", 
     assert.deepEqual(rankNavigationItems(items, "", 2), items.slice(0, 2));
 });
 
+test("el buscador conserva todos los resultados para recorrerlos con el desplazamiento", () => {
+    const items = Array.from({length: 12}, (_, index) => ({
+        label: `Módulo ${index + 1}`,
+        world: "Gestión",
+    }));
+
+    assert.deepEqual(rankNavigationItems(items, ""), items);
+    assert.deepEqual(rankNavigationItems(items, "gestion"), items);
+    assert.deepEqual(rankNavigationItems(items, "gestion", 6), items.slice(0, 6));
+});
+
+test("el módulo actual aparece primero solo cuando el buscador está vacío", () => {
+    const services = {label: "Servicios", world: "Catálogo comercial"};
+    const current = {label: "Productos", world: "Catálogo comercial", description: "Productos y servicios", isCurrent: true};
+    const items = [services, current];
+
+    assert.deepEqual(rankNavigationItems(items, " "), [current, services]);
+    assert.deepEqual(rankNavigationItems(items, "", 1), [current]);
+    assert.deepEqual(rankNavigationItems(items, "servicios"), [services, current]);
+});
+
 test("el navbar usa la navegación autorizada y conserva avisos y empresa", () => {
 
  const layout=readFileSync(new URL("../../resources/views/System/layouts/partials/fg-navbar.blade.php",import.meta.url),"utf8");
@@ -24,10 +45,26 @@ test("el navbar usa la navegación autorizada y conserva avisos y empresa", () =
  const behavior=readFileSync(new URL("../../resources/js/System/Layout/Menu.js",import.meta.url),"utf8");
  assert.match(layout,/id="brNavbarSearchInput"[\s\S]*?aria-controls="brNavbarSearchPanel"/);
  assert.match(layout,/@foreach\(\$navigationSections as \$section\)[\s\S]*?@foreach\(\$section->subSections as \$subSection\)[\s\S]*?data-fg-search-item/);
+ assert.match(layout,/data-fg-search-item[^\n]*?@if\(\$isCurrentResult\) aria-current="page"/);
  assert.match(styles,/\.fg-global-search__panel\[hidden\]/);
- assert.match(styles,/\.fg-user__identity/);
+ assert.match(layout,/fg-topbar__user-summary[\s\S]*?\$navbarCompanyName/);
  assert.match(behavior,/event.ctrlKey \|\| event.metaKey/);
  assert.match(behavior,/event.key === "ArrowDown"/);
  assert.match(behavior,/visible.forEach\(item => results.appendChild\(item.element\)\)/);
 
+});
+
+test("el buscador reutiliza el campo FG y sus resultados conservan foco y ancho móvil", () => {
+ const layout = readFileSync(new URL("../../resources/views/System/layouts/partials/fg-navbar.blade.php", import.meta.url), "utf8");
+ const styles = readFileSync(new URL("../../resources/css/System/fg/navigation.css", import.meta.url), "utf8");
+ const behavior = readFileSync(new URL("../../resources/js/System/Layout/Menu.js", import.meta.url), "utf8");
+ assert.match(layout, /role="search"/);
+ assert.match(layout, /class="fg-global-search__control fg-field__control"/);
+ assert.match(layout, /class="fg-input"[^>]*placeholder="Buscar módulos…"/);
+ assert.match(layout, /id="brNavbarSearchStatus" role="status"/);
+ assert.match(behavior, /if\(event.key !== "Escape" \|\| panel.hidden\) return;\s*event.preventDefault\(\);\s*input.focus\(\{preventScroll: true\}\);\s*close\(\)/);
+ assert.match(styles, /\.fg-global-search__results \{[^}]*overflow-y: auto/);
+ assert.match(behavior, /panel\.hidden = false;\s*results\.scrollTop = 0;/);
+ assert.match(layout, /data-compact-placeholder="Buscar…"/);
+ assert.match(styles, /@media \(max-width: 767px\) \{[\s\S]*?\.fg-global-search__panel \{ inset-block-start: 100%; inset-inline:/);
 });

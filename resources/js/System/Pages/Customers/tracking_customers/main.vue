@@ -207,7 +207,7 @@ export default {
     },
     mounted: async function() {
 
-        navbarItem("menu-parent-customers", {addClass: "open"});
+        navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initialized = await this.loadInitialParams(() => this.initParams({}));
@@ -256,7 +256,7 @@ export default {
                 entity: {
                     ...Requests.config({entity: "tracking_customers"}),
                     page: {
-                        title: "Expediente",
+                        title: "Historial",
                         active: true,
                         menu: {
                             id: "menu-customers-history"
@@ -265,6 +265,11 @@ export default {
                 }
             }
         };
+    },
+    computed: {
+        breadcrumbTitles() {
+            return [{title: "Operaciones y clientes"}, {title: "Datos e historial"}, this.config.entity.page];
+        }
     },
     methods: {
         // ============================================

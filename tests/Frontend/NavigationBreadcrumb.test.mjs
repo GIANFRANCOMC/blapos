@@ -31,12 +31,12 @@ test("el breadcrumb usa la navegación activa como fuente para todos los módulo
 
     assert.deepEqual(
         withNavigationGroup(
-            [{title: "Restaurante y servicios"}, {title: "Servicios en curso", active: true}],
-            {world: "Inicio", group: "Seguimiento", page: "Servicios en curso"}
+            [{title: "Servicios en curso", active: true}],
+            {world: "Operaciones y clientes", group: "Servicios y asistencias", page: "Servicios en curso"}
         ),
         [
-            {title: "Inicio", active: false},
-            {title: "Seguimiento", active: false},
+            {title: "Operaciones y clientes", active: false},
+            {title: "Servicios y asistencias", active: false},
             {title: "Servicios en curso", active: true}
         ]
     );
@@ -44,13 +44,21 @@ test("el breadcrumb usa la navegación activa como fuente para todos los módulo
     assert.deepEqual(
         withNavigationGroup(
             [{title: "Clientes", active: true}],
-            {world: "Clientes", group: "Datos", page: "Clientes"}
+            {world: "Operaciones y clientes", group: "Gestión de clientes", page: "Clientes"}
         ),
         [
-            {title: "Clientes", active: false},
-            {title: "Datos", active: false},
+            {title: "Operaciones y clientes", active: false},
+            {title: "Gestión de clientes", active: false},
             {title: "Clientes", active: true}
         ]
+    );
+
+    assert.deepEqual(
+        withNavigationGroup(
+            [{title: "Activos", active: true}],
+            {world: "Equipo y activos", group: "Activos", page: "Activos"}
+        ),
+        [{title: "Equipo y activos", active: false}, {title: "Activos", active: true}]
     );
 
     assert.deepEqual(

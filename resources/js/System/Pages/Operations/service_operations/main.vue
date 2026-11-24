@@ -760,7 +760,7 @@ export default {
         breadcrumbTitles() {
             return this.isRestaurant
                 ? [{title: "Ventas"}, {title: "Punto de venta"}, {title: "POS restaurante", active: true}]
-                : [{title: "Inicio"}, {title: "Seguimiento"}, {title: "Servicios en curso", active: true}];
+                : [{title: "Operaciones y clientes"}, {title: "Atención de servicios"}, {title: "Servicios en curso", active: true}];
         },
         branchOptions() {
             return this.options.branches.map(record => ({...record, label: record.name}));
@@ -802,7 +802,7 @@ export default {
         }
     },
     async mounted() {
-        navbarItem(this.isRestaurant ? "menu-parent-sales" : "menu-parent-workspace", {addClass: "open"});
+        navbarItem(this.isRestaurant ? "menu-parent-sales" : "menu-parent-operations", {addClass: "open"});
         navbarItem(this.isRestaurant ? "menu-restaurant-pos" : "menu-service-sessions", {addClass: "active"});
         this.timer = window.setInterval(() => { this.now = Date.now(); }, 30000);
         const initialized = await this.loadInitialParams(() => this.initParams());

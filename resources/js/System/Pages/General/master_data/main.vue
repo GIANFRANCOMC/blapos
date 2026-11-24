@@ -436,7 +436,7 @@ export default {
             return this.form.status?.code || this.form.status;
         },
         breadcrumbTitles() {
-            return [{title: "Administración"}, this.config.entity.page];
+            return [{title: "Configuración"}, this.config.entity.page];
         }
     },
     methods: {

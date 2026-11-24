@@ -345,15 +345,20 @@ export function createTooltip(element, title = null) {
 
     if(!element || !Bootstrap?.Tooltip) return null;
 
-    const currentTitle = title
-        ?? element.getAttribute("title")
-        ?? element.getAttribute("data-bs-original-title")
-        ?? "";
+    const desktopOnly = element.dataset?.fgDesktopTooltip !== undefined;
+    const currentTitle = desktopOnly ? element.getAttribute("aria-label") : (
+        title ?? element.getAttribute("title") ?? element.getAttribute("data-bs-original-title")
+    );
     const existing = Bootstrap.Tooltip.getInstance(element);
 
     existing?.dispose();
     element.removeAttribute("data-bs-original-title");
     element.removeAttribute("aria-describedby");
+
+    if(desktopOnly && window.matchMedia("(max-width: 767px)").matches) {
+        element.removeAttribute("title");
+        return null;
+    }
 
     if(currentTitle) element.setAttribute("title", currentTitle);
 

@@ -11,6 +11,7 @@ use Carbon\{Carbon};
 use DomainException;
 use Illuminate\Foundation\Testing\{RefreshDatabase};
 use Illuminate\Support\Facades\{DB};
+use RuntimeException;
 use Tests\Concerns\{ProvisionsSystemDatabase};
 use Tests\{TestCase};
 
@@ -268,7 +269,18 @@ final class AttendanceFlowsTest extends TestCase {
 
     }
 
-    private function createCustomerSubscription(int $customerId, int $limit): void {
+    public function test_daily_limit_migration_refuses_to_remove_null_support_from_existing_memberships(): void {
+
+        $this->createCustomerSubscription($this->customerId, null);
+        $migration = require database_path("migrations/2026_11_13_000002_allow_null_attendance_limit_on_subscriptions.php");
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Hay membresías sin límite diario.");
+        $migration->down();
+
+    }
+
+    private function createCustomerSubscription(int $customerId, ?int $limit): void {
 
         $itemId = (int) DB::table("items")->insertGetId([
             "internal_code" => "MEM-ATT-TEST",

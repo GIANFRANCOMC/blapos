@@ -215,7 +215,11 @@
                             <div class="fg-receivable-detail__section-title"><h3 class="fg-section-title mb-0">Pagos aplicados</h3></div>
                             <div class="fg-receivable-detail__payments">
                                 <div v-for="payment in selectedAccount.payments" :key="payment.id">
-                                    <span><strong>{{ payment.method }}</strong><small>{{ formatDateTime(payment.paid_at) }}</small></span>
+                                    <span>
+                                        <strong>{{ payment.method }}</strong>
+                                        <small>{{ formatDateTime(payment.paid_at) }}</small>
+                                        <small v-if="payment.reference">Referencia: {{ payment.reference }}</small>
+                                    </span>
                                     <strong class="fg-money__value">{{ money(selectedAccount, payment.amount) }}</strong>
                                 </div>
                             </div>

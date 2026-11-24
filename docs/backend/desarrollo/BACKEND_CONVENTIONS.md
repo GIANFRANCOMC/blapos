@@ -5,7 +5,7 @@ Este archivo concentra reglas backend aplicables a controladores, requests y ser
 ## Flujo Base
 
 - Mantener el flujo `Route -> Controller -> FormRequest -> Service -> Model`.
-- El controlador orquesta: obtiene `companyId`, `userId`, datos validados y delega la regla de negocio.
+- El controlador obtiene el actor y los datos validados y delega la regla de negocio. El servicio resuelve la empresa raíz con `TenantCompanyContext` cuando consulta una relación estructural.
 - El servicio decide negocio, transacciones, trazabilidad y consultas de escritura.
 - El modelo conserva relaciones, casts, scopes simples y accessors tolerantes a columnas ausentes.
 - No poner reglas de negocio en Vue ni aceptar `company_id` enviado desde frontend.
@@ -14,7 +14,7 @@ Este archivo concentra reglas backend aplicables a controladores, requests y ser
 
 - Controladores: verbos HTTP visibles (`list`, `store`, `update`, `show`, `export`) y acciones de dominio explicitas (`openSession`, `closeSession`, `registerMovement`).
 - FormRequests: `Store<Entity>Request`, `Update<Entity>Request`, `Cancel<Entity>Request`, `Open<Entity>Request`, `Close<Entity>Request`, `Assign<Entity>Request`.
-- Servicios: metodos con intencion de negocio (`createStation`, `open`, `pause`, `assignAssetToUsers`) y parametros explicitos `int $companyId, int $userId`.
+- Los servicios expresan una acción del negocio (`createStation`, `open`, `pause`, `assignAssetToUsers`) y reciben el actor o los datos funcionales. La conexión activa determina el tenant.
 - Variables: usar `$companyId`, `$userId`, `$actorId`, `$branchId`, `$warehouseId`, `$cashRegisterId`; no usar nombres genericos como `$id2`, `$data2` o `$itemData` si puede ser mas preciso.
 
 ## Requests

@@ -368,11 +368,11 @@ const ENTITY_SPECIAL_ROUTES = {
         transfers: "transfers",
         transferAvailability: "transfers/availability"
     },
-    cash_sessions: {
+    "cash-sessions": {
         open: "open",
         close: "close"
     },
-    cash_summary: {
+    "cash-summary": {
         data: "data"
     },
     branches: {

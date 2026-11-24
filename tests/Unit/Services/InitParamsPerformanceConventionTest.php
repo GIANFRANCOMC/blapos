@@ -54,8 +54,6 @@ final class InitParamsPerformanceConventionTest extends TestCase {
             "Customers/Tracking/TrackingCustomerConfigService.php:customers",
             "Customers/Tracking/TrackingSubscriptionConfigService.php:activeCustomers",
             "Customers/Tracking/TrackingSubscriptionConfigService.php:subscriptionItems",
-            "Sales/SaleConfigService.php:activeCustomers",
-            "Sales/SaleConfigService.php:saleItems",
             "Sales/SaleConfigService.php:users",
         ];
 

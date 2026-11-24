@@ -1,6 +1,8 @@
-# 13 - Membresías de catálogo
+# 13 - Planes de membresía
 
 ## Qué hace
+
+Planes de membresía se encuentra en **Catálogo comercial → Oferta comercial**. Las vigencias asignadas a personas se consultan en **Operaciones y clientes → Gestión de clientes → Membresías de clientes**.
 
 Administra ítems `subscription` que, al venderse, generan una membresía real para cliente y sucursal.
 
@@ -9,6 +11,7 @@ Administra ítems `subscription` que, al venderse, generan una membresía real p
 - Duración y tipo de duración son obligatorios.
 - `attendance_limit_per_day` define cuántas asistencias pueden registrarse por día. La duración del plan determina su vigencia.
 - Al crear, importar o guardar un plan con el límite vacío, se usa el valor activo de `subscriptions.default_attendance_limit_per_day` en Maestros internos. Empieza en `1` y puede guardarse vacío como `null`. Un límite ingresado en el plan tiene prioridad.
+- `CompanyProvisioningService` añade el parámetro cuando falta y conserva el valor configurado. La reversión del esquema de `subscriptions.attendance_limit_per_day` se detiene si el tenant tiene membresías con valor `null`.
 - Al vender, se copia `items.attendance_limit_per_day` a `subscriptions.attendance_limit_per_day`, incluido `null`. Asistencias consulta la copia de la membresía del cliente. Un valor `null` bloquea el ingreso.
 - `benefits` y `restrictions` son arreglos JSON validados, con hasta 50 textos; la captura de cada campo en el editor está limitada a 100 caracteres.
 - `price_includes_tax` determina si el IGV ya está incluido.

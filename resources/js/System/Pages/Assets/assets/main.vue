@@ -258,7 +258,7 @@ const MODULE_CONFIG = {
     pageTitle: "Activos",
     pageTitleSingular: "Activo",
     internalCodeEntity: "asset",
-    breadcrumbParent: "Infraestructura",
+    breadcrumbParent: "Equipo y activos",
     perPage: 10
 };
 
@@ -367,7 +367,7 @@ export default {
     },
     mounted: async function() {
 
-        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-parent-people", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initParams = await this.loadInitialParams(() => this.initParams());

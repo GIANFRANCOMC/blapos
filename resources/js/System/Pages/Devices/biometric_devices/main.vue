@@ -386,7 +386,7 @@ const MODULE_CONFIG = {
     menuId: "menu-configuration-biometric-devices",
     pageTitle: "Dispositivos biométricos",
     pageTitleSingular: "Dispositivo biométrico",
-    breadcrumbParent: "Infraestructura",
+    breadcrumbParent: "Equipo y activos",
     perPage: 10
 };
 
@@ -525,7 +525,7 @@ export default {
     },
     mounted: async function() {
 
-        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-parent-people", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initParams = await this.loadInitialParams(() => this.initParams());
@@ -851,6 +851,7 @@ export default {
 
             return [
                 {title: this.MODULE.config.breadcrumbParent},
+                {title: "Control de acceso"},
                 this.config.entity.page
             ];
 

@@ -1,4 +1,6 @@
-# 20 - Dispositivos Biometricos
+# 20 - Dispositivos biométricos
+
+Se encuentra en **Equipo y activos → Control de acceso**.
 
 ## Backend
 

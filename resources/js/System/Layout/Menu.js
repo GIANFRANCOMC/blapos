@@ -1,14 +1,17 @@
 const PREFERENCES_UPDATED_EVENT = "br:preferences-updated";
+const EXCLUDED_FAVORITE_ROUTES = new Set(["home.index", "favorites.index"]);
+
+export function canFavoritePage(page) {
+    return !EXCLUDED_FAVORITE_ROUTES.has(page?.dom_route);
+}
 
 export function initializeMenu(createTooltip) {
-    initializeFgNavigationDrawer();
-    initializeNavbarSearch();
+    const closeMobilePanel = initializeWorldNavigation(createTooltip);
+    initializeNavbarSearch(closeMobilePanel);
     initializeFavorites();
-    initializeWorldNavigation(createTooltip);
 
-    document.querySelectorAll(".fg-world--logout, .fg-user-logout").forEach(button => {
-        button.addEventListener("click", confirmLogout);
-    });
+    document.querySelector(".fg-user-logout")?.addEventListener("click", confirmLogout);
+
 }
 
 export function navbarItem(id, {type = "active", addClass = null} = {}) {
@@ -31,94 +34,149 @@ export function updateMenuPreferences(preferences) {
 function initializeWorldNavigation(createTooltip) {
 
     const navigation = document.getElementById("fg-layout-menu");
+    const trigger = document.querySelector("[data-fg-menu-toggle]");
+    const layout = trigger?.closest(".fg-layout");
 
-    if(!navigation) {
+    if(!navigation || !layout) {
 
         return;
 
     }
 
     const modules = Array.from(navigation.querySelectorAll(".fg-world[data-navigation-section]"));
+    const context = navigation.querySelector(".fg-context");
     const panels = Array.from(navigation.querySelectorAll("[data-navigation-panel]"));
+    const content = layout.querySelector(".fg-layout-content");
+    const backdrop = document.querySelector(".fg-nav-backdrop");
+    const mobile = window.matchMedia("(max-width: 767px)");
     const currentSectionId = document.documentElement.dataset.navigationSectionId || "";
-    let showingOtherWorldMenu = false;
+    const currentPanel = panels.find(panel => panel.dataset.navigationPanel === currentSectionId);
+    const initialPanel = panels.find(panel => !panel.hidden);
+    let lastPanel = initialPanel;
+    let panelOpener = null;
 
-    if(window.bootstrap?.Tooltip) {
+    const desktopTooltips = layout.querySelectorAll("[data-fg-desktop-tooltip]");
+    const syncRailTooltips = () => desktopTooltips.forEach(element => createTooltip(element));
+    syncRailTooltips();
 
-        navigation.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
+    function setVisiblePanel(selectedPanel, {animate = true, returnFocus = false, drawerOpen = mobile.matches && Boolean(selectedPanel)} = {}) {
+        const previousPanel = lastPanel;
+        const hasSubmenu = Boolean(selectedPanel);
+        const renderedPanel = selectedPanel || previousPanel;
+        const wasContextOpen = !context.inert;
+        const selectedSectionId = selectedPanel?.dataset.navigationPanel || currentSectionId;
+        if(hasSubmenu) lastPanel = selectedPanel;
+        document.documentElement.classList.toggle("fg-menu-motion", animate);
+        if(content) content.inert = drawerOpen;
+        trigger.disabled = !lastPanel && (!mobile.matches || modules.length === 0);
 
-            createTooltip(element, element.getAttribute("title") || "");
-
-        });
-
-    }
-
-    function selectWorld(sectionId) {
-
-        const selectedModule = modules.find(function (moduleButton) {
-            return moduleButton.dataset.navigationSection === sectionId;
-        });
-
-        if(!selectedModule) return;
-
-        const hasSubmenu = Number(selectedModule.dataset.navigationCount) > 1;
-
-        showingOtherWorldMenu = hasSubmenu && sectionId !== currentSectionId;
+        const closingFocusedDrawer = mobile.matches && !drawerOpen && navigation.contains(document.activeElement);
+        if(!hasSubmenu && (returnFocus || closingFocusedDrawer || context.contains(document.activeElement))) {
+            (mobile.matches ? trigger : panelOpener || trigger).focus({preventScroll: true});
+        }
 
         modules.forEach(function (moduleButton) {
-
-            const selected = moduleButton === selectedModule;
-
+            const selected = moduleButton.dataset.navigationSection === selectedSectionId;
             moduleButton.classList.remove("active", "open");
             moduleButton.classList.toggle("is-active", selected);
             if(moduleButton.tagName === "BUTTON") {
-                moduleButton.setAttribute("aria-pressed", selected ? "true" : "false");
+                moduleButton.setAttribute("aria-expanded", String(selected && hasSubmenu));
             }
-
-        });
-
-        const alreadyVisible = panels.some(function (panel) {
-            return !panel.hidden && panel.dataset.navigationPanel === sectionId;
         });
 
         panels.forEach(function (panel) {
-            const visible = hasSubmenu && panel.dataset.navigationPanel === sectionId;
+            const visible = panel === renderedPanel;
+            if(!visible || !hasSubmenu) panel.classList.remove("is-entering");
+            if(visible && panel.hidden && wasContextOpen) panel.classList.add("is-entering");
             panel.hidden = !visible;
-            panel.classList.toggle("is-entering", visible && !alreadyVisible);
         });
 
+        context.inert = !hasSubmenu;
+        context.setAttribute("aria-hidden", String(!hasSubmenu));
         navigation.classList.toggle("without-context", !hasSubmenu);
         navigation.classList.toggle("has-context", hasSubmenu);
+        navigation.classList.toggle("fg-navigation--open", drawerOpen);
+        navigation.inert = mobile.matches && !drawerOpen;
+        const expanded = mobile.matches ? drawerOpen : hasSubmenu;
+        const target = mobile.matches ? "menú lateral" : "submódulos";
+        trigger.setAttribute("aria-controls", mobile.matches ? navigation.id : context.id);
+        trigger.setAttribute("aria-expanded", String(expanded));
+        trigger.setAttribute("aria-label", `${expanded ? "Ocultar" : "Mostrar"} ${target}`);
+        if(backdrop) backdrop.inert = !drawerOpen;
     }
+
+    function openPanel(panel, opener, moveFocus) {
+        panelOpener = opener;
+        const moveFocusFromPanel = !context.inert && lastPanel !== panel && context.contains(document.activeElement);
+        if(moveFocusFromPanel && opener) opener.focus({preventScroll: true});
+        setVisiblePanel(panel);
+        if(moveFocus || moveFocusFromPanel) panel.querySelector(".fg-context__page")?.focus();
+    }
+
+    function isNavigationOpen() {
+        return mobile.matches ? navigation.classList.contains("fg-navigation--open") : !context.inert;
+    }
+
+    function closePanel(returnFocus = true) {
+        if(isNavigationOpen()) {
+            setVisiblePanel(null, {returnFocus});
+            desktopTooltips.forEach(element => {
+                window.bootstrap?.Tooltip?.getInstance(element)?.hide();
+            });
+        }
+    }
+
+    setVisiblePanel(mobile.matches ? null : initialPanel, {animate: false});
+    mobile.addEventListener("change", () => {
+        syncRailTooltips();
+        setVisiblePanel(mobile.matches || context.inert ? null : lastPanel, {animate: false});
+    });
+
+    trigger.addEventListener("click", () => {
+        if(isNavigationOpen()) {
+            closePanel(false);
+        } else if(mobile.matches) {
+            setVisiblePanel(lastPanel, {drawerOpen: true});
+            (modules.find(button => button.classList.contains("is-active")) || lastPanel?.querySelector(".fg-context__page") || modules[0])
+                ?.focus({preventScroll: true});
+        } else if(lastPanel) {
+            openPanel(lastPanel, trigger, true);
+        }
+    });
 
     modules.forEach(function (moduleButton) {
 
-        moduleButton.addEventListener("click", function (event) {
-
+        moduleButton.addEventListener("click", event => {
             window.bootstrap?.Tooltip?.getInstance(moduleButton)?.hide();
-
             if(moduleButton.tagName === "A") return;
 
-            selectWorld(moduleButton.dataset.navigationSection);
-
-            if(event.detail === 0) {
-                panels.find(function (panel) {
-                    return panel.dataset.navigationPanel === moduleButton.dataset.navigationSection;
-                })?.querySelector(".fg-context__page")?.focus();
-            }
-
+            const panel = panels.find(candidate => candidate.dataset.navigationPanel === moduleButton.dataset.navigationSection);
+            if(panel) openPanel(panel, moduleButton, mobile.matches || event.detail === 0);
         });
 
     });
 
-    document.addEventListener("click", function (event) {
-
-        if(!showingOtherWorldMenu) return;
-        if(event.target.closest(".fg-context")) return;
-        if(event.target.closest(".fg-world")) return;
-        selectWorld(currentSectionId);
-
+    document.querySelectorAll("[data-fg-menu-close]").forEach(button => {
+        button.addEventListener("click", () => closePanel());
     });
+
+    document.addEventListener("click", event => {
+        if(!isNavigationOpen() || navigation.contains(event.target) || trigger.contains(event.target)) return;
+        if(mobile.matches || !currentPanel) closePanel(false);
+        else if(lastPanel !== currentPanel) openPanel(currentPanel, null, false);
+    });
+
+    document.addEventListener("keydown", event => {
+        if(event.defaultPrevented || !isNavigationOpen()) return;
+        if(event.key === "Escape" && (mobile.matches || navigation.contains(event.target) || trigger.contains(event.target))) {
+            event.preventDefault();
+            closePanel();
+        }
+    });
+
+    const closeMobilePanel = () => {
+        if(mobile.matches) closePanel();
+    };
 
     function sectionIdFor(target) {
 
@@ -146,11 +204,13 @@ function initializeWorldNavigation(createTooltip) {
 
     }
 
+    if(document.documentElement.dataset.navigationPage) return closeMobilePanel;
+
     const activeObserver = new MutationObserver(function (mutations) {
 
         mutations.forEach(function (mutation) {
 
-            if(showingOtherWorldMenu) return;
+            if(!context.inert && lastPanel !== currentPanel) return;
 
             const target = mutation.target;
 
@@ -172,9 +232,6 @@ function initializeWorldNavigation(createTooltip) {
 
                 const isActive = moduleLink.dataset.navigationSection === sectionId;
                 moduleLink.classList.toggle("is-active", isActive);
-                if(moduleLink.tagName === "BUTTON") {
-                    moduleLink.setAttribute("aria-pressed", isActive ? "true" : "false");
-                }
 
             });
 
@@ -191,6 +248,8 @@ function initializeWorldNavigation(createTooltip) {
 
     });
 
+    return closeMobilePanel;
+
 }
 
 const normalizeSearchText = value => String(value ?? "")
@@ -199,11 +258,15 @@ const normalizeSearchText = value => String(value ?? "")
     .toLocaleLowerCase("es")
     .trim();
 
-export function rankNavigationItems(items, query, limit = 8) {
+export function rankNavigationItems(items, query, limit = items.length) {
 
     const search = normalizeSearchText(query);
 
-    if(!search) return items.slice(0, limit);
+    if(!search) {
+        const current = items.find(item => item.isCurrent);
+        const ordered = current ? [current, ...items.filter(item => item !== current)] : items;
+        return ordered.slice(0, limit);
+    }
 
     const terms = search.split(/\s+/);
 
@@ -233,22 +296,32 @@ export function rankNavigationItems(items, query, limit = 8) {
 
 }
 
-function initializeNavbarSearch() {
+function initializeNavbarSearch(closeMobilePanel) {
 
     const root = document.getElementById("brNavbarSearch");
 
     if(!root) return;
 
     const input = root.querySelector("#brNavbarSearchInput");
+    const compact = window.matchMedia("(max-width: 480px)");
+    const defaultPlaceholder = input.placeholder;
+    const updatePlaceholder = () => {
+        input.placeholder = compact.matches ? input.dataset.compactPlaceholder : defaultPlaceholder;
+    };
+    updatePlaceholder();
+    compact.addEventListener("change", updatePlaceholder);
+
     const panel = root.querySelector("#brNavbarSearchPanel");
     const results = root.querySelector("#brNavbarSearchResults");
     const empty = root.querySelector("#brNavbarSearchEmpty");
+    const status = root.querySelector("#brNavbarSearchStatus");
     const items = Array.from(root.querySelectorAll("[data-fg-search-item]"))
         .map(element => ({
             element,
             label: element.dataset.searchLabel,
             world: element.dataset.searchWorld,
             description: element.dataset.searchDescription,
+            isCurrent: element.getAttribute("aria-current") === "page",
         }));
     let visible = [];
 
@@ -276,6 +349,9 @@ function initializeNavbarSearch() {
             ? "No tienes módulos disponibles para buscar."
             : "No se encontraron módulos con ese término.";
         empty.hidden = visible.length > 0;
+        status.textContent = visible.length === 0 ? empty.textContent
+            : visible.length === 1 ? "1 módulo disponible."
+            : `${visible.length} módulos disponibles.`;
 
     }
 
@@ -283,19 +359,20 @@ function initializeNavbarSearch() {
 
         render();
         panel.hidden = false;
-        input.setAttribute("aria-expanded", "true");
+        results.scrollTop = 0;
 
     }
 
     function close() {
 
         panel.hidden = true;
-        input.setAttribute("aria-expanded", "false");
+        status.textContent = "";
 
     }
 
-    input.addEventListener("focus", open);
+    input.addEventListener("focus", () => { if(panel.hidden) open(); });
     input.addEventListener("input", open);
+    input.addEventListener("click", () => { if(panel.hidden) open(); });
     input.addEventListener("keydown", event => {
 
         if(event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -310,25 +387,11 @@ function initializeNavbarSearch() {
             event.preventDefault();
             visible[0].element.click();
 
-        }else if(event.key === "Escape") {
-
-            close();
-            input.blur();
-
         }
 
     });
 
     panel.addEventListener("keydown", event => {
-
-        if(event.key === "Escape") {
-
-            event.preventDefault();
-            close();
-            input.focus({preventScroll: true});
-            return;
-
-        }
 
         if(event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
 
@@ -337,7 +400,7 @@ function initializeNavbarSearch() {
         const next = index + (event.key === "ArrowDown" ? 1 : -1);
 
         if(next < 0) input.focus({preventScroll: true});
-        else visible[Math.min(next, visible.length - 1)]?.element.focus({preventScroll: true});
+        else visible[Math.min(next, visible.length - 1)]?.element.focus();
 
     });
 
@@ -345,14 +408,22 @@ function initializeNavbarSearch() {
         setPrimary(visible.find(item => item.element === event.target));
     });
 
+    root.addEventListener("keydown", event => {
+        if(event.key !== "Escape" || panel.hidden) return;
+        event.preventDefault();
+        input.focus({preventScroll: true});
+        close();
+    });
+
     document.addEventListener("keydown", event => {
 
         if(!(event.ctrlKey || event.metaKey) || event.altKey || event.key.toLowerCase() !== "k") return;
 
         event.preventDefault();
+        closeMobilePanel?.();
         input.focus({preventScroll: true});
         input.select();
-        open();
+        if(panel.hidden) open();
 
     });
 
@@ -365,12 +436,12 @@ function initializeNavbarSearch() {
     });
 
 }
-
 function initializeFavorites() {
     const root = document.getElementById("brFabFavorites");
     if (!root) return;
     const body = document.getElementById("brFabFavoritesBody");
     const count = document.getElementById("brFabFavoritesCount");
+    const empty = document.getElementById("brFabFavoritesEmpty");
     function getFavoriteItems(preferences) {
 
         const preferenceConfig = preferences?.config_companies_sub_sections;
@@ -388,12 +459,12 @@ function initializeFavorites() {
 
             subSections.forEach(function (subSection) {
 
-                if (!favoriteIds.has(Number(subSection.id))) return;
+                if(!canFavoritePage(subSection) || !favoriteIds.has(Number(subSection.id))) return;
 
                 items.push({
                     label: subSection.dom_label,
-                    description: subSection.description || "",
                     url: subSection.dom_route_url,
+                    icon: subSection.dom_icon || "fa-regular fa-file",
                 });
 
             });
@@ -402,7 +473,6 @@ function initializeFavorites() {
 
                 groups.push({
                     section: section.dom_label,
-                    icon: section.dom_icon,
                     items: items
                 });
 
@@ -420,25 +490,29 @@ function initializeFavorites() {
         const totalItems = groups.reduce((total, group) => total + group.items.length, 0);
         count.textContent = String(totalItems);
         count.hidden = totalItems === 0;
+        empty.hidden = totalItems > 0;
         body.replaceChildren();
-        if(!totalItems) {
-            const empty = document.createElement("p");
-            empty.className = "fg-help";
-            empty.textContent = "Aún no tienes favoritos.";
-            body.append(empty);
-        }
         groups.forEach(group => {
-            const title = document.createElement("p");
-            title.className = "fg-help";
+            const section = document.createElement("section");
+            section.className = "fg-topbar__favorite-group";
+            const title = document.createElement("h3");
+            title.className = "fg-topbar__group-label";
             title.textContent = group.section;
-            body.append(title);
+            section.append(title);
             group.items.forEach(item => {
                 const link = document.createElement("a");
-                link.className = "fg-menu__item";
+                link.className = "dropdown-item fg-menu__item";
                 link.href = item.url;
-                link.textContent = item.label;
-                body.append(link);
+                const iconSlot = document.createElement("span");
+                iconSlot.className = "fg-topbar__module-icon";
+                iconSlot.setAttribute("aria-hidden", "true");
+                const icon = document.createElement("i");
+                icon.className = item.icon;
+                iconSlot.append(icon);
+                link.append(iconSlot, item.label);
+                section.append(link);
             });
+            body.append(section);
         });
     }
     window.addEventListener(PREFERENCES_UPDATED_EVENT, event => {
@@ -484,45 +558,4 @@ function confirmLogout() {
 
     });
 
-}
-
-function initializeFgNavigationDrawer() {
-    const navigation = document.querySelector(".fg-navigation");
-    const trigger = document.querySelector("[data-fg-menu-toggle]");
-    if(!navigation || !trigger) return;
-    const backdrop = document.querySelector(".fg-nav-backdrop");
-    const mobile = window.matchMedia("(max-width: 1000px)");
-    const setOpen = (open, restoreFocus = true) => {
-        navigation.classList.toggle("fg-navigation--open", open);
-        navigation.inert = mobile.matches && !open;
-        navigation.toggleAttribute("inert", mobile.matches && !open);
-        navigation.setAttribute("aria-hidden", String(mobile.matches && !open));
-        trigger.setAttribute("aria-expanded", String(open));
-        if(backdrop) backdrop.hidden = !mobile.matches || !open;
-        if(open && mobile.matches) navigation.querySelector("button, a")?.focus({preventScroll: true});
-        if(!open && restoreFocus) trigger.focus({preventScroll: true});
-    };
-    setOpen(!mobile.matches, false);
-    mobile.addEventListener("change", () => { navigation.classList.remove("fg-navigation--collapsed"); setOpen(!mobile.matches, false); });
-    trigger.addEventListener("click", () => {
-        if(mobile.matches) setOpen(!navigation.classList.contains("fg-navigation--open"));
-        else {
-            const collapsed = navigation.classList.toggle("fg-navigation--collapsed");
-            navigation.inert = collapsed;
-            navigation.toggleAttribute("inert", collapsed);
-            navigation.setAttribute("aria-hidden", String(collapsed));
-            trigger.setAttribute("aria-expanded", String(!collapsed));
-        }
-    });
-    document.querySelectorAll("[data-fg-menu-close]").forEach(button => button.addEventListener("click", () => setOpen(false)));
-    document.addEventListener("keydown", event => {
-        if(!mobile.matches || !navigation.classList.contains("fg-navigation--open")) return;
-        if(event.key === "Escape") { event.preventDefault(); setOpen(false); }
-        if(event.key === "Tab") {
-            const focusable = [...navigation.querySelectorAll("a[href], button:not(:disabled)")].filter(element => element.getClientRects().length);
-            const first = focusable[0], last = focusable.at(-1);
-            if(event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-            else if(!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-        }
-    });
 }

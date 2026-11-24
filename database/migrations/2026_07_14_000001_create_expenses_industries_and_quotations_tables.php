@@ -8,50 +8,6 @@ return new class extends Migration {
 
     public function up(): void {
 
-        Schema::create("business_industries", function(Blueprint $table) {
-
-            $table->id();
-            $table->string("slug", 120);
-            $table->string("name", 255);
-            $table->string("description", 500)->nullable();
-            $table->enum("status", ["active", "inactive"])->default("active");
-
-            $table->timestamp("created_at")->useCurrent()->nullable();
-            $table->integer("created_by")->nullable();
-            $table->timestamp("updated_at")->nullable();
-            $table->integer("updated_by")->nullable();
-
-            $table->unique(["slug"]);
-
-        });
-
-        Schema::table("companies", function(Blueprint $table) {
-
-            $table->unsignedBigInteger("business_industry_id")->nullable()->after("currency_id");
-            $table->foreign("business_industry_id")->references("id")->on("business_industries")->nullOnDelete();
-
-        });
-
-        Schema::create("business_industry_module_sets", function(Blueprint $table) {
-
-            $table->id();
-            $table->unsignedBigInteger("business_industry_id");
-            $table->unsignedBigInteger("sub_section_id");
-            $table->boolean("is_enabled_by_default")->default(true);
-            $table->string("reason", 500)->nullable();
-            $table->enum("status", ["active", "inactive"])->default("active");
-
-            $table->timestamp("created_at")->useCurrent()->nullable();
-            $table->integer("created_by")->nullable();
-            $table->timestamp("updated_at")->nullable();
-            $table->integer("updated_by")->nullable();
-
-            $table->foreign("business_industry_id")->references("id")->on("business_industries")->onDelete("cascade");
-            $table->foreign("sub_section_id")->references("id")->on("sub_sections")->onDelete("cascade");
-            $table->unique(["business_industry_id", "sub_section_id"], "business_industry_module_set_unique");
-
-        });
-
         Schema::create("misc_expense_categories", function(Blueprint $table) {
 
             $table->id();
@@ -217,16 +173,6 @@ return new class extends Migration {
         Schema::dropIfExists("quotation_headers");
         Schema::dropIfExists("misc_expenses");
         Schema::dropIfExists("misc_expense_categories");
-        Schema::dropIfExists("business_industry_module_sets");
-
-        Schema::table("companies", function(Blueprint $table) {
-
-            $table->dropForeign(["business_industry_id"]);
-            $table->dropColumn("business_industry_id");
-
-        });
-
-        Schema::dropIfExists("business_industries");
 
     }
 

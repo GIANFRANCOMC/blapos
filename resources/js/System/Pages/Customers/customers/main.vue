@@ -446,7 +446,7 @@ const MODULE_CONFIG = {
     menuId: "menu-customers",
     pageTitle: "Clientes",
     pageTitleSingular: "Cliente",
-    breadcrumbParent: "Gestión de clientes",
+    breadcrumbParent: "Operaciones y clientes",
     perPage: 10
 };
 
@@ -658,7 +658,7 @@ export default {
     },
     mounted: async function() {
 
-        navbarItem("menu-parent-customers", {addClass: "open"});
+        navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initParams = await this.loadInitialParams(() => this.initParams());
@@ -1162,6 +1162,7 @@ export default {
 
             return [
                 {title: this.MODULE.config.breadcrumbParent},
+                {title: "Datos e historial"},
                 this.config.entity.page
             ];
 

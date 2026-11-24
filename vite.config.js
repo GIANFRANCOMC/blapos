@@ -50,6 +50,8 @@ export default defineConfig({
 
                 // System Pages - Essentials
                 'resources/js/System/Pages/Essentials/dashboard/main.js',
+                'resources/js/System/Pages/Essentials/commercial_performance/main.js',
+                'resources/js/System/Pages/Essentials/stock_turnover/main.js',
                 'resources/js/System/Pages/Essentials/account/main.js',
                 'resources/js/System/Pages/Essentials/workspace/main.js',
                 'resources/js/System/Pages/Essentials/home/main.js',
@@ -68,7 +70,6 @@ export default defineConfig({
                 'resources/js/System/Pages/Organizations/roles/main.js',
                 'resources/js/System/Pages/Organizations/users/main.js',
                 'resources/js/System/Pages/Organizations/user_attendances/main.js',
-                'resources/js/System/Pages/Organizations/business_profile/main.js',
 
                 // System Pages - Operations
                 'resources/js/System/Pages/Operations/service_operations/main.js',

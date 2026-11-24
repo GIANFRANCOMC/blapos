@@ -1,6 +1,6 @@
 @extends("System/layouts/main")
 
 @section("content")
-    <div id="app" data-endpoint="{{ route('workspace.data') }}"></div>
+    <div id="app" data-endpoint="{{ route('home.data') }}"></div>
     @vite("resources/js/System/Pages/Essentials/workspace/main.js")
 @endsection

@@ -743,7 +743,7 @@ export default {
 
         let el = this;
 
-        navbarItem("menu-parent-customers", {addClass: "open"});
+        navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         let initParams = await this.loadInitialParams(() => this.initParams({})),
@@ -967,7 +967,7 @@ export default {
                 entity: {
                     ...Requests.config({entity: "tracking_attendances"}),
                     page: {
-                        title: "Asistencia",
+                        title: "Asistencias de clientes",
                         active: true,
                         menu: {
                             id: "menu-customers-attendances"
@@ -2436,7 +2436,7 @@ export default {
     computed: {
         breadcrumbTitles: function() {
 
-            return [{title: "Seguimiento"}, this.config.entity.page];
+            return [{title: "Operaciones y clientes"}, {title: "Asistencia de clientes"}, this.config.entity.page];
 
         },
         branches: function() {

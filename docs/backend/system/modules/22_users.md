@@ -2,7 +2,7 @@
 
 ## Qué hace
 
-Administra usuarios internos, perfiles, alcance operativo y seguridad de acceso de cada empresa.
+Administra usuarios internos, perfiles, alcance operativo y seguridad de acceso de cada empresa. Se encuentra en **Equipo y activos → Personal**.
 
 ## Archivos
 

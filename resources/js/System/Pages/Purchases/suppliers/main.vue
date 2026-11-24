@@ -5,16 +5,11 @@
         <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
             <main class="fg-entity">
-                <section class="fg-filter-bar">
+                <section class="fg-filter-bar fg-filter-bar--compact">
                     <div class="row align-items-end g-2">
-                        <SearchInput
-                            v-model="word"
-                            hasDiv
-                            title="Búsqueda"
-                            :titleClass="[config.forms.classes.title]"
-                            placeholder="Nombre, documento o contacto"
-                            xl="8"
-                            lg="8"/>
+                        <div class="col-12 col-lg-8">
+                            <SearchInput v-model="word" title="Búsqueda" placeholder="Nombre, documento o contacto"/>
+                        </div>
                         <div class="form-group col-xl-4 col-lg-4">
                             <div class="fg-filter-bar__actions">
                                 <SearchButton class="fg-button--small" @click="listSuppliers({applyFilters: true})"/>
@@ -122,16 +117,13 @@
 
         </div>
     </InitialLoadTransition>
-    <div id="supplierModal" class="modal fade fg-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div id="supplierModal" class="modal fade fg-modal" aria-labelledby="supplier-modal-title" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header fg-modal__header">
-                    <div>
-                        <p class="fg-entity-modal__eyebrow mb-1">Compras</p>
-                        <h2 class="modal-title fg-modal__title">
-                            {{ editingId ? "Editar proveedor" : "Agregar proveedor" }}
-                        </h2>
-                    </div>
+                    <h2 id="supplier-modal-title" class="modal-title fg-modal__title">
+                        {{ editingId ? "Editar proveedor" : "Agregar proveedor" }}
+                    </h2>
                     <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
@@ -155,14 +147,13 @@
                                 <span class="input-group-text fg-currency-prefix">S/</span>
                             </template>
                         </InputNumber>
-                        <div class="form-group col-xl-6 col-lg-6 col-md-12">
-                            <label class="form-label">Estado</label>
-                            <v-select
+                        <FgField class="col-lg-6" label="Estado">
+                            <FgSelect
                                 v-model="form.statusOption"
                                 :options="statusOptions"
                                 :clearable="false"
                                 :searchable="false"/>
-                        </div>
+                        </FgField>
                     </div>
                     <div class="fg-supplier-related">
                         <div class="fg-supplier-related__header">
@@ -231,10 +222,12 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, SearchInput},
+    components: {SearchButton, SearchInput, FgField, FgSelect},
     async mounted() {
         navbarItem("menu-parent-purchases", {addClass: "open"});
         navbarItem("menu-purchases-suppliers", {});

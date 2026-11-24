@@ -36,11 +36,17 @@ Solo cuatro tablas tenant mantienen la relación porque describen estructura dir
 
 El proyecto todavía no está en producción y las correcciones estructurales anteriores se hicieron en las migraciones de origen. La unidad de medida se incorpora mediante una migración estructural incremental para actualizar sin borrar el tenant de desarrollo existente; una instalación limpia ejecuta la cadena completa de migraciones.
 
-Las migraciones tenant son exclusivamente estructurales: crean, modifican o revierten el esquema, pero no siembran configuraciones, catálogos ni permisos operativos. `CompanyProvisioningService` es la única fuente de los datos base del tenant: crea la unidad `UNIT` y asigna su ID a los productos anteriores sin alterar servicios ni membresías. Por esta razón, un rollback de esquema tampoco elimina configuraciones administradas por el aprovisionador.
+Las migraciones tenant se limitan al esquema. `SystemNavigationSeeder` define el catálogo inicial, incluido `POS venta`. `CompanyProvisioningService` registra los datos base, como la unidad `UNIT` y el límite diario de asistencias. El aprovisionamiento añade los valores faltantes y conserva los configurados. Las migraciones históricas que duplicaban esos datos mantienen su archivo y su posición en el historial.
 
-La prueba `TenantCompanyBoundaryTest` impide que una migración vuelva a declarar `company_id` fuera de las cuatro tablas permitidas o escriba datos base con `DB::table()`. También limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método del backend y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP, incluyendo aprovisionamiento, métodos privados y protegidos. Todos resuelven la empresa raíz desde `TenantCompanyContext`; el ID solamente se materializa como variable local al consultar o persistir una relación estructural.
+Un rollback estructural puede consultar el estado de los datos cuando debe detectar una conversión destructiva. La reversión de `subscriptions.attendance_limit_per_day` comprueba en la conexión de escritura del tenant que no existan membresías con valor `NULL` antes de volver a exigir un entero.
+
+La prueba `TenantCompanyBoundaryTest` verifica que `company_id` solo se declare en las cuatro tablas permitidas y detecta escrituras de datos en migraciones hechas con el constructor de consultas o sentencias SQL directas. También limita los archivos backend autorizados, comprueba que frontend no reciba selectores de empresa, rechaza `$companyId` en cualquier método del backend y evita que regresen primitivas de alcance anteriores. La inspección abarca servicios, helpers y capa HTTP. El código resuelve la empresa raíz desde `TenantCompanyContext` y usa su ID como variable local al consultar o persistir una relación estructural.
 
 Las APIs `CompanySectionService` y `RolePermissionService` reciben únicamente el rol o los datos funcionales. Sus claves se aíslan con `TenantContext::cacheNamespace()` y la invalidación opera sobre el tenant conectado, evitando propagar un ID local que se repite entre bases.
+
+`CompanySectionService` concentra la consulta de rutas habilitadas para la empresa. Marcas y Categorías usan esa consulta para presentar los tipos de catálogo. La ficha de Mi espacio resuelve la empresa raíz dentro de `CompanyCardDataService`.
+
+La sincronización habitual de `SystemCatalogSyncService` agrega registros faltantes con `insertOrIgnore` en `companies_sub_sections` y `role_sub_sections`. Conserva el estado, el orden y los permisos guardados en el tenant. La aplicación explícita del diseño mediante `tenant:navigation-sync <slug> --apply-layout` puede cambiar la ubicación y el orden de las opciones del catálogo dentro del tenant indicado. Los IDs, el estado de habilitación, los permisos, los favoritos y las métricas permanecen vinculados a los mismos submódulos. [Mapa y reglas del menú](../../frontend/patrones/00_menu_order.md).
 
 Las reglas de precisión se concentran en `app/Helpers/System/Numbers.php`. La configuración se lee con `CompanySettingService` desde la empresa activa del tenant.
 
@@ -53,9 +59,10 @@ La operación completa de contextos, sucursales, aprovisionamiento, jobs, almace
 La reconstrucción de pruebas debe apuntar explícitamente a `blapos_testing`. Nunca ejecutar `migrate:fresh` sobre la base de desarrollo.
 
 ```bash
-php artisan migrate:fresh --database=mysql --seed
 composer check:tenant-boundary
-php artisan test
+php vendor/bin/phpunit
 ```
 
 `phpunit.xml` fija `DB_DATABASE=blapos_testing`. Para comandos manuales, verificar antes la conexión resuelta y definir `DB_DATABASE=blapos_testing` en el entorno del proceso.
+
+La revisión pasó las 26 pruebas de arquitectura, la suite completa de PHPUnit de 248 pruebas y las 293 pruebas de frontend. Se comprobaron las preferencias de navegación, el rechazo del rollback cuando existe un límite `NULL` y el bloqueo de acceso a módulos deshabilitados.

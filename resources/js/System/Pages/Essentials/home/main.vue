@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import {navbarItem, updateMenuPreferences} from "@System/Layout/Menu.js";
+import {canFavoritePage, navbarItem, updateMenuPreferences} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import {markRaw} from "vue";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -122,13 +122,11 @@ import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
-const HIDDEN_HOME_DIRECTORY_SLUGS = new Set(["sc_home", "sc_dashboard"]);
-
 const PAGE_CONFIG = {
     breadcrumb: [
-        {title: "Administración"},
-        {title: "Ajustes"},
-        {title: "Menú y favoritos", active: true}
+        {title: "Configuración"},
+        {title: "Preferencias"},
+        {title: "Favoritos", active: true}
     ],
     modulesAriaLabel: "Módulos disponibles",
     active: true,
@@ -251,7 +249,7 @@ export default {
             config: {
                 ...Constants.generalConfig,
                 entity: {
-                    ...Requests.config({entity: "home"}),
+                    ...Requests.config({entity: "favorites"}),
                     page: markRaw(PAGE_CONFIG)
                 }
             }
@@ -285,16 +283,6 @@ export default {
         isFavorite(subSection) {
 
             return this.favoriteSubSectionIdSet.has(Number(subSection?.id));
-
-        },
-        isVisibleHomeDirectorySection(section) {
-
-            return !HIDDEN_HOME_DIRECTORY_SLUGS.has(String(section?.slug ?? ""));
-
-        },
-        isVisibleHomeDirectorySubSection(subSection) {
-
-            return !HIDDEN_HOME_DIRECTORY_SLUGS.has(String(subSection?.slug ?? ""));
 
         },
         favoriteTooltip(subSection) {
@@ -494,10 +482,9 @@ export default {
 
             return new Set(
                 (this.config?.essential?.sections ?? [])
-                    .filter(section => this.isVisibleHomeDirectorySection(section))
                     .flatMap(section =>
                         (section.sub_sections ?? [])
-                            .filter(subSection => this.isVisibleHomeDirectorySubSection(subSection))
+                            .filter(canFavoritePage)
                             .map(subSection => Number(subSection.id))
                     )
             );
@@ -515,8 +502,7 @@ export default {
         },
         sections() {
 
-            const sections = (this.config?.essential?.sections ?? [])
-                .filter(section => this.isVisibleHomeDirectorySection(section));
+            const sections = this.config?.essential?.sections ?? [];
             const query = normalizeSearchValue(this.searchTerm);
             const onlyFavorites = this.forms.entity.createUpdate.config.show_only_favorites;
 
@@ -525,7 +511,7 @@ export default {
 
                     const sectionMatches = normalizeSearchValue(section?.dom_label).includes(query);
                     const subSections = (section.sub_sections ?? [])
-                        .filter(subSection => this.isVisibleHomeDirectorySubSection(subSection))
+                        .filter(canFavoritePage)
                         .filter(subSection => {
 
                         const matchesFavorite = !onlyFavorites || this.isFavorite(subSection);

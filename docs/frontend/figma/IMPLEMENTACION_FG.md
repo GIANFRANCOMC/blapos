@@ -64,7 +64,7 @@ La fuente común es `resources/css/Shared/viewport.css`, que carga `Shared/ui.cs
 
 `System/layouts/main.blade.php` incluye fg-navigation, fg-navbar, fg-up y fg-down para todos sus consumidores. Los mundos siguen usando las secciones autorizadas, sus grupos y rutas. Los favoritos conservan la actualización al cambiar preferencias.
 
-El riel centra los mundos, muestra borde izquierdo en activo y tooltips azules. Cerrar sesión usa un cuadrado rojo y tooltip rojo. El submenú no repite los iconos del mundo. El drawer móvil y el contenedor de página también son compartidos.
+El riel azul pizarra permanece visible en escritorio, centra los mundos y marca el activo con un indicador claro a la izquierda. El panel contextual conserva los iconos de los submódulos. En móvil el control del navbar abre el riel y el panel juntos. Inicio se abre desde el isotipo de Blapos cuando está permitido. Cerrar sesión se encuentra en el menú de cuenta. [Navegación tenant](../patrones/TENANT_NAVIGATION.md).
 
 System autenticado dejó de cargar core/theme/demo/branding y el inicializador de menú de Vuexy, además de Waves, Hammer, PerfectScrollbar y el personalizador de plantilla. Bootstrap 5.3.2 local aporta modales, dropdowns y tooltips; vue-select, Select2, jQuery y Font Awesome conservan las funciones que ya dependen de ellos. No se instaló una nueva biblioteca de componentes o iconos.
 

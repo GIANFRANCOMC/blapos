@@ -15,7 +15,11 @@ return new class extends Migration {
 
     public function down(): void {
 
-        if(DB::table("subscriptions")->whereNull("attendance_limit_per_day")->exists()) {
+        $membershipWithoutLimit = DB::selectOne(
+            "SELECT 1 FROM subscriptions WHERE attendance_limit_per_day IS NULL LIMIT 1",
+            useReadPdo: false
+        );
+        if($membershipWithoutLimit !== null) {
 
             throw new RuntimeException("Hay membresías sin límite diario. Revertir esta columna perdería esa configuración.");
 

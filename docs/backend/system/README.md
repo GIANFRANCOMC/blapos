@@ -33,7 +33,7 @@ System no debe asumir comportamiento de visitantes publicos. Si una funcionalida
 
 ## Modulos Por Menu
 
-El menú se consulta desde `menu_categories`, `sections`, `menu_groups` y `sub_sections`. Visualmente utiliza una barra de módulos basada en `sections` y un panel contextual basado en `menu_groups` y `sub_sections`.
+El menú se consulta desde `menu_categories`, `sections`, `menu_groups` y `sub_sections`. La distribución base reúne Inicio y nueve mundos. El botón de la barra superior controla el panel de grupos y páginas en escritorio y tablet, y la navegación lateral completa en móvil. [Mapa de System](../../frontend/patrones/00_menu_order.md).
 
 Las cuatro categorías se conservan para organización interna y aprovisionamiento, pero ya no se muestran como encabezados permanentes:
 
@@ -44,12 +44,16 @@ Las cuatro categorías se conservan para organización interna y aprovisionamien
 
 Dentro de cada seccion, los archivos de `modules` siguen la numeracion del menu y luego agregan modulos tecnicos de soporte.
 
+[Rendimiento comercial](modules/28_commercial_performance.md) documenta los indicadores de ventas por periodo, sucursal e ítem y sus permisos.
+
+[Rotación y reposición](modules/29_stock_turnover.md) documenta la consulta por sucursal y almacén, las salidas comerciales netas y las prioridades de reposición.
+
 ## Generalidades Transversales
 
 Consulta [Generalidades](../desarrollo/GENERALIDADES.md) para caché, migraciones y contratos de negocio, y la [guía frontend de System](../../frontend/desarrollo/GUIA_SYSTEM.md) para estilos, formularios y modales.
 
 ## Criterios De Mantenimiento
 
-- Mantener el catálogo de módulos en las tablas de navegación. `SystemNavigationSeeder` inicializa bases vacías y consolida los grupos heredados documentados, sin cambiar los identificadores de las rutas.
+- Mantener el catálogo de módulos en las tablas de navegación. `SystemNavigationSeeder` inicializa bases vacías. La aplicación explícita del diseño conserva los IDs de los submódulos en instalaciones existentes.
 - Cada modulo documenta tablas, rutas, reglas y comportamiento backend vigente.
 - Mantener las decisiones visuales transversales en los [estándares de interfaz](../../frontend/fundamentos/ESTANDARES_UI.md). Cada módulo registra sus decisiones de implementación.

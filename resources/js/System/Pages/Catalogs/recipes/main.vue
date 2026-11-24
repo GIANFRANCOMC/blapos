@@ -355,7 +355,7 @@ export default {
     },
     data() {
         return {
-            breadcrumbTitles: [{title: "Catálogo e inventario"}, {title: "Recetas y platillos"}],
+            breadcrumbTitles: [{title: "Catálogo comercial"}, {title: "Recetas y platillos"}],
             filterBy: ALL_RECIPES_FILTER,
             word: "",
             appliedFilters: {filter_by: "all", word: ""},

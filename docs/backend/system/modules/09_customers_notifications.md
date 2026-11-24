@@ -1,8 +1,8 @@
 # 09 - Notificaciones de clientes
 
-## Que hace
+## Qué hace
 
-Permite revisar emails relacionados a membresías y su estado de envio.
+Permite revisar los correos de membresías y su estado de envío. Se encuentra en **Operaciones y clientes → Atención al cliente**.
 
 ## Archivos
 

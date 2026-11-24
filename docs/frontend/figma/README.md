@@ -62,6 +62,36 @@ La publicación en Componentes y la aceptación en los consumidores son pasos di
 
 Registrar por archivo la versión y el estado: **pendiente de aceptación**, **autorizada**, **aplicada y verificada** o **aplazada**. No informar que todos los submódulos están actualizados sin comprobarlo. Si el usuario aplica el cambio, registrar su confirmación y distinguirla de una verificación realizada por Codex.
 
+## Navegación Blapos
+
+La versión publicada **Navegación Blapos · Azul pizarra** usa `#23354a` en el riel, blanco en la barra superior y el panel de submódulos, y el fondo claro de la aplicación en el área de trabajo. El azul FG identifica el mundo activo. Figma confirmó la publicación de cuatro maestros y cuatro variables de navegación. La aceptación en los archivos consumidores queda pendiente.
+
+La versión publicada **Navegación Blapos · Compacta** reduce el riel a 60 px, con accesos de 40 × 40 px, y la barra de escritorio a 44 px. El panel de submódulos reserva 192 px, con rótulos de 11 px, iconos de 10 px y un título de 13 px. Las filas miden 32 px en escritorio y 44 px en móvil. El buscador centrado usa una cápsula sin borde con fondo neutro, texto de 12 px y lupa de 11 px. Mide hasta 340 × 28 px en escritorio. En móvil conserva el ancho flexible y 32 px de alto, con una barra de 48 px para alojar los controles táctiles. El isotipo de Inicio conserva 32 px. La aceptación en archivos consumidores queda pendiente.
+
+La revisión inicial se probó a 1280, 820 y 320 px en la demo autenticada. Después de compactar el buscador y el panel de submódulos, se verificaron las vistas de escritorio y móvil en Figma y el foco, la búsqueda con teclado y los nombres largos del panel a 1280 y 320 px en la demo. El ajuste de botones de la barra superior se probó en Productos y Mi cuenta. Se comprobó la apertura de favoritos, avisos y cuenta, el indicador del panel y el centrado del buscador.
+
+[Navegación Blapos en Figma](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=164-208) · [Navegación tenant](../patrones/TENANT_NAVIGATION.md).
+
+### Paneles del navbar
+
+La versión publicada **Navegación Blapos · Paneles del navbar** incorpora el componente compartido para Favoritos, Notificaciones y Cuenta. Incluye el borde inferior del navbar y los estados de hover circular. La aceptación en los archivos consumidores queda pendiente.
+
+La revisión editable añade una tarjeta de Cuenta con degradado FG, iconos de módulo en Favoritos e iconos por nivel de aviso en Notificaciones. El buscador presenta hasta seis filas completas, con icono, nombre y mundo. Las demás coincidencias se recorren dentro de la lista. Se comprobaron las seis filas a 1280 y 320 px y la navegación con teclado en la demo autenticada. [Paneles del navbar en Figma](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=204-402) · [Buscador en Figma](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=221-1109).
+
+## Publicación de Navegación FG · Gris neutro
+
+Los maestros de **Barra superior**, **Riel de mundos**, **Mundo** y **Submódulo** se actualizaron en Componentes. Se agregó la barra compacta de móvil y se completaron los iconos reutilizables del riel y del control de panel. El navbar de 48 px y el riel de 64 px usan `color/chrome`. El panel contextual usa blanco, con iconos grises en reposo y azul para el destino seleccionado. El riel representa los nueve mundos vigentes, con botones de 40 × 40 px y una separación de 6 px.
+
+Figma confirmó la publicación de los 14 cambios autorizados. La aceptación de esta versión en los archivos consumidores sigue pendiente. La demo del repositorio se verificó a 1280 y 320 px en Analítica y Catálogo comercial.
+
+## Publicación de Navegación / Submódulo del 24 de noviembre de 2026
+
+Componentes publicó únicamente el maestro **Navegación / Submódulo**. Esa versión conservó sus dos variantes y añadió el icono intercambiable de 11 px, con columna de 16 px y separación de 8 px. Se verificó el cambio en el maestro y en los estados abierto y cerrado del prototipo.
+
+La versión está pendiente de aceptación en los consumidores. Los archivos documentados incluyen Productos y las composiciones de Ventas que usan Componentes. La actualización se revisa por archivo para confirmar qué instancias consumen el maestro y qué cambios propone Figma.
+
+[Maestro publicado](https://www.figma.com/design/1Iq6LBNSmds7kztfOdiDSD/Componentes?node-id=7-89) · [Productos](https://www.figma.com/design/TxqVm9uFF7V8yZe64Po6SQ/Productos?node-id=39-54) · [Archivos de Ventas](../modulos/ventas/README.md).
+
 ## Publicación 1.0.9 · aplicada en Productos
 
 El 20 de noviembre de 2026 el usuario autorizó: «Acepta todos los cambios y realizar las confirmaciones correspondientes de ser neceario». Se publicó Componentes y se aceptaron las actualizaciones en Productos con «Mostrar actualizaciones para todas las páginas» y «Actualizar todo». Figma confirmó «No hay actualizaciones disponibles». La autorización incluye los contadores 1.0.7 y las etiquetas 1.0.8 que antes estaban pendientes.

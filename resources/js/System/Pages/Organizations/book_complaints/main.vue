@@ -312,7 +312,7 @@ const MODULE_CONFIG = {
     entity: "book_complaints",
     menuId: "menu-customers-book_complaints",
     pageTitle: "Libro de reclamaciones y sugerencias",
-    breadcrumbParent: "Atención al cliente",
+    breadcrumbParent: "Operaciones y clientes",
     perPage: 6
 };
 
@@ -472,7 +472,7 @@ export default {
     },
     mounted: async function() {
 
-        navbarItem("menu-parent-customers", {addClass: "open"});
+        navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initParams = await this.loadInitialParams(() => this.initParams());
@@ -732,7 +732,8 @@ export default {
 
             return [
                 {title: this.MODULE.config.breadcrumbParent},
-                this.config.entity.page
+                {title: "Atención al cliente"},
+                {title: "Libro de reclamaciones", active: true}
             ];
 
         },

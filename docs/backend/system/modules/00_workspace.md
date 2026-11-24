@@ -10,7 +10,7 @@ Si faltan acciones habituales, se añaden funciones habilitadas para la empresa 
 
 Debajo de «¿Qué quiero hacer ahora?» se muestra una ayuda breve con enlaces de correo y teléfono de Blapos. Los datos no pertenecen al tenant: se leen de `landlord.platform_settings` mediante `PlatformSupportService`, al igual que en el inicio de sesión y las páginas de error.
 
-La autenticación tenant utiliza `/workspace` como destino predeterminado.
+La autenticación de System lleva a `/home` (`home.index`). Si Inicio es la única página visible y permitida de su sección, su enlace directo ocupa la parte superior del riel de mundos. Cuando la sección reúne otras páginas visibles y permitidas, el acceso se encuentra en el panel que abre ese mundo desde el riel. `/workspace` redirige a `/home` dentro de la sesión autenticada. [Reglas de navegación](../../../frontend/patrones/TENANT_NAVIGATION.md#modelo-visual).
 
 ## Persistencia
 
@@ -30,9 +30,11 @@ La clave única `user_id + sub_section_id` impide duplicar registros por visita.
 2. `TrackUserNavigation` espera una respuesta exitosa.
 3. `UserNavigationService` resuelve la ruta contra el catálogo activo de `sub_sections`.
 4. Dentro de una transacción incrementa `visit_count`.
-5. Mi espacio obtiene los más usados exclusivamente entre las páginas permitidas por `CompanySectionService`.
+5. Inicio obtiene los más usados exclusivamente entre las páginas permitidas por `CompanySectionService`.
 
-La propia ruta `workspace.index`, endpoints AJAX, respuestas JSON y errores no se contabilizan.
+La ficha de Inicio resuelve la empresa raíz dentro de `CompanyCardDataService` por medio de `TenantCompanyContext`. `GET /home/data` (`home.data`) entrega los accesos, la ficha, el isotipo y los canales de contacto. `GET /workspace/data` conserva el contrato JSON para clientes anteriores.
+
+La propia ruta `home.index`, los endpoints AJAX, las respuestas JSON y los errores quedan fuera del contador. El acceso conserva el `sub_sections.id` 11.
 
 ## Archivos
 
@@ -51,5 +53,5 @@ La propia ruta `workspace.index`, endpoints AJAX, respuestas JSON y errores no s
 - Una visita repetida incrementa el contador sin crear otra fila.
 - La tabla y el modelo no contienen `recent_rank`.
 - Los contadores permanecen agregados por usuario y página.
-- Mi espacio es el destino autenticado predeterminado.
-- Mi espacio y Mi cuenta comparten el grupo Mi espacio dentro de Inicio; Dashboard y Reportes comparten el mundo Inicio bajo Análisis.
+- `/home` es el destino autenticado predeterminado.
+- [Mapa de las ubicaciones de Mi cuenta, Favoritos e Indicadores](../../../frontend/patrones/00_menu_order.md).

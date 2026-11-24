@@ -1,8 +1,10 @@
-# 07 - Membresias de clientes
+# 07 - Membresías de clientes
 
-## Que hace
+## Qué hace
 
-Lista y administra membresias reales asignadas a clientes. Estas pueden originarse por venta o por registro manual.
+Lista y administra las membresías asignadas a clientes por venta o por registro manual.
+
+Membresías de clientes se encuentra en **Operaciones y clientes → Gestión de clientes**. Los planes disponibles para vender se configuran en **Catálogo comercial → Oferta comercial → Planes de membresía**.
 
 ## Archivos
 

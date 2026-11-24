@@ -336,7 +336,7 @@ export default {
     mixins: [InitialPageMixin],
     mounted: async function() {
 
-        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-parent-people", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initialized = await this.loadInitialParams(() => this.initParams({}));
@@ -1245,7 +1245,7 @@ export default {
     computed: {
         breadcrumbTitles: function() {
 
-            return [{title: "Infraestructura"}, this.config.entity.page];
+            return [{title: "Equipo y activos"}, {title: "Activos"}, this.config.entity.page];
 
         },
         assets: function() {

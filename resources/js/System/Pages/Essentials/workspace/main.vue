@@ -5,9 +5,9 @@
             <div v-else class="fg-workspace__content">
                 <nav v-if="breadcrumb.section && breadcrumb.page" class="fg-breadcrumb fg-workspace__breadcrumb" aria-label="Ubicación actual">
                     <ol class="fg-breadcrumb__list">
-                        <li class="fg-breadcrumb__item"><span>{{ breadcrumb.section }}</span></li>
+                        <li v-if="breadcrumb.section !== breadcrumb.page" class="fg-breadcrumb__item"><span>{{ breadcrumb.section }}</span></li>
                         <li class="fg-breadcrumb__item is-current" aria-current="page">
-                            <i class="fa-solid fa-chevron-right fg-breadcrumb__separator" aria-hidden="true"></i>
+                            <i v-if="breadcrumb.section !== breadcrumb.page" class="fa-solid fa-chevron-right fg-breadcrumb__separator" aria-hidden="true"></i>
                             <span>{{ breadcrumb.page }}</span>
                         </li>
                     </ol>

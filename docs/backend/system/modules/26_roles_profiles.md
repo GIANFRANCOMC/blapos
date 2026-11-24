@@ -1,8 +1,8 @@
-# 26 - Perfiles y accesos
+# 26 - Perfiles de acceso
 
 ## Qué hace
 
-Define qué módulos, acciones, sucursales, cajas y almacenes puede utilizar cada colaborador.
+Define qué módulos, acciones, sucursales, cajas y almacenes puede utilizar cada colaborador. Se encuentra en **Configuración → Seguridad y acceso**.
 
 ## Backend
 

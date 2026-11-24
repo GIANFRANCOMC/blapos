@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\System\Organizations\{User};
 use App\Services\System\Operations\{ServiceOperationConfigService, ServiceOperationService};
-use App\Services\System\Organizations\{BusinessProfileService};
 use App\Services\System\Sales\{CommercialSelectionService, QuotationService, SaleConfigService, SaleService};
 use App\Services\System\Warehouses\StockManagement\{StockManagementService};
 use Illuminate\Foundation\Testing\{RefreshDatabase};
@@ -148,7 +147,7 @@ final class ServiceOperationPerformanceTest extends TestCase {
             ->where("dom_route", "sales.index")
             ->value("id");
 
-        BusinessProfileService::updateModules([$salesIndexId], $this->userId);
+        $this->enableOnlyModule($salesIndexId);
 
         DB::table("customers")
             ->where("document_number", "00000040")
@@ -175,7 +174,7 @@ final class ServiceOperationPerformanceTest extends TestCase {
             ->where("dom_route", "sales.deliveries.index")
             ->value("id");
 
-        BusinessProfileService::updateModules([$deliveriesId], $this->userId);
+        $this->enableOnlyModule($deliveriesId);
 
         $this->getJson(route("options.sales-deliveries", ["entity" => "customers", "search" => "Cliente 40"]))
             ->assertOk()
@@ -203,11 +202,14 @@ final class ServiceOperationPerformanceTest extends TestCase {
         $restaurant = route("options.restaurant", ["entity" => "items", "search" => "SERVICE-1"]);
         $services = route("options.service-sessions", ["entity" => "items", "search" => "SERVICE-1"]);
 
+        $restaurantModuleId = (int) DB::table("sub_sections")->where("dom_route", "restaurant_pos.index")->value("id");
+        $this->enableOnlyModule($restaurantModuleId);
+
         $this->getJson($restaurant)->assertOk()->assertJsonPath("data.records.0.type", "product");
         $this->getJson($services)->assertForbidden();
 
         $serviceModuleId = (int) DB::table("sub_sections")->where("dom_route", "service_sessions.index")->value("id");
-        BusinessProfileService::updateModules([$serviceModuleId], $this->userId);
+        $this->enableOnlyModule($serviceModuleId);
 
         $this->getJson($restaurant)->assertForbidden();
         $this->getJson($services)->assertOk()->assertJsonPath("data.records", []);
@@ -453,6 +455,13 @@ final class ServiceOperationPerformanceTest extends TestCase {
         DB::table("customers")->insert($customers);
         DB::table("items")->insert($items);
 
+    }
+
+    private function enableOnlyModule(int $moduleId): void {
+        $modules = DB::table("companies_sub_sections");
+        (clone $modules)->where("sub_section_id", "!=", $moduleId)->update(["status" => "inactive"]);
+        $modules->where("sub_section_id", $moduleId)->update(["status" => "active"]);
+        \App\Services\System\Organizations\Companies\CompanySectionService::clearTenantCache();
     }
 
 }

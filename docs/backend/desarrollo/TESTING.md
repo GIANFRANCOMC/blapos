@@ -25,6 +25,10 @@ La suite unitaria no debe depender de tablas ni registros existentes. Las prueba
 
 El trait `ProvisionsSystemDatabase` crea la empresa raíz de pruebas, sus datos operativos y el administrador `admin@example.test`.
 
+`SystemNavigationProvisioningTest` comprueba el estado inicial y verifica que cada ruta registrada en el catálogo exista. Cuando una prueba necesita un módulo deshabilitado, debe preparar ese estado de forma explícita. Los casos de Maestros internos y opciones de operaciones verifican que el acceso se pierde al deshabilitar el módulo del tenant. La comprobación unitaria de seeders permite `firstOrCreate` y rechaza las operaciones que actualizan registros existentes.
+
+La prueba de la exportación de stock comprueba la abreviatura de unidad proyectada por la consulta y el archivo. La prueba de `initParams` vigila la carga de catálogos completos en ventas, donde clientes e ítems pasaron a opciones paginadas.
+
 ## Caché de configuración
 
 `BaseConfigServiceTest` debe implementar exactamente:

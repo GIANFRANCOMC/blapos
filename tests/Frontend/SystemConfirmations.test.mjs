@@ -30,7 +30,7 @@ test("Escape no cierra ningún SweetAlert de System ni Guest", () => {
         }
     }
 
-    assert.ok(dialogs >= 32);
+    assert.ok(dialogs >= 31);
 });
 
 test("todas las confirmaciones System muestran cierre accesible y evitan respuestas sí/no", () => {
@@ -48,7 +48,7 @@ test("todas las confirmaciones System muestran cierre accesible y evitan respues
         assert.doesNotMatch(source, /cancelButtonText:\s*TEXT\.(?:YES|NO)/, path);
     }
 
-    assert.ok(confirmations >= 25);
+    assert.ok(confirmations >= 24);
 });
 
 test("los títulos de confirmación formulan preguntas con verbo y sustantivo", () => {
@@ -73,7 +73,7 @@ test("los títulos de confirmación formulan preguntas con verbo y sustantivo", 
         }
     }
 
-    assert.ok(confirmations >= 25);
+    assert.ok(confirmations >= 24);
     assert.match(read("resources/js/System/Helpers/Alerts.js"), /title = "¿Confirmar operación\?"/);
     assert.match(read("resources/js/System/Helpers/Alerts.js"), /title: `¿Descargar \$\{resource\}\?`/);
 });

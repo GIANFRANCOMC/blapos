@@ -23,9 +23,8 @@ final class TenantCompanyBoundaryTest extends TestCase {
         "app/Services/System/Database/SystemCatalogSyncService.php" => 2,
         "app/Services/System/Essentials/UserNavigationService.php" => 1,
         "app/Services/System/Organizations/Branches/BranchService.php" => 1,
-        "app/Services/System/Organizations/BusinessProfileService.php" => 4,
         "app/Services/System/Organizations/Companies/CompanyProvisioningService.php" => 3,
-        "app/Services/System/Organizations/Companies/CompanySectionService.php" => 4,
+        "app/Services/System/Organizations/Companies/CompanySectionService.php" => 5,
         "app/Services/System/Organizations/Companies/CompanyService.php" => 2,
         "app/Services/System/Organizations/Companies/CompanySettingService.php" => 1,
         "app/Services/System/Organizations/Roles/RolePermissionService.php" => 2,
@@ -180,6 +179,11 @@ final class TenantCompanyBoundaryTest extends TestCase {
                 $content,
                 "La migración {$this->relativePath($file->getPathname())} debe limitarse al esquema; los datos base pertenecen al aprovisionamiento."
             );
+            $this->assertDoesNotMatchRegularExpression(
+                '/\bDB::(?:(?:insert|update|delete|affectingStatement)\s*\(|(?:statement|unprepared)\s*\(\s*["\']\s*(?:INSERT|UPDATE|DELETE|REPLACE|TRUNCATE)\b)/i',
+                $content,
+                "La migración {$this->relativePath($file->getPathname())} contiene una escritura de datos."
+            );
 
         }
 
@@ -220,10 +224,6 @@ final class TenantCompanyBoundaryTest extends TestCase {
             app_path("Services/System/Database/SystemCatalogSyncService.php")
         );
 
-        $businessProfile = file_get_contents(
-            app_path("Services/System/Organizations/BusinessProfileService.php")
-        );
-
         $categoryItems = file_get_contents(
             app_path("Services/System/Catalogs/Categories/CategoryItemService.php")
         );
@@ -232,11 +232,14 @@ final class TenantCompanyBoundaryTest extends TestCase {
             app_path("Services/System/Warehouses/Warehouses/WarehouseItemService.php")
         );
 
-        $this->assertGreaterThanOrEqual(2, substr_count($catalogSync, "->upsert("));
+        $this->assertStringContainsString('DB::table("companies_sub_sections")->insertOrIgnore($companyModules)', $catalogSync);
+        $this->assertStringContainsString('DB::table("role_sub_sections")->insertOrIgnore($roleModules)', $catalogSync);
+        $this->assertMatchesRegularExpression(
+            '/DB::table\("companies_sub_sections"\)->upsert\(\s*\$reordered,\s*\["company_id", "sub_section_id"\],\s*\["section_order", "sub_section_order"\]\s*\)/',
+            $catalogSync
+        );
         $this->assertStringNotContainsString("->updateOrInsert(", $catalogSync);
 
-        $this->assertStringContainsString("->upsert(", $businessProfile);
-        $this->assertStringNotContainsString("->updateOrInsert(", $businessProfile);
 
         $this->assertStringContainsString("->upsert(", $categoryItems);
         $this->assertStringNotContainsString("::updateOrInsert(", $categoryItems);

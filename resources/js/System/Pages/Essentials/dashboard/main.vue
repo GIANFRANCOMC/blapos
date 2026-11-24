@@ -180,9 +180,9 @@ import * as Utils     from "@System/Helpers/Utils.js";
 
 const MODULE_CONFIG = {
     entity: "dashboard",
-    menuId: "menu-parent-workspace",
-    pageTitle: "Dashboard",
-    breadcrumbParent: "Esenciales"
+    menuId: "menu-parent-analytics",
+    pageTitle: "Resumen del negocio",
+    breadcrumbParent: "Analítica"
 };
 
 const TEXTS = {

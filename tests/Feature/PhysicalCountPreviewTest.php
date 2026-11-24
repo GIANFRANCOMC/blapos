@@ -208,7 +208,7 @@ final class PhysicalCountPreviewTest extends TestCase {
         $export = new InventoryReportExport("stock", ["warehouse_id" => $warehouseId, "product_search" => "UNIT-STOCK-TEST"]);
         $row = $export->map($record);
 
-        $this->assertSame("UNIDADES", $record->measurementUnit->plural_name);
+        $this->assertSame("UND", $record->measurementUnit->abbreviation);
         $this->assertSame("Unidad de medida", $export->headings()[3]);
         $this->assertSame("UND", $row[3]);
         $this->assertSame(28.0, $row[4]);

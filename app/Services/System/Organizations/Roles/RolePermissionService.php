@@ -14,9 +14,10 @@ final class RolePermissionService {
 
     private const CACHE_TTL = 1800;
 
-    private const CACHE_PREFIX = "role_permissions";
+    private const CACHE_PREFIX = "role_permissions:v2";
 
-    private const PUBLIC_ROUTE_PREFIXES = ["account", "workspace", "helpers", "logout"];
+    private const AUTHENTICATED_ROUTE_PREFIXES = ["account", "workspace", "helpers", "logout"];
+    private const START_ROUTES = ["home.index", "home.data"];
 
     public static function canAccessRoute(
         User $user,
@@ -33,7 +34,8 @@ final class RolePermissionService {
 
         $prefix = self::routePrefix($routeName);
 
-        if(in_array($prefix, self::PUBLIC_ROUTE_PREFIXES, true)) {
+        if(in_array($routeName, self::START_ROUTES, true)
+            || in_array($prefix, self::AUTHENTICATED_ROUTE_PREFIXES, true)) {
 
             return true;
 

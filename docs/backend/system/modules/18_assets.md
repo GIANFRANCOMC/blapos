@@ -1,8 +1,8 @@
 # 18 - Activos
 
-## Que Hace
+## Qué hace
 
-Administra bienes fisicos por empresa, con clasificacion, identificacion interna, control patrimonial y serie del fabricante.
+Administra los bienes físicos de la empresa, su clasificación, identificación interna, control patrimonial y número de serie. Se encuentra en **Equipo y activos → Activos**.
 
 ## Backend
 
@@ -23,7 +23,7 @@ Administra bienes fisicos por empresa, con clasificacion, identificacion interna
 - El formulario de Activos permite seleccionar categoría de activo junto al nombre y descripción.
 - La acción contextual `Agregar` abre una modal rápida para crear una categoría sin abandonar el alta o edición del activo.
 - La categoría rápida solicita nombre y descripción, se crea activa y queda seleccionada automáticamente en el formulario actual.
-- La modal reutiliza `fg-modal`, botones `fg-btn-*` y validación inline para mantener consistencia con Catálogo e inventario.
+- La modal reutiliza `fg-modal`, los botones compartidos y la validación inline de System.
 
 ## Seguridad
 

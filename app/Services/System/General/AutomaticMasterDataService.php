@@ -31,7 +31,7 @@ final class AutomaticMasterDataService {
             "source" => "Módulos del tenant",
             "condition_label" => "Menú y favoritos activo",
             "condition" => "module_enabled",
-            "module_route" => "home.index",
+            "module_route" => "favorites.index",
         ],
     ];
 

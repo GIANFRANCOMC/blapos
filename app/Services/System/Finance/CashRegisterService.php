@@ -21,8 +21,11 @@ final class CashRegisterService {
 
     public function listRegisters(?int $userId = null) {
 
-        $query = CashRegister::query()
-            ->with(["branch", "openSession.paymentSummary.paymentMethod"]);
+        $query = CashRegister::query()->with([
+            "branch",
+            "openSession" => fn($sessions) => $this->withMovementTotal($sessions->getQuery()),
+            "openSession.paymentSummary.paymentMethod",
+        ]);
 
         $cashRegisterIds = $userId !== null
             ? CompanyReferenceDataService::forUser($userId)->allowedCashRegisterIds()
@@ -91,7 +94,8 @@ final class CashRegisterService {
 
         return $this->sessionsQuery($filters, $userId)
             ->latest("opened_at")
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->through($this->projectExpectedAmount(...));
 
     }
 
@@ -145,7 +149,7 @@ final class CashRegisterService {
 
     public function summary(array $filters, ?int $userId = null): array {
 
-        $sessions = $this->sessionsQuery($filters, $userId)->get();
+        $sessions = $this->sessionsQuery($filters, $userId)->get()->map($this->projectExpectedAmount(...));
         $sessionIds = $sessions->pluck("id")->all();
 
         if(empty($sessionIds)) {
@@ -187,14 +191,23 @@ final class CashRegisterService {
                 ->where("payment_method_id", $paymentMethodId)
                 ->where("status", "active")
                 ->sum("amount"))
-            : Numbers::sumText($sessions->map(fn(CashSession $session) => $session->getRawOriginal("expected_amount")));
+            : Numbers::sumText($sessions->pluck("expected_amount"));
 
+        $closedSessions = $sessions->where("status", "closed");
+        $closedSessionIds = $closedSessions->pluck("id");
         $counted = $paymentMethodId
             ? Numbers::storage(CashSessionPayment::query()
-                ->whereIn("cash_session_id", $sessionIds)
+                ->whereIn("cash_session_id", $closedSessionIds)
                 ->where("payment_method_id", $paymentMethodId)
                 ->sum("counted_amount"))
-            : Numbers::sumText($sessions->map(fn(CashSession $session) => $session->getRawOriginal("counted_amount")));
+            : Numbers::sumText($closedSessions->pluck("counted_amount"));
+        $difference = $paymentMethodId
+            ? Numbers::subtractText($counted, CashMovement::query()
+                ->whereIn("cash_session_id", $closedSessionIds)
+                ->where("payment_method_id", $paymentMethodId)
+                ->where("status", "active")
+                ->sum("amount"))
+            : Numbers::sumText($closedSessions->pluck("difference_amount"));
 
         return [
             "sessions" => $sessions,
@@ -205,7 +218,7 @@ final class CashRegisterService {
                     : Numbers::sumText($sessions->map(fn(CashSession $session) => $session->getRawOriginal("opening_amount"))),
                 "expected" => $expected,
                 "counted" => $counted,
-                "difference" => Numbers::subtractText($counted, $expected),
+                "difference" => $difference,
             ],
         ];
 
@@ -519,7 +532,7 @@ final class CashRegisterService {
 
         }
 
-        return $query;
+        return $this->withMovementTotal($query);
 
     }
 
@@ -534,6 +547,9 @@ final class CashRegisterService {
     private function formatRegister(CashRegister $register): array {
 
         $openSession = $register->openSession;
+        if($openSession) {
+            $this->projectExpectedAmount($openSession);
+        }
 
         return [
             "id" => $register->id,
@@ -546,6 +562,24 @@ final class CashRegisterService {
             "is_open" => $openSession !== null,
             "current_amount" => $openSession ? Numbers::round($openSession->expected_amount) : 0,
         ];
+
+    }
+
+    private function withMovementTotal(Builder $sessions): Builder {
+
+        return $sessions->withSum([
+            "movements as active_movement_total" => fn($query) => $query->where("status", "active"),
+        ], "amount");
+
+    }
+
+    private function projectExpectedAmount(CashSession $session): CashSession {
+
+        if($session->status === "open") {
+            $session->expected_amount = Numbers::storage($session->active_movement_total ?? 0);
+        }
+
+        return $session->makeHidden("active_movement_total");
 
     }
 

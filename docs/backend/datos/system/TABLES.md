@@ -70,7 +70,6 @@ Landlord no guarda el ID local de `companies`. El tenant se identifica extername
 - `identity_document_types`, `document_types`, `currencies`;
 - `brands`, `categories`, `category_items`, `items`;
 - `taxes`, `payment_methods`, `payment_method_variants`;
-- `business_industries`, `business_industry_module_sets`;
 - `loyalty_point_rules`, `loyalty_point_rule_items`.
 
 Estos catálogos pertenecen implícitamente al tenant actual. Las reglas HTTP usan `ExistsInTenant` y `UniqueInTenant`.

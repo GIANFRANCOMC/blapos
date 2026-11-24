@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\System\Essentials\Home;
 
-use App\Models\System\Organizations\{CompanySubSection};
+use App\Services\System\Organizations\Companies\{CompanySectionService};
+use App\Services\System\Organizations\Roles\{RolePermissionService};
 use Illuminate\Foundation\Http\{FormRequest};
 
 class UpdateHomePreferenceRequest extends FormRequest {
 
-    private const HIDDEN_HOME_DIRECTORY_SLUGS = ["sc_home", "sc_dashboard"];
+    private const EXCLUDED_ROUTES = ["home.index", "favorites.index"];
 
     public function authorize(): bool {
 
@@ -28,16 +29,14 @@ class UpdateHomePreferenceRequest extends FormRequest {
 
         }
 
-        return CompanySubSection::query()
-            ->where("sub_section_id", $subSectionId)
-            ->where("status", "active")
-            ->whereHas("subSection", function($query) {
+        $module = CompanySectionService::getSections((int) $user->role_id)
+            ->pluck("subSections")
+            ->flatten(1)
+            ->firstWhere("id", $subSectionId);
 
-                $query->where("status", "active")
-                    ->whereNotIn("slug", self::HIDDEN_HOME_DIRECTORY_SLUGS);
-
-            })
-            ->exists();
+        return $module
+            && !in_array($module->dom_route, self::EXCLUDED_ROUTES, true)
+            && RolePermissionService::canAccessRoute($user, $module->dom_route);
 
     }
 

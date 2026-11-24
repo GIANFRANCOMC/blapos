@@ -130,7 +130,7 @@ export default {
         }
     },
     async mounted() {
-        navbarItem("menu-parent-items", {addClass: "open"});
+        navbarItem("menu-parent-inventory", {addClass: "open"});
         navbarItem(this.activeMenuId(), {});
         await this.loadInventory();
     },

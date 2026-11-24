@@ -1,8 +1,8 @@
 # 05 - Clientes
 
-## Que Hace
+## Qué hace
 
-Administra los clientes de una empresa. Un cliente puede comprar, recibir membresias, registrar asistencias y asociarse con huellas biometricas.
+Administra los clientes de una empresa. Un cliente puede comprar, recibir membresías, registrar asistencias y asociarse con huellas biométricas. Se encuentra en **Operaciones y clientes → Gestión de clientes**.
 
 ## Archivos
 

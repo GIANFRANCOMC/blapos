@@ -13,9 +13,10 @@ use Throwable;
 
 final class SyncTenantNavigation extends Command {
 
-    protected $signature = "tenant:navigation-sync {slug? : Tenant específico; omitir para sincronizar todos}";
+    protected $signature = "tenant:navigation-sync {slug? : Tenant específico; omitir para sincronizar todos}
+        {--apply-layout : Aplica la distribución vigente al tenant indicado}";
 
-    protected $description = "Completa registros de navegación faltantes sin modificar la configuración existente de cada tenant.";
+    protected $description = "Completa los registros de navegación y aplica la distribución vigente cuando se solicita.";
 
     public function handle(
         TenantConnectionManager $connections,
@@ -24,6 +25,14 @@ final class SyncTenantNavigation extends Command {
     ): int {
 
         $slug = $this->argument("slug");
+        $applyLayout = $this->option("apply-layout");
+        if($applyLayout && !$slug) {
+
+            $this->error("Indica el tenant al que quieres aplicar la distribución.");
+
+            return self::FAILURE;
+
+        }
         $tenants = TenantDatabase::query()
             ->when($slug, fn($query) => $query->where("slug", $slug))
             ->orderBy("slug")
@@ -45,7 +54,11 @@ final class SyncTenantNavigation extends Command {
 
                 $connections->connect($tenant);
                 $navigation->run();
-                $catalog->sync();
+                if($applyLayout) {
+                    $catalog->applyLayout(SystemNavigationSeeder::layout());
+                }else {
+                    $catalog->sync();
+                }
                 $this->info("Navegación verificada: {$tenant->slug}.");
 
             }catch(Throwable $exception) {

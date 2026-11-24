@@ -13,7 +13,11 @@ test("descripciones de mundos e iconos de grupos provienen del catálogo de nave
     assert.match(migration, /Schema::create\("menu_groups"[\s\S]*?\$table->string\("dom_icon", 255\)->default\(""\)/);
     const worlds = seeder.match(/"sections" => \[([\s\S]*?)\n            \],/)?.[1]?.split("\n").filter(line => line.includes('"menu_category_id" =>')) ?? [];
     const groups = seeder.match(/"groups" => \[([\s\S]*?)\n            \],/)?.[1]?.split("\n").filter(line => line.includes('"section_id" =>')) ?? [];
-    assert.equal(worlds.length, 7);
+    assert.equal(worlds.length, 10);
+    assert.ok(worlds.some(line => line.includes('"dom_label" => "Operaciones y clientes"')));
+    assert.ok(worlds.some(line => line.includes('"dom_label" => "Equipo y activos"')));
+    assert.ok(worlds.some(line => line.includes('"dom_label" => "Analítica"')));
+    assert.ok(worlds.some(line => line.includes('"dom_label" => "Inventario"')));
     assert.ok(worlds.every(line => /"description" => "[^"]+"/.test(line)));
     assert.ok(groups.length > 0);
     assert.ok(groups.every(line => /"dom_icon" => "fa-(?:solid|regular) fa-[a-z-]+"/.test(line)));

@@ -33,6 +33,7 @@ La vista se monta desde:
 - Una caja puede tener una sesion abierta o cerrada.
 - La apertura crea una sesion `open` y registra un movimiento `opening`.
 - El cierre calcula el esperado desde `cash_movements`, registra el contado por metodo de pago y crea un movimiento `closing` con importe cero para trazabilidad.
+- Para una sesión abierta, Cajas, Aperturas y cierres, Resumen y el diálogo de arqueo muestran el esperado como suma de movimientos activos. Al cerrar, `cash_sessions.expected_amount` conserva la foto del arqueo. En el resumen, el contado y la diferencia corresponden a sesiones cerradas.
 - Si la caja es principal y la sucursal tiene productos inventariables, el cierre exige conteo físico de inventario antes de confirmar.
 - El conteo físico compara saldo del sistema contra conteo real. Cada diferencia genera un movimiento de inventario de tipo corrección con origen `physical_count` y deja una foto en `cash_session_inventory_counts`.
 - Las ventas pueden asociarse a `cash_session_id` para que sus pagos alimenten `cash_movements`.
@@ -51,6 +52,7 @@ La vista se monta desde:
 - Menú `Cajas > Aperturas y cierres` con acceso `cash_sessions.index`.
 - Menú `Cajas > Movimientos` con acceso `cash_movements.index`.
 - Menú `Cajas > Resumen` con acceso `cash_summary.index`.
+- Las consultas y acciones Vue de Aperturas y cierres, Movimientos y Resumen usan los mismos prefijos con guiones de sus rutas Laravel (`/cash-sessions`, `/cash-movements` y `/cash-summary`).
 - Acción `Agregar caja`: permite crear varias cajas por sucursal desde el módulo Caja. El código interno puede dejarse vacío y se genera automáticamente con prefijo `CAJ-`.
 - Las acciones `Abrir caja` y `Cerrar caja` se muestran por cada caja del listado. No existen botones globales para evitar abrir o cerrar una caja equivocada.
 - Entrada `POS venta` dentro de ventas usando el flujo de nueva venta, pero con título y menú propios.

@@ -11,37 +11,27 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row g-3 mb-4">
-                                        <InputSlot hasDiv title="Tipo de comprobante" :titleClass="[config.forms.classes.title]" isRequired xl="3" lg="6">
-                                            <template #input>
-                                                <v-select v-model="purchaseForm.documentType" :options="documentTypes" :clearable="false" :searchable="false" placeholder="Seleccione"/>
-                                            </template>
-                                        </InputSlot>
+                                        <FgField class="col-lg-6 col-xl-3" label="Tipo de comprobante" required>
+                                            <FgSelect v-model="purchaseForm.documentType" :options="documentTypes" :clearable="false" :searchable="false" placeholder="Seleccione"/>
+                                        </FgField>
                                         <InputText v-model="purchaseForm.documentSeries" hasDiv title="Serie" :titleClass="[config.forms.classes.title]" maxlength="20" showCharCounter xl="3" lg="6"/>
                                         <InputText v-model="purchaseForm.documentNumber" hasDiv title="Nro. de comprobante" :titleClass="[config.forms.classes.title]" maxlength="50" showCharCounter xl="3" lg="6"/>
                                         <InputDate v-model="purchaseForm.issueDate" hasDiv title="Fecha de emisión" :titleClass="[config.forms.classes.title]" isRequired xl="3" lg="6"/>
-                                        <InputSlot hasDiv title="Sucursal" :titleClass="[config.forms.classes.title]" isRequired xl="4" lg="4">
-                                            <template #input>
-                                                <v-select v-model="purchaseForm.branch" :options="branches" :clearable="false" :searchable="false" placeholder="Seleccione"/>
-                                            </template>
-                                        </InputSlot>
-                                        <InputSlot hasDiv title="Almacén" :titleClass="[config.forms.classes.title]" isRequired xl="4" lg="4">
-                                            <template #input>
-                                                <v-select v-model="purchaseForm.warehouse" :options="warehousesForBranch(purchaseForm.branch?.code)" :clearable="false" searchable append-to-body placeholder="Seleccione"/>
-                                            </template>
-                                        </InputSlot>
-                                        <InputSlot hasDiv title="Proveedor" :titleClass="[config.forms.classes.title]" isRequired xl="8" lg="8">
-                                            <template #default>
+                                        <FgField class="col-lg-4" label="Sucursal" required>
+                                            <FgSelect v-model="purchaseForm.branch" :options="branches" :clearable="false" :searchable="false" placeholder="Seleccione"/>
+                                        </FgField>
+                                        <FgField class="col-lg-4" label="Almacén" required>
+                                            <FgSelect v-model="purchaseForm.warehouse" :options="warehousesForBranch(purchaseForm.branch?.code)" :clearable="false" placeholder="Seleccione"/>
+                                        </FgField>
+                                        <FgField class="col-lg-8" label="Proveedor" required>
+                                            <template #action>
                                                 <AddSupplier triggerLabel="Agregar" @postAction="addSupplierPostAction"/>
                                             </template>
-                                            <template #input>
-                                                <v-select v-model="purchaseForm.supplier" :options="suppliers" :clearable="false" searchable append-to-body placeholder="Seleccione"/>
-                                            </template>
-                                        </InputSlot>
-                                        <InputSlot hasDiv title="Recepción" :titleClass="[config.forms.classes.title]" isRequired xl="4" lg="4">
-                                            <template #input>
-                                                <v-select v-model="purchaseForm.deliveryMode" :options="deliveryModes" :clearable="false" :searchable="false" placeholder="Seleccione"/>
-                                            </template>
-                                        </InputSlot>
+                                            <FgSelect v-model="purchaseForm.supplier" :options="suppliers" :clearable="false" placeholder="Seleccione"/>
+                                        </FgField>
+                                        <FgField class="col-lg-4" label="Recepción" required>
+                                            <FgSelect v-model="purchaseForm.deliveryMode" :options="deliveryModes" :clearable="false" :searchable="false" placeholder="Seleccione"/>
+                                        </FgField>
                                         <InputDate v-if="purchaseForm.deliveryMode?.code === 'pending'" v-model="purchaseForm.expectedDate" hasDiv title="Fecha esperada" :titleClass="[config.forms.classes.title]" xl="3" lg="6"/>
                                     </div>
 
@@ -65,7 +55,7 @@
                                                                 <span>{{ index + 1 }}</span>
                                                             </td>
                                                             <td class="text-start">
-                                                                <v-select v-model="detail.product" :options="purchaseProductOptions(index)" :clearable="false" searchable append-to-body placeholder="Seleccione"/>
+                                                                <FgSelect v-model="detail.product" :options="purchaseProductOptions(index)" :aria-label="`Producto ${index + 1}`" :clearable="false" placeholder="Seleccione"/>
                                                             </td>
                                                             <td class="text-center">
                                                                 <InputNumber v-model="detail.quantity" :hasNegative="false"/>
@@ -175,12 +165,11 @@
                                         <label class="form-label">Métodos de pago</label>
                                         <div class="fg-document-payments">
                                             <div v-for="(payment, index) in purchaseForm.payments" :key="payment.key" class="fg-document-payment-row">
-                                                <v-select
+                                                <FgSelect
                                                     v-model="payment.method"
                                                     :options="purchasePaymentMethods"
+                                                    :aria-label="`Método de pago ${index + 1}`"
                                                     :clearable="false"
-                                                    :searchable="true"
-                                                    append-to-body
                                                     @update:modelValue="syncPurchasePaymentVariant(payment)">
                                                     <template #selected-option="{ label, data }">
                                                         <span class="fg-payment-select-option">
@@ -194,14 +183,13 @@
                                                             <span>{{ label }}</span>
                                                         </span>
                                                     </template>
-                                                </v-select>
-                                                <v-select
+                                                </FgSelect>
+                                                <FgSelect
                                                     v-if="purchasePaymentVariantOptions(payment).length"
                                                     v-model="payment.variant"
                                                     :options="purchasePaymentVariantOptions(payment)"
+                                                    :aria-label="`Variante de pago ${index + 1}`"
                                                     :clearable="false"
-                                                    :searchable="true"
-                                                    append-to-body
                                                     placeholder="Variante">
                                                     <template #selected-option="{ label, data }">
                                                         <span class="fg-payment-select-option">
@@ -215,7 +203,7 @@
                                                             <span>{{ label }}</span>
                                                         </span>
                                                     </template>
-                                                </v-select>
+                                                </FgSelect>
                                                 <InputNumber v-model="payment.amount" title="" :titleClass="[]" :inputClass="['form-control', 'fg-document-payment-amount']" :minValue="0" :placeholder="separatorNumber(purchaseTotal)">
                                                     <template #inputGroupPrepend>
                                                         <span class="input-group-text fg-currency-prefix">{{ purchaseForm.currency?.sign }}</span>
@@ -274,16 +262,16 @@
                     </div>
                 </section>
 
-                <div id="purchaseObservationsModal" class="modal fade fg-modal" data-bs-backdrop="static" tabindex="-1" role="dialog">
+                <div id="purchaseObservationsModal" class="modal fade fg-modal fg-modal--compact" data-bs-backdrop="static" tabindex="-1" aria-labelledby="purchase-observations-title">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
-                            <div class="modal-header fg-modal-header">
-                                <h5 class="modal-title text-uppercase fw-bold">Cambiar observación</h5>
-                                <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
-                                    <i class="fa fa-times icon-close-modal" aria-hidden="true"></i>
+                            <div class="modal-header fg-modal__header">
+                                <h2 id="purchase-observations-title" class="modal-title fg-modal__title">Cambiar observación</h2>
+                                <button type="button" class="fg-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                 </button>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body fg-modal__body">
                                 <InputTextArea
                                     v-model="observationDraft"
                                     hasDiv
@@ -305,7 +293,7 @@
                 <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-filter-bar fg-filter-bar--compact">
                     <div class="row align-items-end g-2">
                         <div class="col-12 col-lg-5">
-                            <SearchInput v-model="filters.word" title="Búsqueda" placeholder="Proveedor, documento o producto"/>
+                            <SearchInput v-model="filters.word" title="Búsqueda" placeholder="Proveedor, referencia o producto"/>
                         </div>
                         <FgField class="col-12 col-lg-3" :label="activeMode === 'receipts' ? 'Estado del ingreso' : 'Estado'" input-id="purchase-filter-status">
                             <FgSelect
@@ -901,7 +889,7 @@ export default {
         async cancelPurchase(purchase) {
             const accepted = await Alerts.generateAlert({
                 type: "question",
-                msgContent: `?Deseas anular ${purchase.formatted_document_type.toLowerCase()}?`
+                msgContent: `¿Deseas anular ${purchase.formatted_document_type.toLowerCase()}?`
             });
             if(!accepted?.isConfirmed) return;
             Alerts.swals({type: "loading", message: "Anulando compra"});
@@ -952,7 +940,7 @@ export default {
             if(series && number) return `${series}-${number}`;
             if(number) return number;
 
-            return `Registro #${purchase?.id}`;
+            return purchase?.reference || `Registro #${purchase?.id}`;
         },
         separatorNumber(value) {
             return Utils.separatorNumber(value || 0);

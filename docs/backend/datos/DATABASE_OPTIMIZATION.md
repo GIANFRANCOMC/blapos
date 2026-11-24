@@ -59,7 +59,7 @@ Las proyecciones derivadas no deben ejecutar una escritura por registro:
 
 El catálogo de navegación, los mínimos de inventario y otras preferencias existentes no deben reiniciarse durante una resincronización técnica. Las pruebas de arquitectura rechazan el regreso de `updateOrInsert`, `firstOrNew` o `firstOrCreate` dentro de estas proyecciones.
 
-El aprovisionamiento de datos iniciales usa inserciones idempotentes para configuraciones, impuestos, métodos de pago, rubros, recursos operativos y series. Al reintentarlo, agrega los registros faltantes sin restablecer tasas, preferencias, estados o correlativos existentes. La sucursal inicial se identifica por `SUC-PRINCIPAL`, aunque se cambie su nombre visible.
+El aprovisionamiento de datos iniciales usa inserciones idempotentes para configuraciones, impuestos, métodos de pago, recursos operativos y series. Al reintentarlo, agrega los registros faltantes sin restablecer tasas, preferencias, estados o correlativos existentes. La sucursal inicial se identifica por `SUC-PRINCIPAL`, aunque se cambie su nombre visible.
 
 El informe de saltos de correlativo lee movimientos emitidos ordenados con el índice `serie_id, action, sequential`; el CSV de auditoría se transmite con cursor. Los comandos de asistencia, membresías y notificaciones recorren el registro landlord en bloques de 100 tenants y emiten tablas en lotes de 50 filas, sin acumular toda la salida en memoria. Los avisos visibles usan una caché de 30 segundos por UUID de tenant, se invalidan al publicarse o cambiar de estado y se filtran por fecha en cada solicitud.
 

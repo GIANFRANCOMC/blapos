@@ -198,7 +198,7 @@ export default {
     mixins: [InitialPageMixin],
     name: "TrackingNotificationsMain",
     mounted: async function() {
-        navbarItem("menu-parent-customers", {addClass: "open"});
+        navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
         const initParams = await this.loadInitialParams(() => this.initParams({}));
@@ -320,7 +320,7 @@ export default {
     },
     computed: {
         breadcrumbTitles() {
-            return [{title: "Seguimiento"}, this.config.entity.page];
+            return [{title: "Operaciones y clientes"}, {title: "Atención al cliente"}, this.config.entity.page];
         },
         statusOptions() {
             return STATUS_OPTIONS;

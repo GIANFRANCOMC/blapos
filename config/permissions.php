@@ -33,7 +33,7 @@ return [
         "stocks_management.transfers.receive" => "operate",
         "stocks_management.transfers.resolve" => "operate",
         "stocks_management.transfers.availability" => "create",
-        "home.update" => "view",
+        "favorites.update" => "view",
         "products.import.template" => "import",
         "services.import.template" => "import",
         "subscriptions.import.template" => "import",
@@ -98,8 +98,14 @@ return [
 
     /* Endpoints compartidos por varias pantallas del mismo módulo técnico. */
     "route_modules" => [
-        "home.initParams" => ["home.index"],
-        "home.update" => ["home.index"],
+        "favorites.initParams" => ["favorites.index"],
+        "analytics.commercial_performance.index" => ["analytics.commercial_performance.index"],
+        "analytics.commercial_performance.initParams" => ["analytics.commercial_performance.index"],
+        "analytics.commercial_performance.list" => ["analytics.commercial_performance.index"],
+        "analytics.stock_turnover_replenishment.index" => ["analytics.stock_turnover_replenishment.index"],
+        "analytics.stock_turnover_replenishment.initParams" => ["analytics.stock_turnover_replenishment.index"],
+        "analytics.stock_turnover_replenishment.list" => ["analytics.stock_turnover_replenishment.index"],
+        "favorites.update" => ["favorites.index"],
         "master_data.list" => ["companies.index"],
         "master_data.store" => ["companies.index"],
         "master_data.update" => ["companies.index"],

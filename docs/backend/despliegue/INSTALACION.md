@@ -295,6 +295,7 @@ php artisan help tenant:suspend
 |---|---|
 | `php artisan system:install` | Instala una base no tenant vacía. |
 | `php artisan system:sync` | Sincroniza catálogos y estructura System. |
+| `php artisan tenant:navigation-sync demo --apply-layout` | Aplica el diseño de navegación al tenant indicado. Conserva los estados, permisos y preferencias asociados a cada submódulo. |
 | `php artisan system:doctor` | Diagnostica la instalación. |
 | `php artisan company:enable <company>` | Habilita una empresa según las opciones del comando. |
 

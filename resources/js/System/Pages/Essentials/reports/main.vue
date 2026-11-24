@@ -303,7 +303,7 @@ export default {
                     page: {
                         title: "Reportes",
                         active: true,
-                        menu: {id: "menu-parent-workspace"}
+                        menu: {id: "menu-parent-analytics"}
                     }
                 }
             }

@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\System\Organizations\Companies;
 
-use App\Models\System\Organizations\Company;
+use App\Services\System\Tenancy\{TenantCompanyContext};
 
 final class CompanyCardDataService {
 
     public function __construct(
-        private readonly CompanyLogomarkService $logomarkService
+        private readonly CompanyLogomarkService $logomarkService,
+        private readonly TenantCompanyContext $companyContext
     ) {
     }
 
-    public function forCompany(Company $company): array {
+    public function current(): array {
 
+        $company = $this->companyContext->get();
         $company->loadMissing("identityDocumentType", "socialsMedia");
         $companySocials = $company->socialsMedia->keyBy("type");
         $companyName = $company->commercial_name ?: $company->legal_name ?: "Empresa";

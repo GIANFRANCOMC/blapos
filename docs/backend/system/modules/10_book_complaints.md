@@ -1,8 +1,8 @@
 # 10 - Libro de reclamaciones y sugerencias
 
-## Que hace
+## Qué hace
 
-Permite administrar reclamos, quejas y sugerencias recibidas desde System o Guest.
+Permite administrar reclamos, quejas y sugerencias recibidas desde System o Guest. Se encuentra en **Operaciones y clientes → Atención al cliente**.
 
 ## Archivos
 

@@ -208,7 +208,7 @@ export default {
     },
     computed: {
         breadcrumbTitles() {
-            return [{title: "Gestión de colaboradores"}, {title: "Asistencia del personal", active: true}];
+            return [{title: "Equipo y activos"}, {title: "Personal"}, {title: "Asistencia del personal", active: true}];
         },
         branchOptions() {
             return this.options.branches.map(record => ({...record, label: record.name}));
@@ -224,7 +224,7 @@ export default {
         }
     },
     async mounted() {
-        navbarItem("menu-parent-configuration", {addClass: "open"});
+        navbarItem("menu-parent-people", {addClass: "open"});
         navbarItem("menu-user-attendances", {addClass: "active"});
         const initialized = await this.loadInitialParams(() => this.initParams());
         if(initialized) await this.searchAttendance();

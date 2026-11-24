@@ -164,7 +164,7 @@ const MODULE_CONFIG = {
     pageTitle: "Servicios",
     pageTitleSingular: "Servicio",
     internalCodeEntity: "service",
-    breadcrumbParent: "Catálogo e inventario",
+    breadcrumbParent: "Catálogo comercial",
     perPage: 10
 };
 

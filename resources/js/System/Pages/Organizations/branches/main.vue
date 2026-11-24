@@ -361,7 +361,7 @@ const MODULE_CONFIG = {
     pageTitle: "Sucursales",
     pageTitleSingular: "Sucursal",
     internalCodeEntity: "branch",
-    breadcrumbParent: "Administración",
+    breadcrumbParent: "Configuración",
     perPage: 15
 };
 

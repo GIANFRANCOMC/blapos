@@ -29,7 +29,7 @@ Un modulo System normalmente tiene:
 
 ### Rutas de página y datos
 
-Las páginas autenticadas deben separar la respuesta HTML de las consultas JSON: `index` entrega siempre el Blade y un método/ruta GET diferente entrega los datos de Vue (por ejemplo, `/workspace` y `/workspace/data`). El Blade puede exponer la URL de datos mediante `data-endpoint` usando `route()`. Nunca decidir entre HTML y JSON en un mismo GET según `Accept`, `X-Requested-With` o un parámetro editable; evita que la caché o la navegación Atrás/Adelante reutilicen una respuesta JSON como página. Ambas rutas deben permanecer en el grupo autenticado y conservar los permisos y el alcance tenant; conocer la URL no autoriza el acceso.
+Las páginas autenticadas separan la respuesta HTML de las consultas JSON. `index` entrega el Blade y una ruta GET distinta entrega los datos de Vue. Inicio usa `/home` y `/home/data`. El Blade puede exponer la URL de datos mediante `data-endpoint` usando `route()`. Ambas rutas pertenecen al grupo autenticado y aplican permisos y alcance tenant. La separación evita que la caché o la navegación Atrás/Adelante reutilicen una respuesta JSON como página.
 
 
 ## Multi-tenant por base de datos
@@ -126,11 +126,17 @@ Los modelos no deben exponer métodos genéricos como `getAll($type, $companyId)
 `CompanySectionService` consulta y almacena categorías, secciones, grupos y opciones habilitadas por `companies_sub_sections`.
 
 - El layout solicita las secciones al servicio; no lee claves de caché directamente.
-- La clave es `company_sections:company:{id}:role:{roleId|all}` y su TTL es de 30 minutos.
-- La consulta selecciona únicamente los campos requeridos por sidebar, favoritos y Home.
+- La clave es `tenant:{namespace}:company_sections:role:{roleId|all}` y su TTL es de 30 minutos.
+- La consulta selecciona los campos del sidebar, el buscador, Favoritos e Inicio.
 - `CompanySubSectionObserver` invalida automáticamente la empresa afectada al crear, editar o eliminar una asignación.
 - `Company` ya no contiene `getActiveSections`; la consulta pertenece al servicio que conoce su uso y caché.
 - No se utiliza un listener de autenticación para precargar el menú.
+
+El riel contiene los nueve mundos del catálogo base. El control del navbar abre o cierra el panel contextual desde 768 px y toda la navegación lateral en móvil. Si `home.index` está en la colección autorizada, el isotipo de Blapos enlaza a Inicio. Las demás páginas autorizadas de `sc_workspace`, si existen, se agrupan en Espacio de trabajo en el riel. [Patrón visual y de interacción](../../frontend/patrones/TENANT_NAVIGATION.md).
+
+En una instalación existente, `tenant:navigation-sync <slug> --apply-layout` concilia el catálogo por identificadores estables y recalcula `section_order` y `sub_section_order` para los accesos del diseño. Las asignaciones existentes conservan su estado y los roles conservan sus permisos. La caché se invalida al confirmar la transacción. [Mapa y reglas de navegación](../../frontend/patrones/00_menu_order.md).
+
+La consolidación usa las secciones existentes con ID 2 para **Operaciones y clientes** e ID 11 para **Equipo y activos**. Primero reasigna los grupos y páginas manteniendo sus IDs y rutas. Esto conserva los vínculos con permisos, favoritos y métricas por submódulo. En un tenant existente, los mundos `sc_customers` y `sc_equipment` conservan sus filas y pasan a `inactive` cuando quedan vacíos. Si todavía contienen un grupo o una página local, la conciliación se revierte e indica qué mundo requiere reubicar esos elementos. Las bases nuevas cargan las diez secciones del catálogo, incluidas `sc_workspace` para Inicio y las nueve secciones de los mundos. La transición utiliza el esquema existente.
 
 ## Estado actual
 

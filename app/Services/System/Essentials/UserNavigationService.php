@@ -17,7 +17,7 @@ final class UserNavigationService {
 
     private const WORKSPACE_LIST_LIMIT = 6;
 
-    private const WORKSPACE_ROUTE = "workspace.index";
+    private const WORKSPACE_ROUTE = "home.index";
 
     public function record(User $user, string $routeName, ?string $requestedPath = null): void {
 

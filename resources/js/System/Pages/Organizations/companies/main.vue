@@ -301,7 +301,7 @@ const MODULE_CONFIG = {
     menuId: "menu-configuration-my-company",
     pageTitle: "Mi empresa",
     pageTitleSingular: "Mi empresa",
-    breadcrumbParent: "Administración",
+    breadcrumbParent: "Configuración",
     perPage: 1
 };
 

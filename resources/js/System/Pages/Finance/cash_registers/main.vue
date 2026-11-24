@@ -14,8 +14,9 @@
                     <div class="fg-cash__selector">
                         <FgField label="Caja de trabajo" input-id="cash-work-register">
                             <FgSelect
-                                v-model="registerFilter"
+                                v-model="registerFilterId"
                                 :options="registerOptions"
+                                :reduce="register => register.id"
                                 :clearable="false"
                                 :searchable="false"
                                 placeholder="Seleccione una caja"/>
@@ -186,7 +187,7 @@
                             <strong>S/ {{ separatorNumber(summary.totals.counted) }}</strong>
                         </article>
                         <article class="fg-cash-summary__card">
-                            <span>Diferencia</span>
+                            <span>Diferencia de arqueos</span>
                             <strong :class="differenceClass(summary.totals.difference)">S/ {{ separatorNumber(summary.totals.difference) }}</strong>
                         </article>
                     </div>
@@ -537,15 +538,15 @@ export default {
     data() {
         return {
             config: Requests.config({entity: MODULE.entity}),
-            sessionConfig: Requests.config({entity: "cash_sessions"}),
-            movementConfig: Requests.config({entity: "cash_movements"}),
-            summaryConfig: Requests.config({entity: "cash_summary"}),
+            sessionConfig: Requests.config({entity: "cash-sessions"}),
+            movementConfig: Requests.config({entity: "cash-movements"}),
+            summaryConfig: Requests.config({entity: "cash-summary"}),
             registers: [],
             sessions: {data: [], links: []},
             movements: {data: [], links: []},
             summary: {sessions: [], payments: [], totals: {opening: 0, expected: 0, counted: 0, difference: 0}},
-            selectedRegister: null,
-            registerFilter: null,
+            selectedRegisterId: null,
+            registerFilterId: null,
             activeView: this.initialView,
             filters: {search: ""},
             appliedSearch: "",
@@ -595,6 +596,9 @@ export default {
                 ...register,
                 label: `${register.name} - ${register.branch?.name || 'Sin sucursal'}`
             }));
+        },
+        selectedRegister() {
+            return this.registerOptions.find(register => register.id === this.selectedRegisterId) || null;
         },
         visibleRegisters() {
             const search = this.appliedSearch.trim().toLocaleLowerCase("es-PE");
@@ -657,8 +661,10 @@ export default {
             this.options.paymentMethods = data.paymentMethods || [];
             this.options.statuses = data.statuses || [];
             this.options.movementTypes = data.movementTypes || [];
-            this.selectedRegister = this.registerOptions[0] || null;
-            this.registerFilter = this.selectedRegister;
+            if(!this.selectedRegister) {
+                this.selectedRegisterId = this.registerOptions[0]?.id ?? null;
+                this.registerFilterId = this.selectedRegisterId;
+            }
 
             return true;
         },
@@ -668,7 +674,7 @@ export default {
             Alerts.tooltips({});
         },
         searchActiveView() {
-            this.selectedRegister = this.registerFilter;
+            this.selectedRegisterId = this.registerFilterId;
             this.appliedSearch = this.filters.search;
             return this.refreshActiveView();
         },
@@ -697,10 +703,6 @@ export default {
 
                 this.registers = result.data.data || [];
                 this.options.registers = this.registers;
-
-                if(this.selectedRegister) {
-                    this.selectedRegister = this.registerOptions.find(register => register.id === this.selectedRegister.id) || this.selectedRegister;
-                }
             } finally {
                 this.loading.registers = false;
             }
@@ -753,8 +755,8 @@ export default {
         },
         openModal(type, register = null) {
             if(register) {
-                this.selectedRegister = this.registerOptions.find(item => item.id === register.id) || register;
-                this.registerFilter = this.selectedRegister;
+                this.selectedRegisterId = register.id;
+                this.registerFilterId = register.id;
             }
             this.errors = {};
 

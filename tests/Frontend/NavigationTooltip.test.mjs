@@ -28,7 +28,7 @@ test("los tooltips del menú conservan su clase al reconstruirse", async () => {
 
     assert.match(alerts, /new Bootstrap\.Tooltip\(element, tooltipOptionsFor\(element\)\)/);
     assert.match(navigation, /window\.bootstrap\?\.Tooltip\?\.getInstance\(moduleButton\)\?\.hide\(\)/);
-    assert.match(navigation, /navigation\.querySelectorAll\('\[data-bs-toggle="tooltip"\]'\)\.forEach\(function \(element\) \{[\s\S]*?createTooltip\(element, element\.getAttribute\("title"\) \|\| ""\)/);
+    assert.match(navigation, /const desktopTooltips = layout.querySelectorAll\("\[data-fg-desktop-tooltip\]"\);\s*const syncRailTooltips = \(\) => desktopTooltips.forEach\(element => createTooltip\(element\)\)/);
     assert.doesNotMatch(navigation, /tooltip\?\.disable\(\)|element\.removeAttribute\("data-bs-toggle"\)/);
 
 });
