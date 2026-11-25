@@ -48,7 +48,9 @@ La pantalla muestra estos tres bloques como guía superior para que el usuario n
 ## Estado de mejoras
 
 - Al reemplazar una imagen se elimina el archivo anterior después de guardar la nueva referencia.
-- Los archivos de marca se guardan bajo `tenants/{tenant_slug}/...`.
+- Los archivos de marca se guardan bajo `tenants/{tenant_public_id}/branding/`.
+- **Imagen de login** y **Marca combinada** son PNG o JPEG configurables desde **Identidad visual**. Los campos `companies.login_image` y `companies.combinationmark` guardan las rutas. Login y las vistas previas comprueban ambos archivos dentro de la carpeta de marca del tenant. Cada recurso usa su respaldo de Blapos si falta el archivo configurado. La URL del respaldo incluye la fecha de modificación del archivo como versión para renovar la caché del navegador al reemplazarlo.
+- `CompanyBrandingService` valida el nombre de recurso, su ruta y su existencia. `GET /login/image` sirve el fondo y `GET /login/brand` sirve la marca combinada de la empresa resuelta por dominio.
 - `GET|POST|PATCH /master-data/company-settings` administra claves tipadas bajo los permisos de Mi empresa; valida el valor, audita la mutación e invalida `initParams` dependientes.
 
 ## Pendientes sugeridos

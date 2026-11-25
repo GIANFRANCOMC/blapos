@@ -3,35 +3,32 @@
         $ownerApp = config('app.owner_app');
         $supportContact = app(\App\Services\System\Tenancy\PlatformSupportService::class)->contact();
         $company = $data->company ?? null;
+        $combinationMark = $data->combinationMark;
+        $loginImage = $data->loginImage;
+        $brandName = $combinationMark['url'] === $combinationMark['fallback']
+            ? $ownerApp->commercial_name
+            : $company->commercial_name;
     @endphp
 
     <main class="fg-auth-login-page" aria-labelledby="fg-login-title">
-        <aside class="fg-auth-brand-panel" aria-hidden="true">
-            <p class="fg-auth-brand-panel__name">{{ $ownerApp->commercial_name }}</p>
-            <div>
-                <p class="fg-auth-brand-panel__title">Tu negocio,<br>en un solo lugar.</p>
-                <p class="fg-auth-brand-panel__copy">Ventas, inventario y atención a tus clientes.</p>
+        <div @class([
+            'fg-auth-login-visual',
+            'fg-auth-login-visual--default' => $loginImage['url'] === $loginImage['fallback'],
+        ]) aria-hidden="true">
+            <div class="fg-auth-login-art">
+                <img id="fg-login-cover" src="{{ $loginImage['url'] }}" data-default-src="{{ $loginImage['fallback'] }}"
+                     alt="" loading="lazy" decoding="async" fetchpriority="high">
             </div>
-            <ul class="fg-auth-brand-panel__areas">
-                <li>Ventas</li>
-                <li>Inventario</li>
-                <li>Clientes</li>
-            </ul>
-            @if($company)
-                <p class="fg-auth-brand-panel__workspace">Espacio de trabajo · {{ $company->commercial_name }}</p>
-            @endif
-        </aside>
+        </div>
 
         <section class="fg-auth-login-content">
             <div class="fg-auth-login-card">
                 <header class="fg-auth-login-header">
-                    <p class="fg-auth-login-brand">
-                        <img src="{{ asset($ownerApp->assets->img->logomark) }}" alt="" width="32" height="32">
-                        <span>{{ $ownerApp->commercial_name }}</span>
-                    </p>
+                    <img id="fg-login-brand" class="fg-auth-login-brand" src="{{ $combinationMark['url'] }}"
+                         alt="{{ $brandName }}" data-default-src="{{ $combinationMark['fallback'] }}"
+                         data-default-alt="{{ $ownerApp->commercial_name }}">
                     @if($company)
                         <h1 id="fg-login-title" class="fg-auth-login-title">Inicia sesión</h1>
-                        <p class="fg-auth-login-sub">Ingresa con tu cuenta de {{ $company->commercial_name }}.</p>
                     @else
                         <h1 id="fg-login-title" class="fg-auth-login-title">Acceso no disponible</h1>
                     @endif
@@ -42,8 +39,8 @@
                         @csrf
                         <div>
                             <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="text" inputmode="email" class="form-control" id="email" name="email"
-                                   placeholder="nombre@empresa.com" value="{{ old('email') }}" required autocomplete="username"
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ old('email') }}" required autocomplete="username" autocapitalize="none" spellcheck="false"
                                    @if($errors->has('email')) aria-invalid="true" aria-describedby="fg-login-email-error" @endif>
                             @if($errors->has('email'))
                                 <p class="fg-auth-field-error" id="fg-login-email-error" role="alert">{{ $errors->first('email') }}</p>
@@ -53,17 +50,17 @@
                             <label for="password" class="form-label">Contraseña</label>
                             <div class="fg-auth-password-field">
                                 <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="••••••••" required autocomplete="current-password"
+                                       required autocomplete="current-password"
                                        @if($errors->has('password')) aria-invalid="true" aria-describedby="fg-login-password-error" @endif>
                                 <button type="button" class="fg-auth-password-toggle" id="fg-auth-password-toggle"
-                                        aria-controls="password" aria-label="Mostrar contraseña" aria-pressed="false">Ver</button>
+                                        aria-controls="password" aria-label="Mostrar contraseña">Mostrar</button>
                             </div>
                             @if($errors->has('password'))
                                 <p class="fg-auth-field-error" id="fg-login-password-error" role="alert">{{ $errors->first('password') }}</p>
                             @endif
                         </div>
-                        <div class="fg-auth-verification" aria-label="Verificación de seguridad">
-                            <div class="cf-turnstile" data-sitekey="{{ config('app.CAPTCHA_KEY_FRONTEND') }}" data-size="flexible"></div>
+                        <div class="fg-auth-verification" role="group" aria-label="Verificación de seguridad">
+                            <div class="cf-turnstile" data-sitekey="{{ config('app.CAPTCHA_KEY_FRONTEND') }}" data-size="flexible" data-language="es"></div>
                             @if($errors->has('captcha'))
                                 <p class="fg-auth-field-error" role="alert">{{ $errors->first('captcha') }}</p>
                             @endif
@@ -77,27 +74,81 @@
                         <p>Si ya se hizo el pago, el acceso puede tardar unos minutos en actualizarse.</p>
                     </div>
                 @endif
-
-                <footer class="fg-auth-help-footer">
-                    @include('shared.support-contact')
-                </footer>
             </div>
+
+            <footer class="fg-auth-help-footer" aria-label="Ayuda de Blapos">
+                <button class="fg-link" type="button" id="fg-login-support-trigger"
+                        aria-haspopup="dialog">¿Necesitas ayuda?&ensp;Contáctanos.</button>
+            </footer>
         </section>
+
+        <template id="fg-login-support">
+            <div>
+                <p>Si tienes una sugerencia o algún inconveniente, no dudes en contactarnos.</p>
+                <div class="fg-auth-support-links">
+                    <a class="fg-auth-support-channel" href="mailto:{{ $supportContact['email'] }}">
+                        <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                        <span><small>Correo electrónico</small>{{ $supportContact['email'] }}</span>
+                    </a>
+                    <a class="fg-auth-support-channel" href="tel:{{ $supportContact['phone_href'] }}">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                        <span><small>Teléfono</small>{{ $supportContact['phone'] }}</span>
+                    </a>
+                </div>
+            </div>
+        </template>
     </main>
 
-    @if($company)
-        <script>
+    <script>
+        document.querySelectorAll(".fg-auth-login-page img[data-default-src]").forEach(image => {
+            const useDefaultImage = () => {
+                const fallback = image.dataset.defaultSrc;
+                if (image.getAttribute("src") === fallback) return;
+                image.src = fallback;
+                image.closest(".fg-auth-login-visual")?.classList.add("fg-auth-login-visual--default");
+                if (image.dataset.defaultAlt) image.alt = image.dataset.defaultAlt;
+            };
+            image.addEventListener("error", useDefaultImage);
+            if (image.complete && image.naturalWidth === 0) useDefaultImage();
+        });
+
+        const supportTrigger = document.getElementById('fg-login-support-trigger');
+        const supportTemplate = document.getElementById('fg-login-support');
+        supportTrigger.addEventListener('click', () => {
+            supportTrigger.focus({preventScroll: true});
+            window.Swal.fire({
+                titleText: 'Estamos para ayudarte',
+                html: supportTemplate.content.firstElementChild.cloneNode(true),
+                confirmButtonText: 'Cerrar',
+                buttonsStyling: false,
+                focusConfirm: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                returnFocus: true,
+                showClass: {popup: 'fg-auth-support-enter'},
+                hideClass: {popup: 'fg-auth-support-leave'},
+                customClass: {
+                    container: 'fg-swal-layer fg-auth-support-layer',
+                    popup: 'fg-swal fg-swal--result fg-auth-support-alert',
+                    confirmButton: 'fg-button'
+                }
+            });
+        });
+
+        @if($company)
             const loginForm = document.getElementById('fg-login-form');
             const loginSubmit = document.getElementById('fg-login-submit');
             const loginStatus = document.getElementById('fg-login-status');
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('fg-auth-password-toggle');
+            const verification = loginForm.querySelector('.cf-turnstile');
+
+            if (verification.clientWidth < 300) verification.dataset.size = 'compact';
 
             passwordToggle.addEventListener('click', () => {
                 const visible = passwordInput.type === 'password';
                 passwordInput.type = visible ? 'text' : 'password';
-                passwordToggle.textContent = visible ? 'Ocultar' : 'Ver';
-                passwordToggle.setAttribute('aria-pressed', String(visible));
+                passwordToggle.textContent = visible ? 'Ocultar' : 'Mostrar';
                 passwordToggle.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
             });
 
@@ -119,6 +170,6 @@
                 loginStatus.textContent = '';
                 loginForm.removeAttribute('aria-busy');
             });
-        </script>
-    @endif
+        @endif
+    </script>
 </x-system-guest-layout>

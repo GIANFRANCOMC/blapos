@@ -196,7 +196,12 @@
                         <article v-for="item in MODULE.brandingItems" :key="item.formField" class="fg-company-settings__brand-item">
                             <div class="fg-company-settings__brand-preview">
                                 <img
-                                    v-if="isDefined(forms[entity].createUpdate.data[item.formField])"
+                                    v-if="brandingPreviewUrls[item.formField]"
+                                    :key="brandingPreviewRevision"
+                                    :src="brandingPreviewUrls[item.formField]"
+                                    :alt="`Vista previa: ${MODULE.texts.form[item.formKey]}`"/>
+                                <img
+                                    v-else-if="isDefined(forms[entity].createUpdate.data[item.formField])"
                                     :src="getAsset(forms[entity].createUpdate.data[item.formField], {type: 'storage'})"
                                     :alt="`Imagen actual: ${MODULE.texts.form[item.formKey]}`"/>
                                 <img
@@ -344,7 +349,7 @@ const BRANDING_ITEMS = [
     {formField: "logomark", formKey: "logomark", fileInputId: "logomarkFileId", hint: "Símbolo o ícono de la marca sin texto."},
     {formField: "logotype", formKey: "logotype", fileInputId: "logotypeFileId", hint: "Texto del nombre de la marca, solo letras."},
     {formField: "combinationmark", formKey: "combinationmark", fileInputId: "combinationmarkFileId", hint: "Logo e isotipo combinados para la identidad de la empresa."},
-    {formField: "login_image", formKey: "loginImage", fileInputId: "loginImageFileId", hint: "Imagen de la pantalla de inicio de sesión."}
+    {formField: "login_image", formKey: "loginImage", fileInputId: "loginImageFileId", hint: "Fondo de inicio de sesión. Si no eliges una imagen, se muestra la de Blapos."}
 ];
 
 const TEXTS = {
@@ -387,6 +392,7 @@ const MODULE = {
 
 
 export default {
+    props: {brandingPreviewUrls: {type: Object, required: true}},
     name: "CompaniesMain",
     components: {FgPageHeader, SearchButton, InitialLoadTransition, CompanySettingsSkeleton},
     data() {
@@ -407,7 +413,8 @@ export default {
             isSaving: false,
             initialLoading: true,
             activeTabId: "general",
-            selectedImageFiles: {}
+            selectedImageFiles: {},
+            brandingPreviewRevision: 0
         };
 
     },
@@ -545,6 +552,9 @@ export default {
                 if(Requests.valid({result})) {
 
                     this.updateFormImages(result.data.company);
+                    if(Object.keys(this.brandingPreviewUrls).some(field => this.selectedImageFiles[field])) {
+                        this.brandingPreviewRevision++;
+                    }
                     Alerts.generateAlert({type: "success", msgContent: result.data.msg});
 
                     // Forms.clearFormData(entityForms.data, this.MODULE.formFields);

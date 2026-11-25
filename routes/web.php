@@ -30,6 +30,9 @@ Route::get("/shared/reports/sale/{sale}/{type}", [ReportController::class, "shar
     ->middleware(["signed", "throttle:guest-status"])
     ->name("reports.sale.shared");
 
+Route::get("/login/image", [AuthenticatedSessionController::class, "image"])->defaults("resource", "login_image")->name("login.image");
+Route::get("/login/brand", [AuthenticatedSessionController::class, "image"])->defaults("resource", "combinationmark")->name("login.brand");
+
 Route::middleware("guest")->group(function() {
 
     Route::get("/", [AuthenticatedSessionController::class, "create"]);

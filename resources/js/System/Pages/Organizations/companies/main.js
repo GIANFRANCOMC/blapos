@@ -23,7 +23,11 @@ import AppTabs from "@/Shared/AppTabs.vue";
 import "../../../../../css/System/Pages/Organizations/companies/skeleton.css";
 
 // App creation and mounted
-createApp(App)
+const companyRoot = document.getElementById("app");
+createApp(App, {brandingPreviewUrls: {
+    login_image: companyRoot.dataset.loginImageUrl,
+    combinationmark: companyRoot.dataset.combinationMarkUrl,
+}})
 .component("v-select", VueSelect)
 .component("Breadcrumb", Breadcrumb)
 .component("InputDate", InputDate)
@@ -40,4 +44,4 @@ createApp(App)
 .component("MyWebCompany", MyWebCompany)
 .component("StatusBadge", StatusBadge)
 .component("AppTabs", AppTabs)
-.mount("#app");
+.mount(companyRoot);
