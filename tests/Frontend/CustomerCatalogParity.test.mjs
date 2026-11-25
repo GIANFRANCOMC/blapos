@@ -8,7 +8,10 @@ test("clientes comparte tabla, acciones y modales del catálogo sin perder carne
     const source = readFileSync(new URL("../../resources/js/System/Pages/Customers/customers/main.vue", import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: "customers/main.vue"}).errors.length, 0);
-    assert.match(source, /class="table fg-entity-table fg-entity-table--directory fg-customer-table mb-0"/);
+    assert.match(source, /<ResponsiveTable>[\s\S]*?class="fg-table fg-customer-table fg-entity-table--directory fg-record-table" role="table"/);
+    for (const label of ["Documento", "Correo", "Teléfono"]) {
+        assert.match(source, new RegExp('class="fg-record-table__label" aria-hidden="true">' + label));
+    }
     assert.match(source, /<TableActionsDropdown/);
     assert.match(source, /edit: "Editar cliente"/);
     assert.doesNotMatch(source, /br-entity-person__avatar/);

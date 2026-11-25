@@ -124,7 +124,7 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
 .fg-modal :is(.fg-modal__content, .modal-content) { display: flex; flex-direction: column; width: 100%; max-height: calc(100dvh - 48px); background: var(--fg-surface); border: 0; border-radius: var(--fg-panel-radius); box-shadow: var(--fg-shadow); overflow: hidden; pointer-events: auto; }
 .fg-modal__header, .fg-modal__footer { display: flex; flex: none; align-items: center; gap: var(--fg-space-3); min-height: 64px; padding: 12px var(--fg-space-6); }
 .fg-modal__header { border-bottom: 1px solid var(--fg-border); }
-.fg-modal__title { flex: 1; color: var(--fg-heading); font-size: var(--fg-modal-title-size); font-weight: var(--fg-title-weight); line-height: 1.35; }
+.fg-modal__title { flex: 1; min-inline-size: 0; overflow-wrap: anywhere; color: var(--fg-heading); font-size: var(--fg-modal-title-size); font-weight: var(--fg-title-weight); line-height: 1.35; }
 .fg-modal__body { min-height: 0; overflow-y: auto; padding: var(--fg-space-6); overscroll-behavior: contain; }
 .fg-modal__footer { border-top: 1px solid var(--fg-border); }
 .fg-modal__footer > :last-child:not(:first-child) { margin-left: auto; }
@@ -138,4 +138,5 @@ body.fg-theme .modal-header.fg-modal-header .modal-title {
     .fg-modal > .modal-dialog { width: calc(100% - 16px); margin: 8px auto; min-height: calc(100% - 16px); }
     .fg-modal :is(.fg-modal__content, .modal-content) { max-height: calc(100dvh - 16px); }
     .fg-modal__header, .fg-modal__footer { padding-inline: var(--fg-space-4); }
+    .fg-modal__footer { flex-wrap: wrap; }
 }

@@ -27,7 +27,7 @@ test("los encabezados de Kardex y Traslados conservan su alineación", () => {
 test("el Kardex valorizado mantiene variaciones y montos en una sola línea", () => {
     const page=read(directory + "/valued-kardex.vue");
     const styles=read("resources/css/System/fg/inventory.css");
-    assert.match(page, /class="fg-align-end text-nowrap">\{\{ currencyNumber\(movement\.unit_cost\) \}\}/);
+    assert.match(page, /class="fg-align-end text-nowrap">(?:(?!<\/td>)[\s\S])*?\{\{ currencyNumber\(movement\.unit_cost\) \}\}/);
     assert.match(page, /fg-inventory-quantity[^>]*>[\s\S]*?signedCurrency\(movement\.value_change\)/);
     assert.match(page, /class="fg-inventory-quantity">\{\{ currencyNumber\(movement\.value_after\) \}\}/);
     assert.match(styles, /\.fg-inventory-quantity \{[^}]*white-space: nowrap/);

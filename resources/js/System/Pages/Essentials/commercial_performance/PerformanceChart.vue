@@ -12,13 +12,13 @@
             </div>
             <svg class="fg-performance-figure__plot" :viewBox="`0 0 ${width} ${height}`" preserveAspectRatio="none"
                 role="img" :aria-label="`Evolución diaria del importe vendido en ${series.code}. Consulta los importes por fecha debajo del gráfico.`"
-                @pointermove="inspectDay" @pointerleave="activeDay = null">
+                @pointermove="inspectDay" @pointerdown="inspectDay" @pointerleave="activeDay = null">
                 <line v-for="(amount, index) in ticks" :key="index" x1="0" :x2="width" :y1="y(amount)" :y2="y(amount)"
                     class="fg-performance-figure__grid" vector-effect="non-scaling-stroke"/>
-                <polyline :points="points" class="fg-performance-figure__line" vector-effect="non-scaling-stroke"/>
-                <line v-if="days.length === 1 || activeDay !== null" :x1="x(activeDay ?? 0)" :x2="x(activeDay ?? 0)"
-                    :y1="y(values[activeDay ?? 0]) - 0.01" :y2="y(values[activeDay ?? 0]) + 0.01"
-                    class="fg-performance-figure__point" vector-effect="non-scaling-stroke"/>
+                <rect v-for="(value, index) in values" :key="days[index]" :x="x(index) - barWidth / 2"
+                    :y="Math.min(y(value), y(0))" :width="barWidth" :height="Math.abs(y(value) - y(0))"
+                    :rx="Math.min(4, barWidth / 4)" class="fg-performance-figure__bar"
+                    :class="{'is-active': index === activeDay}"/>
             </svg>
             <div class="fg-performance-figure__days" aria-hidden="true">
                 <span v-for="day in axisDays" :key="day">{{ formatDay(day, shortDate) }}</span>
@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import {decimalStep, formatCurrencyAmount, separatorNumber} from "@/Shared/Numbers.js";
 
@@ -58,7 +58,7 @@ const width = 1000;
 const height = 200;
 const inset = 5;
 const activeDay = ref(null);
-// Binary numbers are used only to place points; displayed amounts use the decimal strings.
+// Chart coordinates use numbers. Displayed amounts retain the decimal strings.
 const values = computed(() => props.series.totals.map(Number));
 const top = computed(() => Math.max(0, ...values.value));
 const bottom = computed(() => Math.min(0, ...values.value));
@@ -74,14 +74,16 @@ const axisDays = computed(() => {
     if (props.days.length <= 3) return props.days;
     return [props.days[0], props.days[Math.floor((props.days.length - 1) / 2)], props.days.at(-1)];
 });
-const x = index => props.days.length === 1 ? width / 2 : inset + (width - 2 * inset) * index / (props.days.length - 1);
+const barSlot = computed(() => (width - 2 * inset) / Math.max(1, props.days.length));
+const barWidth = computed(() => Math.min(48, barSlot.value * 0.66));
+const x = index => inset + barSlot.value * (index + 0.5);
 const y = amount => span.value === 0 ? height / 2 : inset + (height - 2 * inset) * (top.value - amount) / span.value;
-const points = computed(() => values.value.map((value, index) => `${x(index)},${y(value)}`).join(" "));
+watch(() => props.days, () => { activeDay.value = null; });
 
 function inspectDay(event) {
     const rect = event.currentTarget.getBoundingClientRect();
     const coordinate = width * (event.clientX - rect.left) / rect.width;
-    const index = Math.round((coordinate - inset) * (props.days.length - 1) / (width - 2 * inset));
+    const index = Math.floor((coordinate - inset) / barSlot.value);
     activeDay.value = Math.min(props.days.length - 1, Math.max(0, index));
 }
 </script>
@@ -131,8 +133,8 @@ function inspectDay(event) {
 }
 
 .fg-performance-figure__grid { stroke: var(--fg-border); }
-.fg-performance-figure__line { fill: none; stroke: var(--fg-primary); stroke-width: 2px; stroke-linejoin: round; }
-.fg-performance-figure__point { stroke: var(--fg-primary); stroke-width: 7px; stroke-linecap: round; }
+.fg-performance-figure__bar { fill: var(--fg-primary); fill-opacity: 0.58; }
+.fg-performance-figure__bar.is-active { fill-opacity: 1; }
 
 .fg-performance-figure__days {
     grid-column: 2;

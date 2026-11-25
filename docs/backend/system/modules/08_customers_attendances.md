@@ -100,3 +100,9 @@ Para entradas biométricas, el dispositivo y `device_user_id` deben resolver una
 - Cada asistencia activa o finalizada permite solicitar una correccion auditada con fechas opcionales y motivo obligatorio.
 - Cuando una asistencia tiene correcciones, el listado muestra el estado mas reciente de esa solicitud.
 - La relacion `corrections` se ordena descendente para que el estado visible corresponda a la ultima correccion registrada.
+
+### Presentación FG
+
+El encabezado concentra el registro y el modo público. Los filtros quedan visibles en dos columnas en móvil y se aplican al pulsar Buscar. El listado y el CSV comparten sucursal, cliente, estado y fechas aplicadas. El filtro Hasta usa el parámetro existente `end_date`. Si se deja vacío, la consulta queda abierta. La tabla presenta cliente, sucursal, ingreso, salida, origen, estado y menú de acciones. En móvil, los mismos registros se muestran como tarjetas.
+
+El resumen de actividad se expande después del listado y agrupa los registros de la página visible por estado y franja horaria. El registro manual, la cámara, el lector y el modo público usan el modal FG. La fecha se presenta como referencia de solo lectura y el contrato de alta y salida se conserva. [Asistencias de clientes en Figma](https://www.figma.com/design/2ceKgscx8nuls2K5a32v4k?node-id=1-445).

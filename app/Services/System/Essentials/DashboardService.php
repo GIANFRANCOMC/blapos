@@ -7,11 +7,25 @@ namespace App\Services\System\Essentials;
 use App\Helpers\System\{Numbers};
 use Carbon\{CarbonImmutable};
 use Illuminate\Database\Query\{Builder};
+use Illuminate\Support\{Collection};
 use Illuminate\Support\Facades\{DB};
 
 final class DashboardService {
 
-    public static function getDashboardData(string $date, ?int $branchId = null): array {
+    /** @param list<int>|null $allowedBranchIds */
+    public static function branchOptions(?array $allowedBranchIds): Collection {
+        return self::branches($allowedBranchIds)
+            ->orderBy("name")
+            ->orderBy("id")
+            ->get(["id", "name", "status"]);
+    }
+
+    /** @param list<int>|null $allowedBranchIds */
+    public static function getDashboardData(string $date, ?int $branchId = null, ?array $allowedBranchIds = null): array {
+
+        $branchIds = $branchId === null
+            ? $allowedBranchIds
+            : array_intersect([$branchId], $allowedBranchIds ?? [$branchId]);
 
         $timezone = (string) (DB::table("company_settings")
             ->where("group", "localization")
@@ -31,7 +45,7 @@ final class DashboardService {
 
         $salesBase = DB::table("sales_header")
             ->join("series", "series.id", "=", "sales_header.serie_id")
-            ->when($branchId, fn($query) => $query->where("series.branch_id", $branchId));
+            ->when($branchIds !== null, fn(Builder $query) => $query->whereIn("series.branch_id", $branchIds));
 
         $netSales = self::salesSummary((clone $salesBase)
             ->where("sales_header.status", "active")
@@ -42,13 +56,13 @@ final class DashboardService {
             ->whereBetween("sales_header.canceled_at", [$dayStart, $dayEnd]));
 
         $attendances = DB::table("attendances")
-            ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
+            ->when($branchIds !== null, fn(Builder $query) => $query->whereIn("branch_id", $branchIds))
             ->whereIn("status", ["active", "finalized"])
             ->whereBetween("start_date", [$dayStart, $dayEnd])
             ->count();
 
         $expiringSubscriptions = DB::table("subscriptions")
-            ->when($branchId, fn($query) => $query->where("branch_id", $branchId))
+            ->when($branchIds !== null, fn(Builder $query) => $query->whereIn("branch_id", $branchIds))
             ->where("status", "active")
             ->whereBetween("end_date", [
                 $dayStart->toDateString(),
@@ -70,7 +84,7 @@ final class DashboardService {
                 "window_days" => $expirationWindow,
             ],
             "branches" => [
-                "active_count" => DB::table("branches")
+                "active_count" => self::branches($allowedBranchIds)
                     ->where("status", "active")
                     ->count(),
             ],
@@ -81,6 +95,12 @@ final class DashboardService {
             ],
         ];
 
+    }
+
+    /** @param list<int>|null $allowedBranchIds */
+    private static function branches(?array $allowedBranchIds): Builder {
+        return DB::table("branches")
+            ->when($allowedBranchIds !== null, fn(Builder $query) => $query->whereIn("id", $allowedBranchIds));
     }
 
     private static function salesSummary(Builder $sales): array {

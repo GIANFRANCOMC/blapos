@@ -1,35 +1,39 @@
 <template>
     <FgPageHeader v-if="isRestaurant" title="POS restaurante" description="Consulta las mesas y gestiona el servicio por piso."/>
     <Breadcrumb v-else :list="breadcrumbTitles"/>
+    <FgPageHeader v-if="!isRestaurant" title="Servicios en curso" description="Consulta y gestiona las atenciones por sucursal." :inert="Boolean(selectedSession)">
+        <template #actions>
+            <button ref="sessionStartTrigger" type="button" class="fg-button" :disabled="initialLoading || loading || !selectedBranch" @click="openSessionModal()">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                <span>Nueva atención</span>
+            </button>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" :table="!isRestaurant"/>
         <div v-else>
             <div class="fg-service-page" :class="{'fg-service-page--sessions': !isRestaurant}" :inert="Boolean(selectedSession)">
-                <div class="fg-service-toolbar" :class="{'fg-service-toolbar--sessions': !isRestaurant}">
-                    <div class="fg-service-toolbar__field">
-                        <label class="fg-field__label colon-at-end">Sucursal</label>
+                <div class="fg-service-toolbar" role="group" aria-label="Filtros de la operación" :class="{'fg-service-toolbar--sessions': !isRestaurant}">
+                    <FgField label="Sucursal" class="fg-service-toolbar__field">
                         <FgSelect
                             v-model="selectedBranch"
-                            aria-label="Sucursal"
                             :options="branchOptions"
                             :clearable="false"
                             :searchable="true"
                             :disabled="loading"
                             @option:selected="handleBranchChange"/>
-                    </div>
-                    <div v-if="!isRestaurant" class="fg-service-toolbar__field">
-                        <label class="fg-field__label colon-at-end">Estado</label>
+                    </FgField>
+                    <FgField v-if="!isRestaurant" label="Estado de la atención" class="fg-service-toolbar__field">
                         <FgSelect
                             v-model="selectedStatus"
-                            aria-label="Estado de la atención"
                             :options="statusOptions"
                             :clearable="false"
                             :searchable="false"
                             :disabled="loading || !selectedBranch"
                             @option:selected="getSessions()"/>
-                    </div>
-                    <div class="fg-service-toolbar__actions">
+                    </FgField>
+                    <div v-if="isRestaurant" class="fg-service-toolbar__actions">
                         <button
                             v-if="isRestaurant"
                             type="button"
@@ -47,15 +51,6 @@
                             @click="openStationModal()">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             <span>Agregar mesa</span>
-                        </button>
-                        <button
-                            v-else
-                            type="button"
-                            class="fg-button"
-                            :disabled="loading || !selectedBranch"
-                            @click="openSessionModal()">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Iniciar atención</span>
                         </button>
                     </div>
                 </div>
@@ -139,7 +134,7 @@
                                 <button
                                     type="button"
                                     class="fg-service-map-station__body"
-                                    @click="station.active_session ? selectSession(station.active_session) : openSessionModal(station)">
+                                    @click="station.active_session ? selectSession(station.active_session, $event) : openSessionModal(station)">
                                     <strong>{{ station.name }}</strong>
                                     <small>{{ station.capacity }} personas</small>
                                     <span class="fg-badge" :class="station.active_session ? (station.active_session.status === 'in_progress' ? 'fg-service-badge--progress' : 'fg-badge--warning') : 'fg-badge--success'">
@@ -187,87 +182,98 @@
                         </article>
                     </div>
 
-                    <section class="fg-service-list" aria-label="Listado de atenciones">
-                        <ResponsiveTable class="fg-sales-table-scroll">
-                        <table class="fg-service-list__table mb-0 fg-table">
-                            <colgroup>
-                                <col style="width: 15%;">
-                                <col style="width: 20%;">
-                                <col style="width: 15%;">
-                                <col style="width: 14%;">
-                                <col style="width: 13%;">
-                                <col style="width: 9%;">
-                                <col style="width: 8%;">
-                                <col style="width: 6%;">
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th>Identificación</th>
-                                    <th>Servicio</th>
-                                    <th>Cliente</th>
-                                    <th>Responsable</th>
-                                    <th>Inicio</th>
-                                    <th>Tiempo</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="fg-table__state" v-if="loading">
-                                    <td colspan="8" class="py-4"><FgListLoading label="Cargando las mesas…"/></td>
-                                </tr>
-                                <template v-else-if="sessions.data.length">
-                                <tr v-for="session in sessions.data" :key="session.id">
-                                    <td class="fg-entity-table__identification-cell">
-                                        <div class="fg-product-codes">
-                                            <div class="fg-product-identity__code">
-                                                <span class="fg-product-identity__label colon-at-end">Atención</span>
+                    <section class="fg-service-list" aria-labelledby="fg-service-list-title">
+                        <h2 id="fg-service-list-title" class="fg-section-title">Atenciones registradas</h2>
+                        <ResponsiveTable>
+                            <table class="fg-service-list__table fg-table fg-record-table" role="table">
+                                <colgroup>
+                                    <col style="width: 26%;">
+                                    <col style="width: 17%;">
+                                    <col style="width: 15%;">
+                                    <col style="width: 15%;">
+                                    <col style="width: 10%;">
+                                    <col style="width: 11%;">
+                                    <col style="width: 6%;">
+                                </colgroup>
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <th role="columnheader" scope="col">Atención</th>
+                                        <th role="columnheader" scope="col">Cliente</th>
+                                        <th role="columnheader" scope="col">Responsable</th>
+                                        <th role="columnheader" scope="col">Inicio</th>
+                                        <th role="columnheader" scope="col">Tiempo</th>
+                                        <th role="columnheader" scope="col" class="text-center">Estado</th>
+                                        <th role="columnheader" scope="col" class="text-center"><span class="visually-hidden">Acciones</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                    <tr role="row" class="fg-table__state" v-if="loading">
+                                        <td role="cell" colspan="7"><FgListLoading label="Consultando atenciones…"/></td>
+                                    </tr>
+                                    <template v-else-if="sessions.data.length">
+                                        <tr role="row" v-for="session in sessions.data" :key="session.id">
+                                            <td role="cell" class="fg-record-table__identity">
                                                 <span class="fg-copy-value">
                                                     <span class="fg-entity-code">{{ session.reference || '—' }}</span>
                                                     <CopyButton v-if="session.reference" :value="session.reference" label="Número de atención"/>
                                                 </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="fg-row-title">{{ session.items?.[0]?.name || 'Sin servicio inicial' }}</span>
-                                        <span v-if="session.items?.length > 1" class="fg-table-note">+ {{ session.items.length - 1 }} {{ session.items.length === 2 ? 'servicio' : 'servicios' }}</span>
-                                    </td>
-                                    <td><span :class="{'fg-service-list__muted': !session.customer}">{{ session.customer?.name || 'Cliente general' }}</span></td>
-                                    <td><span :class="{'fg-service-list__muted': !session.assigned_user}">{{ session.assigned_user?.name || 'Sin asignar' }}</span></td>
-                                    <td class="fg-service-list__date">{{ formatDateTime(session.started_at || session.created_at) }}</td>
-                                    <td class="fg-service-list__time">{{ elapsedLabel(session) }}</td>
-                                    <td class="text-center">
-                                        <StatusBadge :status="session.status" :formatted-status="statusLabel(session.status)" :custom-variants="sessionStatusVariants"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <TableActionsDropdown :label="`Acciones de ${session.reference}`">
-                                            <li><button type="button" class="dropdown-item" @click="selectSession(session)"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i><span>Gestionar atención</span></button></li>
-                                        </TableActionsDropdown>
-                                    </td>
-                                </tr>
-                                </template>
-                                <tr class="fg-table__state" v-else>
-                                    <td colspan="8" class="py-4">
-                                        <FgEmptyState title="No se encontraron registros" v-if="selectedBranch"/>
-                                        <FgEmptyState v-else title="No hay sucursales disponibles" description="Solicita acceso a una sucursal para gestionar atenciones."/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                                <span class="fg-table-note">{{ session.items?.[0]?.name || 'Sin servicio inicial' }}</span>
+                                                <span v-if="session.items?.length > 1" class="fg-table-note">+ {{ session.items.length - 1 }} {{ session.items.length === 2 ? 'servicio' : 'servicios' }}</span>
+                                            </td>
+                                            <td role="cell">
+                                                <span class="fg-record-table__label" aria-hidden="true">Cliente</span>
+                                                <span class="fg-record-table__value">{{ session.customer?.name || 'Cliente general' }}</span>
+                                            </td>
+                                            <td role="cell">
+                                                <span class="fg-record-table__label" aria-hidden="true">Responsable</span>
+                                                <span class="fg-record-table__value">{{ session.assigned_user?.name || 'Sin asignar' }}</span>
+                                            </td>
+                                            <td role="cell">
+                                                <span class="fg-record-table__label" aria-hidden="true">Inicio</span>
+                                                <span class="fg-record-table__value">{{ formatDateTime(session.started_at || session.created_at) }}</span>
+                                            </td>
+                                            <td role="cell">
+                                                <span class="fg-record-table__label" aria-hidden="true">Tiempo</span>
+                                                <span class="fg-record-table__value">{{ elapsedLabel(session) }}</span>
+                                            </td>
+                                            <td role="cell" class="fg-record-table__state">
+                                                <StatusBadge :status="session.status" :formatted-status="statusLabel(session.status)" :custom-variants="sessionStatusVariants"/>
+                                            </td>
+                                            <td role="cell" class="fg-record-table__actions">
+                                                <TableActionsDropdown :label="`Acciones de ${session.reference}`">
+                                                    <li><button type="button" class="fg-menu__item" @click="selectSession(session, $event)">Gestionar atención</button></li>
+                                                </TableActionsDropdown>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr role="row" class="fg-table__state" v-else>
+                                        <td role="cell" colspan="7">
+                                            <FgEmptyState v-if="sessionsError" title="No se pudieron consultar las atenciones" description="Vuelve a intentar con la sucursal y el estado elegidos.">
+                                                <FgButton tone="secondary" @click="getSessions()">Volver a intentar</FgButton>
+                                            </FgEmptyState>
+                                            <FgEmptyState v-else-if="selectedBranch" title="No hay atenciones con este estado" description="Cambia el estado para consultar otras atenciones de la sucursal."/>
+                                            <FgEmptyState v-else title="No hay sucursales disponibles" description="Solicita acceso a una sucursal para gestionar atenciones."/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </ResponsiveTable>
                     </section>
                     <Paginator aria-label="Paginación de atenciones" :links="sessions.links" :pagination="sessions" :loading="loading" @clickPage="getSessions"/>
                 </template>
 
             </div>
+            <Teleport to="body">
                 <div v-if="selectedSession" class="fg-service-detail-backdrop" aria-hidden="true" @click="selectedSession = null"></div>
-                <aside v-if="selectedSession" ref="sessionDetail" class="fg-service-detail" :class="{'fg-service-detail--sessions': !isRestaurant}" role="dialog" aria-modal="true" aria-labelledby="fg-service-detail-title" @keydown="handleDetailKeydown">
+                <aside v-if="selectedSession" ref="sessionDetail" class="fg-service-detail" role="dialog" aria-modal="true"
+                    aria-labelledby="fg-service-detail-title" @keydown="handleDetailKeydown">
                     <header class="fg-service-detail__header">
-                        <div>
-                            <small>Atención {{ selectedSession.reference }}</small>
-                            <h2 id="fg-service-detail-title" class="fg-title mb-0">{{ selectedSession.station?.name || selectedSession.items?.[0]?.name || 'Atención de servicio' }}</h2>
-                            <p>
+                        <div class="fg-service-detail__identity">
+                            <p class="fg-help">Atención {{ selectedSession.reference }}</p>
+                            <h2 id="fg-service-detail-title" class="fg-modal__title">
+                                {{ selectedSession.station?.name || selectedSession.items?.[0]?.name || 'Atención de servicio' }}
+                            </h2>
+                            <p class="fg-help">
                                 {{ selectedSession.customer?.name || 'Cliente general' }}
                                 <span v-if="selectedSession.assigned_user"> · {{ selectedSession.assigned_user.name }}</span>
                             </p>
@@ -278,186 +284,106 @@
                     </header>
 
                     <div class="fg-service-detail__content">
-                    <div class="fg-service-detail__metrics">
-                        <span><small>Estado</small><strong>{{ statusLabel(selectedSession.status) }}</strong></span>
-                        <span><small>Tiempo</small><strong>{{ elapsedLabel(selectedSession) }}</strong></span>
-                        <span><small>{{ isRestaurant ? 'Detalles' : 'Servicios' }}</small><strong>{{ selectedSession.items?.length || 0 }}</strong></span>
-                    </div>
-
-                    <section v-if="['pending', 'in_progress'].includes(selectedSession.status)" class="fg-service-detail__section" aria-label="Gestión de la atención">
-                        <h3>Gestión de la atención</h3>
-                        <div class="fg-service-detail__operations">
-                            <div class="fg-service-detail__field">
-                                <label class="fg-field__label colon-at-end">Responsable</label>
-                                <FgSelect
-                                    v-model="operationForm.user"
-                                    :options="userOptions"
-                                    :clearable="true"
-                                    :searchable="true"
-                                    placeholder="Sin asignar"/>
-                            </div>
-                            <button
-                                type="button"
-                                class="fg-button fg-button--secondary"
-                                :disabled="saving || !operationForm.user"
-                                @click="reassignSession">
-                                Reasignar
-                            </button>
-                        </div>
-                        <div class="fg-service-detail__field">
-                            <label class="fg-field__label colon-at-end">Motivo o nota</label>
-                            <input
-                                v-model.trim="operationForm.note"
-                                type="text"
-                                class="fg-native-input"
-                                maxlength="500"
-                                placeholder="Opcional para pausa; obligatorio para cancelar"/>
-                        </div>
-                        <div class="fg-service-detail__quick-actions">
-                            <button
-                                v-if="!isSessionPaused(selectedSession)"
-                                type="button"
-                                class="fg-button"
-                                :disabled="saving"
-                                @click="pauseSession">
-                                Pausar
-                            </button>
-                            <button
-                                v-else
-                                type="button"
-                                class="fg-button"
-                                :disabled="saving"
-                                @click="resumeSession">
-                                Reanudar
-                            </button>
-                            <button
-                                type="button"
-                                class="fg-button fg-button--danger"
-                                :disabled="saving || !operationForm.note"
-                                @click="cancelSession">
-                                Cancelar atención
-                            </button>
-                        </div>
-                    </section>
-
-                    <section class="fg-service-detail__section" aria-label="Servicios de la atención">
-                        <h3>{{ isRestaurant ? 'Detalle de la mesa' : 'Servicios de la atención' }}</h3>
-                        <div v-if="['pending', 'in_progress'].includes(selectedSession.status)" class="fg-service-add-item">
-                            <div class="fg-service-detail__field">
-                                <label class="fg-field__label colon-at-end">{{ isRestaurant ? 'Producto o servicio' : 'Servicio' }}</label>
-                                <FgSelect
-                                    v-model="detailForm.item"
-                                    :options="itemOptions"
-                                    :clearable="false"
-                                    :searchable="true"
-                                    :filterable="false"
-                                    :loading="remoteOptions.items.loading"
-                                    @open="openOptions('items')"
-                                    @search="searchOptions('items', $event)"
-                                    placeholder="Seleccionar"/>
-                            </div>
-                            <div class="fg-service-detail__field">
-                                <label class="fg-field__label colon-at-end">Responsable</label>
-                                <FgSelect
-                                    v-model="detailForm.user"
-                                    :options="userOptions"
-                                    :clearable="true"
-                                    :searchable="true"
-                                    placeholder="Sin asignar"/>
-                            </div>
-                            <button
-                                type="button"
-                                class="fg-button"
-                                :disabled="saving || !detailForm.item"
-                                @click="addSessionItem">
-                                Agregar
-                            </button>
-                        </div>
-
-                    <div class="fg-service-detail__items">
-                        <article v-for="item in selectedSession.items" :key="item.id">
+                        <dl class="fg-service-detail__metrics" aria-label="Resumen de la atención">
                             <div>
-                                <strong>{{ item.name }}</strong>
-                                <small>{{ item.assigned_user?.name || 'Sin responsable' }} · {{ elapsedLabel(item) }}</small>
+                                <dt>Estado</dt>
+                                <dd>
+                                    <span v-if="isSessionPaused(selectedSession) && canEditSession" class="fg-badge fg-badge--warning">Pausada</span>
+                                    <StatusBadge v-else :status="selectedSession.status" :formatted-status="statusLabel(selectedSession.status)" :custom-variants="sessionStatusVariants"/>
+                                </dd>
                             </div>
-                            <span v-if="isRestaurant" class="fg-badge" :class="preparationStatusClass(item.preparation_status)">
-                                {{ preparationStatusLabel(item.preparation_status) }}
-                            </span>
-                            <span v-else class="fg-badge" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
-                            <button
-                                v-if="isRestaurant && nextPreparationAction(item)"
-                                type="button"
-                                class="fg-button fg-button--secondary"
-                                @click="changePreparationStatus(item, nextPreparationAction(item).status)">
-                                {{ nextPreparationAction(item).label }}
-                            </button>
-                            <span v-else-if="isRestaurant" class="fg-badge fg-badge--success">Entregado</span>
-                            <button
-                                v-if="item.status === 'pending' && ['pending', 'in_progress'].includes(selectedSession.status)"
-                                type="button"
-                                class="fg-button fg-button--secondary"
-                                @click="changeItemStatus(item, 'start')">
-                                Iniciar
-                            </button>
-                            <button
-                                v-else-if="item.status === 'in_progress' && ['pending', 'in_progress'].includes(selectedSession.status)"
-                                type="button"
-                                class="fg-button"
-                                @click="changeItemStatus(item, 'complete')">
-                                Finalizar
-                            </button>
-                        </article>
-                        <p v-if="!selectedSession.items?.length" class="fg-service-detail__empty">Aún no hay {{ isRestaurant ? 'productos' : 'servicios' }} en esta atención.</p>
-                    </div>
-                    </section>
+                            <div><dt>Tiempo</dt><dd>{{ elapsedLabel(selectedSession) }}</dd></div>
+                            <div><dt>{{ isRestaurant ? 'Detalles' : 'Servicios' }}</dt><dd>{{ selectedSession.items?.length || 0 }}</dd></div>
+                        </dl>
 
-                    <section v-if="selectedSession.events?.length" class="fg-service-timeline" aria-label="Línea de tiempo">
-                        <h3>Línea de tiempo</h3>
-                        <ol>
-                            <li v-for="event in selectedSession.events" :key="event.id">
-                                <span></span>
-                                <div>
+                        <section v-if="canEditSession" class="fg-service-detail__section" aria-labelledby="fg-service-detail-management">
+                            <h3 id="fg-service-detail-management">Gestión de la atención</h3>
+                            <div class="fg-service-detail__operations">
+                                <FgField label="Responsable">
+                                    <FgSelect v-model="operationForm.user" :options="userOptions" :clearable="true"
+                                        :searchable="true" :disabled="saving" placeholder="Sin asignar"/>
+                                </FgField>
+                                <FgButton tone="secondary" :disabled="saving || !operationForm.user" @click="reassignSession">Reasignar</FgButton>
+                            </div>
+                            <FgField label="Motivo o nota" help="Para cancelar la atención, indica el motivo." v-slot="{id, describedBy}">
+                                <div class="fg-field__control">
+                                    <input :id="id" v-model.trim="operationForm.note" type="text" class="fg-input" maxlength="500"
+                                        :aria-describedby="describedBy" :disabled="saving"/>
+                                </div>
+                            </FgField>
+                            <div class="fg-service-detail__quick-actions">
+                                <FgButton v-if="!isSessionPaused(selectedSession)" tone="secondary" icon="fa-solid fa-pause" :disabled="saving" @click="pauseSession">Pausar</FgButton>
+                                <FgButton v-else tone="secondary" icon="fa-solid fa-play" :disabled="saving" @click="resumeSession">Reanudar</FgButton>
+                                <FgButton tone="danger" :disabled="saving || !operationForm.note" @click="cancelSession">Cancelar atención</FgButton>
+                            </div>
+                        </section>
+
+                        <section class="fg-service-detail__section" aria-labelledby="fg-service-detail-items">
+                            <h3 id="fg-service-detail-items">{{ isRestaurant ? 'Detalle de la mesa' : 'Servicios de la atención' }}</h3>
+                            <div v-if="canEditSession" class="fg-service-add-item">
+                                <FgField :label="isRestaurant ? 'Producto o servicio' : 'Servicio'">
+                                    <FgSelect v-model="detailForm.item" :options="itemOptions" :clearable="false" :searchable="true" :filterable="false"
+                                        :loading="remoteOptions.items.loading" :disabled="saving"
+                                        @open="openOptions('items')" @search="searchOptions('items', $event)"
+                                        :placeholder="isRestaurant ? 'Buscar producto o servicio' : 'Buscar servicio'"/>
+                                </FgField>
+                                <FgField label="Responsable">
+                                    <FgSelect v-model="detailForm.user" :options="userOptions" :clearable="true" :searchable="true"
+                                        :disabled="saving" placeholder="Sin asignar"/>
+                                </FgField>
+                                <FgButton tone="secondary" icon="fa-solid fa-plus" :disabled="saving || !detailForm.item" @click="addSessionItem">Agregar</FgButton>
+                            </div>
+
+                            <ul v-if="selectedSession.items?.length" class="fg-service-detail__items" role="list">
+                                <li v-for="item in selectedSession.items" :key="item.id">
+                                    <div class="fg-service-detail__item-copy">
+                                        <strong>{{ item.name }}</strong>
+                                        <small>{{ item.assigned_user?.name || 'Sin responsable' }} · {{ elapsedLabel(item) }}</small>
+                                    </div>
+                                    <div class="fg-service-detail__item-actions">
+                                        <span v-if="isRestaurant" class="fg-badge" :class="preparationStatusClass(item.preparation_status)">
+                                            {{ preparationStatusLabel(item.preparation_status) }}
+                                        </span>
+                                        <StatusBadge v-else :status="item.status" :formatted-status="statusLabel(item.status)" :custom-variants="sessionStatusVariants"/>
+                                        <FgButton v-if="isRestaurant && nextPreparationAction(item)" tone="secondary" :disabled="saving"
+                                            @click="changePreparationStatus(item, nextPreparationAction(item).status)">
+                                            {{ nextPreparationAction(item).label }}
+                                        </FgButton>
+                                        <FgButton v-if="item.status === 'pending' && canEditSession" tone="secondary" :disabled="saving"
+                                            @click="changeItemStatus(item, 'start')">Iniciar</FgButton>
+                                        <FgButton v-else-if="item.status === 'in_progress' && canEditSession" tone="secondary" :disabled="saving"
+                                            @click="changeItemStatus(item, 'complete')">Finalizar</FgButton>
+                                    </div>
+                                </li>
+                            </ul>
+                            <p v-else class="fg-help">Aún no hay {{ isRestaurant ? 'productos' : 'servicios' }} en esta atención.</p>
+                        </section>
+
+                        <section v-if="selectedSession.events?.length" class="fg-service-timeline" aria-labelledby="fg-service-detail-history">
+                            <h3 id="fg-service-detail-history">Línea de tiempo</h3>
+                            <ol>
+                                <li v-for="event in selectedSession.events" :key="event.id">
                                     <strong>{{ eventLabel(event) }}</strong>
                                     <small>
-                                        {{ formatDateTime(event.occurred_at) }}
+                                        <time :datetime="event.occurred_at">{{ formatDateTime(event.occurred_at) }}</time>
                                         <template v-if="event.user"> · {{ event.user.name }}</template>
                                     </small>
                                     <p v-if="event.note">{{ event.note }}</p>
-                                </div>
-                            </li>
-                        </ol>
-                    </section>
+                                </li>
+                            </ol>
+                        </section>
                     </div>
 
-                    <footer class="fg-service-detail__footer">
-                        <button
-                            v-if="selectedSession.status === 'pending'"
-                            type="button"
-                            class="fg-button"
-                            :disabled="saving"
-                            @click="changeSessionStatus('start')">
-                            <i class="fa-solid fa-play" aria-hidden="true"></i>
-                            <span>Iniciar atención</span>
-                        </button>
-                        <button
-                            v-if="selectedSession.items?.length"
-                            type="button"
-                            class="fg-button"
-                            :disabled="saving"
-                            @click="goToPos">
-                            <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
-                            <span>Cobrar en POS</span>
-                        </button>
-                        <button
-                            v-if="selectedSession.status === 'in_progress'"
-                            type="button"
-                            class="fg-button"
-                            :disabled="saving"
-                            @click="changeSessionStatus('complete')">
-                            <span>Finalizar sin venta</span>
-                        </button>
+                    <footer v-if="selectedSession.items?.length || canEditSession" class="fg-service-detail__footer">
+                        <FgButton v-if="selectedSession.status === 'in_progress'" :tone="selectedSession.items?.length ? 'secondary' : 'primary'" :disabled="saving"
+                            @click="changeSessionStatus('complete')">Finalizar sin venta</FgButton>
+                        <FgButton v-if="selectedSession.items?.length" :tone="selectedSession.status === 'pending' ? 'secondary' : 'primary'"
+                            icon="fa-solid fa-cash-register" :disabled="saving" @click="goToPos">Cobrar en POS</FgButton>
+                        <FgButton v-if="selectedSession.status === 'pending'" icon="fa-solid fa-play" :disabled="saving"
+                            @click="changeSessionStatus('start')">Iniciar atención</FgButton>
                     </footer>
                 </aside>
+            </Teleport>
 
         </div>
     </InitialLoadTransition>
@@ -572,11 +498,11 @@
     </div>
     <FormModal
         modal-id="fgServiceSessionModal"
-        :title="isRestaurant ? 'ABRIR MESA' : 'INICIAR ATENCIÓN'"
+        :title="isRestaurant ? 'Abrir mesa' : 'Nueva atención'"
         modal-size="modal-lg"
         :modal-class="isRestaurant ? '' : 'fg-entity-modal--tabbed'"
         :submit-disabled="saving || !selectedBranch"
-        :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Guardar atención'"
+        :submit-button-text="isRestaurant ? 'Abrir mesa' : 'Crear atención'"
         @submit="saveSession">
         <template #body>
             <AppTabs
@@ -600,20 +526,17 @@
                                 <span><small>Mesa</small><strong>{{ sessionForm.station.name }}</strong></span>
                             </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label class="fg-field__label colon-at-end">Cliente</label>
+                        <FgField class="col-md-6" label="Cliente">
                             <FgSelect v-model="sessionForm.customer" :options="customerOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.customers.loading" @open="openOptions('customers')" @search="searchOptions('customers', $event)" placeholder="Cliente general"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label class="fg-field__label colon-at-end">Responsable</label>
+                        </FgField>
+                        <FgField class="col-md-6" label="Responsable">
                             <FgSelect v-model="sessionForm.user" :options="userOptions" :clearable="true" :searchable="true" placeholder="Sin asignar"/>
-                        </div>
-                        <div class="form-group" :class="sessionForm.item ? 'col-md-8' : 'col-12'">
-                            <label class="fg-field__label colon-at-end">{{ isRestaurant ? 'Primer producto o servicio' : 'Servicio inicial' }}</label>
+                        </FgField>
+                        <FgField :class="sessionForm.item ? 'col-md-8' : 'col-12'" :label="isRestaurant ? 'Primer producto o servicio' : 'Servicio inicial'">
                             <FgSelect v-model="sessionForm.item" :options="itemOptions" :clearable="true" :searchable="true" :filterable="false" :loading="remoteOptions.items.loading" @open="openOptions('items')" @search="searchOptions('items', $event)" placeholder="Opcional · puedes agregarlo después"/>
-                        </div>
-                        <div class="fg-field-cell col-12">
-                            <InputNumber v-if="sessionForm.item" v-model="sessionForm.quantity" title="Cantidad" :minValue="quantityStep" :hasDiv="true" :xl="4" :lg="4" :md="12" :sm="12"/>
+                        </FgField>
+                        <div v-if="sessionForm.item" class="col-md-4">
+                            <InputNumber v-model="sessionForm.quantity" title="Cantidad" :min-value="quantityStep"/>
                         </div>
                         <div class="col-12">
                             <label class="fg-check" for="startServiceImmediately">
@@ -634,19 +557,21 @@
                 class="fg-stack"
                 role="tabpanel">
                 <div class="row g-3">
-                    <div class="form-group col-md-6">
-                        <label class="fg-field__label colon-at-end">Fecha programada</label>
-                        <input v-model="sessionForm.scheduledAt" type="datetime-local" class="fg-native-input">
+                    <FgField class="col-md-6" label="Fecha programada" v-slot="{id}">
+                        <div class="fg-field__control">
+                            <input :id="id" v-model="sessionForm.scheduledAt" type="datetime-local" class="fg-input">
+                        </div>
+                    </FgField>
+                    <FgField class="col-md-6" label="Fin esperado" v-slot="{id}">
+                        <div class="fg-field__control">
+                            <input :id="id" v-model="sessionForm.expectedEndAt" type="datetime-local" class="fg-input">
+                        </div>
+                    </FgField>
+                    <div class="col-md-6">
+                        <InputNumber v-model="sessionForm.toleranceMinutes" title="Tolerancia (min)" :decimals="0" :hasDiv="true"/>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label class="fg-field__label colon-at-end">Fin esperado</label>
-                        <input v-model="sessionForm.expectedEndAt" type="datetime-local" class="fg-native-input">
-                    </div>
-                    <div class="fg-field-cell col-12">
-                        <InputNumber v-model="sessionForm.toleranceMinutes" title="Tolerancia (min)" :decimals="0" :hasDiv="true" :xl="6" :lg="6" :md="12" :sm="12"/>
-                    </div>
-                    <div class="fg-field-cell col-12">
-                        <InputText v-model="sessionForm.queueCode" title="Código de turno" :xl="6" :lg="6" :md="12" :sm="12"/>
+                    <div class="col-md-6">
+                        <InputText v-model="sessionForm.queueCode" title="Código de turno"/>
                     </div>
                 </div>
             </section>
@@ -663,6 +588,8 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 import AppTabs from "@/Shared/AppTabs.vue";
 import CopyButton from "@System/Components/CopyButton.vue";
+import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
@@ -676,7 +603,7 @@ const SESSION_STATUS_VARIANTS = {pending: "warning", in_progress: "primary", com
 
 export default {
     mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
-    components: {AppTabs, CopyButton, FormModal, StatusBadge, TableActionsDropdown},
+    components: {AppTabs, CopyButton, FgButton, FgField, FormModal, StatusBadge, TableActionsDropdown},
     data() {
         const isRestaurant = window.location.pathname.includes("/restaurant");
 
@@ -706,6 +633,8 @@ export default {
             sessionFormTab: SESSION_FORM_TABS[0].id,
             loading: false,
             sessionsRequestSequence: 0,
+            sessionsError: false,
+            detailRequestSequence: 0,
             reportsRequestSequence: 0,
             saving: false,
             now: Date.now(),
@@ -735,14 +664,19 @@ export default {
     watch: {
         selectedSession(current, previous) {
             if(current && !previous) {
-                this.detailTrigger = document.activeElement;
                 this.$nextTick(() => this.$refs.closeSessionDetail?.focus());
             } else if(!current && previous) {
-                this.$nextTick(() => this.detailTrigger?.focus());
+                this.$nextTick(() => {
+                    const trigger = this.detailTrigger?.isConnected ? this.detailTrigger : this.$refs.sessionStartTrigger;
+                    trigger?.focus();
+                });
             }
         }
     },
     computed: {
+        canEditSession() {
+            return ["pending", "in_progress"].includes(this.selectedSession?.status);
+        },
         stationCounts() {
             const counts = {available: 0, pending: 0, progress: 0};
             this.stations.forEach(station => counts[this.stationClass(station).slice(3)]++);
@@ -760,7 +694,7 @@ export default {
         breadcrumbTitles() {
             return this.isRestaurant
                 ? [{title: "Ventas"}, {title: "Punto de venta"}, {title: "POS restaurante", active: true}]
-                : [{title: "Operaciones y clientes"}, {title: "Atención de servicios"}, {title: "Servicios en curso", active: true}];
+                : [{title: "Operaciones y clientes"}, {title: "Servicios y asistencias"}, {title: "Servicios en curso", active: true}];
         },
         branchOptions() {
             return this.options.branches.map(record => ({...record, label: record.name}));
@@ -822,9 +756,11 @@ export default {
     },
     methods: {
         handleDetailKeydown(event) {
-            if(event.defaultPrevented || this.$refs.sessionDetail.querySelector(".vs--open")) return;
+            if(event.defaultPrevented) return;
 
             if(event.key === "Escape") {
+                if(this.$refs.sessionDetail.querySelector(".vs--open")) return;
+                event.preventDefault();
                 this.selectedSession = null;
                 return;
             }
@@ -868,6 +804,7 @@ export default {
             await Promise.all([this.getSessions(), this.getReports()]);
         },
         async handleBranchChange() {
+            this.detailRequestSequence++;
             this.selectedSession = null;
             this.selectedFloor = null;
             this.reports = null;
@@ -932,6 +869,7 @@ export default {
         },
         async selectFloor(floor) {
             this.selectedFloor = floor;
+            this.detailRequestSequence++;
             this.selectedSession = null;
             await this.getStations();
         },
@@ -941,6 +879,7 @@ export default {
 
             const sequence = ++this.sessionsRequestSequence;
             this.loading = true;
+            this.sessionsError = false;
 
             try {
                 this.sessions = Requests.emptyPagination();
@@ -959,7 +898,7 @@ export default {
                     this.sessions = result.data.data;
                 } else {
                     this.sessions = {data: [], links: [], total: 0};
-                    this.notify(result, "No fue posible cargar las atenciones.");
+                    this.sessionsError = true;
                 }
 
                 this.$nextTick(() => Alerts.tooltips({}));
@@ -1148,15 +1087,22 @@ export default {
                 selectResult: true
             });
         },
-        async selectSession(session) {
+        async selectSession(session, event = null) {
+            const trigger = event?.currentTarget;
+            const returnTarget = trigger?.closest(".fg-menu")?.querySelector("[data-bs-toggle=dropdown]") || trigger;
+            const sequence = ++this.detailRequestSequence;
             const result = await Requests.get({route: `${this.config.routes.sessions}/${session.id}`});
+            if(sequence !== this.detailRequestSequence) return;
             if(Requests.valid({result})) {
+                if(!this.selectedSession) this.detailTrigger = returnTarget || document.activeElement;
                 this.selectedSession = result.data.data;
                 this.detailForm = {item: null, user: this.userOptions.find(user => user.id === this.selectedSession.assigned_user_id) || null};
                 this.operationForm = {
                     user: this.userOptions.find(user => user.id === this.selectedSession.assigned_user_id) || null,
                     note: ""
                 };
+            } else {
+                this.notify(result, "No fue posible abrir el detalle de la atención.");
             }
         },
         async addSessionItem() {
@@ -1392,14 +1338,6 @@ export default {
             };
 
             return labels[event.event_type] || event.event_type;
-        },
-        statusClass(status) {
-            return {
-                pending: "fg-badge--warning",
-                in_progress: "fg-badge--success",
-                completed: "fg-badge--success",
-                canceled: "fg-badge--danger"
-            }[status];
         },
         elapsedLabel(record) {
             if(record.status === "canceled" && !record.started_at) return "Sin iniciar";

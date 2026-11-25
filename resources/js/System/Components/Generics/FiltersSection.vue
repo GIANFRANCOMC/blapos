@@ -1,61 +1,40 @@
 <template>
-    <section class="fg-filter-bar">
+    <section class="fg-filter-bar fg-filter-bar--compact" aria-label="Filtros">
         <div class="row align-items-end g-2">
-            <InputSlot
-                hasDiv
-                :title="filterByTitle"
-                :titleClass="titleClass"
-                xl="3"
-                lg="3">
-                <template v-slot:input>
-                    <v-select
+            <div class="col-12 col-sm-5 col-md-4 col-lg-3">
+                <FgField :label="filterByTitle" v-slot="{id}">
+                    <FgSelect
+                        :input-id="id"
                         :model-value="filterByValue"
                         @update:model-value="$emit('update:filterByValue', $event)"
                         :options="filterByOptions"
                         :class="selectClass"
                         :clearable="false"
                         :searchable="false"
-                        :disabled="loading"
-                        append-to-body>
+                        :disabled="loading">
                         <template #selected-option="option">
-                            <span
-                                class="fg-select-selected-text"
-                                :title="getOptionLabel(option)">
-                                {{ getOptionLabel(option) }}
-                            </span>
+                            <span class="fg-select-selected-text" :title="getOptionLabel(option)">{{ getOptionLabel(option) }}</span>
                         </template>
                         <template #option="option">
-                            <span
-                                class="fg-select-option-text"
-                                :title="getOptionLabel(option)">
-                                {{ getOptionLabel(option) }}
-                            </span>
+                            <span class="fg-select-option-text" :title="getOptionLabel(option)">{{ getOptionLabel(option) }}</span>
                         </template>
                         <template #no-options>
                             <SelectNoOptions/>
                         </template>
-                    </v-select>
-                </template>
-            </InputSlot>
-            <SearchInput
-                v-if="showSearchInput"
-                :model-value="filterWordValue"
-                @update:model-value="$emit('update:filterWordValue', $event)"
-                hasDiv
-                :title="searchTitle"
-                :titleClass="titleClass"
-                :placeholder="searchPlaceholder"
-                :disabled="loading"
-                xl="4"
-                lg="4"/>
+                    </FgSelect>
+                </FgField>
+            </div>
+            <div v-if="showSearchInput" class="col-12 col-sm">
+                <SearchInput
+                    :model-value="filterWordValue"
+                    @update:model-value="$emit('update:filterWordValue', $event)"
+                    :title="searchTitle"
+                    :placeholder="searchPlaceholder"
+                    :disabled="loading"/>
+            </div>
             <slot name="extraFilters"></slot>
-            <InputSlot
-                hasDiv
-                :isInputGroup="false"
-                :divInputClass="['fg-filter-bar__actions']"
-                xl="5"
-                lg="5">
-                <template v-slot:input>
+            <div class="col-12 col-lg-auto">
+                <div class="fg-filter-bar__actions">
                     <SearchButton
                         v-if="showSearchButton"
                         class="fg-button--small"
@@ -122,13 +101,15 @@
                         <span class="fg-button__label" v-text="downloadButtonText"></span>
                     </button>
                     <slot name="secondaryActions"></slot>
-                </template>
-            </InputSlot>
+                </div>
+            </div>
         </div>
     </section>
 </template>
 
 <script>
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import SearchButton from "@/Shared/SearchButton.vue";
 import ActionsDropdown from "./ActionsDropdown.vue";
 import ClearFiltersButton from "./ClearFiltersButton.vue";
@@ -140,6 +121,8 @@ export default {
     name: "FiltersSection",
     components: {
         ActionsDropdown,
+        FgField,
+        FgSelect,
         ClearFiltersButton,
         SearchButton,
         SelectNoOptions,

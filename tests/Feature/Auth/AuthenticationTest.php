@@ -32,7 +32,12 @@ class AuthenticationTest extends TestCase {
 
         $response = $this->get("/login");
 
-        $response->assertStatus(200);
+        $response->assertOk()
+            ->assertSee("Inicia sesión")
+            ->assertSee('id="fg-login-form"', false)
+            ->assertSee('autocomplete="username"', false)
+            ->assertSee('autocomplete="current-password"', false)
+            ->assertSee('aria-controls="password"', false);
 
     }
 

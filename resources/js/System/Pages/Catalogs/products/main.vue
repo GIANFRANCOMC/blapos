@@ -13,11 +13,11 @@
         <InitialLoadTransition>
             <CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"/>
             <div v-else>
-                <form class="fg-filters" role="search" aria-label="Buscar productos" @submit.prevent="handleSearch">
+                <form class="fg-filters fg-catalog-filters" role="search" aria-label="Buscar productos" @submit.prevent="handleSearch">
                     <FgField label="Filtrar por" input-id="fg-products-filter">
                         <FgSelect input-id="fg-products-filter" v-model="filterByValue" :options="filterByOptions" class="fg-select" :clearable="false" :searchable="false"/>
                     </FgField>
-                    <FgField label="Buscar" input-id="fg-products-search">
+                    <FgField label="Búsqueda" input-id="fg-products-search">
                         <div class="fg-field__control"><input id="fg-products-search" v-model="filterWordValue" class="fg-input" :placeholder="searchPlaceholder" type="search" autocomplete="off"/></div>
                     </FgField>
                     <FgFilterActions submit :loading="entityList.extras.loading" @clear="clearProductFilters"/>
@@ -27,33 +27,33 @@
                     <FgField class="fg-list-order" label="Ordenado por" input-id="fg-products-order"><FgSelect input-id="fg-products-order" :model-value="sortDirection" :options="sortOptions" :reduce="option => option.code" :clearable="false" :searchable="false" :disabled="entityList.extras.loading" @update:modelValue="changeSort"/></FgField>
                 </div>
                 <section class="fg-products-list" aria-label="Listado de productos">
-                    <div class="fg-table-scroll" role="region" aria-label="Tabla de productos" tabindex="0">
-                        <table class="fg-table fg-products-table">
+                    <ResponsiveTable>
+                        <table role="table" class="fg-table fg-products-table fg-record-table">
                             <colgroup><col class="fg-products-table__identity"/><col class="fg-products-table__product"/><col class="fg-products-table__price"/><col class="fg-products-table__status"/><col class="fg-products-table__actions"/></colgroup>
-                            <thead><tr><th scope="col">Identificación</th><th scope="col">Producto</th><th scope="col" class="fg-align-end">Precio</th><th scope="col" class="fg-align-center">Estado</th><th scope="col" class="fg-align-center">Acciones</th></tr></thead>
-                            <tbody>
-                                <tr v-if="entityList.extras.loading" class="fg-table__state"><td colspan="5"><FgListLoading label="Buscando productos…"/></td></tr>
+                            <thead role="rowgroup"><tr role="row"><th role="columnheader" scope="col">Identificación</th><th role="columnheader" scope="col">Producto</th><th role="columnheader" scope="col" class="fg-align-end">Precio</th><th role="columnheader" scope="col" class="fg-align-center">Estado</th><th role="columnheader" scope="col" class="fg-align-center">Acciones</th></tr></thead>
+                            <tbody role="rowgroup">
+                                <tr role="row" v-if="entityList.extras.loading" class="fg-table__state"><td role="cell" colspan="5"><FgListLoading label="Buscando productos…"/></td></tr>
                                 <template v-else-if="entityList.records.total > 0">
-                                    <tr v-for="record in entityList.records.data" :key="record.id">
-                                        <td><div class="fg-product-codes"><span>{{ record.internal_code }}</span><small v-if="record.barcode">{{ record.barcode }}</small></div></td>
-                                        <td><div class="fg-product-cell">
+                                    <tr role="row" v-for="record in entityList.records.data" :key="record.id">
+                                        <td role="cell"><span class="fg-record-table__label" aria-hidden="true">Identificación</span><div class="fg-record-table__value"><div class="fg-product-codes"><span>{{ record.internal_code }}</span><small v-if="record.barcode">{{ record.barcode }}</small></div></div></td>
+                                        <td role="cell" class="fg-record-table__identity"><div class="fg-product-cell">
                                             <button type="button" :class="['fg-stock-trigger', {'fg-stock-trigger--warning': stockByProduct[record.id].code !== 'healthy'}]" :title="stockInventoryActionText(record)" :aria-label="stockInventoryActionText(record)" @click="openInventoryModal(record)"><i class="fa-solid fa-box" aria-hidden="true"/></button>
                                             <div class="fg-product-cell__copy"><span class="fg-product-name">{{ record.name }}</span><ExpandableText v-if="record.description" :text="record.description"/></div>
                                         </div></td>
-                                        <td class="fg-align-end"><CatalogPriceCell :record="record"/></td>
-                                        <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
-                                        <td class="fg-align-center"><TableActionsDropdown :label="'Acciones de ' + record.name">
+                                        <td role="cell" class="fg-align-end"><span class="fg-record-table__label" aria-hidden="true">Precio</span><div class="fg-record-table__value"><CatalogPriceCell :record="record"/></div></td>
+                                        <td role="cell" class="fg-record-table__state fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+                                        <td role="cell" class="fg-record-table__actions fg-align-center"><TableActionsDropdown :label="'Acciones de ' + record.name">
                                             <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar producto</button></li>
                                             <li v-if="record.barcode"><BarcodeDownloadButton menu-item tooltip="Descargar código de barras" :value="record.barcode" :file-name="record.internal_code"/></li>
                                         </TableActionsDropdown></td>
                                     </tr>
                                 </template>
-                                <tr v-else class="fg-table__state"><td colspan="5"><FgEmptyState :title="listFailed ? 'No se pudo cargar el listado' : entityList.appliedFilters?.word?.trim() ? 'No encontramos productos con esta búsqueda' : 'Aún no hay productos registrados'" :description="listFailed ? 'Vuelve a intentar la consulta.' : entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros.' : 'Agrega un producto o importa un archivo para empezar.'">
+                                <tr role="row" v-else class="fg-table__state"><td role="cell" colspan="5"><FgEmptyState :title="listFailed ? 'No se pudo cargar el listado' : entityList.appliedFilters?.word?.trim() ? 'No encontramos productos con esta búsqueda' : 'Aún no hay productos registrados'" :description="listFailed ? 'Vuelve a intentar la consulta.' : entityList.appliedFilters?.word?.trim() ? 'Prueba con otro término o limpia los filtros.' : 'Agrega un producto o importa un archivo para empezar.'">
                                     <div class="fg-empty__actions"><FgButton v-if="listFailed" @click="listEntity({})">Volver a intentar</FgButton><FgButton v-else-if="entityList.appliedFilters?.word?.trim()" tone="secondary" @click="clearProductFilters">Limpiar filtros</FgButton><template v-else><FgButton icon="fa-solid fa-plus" @click="openModal()">Agregar producto</FgButton><FgButton tone="secondary" @click="openImportModal">Importar productos</FgButton></template></div>
                                 </FgEmptyState></td></tr>
                             </tbody>
                         </table>
-                    </div>
+                    </ResponsiveTable>
                 </section>
                 <Paginator singular="producto" plural="productos" aria-label="Paginación de productos" :links="entityList.records.links" :pagination="entityList.records" :loading="entityList.extras.loading" @clickPage="listEntity"/>
             </div>
@@ -64,6 +64,7 @@
     </main>
 </template>
 <script>
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import Paginator from "@System/Components/Paginator.vue";
 import StatusBadge from "@System/Components/Generics/StatusBadge.vue";
 import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
@@ -123,7 +124,7 @@ const MODULE = {
 
 export default {
     name: "ProductsMain",
-    components: {FgListLoading, Paginator, StatusBadge,FgSelect,FgButton, FgField, FgFilterActions, FgEmptyState, ActionsDropdown,
+    components: {ResponsiveTable, FgListLoading, Paginator, StatusBadge,FgSelect,FgButton, FgField, FgFilterActions, FgEmptyState, ActionsDropdown,
         CatalogPriceCell,
         ExpandableText,
         InitialLoadTransition,

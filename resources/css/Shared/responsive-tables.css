@@ -197,3 +197,90 @@
 
 .fg-table-scroll--records thead th { position: sticky; inset-block-start: 0; z-index: 1; }
 .fg-table-note { display: block; margin-top: var(--fg-space-1); color: var(--fg-muted); font-size: var(--fg-help-size); overflow-wrap: anywhere; }
+
+/* Opt-in record layout keeps the table semantics and exposes every cell on mobile. */
+.fg-record-table__label { display: none; }
+.fg-record-table > tbody > tr:nth-child(even):not(.fg-table__state, :hover) > td { background: var(--fg-canvas); }
+.fg-record-table .fg-record-table__actions { text-align: center; }
+.fg-record-table .fg-record-table__state { text-align: center; }
+@media (max-width: 767.98px) {
+    .fg-table-scroll:has(> .fg-record-table) {
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+    }
+
+    :is(.fg-sales-table-scroll, .fg-table-scroll) > .fg-record-table {
+        display: block;
+        min-width: 0;
+    }
+
+    .fg-record-table > thead {
+        position: absolute;
+        inline-size: 1px;
+        block-size: 1px;
+        clip-path: inset(50%);
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .fg-record-table > tbody {
+        display: grid;
+        gap: var(--fg-space-3);
+    }
+
+    .fg-record-table > tbody > tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--fg-space-2);
+        padding: var(--fg-space-4);
+        border: 1px solid var(--fg-border);
+        border-radius: var(--fg-panel-radius);
+        background: var(--fg-surface);
+        text-align: start;
+    }
+
+    .fg-record-table > tbody > tr > td,
+    .fg-record-table > tbody > tr:not(.fg-table__state):hover > td,
+    .fg-record-table > tbody > tr:nth-child(even):not(.fg-table__state, :hover) > td {
+        grid-column: 1 / -1;
+        height: auto;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .fg-record-table > tbody > tr > .fg-record-table__identity {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .fg-record-table > tbody > tr > .fg-record-table__state {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .fg-record-table > tbody > tr > .fg-record-table__actions {
+        justify-self: end;
+    }
+
+    .fg-record-table td:has(> .fg-record-table__label) {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        gap: var(--fg-space-2);
+    }
+
+    .fg-record-table .fg-record-table__label {
+        display: block;
+        color: var(--fg-muted);
+        text-align: start;
+    }
+
+    .fg-record-table .fg-record-table__value {
+        overflow-wrap: anywhere;
+        text-align: end;
+    }
+}

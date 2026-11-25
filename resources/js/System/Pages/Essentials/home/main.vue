@@ -4,6 +4,7 @@
         <div v-else class="fg-page-content">
             <main :class="['fg-home', {'fg-home--compact': !showDescriptions}]">
                 <Breadcrumb :list="breadcrumbItems"/>
+                <FgPageHeader title="Favoritos" description="Elige qué accesos quieres tener a mano en la barra superior."/>
 
                 <header class="fg-home__header">
                     <div class="fg-home__filters">
@@ -66,7 +67,7 @@
                 <section
                     v-if="sections.length === 0"
                     class="fg-home__empty">
-                    <WithoutData type="image" :text="emptyStateText"/>
+                    <FgEmptyState :title="emptyStateText"/>
                 </section>
 
                 <section v-else class="fg-home__grid" :aria-label="page.modulesAriaLabel">
@@ -98,7 +99,8 @@
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     :title="favoriteTooltip(subSection)"
-                                    :aria-label="favoriteTooltip(subSection)"
+                                    :aria-label="`Favorito: ${subSection.dom_label}`"
+                                    :aria-pressed="isFavorite(subSection)"
                                     @click="changeFavorite(section, subSection, $event)">
                                     <i
                                         :class="isFavorite(subSection) ? 'fa-solid fa-star' : 'fa-regular fa-star'"
@@ -114,6 +116,8 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {canFavoritePage, navbarItem, updateMenuPreferences} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import {markRaw} from "vue";
@@ -224,6 +228,7 @@ function createConfirmationContent(section, subSection, confirmation) {
 }
 
 export default {
+    components: {FgEmptyState, FgPageHeader},
     mixins: [InitialPageMixin],
     async mounted() {
 

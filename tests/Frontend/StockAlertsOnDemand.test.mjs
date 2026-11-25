@@ -197,7 +197,7 @@ test("las alertas se consultan al abrirlas y muestran un único listado con pagi
     const modal = read(base + "StockAlertsModal.vue");
     const listStock = state.slice(state.indexOf("async listStock("), state.indexOf("async listStockAlerts("));
     assert.doesNotMatch(listStock, /listStockAlerts|type: "alerts"/);
-    const button = page.match(/<FgButton[^>]*aria-label="Ver alertas"[^>]*\/>/)?.[0] || "";
+    const button = page.match(/<FgButton\b[^>]*\baria-label="Ver alertas"[^>]*>/)?.[0] || "";
     assert.match(button, /icon="fa-solid fa-bell fa-shake"/);
     assert.match(button, /:disabled="initialLoading \|\| !canViewStockAlerts"/);
     assert.match(button, /title="Ver alertas" data-bs-toggle="tooltip" @click="viewStockAlerts"/);

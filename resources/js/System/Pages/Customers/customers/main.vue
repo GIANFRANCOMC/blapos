@@ -1,5 +1,13 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Clientes" description="Consulta los datos de contacto y administra el registro de clientes.">
+        <template #actions>
+            <button type="button" class="fg-button flex-grow-0" :disabled="initialLoading || entityList.extras.loading" @click="openModal()">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                <span>{{ MODULE.texts.actions.add }}</span>
+            </button>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
@@ -15,8 +23,8 @@
                 :loading="entityList.extras.loading"
                 :filter-by-title="MODULE.texts.filters.filterBy"
                 :search-title="MODULE.texts.filters.search"
-                :add-button-text="MODULE.texts.actions.add"
-                :show-add-button="true"
+                :show-add-button="false"
+                show-clear-button
                 :show-download-button="true"
                 :show-import-button="true"
                 :group-secondary-actions="true"
@@ -26,7 +34,6 @@
                 :title-class="[config.forms.classes.title]"
                 :select-class="config.forms.classes.select2"
                 @search="handleSearch"
-                @add="openModal()"
                 @import="openImportModal"
                 @download="downloadRecords"/>
 
@@ -40,60 +47,72 @@
                 :import-route="routeActions.import"
                 @imported="listEntity({})"/>
 
-            <section class="fg-entity-list" aria-label="Listado de clientes">
-                <div class="table-responsive">
-                    <table class="table fg-entity-table fg-entity-table--directory fg-customer-table mb-0">
+            <section aria-labelledby="customer-list-title">
+                <h2 id="customer-list-title" class="fg-section-title mb-2">Clientes registrados</h2>
+                <ResponsiveTable>
+                    <table class="fg-table fg-customer-table fg-entity-table--directory fg-record-table" role="table">
                         <colgroup>
-                            <col style="width: 19%;">
-                            <col style="width: 23%;">
-                            <col style="width: 25%;">
-                            <col style="width: 19%;">
-                            <col style="width: 8%;">
+                            <col style="width: 15%;">
+                            <col style="width: 22%;">
+                            <col style="width: 20%;">
+                            <col style="width: 13%;">
+                            <col style="width: 15%;">
+                            <col style="width: 9%;">
                             <col style="width: 6%;">
                         </colgroup>
-                        <thead class="fg-table-header-surface">
-                            <tr>
-                                <th>Identificación</th>
-                                <th>Cliente</th>
-                                <th>Contacto</th>
-                                <th>Datos adicionales</th>
-                                <th class="text-center">Estado</th>
-                                <th><span class="visually-hidden">Acciones</span></th>
+                        <thead role="rowgroup">
+                            <tr role="row">
+                                <th scope="col" role="columnheader">Identificación</th>
+                                <th scope="col" role="columnheader">Cliente</th>
+                                <th scope="col" role="columnheader">Correo</th>
+                                <th scope="col" role="columnheader">Teléfono</th>
+                                <th scope="col" role="columnheader">Datos adicionales</th>
+                                <th scope="col" role="columnheader" class="fg-align-center">Estado</th>
+                                <th scope="col" role="columnheader"><span class="visually-hidden">Acciones</span></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="fg-table__state" v-if="entityList.extras.loading">
-                                <td colspan="6" class="py-4"><Loader/></td>
+                        <tbody role="rowgroup">
+                            <tr v-if="entityList.extras.loading" class="fg-table__state" role="row">
+                                <td colspan="7" role="cell"><Loader label="Buscando clientes…"/></td>
                             </tr>
                             <template v-else-if="entityList.records.total > 0">
-                                <tr v-for="record in entityList.records.data" :key="record.id">
-                                    <td class="fg-entity-table__identification-cell">
-                                        <div class="fg-entity-identifiers fg-entity-identifiers--plain">
-                                            <div class="fg-entity-identifier">
-                                                <span class="fg-entity-identifier__label colon-at-end" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || 'Documento'"></span>
-                                                <span class="fg-copy-value">
-                                                    <span class="fg-entity-code" v-text="record.document_number || '—'"></span>
-                                                    <CopyButton v-if="record.document_number" :value="record.document_number" label="Número de documento"/>
-                                                </span>
-                                            </div>
-                                        </div>
+                                <tr v-for="record in entityList.records.data" :key="record.id" role="row">
+                                    <td class="fg-entity-table__identification-cell" role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Documento</span>
+                                        <span class="fg-record-table__value">
+                                            <span class="fg-entity-identifier__label" v-text="record.identity_document_type?.code?.toUpperCase() || record.identity_document_type?.name || ''"></span>
+                                            <span class="fg-copy-value">
+                                                <span class="fg-entity-code" v-text="record.document_number || '—'"></span>
+                                                <CopyButton v-if="record.document_number" :value="record.document_number" label="Número de documento"/>
+                                            </span>
+                                        </span>
                                     </td>
-                                    <td><span class="fg-entity-table__name" v-text="record.name"></span></td>
-                                    <td>
-                                        <div class="fg-customer-table__stack">
+                                    <td class="fg-record-table__identity" role="cell">
+                                        <span class="fg-entity-table__name" v-text="record.name"></span>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Correo</span>
+                                        <span class="fg-record-table__value">
                                             <span v-if="record.email" class="fg-customer-table__value fg-copy-value">
                                                 <span v-text="record.email"></span>
                                                 <CopyButton :value="record.email" label="Correo electrónico"/>
                                             </span>
+                                            <span v-else class="fg-customer-table__muted">—</span>
+                                        </span>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Teléfono</span>
+                                        <span class="fg-record-table__value">
                                             <span v-if="record.phone_number" class="fg-customer-table__value fg-copy-value">
                                                 <span v-text="record.phone_number"></span>
                                                 <CopyButton :value="record.phone_number" label="Celular"/>
                                             </span>
-                                            <span v-if="!record.email && !record.phone_number" class="fg-customer-table__muted">Sin datos de contacto</span>
-                                        </div>
+                                            <span v-else class="fg-customer-table__muted">—</span>
+                                        </span>
                                     </td>
-                                    <td>
-                                        <div class="fg-entity-offering-details">
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Datos adicionales</span>
+                                        <div class="fg-entity-offering-details fg-record-table__value">
                                             <span v-if="record.formatted_gender">
                                                 <strong class="colon-at-end">Género</strong>
                                                 <span class="fg-entity-offering-details__value">{{ record.formatted_gender }}</span>
@@ -109,10 +128,10 @@
                                             <span v-if="!record.formatted_gender && !record.birthdate && !getEmergencyContactLabel(record)" class="fg-customer-table__muted">Sin datos adicionales</span>
                                         </div>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="fg-record-table__state" role="cell">
                                         <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="fg-record-table__actions" role="cell">
                                         <TableActionsDropdown :label="`Acciones de ${record.name}`">
                                             <li>
                                                 <button type="button" class="dropdown-item" @click="openModal(record)">
@@ -136,14 +155,14 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr class="fg-table__state" v-else>
-                                <td colspan="6" class="py-4">
-                                    <WithoutData class="fg-entity-empty-state" type="image"/>
+                            <tr class="fg-table__state" v-else role="row">
+                                <td colspan="7" role="cell">
+                                    <FgEmptyState :title="entityList.appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay clientes registrados'" :description="entityList.appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </ResponsiveTable>
             </section>
 
             <!-- Pagination -->
@@ -426,6 +445,9 @@
 </template>
 
 <script>
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
@@ -593,7 +615,7 @@ const MODULE = {
 export default {
     mixins: [InitialPageMixin],
     name: "CustomersMain",
-    components: {SearchButton, AppTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
+    components: {ResponsiveTable, FgEmptyState, FgPageHeader, SearchButton, AppTabs, CatalogReferenceImportModal, CopyButton, FormModal, TableActionsDropdown},
     data() {
 
         const crudModule = initCrudModule({

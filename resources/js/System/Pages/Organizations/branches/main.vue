@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Sucursales" description="Administra las sedes de tu empresa y consulta sus datos de operación."/>
 
     <InitialLoadTransition>
         <CatalogListSkeleton v-if="initialLoading" kind="branches" label="sucursales"/>
@@ -162,7 +163,7 @@
                                 </tr>
                             </template>
                             <tr class="fg-table__state" v-else>
-                                <td colspan="7"><WithoutData class="fg-entity-empty-state" type="image"/></td>
+                                <td colspan="7"><FgEmptyState :title="entityList.appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay sucursales registradas'" :description="entityList.appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/></td>
                             </tr>
                         </tbody>
                     </table>
@@ -335,6 +336,8 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
@@ -465,7 +468,7 @@ const MODULE = {
 export default {
     name: "BranchesMain",
     mixins: [InternalCodePrefixMixin],
-    components: {ActionsDropdown, InternalCodeInput, InitialLoadTransition, AppTabs, CatalogListSkeleton, FormModal},
+    components: {FgEmptyState, FgPageHeader, ActionsDropdown, InternalCodeInput, InitialLoadTransition, AppTabs, CatalogListSkeleton, FormModal},
     data() {
 
         const crudModule = initCrudModule({

@@ -3,6 +3,11 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
+        <div v-else-if="initialError">
+            <FgEmptyState title="No pudimos abrir entregas pendientes" description="Intenta cargar la pantalla de nuevo.">
+                <button type="button" class="fg-button fg-button--secondary" @click="initializePage">Reintentar</button>
+            </FgEmptyState>
+        </div>
         <div v-else>
             <FgResponsiveFilters
                 id="sales-filters-deliveries"
@@ -173,13 +178,19 @@
                             </tr>
                         </template>
                         <tr role="row" class="fg-table__state" v-else>
-                            <td role="cell" colspan="6" class="text-center"><FgEmptyState title="No encontramos entregas pendientes" description="Revisa tus filtros e intenta otra búsqueda."/></td>
+                            <td role="cell" colspan="6" class="text-center">
+                                <FgEmptyState v-if="failedList" title="No pudimos cargar entregas pendientes" description="Vuelve a intentar la consulta.">
+                                    <button type="button" class="fg-button fg-button--secondary" @click="listDeliveries({url: failedList.url})">Reintentar</button>
+                                </FgEmptyState>
+                                <FgEmptyState v-else-if="Object.values(requestFilters()).some(Boolean)" title="No encontramos entregas pendientes" description="Ajusta los filtros y vuelve a buscar."/>
+                                <FgEmptyState v-else title="No hay entregas pendientes"/>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </ResponsiveTable>
 
-            <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listDeliveries"/>
+            <Paginator v-if="!failedList" :links="records.links" :pagination="records" :loading="loading" @clickPage="listDeliveries"/>
 
         </div>
     </InitialLoadTransition>
@@ -320,17 +331,13 @@ export default {
 
         navbarItem("menu-parent-sales", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
-
-        const ready = await this.loadInitialParams(() => this.initParams());
-        if(ready) {
-
-            await this.listDeliveries({});
-        }
-
+        await this.initializePage();
     },
     data() {
         return {
             optionOrigin: "sales-deliveries",
+            initialError: false,
+            failedList: null,
             loading: false,
             saving: false,
             records: {
@@ -362,6 +369,15 @@ export default {
         };
     },
     methods: {
+        async initializePage() {
+            this.initialLoading = true;
+            const ready = await this.loadInitialParams(async () => {
+                const loaded = await this.initParams();
+                this.initialError = !loaded;
+                return loaded;
+            });
+            if(ready) await this.listDeliveries({});
+        },
         defaultFilters() {
             return {
                 branch: null,
@@ -384,8 +400,7 @@ export default {
 
             const response = await Requests.get({
                 route: this.config.entity.routes.initParams,
-                data: {page: "deliveries"},
-                showAlert: true
+                data: {page: "deliveries"}
             });
 
             this.options.branches = response.data?.config?.branches;
@@ -397,7 +412,7 @@ export default {
 
         },
         requestFilters() {
-            const filters = this.appliedFilters;
+            const filters = this.appliedFilters || {};
             return {
                 branch_id: filters.branch?.code,
                 warehouse_id: filters.warehouse?.code,
@@ -425,11 +440,13 @@ export default {
             }
 
             this.loading = true;
+            this.failedList = null;
 
             try {
                 this.records = Requests.emptyPagination();
                 const response = await Requests.get({route: requestUrl, data: requestData});
-                this.records = response?.bool ? response.data : Requests.emptyPagination();
+                if(response?.bool && Array.isArray(response.data?.data)) this.records = response.data;
+                else this.failedList = {url};
             } finally {
                 this.loading = false;
             }

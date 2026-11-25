@@ -1,95 +1,57 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgCatalogList kind="recipes" title="Recetas y platillos"
+        description="Define qué consume cada platillo y cuánto rinde su preparación."
+        singular="receta" plural="recetas" list-title="Recetas registradas"
+        v-model:filter-by="filterBy" v-model:word="word" :filter-options="filterOptions"
+        placeholder="Buscar platillo, código o nota"
+        :applied-word="appliedFilters.word?.trim()" :records="records" :initial-loading="initialLoading"
+        :loading="loading" :failed="listFailed" :allow-import="false" :allow-export="false"
+        @search="searchRecipes" @page="listRecipes" @retry="listRecipes()" @add="openModal()">
+        <template #row="{record}">
+            <td role="cell" class="text-center">
+                <span class="fg-record-table__label" aria-hidden="true">Código interno</span>
+                <div class="fg-record-table__value">
+                    <InternalCodeValue :value="record.item?.internal_code"/>
+                </div>
+            </td>
+            <td role="cell" class="fg-record-table__identity">
+                <span class="fg-entity-table__name">{{ record.item?.name }}</span>
+                <div v-if="record.item?.barcode" class="fg-entity-identifiers fg-entity-identifiers--plain">
+                    <div class="fg-entity-identifier">
+                        <span class="fg-entity-identifier__label colon-at-end">Cód. barras</span>
+                        <span class="fg-entity-identifier__value" v-text="record.item.barcode"></span>
+                    </div>
+                </div>
+            </td>
+            <td role="cell">
+                <span class="fg-record-table__label" aria-hidden="true">Fórmula</span>
+                <div class="fg-record-table__value">
+                    <div class="fg-entity-offering-details fg-detail-tags--wrap">
+                        <span><strong class="colon-at-end">Insumos</strong> <span class="fg-entity-offering-details__value">{{ record.components_count }}</span></span>
+                        <span><strong class="colon-at-end">Extras</strong> <span class="fg-entity-offering-details__value">{{ record.toppings_count }}</span></span>
+                        <span><strong class="colon-at-end">Sabores</strong> <span class="fg-entity-offering-details__value">{{ record.options_count }}</span></span>
+                    </div>
+                </div>
+            </td>
+            <td role="cell">
+                <span class="fg-record-table__label" aria-hidden="true">Rendimiento y merma</span>
+                <div class="fg-record-table__value">
+                    <small class="text-muted d-block">Rendimiento</small>
+                    <strong>{{ record.yield_quantity }}</strong>
+                    <small class="text-muted ms-2">Merma {{ record.waste_percentage }}%</small>
+                </div>
+            </td>
+            <td role="cell" class="fg-record-table__state text-center">
+                <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+            </td>
+            <td role="cell" class="fg-record-table__actions text-center">
+                <TableActionsDropdown :label="`Acciones de ${record.item?.name || 'la receta'}`">
+                    <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar receta</button></li>
+                </TableActionsDropdown>
+            </td>
+        </template>
+    </FgCatalogList>
 
-    <InitialLoadTransition>
-        <CatalogListSkeleton v-if="initialLoading" kind="recipes" label="recetas y platillos"/>
-        <main v-else class="fg-entity">
-            <FiltersSection
-                class="fg-filter-bar--compact"
-                show-clear-button
-                :filter-by-value="filterBy"
-                @update:filterByValue="filterBy = $event"
-                :filter-word-value="word"
-                @update:filterWordValue="word = $event"
-                :filter-by-options="filterOptions"
-                search-placeholder="Buscar platillo, código o nota"
-                :loading="loading"
-                filter-by-title="Filtrar por"
-                search-title="Búsqueda"
-                add-button-text="Agregar receta"
-                :show-add-button="true"
-                @search="searchRecipes"
-                @add="openModal()"/>
-
-            <section class="fg-entity-list" aria-label="Listado de recetas y platillos">
-                <ResponsiveTable>
-                    <table class="table fg-entity-table fg-entity-table--catalog-recipes fg-entity-table--commercial-headings mb-0">
-                        <thead class="fg-table-header-surface">
-                            <tr>
-                                <th class="text-center" style="width: 18%;">Código interno</th>
-                                <th style="width: 32%;">Platillo</th>
-                                <th style="width: 18%;">Fórmula</th>
-                                <th style="width: 16%;">Operación</th>
-                                <th class="text-center" style="width: 10%;">Estado</th>
-                                <th class="text-center" style="width: 6%;">
-                                    <span class="visually-hidden">Acciones</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="fg-table__state" v-if="loading">
-                                <td colspan="6" class="py-4"><Loader label="Buscando recetas y platillos…"/></td>
-                            </tr>
-                            <template v-else-if="records.total > 0">
-                                <tr v-for="record in records.data" :key="record.id">
-                                    <td class="text-center">
-                                        <InternalCodeValue :value="record.item?.internal_code"/>
-                                    </td>
-                                    <td>
-                                        <span class="fg-entity-table__name">{{ record.item?.name }}</span>
-                                        <div v-if="record.item?.barcode" class="fg-entity-identifiers fg-entity-identifiers--plain">
-                                            <div class="fg-entity-identifier">
-                                                <span class="fg-entity-identifier__label colon-at-end">Cód. barras</span>
-                                                <span class="fg-entity-identifier__value" v-text="record.item.barcode"></span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="fg-entity-offering-details fg-detail-tags--wrap">
-                                            <span><strong class="colon-at-end">Insumos</strong> <span class="fg-entity-offering-details__value">{{ record.components_count }}</span></span>
-                                            <span><strong class="colon-at-end">Extras</strong> <span class="fg-entity-offering-details__value">{{ record.toppings_count }}</span></span>
-                                            <span><strong class="colon-at-end">Sabores</strong> <span class="fg-entity-offering-details__value">{{ record.options_count }}</span></span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted d-block">Rendimiento</small>
-                                        <strong>{{ record.yield_quantity }}</strong>
-                                        <small class="text-muted ms-2">Merma {{ record.waste_percentage }}%</small>
-                                    </td>
-                                    <td class="text-center">
-                                        <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <TableActionsDropdown :label="`Acciones de ${record.item?.name || 'la receta'}`">
-                                            <li><button type="button" class="dropdown-item" @click="openModal(record)"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar receta</span></button></li>
-                                        </TableActionsDropdown>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr class="fg-table__state" v-else>
-                                <td colspan="6"><WithoutData type="image"
-                                :text="appliedFilters.word?.trim() ? 'No encontramos recetas y platillos con esta búsqueda' : 'Aún no hay recetas registradas'"
-                                :description="appliedFilters.word?.trim() ? 'Prueba con otro término o limpia los filtros y vuelve a buscar.' : 'Agrega una receta para definir sus insumos.'"/></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </ResponsiveTable>
-            </section>
-
-            <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listRecipes"/>
-
-        </main>
-    </InitialLoadTransition>
     <FormModal
         modal-id="recipeModal"
         :title="isUpdate ? 'Editar receta' : 'Agregar receta'"
@@ -310,10 +272,9 @@
 
 <script>
 import FormGroup from "@/Shared/FormGroup.vue";
-import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import FormModal from "@System/Components/Generics/FormModal.vue";
 import AppTabs from "@/Shared/AppTabs.vue";
-import CatalogListSkeleton from "@System/Components/Catalogs/CatalogListSkeleton.vue";
+import FgCatalogList from "@System/Components/Catalogs/FgCatalogList.vue";
 import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -346,21 +307,20 @@ export default {
     mixins: [InitialPageMixin],
     components: {
         FormGroup,
-        ResponsiveTable,
         FormModal,
         AppTabs,
-        CatalogListSkeleton,
+        FgCatalogList,
         TableActionsDropdown,
         InternalCodeValue
     },
     data() {
         return {
-            breadcrumbTitles: [{title: "Catálogo comercial"}, {title: "Recetas y platillos"}],
             filterBy: ALL_RECIPES_FILTER,
             word: "",
             appliedFilters: {filter_by: "all", word: ""},
             records: {data: [], links: [], total: 0},
             loading: false,
+            listFailed: false,
             saving: false,
             isUpdate: false,
             form: emptyForm(),
@@ -425,15 +385,19 @@ export default {
         async listRecipes(page = "") {
             page = typeof page === "object" ? page?.url : page;
             this.loading = true;
+            this.listFailed = false;
 
             try {
                 this.records = Requests.emptyPagination();
                 const response = await Requests.get({
                     route: page || CONFIG.routes.list,
                     data: this.appliedFilters,
-                    showAlert: true
+                    showAlert: false
                 });
                 this.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
+                this.listFailed = !response?.bool;
+            } catch {
+                this.listFailed = true;
             } finally {
                 this.loading = false;
             }

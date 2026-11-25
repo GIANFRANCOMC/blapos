@@ -6,6 +6,11 @@
     <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
+        <div v-else-if="initialError">
+            <FgEmptyState title="No pudimos abrir el registro de venta" description="Intenta cargar la pantalla de nuevo.">
+                <button type="button" class="fg-button fg-button--secondary" @click="initializePage">Reintentar</button>
+            </FgEmptyState>
+        </div>
         <div v-else>
             <div class="fg-sale-create-grid">
                 <div class="fg-sale-create-main">
@@ -1192,46 +1197,38 @@
                         </InputSlot>
                         </div>
                         <div class="fg-field-cell col-12">
-                            <InputSlot
-                            v-if="selectedModalItem"
-                            hasDiv
-                            :title="selectedModalCatalogSectionTitle"
-                            :titleClass="[config.forms.classes.title, 'colon-at-end']"
-                            :isInputGroup="false"
-                            :divInputClass="['fg-sale-selected-catalog']"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <div class="fg-sale-catalog-option fg-sale-catalog-option--selected">
-                                    <div class="fg-sale-catalog-option__line">
-                                        <div class="fg-sale-catalog-option__meta">
-                                            <span class="fg-sale-catalog-option__meta-card is-price">
+                            <section v-if="selectedModalItem" class="fg-form-group fg-form-group--stacked">
+                                <h3 class="fg-form-group-heading">{{ selectedModalCatalogSectionTitle }}</h3>
+                                <div class="fg-sale-catalog-option fg-sale-catalog-option--selected gap-2">
+                                    <div class="fg-sale-catalog-option__line d-grid gap-2">
+                                        <div class="fg-sale-catalog-option__meta d-flex flex-wrap gap-3">
+                                            <span class="fg-sale-catalog-option__meta-card d-inline-flex align-items-baseline gap-1 is-price">
                                                 <i class="fa fa-money-bill" aria-hidden="true"></i>
                                                 <small>Venta</small>
                                                 <strong v-text="`${selectedModalItem?.currency?.sign ?? ''} ${separatorNumber(selectedModalItem?.price)}`"></strong>
                                             </span>
-                                            <span v-if="isDefined({value: selectedModalItem?.min_price})" class="fg-sale-catalog-option__meta-card is-range is-min">
+                                            <span v-if="isDefined({value: selectedModalItem?.min_price})" class="fg-sale-catalog-option__meta-card d-inline-flex align-items-baseline gap-1 is-range is-min">
                                                 <i class="fa fa-arrow-down" aria-hidden="true"></i>
                                                 <small>Mín.</small>
                                                 <strong v-text="`${selectedModalItem?.currency?.sign ?? ''} ${separatorNumber(selectedModalItem?.min_price)}`"></strong>
                                             </span>
-                                            <span v-if="isDefined({value: selectedModalItem?.max_price})" class="fg-sale-catalog-option__meta-card is-range is-max">
+                                            <span v-if="isDefined({value: selectedModalItem?.max_price})" class="fg-sale-catalog-option__meta-card d-inline-flex align-items-baseline gap-1 is-range is-max">
                                                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
                                                 <small>Máx.</small>
                                                 <strong v-text="`${selectedModalItem?.currency?.sign ?? ''} ${separatorNumber(selectedModalItem?.max_price)}`"></strong>
                                             </span>
-                                            <span v-if="isSubscription(selectedModalItem?.type)" class="fg-sale-catalog-option__meta-card is-duration">
+                                            <span v-if="isSubscription(selectedModalItem?.type)" class="fg-sale-catalog-option__meta-card d-inline-flex align-items-baseline gap-1 is-duration">
                                                 <i class="fa fa-clock" aria-hidden="true"></i>
                                                 <small>Duración</small>
                                                 <strong v-text="selectedModalItem?.formatted_duration" class="text-lowercase"></strong>
                                             </span>
                                         </div>
-                                        <div class="fg-sale-catalog-option__codes">
-                                            <small v-if="selectedModalItem?.internal_code">
+                                        <div class="fg-sale-catalog-option__codes d-flex flex-wrap gap-3">
+                                            <small class="d-inline-flex flex-wrap gap-1" v-if="selectedModalItem?.internal_code">
                                                 <span>Cód. interno</span>
                                                 <strong v-text="selectedModalItem.internal_code"></strong>
                                             </small>
-                                            <small v-if="selectedModalItem?.barcode">
+                                            <small class="d-inline-flex flex-wrap gap-1" v-if="selectedModalItem?.barcode">
                                                 <span>Cód. barras</span>
                                                 <strong v-text="selectedModalItem.barcode"></strong>
                                             </small>
@@ -1241,6 +1238,7 @@
                                         <button
                                             type="button"
                                             class="fg-link"
+                                            :aria-expanded="selectedCatalogInfoExpanded"
                                             @click="selectedCatalogInfoExpanded = !selectedCatalogInfoExpanded"
                                             v-text="selectedCatalogInfoExpanded ? 'Ocultar información adicional' : 'Mostrar información adicional'">
                                         </button>
@@ -1256,8 +1254,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </template>
-                        </InputSlot>
+                            </section>
                         </div>
                         <div class="fg-field-cell col-12 col-sm-6 col-lg-6">
                             <InputNumber
@@ -1354,54 +1351,50 @@
                                 :textBottomInfo="forms[entity].createUpdate.extras.modals.details.errors?.extras_end_date"
                                 xl="4"
                                 lg="4"/>
-                            <InputSlot
-                                :isInputGroup="false"
-                                :divInputClass="['d-flex flex-wrap justify-content-start align-items-center']">
-                                <template v-slot:input>
-                                    <div class="d-flex flex-wrap justify-content-start align-items-center gap-1 mb-2" v-if="false &&isDurationTypeCalendar(forms[entity].createUpdate.extras.modals.details.data.extras?.duration_type)">
-                                        <div class="form-check form-check-primary">
-                                            <label class="form-check-label fw-semibold">
-                                                <input
+                            <div class="fg-field-cell col-12">
+                                <div class="d-flex flex-wrap justify-content-start align-items-center gap-1 mb-2" v-if="false &&isDurationTypeCalendar(forms[entity].createUpdate.extras.modals.details.data.extras?.duration_type)">
+                                    <div class="form-check form-check-primary">
+                                        <label class="form-check-label fw-semibold">
+                                            <input
 
-                                                    type="checkbox"
-                                                    v-model="forms[entity].createUpdate.extras.modals.details.data.extras.set_end_of_day"
-                                                    @change="calculateDuration({mode: 'record', record: forms[entity].createUpdate.extras.modals.details.data})"/>
-                                                Ajustar la hora de la fecha de finalización al final del día (23:59 = 11:59 PM)
-                                            </label>
-                                        </div>
-                                        <div class="form-check form-check-primary fw-semibold">
-                                            <label class="form-check-label">
-                                                <input
+                                                type="checkbox"
+                                                v-model="forms[entity].createUpdate.extras.modals.details.data.extras.set_end_of_day"
+                                                @change="calculateDuration({mode: 'record', record: forms[entity].createUpdate.extras.modals.details.data})"/>
+                                            Ajustar la hora de la fecha de finalización al final del día (23:59 = 11:59 PM)
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-primary fw-semibold">
+                                        <label class="form-check-label">
+                                            <input
 
-                                                    type="checkbox"
-                                                    v-model="forms[entity].createUpdate.extras.modals.details.data.extras.force"/>
-                                                Tomar en cuenta la membresías activas
-                                            </label>
-                                        </div>
+                                                type="checkbox"
+                                                v-model="forms[entity].createUpdate.extras.modals.details.data.extras.force"/>
+                                            Tomar en cuenta la membresías activas
+                                        </label>
                                     </div>
-                                    <div class="fg-sale-membership-duration justify-content-center">
-                                        <span class="fg-sale-membership-duration__title colon-at-end">Duración total calculada</span>
-                                        <div class="fg-sale-membership-duration__formula">
-                                            <span>
-                                                <small>Base</small>
-                                                <strong class="text-lowercase" v-text="forms[entity].createUpdate.extras.modals.details.data.extras.formatted_duration"></strong>
-                                            </span>
-                                            <i>x</i>
-                                            <span>
-                                                <small>Periodos</small>
-                                                <strong class="text-lowercase">
-                                                    {{ isDefined({value: forms[entity].createUpdate.extras.modals.details.data.quantity}) ? separatorNumber(forms[entity].createUpdate.extras.modals.details.data.quantity) : '0' }}
-                                                </strong>
-                                            </span>
-                                            <i>=</i>
-                                            <span class="is-result">
-                                                <small>Resultado</small>
-                                                <strong class="text-lowercase" v-text="forms[entity].createUpdate.extras.modals.details.data.extras.formatted_total_duration"></strong>
-                                            </span>
-                                        </div>
+                                </div>
+                                <div class="fg-sale-membership-duration d-grid gap-2">
+                                    <span class="fg-sale-membership-duration__title colon-at-end">Duración total calculada</span>
+                                    <div class="fg-sale-membership-duration__formula d-flex flex-wrap align-items-center gap-2">
+                                        <span class="d-grid">
+                                            <small>Base</small>
+                                            <strong class="text-lowercase" v-text="forms[entity].createUpdate.extras.modals.details.data.extras.formatted_duration"></strong>
+                                        </span>
+                                        <span aria-hidden="true">×</span>
+                                        <span class="d-grid">
+                                            <small>Periodos</small>
+                                            <strong class="text-lowercase">
+                                                {{ isDefined({value: forms[entity].createUpdate.extras.modals.details.data.quantity}) ? separatorNumber(forms[entity].createUpdate.extras.modals.details.data.quantity) : '0' }}
+                                            </strong>
+                                        </span>
+                                        <span aria-hidden="true">=</span>
+                                        <span class="is-result d-grid">
+                                            <small>Resultado</small>
+                                            <strong class="text-lowercase" v-text="forms[entity].createUpdate.extras.modals.details.data.extras.formatted_total_duration"></strong>
+                                        </span>
                                     </div>
-                                </template>
-                            </InputSlot>
+                                </div>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -1681,6 +1674,7 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts         from "@System/Helpers/Alerts.js";
@@ -1770,7 +1764,7 @@ const MODULE = {
 
 export default {
     mixins: [InitialPageMixin, createOptionSearch("customers", "items")],
-    components: {TableActionsDropdown},
+    components: {FgEmptyState, TableActionsDropdown},
     name: "SalesMain",
     data() {
 
@@ -1899,6 +1893,7 @@ export default {
         return {
             ...crudModule,
             optionOrigin: "sales-create",
+            initialError: false,
             MODULE: MODULE,
             selectedCatalogInfoExpanded: false,
             syncingDetailModal: false
@@ -1909,11 +1904,19 @@ export default {
 
         navbarItem(MODULE.config.parentMenuId, {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
+        await this.initializePage();
+    },
+    methods: {
+        async initializePage() {
+            this.initialLoading = true;
+            const ready = await this.loadInitialParams(async () => {
+                const loaded = await this.initParams({});
+                this.initialError = !loaded;
+                return loaded;
+            });
+            if(!ready) return;
 
-        const initParams = await this.loadInitialParams(() => this.initParams({}));
-        const initOthers = await this.initOthers({});
-
-        if(initParams && initOthers) {
+            await this.initOthers({});
 
             const pendingQuotationId = window.sessionStorage.getItem("br_sale_pending_quotation_id");
 
@@ -1930,11 +1933,7 @@ export default {
                 window.sessionStorage.removeItem("br_sale_pending_quotation_id");
 
             }
-
-        }
-
-    },
-    methods: {
+        },
         documentTypeLabel(documentType) {
 
             const value = String(documentType?.name || documentType?.code || "Comprobante").trim().toUpperCase();
@@ -2365,7 +2364,7 @@ export default {
         // Init
         async initParams({}) {
 
-            const initParams = await Requests.get({route: this.config.entity.routes.initParams, data: {page: "main"}, showAlert: true});
+            const initParams = await Requests.get({route: this.config.entity.routes.initParams, data: {page: "main"}});
 
             this.options.branches             = initParams.data?.config?.branches;
             this.options.warehouses           = initParams.data?.config?.warehouses;

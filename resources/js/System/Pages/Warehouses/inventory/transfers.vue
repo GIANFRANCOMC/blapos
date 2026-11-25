@@ -1,46 +1,58 @@
 <template>
     <InventoryListing ref="inventoryListing" :page="page" v-model:filters="filters" :options="listingOptions"
         :initial-loading="initialLoading" :loading="isCurrentViewLoading" :records="currentRecords"
-        :exporting="exporting" :applied-warehouse="Boolean(appliedFilters.warehouse?.code)" :error="listError"
+        :exporting="exporting" :applied-filters="appliedFilters" :applied-warehouse="Boolean(appliedFilters.warehouse?.code)" :error="listError"
         @search="searchCurrentView" @clear="clearFilters" @export="exportCurrentView" @page="listCurrentView" @retry="retryInventoryList">
         <template #actions>
             <FgButton v-if="canOperateTransfers" icon="fa-solid fa-plus" :disabled="initialLoading || isCurrentViewLoading" data-bs-toggle="modal" data-bs-target="#inventoryTransferModal" @click="prepareTransfer">Registrar traslado</FgButton>
         </template>
-        <tr v-for="transfer in transferRecords.data" :key="transfer.id">
-            <td class="fg-align-center fg-inventory-reference">{{ transfer.reference }}</td>
-            <td class="fg-align-end">
-                <span>{{ transfer.source_warehouse?.branch?.name || transfer.source_warehouse?.name || "Almacén no visible" }}</span>
-                <span v-if="transfer.source_warehouse?.branch?.name" class="fg-table-note">{{ transfer.source_warehouse.name }}</span>
+        <tr role="row" v-for="transfer in transferRecords.data" :key="transfer.id">
+            <td role="cell" class="fg-record-table__identity fg-align-center fg-inventory-reference">{{ transfer.reference }}</td>
+            <td role="cell" class="fg-align-end">
+                <span class="fg-record-table__label" aria-hidden="true">Almacén de origen</span>
+                <div class="fg-record-table__value">
+                    <span>{{ transfer.source_warehouse?.branch?.name || transfer.source_warehouse?.name || "Almacén no visible" }}</span>
+                    <span v-if="transfer.source_warehouse?.branch?.name" class="fg-table-note">{{ transfer.source_warehouse.name }}</span>
+                </div>
             </td>
-            <td class="px-0">
-                <span class="fg-transfer-direction mx-auto">
-                    <i class="fa-solid fa-right-long fa-lg lh-1" aria-hidden="true"></i>
-                    <span class="fg-transfer-count" tabindex="0" data-bs-toggle="tooltip"
-                        :title="`${transfer.items_count} ${Number(transfer.items_count) === 1 ? 'producto' : 'productos'}`">
-                        <span class="visually-hidden">Productos incluidos: </span>{{ transfer.items_count }}
+            <td role="cell" class="px-0">
+                <span class="fg-record-table__label" aria-hidden="true">Productos incluidos</span>
+                <div class="fg-record-table__value">
+                    <span class="fg-transfer-direction mx-auto">
+                        <i class="fa-solid fa-right-long fa-lg lh-1" aria-hidden="true"></i>
+                        <span class="fg-transfer-count" tabindex="0" data-bs-toggle="tooltip"
+                            :title="`${transfer.items_count} ${Number(transfer.items_count) === 1 ? 'producto' : 'productos'}`">
+                            <span class="visually-hidden">Productos incluidos: </span>{{ transfer.items_count }}
+                        </span>
                     </span>
-                </span>
+                </div>
             </td>
-            <td>
-                <span>{{ transfer.destination_warehouse?.branch?.name || transfer.destination_warehouse?.name || "Almacén no visible" }}</span>
-                <span v-if="transfer.destination_warehouse?.branch?.name" class="fg-table-note">{{ transfer.destination_warehouse.name }}</span>
+            <td role="cell">
+                <span class="fg-record-table__label" aria-hidden="true">Almacén de destino</span>
+                <div class="fg-record-table__value">
+                    <span>{{ transfer.destination_warehouse?.branch?.name || transfer.destination_warehouse?.name || "Almacén no visible" }}</span>
+                    <span v-if="transfer.destination_warehouse?.branch?.name" class="fg-table-note">{{ transfer.destination_warehouse.name }}</span>
+                </div>
             </td>
-            <td class="text-start">
-                <span class="d-flex align-items-center gap-1">
-                    <i class="fa-regular fa-calendar fg-help" tabindex="0" role="img" aria-label="Fecha de registro"
-                        title="Fecha de registro" data-bs-toggle="tooltip"></i>
-                    <span>{{ formatTransferDate(transfer.created_at) }}</span>
-                </span>
-                <span class="fg-table-note d-flex align-items-center gap-1">
-                    <i class="fa-regular fa-user" tabindex="0" role="img" aria-label="Registrado por"
-                        title="Registrado por" data-bs-toggle="tooltip"></i>
-                    <span>{{ transfer.user?.name || "Proceso del sistema" }}</span>
-                </span>
+            <td role="cell" class="text-start">
+                <span class="fg-record-table__label" aria-hidden="true">Detalle</span>
+                <div class="fg-record-table__value">
+                    <span class="d-flex align-items-center gap-1">
+                        <i class="fa-regular fa-calendar fg-help" tabindex="0" role="img" aria-label="Fecha de registro"
+                            title="Fecha de registro" data-bs-toggle="tooltip"></i>
+                        <span>{{ formatTransferDate(transfer.created_at) }}</span>
+                    </span>
+                    <span class="fg-table-note d-flex align-items-center gap-1">
+                        <i class="fa-regular fa-user" tabindex="0" role="img" aria-label="Registrado por"
+                            title="Registrado por" data-bs-toggle="tooltip"></i>
+                        <span>{{ transfer.user?.name || "Proceso del sistema" }}</span>
+                    </span>
+                </div>
             </td>
-            <td class="fg-align-center">
+            <td role="cell" class="fg-record-table__state fg-align-center">
                 <span :class="['fg-badge', `fg-badge--${transferStatusInfo(transfer.status).tone}`]">{{ transferStatusInfo(transfer.status).label }}</span>
             </td>
-            <td class="fg-align-center">
+            <td role="cell" class="fg-record-table__actions fg-align-center">
                 <TableActionsDropdown :label="`Acciones de ${transfer.reference}`">
                     <li>
                         <button type="button" class="fg-menu__item" data-bs-toggle="modal" data-bs-target="#inventoryTransferDetailModal" @click="loadTransferDetail(transfer.id)">

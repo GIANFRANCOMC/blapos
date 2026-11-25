@@ -1,779 +1,334 @@
-﻿<template>
+<template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Asistencias de clientes" description="Registra ingresos y salidas según la membresía vigente.">
+        <template #actions>
+            <FgButton icon="fa-solid fa-check" :disabled="initialLoading || !parametersReady" @click="selectModeEntity('manual', true)">
+                Registrar asistencia
+            </FgButton>
+            <FgButton tone="secondary" icon="fa-solid fa-globe" :disabled="initialLoading || !parametersReady" @click="modalAutomaticEntity({type: 'generate'})">
+                Modo público
+            </FgButton>
+        </template>
+    </FgPageHeader>
 
-    <!-- Content -->
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
-        <div v-else class="fg-page-content">
-            <div class="d-flex justify-content-end mb-2" v-if="!lists.entity.extras.loading">
-                <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
-                    <i class="fa fa-check-circle"></i>
-                    <span class="ms-1">Registrar asistencia</span>
-                </a>
-            </div>
-            <div class="row align-items-start g-2 g-md-4 mb-4 mb-md-4">
-                <div class="col-xl-9 col-lg-9 col-md-6 col-sm-12">
-                    <div class="card">
-                        <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
-                            <div class="card-title mb-0">
-                                <span class="fw-semibold">Asistencias</span>
-                            </div>
-                            <div v-show="false">
-                                <button class="btn btn-xs btn-primary" @click="initChart('default')" type="button">
-                                    <span>Refrescar</span>
-                                </button>
-                            </div>
+        <div v-else class="fg-page-content fg-attendance-page">
+            <FgEmptyState v-if="!parametersReady" title="No pudimos preparar las asistencias"
+                description="Vuelve a cargar las sucursales y los clientes disponibles.">
+                <FgButton tone="secondary" @click="initialize">Volver a intentar</FgButton>
+            </FgEmptyState>
+            <template v-else>
+                <form class="fg-filters fg-filter-grid fg-attendance-filters" role="search" aria-label="Filtrar asistencias"
+                    @submit.prevent="listEntity({applyFilters: true})">
+                    <FgField label="Sucursal">
+                        <FgSelect v-model="lists.entity.filters.branch" :options="branches" :clearable="false"
+                            :searchable="false" placeholder="Elige una sucursal"/>
+                    </FgField>
+                    <FgField label="Cliente">
+                        <FgSelect v-model="lists.entity.filters.customer" :options="customers" placeholder="Documento o nombre"/>
+                    </FgField>
+                    <FgField label="Desde" v-slot="{id}">
+                        <div class="fg-field__control">
+                            <input :id="id" v-model="lists.entity.filters.start_date" class="fg-input" type="date"
+                                :max="lists.entity.filters.end_date || undefined"/>
                         </div>
-                        <div class="card-body">
-                            <canvas id="defaultChartId" class="chartjs" data-height="150"></canvas>
+                    </FgField>
+                    <FgField label="Hasta" v-slot="{id}">
+                        <div class="fg-field__control">
+                            <input :id="id" v-model="lists.entity.filters.end_date" class="fg-input" type="date"
+                                :min="lists.entity.filters.start_date || undefined"/>
                         </div>
+                    </FgField>
+                    <FgField label="Estado">
+                        <FgSelect :model-value="lists.entity.filters.status || 'all'" :options="attendanceStatusOptions"
+                            :reduce="option => option.code" :clearable="false" :searchable="false"
+                            @update:model-value="lists.entity.filters.status = $event === 'all' ? '' : $event"/>
+                    </FgField>
+                    <div class="fg-filter-grid__actions">
+                        <FgFilterActions submit :loading="lists.entity.extras.loading" @clear="clearFilters"/>
                     </div>
-                </div>
-                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
-                    <div class="card">
-                        <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
-                            <div class="card-title mb-0">
-                                <span class="fw-semibold">Actividad</span>
-                            </div>
-                            <div v-show="false">
-                                <button class="btn btn-xs btn-primary" @click="initChart('doughnut')" type="button">
-                                    <span>Refrescar</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="doughnutChartId" class="chartjs" data-height="150"></canvas>
-                        </div>
+                </form>
+
+                <section class="fg-attendance-results" aria-labelledby="attendance-results-title">
+                    <div class="fg-list-heading fg-attendance-list-heading">
+                        <h2 id="attendance-results-title" class="fg-section-title">Registro de ingresos y salidas</h2>
+                        <FgButton tone="secondary" icon="fa-solid fa-download"
+                            :disabled="lists.entity.extras.loading || lists.entity.extras.error || !lists.entity.appliedFilters?.branch"
+                            @click="exportEntity">Exportar CSV</FgButton>
                     </div>
-                </div>
-            </div>
-            <div class="row align-items-start g-4 mb-3 mb-md-3">
-                <template v-if="forms.entity.createUpdate.config.viewFilters">
-                    <div class="col-lg-9 col-12">
-                        <div class="row g-3">
-                            <InputSlot
-                                hasDiv
-                                title="Sucursal"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="12"
-                                lg="12">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="lists.entity.filters.branch"
-                                        :options="branches"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"
-                                        placeholder="Seleccione una sucursal ..."/>
-                                </template>
-                            </InputSlot>
-                            <InputSlot
-                                hasDiv
-                                title="Cliente"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="12"
-                                lg="12">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="lists.entity.filters.customer"
-                                        :options="customers"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="true"
-                                        placeholder="Seleccione un cliente ..."/>
-                                </template>
-                            </InputSlot>
-                            <InputDate
-                                v-model="lists.entity.filters.start_date"
-                                hasDiv
-                                title="Fecha de ingreso"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="4"
-                                lg="4"/>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-12">
-                        <div class="row g-1">
-                            <div class="col-xl-12">
-                                <label :class="[config.forms.classes.title]">Estado</label>
-                            </div>
-                            <div class="col-lg-12 col-xl-12">
-                                <div class="form-check">
-                                    <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status"/>
-                                        <span class="fw-bold text-secondary">Todos los estados</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 col-xl-12">
-                                <div class="form-check">
-                                    <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status"/>
-                                        <span class="fw-bold text-success">En curso</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 col-xl-12">
-                                <div class="form-check">
-                                    <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == 'finalized' ? 'bg-primary border-primary' : '']" type="radio" value="finalized" v-model="lists.entity.filters.status"/>
-                                        <span class="fw-bold text-primary">Concluida</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 col-xl-12">
-                                <div class="form-check">
-                                    <label class="py-1 cursor-pointer">
-                                        <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status"/>
-                                        <span class="fw-bold text-danger">Anulada</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-                <InputSlot
-                    hasDiv
-                    :divClass="['mt-3']"
-                    :isInputGroup="false"
-                    :divInputClass="['d-flex flex-wrap justify-content-start align-items-center gap-2 gap-md-3']"
-                    xl="12"
-                    lg="12">
-                    <template v-slot:input>
-                        <template v-if="forms.entity.createUpdate.config.viewFilters">
-                            <SearchButton @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
-                        </template>
-                        <button type="button" class="btn btn-primary waves-effect" @click="selectModeEntity('manual', true)" :disabled="lists.entity.extras.loading">
-                            <i class="fa fa-check"></i>
-                            <span class="ms-2">Registrar asistencia</span>
-                        </button>
-                        <button type="button" class="btn btn-success waves-effect" @click="modalAutomaticEntity({type: 'generate'})" :disabled="lists.entity.extras.loading">
-                            <i class="fa fa-globe"></i>
-                            <span class="ms-2">Modo público</span>
-                        </button>
-                        <button type="button" class="fg-button fg-button--secondary waves-effect" @click="exportEntity" :disabled="lists.entity.extras.loading" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar asistencias">
-                            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                            <span class="ms-2 d-inline d-md-none">Exportar</span>
-                        </button>
-                        <a href="javascript:void(0)" class="fw-bold ms-2" @click="forms.entity.createUpdate.config.viewFilters = !forms.entity.createUpdate.config.viewFilters;">
-                            <i :class="['fa', forms.entity.createUpdate.config.viewFilters ? 'fa-eye-slash' : 'fa-eye']"></i>
-                            <span class="ms-2" v-text="forms.entity.createUpdate.config.viewFilters ? 'Ocultar filtros' : 'Mostrar filtros'"></span>
-                        </a>
-                    </template>
-                </InputSlot>
-            </div>
-            <div class="d-flex justify-content-end" v-if="lists.entity.records.total > 0">
-                <span class="colon-at-end">Sucursal</span>
-                <span v-text="lists.entity.records.data[0]?.branch?.name" class="ms-1 fw-bold"></span>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr class="text-center">
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;"></th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 45%;">CLIENTE</th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">INGRESO</th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">SALIDA</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0 bg-white">
-                        <template v-if="lists.entity.extras.loading">
-                            <tr class="fg-table__state text-center">
-                                <td colspan="99" class="py-4">
-                                    <Loader/>
-                                </td>
-                            </tr>
-                        </template>
-                        <template v-else>
-                            <template v-if="lists.entity.records.total > 0">
-                                <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
-                                    <td :class="[{ 'fg-status-surface--success': ['active'].includes(record.status), 'fg-status-surface--primary': ['finalized'].includes(record.status), 'fg-status-surface--danger': ['canceled'].includes(record.status), 'fg-status-surface--warning': ['inactive'].includes(record.status) }]">
-                                        <span class="d-block fw-medium small" v-text="record.formatted_status"></span>
-                                        <InputSlot
-                                            v-if="['active', 'finalized'].includes(record?.status)"
-                                            :hasDiv="false"
-                                            :isInputGroup="false"
-                                            :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-2 mt-1']">
-                                            <template v-slot:input>
-                                                <button v-if="['active'].includes(record?.status)" type="button" class="btn btn-xs btn-warning waves-effect" @click="modalCreateUpdateEntity({record, type: 'finalized'})">
-                                                    <i class="fa-solid fa-person-walking-arrow-right"></i>
-                                                    <span class="ms-2">Concluir</span>
-                                                </button>
-                                                <button type="button" class="btn btn-xs btn-danger waves-effect" @click="modalCreateUpdateEntity({record, type: 'canceled'})">
-                                                    <i class="fa fa-times"></i>
-                                                    <span class="ms-2">Anular</span>
-                                                </button>
-                                                <button type="button" class="btn btn-xs btn-info waves-effect" @click="requestCorrectionEntity(record)">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                    <span class="ms-2">Corregir</span>
-                                                </button>
-                                            </template>
-                                        </InputSlot>
-                                    </td>
-                                    <td class="text-start">
-                                        <span v-text="record.customer?.name" class="fw-medium d-block"></span>
-                                        <small v-text="record.customer?.document_number" class="d-block"></small>
-                                        <small class="fg-attendance-device-detail">
-                                            <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
-                                            <span v-text="getAttendanceDeviceLabel(record)"></span>
-                                        </small>
-                                        <small v-if="latestAttendanceCorrection(record)" class="fg-attendance-device-detail is-warning">
-                                            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-                                            <span v-text="latestAttendanceCorrectionLabel(record)"></span>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <template v-if="isDefined({value: record.start_date})">
-                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-medium"></span>
-                                            <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-medium"></span>
-                                        </template>
-                                        <span v-else class="d-block fw-medium text-dark">Pendiente</span>
-                                    </td>
-                                    <td :class="[{ 'fg-status-surface--secondary': ['active'].includes(record.status) }]">
-                                        <template v-if="isDefined({value: record.end_date})">
-                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-medium"></span>
-                                            <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-medium"></span>
-                                        </template>
-                                        <span v-else class="d-block fw-medium text-dark">Pendiente</span>
+                    <ResponsiveTable>
+                        <table class="fg-table fg-record-table fg-attendance-table" role="table" aria-labelledby="attendance-results-title">
+                            <thead role="rowgroup">
+                                <tr role="row">
+                                    <th scope="col" role="columnheader">Cliente</th>
+                                    <th scope="col" role="columnheader">Sucursal</th>
+                                    <th scope="col" role="columnheader">Ingreso</th>
+                                    <th scope="col" role="columnheader">Salida</th>
+                                    <th scope="col" role="columnheader">Registro</th>
+                                    <th scope="col" role="columnheader">Estado</th>
+                                    <th scope="col" role="columnheader"><span class="fg-sr-only">Acciones</span></th>
+                                </tr>
+                            </thead>
+                            <tbody role="rowgroup">
+                                <tr role="row" v-if="lists.entity.extras.loading" class="fg-table__state">
+                                    <td role="cell" colspan="7"><FgListLoading label="Buscando asistencias…"/></td>
+                                </tr>
+                                <tr role="row" v-else-if="lists.entity.extras.error" class="fg-table__state">
+                                    <td role="cell" colspan="7">
+                                        <FgEmptyState title="No pudimos consultar las asistencias" :description="lists.entity.extras.error">
+                                            <FgButton tone="secondary" @click="listEntity({url: lists.entity.extras.lastUrl})">Volver a intentar</FgButton>
+                                        </FgEmptyState>
                                     </td>
                                 </tr>
-                            </template>
-                            <template v-else>
-                                <tr class="fg-table__state">
-                                    <td class="text-center" colspan="99">
-                                        <WithoutData type="image"/>
+                                <tr role="row" v-else-if="!lists.entity.records.data?.length" class="fg-table__state">
+                                    <td role="cell" colspan="7">
+                                        <FgEmptyState title="No hay asistencias para esta consulta"
+                                            description="Prueba con otra sucursal, cliente o periodo."/>
                                     </td>
                                 </tr>
-                            </template>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-            <div class="d-flex justify-content-end mt-2" v-if="!lists.entity.extras.loading">
-                <a href="javascript:void(0)" @click="selectModeEntity('manual', true)" class="fw-bold">
-                    <i class="fa fa-check-circle"></i>
-                    <span class="ms-1">Registrar asistencia</span>
-                </a>
-            </div>
-            <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
-
-            <!-- Modals -->
-
-        </div>
-    </InitialLoadTransition>
-    <div class="modal fade" :id="forms.entity.createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.createUpdate.extras.modals.default.titles[forms.entity.createUpdate.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div v-if="['store'].includes(forms.entity.createUpdate.extras.modals.default.type)" class="d-flex flex-wrap justify-content-center align-items-center mb-3 shadow-sm px-4 py-2 border border-1 border-light rounded">
-                        <label class="fw-semibold text-dark d-block mb-2 mb-md-1 text-center">Selecciona el modo de asistencia</label>
-                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                            <template v-for="record in formModes" :key="record.code">
-                                <button :class="['btn btn-sm rounded-pill', [forms.entity.createUpdate.config.currentMode].includes(record?.code) ? 'btn-success fw-bold pe-none' : 'btn-outline-success fw-semibold']" @click="[forms.entity.createUpdate.config.currentMode].includes(record?.code) ? '' : selectModeEntity(record?.code, false)">
-                                    <i :class="['fa', record?.icon]"></i>
-                                    <span class="ms-1 ms-md-2 d-none d-sm-inline" v-text="record?.label"></span>
-                                    <span class="ms-1 ms-md-2 d-inline d-sm-none" v-text="record?.label_sm"></span>
-                                </button>
-                            </template>
-                        </div>
-                        <!-- <a class="text-muted" @click="rememberModeEntity('manual')" href="javascript:void(0)">
-                            <span>¿Recordar modalidad?</span>
-                            <span :class="[forms.entity.createUpdate.config.rememberMode ? 'text-success' : 'text-primary', 'fw-bold ms-1']" v-text="forms.entity.createUpdate.config.rememberMode ? 'Sí' : 'No'"></span>
-                        </a> -->
-                    </div>
-                    <div class="row g-3">
-                        <InputSlot
-                            hasDiv
-                            title="Sucursal"
-                            isRequired
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <span v-if="isDefined({value: forms.entity.createUpdate.data?.id})" v-text="forms.entity.createUpdate.data?.branch?.data?.name" class="fw-semibold"></span>
-                                <v-select
-                                    v-else
-                                    v-model="forms.entity.createUpdate.data.branch"
-                                    :options="branches"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :searchable="false"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            hasDiv
-                            title="Cliente"
-                            isRequired
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <span v-if="isDefined({value: forms.entity.createUpdate.data?.id})" v-text="forms.entity.createUpdate.data?.customer?.label" class="fw-semibold"></span>
-                                <v-select
-                                    v-else
-                                    v-model="forms.entity.createUpdate.data.customer"
-                                    :options="customers"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="true"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="['store', 'finalized', 'canceled'].includes(forms.entity.createUpdate.extras.modals.default.type)"
-                            hasDiv
-                            :title="['store'].includes(forms.entity.createUpdate.extras.modals.default.type) ? 'Ingreso / salida' : 'Ingreso'"
-                            isRequired
-                            xl="6"
-                            lg="6">
-                            <template v-slot:defaultAppend>
-                                <small v-if="['store'].includes(forms.entity.createUpdate.extras.modals.default.type)" class="mt-1 text-muted fw-semibold ms-2">Es referencial</small>
-                            </template>
-                            <template v-slot:input>
-                                <AnalogClock
-                                    :time="forms.entity.createUpdate.data.start_date"
-                                    :isDynamic="['store'].includes(forms.entity.createUpdate.extras.modals.default.type)"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="['finalized', 'canceled'].includes(forms.entity.createUpdate.extras.modals.default.type)"
-                            hasDiv
-                            :title="['finalized'].includes(forms.entity.createUpdate.extras.modals.default.type) ? 'Salida' : 'Salida'"
-                            isRequired
-                            xl="6"
-                            lg="6">
-                            <template v-slot:defaultAppend>
-                                <small v-if="['finalized'].includes(forms.entity.createUpdate.extras.modals.default.type)" class="mt-1 text-muted fw-semibold ms-2">Es referencial</small>
-                            </template>
-                            <template v-slot:input>
-                                <AnalogClock
-                                    :time="forms.entity.createUpdate.data.end_date"
-                                    :isDynamic="['finalized'].includes(forms.entity.createUpdate.extras.modals.default.type)"/>
-                            </template>
-                        </InputSlot>
-                    </div>
-                    <!-- <div v-if="['store'].includes(forms.entity.createUpdate.extras.modals.default.type)" class="alert alert-secondary small mt-3 mb-0" role="alert">
-                        El sistema detectará automáticamente si estás registrando un ingreso o una salida.
-                    </div> -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" :class="['btn waves-effect', forms.entity.createUpdate.extras.modals.default.config.buttons[forms.entity.createUpdate.extras.modals.default.type]]" @click="['canceled'].includes(forms.entity.createUpdate.extras.modals.default.type) ? cancelEntity({}) : createUpdateEntity()">
-                        <i :class="forms.entity.createUpdate.extras.modals.default.config.icons[forms.entity.createUpdate.extras.modals.default.type]"></i>
-                        <span class="ms-2" v-text="forms.entity.createUpdate.extras.modals.default.config.labels[forms.entity.createUpdate.extras.modals.default.type]"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" :id="forms.entity.qrCamera.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.qrCamera.extras.modals.default.titles[forms.entity.qrCamera.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div v-if="['store'].includes(forms.entity.qrCamera.extras.modals.default.type)" class="d-flex flex-wrap justify-content-center align-items-center mb-3 shadow-sm px-4 py-2 border border-1 border-light rounded">
-                        <label class="fw-semibold text-dark d-block mb-2 mb-md-1 text-center">Selecciona el modo de asistencia</label>
-                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                            <template v-for="record in formModes" :key="record.code">
-                                <button :class="['btn btn-sm rounded-pill', [forms.entity.createUpdate.config.currentMode].includes(record?.code) ? 'btn-success fw-bold pe-none' : 'btn-outline-success fw-semibold']" @click="[forms.entity.createUpdate.config.currentMode].includes(record?.code) ? '' : selectModeEntity(record?.code, false)">
-                                    <i :class="['fa', record?.icon]"></i>
-                                    <span class="ms-1 ms-md-2 d-none d-sm-inline" v-text="record?.label"></span>
-                                    <span class="ms-1 ms-md-2 d-inline d-sm-none" v-text="record?.label_sm"></span>
-                                </button>
-                            </template>
-                        </div>
-                        <!-- <a class="text-muted" @click="rememberModeEntity('qrCamera')" href="javascript:void(0)">
-                            <span>¿Recordar modalidad?</span>
-                            <span :class="[forms.entity.createUpdate.config.rememberMode ? 'text-success' : 'text-primary', 'fw-bold ms-1']" v-text="forms.entity.createUpdate.config.rememberMode ? 'Sí' : 'No'"></span>
-                        </a> -->
-                    </div>
-                    <div class="row g-3">
-                        <InputSlot
-                            hasDiv
-                            title="Sucursal"
-                            isRequired
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <span v-if="isDefined({value: forms.entity.qrCamera.data?.id})" v-text="forms.entity.qrCamera.data?.branch?.data?.name" class="fw-semibold"></span>
-                                <v-select
-                                    v-else
-                                    v-model="forms.entity.qrCamera.data.branch"
-                                    :options="branches"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :searchable="false"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            hasDiv
-                            title="Cámara interna"
-                            :isInputGroup="false"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <template v-if="forms.entity.qrCamera.config.isProcessing">
-                                    <div class="d-flex align-items-center justify-content-center p-2 bg-light border rounded">
-                                        <div class="spinner-border text-dark me-2"></div>
-                                        <span class="fw-semibold">Finalizando escaneo ...</span>
-                                    </div>
-                                </template>
-                                <div class="w-100" v-show="!forms.entity.qrCamera.config.isProcessing">
-                                    <CodeScanner
-                                        ref="scannerQr"
-                                        :showControls="true"
-                                        :qrbox="290"
-                                        :fps="23"
-                                        :limitScan="-1"
-                                        :canProcess="forms.entity.qrCamera.config.isCurrentActive && !forms.entity.qrCamera.config.isProcessing"
-                                        @result="onResultQrCamera"/>
-                                </div>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="(forms.entity.qrCamera.data.customers).length > 1"
-                            hasDiv
-                            title="Clientes"
-                            isRequired
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <div class="table-responsive w-100">
-                                    <table class="table table-sm table-hover">
-                                        <thead>
-                                            <tr class="text-center">
-                                                <th class="bg-secondary text-white fw-semibold" style="width: 10%;">#</th>
-                                                <th class="bg-secondary text-white fw-semibold" style="width: 75%;">CLIENTE</th>
-                                                <th class="bg-secondary text-white fw-semibold" style="width: 15%;"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="table-border-bottom-0 bg-white">
-                                            <template v-if="(forms.entity.qrCamera.data.customers).length > 0">
-                                                <template v-for="(record, keyRecord) in forms.entity.qrCamera.data.customers" :key="record.id">
-                                                    <tr class="text-nowrap text-center">
-                                                        <td v-text="keyRecord + 1"></td>
-                                                        <td v-text="record.label"></td>
-                                                        <td>
-                                                            <button class="btn btn-danger btn-xs waves-effect" type="button" @click="deleteQrCameraEntity({record, keyRecord})">
-                                                                <i class="fa fa-times"></i>
-                                                                <span class="ms-1">Eliminar</span>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                </template>
-                                            </template>
-                                            <template v-else>
-                                                <tr class="fg-table__state">
-                                                    <td class="text-center" colspan="99">
-                                                        <WithoutData type="text"/>
-                                                    </td>
-                                                </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="['store', 'finalized', 'canceled'].includes(forms.entity.qrCamera.extras.modals.default.type)"
-                            hasDiv
-                            :title="['store'].includes(forms.entity.qrCamera.extras.modals.default.type) ? 'Ingreso / salida' : 'Ingreso'"
-                            isRequired
-                            xl="6"
-                            lg="6">
-                            <template v-slot:defaultAppend>
-                                <small v-if="['store'].includes(forms.entity.qrCamera.extras.modals.default.type)" class="mt-1 text-muted fw-semibold ms-2">Es referencial</small>
-                            </template>
-                            <template v-slot:input>
-                                <AnalogClock
-                                    :time="forms.entity.qrCamera.data.start_date"
-                                    :isDynamic="['store'].includes(forms.entity.qrCamera.extras.modals.default.type)"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="['finalized', 'canceled'].includes(forms.entity.qrCamera.extras.modals.default.type)"
-                            hasDiv
-                            :title="['finalized'].includes(forms.entity.qrCamera.extras.modals.default.type) ? 'Salida' : 'Salida'"
-                            isRequired
-                            xl="6"
-                            lg="6">
-                            <template v-slot:defaultAppend>
-                                <small v-if="['finalized'].includes(forms.entity.qrCamera.extras.modals.default.type)" class="mt-1 text-muted fw-semibold ms-2">Es referencial</small>
-                            </template>
-                            <template v-slot:input>
-                                <AnalogClock
-                                    :time="forms.entity.qrCamera.data.end_date"
-                                    :isDynamic="['finalized'].includes(forms.entity.qrCamera.extras.modals.default.type)"/>
-                            </template>
-                        </InputSlot>
-                    </div>
-                    <!-- <div v-if="['store'].includes(forms.entity.qrCamera.extras.modals.default.type)" class="alert alert-secondary small mt-3 mb-0" role="alert">
-                        El sistema detectará automáticamente si estás registrando un ingreso o una salida.
-                    </div> -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
-                    <!-- <button type="button" :class="['btn waves-effect', forms.entity.qrCamera.extras.modals.default.config.buttons[forms.entity.qrCamera.extras.modals.default.type]]" @click="['canceled'].includes(forms.entity.qrCamera.extras.modals.default.type) ? cancelEntity({}) : qrCameraEntity()">
-                        <i :class="forms.entity.qrCamera.extras.modals.default.config.icons[forms.entity.qrCamera.extras.modals.default.type]"></i>
-                        <span class="ms-2" v-text="forms.entity.qrCamera.extras.modals.default.config.labels[forms.entity.qrCamera.extras.modals.default.type]"></span>
-                    </button> -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" :id="forms.entity.qrScanner.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.qrScanner.extras.modals.default.titles[forms.entity.qrScanner.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div v-if="['store'].includes(forms.entity.qrScanner.extras.modals.default.type)" class="d-flex flex-wrap justify-content-center align-items-center mb-3 shadow-sm px-4 py-2 border border-1 border-light rounded">
-                        <label class="fw-semibold text-dark d-block mb-2 mb-md-1 text-center">Selecciona el modo de asistencia</label>
-                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                            <template v-for="record in formModes" :key="record.code">
-                                <button :class="['btn btn-sm rounded-pill', [forms.entity.createUpdate.config.currentMode].includes(record?.code) ? 'btn-success fw-bold pe-none' : 'btn-outline-success fw-semibold']" @click="[forms.entity.createUpdate.config.currentMode].includes(record?.code) ? '' : selectModeEntity(record?.code, false)">
-                                    <i :class="['fa', record?.icon]"></i>
-                                    <span class="ms-1 ms-md-2 d-none d-sm-inline" v-text="record?.label"></span>
-                                    <span class="ms-1 ms-md-2 d-inline d-sm-none" v-text="record?.label_sm"></span>
-                                </button>
-                            </template>
-                        </div>
-                        <!-- <a class="text-muted" @click="rememberModeEntity('qrScanner')" href="javascript:void(0)">
-                            <span>¿Recordar modalidad?</span>
-                            <span :class="[forms.entity.createUpdate.config.rememberMode ? 'text-success' : 'text-primary', 'fw-bold ms-1']" v-text="forms.entity.createUpdate.config.rememberMode ? 'Sí' : 'No'"></span>
-                        </a> -->
-                    </div>
-                    <div class="row g-3">
-                        <InputSlot
-                            hasDiv
-                            title="Sucursal"
-                            isRequired
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <span v-if="isDefined({value: forms.entity.qrScanner.data?.id})" v-text="forms.entity.qrScanner.data?.branch?.data?.name" class="fw-semibold"></span>
-                                <v-select
-                                    v-else
-                                    v-model="forms.entity.qrScanner.data.branch"
-                                    :options="branches"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :searchable="false"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            hasDiv
-                            title="Selecciona el tipo de documento"
-                            :isInputGroup="false"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <template v-if="forms.entity.qrScanner.config.isProcessing">
-                                    <div class="d-flex align-items-center justify-content-center p-2 bg-light border rounded">
-                                        <div class="spinner-border text-dark me-2"></div>
-                                        <span class="fw-semibold">Finalizando escaneo ...</span>
-                                    </div>
-                                </template>
-                                <div v-else class="d-flex flex-wrap justify-content-center align-items-center gap-2 gap-md-3">
-                                    <div class="text-center position-relative cursor-pointer mt-1" v-for="record in qrCameraModes" :key="record.code">
-                                        <div :class="['card border shadow-sm', 'border-light', [forms.entity.qrScanner.config.currentMode].includes(record?.code) ? 'bg-'+record?.color : '']" @click="setModeQrScanner(record.code)" data-bs-toggle="tooltip" data-bs-placement="top" :title="record?.tooltip">
-                                            <div class="card-body p-3">
-                                                <i :class="[record?.icon, 'fa-xl', [forms.entity.qrScanner.config.currentMode].includes(record?.code) ? 'text-white' : 'text-'+record?.color]"></i>
+                                <template v-else>
+                                    <tr role="row" v-for="record in lists.entity.records.data" :key="record.id">
+                                        <td role="cell" class="fg-record-table__identity">
+                                            <div class="fg-attendance-client">
+                                                <strong>{{ record.customer?.name || 'Cliente no disponible' }}</strong>
+                                                <small v-if="record.customer?.document_number" class="fg-help">Documento {{ record.customer.document_number }}</small>
                                             </div>
-                                        </div>
-                                        <small :class="['d-block mt-1 fw-bold', 'text-'+record?.color]" v-text="record?.label"></small>
-                                    </div>
-                                </div>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="!forms.entity.qrScanner.config.isProcessing"
-                            hasDiv
-                            :isInputGroup="false"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <input
-                                    ref="qrInput"
-                                    v-model="forms.entity.qrScanner.data.code"
-                                    type="text"
-                                    class="form-control text-center fw-bold"
-                                    placeholder="Escanea el código QR aquí"
-                                    @input="onResultQrScanner"
-                                    @change="onResultQrScanner"
-                                    @keyup.enter="onResultQrScanner"
-                                    autocomplete="off"
-                                    :disabled="forms.entity.qrScanner.config.isProcessing"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="['store', 'finalized', 'canceled'].includes(forms.entity.qrScanner.extras.modals.default.type)"
-                            hasDiv
-                            :title="['store'].includes(forms.entity.qrScanner.extras.modals.default.type) ? 'Ingreso / salida' : 'Ingreso'"
-                            isRequired
-                            xl="6"
-                            lg="6">
-                            <template v-slot:defaultAppend>
-                                <small v-if="['store'].includes(forms.entity.qrScanner.extras.modals.default.type)" class="mt-1 text-muted fw-semibold ms-2">Es referencial</small>
-                            </template>
-                            <template v-slot:input>
-                                <AnalogClock
-                                    :time="forms.entity.qrScanner.data.start_date"
-                                    :isDynamic="['store'].includes(forms.entity.qrScanner.extras.modals.default.type)"/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            v-if="['finalized', 'canceled'].includes(forms.entity.qrScanner.extras.modals.default.type)"
-                            hasDiv
-                            :title="['finalized'].includes(forms.entity.qrScanner.extras.modals.default.type) ? 'Salida' : 'Salida'"
-                            isRequired
-                            xl="6"
-                            lg="6">
-                            <template v-slot:defaultAppend>
-                                <small v-if="['finalized'].includes(forms.entity.qrScanner.extras.modals.default.type)" class="mt-1 text-muted fw-semibold ms-2">Es referencial</small>
-                            </template>
-                            <template v-slot:input>
-                                <AnalogClock
-                                    :time="forms.entity.qrScanner.data.end_date"
-                                    :isDynamic="['finalized'].includes(forms.entity.qrScanner.extras.modals.default.type)"/>
-                            </template>
-                        </InputSlot>
-                    </div>
-                    <!-- <div v-if="['store'].includes(forms.entity.qrScanner.extras.modals.default.type)" class="alert alert-secondary small mt-3 mb-0" role="alert">
-                        El sistema detectará automáticamente si estás registrando un ingreso o una salida.
-                    </div> -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
-                    <!-- <button type="button" :class="['btn waves-effect', forms.entity.qrScanner.extras.modals.default.config.buttons[forms.entity.qrScanner.extras.modals.default.type]]" @click="['canceled'].includes(forms.entity.qrScanner.extras.modals.default.type) ? cancelEntity({}) : qrScannerEntity()">
-                        <i :class="forms.entity.qrScanner.extras.modals.default.config.icons[forms.entity.qrScanner.extras.modals.default.type]"></i>
-                        <span class="ms-2" v-text="forms.entity.qrScanner.extras.modals.default.config.labels[forms.entity.qrScanner.extras.modals.default.type]"></span>
-                    </button> -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" :id="forms.entity.automatic.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="forms.entity.automatic.extras.modals.default.titles[forms.entity.automatic.extras.modals.default.type]"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th class="bg-secondary text-white fw-semibold" style="width: 10%;">#</th>
-                                        <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 20%;">SUCURSAL</th>
-                                        <th class="bg-secondary text-white fw-semibold min-w-150pxs" style="width: 30%;">DIRECCIÓN</th>
-                                        <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 40%;">ACCIONES</th>
+                                        </td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Sucursal</span>
+                                            <span class="fg-record-table__value">{{ record.branch?.name || '—' }}</span>
+                                        </td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Ingreso</span>
+                                            <span class="fg-record-table__value">{{ record.start_date ? legibleFormatDate({dateString: record.start_date, type: 'datetime'}) : 'Pendiente' }}</span>
+                                        </td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Salida</span>
+                                            <span class="fg-record-table__value">{{ record.end_date ? legibleFormatDate({dateString: record.end_date, type: 'datetime'}) : 'Pendiente' }}</span>
+                                        </td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Registro</span>
+                                            <div class="fg-record-table__value fg-attendance-client">
+                                                <span>{{ getAttendanceDeviceLabel(record) }}</span>
+                                                <small v-if="latestAttendanceCorrection(record)" class="fg-help">{{ latestAttendanceCorrectionLabel(record) }}</small>
+                                            </div>
+                                        </td>
+                                        <td role="cell" class="fg-record-table__state">
+                                            <StatusBadge :status="record.status" :formatted-status="record.formatted_status"/>
+                                        </td>
+                                        <td role="cell" class="fg-record-table__actions">
+                                            <ActionsDropdown v-if="['active', 'finalized'].includes(record.status)"
+                                                :label="'Acciones de ' + (record.customer?.name || 'la asistencia')">
+                                                <li v-if="record.status === 'active'"><button type="button" class="dropdown-item fg-menu__item"
+                                                    @click="modalCreateUpdateEntity({record, type: 'finalized'})">Concluir asistencia</button></li>
+                                                <li><button type="button" class="dropdown-item fg-menu__item"
+                                                    @click="requestCorrectionEntity(record)">Solicitar corrección</button></li>
+                                                <li><button type="button" class="dropdown-item fg-menu__item fg-menu__item--danger"
+                                                    @click="modalCreateUpdateEntity({record, type: 'canceled'})">Anular asistencia</button></li>
+                                            </ActionsDropdown>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody class="table-border-bottom-0 bg-white">
-                                    <template v-if="(forms.entity.automatic.extras.modals.default.config.branches).length > 0">
-                                        <tr v-for="(record, indexRecord) in forms.entity.automatic.extras.modals.default.config.branches" :key="record.code" class="text-center">
-                                            <td v-text="indexRecord + 1"></td>
-                                            <td class="text-start">
-                                                <span v-text="record.label" class="fw-medium d-block"></span>
-                                            </td>
-                                            <td v-text="isDefined({value: record.data?.address}) ? record.data?.address : 'N/A'" class="text-start"></td>
-                                            <td>
-                                                <InputSlot
-                                                    hasDiv
-                                                    :isInputGroup="false"
-                                                    :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-1']"
-                                                    xl="12"
-                                                    lg="12">
-                                                    <template v-slot:input>
-                                                        <button type="button" class="btn btn-sm btn-success waves-effect" @click="openAutomaticEntity({record})">
-                                                            <i class="fa fa-camera"></i>
-                                                            <span class="ms-2 text-nowrap">Iniciar escaneo</span>
-                                                        </button>
-                                                    </template>
-                                            </InputSlot>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <template v-else>
-                                        <tr class="fg-table__state">
-                                            <td class="text-center" colspan="99">
-                                                <WithoutData type="image"/>
-                                            </td>
-                                        </tr>
-                                    </template>
+                                </template>
+                            </tbody>
+                        </table>
+                    </ResponsiveTable>
+                    <Paginator v-if="!lists.entity.extras.error" :links="lists.entity.records.links"
+                        :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @click-page="listEntity"/>
+                </section>
+
+                <details v-if="lists.entity.records.data?.length" class="fg-attendance-activity">
+                    <summary class="fg-section-title">Actividad de los registros visibles</summary>
+                    <div class="fg-attendance-activity__body">
+                        <ul class="fg-attendance-activity__counts" aria-label="Asistencias por estado">
+                            <li v-for="status in attendanceActivity.statuses" :key="status.code">
+                                <StatusBadge :status="status.code" :formatted-status="status.label"/>
+                                <strong>{{ status.total }}</strong>
+                            </li>
+                        </ul>
+                        <ResponsiveTable>
+                            <table class="fg-table" aria-label="Ingresos y salidas agrupados por hora">
+                                <thead><tr><th scope="col">Franja horaria</th><th scope="col">Ingresos</th><th scope="col">Salidas</th></tr></thead>
+                                <tbody>
+                                    <tr v-for="interval in attendanceActivity.intervals" :key="interval.label">
+                                        <td>{{ interval.label }}</td><td>{{ interval.entries }}</td><td>{{ interval.exits }}</td>
+                                    </tr>
                                 </tbody>
                             </table>
-                        </div>
+                        </ResponsiveTable>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
+                </details>
+            </template>
         </div>
-    </div>
+    </InitialLoadTransition>
+
+    <FormModal
+        :modal-id="forms.entity.createUpdate.extras.modals.default.id"
+        :title="forms.entity.createUpdate.extras.modals.default.titles[forms.entity.createUpdate.extras.modals.default.type] || 'Registrar asistencia'"
+        :submit-button-text="forms.entity.createUpdate.extras.modals.default.config.labels[forms.entity.createUpdate.extras.modals.default.type]"
+        :submit-button-class="forms.entity.createUpdate.extras.modals.default.type === 'canceled' ? 'fg-button--danger' : ''"
+        dialog-class="fg-attendance-modal"
+        body-class="fg-attendance-modal__body"
+        @submit="forms.entity.createUpdate.extras.modals.default.type === 'canceled' ? cancelEntity({}) : createUpdateEntity()">
+        <AttendanceModeTabs v-if="forms.entity.createUpdate.extras.modals.default.type === 'store'"
+            :modes="formModes" current="manual" @select="selectModeEntity($event, false)"/>
+        <div class="fg-attendance-modal__fields">
+            <FgField label="Sucursal" required v-slot="{id}">
+                <div v-if="forms.entity.createUpdate.data.id" class="fg-field__control">
+                    <input :id="id" class="fg-input" type="text"
+                        :value="forms.entity.createUpdate.data.branch?.label || 'Sucursal no disponible'" readonly/>
+                </div>
+                <FgSelect v-else v-model="forms.entity.createUpdate.data.branch" :options="branches" :clearable="false"
+                    :searchable="false" placeholder="Elige una sucursal"/>
+            </FgField>
+            <FgField label="Cliente" required v-slot="{id}">
+                <div v-if="forms.entity.createUpdate.data.id" class="fg-field__control">
+                    <input :id="id" class="fg-input" type="text"
+                        :value="forms.entity.createUpdate.data.customer?.label || 'Cliente no disponible'" readonly/>
+                </div>
+                <FgSelect v-else v-model="forms.entity.createUpdate.data.customer" :options="customers" placeholder="Documento o nombre"/>
+            </FgField>
+            <FgField v-if="forms.entity.createUpdate.data.start_date"
+                :label="forms.entity.createUpdate.extras.modals.default.type === 'store' ? 'Hora de registro' : 'Ingreso'" v-slot="{id}">
+                <div class="fg-field__control">
+                    <input :id="id" class="fg-input" type="text" readonly
+                        :value="legibleFormatDate({dateString: forms.entity.createUpdate.data.start_date})"/>
+                </div>
+            </FgField>
+            <FgField v-if="forms.entity.createUpdate.data.end_date" label="Salida" v-slot="{id}">
+                <div class="fg-field__control">
+                    <input :id="id" class="fg-input" type="text" readonly
+                        :value="legibleFormatDate({dateString: forms.entity.createUpdate.data.end_date})"/>
+                </div>
+            </FgField>
+        </div>
+        <p v-if="forms.entity.createUpdate.extras.modals.default.type === 'store'" class="fg-attendance-modal__notice">
+            La membresía debe estar vigente en la sucursal seleccionada. El sistema identifica si corresponde un ingreso o una salida.
+        </p>
+    </FormModal>
+
+    <FormModal
+        :modal-id="forms.entity.qrCamera.extras.modals.default.id"
+        title="Registrar asistencia" :show-submit="false" dialog-class="fg-attendance-modal" body-class="fg-attendance-modal__body">
+        <AttendanceModeTabs :modes="formModes" current="qrCamera" @select="selectModeEntity($event, false)"/>
+        <FgField label="Sucursal" required>
+            <FgSelect v-model="forms.entity.qrCamera.data.branch" :options="branches" :clearable="false"
+                :searchable="false" placeholder="Elige una sucursal"/>
+        </FgField>
+        <FgListLoading v-if="forms.entity.qrCamera.config.isProcessing" label="Finalizando escaneo…"/>
+        <div class="fg-attendance-camera" v-show="!forms.entity.qrCamera.config.isProcessing">
+            <CodeScanner
+                ref="scannerQr" :show-controls="true" :qrbox="240" :fps="23" :limit-scan="-1"
+                :can-process="forms.entity.qrCamera.config.isCurrentActive && !forms.entity.qrCamera.config.isProcessing"
+                @result="onResultQrCamera"/>
+        </div>
+        <ResponsiveTable v-if="forms.entity.qrCamera.data.customers.length > 1">
+            <table class="fg-table" aria-label="Clientes escaneados">
+                <thead><tr><th scope="col">Cliente</th><th scope="col">Acciones</th></tr></thead>
+                <tbody>
+                    <tr v-for="(record, keyRecord) in forms.entity.qrCamera.data.customers" :key="record.id">
+                        <td>{{ record.label }}</td>
+                        <td><FgButton tone="link" @click="deleteQrCameraEntity({record, keyRecord})">Quitar</FgButton></td>
+                    </tr>
+                </tbody>
+            </table>
+        </ResponsiveTable>
+    </FormModal>
+
+    <FormModal
+        :modal-id="forms.entity.qrScanner.extras.modals.default.id"
+        title="Registrar asistencia" :show-submit="false" dialog-class="fg-attendance-modal" body-class="fg-attendance-modal__body">
+        <AttendanceModeTabs :modes="formModes" current="qrScanner" @select="selectModeEntity($event, false)"/>
+        <FgField label="Sucursal" required>
+            <FgSelect v-model="forms.entity.qrScanner.data.branch" :options="branches" :clearable="false"
+                :searchable="false" placeholder="Elige una sucursal"/>
+        </FgField>
+        <FgListLoading v-if="forms.entity.qrScanner.config.isProcessing" label="Finalizando escaneo…"/>
+        <template v-else>
+            <fieldset class="fg-attendance-document">
+                <legend class="fg-field__label">Tipo de documento</legend>
+                <div class="fg-attendance-mode">
+                    <FgButton v-for="record in qrCameraModes" :key="record.code" tone="secondary" :icon="record.icon"
+                        :aria-pressed="forms.entity.qrScanner.config.currentMode === record.code"
+                        @click="setModeQrScanner(record.code)">{{ record.label }}</FgButton>
+                </div>
+            </fieldset>
+            <FgField label="Código de cliente"
+                :help="qrCameraModes.find(mode => mode.code === forms.entity.qrScanner.config.currentMode)?.tooltip"
+                v-slot="{id, describedBy}">
+                <div class="fg-field__control">
+                    <input :id="id" ref="qrInput" v-model="forms.entity.qrScanner.data.code" class="fg-input"
+                        type="text" placeholder="Escanea o ingresa el código" autocomplete="off"
+                        :aria-describedby="describedBy" @input="onResultQrScanner" @change="onResultQrScanner"
+                        @keyup.enter="onResultQrScanner"/>
+                </div>
+            </FgField>
+        </template>
+    </FormModal>
+
+    <FormModal
+        :modal-id="forms.entity.automatic.extras.modals.default.id" title="Modo público"
+        :show-submit="false" dialog-class="fg-attendance-modal" body-class="fg-attendance-modal__body">
+        <p class="fg-help">Elige la sucursal para abrir el registro público de asistencias.</p>
+        <ul v-if="forms.entity.automatic.extras.modals.default.config.branches.length" class="fg-attendance-branches">
+            <li v-for="record in forms.entity.automatic.extras.modals.default.config.branches" :key="record.code">
+                <div class="fg-attendance-client">
+                    <strong>{{ record.label }}</strong>
+                    <small v-if="record.data?.address" class="fg-help">{{ record.data.address }}</small>
+                </div>
+                <FgButton tone="secondary" icon="fa-solid fa-camera" @click="openAutomaticEntity({record})">Iniciar escaneo</FgButton>
+            </li>
+        </ul>
+        <FgEmptyState v-else title="No hay sucursales disponibles"/>
+    </FormModal>
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
+import FormModal from "@System/Components/Generics/FormModal.vue";
+import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgFilterActions from "@System/Components/Figma/FgFilterActions.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import AttendanceModeTabs from "./AttendanceModeTabs.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
 
-let defaultChartInstance = null;
-let doughnutChartInstance = null;
-
 export default {
     mixins: [InitialPageMixin],
-    components: {
-        SearchButton,
-        //
-    },
-    mounted: async function() {
-
-        let el = this;
-
+    components: {ActionsDropdown, AttendanceModeTabs, FgButton, FgEmptyState, FgField, FgFilterActions, FgListLoading, FgPageHeader, FgSelect, FormModal, ResponsiveTable},
+    mounted() {
         navbarItem("menu-parent-operations", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
 
-        let initParams = await this.loadInitialParams(() => this.initParams({})),
-            initOthers = await this.initOthers({});
+        const camera = document.getElementById(this.forms.entity.qrCamera.extras.modals.default.id);
+        camera.addEventListener("shown.bs.modal", this.activateCamera);
+        camera.addEventListener("hidden.bs.modal", this.deactivateCamera);
 
-        if(initParams && initOthers) {
-
-            await this.listEntity({});
-
-            $(`#${this.forms.entity.qrCamera.extras.modals.default.id}`)
-            .on("shown.bs.modal", () => {
-
-                el.forms.entity.qrCamera.config.isCurrentActive = true;
-
-            })
-            .on("hidden.bs.modal", () => {
-
-                el.forms.entity.qrCamera.config.isCurrentActive = false;
-
-            });
-
-        }
-
+        this.initialize();
+    },
+    beforeUnmount() {
+        const camera = document.getElementById(this.forms.entity.qrCamera.extras.modals.default.id);
+        camera?.removeEventListener("shown.bs.modal", this.activateCamera);
+        camera?.removeEventListener("hidden.bs.modal", this.deactivateCamera);
     },
     data() {
         return {
+            parametersReady: false,
             lists: {
                 entity: {
                     extras: {
                         loading: false,
+                        error: "",
+                        lastUrl: null,
                         route: Requests.config({entity: "tracking_attendances", type: "list"})
                     },
                     appliedFilters: null,
@@ -781,11 +336,10 @@ export default {
                         branch: null,
                         customer: null,
                         start_date: "",
+                        end_date: "",
                         status: ""
                     },
-                    records: {
-                        total: 0
-                    }
+                    records: Requests.emptyPagination()
                 }
             },
             forms: {
@@ -797,10 +351,10 @@ export default {
                                     id: Utils.uuid(),
                                     type: "",
                                     titles: {
-                                        store: "Registrar",
-                                        update: "Editar",
-                                        finalized: "Concluir",
-                                        canceled: "Anular"
+                                        store: "Registrar asistencia",
+                                        update: "Editar asistencia",
+                                        finalized: "Concluir asistencia",
+                                        canceled: "Anular asistencia"
                                     },
                                     config: {
                                         buttons: {
@@ -834,7 +388,6 @@ export default {
                             status: null
                         },
                         config: {
-                            viewFilters: false,
                             rememberMode: true,
                             currentMode: "",
                             historyMode: []
@@ -999,299 +552,83 @@ export default {
             return Requests.valid({result: initParams});
 
         },
-        async initOthers({}) {
-
-            return new Promise(resolve => {
-
-                this.lists.entity.filters.branch     = this.branches[0];
-                this.lists.entity.filters.start_date = Utils.getCurrentDate("date");
-
-                this.adjustChartHeights();
-
-                resolve(true);
-
-            });
-
-        },
-        adjustChartHeights() {
-
-            const chartList = document.querySelectorAll(".chartjs");
-
-            chartList.forEach(function(chartListItem) {
-
-                chartListItem.height = chartListItem.dataset.height;
-
-            });
-
-        },
-        initChart(type = "default") {
-
-            if(type === "default") {
-
-                // Utils
-                const roundUpToNearest = (value) => {
-                    if (value <= 20) return 20;
-                    if (value <= 50) return 50;
-                    if (value <= 100) return 100;
-                    return Math.ceil(value / 500) * 500;
-                };
-
-                // Config
-                const intervals = [
-                    { label: "12:00 AM", start: 0, end: 3 },
-                    { label: "03:00 AM", start: 3, end: 6 },
-                    { label: "06:00 AM", start: 6, end: 9 },
-                    { label: "09:00 AM", start: 9, end: 12 },
-                    { label: "12:00 PM", start: 12, end: 15 },
-                    { label: "03:00 PM", start: 15, end: 18 },
-                    { label: "06:00 PM", start: 18, end: 21 },
-                    { label: "09:00 PM", start: 21, end: 24 }
-                ];
-
-                const totalsByIntervalStart = intervals.map(e => ({ label: e.label, total: 0 }));
-                const totalsByIntervalEnd   = intervals.map(e => ({ label: e.label, total: 0 }));
-
-                // Process data
-                const records = this.lists.entity.records.data;
-
-                records.forEach(record => {
-
-                    const startHour = new Date(record.start_date).getHours();
-                    const startInterval = intervals.find(i => startHour >= i.start && startHour < i.end);
-
-                    if(this.isDefined({value: startInterval})) {
-
-                        const index = intervals.indexOf(startInterval);
-                        totalsByIntervalStart[index].total += 1;
-
-                    }
-
-                    if(this.isDefined({value: record.end_date})) {
-
-                        const endHour = new Date(record.end_date).getHours();
-                        const endInterval = intervals.find(i => endHour >= i.start && endHour < i.end);
-
-                        if(endInterval) {
-
-                            const index = intervals.indexOf(endInterval);
-                            totalsByIntervalEnd[index].total += 1;
-
-                        }
-
-                    }
-
-                });
-
-                // Get information
-                let dataStart = totalsByIntervalStart.map(i => i.total);
-                let dataEnd = totalsByIntervalEnd.map(i => i.total)
-
-                const defaultChart = document.getElementById("defaultChartId");
-                const labels = totalsByIntervalStart.map(i => i.label);
-                const yMax   = roundUpToNearest(Math.max(...dataStart));
-
-                if(defaultChart) {
-
-                    if(defaultChartInstance) {
-
-                        defaultChartInstance.destroy();
-
-                    }
-
-                    defaultChartInstance = new Chart(defaultChart, {
-                        type: "line",
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                {
-                                    label: "Entradas",
-                                    data: dataStart,
-                                    fill: false,
-                                    borderColor: this.config.colors.charts.default.defaultColor,
-                                    pointBackgroundColor: "#fff",
-                                    pointBorderColor: this.config.colors.charts.default.defaultColor,
-                                    tension: 0.2
-                                },
-                                {
-                                    label: "Salidas",
-                                    data: dataEnd,
-                                    fill: false,
-                                    borderColor: this.config.colors.charts.default.dangerColor,
-                                    pointBackgroundColor: "#fff",
-                                    pointBorderColor: this.config.colors.charts.default.dangerColor,
-                                    tension: 0.2
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            animation: {
-                                duration: 500
-                            },
-                            plugins: {
-                                tooltip: {
-                                    backgroundColor: this.config.colors.charts.default.backgroundColor,
-                                    bodyColor: this.config.colors.charts.default.bodyColor,
-                                    borderColor: this.config.colors.charts.default.borderColor,
-                                    borderWidth: 1,
-                                    rtl: false,
-                                    titleColor: this.config.colors.charts.default.titleColor
-                                },
-                                legend: {
-                                    display: true,
-                                    labels: {
-                                        color: this.config.colors.charts.default.labelColor
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        color: this.config.colors.charts.default.borderColor,
-                                        drawBorder: false,
-                                        borderColor: this.config.colors.charts.default.borderColor
-                                    },
-                                    ticks: {
-                                        color: this.config.colors.charts.default.labelColor
-                                    }
-                                },
-                                y: {
-                                    min: 0,
-                                    max: yMax,
-                                    grid: {
-                                        color: this.config.colors.charts.default.borderColor,
-                                        drawBorder: false,
-                                        borderColor: this.config.colors.charts.default.borderColor
-                                    },
-                                    ticks: {
-                                        stepSize: yMax / 4,
-                                        color: this.config.colors.charts.default.labelColor
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                };
-
-            }else if(type === "doughnut") {
-
-                // Config
-                const keyDoughnut = {
-                    active: 0,
-                    finalized: 0,
-                    canceled: 0
-                };
-
-                // Process data
-                const records = this.lists.entity.records.data;
-
-                records.forEach(record => {
-                    if (record.status === "active") keyDoughnut.active++;
-                    if (record.status === "finalized") keyDoughnut.finalized++;
-                    if (record.status === "canceled") keyDoughnut.canceled++;
-                });
-
-                const doughnutChart = document.getElementById("doughnutChartId");
-
-                if(doughnutChart) {
-
-                    if(doughnutChartInstance) {
-
-                        doughnutChartInstance.destroy();
-
-                    }
-
-                    doughnutChartInstance = new Chart(doughnutChart, {
-                        type: "doughnut",
-                        data: {
-                            labels: [`En curso (${keyDoughnut.active})`, `Concluida (${keyDoughnut.finalized})`, `Anulada (${keyDoughnut.canceled})`],
-                            datasets: [{
-                                data: [
-                                    keyDoughnut.active,
-                                    keyDoughnut.finalized,
-                                    keyDoughnut.canceled
-                                ],
-                                backgroundColor: [
-                                    this.config.colors.charts.default.successColor,
-                                    this.config.colors.charts.default.primaryColor,
-                                    this.config.colors.charts.default.dangerColor
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: "bottom",
-                                    labels: {
-                                        color: this.config.colors.charts.default.labelColor
-                                    }
-                                },
-                                tooltip: {
-                                    backgroundColor: this.config.colors.charts.default.backgroundColor,
-                                    bodyColor: this.config.colors.charts.default.bodyColor,
-                                    borderColor: this.config.colors.charts.default.borderColor,
-                                    borderWidth: 1
-                                }
-                            }
-                        }
-                    });
-                }
-
+        activateCamera() {
+            const camera = this.forms.entity.qrCamera.config;
+            camera.isCurrentActive = true;
+            if(!camera.firstInit) {
+                this.$refs.scannerQr.startScanner();
+                camera.firstInit = true;
             }
+        },
+        deactivateCamera() {
+            this.forms.entity.qrCamera.config.isCurrentActive = false;
+        },
+        async initialize() {
+            this.initialLoading = true;
+            this.parametersReady = await this.loadInitialParams(() => this.initParams({}));
+            if(!this.parametersReady) return;
 
+            this.clearFilters({notify: false});
+            await this.listEntity({applyFilters: true});
+        },
+        clearFilters({notify = true} = {}) {
+            this.lists.entity.filters = {
+                branch: this.branches[0] ?? null,
+                customer: null,
+                start_date: Utils.getCurrentDate("date"),
+                end_date: "",
+                status: ""
+            };
+            if(notify) Alerts.showFiltersCleared();
         },
         // ============================================
         // Entity List Methods
         // ============================================
-        async listEntity({url = null, applyFilters = false}) {
-            if(applyFilters || !this.lists.entity.appliedFilters) {
-                this.lists.entity.appliedFilters = {...this.lists.entity.filters};
+        async listEntity({url = null, applyFilters = false} = {}) {
+            const list = this.lists.entity;
+            if(list.extras.loading) return;
+            if(applyFilters || !list.appliedFilters) {
+                list.appliedFilters = {...list.filters};
             }
 
-            const filters = this.lists.entity.appliedFilters;
-            const filterJson = {
-                branch_id:   filters?.branch?.code,
-                customer_id: filters?.customer?.code,
-                start_date:  filters?.start_date,
-                status:      filters?.status
-            };
-
-            this.lists.entity.extras.loading = true;
-            this.lists.entity.records = Requests.emptyPagination();
+            const filters = list.appliedFilters;
+            list.extras.lastUrl = url;
+            list.extras.loading = true;
+            list.extras.error = "";
+            list.records = Requests.emptyPagination();
 
             try {
-
                 const response = await Requests.get({
-                    route: url || this.lists.entity.extras.route,
-                    data: filterJson
+                    route: url || list.extras.route,
+                    data: {
+                        branch_id: filters?.branch?.code,
+                        customer_id: filters?.customer?.code,
+                        start_date: filters?.start_date,
+                        end_date: filters?.end_date,
+                        status: filters?.status
+                    }
                 });
-
-                this.lists.entity.records = response?.bool ? response.data : Requests.emptyPagination();
-
+                if(response?.bool && Array.isArray(response.data?.data)) {
+                    list.records = response.data;
+                }else {
+                    list.extras.error = response?.data?.msg || "Comprueba tu conexión y vuelve a intentar.";
+                }
+            }catch {
+                list.extras.error = "Comprueba tu conexión y vuelve a intentar.";
             }finally {
-
-                this.lists.entity.extras.loading = false;
-
+                list.extras.loading = false;
             }
-
-            this.initChart("default");
-            this.initChart("doughnut");
-
         },
         async exportEntity() {
 
             const filters = this.lists.entity.appliedFilters;
-            const params = {};
-
-            if(this.isDefined({value: filters?.branch?.code})) params.branch_id = filters.branch.code;
-            if(this.isDefined({value: filters?.customer?.code})) params.customer_id = filters.customer.code;
-            if(this.isDefined({value: filters?.start_date})) params.start_date = filters.start_date;
-            if(this.isDefined({value: filters?.status})) params.status = filters.status;
+            const params = {
+                branch_id: filters?.branch?.code,
+                customer_id: filters?.customer?.code,
+                start_date: filters?.start_date,
+                end_date: filters?.end_date,
+                status: filters?.status
+            };
 
             Alerts.swals({type: "loading", message: "Preparando exportación"});
 
@@ -1300,7 +637,7 @@ export default {
                 await Requests.download({
                     route: this.config.entity.routes.export,
                     data: params,
-                    fileName: "asistencias-clientes.xlsx",
+                    fileName: "asistencias-clientes.csv",
                     showAlert: true
                 });
 
@@ -1322,16 +659,16 @@ export default {
                            <p class="small text-muted mb-3">Indica las fechas correctas solo si deben cambiar. El motivo es obligatorio para auditoría.</p>
                            <div class="row g-2">
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Ingreso corregido</label>
+                                   <label class="form-label" for="attendanceCorrectionStart">Ingreso corregido</label>
                                    <input type="datetime-local" class="form-control" id="attendanceCorrectionStart">
                                </div>
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Salida corregida</label>
+                                   <label class="form-label" for="attendanceCorrectionEnd">Salida corregida</label>
                                    <input type="datetime-local" class="form-control" id="attendanceCorrectionEnd">
                                </div>
                                <div class="col-12">
-                                   <label class="form-label colon-at-end">Motivo</label>
-                                   <textarea class="form-control no-resize" maxlength="500" rows="3" id="attendanceCorrectionReason"></textarea>
+                                   <label class="form-label" for="attendanceCorrectionReason">Motivo</label>
+                                   <textarea class="form-control no-resize" maxlength="500" rows="3" id="attendanceCorrectionReason" required></textarea>
                                </div>
                            </div>
                        </div>`,
@@ -1424,61 +761,37 @@ export default {
 
         },
         selectModeEntity(mode = "manual", validateRemember = true) {
-
-            let el = this;
-
-            let configMode = "";
-
-            if(validateRemember && this.forms.entity.createUpdate.config.rememberMode) {
-
-                configMode = this.forms.entity.createUpdate.config.historyMode[this.forms.entity.createUpdate.config.historyMode.length - 1] ?? "manual";
-
-                this.addModeEntity(configMode);
-                this.forms.entity.createUpdate.config.currentMode = configMode;
-
-            }else {
-
-                configMode = mode;
-
-                this.addModeEntity(configMode);
-                this.forms.entity.createUpdate.config.currentMode = configMode;
-
-            }
-
+            const config = this.forms.entity.createUpdate.config;
+            const selectedMode = validateRemember && config.rememberMode
+                ? config.historyMode.at(-1) ?? "manual"
+                : mode;
+            this.addModeEntity(selectedMode);
+            config.currentMode = selectedMode;
             this.toogleProcessingEntity({type: "qrCamera", isProcessing: true});
 
-            Alerts.modals({type: "hide", id: this.forms.entity.createUpdate.extras.modals.default.id});
-            Alerts.modals({type: "hide", id: this.forms.entity.qrCamera.extras.modals.default.id});
-            Alerts.modals({type: "hide", id: this.forms.entity.qrScanner.extras.modals.default.id});
-
-            if(configMode == "manual") {
-
-                this.modalCreateUpdateEntity({type: "store"});
-
-            }else if(configMode == "qrCamera") {
-
-                if(!this.forms.entity.qrCamera.config.firstInit) {
-
-                    this.$refs.scannerQr.startScanner();
-
-                    this.forms.entity.qrCamera.config.firstInit = true;
-
+            const entities = this.forms.entity;
+            const activeModal = [entities.createUpdate, entities.qrCamera, entities.qrScanner]
+                .map(form => document.getElementById(form.extras.modals.default.id))
+                .find(element => element?.classList.contains("show"));
+            const openMode = () => {
+                if(selectedMode === "manual") {
+                    this.modalCreateUpdateEntity({type: "store"});
+                }else if(selectedMode === "qrCamera") {
+                    this.modalQrCameraEntity({type: "store"});
+                }else if(selectedMode === "qrScanner") {
+                    if(!this.isDefined({value: entities.qrScanner.config.currentMode})) {
+                        this.setModeQrScanner(this.qrCameraModes[0]?.code);
+                    }
+                    this.modalQrScannerEntity({type: "store"});
                 }
+            };
 
-                this.modalQrCameraEntity({type: "store"});
-
-            }else if(configMode == "qrScanner") {
-
-                if(!this.isDefined({value: this.forms.entity.qrScanner.config.currentMode})) {
-
-                    this.setModeQrScanner(this.qrCameraModes[0]?.code);
-
-                }
-
-                this.modalQrScannerEntity({type: "store"});
-
+            if(activeModal) {
+                activeModal.addEventListener("hidden.bs.modal", openMode, {once: true});
+                Alerts.modals({type: "hide", id: activeModal.id});
+            }else {
+                openMode();
             }
-
         },
         toogleProcessingEntity({type, isProcessing, time = 0}) {
 
@@ -2434,27 +1747,60 @@ export default {
         }
     },
     computed: {
+        attendanceStatusOptions() {
+            return [
+                {code: "all", label: "Todos"},
+                {code: "active", label: "En curso"},
+                {code: "finalized", label: "Concluida"},
+                {code: "canceled", label: "Anulada"}
+            ];
+        },
+        attendanceActivity() {
+            const records = this.lists.entity.records.data ?? [];
+            const hours = hour => String(hour).padStart(2, "0") + ":00";
+            const intervals = Array.from({length: 8}, (_, index) => ({
+                label: hours(index * 3) + "–" + hours((index + 1) * 3),
+                entries: 0,
+                exits: 0
+            }));
+            const statuses = this.attendanceStatusOptions
+                .filter(status => status.code !== "all")
+                .map(status => ({...status, total: 0}));
+            const statusIndex = new Map(statuses.map(status => [status.code, status]));
+
+            for(const record of records) {
+                const status = statusIndex.get(record.status);
+                if(status) status.total++;
+                for(const [date, kind] of [[record.start_date, "entries"], [record.end_date, "exits"]]) {
+                    if(!date) continue;
+                    const hour = new Date(date.replace(" ", "T")).getHours();
+                    const interval = intervals[Math.floor(hour / 3)];
+                    if(interval) interval[kind]++;
+                }
+            }
+            return {intervals, statuses};
+        },
         breadcrumbTitles: function() {
 
-            return [{title: "Operaciones y clientes"}, {title: "Asistencia de clientes"}, this.config.entity.page];
+            return [{title: "Operaciones y clientes"}, {title: "Servicios y asistencias"}, this.config.entity.page];
 
         },
         branches: function() {
 
-            return this.options?.branches?.records.map(e => ({code: e.id, label: e.name, data: e}));
+            return (this.options.branches?.records ?? []).map(e => ({code: e.id, label: e.name, data: e}));
 
         },
         customers: function() {
 
-            return this.options?.customers?.records.map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
+            return (this.options.customers?.records ?? []).map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
 
         },
         formModes: function() {
 
             return [
-                {code: "manual", label: "Manual", label_sm: "Manual", icon: "fa-hand"},
-                {code: "qrCamera", label: "Cámara interna", label_sm: "Cámara", icon: "fa-camera"},
-                {code: "qrScanner", label: "Escáner externo", label_sm: "Escáner", icon: "fa-qrcode"}
+                {code: "manual", label: "Manual"},
+                {code: "qrCamera", label: "Cámara QR"},
+                {code: "qrScanner", label: "Lector QR"}
             ];
 
         },

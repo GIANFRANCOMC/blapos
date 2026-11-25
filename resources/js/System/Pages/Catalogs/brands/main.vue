@@ -23,18 +23,21 @@
         @import="openImportModal"
         @export="downloadRecords">
         <template #row="{record}">
-            <td class="fg-align-center"><InternalCodeValue :value="record.internal_code"/></td>
-            <td>
+            <td role="cell" class="fg-align-center"><span class="fg-record-table__label" aria-hidden="true">Código interno</span><div class="fg-record-table__value"><InternalCodeValue :value="record.internal_code"/></div></td>
+            <td role="cell" class="fg-record-table__identity">
                 <span class="fg-product-name">{{ record.name }}</span>
                 <ExpandableText v-if="record.description" :text="record.description"/>
             </td>
-            <td class="fg-align-center">
-                <a v-if="record.website_url" class="fg-link" :href="record.website_url" target="_blank" rel="noopener noreferrer" :aria-label="`Visitar el sitio oficial de ${record.name} en una nueva pestaña`">Visitar sitio</a>
-                <span v-else class="fg-help">Sin sitio oficial</span>
+            <td role="cell" class="fg-align-center">
+                <span class="fg-record-table__label" aria-hidden="true">Sitio oficial</span>
+                <div class="fg-record-table__value">
+                    <a v-if="record.website_url" class="fg-link" :href="record.website_url" target="_blank" rel="noopener noreferrer" :aria-label="`Visitar el sitio oficial de ${record.name} en una nueva pestaña`">Visitar sitio</a>
+                    <span v-else class="fg-help">Sin sitio oficial</span>
+                </div>
             </td>
-            <td class="fg-align-center"><CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/></td>
-            <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
-            <td class="fg-align-center">
+            <td role="cell" class="fg-align-center"><span class="fg-record-table__label" aria-hidden="true">En uso</span><div class="fg-record-table__value"><CatalogUsageBreakdown :record="record" :enabled-types="options.usage_types"/></div></td>
+            <td role="cell" class="fg-record-table__state fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+            <td role="cell" class="fg-record-table__actions fg-align-center">
                 <TableActionsDropdown :label="`Acciones de ${record.name}`">
                     <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar marca</button></li>
                 </TableActionsDropdown>

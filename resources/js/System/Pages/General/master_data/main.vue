@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Maestros internos" description="Configura las opciones que utiliza tu empresa en sus operaciones."/>
 
     <InitialLoadTransition>
         <MasterDataSkeleton v-if="initialLoading"/>
@@ -21,7 +22,7 @@
                 :aria-labelledby="`master-data-tab-trigger-${selectedResourceCode}`">
                 <header class="fg-master-data__header">
                     <div>
-                        <h1>{{ selectedResource.label }}</h1>
+                        <h2 class="fg-section-title">{{ selectedResource.label }}</h2>
                         <p>{{ selectedResource.help }}</p>
                     </div>
                     <button v-if="selectedResourceCode !== 'automatic'" type="button" class="fg-button" @click="startCreate">
@@ -186,6 +187,7 @@
 </template>
 
 <script>
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -362,7 +364,7 @@ const RESOURCES = [
 ];
 
 export default {
-    components: {SearchButton, InitialLoadTransition, AppTabs, SearchInput, MasterDataSkeleton},
+    components: {FgPageHeader, SearchButton, InitialLoadTransition, AppTabs, SearchInput, MasterDataSkeleton},
     data() {
         return {
             resources: RESOURCES,

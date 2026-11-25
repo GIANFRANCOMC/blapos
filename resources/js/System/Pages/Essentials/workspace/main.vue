@@ -1,17 +1,12 @@
 <template>
-    <main class="fg-workspace" aria-labelledby="workspace-popular-title">
+    <main class="fg-workspace" aria-label="Inicio">
         <InitialLoadTransition>
             <WorkspaceSkeleton v-if="loading"/>
             <div v-else class="fg-workspace__content">
-                <nav v-if="breadcrumb.section && breadcrumb.page" class="fg-breadcrumb fg-workspace__breadcrumb" aria-label="Ubicación actual">
-                    <ol class="fg-breadcrumb__list">
-                        <li v-if="breadcrumb.section !== breadcrumb.page" class="fg-breadcrumb__item"><span>{{ breadcrumb.section }}</span></li>
-                        <li class="fg-breadcrumb__item is-current" aria-current="page">
-                            <i v-if="breadcrumb.section !== breadcrumb.page" class="fa-solid fa-chevron-right fg-breadcrumb__separator" aria-hidden="true"></i>
-                            <span>{{ breadcrumb.page }}</span>
-                        </li>
-                    </ol>
-                </nav>
+                <header class="fg-workspace__welcome">
+                    <h1>{{ firstName ? "Hola, " + firstName : "Inicio" }}</h1>
+                    <p>¿Qué necesitas resolver hoy?</p>
+                </header>
 
                 <div v-if="loadError" class="fg-workspace__empty" role="alert">
                     {{ loadError }}
@@ -22,8 +17,7 @@
                         <div class="fg-workspace__main">
                             <section class="fg-workspace__section" aria-labelledby="workspace-popular-title">
                                 <div class="fg-workspace__section-heading">
-                                    <h1 id="workspace-popular-title">¿Qué deseas hacer hoy, {{ firstName }}?</h1>
-                                    <p>Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla.</p>
+                                    <h2 id="workspace-popular-title">Accesos frecuentes</h2>
                                 </div>
 
                                 <div class="fg-workspace__links">
@@ -45,7 +39,7 @@
                         </aside>
                     </div>
 
-                    <div class="fg-workspace__support" role="note" aria-label="Ayuda de Blapos">
+                    <div class="fg-workspace__support" aria-label="Ayuda de Blapos">
                         <span class="fg-workspace__support-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></span>
                         <div class="fg-workspace__support-intro">
                             <strong>¿Necesitas ayuda?</strong>
@@ -86,7 +80,6 @@ export default {
         return {
             firstName: "",
             actions: [],
-            breadcrumb: {section: "", page: ""},
             company: {},
             support: {email: "", phone: "", phone_href: ""},
             loading: true,
@@ -111,7 +104,6 @@ export default {
 
                 this.firstName = result.data.first_name || "";
                 this.actions = result.data.actions || [];
-                this.breadcrumb = result.data.breadcrumb || this.breadcrumb;
                 this.company = result.data.company;
                 this.support = result.data.support || this.support;
             } catch(error) {

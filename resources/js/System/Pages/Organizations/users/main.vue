@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Colaboradores" description="Administra las cuentas del equipo y los accesos que tienen asignados."/>
 
     <InitialLoadTransition>
         <CatalogListSkeleton v-if="initialLoading" kind="users" label="colaboradores"/>
@@ -135,7 +136,7 @@
                         </template>
                         <tr class="fg-table__state" v-else>
                             <td colspan="6" class="py-4">
-                                <WithoutData class="fg-entity-empty-state" type="image" text="Aún no hay colaboradores" description="Agrega un colaborador para empezar."/>
+                                <FgEmptyState :title="entityList.appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay colaboradores registrados'" :description="entityList.appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/>
                             </td>
                         </tr>
                     </tbody>
@@ -152,59 +153,46 @@
     <FormModal :modal-id="authenticationEvents.modalId" title="HISTORIAL DE ACCESO" modal-size="modal-xl" :keyboard="false" :show-submit="false">
         <template #body>
                     <p v-if="authenticationEvents.user" class="fg-entity-table__meta mb-3" v-text="authenticationEvents.user.name"></p>
-                    <section class="fg-filter-bar fg-auth-events__filters">
+                    <form class="fg-filter-bar fg-filter-bar--compact fg-auth-events__filters" role="search"
+                        aria-label="Filtrar historial de acceso" @submit.prevent="listAuthenticationEvents({})">
                         <div class="row align-items-end g-2">
-                            <InputSlot hasDiv title="Evento" :titleClass="[config.forms.classes.title]" xl="3" lg="3">
-                                <template #input>
-                                    <v-select
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <FgField label="Evento" v-slot="{id}">
+                                    <FgSelect
                                         v-model="authenticationEvents.filters.eventType"
+                                        :input-id="id"
                                         :options="authenticationEventTypes"
-                                        :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"
-                                        append-to-body/>
-                                </template>
-                            </InputSlot>
-                            <InputSlot hasDiv title="Resultado" :titleClass="[config.forms.classes.title]" xl="3" lg="3">
-                                <template #input>
-                                    <v-select
+                                        :disabled="authenticationEvents.loading"/>
+                                </FgField>
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <FgField label="Resultado" v-slot="{id}">
+                                    <FgSelect
                                         v-model="authenticationEvents.filters.result"
+                                        :input-id="id"
                                         :options="authenticationResults"
-                                        :class="config.forms.classes.select2"
                                         :clearable="false"
                                         :searchable="false"
-                                        append-to-body/>
-                                </template>
-                            </InputSlot>
-                            <InputDate
-                                v-model="authenticationEvents.filters.dateFrom"
-                                hasDiv
-                                title="Desde"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="2"
-                                lg="2"/>
-                            <InputDate
-                                v-model="authenticationEvents.filters.dateTo"
-                                hasDiv
-                                title="Hasta"
-                                :titleClass="[config.forms.classes.title]"
-                                xl="2"
-                                lg="2"/>
-                            <InputSlot
-                                hasDiv
-                                :isInputGroup="false"
-                                :divInputClass="['fg-filter-bar__actions']"
-                                xl="2"
-                                lg="2">
-                                <template #input>
+                                        :disabled="authenticationEvents.loading"/>
+                                </FgField>
+                            </div>
+                            <div class="col-6 col-lg-2">
+                                <InputDate v-model="authenticationEvents.filters.dateFrom" title="Desde" :disabled="authenticationEvents.loading"/>
+                            </div>
+                            <div class="col-6 col-lg-2">
+                                <InputDate v-model="authenticationEvents.filters.dateTo" title="Hasta" :disabled="authenticationEvents.loading"/>
+                            </div>
+                            <div class="col-auto">
+                                <div class="fg-filter-bar__actions">
                                     <SearchButton
-                                        class="fg-button--small"
                                         :disabled="authenticationEvents.loading"
                                         @click="listAuthenticationEvents({})"/>
-                                </template>
-                            </InputSlot>
+                                </div>
+                            </div>
                         </div>
-                    </section>
+                    </form>
 
                     <div class="table-responsive fg-entity-table-wrap">
                         <table class="table fg-entity-table mb-0">
@@ -580,6 +568,10 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -746,7 +738,7 @@ const MODULE = {
 
 export default {
     name: "UsersMain",
-    components: {SearchButton, InitialLoadTransition, AppTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
+    components: {FgField, FgSelect, FgEmptyState, FgPageHeader, SearchButton, InitialLoadTransition, AppTabs, CatalogReferenceImportModal, FormModal, TableActionsDropdown, CopyButton, CatalogListSkeleton},
     data() {
 
         const crudModule = initCrudModule({

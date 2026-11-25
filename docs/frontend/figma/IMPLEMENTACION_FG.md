@@ -1,6 +1,44 @@
-# Implementación FG · System y Productos
+# Implementación FG · System
 
-Actualizada: 20 de noviembre de 2026. Alcance: frontend del ERP tenant (System). Se conservan APIs, permisos, contexto de empresa, cálculos y validaciones de negocio.
+Actualizada el 25 de noviembre de 2026. Alcance de implementación en el ERP de cada empresa (System).
+
+La [revisión de los 53 apartados](REVISION_53_APARTADOS.md) enlaza cada diseño con su ruta y vista raíz. Incluye los ajustes de Inicio, Gestionar atención, Asistencias de clientes y los patrones FG compartidos que se corrigieron durante el cotejo.
+
+## Integración de los diseños por mundo · 25 de noviembre de 2026
+
+El alcance incluye los 52 destinos habilitados de System y el acceso del tenant. El mapa de Figma reúne un archivo por submódulo en el mundo correspondiente. Login cuenta con un estado móvil de contraseña enfocada que reutiliza la variante `Foco` del campo de Componentes. [Mapa de Blapos en Figma](https://www.figma.com/design/uAC4aZ5e5a8M9YKLt8mg4U?node-id=4-83) · [Login móvil con foco](https://www.figma.com/design/kbo6DMIJ5l2dz9eL1YEr46/Login?node-id=2006-82).
+
+| Destino | Cantidad | Ajuste aplicado |
+| --- | ---: | --- |
+| Inicio | 1 | Bienvenida y accesos frecuentes con la misma estructura durante la carga, ficha de empresa y soporte accesible. |
+| Operaciones y clientes | 7 | Encabezados y estados de consulta coherentes. Membresías e historial distinguen búsqueda sin coincidencias de error. |
+| Ventas | 8 | Recuperación de carga en venta, POS, cotizaciones y entregas. Cuentas por cobrar descarta respuestas de una cuenta que dejó de estar seleccionada y permite reintentar el cronograma. |
+| Compras | 5 | Listados con etiquetas y acciones visibles en móvil. La recepción conserva el documento seleccionado y descarta respuestas tardías. |
+| Caja | 5 | Filtros y estados vacíos por vista. Los errores de cajas, sesiones, movimientos y resumen tienen recuperación independiente. |
+| Inventario | 5 | Tarjetas con etiquetas en móvil, acciones accesibles y tabla de escritorio. Los filtros adicionales de móvil se expanden en el formulario para conservar las selecciones y el foco. |
+| Catálogo comercial | 6 | Identificación y estado legibles en móvil. Recetas y platillos reutiliza filtros, estado vacío y paginación FG. |
+| Equipo y activos | 5 | Encabezados, etiquetas de acción y contenedores de tabla consistentes. Las tablas de lectura ancha contienen su propio desplazamiento. |
+| Analítica | 4 | Fecha y sucursal en Resumen, evolución diaria en Rendimiento, reposición por almacén y recuperación de consultas en Reportes. |
+| Configuración | 6 | Encabezados y acciones con nombres específicos. Los estados de carga y navegación conservan los permisos existentes. |
+
+Las tablas de registros comparten `fg-record-table` en `Shared/responsive-tables.css`. Cada pantalla indica la identidad, el estado y las etiquetas que necesita el registro en móvil. Las tablas que requieren comparar columnas usan `fg-table-scroll` y desplazan solo el contenido de la tabla. Los campos y botones mantienen sus componentes y tokens FG. El skeleton corresponde a la preparación inicial. Las consultas distinguen carga, vacío y error, con reintento cuando el módulo ya cuenta con esa consulta. Editar o limpiar filtros prepara la próxima búsqueda. Paginar o reintentar usa la selección aplicada.
+
+Resumen del negocio muestra las sucursales permitidas por el perfil. Ventas, asistencias y membresías por vencer se calculan en las sucursales permitidas cuando el filtro está vacío, y en la elegida cuando se selecciona una. El total de sucursales activas se mantiene como indicador del alcance del perfil. Los datos de empresa conservan su ámbito. [Contrato del resumen](../../backend/system/modules/02_dashboard.md).
+
+### Comprobaciones de esta integración
+
+- Frontend completo. 302 pruebas aprobadas. Incluye carga, paginación, navegación, campos, alertas y confirmaciones.
+- Autenticación, Inicio, Rendimiento y Rotación. 27 pruebas y 315 aserciones en la ejecución que incluye la apertura de rutas.
+- Rutas autenticadas. Los 52 destinos habilitados respondieron y renderizaron la estructura de System en Laravel con un perfil autorizado (105 aserciones).
+- Operación. 29 pruebas y 283 aserciones en `blapos_testing` sobre ventas, cotizaciones, entregas, recepciones, cuotas, caja y cronogramas con pagos. La prueba específica de Resumen verificó 19 aserciones sobre opciones, totales, permisos explícitos y perfiles sin sucursales.
+- Login en navegador. A 1280 px se comprobó la composición de dos paneles y a 320 px la vista de una columna sin desbordamiento. Se probó mostrar y volver a ocultar la contraseña con teclado. La verificación y el envío conservan el formulario de autenticación del tenant.
+- Compilación de Vite y comprobación de espacios en el diff aprobadas. Las pruebas de escritura usaron la base de pruebas.
+
+### Prueba de satisfacción
+
+La evaluación técnica cubre accesibilidad de Login con teclado, ancho del documento, apertura de rutas, recuperación de consultas y operaciones con datos de prueba. El acceso a la demo volvió a Login por falta de sesión. Las pantallas autenticadas se comprobaron mediante rutas con un perfil autorizado en `blapos_testing`. La comparación visual en Figma se hizo con capturas representativas y metadatos cuando la cuenta limitó el detalle.
+
+Para una sesión con usuarios, usar cuatro tareas sin instrucciones de navegación: encontrar un producto sin stock, registrar la recepción de una compra, localizar un pago aplicado y consultar los totales de una sucursal. Registrar si cada persona completó la tarea sin ayuda, dónde dudó, errores recuperables y una valoración de facilidad del 1 al 5. Queda pendiente ejecutar esta medición con usuarios reales.
 
 ## 1. Un solo sistema visual
 

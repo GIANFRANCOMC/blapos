@@ -33,3 +33,15 @@
 @media (max-width: 767px) {
     .fg-stock-summary__total { margin-left: 0; width: 100%; }
 }
+
+@media (max-width: 767.98px) {
+    .fg-products .fg-products-list { background: transparent; }
+    .fg-filters.fg-catalog-filters:not(.fg-filter-grid),
+    .fg-products .fg-catalog-skeleton .fg-filters:not(.fg-filter-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .fg-filters.fg-catalog-filters > .fg-field,
+    .fg-products .fg-catalog-skeleton .fg-filters > .fg-catalog-skeleton__field { grid-column: span 1; }
+    .fg-catalog-filters > .fg-button { justify-self: start; }
+    .fg-products-list .fg-record-table .fg-record-table__value { overflow-wrap: anywhere; }
+}

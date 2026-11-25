@@ -16,7 +16,7 @@ const routes = [
 test("los cuatro catálogos usan el skeleton solo durante parámetros", () => {
     const list = readFileSync(new URL("../../resources/js/System/Components/Catalogs/FgCatalogList.vue", import.meta.url), "utf8");
     assert.match(list, /<CatalogListSkeleton v-if="initialLoading"/);
-    assert.match(list, /<tr v-if="loading" class="fg-table__state">[\s\S]*?<FgListLoading/);
+    assert.match(list, /<tr\b[^>]*\bv-if="loading"[^>]*\bclass="fg-table__state"[^>]*>\s*<td\b[^>]*>\s*<FgListLoading\b/);
     for(const [route, label] of routes) {
         const page = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${route}/main.vue`, import.meta.url), "utf8");
         const entry = readFileSync(new URL(`../../resources/js/System/Pages/Catalogs/${route}/main.js`, import.meta.url), "utf8");

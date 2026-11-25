@@ -1,9 +1,10 @@
 ﻿<template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Libro de reclamaciones" description="Revisa los casos registrados y da seguimiento a su atención."/>
 
     <!-- Filters Section -->
     <InitialLoadTransition>
-        <PageSkeleton v-if="initialLoading"/>
+        <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
             <FiltersSection
                 :filter-by-value="filterByValue"
@@ -17,50 +18,96 @@
                 :search-title="MODULE.texts.filters.search"
                 :add-button-text="MODULE.texts.actions.add"
                 :show-add-button="false"
+                show-clear-button
                 :title-class="[config.forms.classes.title]"
                 :select-class="config.forms.classes.select2"
                 @search="handleSearch"/>
 
-            <!-- List Section -->
-            <section class="list-section mb-3 mb-md-3">
-                <Loader v-if="entityList.extras.loading"/>
-                <WithoutData v-else-if="entityList.records.total === 0" type="image"/>
-                <div v-else-if="entityList.records.total > 0" class="row g-3 g-lg-4">
-                    <div v-for="record in entityList.records.data" :key="record.id" class="col-12 col-md-6 col-xl-4">
-                        <div class="card card-list-custom border-0 shadow-sm h-100">
-                            <div class="card-header">
-                                <div class="d-flex align-items-start justify-content-between gap-3">
-                                    <div class="d-flex flex-column flex-grow-1 flex-min-w-0">
-                                        <span class="text-muted small fw-semibold" v-text="legibleFormatDate({dateString: record.created_at, type: 'datetime'})"></span>
-                                        <span class="fw-bold text-dark text-truncate" v-text="getType(record)?.label"></span>
-                                    </div>
-                                    <StatusBadge
-                                        class="flex-shrink-none"
-                                        :status="record.status"
-                                        :formatted-status="record.formatted_status"
-                                        :custom-variants="bookComplaintsStatusBadgeVariants"/>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex flex-column gap-2">
-                                    <div v-for="field in getCardFields(record)" :key="field.key" class="d-flex align-items-center gap-2">
-                                        <i :class="[field.icon, 'icon-fixed-width']"></i>
-                                        <span v-if="field.value" class="text-truncate flex-grow-1 small flex-min-w-0" v-text="field.value"></span>
-                                        <span v-else class="text-muted small" v-text="field.placeholder"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 pt-3 border-top">
-                                    <button type="button" class="btn btn-sm btn-primary waves-effect" @click="openModal(record)">
-                                        <i class="fa-solid fa-screwdriver-wrench"></i>
-                                        <span class="ms-2" v-text="MODULE.texts.actions.manage"></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <section class="mb-3" aria-labelledby="book-complaint-list-title">
+                <h2 id="book-complaint-list-title" class="fg-section-title mb-2">Casos registrados</h2>
+                <ResponsiveTable>
+                    <table class="fg-table fg-entity-table--directory fg-record-table" role="table">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 32%;">
+                            <col style="width: 16%;">
+                            <col style="width: 14%;">
+                            <col style="width: 9%;">
+                            <col style="width: 12%;">
+                            <col style="width: 7%;">
+                        </colgroup>
+                        <thead role="rowgroup">
+                            <tr role="row">
+                                <th scope="col" role="columnheader">Caso</th>
+                                <th scope="col" role="columnheader">Cliente y asunto</th>
+                                <th scope="col" role="columnheader">Sucursal</th>
+                                <th scope="col" role="columnheader">Fecha</th>
+                                <th scope="col" role="columnheader">Tipo</th>
+                                <th scope="col" role="columnheader" class="fg-align-center">Estado</th>
+                                <th scope="col" role="columnheader"><span class="visually-hidden">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody role="rowgroup">
+                            <tr v-if="entityList.extras.loading" class="fg-table__state" role="row">
+                                <td colspan="7" role="cell"><Loader label="Buscando reclamaciones…"/></td>
+                            </tr>
+                            <tr v-else-if="entityList.extras.loadFailed" class="fg-table__state" role="row">
+                                <td colspan="7" role="cell">
+                                    <FgEmptyState title="No se pudieron cargar las reclamaciones" description="Reintenta con los mismos filtros." role="alert">
+                                        <button type="button" class="fg-button fg-button--secondary" @click="listEntity({})">Reintentar</button>
+                                    </FgEmptyState>
+                                </td>
+                            </tr>
+                            <template v-else-if="entityList.records.total > 0">
+                                <tr v-for="record in entityList.records.data" :key="record.id" role="row">
+                                    <td role="cell" class="fg-record-table__identity"><span class="fg-entity-code">#{{ record.id }}</span></td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Cliente y asunto</span>
+                                        <div class="fg-record-table__value">
+                                            <span class="fg-entity-table__name text-break">{{ record.name || '—' }}</span>
+                                            <small class="fg-help d-block text-truncate" :title="record.description">{{ record.description || MODULE.texts.card.noDescription }}</small>
+                                            <details v-if="record.document_number || record.email || record.phone_number" class="fg-help">
+                                                <summary class="fg-link">Contacto y documento</summary>
+                                                <span v-if="record.document_number" class="d-block text-break">{{ record.document_number }}</span>
+                                                <span v-if="record.email" class="d-block text-break">{{ record.email }}</span>
+                                                <span v-if="record.phone_number" class="d-block text-break">{{ record.phone_number }}</span>
+                                            </details>
+                                        </div>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Sucursal</span>
+                                        <span class="fg-record-table__value text-break">{{ record.branch?.name || '—' }}</span>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Fecha</span>
+                                        <span class="fg-record-table__value">{{ legibleFormatDate({dateString: record.created_at, type: 'datetime'}) }}</span>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Tipo</span>
+                                        <span class="fg-record-table__value">{{ getType(record)?.label || '—' }}</span>
+                                    </td>
+                                    <td role="cell" class="fg-record-table__state">
+                                        <StatusBadge :status="record.status" :formatted-status="record.formatted_status" :custom-variants="bookComplaintsStatusBadgeVariants"/>
+                                    </td>
+                                    <td role="cell" class="fg-record-table__actions">
+                                        <TableActionsDropdown :label="`Acciones del caso ${record.id}`">
+                                            <li>
+                                                <button type="button" class="fg-menu__item" @click="openModal(record)">{{ MODULE.texts.actions.manage }}</button>
+                                            </li>
+                                        </TableActionsDropdown>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr v-else class="fg-table__state" role="row">
+                                <td colspan="7" role="cell">
+                                    <FgEmptyState
+                                        :title="entityList.appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay reclamaciones registradas'"
+                                        :description="entityList.appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </ResponsiveTable>
             </section>
 
             <!-- Pagination -->
@@ -70,22 +117,22 @@
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal" aria-labelledby="book-complaint-title" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa fa-times icon-close-modal"></i>
+                <div class="fg-modal__header">
+                    <h2 id="book-complaint-title" class="fg-modal__title mb-0" v-text="modalTitles[isUpdate ? 'update' : 'store']"></h2>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="fg-modal__body">
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                                <div class="card shadow-sm">
-                                    <div class="card-header bg-primary text-white py-0 text-center">
-                                        <span v-text="MODULE.texts.sections.clientData"></span>
+                                <div class="card">
+                                    <div class="card-header fg-table-header-surface">
+                                        <h3 class="fg-section-title mb-0" v-text="MODULE.texts.sections.clientData"></h3>
                                     </div>
                                     <div class="card-body py-3">
                                         <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
@@ -118,9 +165,9 @@
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                                <div class="card shadow-sm">
-                                    <div class="card-header bg-primary text-white py-0 text-center">
-                                        <span v-text="MODULE.texts.sections.complaintDetail"></span>
+                                <div class="card">
+                                    <div class="card-header fg-table-header-surface">
+                                        <h3 class="fg-section-title mb-0" v-text="MODULE.texts.sections.complaintDetail"></h3>
                                     </div>
                                     <div class="card-body py-3">
                                         <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
@@ -150,9 +197,9 @@
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                                <div class="card shadow-sm">
-                                    <div class="card-header bg-secondary text-white py-0 text-center">
-                                        <span v-text="MODULE.texts.sections.evidence"></span>
+                                <div class="card">
+                                    <div class="card-header fg-table-header-surface">
+                                        <h3 class="fg-section-title mb-0" v-text="MODULE.texts.sections.evidence"></h3>
                                     </div>
                                     <div class="card-body py-3">
                                         <div class="row g-3">
@@ -187,9 +234,9 @@
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                                <div class="card shadow-sm">
-                                    <div class="card-header bg-secondary text-white py-0 text-center">
-                                        <span v-text="MODULE.texts.sections.technicalInfo"></span>
+                                <div class="card">
+                                    <div class="card-header fg-table-header-surface">
+                                        <h3 class="fg-section-title mb-0" v-text="MODULE.texts.sections.technicalInfo"></h3>
                                     </div>
                                     <div class="card-body py-3">
                                         <div class="text-start mb-1">
@@ -212,9 +259,9 @@
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                                <div class="card shadow-sm">
-                                    <div class="card-header bg-secondary text-white py-0 text-center">
-                                        <span v-text="MODULE.texts.sections.adminManagement"></span>
+                                <div class="card">
+                                    <div class="card-header fg-table-header-surface">
+                                        <h3 class="fg-section-title mb-0" v-text="MODULE.texts.sections.adminManagement"></h3>
                                     </div>
                                     <div class="card-body py-3">
                                         <div class="row g-3">
@@ -277,16 +324,16 @@
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="fg-modal__footer">
                     <button
                         type="button"
-                        class="btn btn-secondary waves-effect"
+                        class="fg-button fg-button--secondary"
                         data-bs-dismiss="modal"
                         v-text="MODULE.texts.modal.close">
                     </button>
                     <button
                         type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
+                        class="fg-button"
                         @click="saveEntity"
                         :disabled="isSaving">
                         <i class="fa fa-save"></i>
@@ -299,6 +346,10 @@
 </template>
 
 <script>
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -452,6 +503,7 @@ const MODULE = {
 };
 
 export default {
+    components: {ResponsiveTable, TableActionsDropdown, FgEmptyState, FgPageHeader},
     mixins: [InitialPageMixin],
     name: "BookComplaintsMain",
     data() {
@@ -507,6 +559,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            entityList.extras.loadFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -535,12 +588,14 @@ export default {
 
                 }
 
-                const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
+                const response = await Requests.get({route: requestUrl, data: requestData});
+                entityList.extras.loadFailed = !response?.bool;
 
                 entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
+                entityList.extras.loadFailed = true;
                 entityList.records = emptyRecords;
 
             }finally {
@@ -671,17 +726,6 @@ export default {
 
         },
         // Utils
-        getCardFields(record) {
-
-            return [
-                {key: "name", icon: "fa fa-user text-dark", value: this.isDefined(record.name) ? record.name : null, placeholder: this.MODULE.texts.card.noEmail},
-                {key: "document_number", icon: "fa fa-id-card text-dark", value: this.isDefined(record.document_number) ? record.document_number : null, placeholder: this.MODULE.texts.card.noDocumentNumber},
-                {key: "email", icon: "fa fa-envelope text-primary", value: this.isDefined(record.email) ? record.email : null, placeholder: this.MODULE.texts.card.noEmail},
-                {key: "phone_number", icon: "fa fa-phone text-primary", value: this.isDefined(record.phone_number) ? record.phone_number : null, placeholder: this.MODULE.texts.card.noPhone},
-                {key: "description", icon: "fa fa-comment-dots text-info", value: this.isDefined(record.description) ? record.description : null, placeholder: this.MODULE.texts.card.noDescription}
-            ];
-
-        },
         getType(record) {
 
             return (this.types ?? []).find(e => e.code === record?.type) ?? null;

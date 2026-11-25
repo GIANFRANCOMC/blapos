@@ -7,6 +7,7 @@ namespace App\Http\Controllers\System\Essentials;
 use App\Helpers\System\{Utilities};
 use App\Http\Controllers\System\Base\{BaseController};
 use App\Services\System\Essentials\{DashboardConfigService, DashboardService};
+use App\Services\System\Organizations\{AccessScopeService};
 use Illuminate\Http\{JsonResponse, Request};
 
 class DashboardController extends BaseController {
@@ -23,9 +24,12 @@ class DashboardController extends BaseController {
      */
     public function initParams(Request $request) {
 
-        $page = $this->getPage($request);
+        $params = clone DashboardConfigService::getInitParams($this->getPage($request), $this->getUserId());
+        $params->branches = DashboardService::branchOptions(
+            AccessScopeService::allowedIds($request->user(), AccessScopeService::BRANCH)
+        );
 
-        return DashboardConfigService::getInitParams($page, $this->getUserId());
+        return $params;
 
     }
 
@@ -50,7 +54,11 @@ class DashboardController extends BaseController {
                 : date("Y-m-d");
 
         $branchId = $request->filled("branch_id") ? (int) $request->input("branch_id") : null;
-        $data = DashboardService::getDashboardData($date, $branchId);
+        $data = DashboardService::getDashboardData(
+            $date,
+            $branchId,
+            AccessScopeService::allowedIds($request->user(), AccessScopeService::BRANCH)
+        );
 
         return $this->successResponse($data, "data_obtained");
 

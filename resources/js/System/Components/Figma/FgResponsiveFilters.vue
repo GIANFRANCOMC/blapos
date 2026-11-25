@@ -29,13 +29,13 @@
                     <form :class="{ 'fg-responsive-filters__form--dialog': compact }" role="search" :aria-label="label" @submit.prevent="apply">
                         <div class="fg-responsive-filters__fields" :class="{ 'modal-body fg-modal__body': compact }">
                             <slot/>
-                            <div v-if="!compact" class="fg-sales-actions">
+                            <div v-if="!compact" class="fg-responsive-filters__actions">
                                 <FgFilterActions submit clear-label="Limpiar filtros" clear-tone="secondary" :loading="loading" @clear="$emit('clear')"/>
                             </div>
                         </div>
                         <div v-if="compact" class="modal-footer fg-modal__footer">
                             <FgButton tone="secondary" data-bs-dismiss="modal">Cerrar</FgButton>
-                            <div class="fg-sales-actions">
+                            <div class="fg-responsive-filters__actions">
                                 <FgFilterActions submit clear-label="Limpiar filtros" clear-tone="secondary" :loading="loading" @clear="$emit('clear')"/>
                             </div>
                         </div>

@@ -27,18 +27,18 @@ for(const page of pages) {
 
         assert.equal(parse(source, {filename: path}).errors.length, 0);
         if(page === "Catalogs/products") {
-            assert.match(list, /<thead><tr><th scope="col">Identificación<\/th>/);
-            assert.match(list, /<td><div class="fg-product-codes"><span>\{\{ record\.internal_code \}\}/);
+            assert.match(list, /<thead\b[^>]*><tr\b[^>]*><th\b[^>]*scope="col">Identificación<\/th>/);
+            assert.match(list, /<tr\b[^>]*v-for="record in entityList\.records\.data"[^>]*>\s*<td\b[^>]*>(?:(?!<\/td>)[\s\S])*?<div class="fg-product-codes"><span>\{\{ record\.internal_code \}\}/);
             return;
         }
         if(page.startsWith("Catalogs/") && page !== "Catalogs/products") {
             assert.equal(catalogColumns[page.split("/").at(-1)][0].title, "Código interno");
-            assert.match(list, /<template #row="\{record\}">\s*<td class="fg-align-center"><InternalCodeValue :value="record\.internal_code"\/>/);
+            assert.match(list, /<template #row="\{record\}">\s*<td\b[^>]*class="fg-align-center">(?:(?!<\/td>)[\s\S])*?<InternalCodeValue :value="record\.internal_code"\/>/);
             return;
         }
 
-        assert.match(list, /<thead class="fg-table-header-surface">\s*<tr>\s*<th>Identificación<\/th>/);
-        assert.match(list, /<tr v-for="record in entityList\.records\.data" :key="record\.id">\s*<td class="fg-entity-table__identification-cell">/);
+        assert.match(list, /<thead\b[^>]*>\s*<tr\b[^>]*>\s*<th\b[^>]*>Identificación<\/th>/);
+        assert.match(list, /<tr\b[^>]*v-for="record in entityList\.records\.data"[^>]*>\s*<td\b[^>]*class="fg-entity-table__identification-cell"[^>]*>/);
 
     });
 
@@ -50,8 +50,8 @@ test("proveedores: el documento de identificación precede al proveedor", () => 
     const source = readFileSync(new URL(path, import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: path}).errors.length, 0);
-    assert.match(source, /<thead class="fg-table-header-surface">\s*<tr>\s*<th>Identificación<\/th>\s*<th>Proveedor<\/th>/);
-    assert.match(source, /<tr v-for="supplier in records\.data" :key="supplier\.id">\s*<td class="fg-entity-table__identification-cell">/);
+    assert.match(source, /<thead\b[^>]*class="fg-table-header-surface">\s*<tr\b[^>]*>\s*<th\b[^>]*>Identificación<\/th>\s*<th\b[^>]*>Proveedor<\/th>/);
+    assert.match(source, /<tr\b[^>]*v-for="supplier in records\.data"[^>]*>\s*<td\b[^>]*class="[^"]*\bfg-entity-table__identification-cell\b[^"]*">/);
 
 });
 
@@ -61,7 +61,9 @@ test("recetas: código interno centrado y código de barras junto al platillo", 
     const source = readFileSync(new URL(path, import.meta.url), "utf8");
 
     assert.equal(parse(source, {filename: path}).errors.length, 0);
-    assert.match(source, /<thead class="fg-table-header-surface">\s*<tr>\s*<th class="text-center"[^>]*>Código interno<\/th>/);
-    assert.match(source, /<tr v-for="record in records\.data" :key="record\.id">\s*<td class="text-center">\s*<InternalCodeValue :value="record\.item\?\.internal_code"\/>\s*<\/td>\s*<td>\s*<span class="fg-entity-table__name">\{\{ record\.item\?\.name \}\}<\/span>[\s\S]*?<span class="fg-entity-identifier__value" v-text="record\.item\.barcode"/);
+    assert.match(source, /<FgCatalogList kind="recipes"/);
+    assert.deepEqual(catalogColumns.recipes[0], {title: "Código interno", align: "fg-align-center", width: "18%"});
+    assert.match(source, /<template #row="\{record\}">[\s\S]*?<InternalCodeValue :value="record\.item\?\.internal_code"\/>[\s\S]*?<span class="fg-entity-table__name">\{\{ record\.item\?\.name \}\}<\/span>[\s\S]*?<span class="fg-entity-identifier__value" v-text="record\.item\.barcode"/);
+
 
 });

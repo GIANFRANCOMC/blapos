@@ -3,7 +3,6 @@
     --fg-rail-width: 60px;
     --fg-navigation-width: calc(var(--fg-rail-width) + 192px);
     --fg-topbar-height: 44px;
-    --fg-navigation-rail: #23354a;
     min-height: 100dvh;
 }
 .fg-layout-page { margin-left: var(--fg-navigation-width); min-width: 0; }

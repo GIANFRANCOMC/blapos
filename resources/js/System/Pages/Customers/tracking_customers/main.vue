@@ -5,30 +5,22 @@
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
         <div v-else class="fg-page-content">
-            <div class="row align-items-end g-3 mb-3 mb-md-2">
-                <InputSlot
-                    hasDiv
-                    :isInputGroup="false"
-                    :divInputClass="['d-flex flex-wrap justify-content-center align-items-end gap-2 gap-md-3 mb-2']"
-                    xl="12"
-                    lg="12">
-                    <template v-slot:input>
-                        <template v-if="isDefined({value: customerCurrent?.customer})">
-                            <SearchButton class="fg-button--small" @click="modalCreateUpdateEntity({})"/>
-                            <button type="button" class="btn btn-info-1 btn-sm waves-effect" @click="getTrackingCustomers({refresh: true})">
-                                <i class="fa fa-sync"></i>
-                                <span class="ms-2">Refrescar expediente</span>
-                            </button>
-                        </template>
-                        <template v-else>
-                            <button type="button" class="btn btn-primary btn-sm waves-effect" @click="modalCreateUpdateEntity({})">
-                                <i class="fa fa-hand-pointer"></i>
-                                <span class="ms-2">Seleccione un cliente</span>
-                            </button>
-                        </template>
-                    </template>
-                </InputSlot>
-            </div>
+            <FgPageHeader title="Historial" description="Consulta ventas, membresías y asistencias en un solo expediente.">
+                <template #actions>
+                    <button
+                        v-if="isDefined({value: customerCurrent?.customer})"
+                        type="button"
+                        class="fg-button fg-button--secondary"
+                        @click="getTrackingCustomers({refresh: true})">
+                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                        Actualizar expediente
+                    </button>
+                    <button type="button" class="fg-button" @click="modalCreateUpdateEntity({})">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        Buscar cliente
+                    </button>
+                </template>
+            </FgPageHeader>
             <div class="row g-3">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ps-1 ps-md-3 pe-0 pe-md-3" v-if="isDefined({value: customerCurrent?.customer})">
                     <Timeline :data="customerCurrent ?? {}">
@@ -81,8 +73,8 @@
                         </template>
                     </Timeline>
                 </div>
-                <div v-else class="text-center">
-                    <WithoutData type="image"/>
+                <div v-else class="col-12">
+                    <FgEmptyState title="Selecciona un cliente" description="Usa Buscar cliente para consultar su expediente."/>
                 </div>
             </div>
 
@@ -131,54 +123,42 @@
                             </template>
                         </InputSlot>
                         <template v-if="isCustomPeriodSelected">
-                            <InputDate
-                                v-model="forms.entity.createUpdate.data.startDate"
-                                hasDiv
-                                title="Fecha inicial"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms.entity.createUpdate.errors?.start_date?.[0]"
-                                xl="6"
-                                lg="6"/>
-                            <InputDate
-                                v-model="forms.entity.createUpdate.data.endDate"
-                                hasDiv
-                                title="Fecha final"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms.entity.createUpdate.errors?.end_date?.[0]"
-                                xl="6"
-                                lg="6"/>
+                            <div class="col-12 col-sm-6">
+                                <InputDate
+                                    v-model="forms.entity.createUpdate.data.startDate"
+                                    title="Fecha inicial"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms.entity.createUpdate.errors?.start_date?.[0]"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputDate
+                                    v-model="forms.entity.createUpdate.data.endDate"
+                                    title="Fecha final"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms.entity.createUpdate.errors?.end_date?.[0]"/>
+                            </div>
                         </template>
-                        <InputSlot
-                            hasDiv
-                            title="¿Qué deseas visualizar?"
-                            isRequired
-                            :isInputGroup="false"
-                            :divInputClass="['d-flex flex-wrap justify-content-center align-items-end gap-2 gap-md-3 pt-2 pt-md-2']"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <div class="form-check ms-2">
-                                    <label class="cursor-pointer">
-                                        <input class="form-check-input" type="checkbox" value="sales" v-model="forms.entity.createUpdate.data.options.information"/>
-                                        <span class="fw-bold text-secondary">Ventas</span>
-                                    </label>
-                                </div>
-                                <div class="form-check ms-2">
-                                    <label class="cursor-pointer">
-                                        <input class="form-check-input" type="checkbox" value="subscriptions" v-model="forms.entity.createUpdate.data.options.information"/>
-                                        <span class="fw-bold text-secondary">Membresías</span>
-                                    </label>
-                                </div>
-                                <div class="form-check ms-2">
-                                    <label class="cursor-pointer">
-                                        <input class="form-check-input" type="checkbox" value="attendances" v-model="forms.entity.createUpdate.data.options.information"/>
-                                        <span class="fw-bold text-secondary">Asistencias</span>
-                                    </label>
-                                </div>
-                            </template>
-                        </InputSlot>
+                        <fieldset class="fg-field col-12">
+                            <legend class="fg-field__label float-none">
+                                ¿Qué deseas visualizar?<span class="fg-required" aria-hidden="true">*</span>
+                            </legend>
+                            <div class="d-flex flex-wrap gap-3">
+                                <label class="fg-check">
+                                    <input type="checkbox" value="sales" v-model="forms.entity.createUpdate.data.options.information"/>
+                                    <span>Ventas</span>
+                                </label>
+                                <label class="fg-check">
+                                    <input type="checkbox" value="subscriptions" v-model="forms.entity.createUpdate.data.options.information"/>
+                                    <span>Membresías</span>
+                                </label>
+                                <label class="fg-check">
+                                    <input type="checkbox" value="attendances" v-model="forms.entity.createUpdate.data.options.information"/>
+                                    <span>Asistencias</span>
+                                </label>
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -191,6 +171,8 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
@@ -201,7 +183,7 @@ import * as Utils     from "@System/Helpers/Utils.js";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {
+    components: {FgEmptyState, FgPageHeader,
         SearchButton,
         //
     },

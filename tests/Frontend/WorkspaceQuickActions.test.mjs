@@ -11,8 +11,8 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     const styles = readFileSync(new URL("../../resources/css/System/fg/modules/workspace.css", import.meta.url), "utf8");
 
     assert.doesNotMatch(view, /Accesos rápidos|br-workspace__section-eyebrow/);
-    assert.match(view, /¿Qué deseas hacer hoy, \{\{ firstName \}\}\?/);
-    assert.match(view, /Encuentra aquí las acciones principales para gestionar tu empresa de forma rápida y sencilla/);
+    assert.match(view, /<header class="fg-workspace__welcome">[\s\S]*?Hola, /);
+    assert.match(view, /<h2 id="workspace-popular-title">Accesos frecuentes<\/h2>/);
     assert.doesNotMatch(view, /br-workspace__hero|Buenos días/);
     assert.match(controller, /\$firstName = Str::before\(trim\(\$user->name\), " "\);/);
     assert.match(view, /fg-workspace__link-icon[^>]*><i :class="item\.icon"/);
@@ -27,9 +27,11 @@ test("las acciones rápidas conservan sus descripciones y usan el icono del subm
     assert.ok(records.every(line => /"dom_icon" => "fa-(?:solid|regular) fa-[a-z-]+"/.test(line)));
     assert.match(styles, /\.fg-workspace__link-icon\s*\{[^}]*border-radius: 50%;/);
     assert.match(styles, /\.fg-workspace__links\s*\{[^}]*grid-auto-rows: minmax\(5rem, 1fr\);/);
-    assert.match(styles, /\.fg-workspace__link-icon i\s*\{[^}]*font-size: var\(--fg-status-icon-size\);/);
+    assert.match(styles, /\.fg-workspace__link-icon i\s*\{[^}]*font-size: var\(--fg-modal-title-size\);/);
     assert.match(styles, /\.fg-workspace__support-icon\s*\{[^}]*font-size: var\(--fg-status-icon-size\);/);
     assert.match(styles, /#workspace-popular-title\s*\{[^}]*font-size: var\(--fg-section-size\) !important;/);
+    assert.match(styles, /\.fg-workspace__content,\s*\.fg-workspace-skeleton\s*\{[^}]*gap: var\(--fg-space-5\)/);
+    assert.match(styles, /\.fg-workspace__welcome\s*\{[^}]*linear-gradient\(90deg, var\(--fg-navigation-rail\) 18%, var\(--fg-primary\)\)/);
     assert.doesNotMatch(styles, /\.br-workspace__section-eyebrow\s*\{/);
 
 });

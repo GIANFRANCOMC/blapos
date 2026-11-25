@@ -1,32 +1,35 @@
 <template>
-    <div>
-        <select v-model="selectedCameraId" class="form-select mb-2" v-if="cameras.length > 1">
-            <template v-for="camera in cameras" :key="camera.id">
-                <option :value="camera.id" v-text="camera.label || 'Cámara ' + camera.id"></option>
-            </template>
-        </select>
-        <div ref="scannerContainer" style="width: 100%;"></div>
-        <template v-if="cameras.length > 0">
-            <template v-if="showControls">
-                <div :class="['d-flex gap-2', isScanning ? 'mt-2' : '']">
-                    <button @click="startScanner()" v-if="!isScanning" type="button" class="btn btn-success btn-sm waves-effect">📷 Escanear QR</button>
-                    <button @click="stopScanner()" v-if="isScanning" type="button" class="btn btn-danger btn-sm waves-effect">🛑 Detener escáner</button>
-                </div>
-            </template>
-        </template>
-        <template v-else>
-            <div class="d-flex">
-                <span class="alert alert-danger w-100">Sin alguna cámara detectada.</span>
+    <div class="fg-attendance-modal__body">
+        <FgField v-if="cameras.length > 1" label="Cámara" v-slot="{id}">
+            <div class="fg-field__control">
+                <select :id="id" v-model="selectedCameraId" class="fg-input">
+                    <option v-for="(camera, index) in cameras" :key="camera.id" :value="camera.id">
+                        {{ camera.label || 'Cámara ' + (index + 1) }}
+                    </option>
+                </select>
             </div>
-        </template>
+        </FgField>
+        <div ref="scannerContainer"></div>
+        <div v-if="cameras.length && showControls">
+            <FgButton v-if="!isScanning" tone="secondary" icon="fa-solid fa-camera" @click="startScanner()">
+                Escanear QR
+            </FgButton>
+            <FgButton v-else tone="secondary" icon="fa-solid fa-stop" @click="stopScanner()">
+                Detener escáner
+            </FgButton>
+        </div>
+        <p v-if="!cameras.length" class="fg-notice fg-notice--danger" role="status">No detectamos una cámara disponible.</p>
     </div>
 </template>
 
 <script>
-    import * as Alerts  from "../Helpers/Alerts.js";
+    import * as Alerts from "../Helpers/Alerts.js";
+    import FgButton from "@System/Components/Figma/FgButton.vue";
+    import FgField from "@System/Components/Figma/FgField.vue";
 
     export default {
         name: "CodeScanner",
+        components: {FgButton, FgField},
         emits: ["result"],
         computed: {
             canScan: function() {

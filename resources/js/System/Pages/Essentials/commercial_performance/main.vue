@@ -3,7 +3,7 @@
         <header class="fg-page-header">
             <div>
                 <h1 class="fg-title">Rendimiento comercial</h1>
-                <p class="fg-help">Consulta cuánto vendiste por sucursal, producto, servicio o plan.</p>
+                <p class="fg-help">Compara lo vendido por fecha y por producto, servicio o plan.</p>
             </div>
         </header>
 
@@ -61,29 +61,30 @@
             <section class="fg-performance__section" aria-labelledby="fg-performance-items">
                 <header class="fg-performance__heading">
                     <h2 id="fg-performance-items" class="fg-section-title">Ventas por ítem</h2>
+                    <p v-if="displayedFilters" class="fg-help">{{ displayedFilters }}</p>
                 </header>
                 <ResponsiveTable>
-                    <table class="fg-table fg-performance__table">
-                        <thead><tr>
-                            <th scope="col" class="text-start">Ítem</th>
-                            <th scope="col" class="text-start">Tipo</th>
-                            <th scope="col" class="text-end">Cantidad vendida</th>
-                            <th scope="col" class="text-center">Moneda</th>
-                            <th scope="col" class="text-end">Importe vendido</th>
+                    <table class="fg-table fg-record-table fg-performance__table" role="table">
+                        <thead role="rowgroup"><tr role="row">
+                            <th scope="col" role="columnheader">Ítem</th>
+                            <th scope="col" role="columnheader">Tipo</th>
+                            <th scope="col" role="columnheader" class="text-center">Moneda</th>
+                            <th scope="col" role="columnheader" class="text-end">Cantidad vendida</th>
+                            <th scope="col" role="columnheader" class="text-end">Importe vendido</th>
                         </tr></thead>
-                        <tbody>
-                            <tr v-if="initialLoading || loading" class="fg-table__state">
-                                <td colspan="5"><FgListLoading :label="initialLoading ? 'Preparando rendimiento comercial…' : 'Consultando ventas…'"/></td>
+                        <tbody role="rowgroup">
+                            <tr v-if="initialLoading || loading" class="fg-table__state" role="row">
+                                <td colspan="5" role="cell"><FgListLoading :label="initialLoading ? 'Preparando rendimiento comercial…' : 'Consultando ventas…'"/></td>
                             </tr>
-                            <tr v-for="item in records.data" :key="`${item.item_id}-${item.type}-${item.currency_id}`">
-                                <td>{{ item.name }}</td>
-                                <td>{{ typeLabel(item.type) }}</td>
-                                <td class="text-end text-nowrap">{{ separatorNumber(item.quantity) }}</td>
-                                <td class="text-center">{{ item.code }}</td>
-                                <td class="text-end text-nowrap">{{ formatCurrencyAmount(item.total, item) }}</td>
+                            <tr v-for="item in records.data" :key="item.item_id + '-' + item.type + '-' + item.currency_id" role="row">
+                                <td class="fg-record-table__identity" role="cell">{{ item.name }}</td>
+                                <td role="cell"><span class="fg-record-table__label" aria-hidden="true">Tipo</span><span class="fg-record-table__value">{{ typeLabel(item.type) }}</span></td>
+                                <td class="text-center" role="cell"><span class="fg-record-table__label" aria-hidden="true">Moneda</span><span class="fg-record-table__value">{{ item.code }}</span></td>
+                                <td class="text-end" role="cell"><span class="fg-record-table__label" aria-hidden="true">Cantidad vendida</span><span class="fg-record-table__value text-nowrap">{{ separatorNumber(item.quantity) }}</span></td>
+                                <td class="text-end" role="cell"><span class="fg-record-table__label" aria-hidden="true">Importe vendido</span><span class="fg-record-table__value text-nowrap">{{ formatCurrencyAmount(item.total, item) }}</span></td>
                             </tr>
-                            <tr v-if="!initialLoading && !loading && !records.data.length" class="fg-table__state">
-                                <td colspan="5">
+                            <tr v-if="!initialLoading && !loading && !records.data.length" class="fg-table__state" role="row">
+                                <td colspan="5" role="cell">
                                     <FgEmptyState v-if="failed" title="No se pudo consultar el rendimiento" :description="failureMessage">
                                         <FgButton tone="secondary" @click="retry">Volver a intentar</FgButton>
                                     </FgEmptyState>

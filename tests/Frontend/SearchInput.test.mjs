@@ -26,6 +26,22 @@ test("el buscador compartido limpia el texto y conserva la búsqueda explícita"
 
 });
 
+test("los filtros compartidos mantienen campos y acciones en contenedores de maquetación", () => {
+    const {descriptor} = parse(read("resources/js/System/Components/Generics/FiltersSection.vue"));
+    const tree = parseTemplate(descriptor.template.content);
+    const section = tree.children.find(node => node.tag === "section");
+    const columns = section.children.find(node => node.tag === "div").children;
+    const actionColumn = columns.filter(node => node.tag === "div").at(-1);
+    const bar = actionColumn.children.find(node => node.tag === "div");
+    const actions = bar.children.filter(node => node.tag).map(node => node.tag);
+
+    assert.equal(bar.props.find(prop => prop.name === "class").value.content, "fg-filter-bar__actions");
+    assert.deepEqual(actions.slice(0, 2), ["SearchButton", "ClearFiltersButton"]);
+    assert.ok(actions.includes("ActionsDropdown"));
+    assert.ok(columns.some(node => node.tag === "slot" && node.props.some(prop => prop.value?.content === "extraFilters")));
+    assert.doesNotMatch(descriptor.template.content, /<InputSlot|divInputClass/);
+});
+
 test("los buscadores propios reutilizan SearchInput y el panel central conserva limpiar", () => {
 
     for(const path of [

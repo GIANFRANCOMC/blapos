@@ -27,7 +27,7 @@ Reportes se encuentra en **Analítica → Indicadores**, junto a Resumen del neg
 - `reports.export_max_rows` rechaza exportaciones excesivas con un mensaje accionable.
 - Los archivos usan `blapos-{recurso}-{Ymd-His}.{extensión}`.
 - Ventas admite `by_month`, `range_months`, `by_date` y `range_dates`; clientes, usuarios, items y sucursales aceptan sus filtros documentados por endpoint.
-- La vista usa `FiltersSection` como barra principal: selector de reporte, búsqueda rápida, acción de exportar/consultar y filtros avanzados mediante slot, manteniendo la misma estructura visual de Productos y demás módulos migrados.
+- El formulario FG adapta los campos al reporte. Consultar recupera la vista previa financiera y Descargar Excel conserva las exportaciones disponibles. Limpiar prepara los parámetros de la siguiente consulta. En móvil, la vista previa muestra los mismos importes y conceptos en tarjetas. [Reportes en Figma](https://www.figma.com/design/OjwADbn8Zxkoj020uCm2pp?node-id=1-295).
 - La exportación usa `Requests.download`, muestra Swal de carga y conserva el nombre de archivo entregado por el backend.
 - Las validaciones frontend muestran mensajes directos por parámetro requerido antes de consultar el backend.
 - Cada reporte muestra una ayuda breve para explicar qué se exportará y reducir errores de selección.

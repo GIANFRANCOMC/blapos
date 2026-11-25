@@ -79,6 +79,7 @@ function contextFor(loadingPath) {
         eventsModal: {device: {id: 1}}, authenticationEvents: {user: {id: 1}, filters: {}}, seriesAudit: {gaps: [{id: 1}]},
         selectedBranch: {id: 1}, selectedFloor: {id: 1}, selectedStatus: {code: ""}, sessionsRequestSequence: 0, requestVersion: 0, settlements: {},
         loadingStock: false, loadingAlerts: false,
+        loadErrors: {registers: false, sessions: false, movements: false, summary: false},
         baseFilters: () => ({}), requestFilters: () => ({}), getListFilters: () => ({}), currentStockAdvancedFilters: () => ({}), currentReportFilters: () => ({}), resourceRoute: () => "/list",
         isDefined: value => value != null && (typeof value !== "object" || !("value" in value) || value.value != null),
         $nextTick: async () => {}, initChart: noop, notify: noop

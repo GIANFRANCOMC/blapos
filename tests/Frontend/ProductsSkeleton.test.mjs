@@ -13,7 +13,7 @@ test("Productos usa skeleton solo durante initParams", () => {
     assert.equal(parse(page, {filename: "products/main.vue"}).errors.length, 0);
     assert.match(page, /<CatalogListSkeleton v-if="initialLoading" kind="products" label="productos"\/>/);
     assert.match(page, /await this\.initParams\(\)[\s\S]*?finally \{[\s\S]*?this\.initialLoading = false[\s\S]*?await this\.listEntity\(\{\}\)/);
-    assert.match(page, /<tr v-if="entityList\.extras\.loading" class="fg-table__state">[\s\S]*?Buscando productos…/);
+    assert.match(page, /<tr\b[^>]*\bv-if="entityList\.extras\.loading"[^>]*\bclass="fg-table__state"[^>]*>\s*<td\b[^>]*>\s*<FgListLoading label="Buscando productos…"/);
     assert.doesNotMatch(page, /Alerts\.swals\(\{type: "initParams"\}\)/);
     const layout = readFileSync(new URL("../../resources/views/System/layouts/main.blade.php", import.meta.url), "utf8");
     assert.match(layout, /@vite\(\["resources\/css\/System\/fg\/index\.css"/);
@@ -40,6 +40,6 @@ test("el skeleton de Productos conserva filtros y columnas con el loader real de
     assert.equal(columns[2].align, "fg-align-end");
     assert.match(styles, /height: var\(--fg-control-height, 36px\)/);
     assert.match(filters, /class="fg-filters"/);
-    assert.match(layoutStyles, /@media \(max-width: 767px\)[\s\S]*?\.fg-filters > :is\(\.fg-field, \.fg-catalog-skeleton__field\) \{ grid-column: 1 \/ -1;/);
+    assert.match(layoutStyles, /@media \(max-width: 767px\)[\s\S]*?\.fg-filters:not\(\.fg-filter-grid\) > :is\(\.fg-field, \.fg-catalog-skeleton__field\) \{ grid-column: 1 \/ -1;/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
 });

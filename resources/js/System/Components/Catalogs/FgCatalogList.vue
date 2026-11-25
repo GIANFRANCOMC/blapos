@@ -4,9 +4,9 @@
             <div><h1 class="fg-title">{{ title }}</h1><p class="fg-help">{{ description }}</p></div>
             <div class="fg-page-header__actions">
                 <FgButton icon="fa-solid fa-plus" :disabled="initialLoading" @click="$emit('add')">{{ addLabel }}</FgButton>
-                <ActionsDropdown type="button" text="Acciones" :label="`Acciones de ${plural}`" :disabled="initialLoading">
-                    <li><button type="button" class="fg-menu__item" @click="$emit('import')">Importar {{ plural }}</button></li>
-                    <li><button type="button" class="fg-menu__item" :disabled="exporting" @click="$emit('export')">Exportar {{ plural }}</button></li>
+                <ActionsDropdown v-if="allowImport || allowExport" type="button" text="Acciones" :label="`Acciones de ${plural}`" :disabled="initialLoading">
+                    <li v-if="allowImport"><button type="button" class="fg-menu__item" @click="$emit('import')">Importar {{ plural }}</button></li>
+                    <li v-if="allowExport"><button type="button" class="fg-menu__item" :disabled="exporting" @click="$emit('export')">Exportar {{ plural }}</button></li>
                 </ActionsDropdown>
             </div>
         </header>
@@ -14,11 +14,11 @@
         <InitialLoadTransition>
             <CatalogListSkeleton v-if="initialLoading" :kind="kind" :label="plural"/>
             <div v-else>
-                <form class="fg-filters" role="search" :aria-label="`Buscar ${plural}`" @submit.prevent="$emit('search')">
+                <form class="fg-filters fg-catalog-filters" role="search" :aria-label="`Buscar ${plural}`" @submit.prevent="$emit('search')">
                     <FgField label="Filtrar por" v-slot="{id}">
                         <FgSelect :input-id="id" v-model="filterBy" :options="filterOptions" :searchable="false" :clearable="false" :disabled="loading"/>
                     </FgField>
-                    <FgField label="Buscar" v-slot="{id}">
+                    <FgField label="Búsqueda" v-slot="{id}">
                         <div class="fg-field__control"><input :id="id" v-model="word" class="fg-input" type="search" :placeholder="placeholder" :disabled="loading" autocomplete="off"/></div>
                     </FgField>
                     <FgFilterActions submit :loading="loading" @clear="clearFilters"/>
@@ -30,23 +30,23 @@
 
                 <section class="fg-products-list" :aria-label="`Listado de ${plural}`">
                     <ResponsiveTable>
-                        <table class="fg-table fg-table--catalog">
+                        <table role="table" class="fg-table fg-table--catalog fg-record-table">
                             <colgroup><col v-for="column in columns" :key="column.title" :style="{width: column.width}"/></colgroup>
-                            <thead><tr><th v-for="column in columns" :key="column.title" scope="col" :class="column.align">{{ column.title }}</th></tr></thead>
-                            <tbody>
-                                <tr v-if="loading" class="fg-table__state"><td :colspan="columns.length"><FgListLoading :label="`Buscando ${plural}…`"/></td></tr>
+                            <thead role="rowgroup"><tr role="row"><th role="columnheader" v-for="column in columns" :key="column.title" scope="col" :class="column.align">{{ column.title }}</th></tr></thead>
+                            <tbody role="rowgroup">
+                                <tr role="row" v-if="loading" class="fg-table__state"><td role="cell" :colspan="columns.length"><FgListLoading :label="`Buscando ${plural}…`"/></td></tr>
                                 <template v-else-if="records.data?.length">
-                                    <tr v-for="record in records.data" :key="record.id"><slot name="row" :record="record"/></tr>
+                                    <tr role="row" v-for="record in records.data" :key="record.id"><slot name="row" :record="record"/></tr>
                                 </template>
-                                <tr v-else class="fg-table__state">
-                                    <td :colspan="columns.length">
+                                <tr role="row" v-else class="fg-table__state">
+                                    <td role="cell" :colspan="columns.length">
                                         <FgEmptyState :title="emptyTitle" :description="emptyDescription">
                                             <div class="fg-empty__actions">
                                                 <FgButton v-if="failed" @click="$emit('retry')">Volver a intentar</FgButton>
                                                 <FgButton v-else-if="appliedWord" tone="secondary" @click="clearFilters">Limpiar filtros</FgButton>
                                                 <template v-else>
                                                     <FgButton icon="fa-solid fa-plus" @click="$emit('add')">{{ addLabel }}</FgButton>
-                                                    <FgButton tone="secondary" @click="$emit('import')">Importar {{ plural }}</FgButton>
+                                                    <FgButton v-if="allowImport" tone="secondary" @click="$emit('import')">Importar {{ plural }}</FgButton>
                                                 </template>
                                             </div>
                                         </FgEmptyState>
@@ -92,7 +92,9 @@ const props = defineProps({
     initialLoading: Boolean,
     loading: Boolean,
     exporting: Boolean,
-    failed: Boolean
+    failed: Boolean,
+    allowImport: {type: Boolean, default: true},
+    allowExport: {type: Boolean, default: true}
 });
 defineEmits(["add", "import", "export", "search", "page", "retry"]);
 const filterBy = defineModel("filterBy", {type: Object});
@@ -105,7 +107,7 @@ const emptyTitle = computed(() => {
 });
 const emptyDescription = computed(() => {
     if (props.failed) return "Vuelve a intentar la consulta.";
-    return props.appliedWord ? "Prueba con otro término o limpia los filtros y pulsa Buscar." : "Agrega un registro o importa un archivo para empezar.";
+    return props.appliedWord ? "Prueba con otro término o limpia los filtros y pulsa Buscar." : props.allowImport ? "Agrega un registro o importa un archivo para empezar." : "Agrega un registro para empezar.";
 });
 
 function clearFilters() {

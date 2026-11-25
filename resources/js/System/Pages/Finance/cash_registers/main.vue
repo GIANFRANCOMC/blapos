@@ -1,114 +1,100 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader :title="activeViewMeta.label" :description="activeViewMeta.description">
+        <template #actions>
+            <button v-if="activeView === 'registers'" type="button" class="fg-button" :disabled="initialLoading" @click="openModal('register')">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                <span>Agregar caja</span>
+            </button>
+            <button v-if="activeView === 'movements'" type="button" class="fg-button" :disabled="!currentSession" @click="openModal('movement')">
+                <i class="fa-solid fa-right-left" aria-hidden="true"></i>
+                <span>Registrar movimiento</span>
+            </button>
+            <button type="button" class="fg-button fg-button--secondary" :disabled="initialLoading" @click="downloadMovements">
+                <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                <span>Descargar movimientos</span>
+            </button>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
             <section class="fg-cash">
-                <div class="fg-cash__context">
-                    <div class="fg-cash__heading">
-                        <p class="fg-cash__eyebrow mb-1">Operación de caja</p>
-                        <h1 class="fg-cash__title mb-0">{{ activeViewMeta.label }}</h1>
-                        <p class="fg-cash__subtitle mb-0">{{ activeViewMeta.description }}</p>
+                <p class="fg-operational-scope mb-0">
+                    <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
+                    <span>{{ selectedRegister ? selectedRegister.label : "Selecciona una caja para definir el alcance" }}</span>
+                </p>
+                <p v-if="activeView === 'movements' && !currentSession" class="fg-sales-message" role="status">
+                    Para registrar un movimiento, selecciona una caja con una apertura vigente.
+                </p>
+                <FgResponsiveFilters
+                    id="cash-work-filters"
+                    label="Filtros de caja"
+                    :loading="loading[activeView]"
+                    @search="searchActiveView"
+                    @clear="clearFilters">
+                    <FgField label="Caja de trabajo" input-id="cash-work-register">
+                        <FgSelect
+                            v-model="registerFilterId"
+                            :options="registerOptions"
+                            :reduce="register => register.id"
+                            :clearable="false"
+                            :searchable="false"
+                            placeholder="Seleccione una caja"/>
+                    </FgField>
+                    <div class="fg-field-cell">
+                        <SearchInput v-model="filters.search" title="Búsqueda" :placeholder="activeView === 'registers' ? 'Nombre, código o sucursal' : 'Caja, responsable o referencia'"/>
                     </div>
-                    <div class="fg-cash__selector">
-                        <FgField label="Caja de trabajo" input-id="cash-work-register">
-                            <FgSelect
-                                v-model="registerFilterId"
-                                :options="registerOptions"
-                                :reduce="register => register.id"
-                                :clearable="false"
-                                :searchable="false"
-                                placeholder="Seleccione una caja"/>
-                        </FgField>
-                        <p class="fg-operational-scope mt-2 mb-0">
-                            <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
-                            <span>{{ selectedRegister ? `${selectedRegister.name} · ${selectedRegister.branch?.name || 'Sucursal no definida'}` : 'Seleccione una caja para definir el alcance' }}</span>
-                        </p>
-                    </div>
-                </div>
-
-                <section class="fg-filter-bar fg-filter-bar--compact fg-cash__toolbar">
-                    <div class="fg-filter-bar__field">
-                        <SearchInput
-                            v-model="filters.search"
-                            title="Búsqueda"
-                            :placeholder="activeView === 'registers' ? 'Nombre, código o sucursal' : 'Caja, responsable o referencia'"/>
-                    </div>
-                    <div class="fg-filter-bar__actions">
-                        <SearchButton @click="searchActiveView"/>
-                        <button
-                            v-if="activeView === 'registers'"
-                            type="button"
-                            class="fg-button"
-                            data-bs-toggle="tooltip"
-                            title="Agregar caja a una sucursal"
-                            @click="openModal('register')">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar caja</span>
-                        </button>
-                        <button
-                            v-if="activeView === 'movements'"
-                            type="button"
-                            class="fg-button"
-                            data-bs-toggle="tooltip"
-                            title="Registrar ingreso, salida o ajuste manual"
-                            :disabled="!currentSession"
-                            @click="openModal('movement')">
-                            <i class="fa-solid fa-right-left" aria-hidden="true"></i>
-                            <span>Registrar movimiento</span>
-                        </button>
-                        <button
-                            type="button"
-                            class="fg-button fg-button--template"
-                            aria-label="Descargar movimientos"
-                            data-bs-toggle="tooltip"
-                            title="Descargar movimientos"
-                            @click="downloadMovements">
-                            <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                            <span class="d-inline d-lg-none">Descargar</span>
-                        </button>
-                    </div>
-                </section>
+                </FgResponsiveFilters>
 
                 <section v-if="activeView === 'registers'" class="fg-cash__panel">
-                    <Loader v-if="loading.registers"/>
-                    <div v-else-if="visibleRegisters.length" class="table-responsive">
-                        <table class="table fg-entity-table mb-0">
-                            <thead class="fg-table-header-surface">
-                                <tr>
-                                    <th>Caja</th>
-                                    <th>Sucursal</th>
-                                    <th>Sesión actual</th>
-                                    <th class="text-end">Esperado</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                    <FgListLoading v-if="loading.registers" label="Buscando cajas…"/>
+                    <FgEmptyState v-else-if="loadErrors.registers" title="No se pudieron consultar las cajas" description="Vuelve a intentar con los filtros aplicados.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="refreshActiveView()">Reintentar</button>
+                    </FgEmptyState>
+                    <ResponsiveTable v-else-if="visibleRegisters.length" class="fg-sales-table-scroll">
+                        <table role="table" class="fg-table fg-record-table mb-0">
+                            <thead role="rowgroup" class="fg-table-header-surface">
+                                <tr role="row">
+                                    <th scope="col" role="columnheader">Caja</th>
+                                    <th scope="col" role="columnheader">Sucursal</th>
+                                    <th scope="col" role="columnheader">Sesión actual</th>
+                                    <th scope="col" role="columnheader" class="text-end">Esperado</th>
+                                    <th scope="col" role="columnheader" class="text-center">Estado</th>
+                                    <th scope="col" role="columnheader" class="text-center"><span class="visually-hidden">Acciones</span></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="register in visibleRegisters" :key="register.id">
-                                    <td>
+                            <tbody role="rowgroup">
+                                <tr role="row" v-for="register in visibleRegisters" :key="register.id">
+                                    <td role="cell" class="fg-record-table__identity">
                                         <strong>{{ register.name }}</strong>
                                         <span class="fg-cash__muted d-block">{{ register.code }}</span>
                                     </td>
-                                    <td>{{ register.branch?.name || 'Sin sucursal' }}</td>
-                                    <td>
-                                        <span v-if="register.is_open" class="fg-status fg-status-active">Abierta</span>
-                                        <span v-else class="fg-status fg-status-inactive">Sin apertura</span>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Sucursal</span>
+                                        <div class="fg-record-table__value">{{ register.branch?.name || 'Sin sucursal' }}</div>
                                     </td>
-                                    <td class="text-end fw-medium">S/ {{ separatorNumber(register.current_amount) }}</td>
-                                    <td class="text-center">
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Sesión actual</span>
+                                        <div class="fg-record-table__value"><span v-if="register.is_open" class="fg-status fg-status-active">Abierta</span><span v-else class="fg-status fg-status-inactive">Sin apertura</span></div>
+                                    </td>
+                                    <td role="cell" class="text-end fg-money__value">
+                                        <span class="fg-record-table__label" aria-hidden="true">Esperado</span>
+                                        <div class="fg-record-table__value">S/ {{ separatorNumber(register.current_amount) }}</div>
+                                    </td>
+                                    <td role="cell" class="text-center fg-record-table__state">
                                         <span :class="['fg-badge', register.status === 'active' ? 'fg-status-active' : 'fg-status-inactive']">
                                             {{ register.status === 'active' ? 'Activa' : 'Inactiva' }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td role="cell" class="text-center fg-record-table__actions">
                                         <button
                                             v-if="register.is_open"
                                             type="button"
                                             class="fg-icon-action fg-icon-action-edit"
                                             data-bs-toggle="tooltip"
                                             title="Cerrar caja"
+                                            :aria-label="'Cerrar caja ' + register.name"
                                             @click="openModal('close', register)">
                                             <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
                                         </button>
@@ -118,6 +104,7 @@
                                             class="fg-icon-action fg-icon-action-primary"
                                             data-bs-toggle="tooltip"
                                             title="Abrir caja"
+                                            :aria-label="'Abrir caja ' + register.name"
                                             @click="openModal('open', register)">
                                             <i class="fa-solid fa-door-open" aria-hidden="true"></i>
                                         </button>
@@ -125,39 +112,55 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                    <WithoutData v-else/>
+                    </ResponsiveTable>
+                    <FgEmptyState v-else :title="appliedSearch ? 'No encontramos cajas' : 'Aún no hay cajas'" :description="appliedSearch ? 'Cambia el nombre, código o sucursal de la búsqueda.' : 'Agrega una caja para registrar su apertura.'"/>
                 </section>
 
                 <section v-if="activeView === 'sessions'" class="fg-cash__panel">
-                    <Loader v-if="loading.sessions"/>
-                    <div v-else-if="sessions.data?.length" class="table-responsive">
-                        <table class="table fg-entity-table mb-0">
-                            <thead class="fg-table-header-surface">
-                                <tr>
-                                    <th>Caja</th>
-                                    <th>Apertura</th>
-                                    <th>Cierre</th>
-                                    <th class="text-end">Esperado</th>
-                                    <th class="text-end">Contado</th>
-                                    <th class="text-end">Diferencia</th>
-                                    <th class="text-center">Estado</th>
+                    <FgListLoading v-if="loading.sessions" label="Buscando aperturas y cierres…"/>
+                    <FgEmptyState v-else-if="loadErrors.sessions" title="No se pudieron consultar las aperturas y cierres" description="Vuelve a intentar con los filtros aplicados.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="refreshActiveView()">Reintentar</button>
+                    </FgEmptyState>
+                    <ResponsiveTable v-else-if="sessions.data?.length" class="fg-sales-table-scroll">
+                        <table role="table" class="fg-table fg-record-table mb-0">
+                            <thead role="rowgroup" class="fg-table-header-surface">
+                                <tr role="row">
+                                    <th scope="col" role="columnheader">Caja</th>
+                                    <th scope="col" role="columnheader">Apertura</th>
+                                    <th scope="col" role="columnheader">Cierre</th>
+                                    <th scope="col" role="columnheader" class="text-end">Esperado</th>
+                                    <th scope="col" role="columnheader" class="text-end">Contado</th>
+                                    <th scope="col" role="columnheader" class="text-end">Diferencia</th>
+                                    <th scope="col" role="columnheader" class="text-center">Estado</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="session in sessions.data" :key="session.id">
-                                    <td>
+                            <tbody role="rowgroup">
+                                <tr role="row" v-for="session in sessions.data" :key="session.id">
+                                    <td role="cell" class="fg-record-table__identity">
                                         <strong>{{ session.register?.name }}</strong>
                                         <span class="fg-cash__muted d-block">{{ session.branch?.name }}</span>
                                     </td>
-                                    <td>{{ formatDateTime(session.opened_at) }}</td>
-                                    <td>{{ session.closed_at ? formatDateTime(session.closed_at) : 'En curso' }}</td>
-                                    <td class="text-end">S/ {{ separatorNumber(session.expected_amount) }}</td>
-                                    <td class="text-end">S/ {{ separatorNumber(session.counted_amount) }}</td>
-                                    <td class="text-end" :class="differenceClass(session.difference_amount)">
-                                        S/ {{ separatorNumber(session.difference_amount) }}
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Apertura</span>
+                                        <div class="fg-record-table__value">{{ formatDateTime(session.opened_at) }}</div>
                                     </td>
-                                    <td class="text-center">
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Cierre</span>
+                                        <div class="fg-record-table__value">{{ session.closed_at ? formatDateTime(session.closed_at) : 'En curso' }}</div>
+                                    </td>
+                                    <td role="cell" class="text-end fg-money__value">
+                                        <span class="fg-record-table__label" aria-hidden="true">Esperado</span>
+                                        <div class="fg-record-table__value">S/ {{ separatorNumber(session.expected_amount) }}</div>
+                                    </td>
+                                    <td role="cell" class="text-end fg-money__value">
+                                        <span class="fg-record-table__label" aria-hidden="true">Contado</span>
+                                        <div class="fg-record-table__value">S/ {{ separatorNumber(session.counted_amount) }}</div>
+                                    </td>
+                                    <td role="cell" class="text-end fg-money__value">
+                                        <span class="fg-record-table__label" aria-hidden="true">Diferencia</span>
+                                        <div class="fg-record-table__value"><span :class="differenceClass(session.difference_amount)">S/ {{ separatorNumber(session.difference_amount) }}</span></div>
+                                    </td>
+                                    <td role="cell" class="text-center fg-record-table__state">
                                         <span :class="['fg-badge', session.status === 'open' ? 'fg-status-active' : 'fg-status-inactive']">
                                             {{ session.status === 'open' ? 'Abierta' : 'Cerrada' }}
                                         </span>
@@ -165,14 +168,17 @@
                                 </tr>
                             </tbody>
                         </table>
-
-                    </div>
-                    <WithoutData v-else/>
-                    <Paginator :links="sessions.links" :pagination="sessions" :loading="loading.sessions" @clickPage="getSessions"/>
+                    </ResponsiveTable>
+                    <FgEmptyState v-else :title="appliedSearch ? 'No encontramos aperturas y cierres' : 'Aún no hay aperturas ni cierres'" :description="appliedSearch ? 'Revisa la caja seleccionada y el término de búsqueda.' : 'Las sesiones de caja aparecerán aquí.'"/>
+                    <Paginator v-if="!loadErrors.sessions" :links="sessions.links" :pagination="sessions" :loading="loading.sessions" @clickPage="getSessions"/>
                 </section>
 
                 <section v-if="activeView === 'summary'" class="fg-cash__panel">
-                    <Loader v-if="loading.summary"/>
+                    <FgListLoading v-if="loading.summary" label="Consultando el resumen de caja…"/>
+                    <FgEmptyState v-else-if="loadErrors.summary" title="No se pudo consultar el resumen" description="Vuelve a intentar con los filtros aplicados.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="getSummary()">Reintentar</button>
+                    </FgEmptyState>
+                    <FgEmptyState v-else-if="!summary.sessions.length" title="No hay sesiones para el resumen" description="Selecciona otra caja o revisa la búsqueda."/>
                     <div v-else class="fg-cash-summary">
                         <article class="fg-cash-summary__card">
                             <span>Fondo inicial</span>
@@ -191,7 +197,7 @@
                             <strong :class="differenceClass(summary.totals.difference)">S/ {{ separatorNumber(summary.totals.difference) }}</strong>
                         </article>
                     </div>
-                    <div v-if="summary.payments.length" class="table-responsive mt-3">
+                    <div v-if="!loading.summary && !loadErrors.summary && summary.payments.length" class="table-responsive mt-3">
                         <table class="table fg-entity-table mb-0">
                             <thead class="fg-table-header-surface">
                                 <tr>
@@ -210,37 +216,51 @@
                 </section>
 
                 <section v-if="activeView === 'movements'" class="fg-cash__panel">
-                    <Loader v-if="loading.movements"/>
-                    <div v-else-if="movements.data?.length" class="table-responsive">
-                        <table class="table fg-entity-table mb-0">
-                            <thead class="fg-table-header-surface">
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Caja</th>
-                                    <th>Tipo</th>
-                                    <th>Método</th>
-                                    <th>Referencia</th>
-                                    <th class="text-end">Importe</th>
+                    <FgListLoading v-if="loading.movements" label="Buscando movimientos…"/>
+                    <FgEmptyState v-else-if="loadErrors.movements" title="No se pudieron consultar los movimientos" description="Vuelve a intentar con los filtros aplicados.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="refreshActiveView()">Reintentar</button>
+                    </FgEmptyState>
+                    <ResponsiveTable v-else-if="movements.data?.length" class="fg-sales-table-scroll">
+                        <table role="table" class="fg-table fg-record-table mb-0">
+                            <thead role="rowgroup" class="fg-table-header-surface">
+                                <tr role="row">
+                                    <th scope="col" role="columnheader">Fecha</th>
+                                    <th scope="col" role="columnheader">Caja</th>
+                                    <th scope="col" role="columnheader">Tipo</th>
+                                    <th scope="col" role="columnheader">Método</th>
+                                    <th scope="col" role="columnheader">Referencia</th>
+                                    <th scope="col" role="columnheader" class="text-end">Importe</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="movement in movements.data" :key="movement.id">
-                                    <td>{{ formatDateTime(movement.occurred_at) }}</td>
-                                    <td>{{ movement.cash_session?.register?.name || '-' }}</td>
-                                    <td>{{ movementTypeLabel(movement.movement_type) }}</td>
-                                    <td>{{ movement.payment_method?.name || 'Efectivo / caja' }}</td>
-                                    <td>
-                                        <strong>{{ movement.reference || '-' }}</strong>
-                                        <span v-if="movement.user?.name" class="fg-cash__muted d-block">{{ movement.user.name }}</span>
+                            <tbody role="rowgroup">
+                                <tr role="row" v-for="movement in movements.data" :key="movement.id">
+                                    <td role="cell" class="fg-record-table__identity">{{ formatDateTime(movement.occurred_at) }}</td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Caja</span>
+                                        <div class="fg-record-table__value">{{ movement.cash_session?.register?.name || 'Sin caja' }}</div>
                                     </td>
-                                    <td class="text-end fw-medium">S/ {{ separatorNumber(movement.amount) }}</td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Tipo</span>
+                                        <div class="fg-record-table__value">{{ movementTypeLabel(movement.movement_type) }}</div>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Método</span>
+                                        <div class="fg-record-table__value">{{ movement.payment_method?.name || 'Efectivo / caja' }}</div>
+                                    </td>
+                                    <td role="cell">
+                                        <span class="fg-record-table__label" aria-hidden="true">Referencia</span>
+                                        <div class="fg-record-table__value"><strong>{{ movement.reference || "Sin referencia" }}</strong><span v-if="movement.user?.name" class="fg-cash__muted d-block">{{ movement.user.name }}</span></div>
+                                    </td>
+                                    <td role="cell" class="text-end fg-money__value">
+                                        <span class="fg-record-table__label" aria-hidden="true">Importe</span>
+                                        <div class="fg-record-table__value">S/ {{ separatorNumber(movement.amount) }}</div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
-
-                    </div>
-                    <WithoutData v-else/>
-                    <Paginator :links="movements.links" :pagination="movements" :loading="loading.movements" @clickPage="getMovements"/>
+                    </ResponsiveTable>
+                    <FgEmptyState v-else :title="appliedSearch ? 'No encontramos movimientos' : 'Aún no hay movimientos de caja'" :description="appliedSearch ? 'Revisa la caja seleccionada y el término de búsqueda.' : 'Los ingresos, salidas y ajustes registrados aparecerán aquí.'"/>
+                    <Paginator v-if="!loadErrors.movements" :links="movements.links" :pagination="movements" :loading="loading.movements" @clickPage="getMovements"/>
                 </section>
             </section>
 
@@ -502,8 +522,12 @@
 </template>
 
 <script>
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
+import FgResponsiveFilters from "@System/Components/Figma/FgResponsiveFilters.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
@@ -527,7 +551,7 @@ const VIEW_MENU_MAP = {
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, SearchInput, FgField, FgSelect},
+    components: {FgPageHeader, FgResponsiveFilters, FgListLoading, FgEmptyState, ResponsiveTable, SearchInput, FgField, FgSelect},
     props: {
         initialView: {
             type: String,
@@ -572,6 +596,7 @@ export default {
             },
             errors: {},
             saving: false,
+            loadErrors: {registers: false, sessions: false, movements: false, summary: false},
             loading: {
                 init: false,
                 registers: false,
@@ -580,17 +605,14 @@ export default {
                 summary: false
             },
             views: [
-                {id: "registers", label: "Cajas", description: "Apertura y estado", icon: "fa-solid fa-vault"},
-                {id: "sessions", label: "Aperturas y cierres", description: "Turnos y arqueos", icon: "fa-solid fa-clock-rotate-left"},
-                {id: "summary", label: "Resumen", description: "Métodos de pago", icon: "fa-solid fa-chart-pie"},
-                {id: "movements", label: "Movimientos", description: "Trazabilidad", icon: "fa-solid fa-right-left"}
+                {id: "registers", label: "Cajas", description: "Consulta el estado de tus cajas y registra su apertura o cierre."},
+                {id: "sessions", label: "Aperturas y cierres", description: "Revisa los turnos y las diferencias de arqueo."},
+                {id: "summary", label: "Resumen de caja", description: "Compara lo esperado con lo contado y consulta los importes por medio de pago."},
+                {id: "movements", label: "Movimientos", description: "Consulta los ingresos, salidas y ajustes de caja."}
             ]
         };
     },
     computed: {
-        breadcrumbTitles() {
-            return [{title: MODULE.breadcrumbParent}, {title: this.activeViewMeta.label, active: true}];
-        },
         registerOptions() {
             return this.options.registers.map(register => ({
                 ...register,
@@ -670,10 +692,16 @@ export default {
         },
         async refreshAll() {
             await this.getRegisters();
-            await this.refreshActiveView();
+            if(this.activeView !== "registers") await this.refreshActiveView();
             Alerts.tooltips({});
         },
+        clearFilters() {
+            this.filters.search = "";
+            this.registerFilterId = this.registerOptions[0]?.id ?? null;
+            return Alerts.showFiltersCleared();
+        },
         searchActiveView() {
+            if(this.loading[this.activeView]) return;
             this.selectedRegisterId = this.registerFilterId;
             this.appliedSearch = this.filters.search;
             return this.refreshActiveView();
@@ -695,11 +723,13 @@ export default {
         },
         async getRegisters() {
             this.loading.registers = true;
+            this.loadErrors.registers = false;
             this.registers = [];
 
             try {
                 const result = await Requests.get({route: this.config.routes.list});
-                if(!Requests.valid({result})) return;
+                this.loadErrors.registers = !Requests.valid({result});
+                if(this.loadErrors.registers) return;
 
                 this.registers = result.data.data || [];
                 this.options.registers = this.registers;
@@ -710,6 +740,7 @@ export default {
         async getSessions(pageUrl = null) {
             pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.sessions = true;
+            this.loadErrors.sessions = false;
 
             try {
                 this.sessions = Requests.emptyPagination();
@@ -718,7 +749,8 @@ export default {
                     data: this.baseFilters()
                 });
 
-                if(Requests.valid({result})) this.sessions = result.data.data;
+                this.loadErrors.sessions = !Requests.valid({result});
+                if(!this.loadErrors.sessions) this.sessions = result.data.data;
             } finally {
                 this.loading.sessions = false;
             }
@@ -726,6 +758,7 @@ export default {
         async getMovements(pageUrl = null) {
             pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.movements = true;
+            this.loadErrors.movements = false;
 
             try {
                 this.movements = Requests.emptyPagination();
@@ -734,13 +767,15 @@ export default {
                     data: this.baseFilters()
                 });
 
-                if(Requests.valid({result})) this.movements = result.data.data;
+                this.loadErrors.movements = !Requests.valid({result});
+                if(!this.loadErrors.movements) this.movements = result.data.data;
             } finally {
                 this.loading.movements = false;
             }
         },
         async getSummary() {
             this.loading.summary = true;
+            this.loadErrors.summary = false;
             this.summary = {sessions: [], payments: [], totals: {opening: 0, expected: 0, counted: 0, difference: 0}};
 
             try {
@@ -748,7 +783,8 @@ export default {
                     route: this.summaryConfig.routes.data,
                     data: this.baseFilters()
                 });
-                if(Requests.valid({result})) this.summary = result.data.data;
+                this.loadErrors.summary = !Requests.valid({result});
+                if(!this.loadErrors.summary) this.summary = result.data.data;
             } finally {
                 this.loading.summary = false;
             }

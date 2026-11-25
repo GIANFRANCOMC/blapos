@@ -52,20 +52,29 @@
                 <p v-if="displayedFilters" class="fg-help">{{ displayedFilters }}</p>
             </header>
             <p class="fg-help fg-turnover__note">El stock y el mínimo son actuales. Las salidas netas del periodo descuentan las devoluciones y las reposiciones por anulación.</p>
-            <InventoryTable :columns="columns" min-width="48rem" :loading="initialLoading || loading"
+            <InventoryTable :columns="columns" min-width="48rem" responsive-cards :loading="initialLoading || loading"
                 :loading-label="initialLoading ? 'Preparando rotación y reposición…' : 'Consultando inventario…'"
                 :empty="!records.data.length" :empty-title="emptyTitle" :empty-description="emptyDescription"
                 :error="failureMessage" @retry="query(lastPage)">
-                <tr v-for="record in records.data" :key="record.id">
-                    <td><ProductIdentity variant="expandable" :product="record.product"/></td>
-                    <td><span>{{ record.branch_name }}</span><span class="fg-table-note">{{ record.warehouse_name }}</span></td>
-                    <td class="fg-align-end text-nowrap"><QuantityValue class="fg-inventory-quantity" :value="record.quantity" :unit="record.measurement_unit"/></td>
-                    <td class="fg-align-end text-nowrap">
-                        <QuantityValue v-if="record.minimum_stock !== null" :value="record.minimum_stock" :unit="record.measurement_unit"/>
-                        <span v-else class="fg-help">Sin mínimo</span>
+                <tr role="row" v-for="record in records.data" :key="record.id">
+                    <td role="cell" class="fg-record-table__identity"><ProductIdentity variant="expandable" :product="record.product"/></td>
+                    <td role="cell">
+                        <span class="fg-record-table__label" aria-hidden="true">Sucursal / almacén</span>
+                        <span class="fg-record-table__value"><span>{{ record.branch_name }}</span><span class="fg-table-note">{{ record.warehouse_name }}</span></span>
                     </td>
-                    <td class="fg-align-end text-nowrap"><QuantityValue :value="record.net_outgoing" :unit="record.measurement_unit"/></td>
-                    <td class="fg-align-center"><span :class="['fg-badge', 'fg-badge--' + inventoryBadgeTones[record.stock_status]]">{{ labels[record.stock_status] }}</span></td>
+                    <td role="cell" class="fg-align-end">
+                        <span class="fg-record-table__label" aria-hidden="true">Stock disponible</span>
+                        <span class="fg-record-table__value"><QuantityValue class="fg-inventory-quantity" :value="record.quantity" :unit="record.measurement_unit"/></span>
+                    </td>
+                    <td role="cell" class="fg-align-end">
+                        <span class="fg-record-table__label" aria-hidden="true">Stock mínimo</span>
+                        <span class="fg-record-table__value"><QuantityValue v-if="record.minimum_stock !== null" :value="record.minimum_stock" :unit="record.measurement_unit"/><span v-else class="fg-help">Sin mínimo</span></span>
+                    </td>
+                    <td role="cell" class="fg-align-end">
+                        <span class="fg-record-table__label" aria-hidden="true">Salidas netas</span>
+                        <span class="fg-record-table__value"><QuantityValue :value="record.net_outgoing" :unit="record.measurement_unit"/></span>
+                    </td>
+                    <td role="cell" class="fg-record-table__state fg-align-center"><span :class="['fg-badge', 'fg-badge--' + inventoryBadgeTones[record.stock_status]]">{{ labels[record.stock_status] }}</span></td>
                 </tr>
             </InventoryTable>
             <Paginator v-if="loaded" :links="records.links" :pagination="records" :loading="loading" @click-page="goToPage"/>

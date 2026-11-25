@@ -1,20 +1,20 @@
 <template>
     <ResponsiveTable :scroll-y="scrollRecords" :class="{'fg-table-scroll--records': scrollRecords}">
-        <table class="fg-table fg-inventory-table" :style="{minWidth}">
+        <table role="table" class="fg-table fg-inventory-table" :class="{'fg-record-table': responsiveCards}" :style="{'--fg-inventory-table-min': minWidth}">
             <colgroup><col v-for="column in columns" :key="column.label" :style="{width: column.width}"/></colgroup>
-            <thead>
-                <tr>
-                    <th v-for="column in columns" :key="column.label" scope="col" :class="column.align && `fg-align-${column.align}`">
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th role="columnheader" v-for="column in columns" :key="column.label" scope="col" :class="column.align && `fg-align-${column.align}`">
                         <span :class="{'fg-sr-only': column.hidden}">{{ column.label }}</span>
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                <tr v-if="loading" class="fg-table__state">
-                    <td :colspan="columns.length"><FgListLoading :label="loadingLabel"/></td>
+            <tbody role="rowgroup">
+                <tr role="row" v-if="loading" class="fg-table__state">
+                    <td role="cell" :colspan="columns.length"><FgListLoading :label="loadingLabel"/></td>
                 </tr>
-                <tr v-else-if="error || empty" class="fg-table__state">
-                    <td :colspan="columns.length">
+                <tr role="row" v-else-if="error || empty" class="fg-table__state">
+                    <td role="cell" :colspan="columns.length">
                         <FgEmptyState :title="error ? 'No pudimos cargar el listado' : emptyTitle" :description="error || emptyDescription">
                             <FgButton v-if="error" tone="secondary" @click="$emit('retry')">Volver a intentar</FgButton>
                         </FgEmptyState>
@@ -37,6 +37,7 @@ defineProps({
     columns: {type: Array, required: true},
     minWidth: String,
     scrollRecords: Boolean,
+    responsiveCards: Boolean,
     loading: Boolean,
     loadingLabel: String,
     error: String,

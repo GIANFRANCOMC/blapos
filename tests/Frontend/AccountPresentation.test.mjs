@@ -30,12 +30,12 @@ test("Mi cuenta usa datos del servidor y controles compartidos", () => {
 
     assert.match(page, /<Breadcrumb :list=/);
     assert.match(styles, /\.fg-account-page__breadcrumb\s*\{[^}]*justify-content: flex-end;/);
-    assert.match(page, /<h1 id="account-title">Mi cuenta<\/h1>/);
-    assert.match(page, /Actualiza tus datos personales y la información de tu cuenta\./);
+    assert.match(page, /<h1 id="account-title" class="fg-title">Mi cuenta<\/h1>/);
+    assert.match(page, /Actualiza tus datos de contacto y consulta tu perfil de acceso\./);
     assert.doesNotMatch(page, /Administración · Ajustes/);
-    assert.match(page, /fg-account-page__layout[\s\S]*?fg-account-page__main[\s\S]*?<form[\s\S]*?<aside class="fg-account-page__aside"/);
-    assert.match(page, /<AccountCompanyCard :company="company"\/>\s*<AccountUserCard :account="account"\/>/);
-    assert.match(styles, /\.fg-account-page__layout\s*\{[^}]*grid-template-columns: minmax\(0, 1\.9fr\) minmax\(16rem, 0\.85fr\);/);
+    assert.match(page, /<header class="fg-page-header fg-account-page__hero"[\s\S]*?<FgButton type="submit" form="fg-account-data-form"[^>]*>[\s\S]*?<\/header>[\s\S]*?fg-account-page__layout[\s\S]*?<form id="fg-account-data-form"[^>]*@submit.prevent="saveAccount"[\s\S]*?<aside class="fg-account-page__aside"/);
+    assert.match(page, /<AccountUserCard :account="account"\/>\s*<AccountCompanyCard :company="company"\/>/);
+    assert.match(styles, /\.fg-account-page__layout\s*\{[^}]*grid-template-columns: minmax\(0, 2\.7fr\) minmax\(16rem, 1fr\);/);
     assert.match(styles, /\.fg-account-page__company-card,\s*\.fg-account-page__company-card \.fg-workspace__company-head,\s*\.fg-account-page__company-card \.fg-workspace__company-logo\s*\{\s*background: var\(--fg-surface\);/);
     assert.match(userCard, /fg-workspace__panel fg-workspace__company/);
     assert.match(userCard, /fg-navbar-user__avatar[\s\S]*?initials/);
@@ -72,7 +72,8 @@ test("Mi cuenta usa datos del servidor y controles compartidos", () => {
     assert.doesNotMatch(page, /br-account-page__notice|Alerts\.toastrs\(\{type: "success"/);
     assert.doesNotMatch(styles, /\.br-account-page__notice/);
     assert.doesNotMatch(page, /fa-check/);
-    assert.match(styles, /body\.fg-theme #app \.fg-account-page__field \.input-group > \.input-group-text,[\s\S]*?border: 0 !important;[\s\S]*?box-shadow: none !important;/);
+    assert.equal((page.match(/type="submit"/g) || []).length, 1);
+    assert.match(page, /Alcance de la edición[\s\S]*?El nombre, documento y perfil de acceso se gestionan desde Colaboradores/);
 });
 
 test("Mi cuenta comparte la escala compacta de Mi empresa y muestra un skeleton proporcional", () => {
@@ -85,15 +86,15 @@ test("Mi cuenta comparte la escala compacta de Mi empresa y muestra un skeleton 
     assert.match(page, /<AccountSkeleton v-if="loading"\/>/);
     assert.match(page, /try \{[\s\S]*?Requests\.get[\s\S]*?finally \{[\s\S]*?this\.loading = false/);
     assert.match(skeleton, /role="status" aria-live="polite" aria-label="Cargando tu cuenta"/);
-    assert.match(skeleton, /fg-account-page__panel-head[\s\S]*?fg-account-page__fields[\s\S]*?v-for="index in 4"[\s\S]*?fg-account-page__actions/);
+    assert.match(skeleton, /fg-account-page__panel[\s\S]*?fg-account-page__fields[\s\S]*?v-for="index in 4"[\s\S]*?fg-account-page__scope/);
     assert.match(skeleton, /fg-account-page__aside[\s\S]*?fg-account-page__user-card/);
-    assert.match(skeleton, /fg-account-page__company-card[\s\S]*?fg-account-skeleton__company-logo[\s\S]*?fg-account-page__user-card[\s\S]*?fg-account-page__user-head[\s\S]*?fg-account-skeleton__avatar/);
+    assert.match(skeleton, /fg-account-page__user-card[\s\S]*?fg-account-page__user-head[\s\S]*?fg-account-skeleton__avatar[\s\S]*?fg-account-page__company-card[\s\S]*?fg-account-skeleton__company-logo/);
     assert.match(skeleton, /v-for="index in 3"[^>]*fg-workspace__company-detail--full/);
     assert.doesNotMatch(skeleton, /CompanyCardSkeleton|br-account-page__company-summary/);
     assert.doesNotMatch(skeleton, /br-account-page__panel-icon/);
     assert.doesNotMatch(skeleton, /br-account-skeleton__footer-hint/);
-    assert.match(styles, /height: calc\(var\(--fg-control-height\) - 2px\);/);
-    assert.match(skeletonStyles, /height: var\(--fg-control-height\)/);
+    assert.match(styles, /\.fg-account-page__hero \{ flex-direction: column; align-items: flex-start; \}/);
+    assert.doesNotMatch(skeleton, /account-title|Guardar cambios/);
     assert.match(skeletonStyles, /height: var\(--fg-control-height\)/);
     assert.match(readSharedSkeleton(), /@media \(prefers-reduced-motion: reduce\)/);
     assert.match(entry, /account\/skeleton\.css/);

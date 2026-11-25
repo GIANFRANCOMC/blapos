@@ -1,12 +1,43 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <header class="fg-page-header">
+        <div>
+            <h1 class="fg-title">Resumen del negocio</h1>
+            <p class="fg-help">Consulta los indicadores de la operación por fecha y sucursal.</p>
+        </div>
+    </header>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
         <div v-else class="fg-page-content">
-            <div class="fg-dashboard">
+            <FgEmptyState v-if="initFailed" title="No se pudieron cargar los filtros"
+                description="Vuelve a intentar para consultar los indicadores.">
+                <FgButton tone="secondary" @click="initialize">Volver a intentar</FgButton>
+            </FgEmptyState>
+            <form v-else class="fg-filters fg-filter-grid fg-dashboard__filters" role="search" aria-label="Filtrar resumen del negocio"
+                @submit.prevent="applyFilters">
+                <FgField label="Fecha" class="fg-filter-grid__field" v-slot="{id}">
+                    <div class="fg-field__control">
+                        <input :id="id" v-model="draftFilters.date" type="date" class="fg-input"
+                            :max="dashboardConsultDateMax" :disabled="loading" required/>
+                    </div>
+                </FgField>
+                <FgField label="Sucursal" class="fg-filter-grid__field">
+                    <FgSelect v-model="draftFilters.branch_id" :options="branchOptions" :reduce="branch => branch.id"
+                        :searchable="branchOptions.length > 6" :clearable="false" :disabled="loading"/>
+                </FgField>
+                <div class="fg-filter-grid__actions">
+                    <FgFilterActions submit :disabled="loading" :loading="loading" @clear="clearFilters"/>
+                </div>
+            </form>
+            <FgListLoading v-if="loading" class="mt-3" label="Consultando indicadores…"/>
+            <FgEmptyState v-else-if="queryFailed" class="mt-3" title="No se pudieron consultar los indicadores"
+                :description="queryFailureMessage">
+                <FgButton tone="secondary" @click="initData">Volver a intentar</FgButton>
+            </FgEmptyState>
+            <div v-else-if="appliedFilters && !initFailed" class="fg-dashboard mt-3">
+                <p v-if="appliedFiltersLabel" class="fg-help mb-2">{{ appliedFiltersLabel }}</p>
                 <div class="row mb-4 align-items-start fg-dashboard__split">
-                    <div class="col-12 col-md-6 col-lg-8">
+                    <div class="col-12">
                         <section class="fg-dashboard__kpis fg-dashboard__kpis--split row g-2 mb-0" :aria-label="MODULE.texts.chart.kpiSectionAria">
                             <div class="col-12 col-sm-6 col-lg-4 col-xl">
                                 <div class="fg-dashboard-kpi fg-dashboard-kpi--success h-100">
@@ -75,57 +106,6 @@
                             </div>
                         </section>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 fg-dashboard__split-date align-self-stretch mt-3 mt-md-2 px-4 px-md-3">
-                        <section class="fg-dashboard__split-pane h-100 d-flex flex-column" :aria-label="MODULE.texts.date.sectionAria">
-                            <div class="fg-dashboard-date fg-dashboard-date--split fg-dashboard-date--split-fill flex-grow-1 d-flex flex-column">
-                                <div class="fg-dashboard-date__content flex-grow-1 d-flex flex-column">
-                                    <div class="fg-dashboard-date__main flex-grow-1 d-flex flex-column">
-                                        <template v-if="!forms.entity.dashboard.data.dateEditing">
-                                            <p class="fg-dashboard-date__eyebrow" v-text="MODULE.texts.date.eyebrow"></p>
-                                            <p class="fg-dashboard-date__value" :title="reportDateLabel" v-text="consultationDateLong"></p>
-                                            <div class="fg-dashboard-date__actions">
-                                                <button type="button" class="fg-button fg-button--small fg-button--secondary" @click="startDashboardDateEdit">
-                                                    <span v-text="MODULE.texts.date.consultButton"></span>
-                                                </button>
-                                            </div>
-                                        </template>
-                                        <div v-else
-                                            class="fg-dashboard-date__editor fg-dashboard-date__editor--stack d-flex flex-wrap align-items-end justify-content-end gap-2 pt-1 w-100"
-                                            role="group"
-                                            :aria-label="MODULE.texts.date.editorAria">
-                                            <div class="flex-grow-1 align-self-end" style="min-width: 10rem;">
-                                                <InputDate
-                                                    v-model="forms.entity.dashboard.data.dateAux"
-                                                    hasDiv
-                                                    :title="MODULE.texts.date.inputTitle"
-                                                    isRequired
-                                                    :max="dashboardConsultDateMax"
-                                                    :titleClass="['form-label', 'colon-at-end', 'mb-1']"
-                                                    :divClass="['mb-0', 'fg-dashboard-date__input-wrap']"/>
-                                            </div>
-                                            <div class="d-flex flex-column gap-1 flex-shrink-0 align-self-end">
-                                                <button
-                                                    type="button"
-                                                    class="fg-button fg-button--compact fg-button--danger"
-                                                    :aria-label="MODULE.texts.date.cancelAria"
-                                                    @click="cancelDashboardDateEdit">
-                                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    class="fg-button fg-button--compact fg-button--success"
-                                                    :aria-label="MODULE.texts.date.applyAria"
-                                                    :disabled="!canApplyDashboardDate"
-                                                    @click="applyDashboardDate">
-                                                    <i class="fa-solid fa-check" aria-hidden="true"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
                 </div>
 
                 <section class="row g-3 mb-4 pt-2" aria-labelledby="fg-dashboard-chart-title">
@@ -173,7 +153,13 @@
 <script>
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
-import * as Alerts    from "@System/Helpers/Alerts.js";
+import {showFiltersCleared} from "@System/Helpers/Alerts.js";
+import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgFilterActions from "@System/Components/Figma/FgFilterActions.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
 import * as Constants from "@System/Helpers/Constants.js";
 import * as Requests  from "@System/Helpers/Requests.js";
 import * as Utils     from "@System/Helpers/Utils.js";
@@ -192,17 +178,6 @@ const TEXTS = {
         attendancesToday: "Asistencias del día",
         expiringSubscriptions: "Membresías por vencer",
         branchesActive: "Sucursales activas"
-    },
-    date: {
-        eyebrow: "Consulta actual",
-        consultButton: "Consultar fecha",
-        inputTitle: "Fecha a consultar",
-        editorAria: "Editar fecha consultada",
-        cancelAria: "Cancelar",
-        applyAria: "Aplicar",
-        placeholder: "Selecciona una fecha",
-        reportPrefix: "Fecha: ",
-        sectionAria: "Fecha consultada"
     },
     chart: {
         sectionTitle: "Ventas por hora",
@@ -223,23 +198,19 @@ const MODULE = {
     texts: TEXTS
 };
 
+const ALL_BRANCHES = "all";
 let dashboardSalesChartInstance = null;
 
 export default {
     mixins: [InitialPageMixin],
     name: "DashboardMain",
-    components: {
-        //
-    },
+    components: {FgButton, FgEmptyState, FgField, FgFilterActions, FgListLoading, FgSelect},
     data() {
         return {
             forms: {
                 entity: {
                     dashboard: {
                         data: {
-                            date: "",
-                            dateAux: "",
-                            dateEditing: false,
                             sales: null,
                             attendances: null,
                             expiringSubscriptions: null,
@@ -250,7 +221,13 @@ export default {
                     }
                 }
             },
-            options: {},
+            draftFilters: {date: Utils.getCurrentDate(), branch_id: ALL_BRANCHES},
+            appliedFilters: null,
+            branchOptions: [],
+            initFailed: false,
+            loading: false,
+            queryFailed: false,
+            queryFailureMessage: "Intenta consultar nuevamente.",
             MODULE,
             config: {
                 ...Constants.generalConfig,
@@ -267,17 +244,11 @@ export default {
             }
         };
     },
-    mounted: async function() {
+    mounted() {
 
         navbarItem(this.config.entity.page.menu.id, {});
 
-        let initParams = await this.loadInitialParams(() => this.initParams());
-
-        if(initParams) {
-
-            this.initData({});
-
-        }
+        this.initialize();
 
         this._onDashboardChartResize = () => this.onDashboardChartWindowResize();
 
@@ -287,80 +258,70 @@ export default {
     beforeUnmount() {
 
         if(this._onDashboardChartResize) window.removeEventListener("resize", this._onDashboardChartResize);
+        this.dashboardChartDestroySalesHourlyIfAny();
 
     },
     methods: {
-        async initParams() {
+        async initialize() {
+            this.initialLoading = true;
+            this.initFailed = false;
+            const ready = await this.loadInitialParams(() => this.initParams());
 
+            if(ready) this.applyFilters();
+        },
+        async initParams() {
             const response = await Requests.get({
                 route: this.routeActions.initParams,
-                data: {page: "main"},
-                showAlert: true
+                data: {page: "main"}
             });
 
-            return Requests.valid({result: response});
+            this.initFailed = !Requests.valid({result: response});
+            if(this.initFailed) return false;
 
+            this.branchOptions = [
+                {id: ALL_BRANCHES, label: "Todas las sucursales permitidas"},
+                ...(response.data.branches ?? []).map(branch => ({
+                    id: branch.id,
+                    label: branch.status === "active" ? branch.name : `${branch.name} (inactiva)`
+                }))
+            ];
+
+            return true;
         },
-        async initData({loading = false}) {
+        clearFilters() {
+            this.draftFilters = {date: Utils.getCurrentDate(), branch_id: ALL_BRANCHES};
+            showFiltersCleared();
+        },
+        applyFilters() {
+            if(this.loading || !this.draftFilters.date) return;
 
-            let formData = this.forms.entity.dashboard.data;
+            this.appliedFilters = {...this.draftFilters};
+            return this.initData();
+        },
+        async initData() {
+            if(this.loading || !this.appliedFilters) return;
 
-            if(loading) Alerts.swals({type: "consult"});
+            const {date, branch_id} = this.appliedFilters;
+            this.loading = true;
+            this.queryFailed = false;
+            this.dashboardChartDestroySalesHourlyIfAny();
 
-            if(!this.isDefined(formData.date)) formData.date = Utils.getCurrentDate();
-
-            let initData = await Requests.get({
-                route: this.config.entity.routes.initData,
-                data: {page: "main", date: formData.date},
-                showAlert: true
+            const response = await Requests.get({
+                route: this.routeActions.initData,
+                data: {page: "main", date, branch_id: branch_id === ALL_BRANCHES ? null : branch_id}
             });
 
-            formData.sales = initData.data?.data?.sales;
-            formData.attendances = initData.data?.data?.attendances;
-            formData.expiringSubscriptions = initData.data?.data?.expiring_subscriptions;
-            formData.branches = initData.data?.data?.branches;
-            formData.users = initData.data?.data?.users;
+            this.loading = false;
+            this.queryFailed = !Requests.valid({result: response});
+            if(this.queryFailed) {
+                this.queryFailureMessage = response.code === 403
+                    ? "Tu perfil no tiene acceso a esta consulta o a la sucursal seleccionada."
+                    : "Intenta consultar nuevamente.";
+                return;
+            }
 
+            Object.assign(this.forms.entity.dashboard.data, response.data.data);
             this.$nextTick(() => this.initChart());
-
-            if(loading) Alerts.swals({show: false});
-
-            return Requests.valid({result: initData});
-
-        },
-        // Consult date
-        startDashboardDateEdit() {
-
-            let formData = this.forms.entity.dashboard.data;
-            let max      = Utils.getCurrentDate();
-            let dateAux  = formData.date || max;
-
-            if(dateAux > max) dateAux = max;
-
-            formData.dateAux = dateAux;
-            formData.dateEditing = true;
-
-        },
-        cancelDashboardDateEdit() {
-
-            let formData = this.forms.entity.dashboard.data;
-
-            formData.dateAux = "";
-            formData.dateEditing = false;
-
-        },
-        applyDashboardDate() {
-
-            let formData = this.forms.entity.dashboard.data;
-
-            if(!this.canApplyDashboardDate) return;
-
-            formData.date = formData.dateAux;
-            formData.dateAux = "";
-            formData.dateEditing = false;
-
-            this.initData({loading: true});
-
         },
         // X-axis label: 12 h time with a. m. / p. m. (hour index 0-23)
         dashboardChartFormatHourLabelAmpm(h) {
@@ -981,11 +942,6 @@ export default {
 
         },
         // Others
-        isDefined(value) {
-
-            return Utils.isDefined({value});
-
-        },
         formatCurrencyTotals: Utils.formatCurrencyTotals,
         fixedNumber(value) {
 
@@ -1007,13 +963,6 @@ export default {
         routeActions() {
 
             return this.config.entity.routes;
-
-        },
-        breadcrumbTitles: function() {
-
-            return [
-                this.config.entity.page
-            ];
 
         },
         dashboardConsultDateMax: function() {
@@ -1073,82 +1022,12 @@ export default {
             return `${this.dashboardChartFormatHourLabelAmpm(firstHour)} – ${this.dashboardChartFormatHourEndAmpm(lastHour)}`;
 
         },
-        canApplyDashboardDate: function() {
+        appliedFiltersLabel() {
+            if(!this.appliedFilters) return "";
 
-            if(!this.forms.entity.dashboard.data.dateEditing) return false;
-
-            const raw = this.forms.entity.dashboard.data.dateAux;
-
-            if(raw === null || raw === undefined) return false;
-
-            const s = String(raw).trim().split("T")[0];
-
-            if(!s) return false;
-            if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
-
-            const max = this.dashboardConsultDateMax;
-
-            if(s > max) return false;
-
-            const parts = s.split("-");
-            const y = parseInt(parts[0], 10);
-            const m = parseInt(parts[1], 10) - 1;
-            const day = parseInt(parts[2], 10);
-            const dt = new Date(y, m, day);
-
-            return !isNaN(dt.getTime());
-
-        },
-        reportDateLabel: function() {
-
-            const d = this.forms.entity.dashboard.data.date;
-
-            if(!d) return "";
-
-            return `${this.MODULE.texts.date.reportPrefix}${this.legibleFormatDate({dateString: d, type: "date"})}`;
-
-        },
-        consultationDateLong: function() {
-
-            const d = this.forms.entity.dashboard.data.date;
-
-            if(!d) return this.MODULE.texts.date.placeholder;
-
-            try {
-
-                const raw = String(d).trim();
-                const parts = raw.includes("T") ? raw.split("T")[0].split("-") : raw.split("-");
-
-                if(parts.length >= 3) {
-
-                    const y = parseInt(parts[0], 10);
-                    const m = parseInt(parts[1], 10) - 1;
-                    const day = parseInt(parts[2], 10);
-                    const date = new Date(y, m, day);
-
-                    if(!isNaN(date.getTime())) {
-
-                        const s = new Intl.DateTimeFormat("es-PE", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric"
-                        }).format(date);
-
-                        return s.charAt(0).toUpperCase() + s.slice(1);
-
-                    }
-
-                }
-
-            }catch (e) {
-
-                //
-
-            }
-
-            return this.legibleFormatDate({dateString: d, type: "date"});
-
+            const {date, branch_id} = this.appliedFilters;
+            const branch = this.branchOptions.find(option => option.id === branch_id);
+            return [this.legibleFormatDate({dateString: date, type: "date"}), branch?.label].filter(Boolean).join(" · ");
         }
     }
 };

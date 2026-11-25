@@ -1,7 +1,7 @@
 .fg-account-page {
   --fg-workspace-border: var(--fg-border);
   display: grid;
-  gap: 1.1rem;
+  gap: var(--fg-space-4);
   width: min(100%, 78rem);
   margin: 0 auto;
   padding-bottom: 2rem;
@@ -17,37 +17,14 @@
   margin: 0;
 }
 
-.fg-account-page__hero {
-  margin-top: 0.55rem;
-}
-
-.fg-account-page__intro {
-  min-width: 0;
-}
-
-.fg-account-page__intro h1 {
-  margin: 0;
-  color: var(--fg-heading);
-  letter-spacing: -0.035em;
-}
-
-.fg-account-page__intro p {
-  margin: 0.28rem 0 0;
-  color: var(--fg-muted);
-}
+.fg-account-page__hero { margin: 0; }
+.fg-account-page__hero .fg-page-header__actions > .fg-button { flex: none; }
 
 .fg-account-page__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(16rem, 0.85fr);
+  grid-template-columns: minmax(0, 2.7fr) minmax(16rem, 1fr);
   align-items: start;
   gap: 1rem;
-}
-
-.fg-account-page__main {
-  display: grid;
-  align-content: start;
-  gap: 1rem;
-  min-width: 0;
 }
 
 .fg-account-page__aside {
@@ -74,126 +51,35 @@
 }
 
 .fg-account-page__panel {
-  overflow: hidden;
+  display: grid;
+  gap: var(--fg-space-4);
+  min-width: 0;
+  padding: var(--fg-space-5);
   border: 1px solid var(--fg-border);
-  border-radius: var(--fg-radius);
+  border-radius: var(--fg-panel-radius);
   background: var(--fg-surface);
   box-shadow: var(--fg-shadow-sm);
-}
-
-.fg-account-page__panel-head {
-  display: flex;
-  align-items: center;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid var(--fg-border);
-  background: var(--fg-table-head);
-}
-
-.fg-account-page__panel-head h2 {
-  margin: 0;
-  color: var(--fg-heading);
-}
-
-.fg-account-page__panel-head p {
-  margin: 0.15rem 0 0;
-  color: var(--fg-muted);
 }
 
 .fg-account-page__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--fg-space-4) 1rem;
-  padding: 1.25rem;
-  background: var(--fg-surface);
+  gap: var(--fg-space-4);
 }
 
-.fg-account-page__field {
-  min-width: 0;
-}
+.fg-account-page__field { min-width: 0; }
 
-.fg-account-page__field .form-label {
-  display: inline-block;
-  margin-bottom: 0.16rem;
-  color: var(--fg-heading);
-}
-
-.fg-account-page__field .input-group {
-  overflow: hidden;
-  border: 1px solid var(--fg-border-strong);
+.fg-account-page__scope {
+  display: grid;
+  gap: var(--fg-space-1);
+  padding: var(--fg-space-3);
   border-radius: var(--fg-radius);
-  background: var(--fg-surface);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background: var(--fg-primary-soft);
+  color: var(--fg-text);
 }
 
-.fg-account-page__field .input-group:focus-within {
-  border-color: var(--fg-primary);
-  box-shadow: 0 0 0 0.18rem color-mix(in srgb, var(--fg-primary) 14%, transparent);
-}
-
-.fg-account-page__field .input-group.is-invalid {
-  border-color: var(--fg-danger);
-}
-
-.fg-account-page__field .input-group-text {
-  width: 2rem;
-  height: auto;
-  min-height: 0;
-  padding: 0;
-  justify-content: center;
-  border: 0;
-  background: transparent;
-  color: var(--fg-secondary-muted);
-}
-
-.fg-account-page__field .form-control,
-.fg-account-page__field .form-select {
-  min-width: 0;
-  height: calc(var(--fg-control-height) - 2px);
-  min-height: 0;
-  border: 0;
-  background-color: transparent;
-  box-shadow: none;
-}
-
-.fg-account-page__field .form-control:focus,
-.fg-account-page__field .form-select:focus {
-  box-shadow: none;
-}
-
-/* El borde y el foco pertenecen al campo completo, no a cada icono o control. */
-body.fg-theme #app .fg-account-page__field .input-group > .input-group-text,
-body.fg-theme #app .fg-account-page__field .input-group > .form-control,
-body.fg-theme #app .fg-account-page__field .input-group > .form-select {
-  border: 0 !important;
-  border-radius: 0 !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
-
-body.fg-theme #app .fg-account-page__field .input-group > .input-group-text {
-  flex: 0 0 2rem;
-  padding: 0 !important;
-  color: var(--fg-secondary-muted);
-}
-
-body.fg-theme #app .fg-account-page__field .input-group > .input-group-text i {
-  font-size: var(--fg-body-size);
-}
-
-.fg-account-page__field .fg-form-error {
-  display: block;
-  margin-top: 0.3rem;
-}
-
-.fg-account-page__actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.7rem 1.25rem;
-  border-top: 1px solid var(--fg-border);
-  background: var(--fg-table-head);
-}
+.fg-account-page__panel h2,
+.fg-account-page__scope p { margin: 0; }
 
 .fg-account-page__load-error {
   display: flex;
@@ -214,22 +100,14 @@ body.fg-theme #app .fg-account-page__field .input-group > .input-group-text i {
   margin-left: auto;
 }
 
-body.fg-theme .fg-account-page__intro h1 { font-size: var(--fg-section-size) !important; line-height: 1.15; }
-body.fg-theme .fg-account-page__intro p { font-size: var(--fg-body-size) !important; line-height: 1.4; }
 body.fg-theme .fg-account-page__user-avatar { font-size: var(--fg-section-size) !important; }
-body.fg-theme .fg-account-page__panel-head h2 { font-size: var(--fg-section-size) !important; }
-body.fg-theme .fg-account-page__panel-head p { font-size: var(--fg-body-size) !important; }
 @media (max-width: 900px) {
   .fg-account-page__layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  .fg-account-page__fields { grid-template-columns: 1fr; gap: 0.9rem; }
-}
-
-@media (max-width: 430px) {
-  .fg-account-page__panel-head,
-  .fg-account-page__fields,
-  .fg-account-page__actions { padding-right: 1rem; padding-left: 1rem; }
-  .fg-account-page__actions .fg-button { width: 100%; }
+  .fg-account-page__hero { flex-direction: column; align-items: flex-start; }
+  .fg-account-page__hero > :first-child:not(.fg-page-header__actions) { flex-basis: auto; }
+  .fg-account-page__fields { grid-template-columns: 1fr; }
+  .fg-account-page__panel { padding: var(--fg-space-4); }
 }

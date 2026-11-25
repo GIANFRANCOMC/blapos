@@ -1,15 +1,27 @@
 ﻿<template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader :title="pageTitle" :description="pageDescription">
+        <template v-if="activeMode === 'list'" #actions>
+            <button type="button" class="fg-button" :disabled="initialLoading" @click="changeMode('new')">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                <span>Nueva compra</span>
+            </button>
+            <button type="button" class="fg-button fg-button--secondary" :disabled="initialLoading || exporting" @click="exportPurchases">
+                <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                <span>Descargar compras</span>
+            </button>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" :table="activeMode !== 'new'"/>
         <div v-else class="fg-page-content">
             <main class="fg-entity fg-purchases">
                 <section v-if="activeMode === 'new'" class="fg-purchases__workspace">
-                    <div class="row g-4">
-                        <div class="col-lg-9 col-12">
-                            <div class="card">
-                                <div class="card-body">
+                    <div class="fg-sale-create-grid">
+                        <div>
+                            <div class="fg-sales-panel">
+                                <div class="fg-sales-panel__body">
+                                    <h2 class="fg-section-title">Documento de compra</h2>
                                     <div class="row g-3 mb-4">
                                         <FgField class="col-lg-6 col-xl-3" label="Tipo de comprobante" required>
                                             <FgSelect v-model="purchaseForm.documentType" :options="documentTypes" :clearable="false" :searchable="false" placeholder="Seleccione"/>
@@ -35,72 +47,78 @@
                                         <InputDate v-if="purchaseForm.deliveryMode?.code === 'pending'" v-model="purchaseForm.expectedDate" hasDiv title="Fecha esperada" :titleClass="[config.forms.classes.title]" xl="3" lg="6"/>
                                     </div>
 
+                                    <h2 class="fg-section-title">Productos de la compra</h2>
                                     <div class="row g-3">
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <thead class="text-center">
-                                                    <tr>
-                                                        <th style="width: 8%;">#</th>
-                                                        <th class="min-w-150px" style="width: 32%;">PRODUCTO</th>
-                                                        <th class="min-w-150px" style="width: 20%;">CANTIDAD</th>
-                                                        <th class="min-w-150px" style="width: 20%;">COSTO UNITARIO</th>
-                                                        <th class="min-w-150px text-end pe-3" style="width: 15%;">TOTAL</th>
-                                                        <th style="width: 5%;">ACCIONES</th>
+                                        <ResponsiveTable class="fg-sales-table-scroll">
+                                            <table role="table" class="fg-table fg-record-table fg-record-table--editor">
+                                                <thead role="rowgroup" class="text-center">
+                                                    <tr role="row">
+                                                        <th scope="col" role="columnheader" class="d-none d-md-table-cell" style="width: 8%;">#</th>
+                                                        <th scope="col" role="columnheader" class="min-w-150px" style="width: 32%;">PRODUCTO</th>
+                                                        <th scope="col" role="columnheader" class="min-w-150px" style="width: 20%;">CANTIDAD</th>
+                                                        <th scope="col" role="columnheader" class="min-w-150px" style="width: 20%;">COSTO UNITARIO</th>
+                                                        <th scope="col" role="columnheader" class="min-w-150px text-end pe-3" style="width: 15%;">TOTAL</th>
+                                                        <th scope="col" role="columnheader" style="width: 5%;">ACCIONES</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="table-border-bottom-0 bg-white">
+                                                <tbody role="rowgroup" class="table-border-bottom-0 bg-white">
                                                     <template v-if="purchaseForm.items?.length">
-                                                        <tr v-for="(detail, index) in purchaseForm.items" :key="detail.key">
-                                                            <td class="text-center fw-medium">
+                                                        <tr role="row" v-for="(detail, index) in purchaseForm.items" :key="detail.key">
+                                                            <td role="cell" class="text-center d-none d-md-table-cell">
                                                                 <span>{{ index + 1 }}</span>
                                                             </td>
-                                                            <td class="text-start">
-                                                                <FgSelect v-model="detail.product" :options="purchaseProductOptions(index)" :aria-label="`Producto ${index + 1}`" :clearable="false" placeholder="Seleccione"/>
+                                                            <td role="cell" class="text-start fg-record-table__identity">
+                                                                <FgSelect v-model="detail.product" :options="purchaseProductOptions(index)" :aria-label="`Producto ${index + 1}`" :clearable="false" placeholder="Selecciona un producto"/>
                                                             </td>
-                                                            <td class="text-center">
-                                                                <InputNumber v-model="detail.quantity" :hasNegative="false"/>
+                                                            <td role="cell" class="text-center">
+                                                                <span class="fg-record-table__label" aria-hidden="true">Cantidad</span>
+                                                                <div class="fg-record-table__value"><InputNumber v-model="detail.quantity" :aria-label="'Cantidad del producto ' + (index + 1)" :hasNegative="false"/></div>
                                                             </td>
-                                                            <td class="text-center">
-                                                                <InputNumber v-model="detail.unitCost" :hasNegative="false">
-                                                                    <template #inputGroupPrepend>
-                                                                        <span class="input-group-text fg-currency-prefix">{{ purchaseForm.currency?.sign || "S/" }}</span>
-                                                                    </template>
-                                                                </InputNumber>
+                                                            <td role="cell" class="text-center">
+                                                                <span class="fg-record-table__label" aria-hidden="true">Costo unitario</span>
+                                                                <div class="fg-record-table__value">
+                                                                    <InputNumber v-model="detail.unitCost" :aria-label="'Costo del producto ' + (index + 1)" :hasNegative="false">
+                                                                        <template #inputGroupPrepend>
+                                                                            <span class="input-group-text fg-currency-prefix">{{ purchaseForm.currency?.sign || "S/" }}</span>
+                                                                        </template>
+                                                                    </InputNumber>
+                                                                </div>
                                                             </td>
-                                                            <td class="text-end pe-3">
-                                                                <span class="fg-amount-inline">
+                                                            <td role="cell" class="text-end pe-3">
+                                                                <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                                                <span class="fg-amount-inline fg-record-table__value">
                                                                     <span class="fg-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
                                                                     <span class="fg-amount-inline__amount">{{ separatorNumber(lineTotal(detail)) }}</span>
                                                                 </span>
                                                             </td>
-                                                            <td class="text-center">
-                                                                <button type="button" class="btn btn-danger btn-xs waves-effect" :disabled="purchaseForm.items.length === 1" title="Quitar producto" @click="removePurchaseItem(index)">
+                                                            <td role="cell" class="text-center fg-record-table__actions">
+                                                                <button type="button" class="fg-button fg-button--icon" :disabled="purchaseForm.items.length === 1" :aria-label="'Quitar producto ' + (index + 1)" @click="removePurchaseItem(index)">
                                                                     <i class="fa fa-times" aria-hidden="true"></i>
                                                                 </button>
                                                             </td>
                                                         </tr>
-                                                        <tr class="fg-table-footer-stripe">
-                                                            <td colspan="4" class="text-end fg-table-footer-stripe__label">
+                                                        <tr role="row" class="fg-table-footer-stripe d-none d-md-table-row">
+                                                            <td role="cell" colspan="4" class="text-end fg-table-footer-stripe__label">
                                                                 <span class="text-uppercase">Importe total:</span>
                                                             </td>
-                                                            <td class="text-end pe-3">
+                                                            <td role="cell" class="text-end pe-3">
                                                                 <span class="fg-amount-inline fg-amount-inline--emphasis">
                                                                     <span class="fg-amount-inline__sign">{{ purchaseForm.currency?.sign || "" }}</span>
                                                                     <span class="fg-amount-inline__amount">{{ separatorNumber(purchaseSubtotal) }}</span>
                                                                 </span>
                                                             </td>
-                                                            <td></td>
+                                                            <td role="cell"></td>
                                                         </tr>
                                                     </template>
-                                                    <tr class="fg-table__state" v-else>
-                                                        <td class="pt-1 pb-0 border-0" colspan="99">
+                                                    <tr role="row" class="fg-table__state" v-else>
+                                                        <td role="cell" class="pt-1 pb-0 border-0" colspan="6">
                                                             <div class="fg-table-detail-empty">
                                                                 <div class="fg-table-detail-empty__top">
                                                                     <div class="fg-table-detail-empty__body">
                                                                         <img class="fg-table-detail-empty__img" :src="purchaseDetailEmptyImageUrl" alt="" width="100" height="84" loading="lazy" decoding="async"/>
                                                                         <p class="fg-table-detail-empty__text">
                                                                             <span>No hay productos en el detalle. Agréguelos con la acción </span>
-                                                                            <a href="javascript:void(0)" class="fg-link fg-table-detail-empty__link" @click.prevent="addPurchaseItem">Agregar producto</a>
+                                                                            <button type="button" class="fg-button fg-button--secondary" @click="addPurchaseItem">Agregar producto</button>
                                                                             <span>.</span>
                                                                         </p>
                                                                     </div>
@@ -110,13 +128,13 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                        </div>
+                                        </ResponsiveTable>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-12">
+                        <div>
                             <aside class="fg-purchases__settlement">
                                 <div class="fg-document-settlement fg-sale-settlement mb-2 mb-md-3">
                                     <div>
@@ -290,97 +308,89 @@
                     </div>
                 </div>
 
-                <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-filter-bar fg-filter-bar--compact">
-                    <div class="row align-items-end g-2">
-                        <div class="col-12 col-lg-5">
-                            <SearchInput v-model="filters.word" title="Búsqueda" placeholder="Proveedor, referencia o producto"/>
-                        </div>
-                        <FgField class="col-12 col-lg-3" :label="activeMode === 'receipts' ? 'Estado del ingreso' : 'Estado'" input-id="purchase-filter-status">
-                            <FgSelect
-                                v-model="filters.status"
-                                :options="statuses"
-                                :clearable="false"
-                                :searchable="false"/>
-                        </FgField>
-                        <div class="form-group col-xl-4 col-lg-4 col-md-12">
-                            <div class="fg-filter-bar__actions">
-                                <SearchButton class="fg-button--small" @click="listPurchases({applyFilters: true})"/>
-                                <button
-                                    v-if="activeMode === 'list'"
-                                    type="button"
-                                    class="fg-button fg-button--small"
-                                    @click="changeMode('new')">
-                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                    <span>Nuevo</span>
-                                </button>
-                                <button
-                                    v-if="activeMode === 'list'"
-                                    type="button"
-                                    class="fg-button fg-button--small fg-button--secondary fg-button--desktop-icon"
-                                    title="Descargar compras"
-                                    data-bs-toggle="tooltip"
-                                    @click="exportPurchases">
-                                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                                    <span class="fg-button__label">Descargar</span>
-                                </button>
-                            </div>
-                        </div>
+                <FgResponsiveFilters
+                    v-if="activeMode !== 'new'"
+                    id="purchases-list-filters"
+                    :label="activeMode === 'receipts' ? 'Filtros de ingresos pendientes' : 'Filtros de compras'"
+                    :loading="loading"
+                    @search="listPurchases({applyFilters: true})"
+                    @clear="clearFilters">
+                    <div class="fg-field-cell">
+                        <SearchInput v-model.trim="filters.word" title="Búsqueda" placeholder="Proveedor, referencia o producto"/>
                     </div>
-                </section>
+                    <FgField :label="activeMode === 'receipts' ? 'Estado del ingreso' : 'Estado'" input-id="purchase-filter-status">
+                        <FgSelect v-model="filters.status" :options="statuses" :clearable="false" :searchable="false"/>
+                    </FgField>
+                </FgResponsiveFilters>
 
                 <section v-if="['list', 'receipts'].includes(activeMode)" class="fg-entity-list">
-                    <div class="table-responsive">
-                        <table class="table fg-entity-table mb-0">
-                            <thead class="fg-table-header-surface">
-                                <tr>
-                                    <th>Documento</th>
-                                    <th>Proveedor</th>
-                                    <th>Almacén</th>
-                                    <th class="text-end">Total</th>
-                                    <th>Recepción</th>
-                                    <th>Estado</th>
-                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                    <ResponsiveTable class="fg-sales-table-scroll">
+                        <table role="table" class="fg-table fg-record-table mb-0">
+                            <thead role="rowgroup" class="fg-table-header-surface">
+                                <tr role="row">
+                                    <th scope="col" role="columnheader">Documento</th>
+                                    <th scope="col" role="columnheader">Proveedor</th>
+                                    <th scope="col" role="columnheader">Almacén</th>
+                                    <th scope="col" role="columnheader" class="text-end">Total</th>
+                                    <th scope="col" role="columnheader">Recepción</th>
+                                    <th scope="col" role="columnheader">Estado</th>
+                                    <th scope="col" role="columnheader" class="text-center"><span class="visually-hidden">Acciones</span></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="fg-table__state" v-if="loading">
-                                    <td colspan="7" class="py-4"><Loader/></td>
+                            <tbody role="rowgroup">
+                                <tr role="row" class="fg-table__state" v-if="loading">
+                                    <td role="cell" colspan="7"><FgListLoading :label="activeMode === 'receipts' ? 'Buscando ingresos pendientes…' : 'Buscando compras…'"/></td>
                                 </tr>
-                                <template v-else-if="records.total > 0">
-                                    <tr v-for="purchase in records.data" :key="purchase.id">
-                                        <td>
+                                <tr role="row" v-else-if="listError" class="fg-table__state">
+                                    <td role="cell" colspan="7">
+                                        <FgEmptyState title="No se pudo completar la consulta" description="Vuelve a intentar con los filtros aplicados.">
+                                            <button type="button" class="fg-button fg-button--secondary" @click="listPurchases()">Reintentar</button>
+                                        </FgEmptyState>
+                                    </td>
+                                </tr>
+                                <template v-else-if="records.data?.length">
+                                    <tr role="row" v-for="purchase in records.data" :key="purchase.id">
+                                        <td role="cell" class="fg-record-table__identity">
                                             <strong>{{ purchase.formatted_document_type }}</strong>
                                             <span class="fg-purchases__meta">
                                                 {{ purchaseDocumentReference(purchase) }}
                                                 · {{ formatDate(purchase.issue_date) }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <strong>{{ purchase.supplier?.name }}</strong>
-                                            <span class="fg-purchases__meta">{{ purchase.supplier?.document_number }}</span>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Proveedor</span>
+                                            <div class="fg-record-table__value"><strong>{{ purchase.supplier?.name }}</strong><span class="fg-purchases__meta">{{ purchase.supplier?.document_number }}</span></div>
                                         </td>
-                                        <td>{{ purchase.warehouse?.name }}</td>
-                                        <td class="text-end">
-                                            <strong class="fg-amount-inline__amount">{{ purchase.currency?.sign }} {{ separatorNumber(purchase.total) }}</strong>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Almacén</span>
+                                            <div class="fg-record-table__value">{{ purchase.warehouse?.name }}</div>
                                         </td>
-                                        <td>
-                                            <span class="fg-purchases__progress-label">{{ purchase.receipt_progress }}%</span>
-                                            <div class="fg-purchases__progress">
-                                                <span :style="{width: `${purchase.receipt_progress}%`}"></span>
+                                        <td role="cell" class="text-end">
+                                            <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                            <div class="fg-record-table__value"><strong class="fg-money__value">{{ purchase.currency?.sign }} {{ separatorNumber(purchase.total) }}</strong></div>
+                                        </td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Recepción</span>
+                                            <div class="fg-record-table__value">
+                                                <span class="fg-purchases__progress-label">{{ purchase.receipt_progress }}%</span>
+                                                <div class="fg-purchases__progress" aria-hidden="true">
+                                                    <span :style="{width: `${purchase.receipt_progress}%`}"></span>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td role="cell" class="fg-record-table__state">
                                             <span :class="['fg-purchase-status', `is-${purchase.status}`]">
                                                 {{ purchase.formatted_status }}
                                             </span>
                                         </td>
-                                        <td class="text-center">
+                                        <td role="cell" class="text-center fg-record-table__actions">
                                             <div class="fg-purchases__actions">
                                                 <button
                                                     v-if="['confirmed', 'partial'].includes(purchase.status)"
                                                     type="button"
                                                     class="fg-icon-action fg-icon-action-edit"
                                                     title="Registrar recepción"
+                                                    :aria-label="'Registrar recepción de ' + purchaseDocumentReference(purchase)"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#purchaseReceiptModal"
                                                     @click="prepareReceipt(purchase.id)">
@@ -391,6 +401,7 @@
                                                     type="button"
                                                     class="fg-icon-action fg-purchases__cancel"
                                                     title="Anular compra"
+                                                    :aria-label="'Anular compra ' + purchaseDocumentReference(purchase)"
                                                     @click="cancelPurchase(purchase)">
                                                     <i class="fa-solid fa-ban" aria-hidden="true"></i>
                                                 </button>
@@ -398,15 +409,15 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <tr class="fg-table__state" v-else>
-                                    <td colspan="7"><WithoutData type="image"/></td>
+                                <tr role="row" class="fg-table__state" v-else>
+                                    <td role="cell" colspan="7"><FgEmptyState :title="emptyTitle" :description="emptyDescription"/></td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </ResponsiveTable>
                 </section>
 
-                <Paginator v-if="['list', 'receipts'].includes(activeMode)" :links="records.links" :pagination="records" :loading="loading" @clickPage="listPurchases"/>
+                <Paginator v-if="activeMode !== 'new' && !listError" :links="records.links" :pagination="records" :loading="loading" @clickPage="listPurchases"/>
             </main>
 
         </div>
@@ -421,7 +432,11 @@
                     </button>
                 </div>
                 <div class="modal-body fg-modal__body">
-                    <div v-if="loadingReceipt" class="py-4"><Loader/></div>
+                    <FgListLoading v-if="loadingReceipt" label="Cargando los productos pendientes…"/>
+                    <FgEmptyState v-else-if="receiptError" title="No se pudo consultar la compra" description="Vuelve a intentar antes de registrar su recepción.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="prepareReceipt(receiptPurchaseId)">Reintentar</button>
+                    </FgEmptyState>
+                    <FgEmptyState v-else-if="!receiptForm.items.length" title="Esta compra no tiene productos pendientes" description="Actualiza el listado para revisar el estado de la recepción."/>
                     <template v-else>
                         <p class="fg-purchases__modal-help mb-3">Solo las cantidades recibidas ingresarán al inventario.</p>
                         <div class="fg-purchases__receipt-summary">
@@ -434,9 +449,18 @@
                                     <ProductIdentity :product="detail.product"/>
                                     <span class="fg-purchases__receipt-pending">Pendiente: {{ separatorNumber(detail.remaining) }}</span>
                                 </div>
-                                <InputNumber v-model="detail.quantity" title="Cantidad recibida" :titleClass="[config.forms.classes.title]" :hasNegative="false"/>
+                                <InputNumber
+                                    v-model="detail.quantity"
+                                    title="Cantidad recibida"
+                                    :aria-label="'Cantidad recibida de ' + detail.product.name"
+                                    :hasNegative="false"
+                                    :hasTextBottom="receiptQuantityInvalid(detail)"
+                                    :textBottomInfo="['Ingresa una cantidad entre 0 y ' + separatorNumber(detail.remaining) + '.']"/>
                             </div>
                         </div>
+                        <p v-if="receivedQuantity > 0 && !hasInvalidReceiptQuantity" class="fg-sales-message" role="status">
+                            Quedará pendiente: {{ separatorNumber(remainingReceiptQuantity) }}.
+                        </p>
                         <div class="row g-3 mt-1">
                             <div class="col-md-5">
                                 <label for="purchase-receipt-date" class="form-label">Fecha y hora de recepción</label>
@@ -451,7 +475,7 @@
                 </div>
                 <div class="modal-footer fg-modal__footer">
                     <button ref="closeReceiptModal" type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="fg-button" :disabled="savingReceipt || loadingReceipt" @click="saveReceipt">Confirmar recepción</button>
+                    <button type="button" class="fg-button" :disabled="!canSaveReceipt" @click="saveReceipt">Confirmar recepción</button>
                 </div>
             </div>
         </div>
@@ -459,8 +483,12 @@
 </template>
 
 <script>
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
+import FgResponsiveFilters from "@System/Components/Figma/FgResponsiveFilters.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -473,9 +501,8 @@ import FgSelect from "@System/Components/Figma/FgSelect.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, ProductIdentity, SearchInput, FgField, FgSelect},
+    components: {FgPageHeader, FgResponsiveFilters, FgListLoading, FgEmptyState, ResponsiveTable, ProductIdentity, SearchInput, FgField, FgSelect},
     async mounted() {
-        this.activeMode = this.initialModeFromPath();
         navbarItem("menu-parent-purchases", {addClass: "open"});
         navbarItem({
             new: "menu-purchases-new",
@@ -483,19 +510,22 @@ export default {
             list: "menu-purchases-list"
         }[this.activeMode], {});
 
-        await this.loadInitialParams(() => this.initParams());
-
-        await this.listPurchases({});
-        if(this.activeMode === "new") {
-            this.preparePurchase();
-        }
+        await this.loadInitialParams(async () => {
+            await this.initParams();
+            if(this.activeMode === "new") this.preparePurchase();
+        });
+        if(this.activeMode !== "new") await this.listPurchases();
     },
     data() {
         return {
-            activeMode: "list",
+            activeMode: this.initialModeFromPath(),
             loading: false,
+            listError: false,
             saving: false,
             loadingReceipt: false,
+            receiptError: false,
+            receiptRequest: 0,
+            receiptPurchaseId: null,
             savingReceipt: false,
             exporting: false,
             records: {total: 0, data: []},
@@ -621,7 +651,13 @@ export default {
                 this.deliveryModes = this.options.purchaseDeliveryModes;
             }
         },
+        clearFilters() {
+            this.filters = {word: "", status: this.statuses[0]};
+            return Alerts.showFiltersCleared();
+        },
         async listPurchases({url = null, applyFilters = false} = {}) {
+            if(this.loading) return;
+            this.listError = false;
             if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
             this.loading = true;
 
@@ -636,7 +672,8 @@ export default {
                             : (this.appliedFilters.status?.code || "")
                     }
                 });
-                this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
+                this.listError = !result.bool;
+                if(!this.listError) this.records = result.data || Requests.emptyPagination();
             } finally {
                 this.loading = false;
             }
@@ -790,6 +827,7 @@ export default {
             this.purchaseForm.supplier = this.suppliers.find(record => Number(record.code) === Number(supplier.id)) || this.purchaseForm.supplier;
         },
         async savePurchase() {
+            if(this.saving) return;
             this.saving = true;
             Alerts.swals({type: "loading", message: "Registrando compra"});
             const result = await Requests.post({
@@ -833,17 +871,16 @@ export default {
             Alerts.generateAlert({type: "error", messages: this.responseErrors(result)});
         },
         async prepareReceipt(id) {
+            const request = ++this.receiptRequest;
+            this.receiptPurchaseId = id;
+            this.receiptForm = {purchase: null, items: [], receivedAt: "", observation: ""};
+            this.receiptError = false;
             this.loadingReceipt = true;
             const result = await Requests.get({route: `${this.config.entity.routes.consult}/${id}`});
+            if(request !== this.receiptRequest) return;
             this.loadingReceipt = false;
-
-            if(!result.bool) {
-                Alerts.generateAlert({
-                    type: "error",
-                    msgContent: result.data?.msg || "No se pudo consultar la compra."
-                });
-                return;
-            }
+            this.receiptError = !result.bool;
+            if(this.receiptError) return;
 
             const purchase = result.data;
             this.receiptForm = {
@@ -860,7 +897,11 @@ export default {
                     }))
             };
         },
+        receiptQuantityInvalid(item) {
+            return Utils.compareNumbers(item.quantity, 0) < 0 || Utils.compareNumbers(item.quantity, item.remaining) > 0;
+        },
         async saveReceipt() {
+            if(!this.canSaveReceipt) return;
             this.savingReceipt = true;
             Alerts.swals({type: "loading", message: "Registrando recepción"});
             const result = await Requests.post({
@@ -951,18 +992,39 @@ export default {
         }
     },
     computed: {
-        breadcrumbTitles() {
-            return [
-                {title: "Compras"},
-                {
-                    title: {
-                        new: "Nueva compra",
-                        receipts: "Ingresos pendientes",
-                        list: "Compras registradas"
-                    }[this.activeMode],
-                    active: true
-                }
-            ];
+        pageTitle() {
+            return {new: "Nueva compra", list: "Compras registradas", receipts: "Ingresos pendientes"}[this.activeMode];
+        },
+        pageDescription() {
+            return {
+                new: "Registra el comprobante y revisa los productos, importes y recepción antes de guardar.",
+                list: "Consulta los comprobantes de compra y su estado de recepción.",
+                receipts: "Revisa lo que falta por recibir y registra la mercadería que ingresó."
+            }[this.activeMode];
+        },
+        hasAppliedFilters() {
+            return Boolean(this.appliedFilters?.word?.trim() || this.appliedFilters?.status?.code);
+        },
+        emptyTitle() {
+            if(this.hasAppliedFilters) return "No encontramos compras con estos filtros";
+            return this.activeMode === "receipts" ? "No hay ingresos pendientes" : "Aún no hay compras registradas";
+        },
+        emptyDescription() {
+            if(this.hasAppliedFilters) return "Revisa los filtros e intenta otra búsqueda.";
+            return this.activeMode === "receipts" ? "Las compras por recibir aparecerán aquí." : "Usa Nueva compra para registrar el primer comprobante.";
+        },
+        receivedQuantity() {
+            return Utils.sum(this.receiptForm.items.map(item => item.quantity || 0));
+        },
+        remainingReceiptQuantity() {
+            return Utils.subtract(Utils.sum(this.receiptForm.items.map(item => item.remaining)), this.receivedQuantity);
+        },
+        hasInvalidReceiptQuantity() {
+            return this.receiptForm.items.some(this.receiptQuantityInvalid);
+        },
+        canSaveReceipt() {
+            return !this.loadingReceipt && !this.savingReceipt && !this.receiptError && Boolean(this.receiptForm.purchase)
+                && !this.hasInvalidReceiptQuantity && Utils.compareNumbers(this.receivedQuantity, 0) > 0;
         },
         statuses() {
             if(this.activeMode === "receipts") {

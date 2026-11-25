@@ -112,37 +112,54 @@
 }
 .fg-reports {
     display: grid;
-    gap: 0.75rem;
+    gap: var(--fg-space-3);
 }
+
+.fg-reports .fg-reports__parameters {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    border: 1px solid var(--fg-border);
+}
+
+.fg-reports__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fg-space-2);
+}
+
 .fg-reports__help {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    width: fit-content;
-    max-width: 100%;
-    padding: 0.45rem 0.65rem;
-    border: 1px solid color-mix(in srgb, var(--fg-primary) 14%, var(--fg-border));
-    border-radius: var(--fg-radius);
-    background: color-mix(in srgb, var(--fg-primary-soft) 50%, var(--fg-surface));
-    color: var(--fg-muted);
-    font-size: var(--fg-help-size);
-    font-weight: var(--fg-regular-weight);
+    padding: var(--fg-space-3) var(--fg-space-4);
+    border: 1px solid var(--fg-border);
+    border-radius: var(--fg-panel-radius);
+    background: var(--fg-surface);
 }
-.fg-reports__help i {
-    color: var(--fg-primary);
-}
+
+.fg-reports__help > p { margin-block-start: var(--fg-space-1); }
+
 .fg-reports__results {
-    overflow: hidden;
-    margin-top: 0.15rem;
+    display: grid;
+    gap: var(--fg-space-2);
+    margin-block-start: var(--fg-space-3);
 }
-.fg-reports__empty-hint {
-    display: block;
-    padding: 1.75rem 1rem;
-    color: var(--fg-muted);
-    font-size: var(--fg-help-size);
-    font-weight: var(--fg-regular-weight);
-    text-align: center;
+
+.fg-reports__table { min-width: 42rem; }
+
+@media (max-width: 1199px) {
+    .fg-reports .fg-reports__parameters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
+
+@media (max-width: 767px) {
+    .fg-reports .fg-reports__parameters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fg-reports__parameters > .fg-field { grid-column: auto; }
+    .fg-reports__actions { grid-column: 1 / -1; }
+}
+
+
+
 .fg-branch-series-audit {
     overflow: hidden;
     margin-bottom: 1rem;
@@ -320,23 +337,6 @@
     color: var(--fg-muted);
     font-size: var(--fg-help-size);
     font-weight: var(--fg-regular-weight);
-}
-.fg-attendance-device-detail {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.25rem;
-    padding: 0.16rem 0.42rem;
-    border-radius: var(--fg-radius);
-    background: color-mix(in srgb, var(--fg-primary-soft) 68%, var(--fg-surface));
-    color: var(--fg-primary);
-    font-size: var(--fg-help-size);
-    font-weight: var(--fg-title-weight);
-}
-.fg-attendance-device-detail.is-warning {
-    margin-left: 0.25rem;
-    background: color-mix(in srgb, var(--fg-warning-soft) 76%, var(--fg-surface));
-    color: var(--fg-warning-hover);
 }
 .fg-book-complaint-attachment {
     display: inline-flex;
@@ -751,4 +751,136 @@
     .fg-master-data-automatic__value {
         justify-items: start;
     }
+}
+
+/* Asistencias de clientes */
+.fg-attendance-page,
+.fg-attendance-modal__body,
+.fg-attendance-activity__body {
+    display: grid;
+    gap: var(--fg-space-3);
+    min-inline-size: 0;
+}
+
+.fg-attendance-page .fg-attendance-filters {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    border: 1px solid var(--fg-border);
+}
+
+.fg-attendance-filters .fg-filter-grid__actions {
+    grid-column: auto;
+    flex-wrap: nowrap;
+}
+
+.fg-attendance-results .fg-attendance-list-heading {
+    min-block-size: 0;
+    padding-block: var(--fg-space-2);
+    margin-block-end: var(--fg-space-2);
+}
+
+.fg-attendance-table { min-inline-size: 46rem; }
+.fg-attendance-table th:first-child { inline-size: 24%; }
+.fg-attendance-table th:last-child { inline-size: 3.5rem; }
+
+.fg-attendance-client {
+    display: grid;
+    gap: var(--fg-space-1);
+    overflow-wrap: anywhere;
+}
+
+.fg-attendance-activity {
+    padding: var(--fg-space-3) var(--fg-space-4);
+    border: 1px solid var(--fg-border);
+    border-radius: var(--fg-panel-radius);
+    background: var(--fg-surface);
+}
+
+.fg-attendance-activity summary { cursor: pointer; }
+.fg-attendance-activity__body { padding-block-start: var(--fg-space-3); }
+
+.fg-attendance-branches,
+.fg-attendance-activity__counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fg-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fg-attendance-activity__counts li,
+.fg-attendance-branches li {
+    display: flex;
+    align-items: center;
+    gap: var(--fg-space-2);
+}
+
+.fg-attendance-mode {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fg-space-2);
+}
+
+.fg-attendance-mode .fg-button[aria-pressed="true"] {
+    border-color: transparent;
+    background: var(--fg-primary-soft);
+    color: var(--fg-primary);
+}
+
+.fg-attendance-modal { --fg-modal-width: 38rem; }
+
+.fg-attendance-modal__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fg-space-3);
+}
+
+.fg-attendance-modal__notice {
+    margin: 0;
+    padding: var(--fg-space-3);
+    border-radius: var(--fg-radius);
+    background: var(--fg-primary-soft);
+    color: var(--fg-heading);
+}
+
+.fg-attendance-document { min-inline-size: 0; }
+.fg-attendance-document legend { margin-block-end: var(--fg-space-2); }
+.fg-attendance-camera { min-inline-size: 0; }
+
+.fg-attendance-branches { flex-direction: column; }
+.fg-attendance-branches li {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-block: var(--fg-space-2);
+    border-block-end: 1px solid var(--fg-border);
+}
+
+@media (max-width: 1199px) {
+    .fg-attendance-page .fg-attendance-filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .fg-attendance-page .fg-attendance-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fg-attendance-filters > .fg-field {
+        grid-column: auto;
+    }
+
+    .fg-attendance-filters .fg-filter-grid__actions {
+        display: flex;
+        grid-column: 1 / -1;
+        flex-wrap: wrap;
+    }
+
+    .fg-attendance-page .fg-attendance-table {
+        min-inline-size: 0;
+    }
+}
+
+@media (max-width: 479px) {
+    .fg-attendance-modal__fields { grid-template-columns: minmax(0, 1fr); }
 }

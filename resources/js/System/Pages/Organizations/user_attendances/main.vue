@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Asistencia del personal" description="Consulta y registra jornadas del equipo por sucursal."/>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
@@ -74,7 +75,7 @@
                     </div>
                 </div>
 
-                <Loader v-if="loading"/>
+                <Loader v-if="loading" label="Buscando jornadas…"/>
                 <template v-else>
                     <div class="table-responsive">
                         <table class="table fg-entity-table mb-0">
@@ -174,7 +175,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <WithoutData v-if="!records.data.length"/>
+                    <FgEmptyState v-if="!records.data.length" title="No hay jornadas en este periodo" description="Prueba con otras fechas o una sucursal diferente."/>
 
                 </template>
                 <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="getRecords"/>
@@ -184,6 +185,8 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
@@ -192,7 +195,7 @@ import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
 
 export default {
-    components: {SearchButton},
+    components: {FgEmptyState, FgPageHeader, SearchButton},
     mixins: [InitialPageMixin],
     data() {
         return {

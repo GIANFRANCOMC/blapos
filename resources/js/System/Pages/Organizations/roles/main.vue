@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Perfiles de acceso" description="Define qué módulos y acciones puede utilizar cada perfil."/>
 
     <InitialLoadTransition>
         <RolesSkeleton v-if="initialLoading"/>
@@ -74,7 +75,7 @@
                                 </tr>
                             </template>
                             <tr class="fg-table__state" v-else>
-                                <td colspan="5"><WithoutData type="image"/></td>
+                                <td colspan="5"><FgEmptyState :title="appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay perfiles de acceso'" :description="appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/></td>
                             </tr>
                         </tbody>
                     </table>
@@ -278,6 +279,8 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -292,7 +295,7 @@ import RolesSkeleton from "./RolesSkeleton.vue";
 
 
 export default {
-    components: {SearchButton, InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
+    components: {FgEmptyState, FgPageHeader, SearchButton, InitialLoadTransition, SearchInput, StatusBadge, TableActionsDropdown, RolesSkeleton},
     async mounted() {
         navbarItem("menu-parent-configuration", {addClass: "open"});
         navbarItem("menu-configuration-roles", {});

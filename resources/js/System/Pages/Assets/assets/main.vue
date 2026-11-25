@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Activos" description="Consulta y administra el catálogo de bienes de tu empresa."/>
 
     <!-- Filters -->
     <InitialLoadTransition>
@@ -23,20 +24,20 @@
                 @add="openModal()"/>
 
             <!-- Records -->
-            <div class="list-section mb-1 mb-md-1 table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-secondary text-center">
+            <div class="fg-table-scroll mb-2" tabindex="0" role="region" aria-label="Activos registrados">
+                <table class="table fg-entity-table fg-entity-table--directory mb-0">
+                    <thead class="fg-table-header-surface">
                         <tr>
-                            <th class="text-white" style="width: 20%;">CÓDIGO INTERNO</th>
-                            <th class="text-white" style="width: 60%;" v-text="MODULE.config.pageTitleSingular"></th>
-                            <th class="text-white" style="width: 10%;">ESTADO</th>
-                            <th class="text-white" style="width: 10%;">ACCIONES</th>
+                            <th scope="col" style="width: 20%;" class="text-center">Código interno</th>
+                            <th scope="col" style="width: 56%;">Activo</th>
+                            <th scope="col" style="width: 12%;" class="text-center">Estado</th>
+                            <th scope="col" style="width: 12%;" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0 bg-white">
                         <tr class="fg-table__state" v-if="entityList.extras.loading">
-                            <td colspan="99">
-                                <Loader/>
+                            <td colspan="4">
+                                <Loader label="Buscando activos…"/>
                             </td>
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
@@ -52,15 +53,18 @@
                                     <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-xs btn-warning waves-effect" @click="openModal(record)">
+                                    <button type="button" class="fg-button fg-button--secondary fg-button--small" @click="openModal(record)">
                                         <span v-text="MODULE.texts.actions.edit"></span>
                                     </button>
                                 </td>
                             </tr>
                         </template>
                         <tr class="fg-table__state" v-else>
-                            <td colspan="99">
-                                <WithoutData type="image"/>
+                            <td colspan="4">
+                                <FgEmptyState v-if="entityList.extras.loadFailed" title="No se pudo completar la búsqueda" description="Reintenta con los mismos filtros." role="alert">
+                                    <button type="button" class="fg-button fg-button--secondary" @click="listEntity({})">Reintentar</button>
+                                </FgEmptyState>
+                                <FgEmptyState v-else :title="entityList.appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay activos registrados'" :description="entityList.appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/>
                             </td>
                         </tr>
                     </tbody>
@@ -74,116 +78,119 @@
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal fg-modal--compact" aria-labelledby="asset-form-title" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa fa-times icon-close-modal"></i>
+                <div class="fg-modal__header">
+                    <h2 id="asset-form-title" class="fg-modal__title mb-0" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h2>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="fg-modal__body">
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
-                            <InternalCodeInput
-                                v-model="forms[entity].createUpdate.data.internal_code"
-                                v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
-                                hasDiv
-                                :title="MODULE.texts.form.internalCode"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :showCharCounter="false"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.internal_code"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:inputGroupAppend v-if="!isUpdate">
-                                    <button type="button" :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip">
-                                        <i class="fa fa-rotate"></i>
-                                    </button>
-                                </template>
-                            </InternalCodeInput>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.name"
-                                hasDiv
-                                :title="MODULE.texts.form.name"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                maxlength="50"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="8"
-                                lg="8"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.category"
-                                :titleClass="[config.forms.classes.title]"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.asset_category_id"
-                                xl="6"
-                                lg="6">
-                                <template v-slot:defaultAppend>
-                                    <button
-                                        type="button"
-                                        class="fg-quick-create-trigger fg-quick-create-trigger--link"
-                                        @click="openAssetCategoryModal">
-                                        <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
-                                        <span>Agregar</span>
-                                    </button>
-                                </template>
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.asset_category"
-                                        :options="assetCategories"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="true"
-                                        :searchable="true"/>
-                                </template>
-                            </InputSlot>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.description"
-                                hasDiv
-                                :title="MODULE.texts.form.description"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="100"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="6"
-                                lg="6"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.status"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="3"
-                                lg="3">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.status"
-                                        :options="statuses"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
+                            <div class="col-12 col-sm-6">
+                                <InternalCodeInput
+                                    v-model="forms[entity].createUpdate.data.internal_code"
+                                    v-bind="internalCodeInputProps(forms[entity].createUpdate.data)"
+                                    hasDiv
+                                    :title="MODULE.texts.form.internalCode"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    :showCharCounter="false"
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.internal_code">
+                                    <template v-slot:inputGroupAppend v-if="!isUpdate">
+                                        <button type="button" class="fg-button fg-button--icon fg-field__action" @click="generateCodeAction" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.form.generateCodeTooltip" :aria-label="MODULE.texts.form.generateCodeTooltip">
+                                            <i class="fa fa-rotate"></i>
+                                        </button>
+                                    </template>
+                                </InternalCodeInput>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.name"
+                                    hasDiv
+                                    :title="MODULE.texts.form.name"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    maxlength="50"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.name"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.category"
+                                    :titleClass="[config.forms.classes.title]"
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.asset_category_id">
+                                    <template v-slot:defaultAppend>
+                                        <button
+                                            type="button"
+                                            class="fg-quick-create-trigger fg-quick-create-trigger--link"
+                                            @click="openAssetCategoryModal">
+                                            <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+                                            <span>Agregar</span>
+                                        </button>
+                                    </template>
+                                    <template #input="{id}">
+                                        <v-select :input-id="id"
+                                            v-model="forms[entity].createUpdate.data.asset_category"
+                                            :options="assetCategories"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="true"
+                                            :searchable="true"/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.description"
+                                    hasDiv
+                                    :title="MODULE.texts.form.description"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.description"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.status"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.status">
+                                    <template #input="{id}">
+                                        <v-select :input-id="id"
+                                            v-model="forms[entity].createUpdate.data.status"
+                                            :options="statuses"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div v-if="!isUpdate" class="col-12">
+                                <p class="fg-notice mb-0">Después de guardar, puedes asignar el bien a una sucursal desde Gestión de activos.</p>
+                            </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="fg-modal__footer">
                     <button
                         type="button"
-                        class="btn btn-secondary waves-effect"
+                        class="fg-button fg-button--secondary"
                         data-bs-dismiss="modal"
                         v-text="MODULE.texts.modal.close">
                     </button>
                     <button
                         type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
+                        class="fg-button"
                         @click="saveEntity"
                         :disabled="isSaving">
                         <i class="fa fa-save"></i>
@@ -242,6 +249,8 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -338,7 +347,7 @@ const MODULE = {
 export default {
     name: "AssetsMain",
     mixins: [InitialPageMixin, InternalCodePrefixMixin],
-    components: {InternalCodeInput},
+    components: {FgEmptyState, FgPageHeader, InternalCodeInput},
     data() {
 
         const crudModule = initCrudModule({
@@ -410,6 +419,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            entityList.extras.loadFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -438,12 +448,14 @@ export default {
 
                 }
 
-                const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
+                const response = await Requests.get({route: requestUrl, data: requestData});
+                entityList.extras.loadFailed = !response?.bool;
 
                 entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
+                entityList.extras.loadFailed = true;
                 entityList.records = emptyRecords;
 
             }finally {

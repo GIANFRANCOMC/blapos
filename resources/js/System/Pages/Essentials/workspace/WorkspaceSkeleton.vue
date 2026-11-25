@@ -2,8 +2,9 @@
     <div class="fg-workspace-skeleton fg-skeleton" role="status" aria-live="polite" aria-label="Cargando tu espacio">
         <span class="visually-hidden">Cargando tu espacio</span>
 
-        <div class="fg-breadcrumb fg-workspace__breadcrumb fg-workspace-skeleton__breadcrumb" aria-hidden="true">
-            <span class="fg-skeleton-line" style="width: 9rem"></span>
+        <div class="fg-workspace__welcome" aria-hidden="true">
+            <span class="fg-skeleton-line fg-workspace-skeleton__title"></span>
+            <span class="fg-skeleton-line fg-workspace-skeleton__subtitle"></span>
         </div>
 
         <div class="fg-workspace__layout" aria-hidden="true">
@@ -11,7 +12,6 @@
                 <div class="fg-workspace__section">
                     <div class="fg-workspace__section-heading fg-workspace-skeleton__heading">
                         <span class="fg-skeleton-line fg-workspace-skeleton__title"></span>
-                        <span class="fg-skeleton-line fg-workspace-skeleton__subtitle"></span>
                     </div>
                     <div class="fg-workspace__links">
                         <div v-for="index in 6" :key="index" class="fg-workspace__link fg-workspace-skeleton__link">

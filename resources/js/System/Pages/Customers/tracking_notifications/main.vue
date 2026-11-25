@@ -1,44 +1,33 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Notificaciones" description="Consulta los avisos enviados a tus clientes y revisa los intentos de entrega."/>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
             <section class="fg-entity-page fg-tracking-notifications">
-                <section class="fg-filter-bar">
+                <form class="fg-filter-bar fg-filter-bar--compact" role="search" aria-label="Filtrar notificaciones" @submit.prevent="listEntity({applyFilters: true})">
                     <div class="row align-items-end g-2">
-                        <InputSlot
-                            hasDiv
-                            title="Estado"
-                            :titleClass="[config.forms.classes.title]"
-                            xl="3"
-                            lg="3">
-                            <template #input>
-                                <v-select
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <FgField label="Estado" v-slot="{id}">
+                                <FgSelect
                                     v-model="lists.entity.filters.status"
+                                    :input-id="id"
                                     :options="statusOptions"
-                                    :class="config.forms.classes.select2"
                                     :clearable="false"
                                     :searchable="false"
-                                    append-to-body/>
-                            </template>
-                        </InputSlot>
-
-                        <InputSlot
-                            hasDiv
-                            :isInputGroup="false"
-                            :divInputClass="['fg-filter-bar__actions']"
-                            xl="9"
-                            lg="9">
-                            <template #input>
+                                    :disabled="lists.entity.extras.loading"/>
+                            </FgField>
+                        </div>
+                        <div class="col-auto">
+                            <div class="fg-filter-bar__actions">
                                 <SearchButton
-                                    class="fg-button--small"
                                     :disabled="lists.entity.extras.loading"
                                     @click="listEntity({applyFilters: true})"/>
-                            </template>
-                        </InputSlot>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </form>
 
                 <div class="table-responsive fg-entity-table-wrap">
                     <table class="table fg-entity-table mb-0">
@@ -54,7 +43,7 @@
                         <tbody>
                             <tr class="fg-table__state" v-if="lists.entity.extras.loading">
                                 <td colspan="5" class="text-center py-4">
-                                    <Loader/>
+                                    <Loader label="Buscando notificaciones…"/>
                                 </td>
                             </tr>
                             <template v-else-if="lists.entity.records.total > 0">
@@ -120,7 +109,10 @@
                             </template>
                             <tr class="fg-table__state" v-else>
                                 <td colspan="5">
-                                    <WithoutData type="image"/>
+                                    <FgEmptyState v-if="lists.entity.extras.loadFailed" title="No se pudo completar la búsqueda" description="Reintenta con los mismos filtros." role="alert">
+                                    <button type="button" class="fg-button fg-button--secondary" @click="listEntity({})">Reintentar</button>
+                                </FgEmptyState>
+                                <FgEmptyState v-else :title="lists.entity.appliedFilters?.status?.code ? 'No hay coincidencias' : 'Aún no hay notificaciones registradas'" :description="lists.entity.appliedFilters?.status?.code ? 'Prueba con otros filtros.' : undefined"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -178,6 +170,10 @@
 </template>
 
 <script>
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
@@ -194,7 +190,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default {
-    components: {SearchButton},
+    components: {FgField, FgSelect, FgEmptyState, FgPageHeader, SearchButton},
     mixins: [InitialPageMixin],
     name: "TrackingNotificationsMain",
     mounted: async function() {
@@ -217,6 +213,7 @@ export default {
                 entity: {
                     extras: {
                         loading: false,
+                        loadFailed: false,
                         route: Requests.config({entity: "tracking_notifications", type: "list"})
                     },
                     appliedFilters: null,
@@ -268,6 +265,7 @@ export default {
             }
 
             this.lists.entity.extras.loading = true;
+            this.lists.entity.extras.loadFailed = false;
 
             try {
                 this.lists.entity.records = Requests.emptyPagination();
@@ -275,6 +273,7 @@ export default {
                     route,
                     data
                 });
+                this.lists.entity.extras.loadFailed = !result?.bool;
                 this.lists.entity.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
             } finally {
                 this.lists.entity.extras.loading = false;

@@ -1,18 +1,4 @@
-.fg-workspace-skeleton {
-  display: grid;
-  gap: 1.1rem;
-}
-
 .fg-workspace-skeleton .fg-skeleton-line { flex: none; }
-
-.fg-workspace-skeleton__breadcrumb {
-  min-height: 1rem;
-  align-items: center;
-}
-
-.fg-workspace-skeleton__breadcrumb .fg-skeleton-line {
-  height: 0.68rem;
-}
 
 .fg-workspace-skeleton__heading {
   display: grid;
@@ -35,15 +21,16 @@
   box-shadow: none;
 }
 
-.fg-workspace-skeleton__action-icon,
 .fg-workspace-skeleton__logo {
   width: 3.4rem;
   height: 3.4rem;
 }
 
 .fg-workspace-skeleton__action-icon {
+  inline-size: var(--fg-control-height);
+  block-size: var(--fg-control-height);
   border-radius: 50%;
-  background: #e5f1ff;
+  background: var(--fg-primary-soft);
 }
 
 .fg-workspace-skeleton__action-copy,

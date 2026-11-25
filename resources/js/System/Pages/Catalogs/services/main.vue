@@ -23,19 +23,19 @@
         @import="openImportModal"
         @export="downloadRecords">
         <template #row="{record}">
-            <td class="fg-align-center"><InternalCodeValue :value="record.internal_code"/></td>
-            <td>
+            <td role="cell" class="fg-align-center"><span class="fg-record-table__label" aria-hidden="true">Código interno</span><div class="fg-record-table__value"><InternalCodeValue :value="record.internal_code"/></div></td>
+            <td role="cell" class="fg-record-table__identity">
                 <span class="fg-product-name">{{ record.name }}</span>
                 <ExpandableText v-if="record.description" :text="record.description"/>
             </td>
-            <td><dl class="fg-catalog-details">
+            <td role="cell"><span class="fg-record-table__label" aria-hidden="true">Detalle</span><div class="fg-record-table__value"><dl class="fg-catalog-details">
                 <div><dt>Duración:</dt><dd>{{ serviceDurationLabel(record) }}</dd></div>
                 <div v-if="record.capacity_control_enabled"><dt>Cupos:</dt><dd>{{ capacityLabel(record) }}</dd></div>
                 <div v-if="commissionLabel(record)"><dt>Comisión:</dt><dd>{{ commissionLabel(record) }}</dd></div>
-            </dl></td>
-            <td class="fg-align-end"><CatalogPriceCell :record="record"/></td>
-            <td class="fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
-            <td class="fg-align-center">
+            </dl></div></td>
+            <td role="cell" class="fg-align-end"><span class="fg-record-table__label" aria-hidden="true">Precio</span><div class="fg-record-table__value"><CatalogPriceCell :record="record"/></div></td>
+            <td role="cell" class="fg-record-table__state fg-align-center"><StatusBadge :status="record.status" :formatted-status="record.formatted_status"/></td>
+            <td role="cell" class="fg-record-table__actions fg-align-center">
                 <TableActionsDropdown :label="`Acciones de ${record.name}`">
                     <li><button type="button" class="fg-menu__item" @click="openModal(record)">Editar servicio</button></li>
                 </TableActionsDropdown>

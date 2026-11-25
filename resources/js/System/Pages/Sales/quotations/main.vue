@@ -8,6 +8,11 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" :table="isListPage"/>
+        <div v-else-if="initialError">
+            <FgEmptyState title="No pudimos abrir cotizaciones" description="Intenta cargar la pantalla de nuevo.">
+                <button type="button" class="fg-button fg-button--secondary" @click="initializePage">Reintentar</button>
+            </FgEmptyState>
+        </div>
         <div v-else>
             <template v-if="isListPage">
                 <FgResponsiveFilters
@@ -119,14 +124,18 @@
                             </template>
                             <tr role="row" class="fg-table__state" v-else>
                                 <td role="cell" colspan="7" class="text-center py-4">
-                                    <FgEmptyState title="No encontramos cotizaciones" description="Revisa la referencia o limpia los filtros para buscar de nuevo."/>
+                                    <FgEmptyState v-if="failedList" title="No pudimos cargar cotizaciones" description="Vuelve a intentar la consulta.">
+                                        <button type="button" class="fg-button fg-button--secondary" @click="listQuotations({url: failedList.url})">Reintentar</button>
+                                    </FgEmptyState>
+                                    <FgEmptyState v-else-if="appliedFilters?.word?.trim() || appliedFilters?.status?.code" title="No encontramos cotizaciones" description="Ajusta los filtros y vuelve a buscar."/>
+                                    <FgEmptyState v-else title="Aún no hay cotizaciones registradas"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </ResponsiveTable>
 
-                <Paginator :links="records.links" :pagination="records" :loading="loading.list" @clickPage="listQuotations"/>
+                <Paginator v-if="!failedList" :links="records.links" :pagination="records" :loading="loading.list" @clickPage="listQuotations"/>
             </template>
 
             <template v-else>
@@ -434,6 +443,8 @@ export default {
                 word: "",
                 status: null
             },
+            initialError: false,
+            failedList: null,
             records: {
                 data: [],
                 links: [],
@@ -567,13 +578,21 @@ export default {
     async mounted() {
         navbarItem("menu-parent-sales", {addClass: "open"});
         navbarItem(this.isCreatePage ? "menu-quotations-create" : "menu-quotations-list", {});
-        const initialized = await this.loadInitialParams(() => this.initParams());
-        if(initialized) {
-            if(this.isListPage) await this.listQuotations({});
-            else if(this.form.details.length === 0) this.addDetail();
-        }
+        await this.initializePage();
     },
     methods: {
+        async initializePage() {
+            this.initialLoading = true;
+            const ready = await this.loadInitialParams(async () => {
+                const loaded = await this.initParams();
+                this.initialError = !loaded;
+                return loaded;
+            });
+            if(!ready) return;
+
+            if(this.isListPage) await this.listQuotations({});
+            else if(this.form.details.length === 0) this.addDetail();
+        },
         defaultForm() {
             return {
                 branch: null,
@@ -595,8 +614,7 @@ export default {
 
             const response = await Requests.get({
                 route: this.config.routes.initParams,
-                data: {page: "main"},
-                showAlert: true
+                data: {page: "main"}
             });
 
             if(Requests.valid({result: response})) {
@@ -616,6 +634,7 @@ export default {
         async listQuotations({url = null, applyFilters = false} = {}) {
             if(applyFilters || !this.appliedFilters) this.appliedFilters = {...this.filters};
             this.loading.list = true;
+            this.failedList = null;
 
             try {
                 this.records = Requests.emptyPagination();
@@ -625,13 +644,11 @@ export default {
                     data: {
                         word: this.appliedFilters.word,
                         status: this.appliedFilters.status?.code
-                    },
-                    showAlert: true
+                    }
                 });
 
-                if(response.bool) {
-                    this.records = response.data;
-                }
+                if(response?.bool && Array.isArray(response.data?.data)) this.records = response.data;
+                else this.failedList = {url};
             } finally {
                 this.loading.list = false;
             }

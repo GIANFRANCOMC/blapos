@@ -1,25 +1,25 @@
 <template>
     <InventoryListing ref="inventoryListing" :page="page" v-model:filters="filters" :options="listingOptions"
         :initial-loading="initialLoading" :loading="isCurrentViewLoading" :records="currentRecords"
-        :exporting="exporting" :applied-warehouse="Boolean(appliedFilters.warehouse?.code)" :error="listError"
+        :exporting="exporting" :applied-filters="appliedFilters" :applied-warehouse="Boolean(appliedFilters.warehouse?.code)" :error="listError"
         @search="searchCurrentView" @clear="clearFilters" @export="exportCurrentView" @page="listCurrentView" @retry="retryInventoryList">
         <template #actions>
             <FgButton icon="fa-solid fa-plus" :disabled="initialLoading || initializationFailed || isCurrentViewLoading" data-bs-toggle="modal" data-bs-target="#inventoryMovementModal" @click="prepareMovement()">Registrar operación</FgButton>
         </template>
         <template #tools>
-            <FgButton tone="secondary" class="fg-button--icon fg-inventory-alert-trigger" icon="fa-solid fa-bell fa-shake" :disabled="initialLoading || !canViewStockAlerts" aria-label="Ver alertas" title="Ver alertas" data-bs-toggle="tooltip" @click="viewStockAlerts"/>
+            <FgButton tone="secondary" class="fg-button--icon fg-inventory-alert-trigger" icon="fa-solid fa-bell fa-shake" :disabled="initialLoading || !canViewStockAlerts" aria-label="Ver alertas" title="Ver alertas" data-bs-toggle="tooltip" @click="viewStockAlerts"><span class="fg-inventory-alert-trigger__text">Ver alertas</span></FgButton>
         </template>
-        <tr v-for="record in stockRecords.data"
+        <tr role="row" v-for="record in stockRecords.data"
             :key="record.id"
             :class="{ 'fg-inventory-row--scanned': scannedProductId === Number(record.id) }">
-            <td>
+            <td role="cell" class="fg-record-table__identity">
                 <ProductIdentity variant="expandable" :product="record"/>
             </td>
-            <td class="fg-align-end"><QuantityValue class="fg-inventory-quantity" :value="record.stock_quantity" :unit="record.measurement_unit || record"/></td>
-            <td class="fg-align-end"><QuantityValue :value="record.minimum_stock" :unit="record.measurement_unit || record"/></td>
-            <td class="fg-align-end"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></td>
-            <td class="fg-align-center"><span :class="['fg-badge', 'fg-badge--' + stockStatus(record).tone]">{{ stockStatus(record).label }}</span></td>
-            <td class="fg-align-center">
+            <td role="cell" class="fg-align-end"><span class="fg-record-table__label" aria-hidden="true">Stock actual</span><div class="fg-record-table__value"><QuantityValue class="fg-inventory-quantity" :value="record.stock_quantity" :unit="record.measurement_unit || record"/></div></td>
+            <td role="cell" class="fg-align-end"><span class="fg-record-table__label" aria-hidden="true">Stock mínimo</span><div class="fg-record-table__value"><QuantityValue :value="record.minimum_stock" :unit="record.measurement_unit || record"/></div></td>
+            <td role="cell" class="fg-align-end"><span class="fg-record-table__label" aria-hidden="true">Diferencia</span><div class="fg-record-table__value"><StockDifference :current="record.stock_quantity" :minimum="record.minimum_stock" :unit="record.measurement_unit"/></div></td>
+            <td role="cell" class="fg-record-table__state fg-align-center"><span :class="['fg-badge', 'fg-badge--' + stockStatus(record).tone]">{{ stockStatus(record).label }}</span></td>
+            <td role="cell" class="fg-record-table__actions fg-align-center">
                 <TableActionsDropdown :label="`Acciones de ${record.name}`" :disabled="loadingStock || loadingAlerts || loadingTraceability">
                     <li v-if="canUpdateStock">
                         <button type="button" class="fg-menu__item" @click="editStock(record)">

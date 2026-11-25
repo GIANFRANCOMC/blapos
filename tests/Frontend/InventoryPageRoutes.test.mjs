@@ -57,7 +57,7 @@ test("inventory submodules have independent pages without internal tabs", () => 
 
 test("inventario usa los mismos estados y tonos FG que Catálogo", () => {
     const stock = read(inventoryPath + "stock.vue");
-    assert.match(stock, /<td class="fg-align-center"><span :class="\['fg-badge', 'fg-badge--' \+ stockStatus\(record\)\.tone\]"/);
+    assert.match(stock, /<td\b[^>]*class="fg-record-table__state fg-align-center"><span :class="\['fg-badge', 'fg-badge--' \+ stockStatus\(record\)\.tone\]"/);
     assert.doesNotMatch(stock, /stockStatus\(record\)\.(icon|badgeClass)/);
     assert.match(readInventory(), /StockStatus\.fromLevels\(stock, minimum\)[\s\S]*?tone: inventoryBadgeTones\[code\]/);
     assert.deepEqual([inventoryBadgeTones.healthy, inventoryBadgeTones.empty, inventoryBadgeTones.low], ["success", "danger", "warning"]);
@@ -138,7 +138,7 @@ test("los filtros y las acciones se muestran juntos con la tabla y paginación f
     assert.match(filterActions, /<FgButton v-if="showClear" :tone="clearTone"[^>]*>\{\{ clearLabel \}\}<\/FgButton>/);
     assert.match(filterActions, /clearLabel: \{type: String, default: "Limpiar"\}/);
     assert.match(filterActions, /clearTone: \{type: String, default: "link"\}/);
-    assert.match(table, /<ResponsiveTable[\s\S]*?<table class="fg-table fg-inventory-table"[\s\S]*?<FgListLoading[\s\S]*?<FgEmptyState/);
+    assert.match(table, /<ResponsiveTable[\s\S]*?<table role="table" class="fg-table fg-inventory-table"[\s\S]*?<FgListLoading[\s\S]*?<FgEmptyState/);
     assert.match(css, /\.fg-table th \{[^}]*vertical-align: middle/);
     assert.match(css, /\.fg-table td \{[^}]*vertical-align: middle/);
     assert.match(css, /tbody tr:not\(\.fg-table__state, :has\(\.fg-empty, \.fg-loader\)\):hover/);

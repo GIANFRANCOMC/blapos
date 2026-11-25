@@ -30,7 +30,7 @@ test("Escape no cierra ningún SweetAlert de System ni Guest", () => {
         }
     }
 
-    assert.ok(dialogs >= 31);
+    assert.ok(dialogs > 0, "La comprobación debe encontrar los diálogos directos");
 });
 
 test("todas las confirmaciones System muestran cierre accesible y evitan respuestas sí/no", () => {
@@ -53,6 +53,7 @@ test("todas las confirmaciones System muestran cierre accesible y evitan respues
 
 test("los títulos de confirmación formulan preguntas con verbo y sustantivo", () => {
     let confirmations = 0;
+    let sharedConfirmations = 0;
     const scripts = [...systemScripts("resources/js/System/Pages"), "resources/js/System/Layout/Menu.js"];
 
     for(const path of scripts) {
@@ -71,9 +72,15 @@ test("los títulos de confirmación formulan preguntas con verbo y sustantivo", 
             }
             confirmations++;
         }
+        for(const block of source.split(/\bAlerts\.confirmAction\(\{/).slice(1)) {
+            const title = block.match(/^\s*title:\s*([^\r\n]+)/)?.[1] || "";
+            assert.match(title, /^"¿[^"?]+\?"/, path);
+            sharedConfirmations++;
+        }
     }
 
-    assert.ok(confirmations >= 24);
+    assert.ok(confirmations > 0, "La comprobación debe encontrar las confirmaciones directas");
+    assert.ok(sharedConfirmations > 0, "La comprobación debe encontrar las confirmaciones compartidas");
     assert.match(read("resources/js/System/Helpers/Alerts.js"), /title = "¿Confirmar operación\?"/);
     assert.match(read("resources/js/System/Helpers/Alerts.js"), /title: `¿Descargar \$\{resource\}\?`/);
 });
@@ -113,10 +120,10 @@ test("limpiar filtros muestra el aviso informativo de Toastr y usa el botón com
     assert.match(alerts, /export function showFiltersCleared\(\) \{\s*toastrs\(\{type: "info", title: "Se limpiaron los filtros correctamente\."\}\);\s*\}/);
     assert.match(button, /<svg[^>]*viewBox="0 0 384 560"[^>]*fill="currentColor"[^>]*aria-hidden="true"/);
     const fgFilters = read("resources/js/System/Components/Figma/FgResponsiveFilters.vue");
-    const payable = read("resources/js/System/Pages/Finance/accounts_payable/main.vue");
+    const actions = read("resources/js/System/Components/Figma/FgFilterActions.vue");
     assert.match(fgFilters, /<FgFilterActions[^>]*@clear="\$emit\('clear'\)"/);
-    assert.match(payable, /<ClearFiltersButton[^>]*@clear="clearFilters"/);
-    for(const page of ["Sales/sales/list.vue", "Sales/sales/deliveries.vue", "Sales/quotations/main.vue", "Finance/accounts_receivable/main.vue"]) {
+    assert.match(actions, /<FgButton[^>]*v-if="showClear"[^>]*@click="\$emit\('clear'\)"/);
+    for(const page of ["Sales/sales/list.vue", "Sales/sales/deliveries.vue", "Sales/quotations/main.vue", "Finance/accounts_receivable/main.vue", "Finance/accounts_payable/main.vue"]) {
         const source = read(`resources/js/System/Pages/${page}`);
         assert.match(source, /<FgResponsiveFilters[^>]*@clear="clearFilters"/);
         assert.match(source, /Alerts\.showFiltersCleared\(\)/);

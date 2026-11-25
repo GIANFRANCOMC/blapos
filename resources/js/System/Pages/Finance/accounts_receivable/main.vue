@@ -1,7 +1,7 @@
 <template>
     <FgPageHeader title="Cuentas por cobrar" description="Consulta los saldos y vencimientos de las ventas a crédito.">
         <template #actions>
-            <span v-if="!initialLoading && !loading.list" class="fg-help">
+            <span v-if="!initialLoading && !loading.list && !failedList" class="fg-help">
                 {{ summary.accounts || 0 }} {{ summary.accounts === 1 ? "cuenta registrada" : "cuentas registradas" }}
             </span>
         </template>
@@ -18,8 +18,8 @@
                             <span class="fg-receivables-metric__icon"><i :class="metric.icon" aria-hidden="true"></i></span>
                             <span>{{ metric.label }}</span>
                         </div>
-                        <strong class="fg-money__value">{{ loading.list ? "—" : summaryAmount(metric.key) }}</strong>
-                        <span v-if="metric.key === 'overdue'">
+                        <strong class="fg-money__value">{{ loading.list || failedList ? "—" : summaryAmount(metric.key) }}</strong>
+                        <span v-if="metric.key === 'overdue' && !loading.list && !failedList">
                             {{ summary.overdue_accounts || 0 }} {{ summary.overdue_accounts === 1 ? "cuenta vencida" : "cuentas vencidas" }}
                         </span>
                         <span v-else>{{ metric.description }}</span>
@@ -130,12 +130,20 @@
                                         </td>
                                     </tr>
                                     </template>
-                                    <tr role="row" v-else class="fg-table__state"><td role="cell" colspan="9"><FgEmptyState title="No encontramos cuentas por cobrar" description="Revisa tus filtros e intenta otra búsqueda."/></td></tr>
+                                    <tr role="row" v-else class="fg-table__state">
+                                        <td role="cell" colspan="9">
+                                            <FgEmptyState v-if="failedList" title="No pudimos cargar cuentas por cobrar" description="Vuelve a intentar la consulta.">
+                                                <button type="button" class="fg-button fg-button--secondary" @click="loadAccounts(failedList.url)">Reintentar</button>
+                                            </FgEmptyState>
+                                            <FgEmptyState v-else-if="Object.values(appliedFilters || {}).some(value => String(value ?? 0).trim() && value)" title="No encontramos cuentas por cobrar" description="Ajusta los filtros y vuelve a buscar."/>
+                                            <FgEmptyState v-else title="No hay cuentas por cobrar"/>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </ResponsiveTable>
 
-                    <Paginator :links="accounts.links || []" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts($event.url)"/>
+                    <Paginator v-if="!failedList" :links="accounts.links || []" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts($event.url)"/>
                 </section>
             </section>
 
@@ -152,6 +160,9 @@
                 </div>
                 <div class="modal-body fg-modal__body">
                     <FgListLoading label="Cargando el cronograma…" v-if="loading.detail"/>
+                    <FgEmptyState v-else-if="detailError" title="No pudimos cargar el cronograma" description="Intenta consultar la cuenta otra vez.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="loadDetail(selectedAccount)">Reintentar</button>
+                    </FgEmptyState>
                     <template v-else-if="selectedAccount">
                         <div class="fg-receivable-detail__identity">
                             <div>
@@ -255,6 +266,9 @@ export default {
             detailModalId: Utils.uuid(),
             filters: {search: "", status: "", date_from: "", date_to: ""},
             appliedFilters: null,
+            failedList: null,
+            detailError: false,
+            detailRequest: 0,
             loading: {list: false, detail: false},
             metrics: [
                 {key: "total", label: "Total financiado", description: "Capital más recargos", icon: "fa-solid fa-file-invoice-dollar", tone: "primary"},
@@ -286,17 +300,20 @@ export default {
         async loadAccounts(pageUrl = null) {
             this.appliedFilters ??= {...this.filters};
             this.loading.list = true;
+            this.failedList = null;
 
             try {
                 this.accounts = Requests.emptyPagination();
                 this.summary = {accounts: 0, overdue_accounts: 0, amounts: []};
                 const result = await Requests.get({
                     route: pageUrl || this.config.routes.list,
-                    data: this.appliedFilters,
-                    showAlert: true
+                    data: this.appliedFilters
                 });
 
-                if(!Requests.valid({result})) return;
+                if(!Requests.valid({result})) {
+                    this.failedList = {url: pageUrl};
+                    return;
+                }
 
                 this.accounts = result.data.data || {data: [], links: []};
                 this.summary = result.data.summary || {accounts: 0, overdue_accounts: 0, amounts: []};
@@ -305,18 +322,23 @@ export default {
                 this.loading.list = false;
             }
         },
-        async openDetail(account) {
+        openDetail(account) {
+            const request = this.loadDetail(account);
+            Alerts.modals({type: "show", id: this.detailModalId});
+            return request;
+        },
+        async loadDetail(account) {
+            const requestId = ++this.detailRequest;
             this.selectedAccount = account;
             this.loading.detail = true;
-            Alerts.modals({type: "show", id: this.detailModalId});
+            this.detailError = false;
 
-            const result = await Requests.get({
-                route: `${this.config.routes.consult}/${account.id}`,
-                showAlert: true
-            });
+            const result = await Requests.get({route: `${this.config.routes.consult}/${account.id}`});
+            if(requestId !== this.detailRequest) return;
+
             this.loading.detail = false;
-
-            if(Requests.valid({result})) this.selectedAccount = result.data.data;
+            if(Requests.valid({result}) && result.data.data) this.selectedAccount = result.data.data;
+            else this.detailError = true;
         },
         clearFilters() {
             this.filters = {search: "", status: "", date_from: "", date_to: ""};

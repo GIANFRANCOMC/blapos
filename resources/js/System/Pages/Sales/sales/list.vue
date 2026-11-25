@@ -7,6 +7,11 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
+        <div v-else-if="initialError">
+            <FgEmptyState title="No pudimos abrir el listado de ventas" description="Intenta cargar la pantalla de nuevo.">
+                <button type="button" class="fg-button fg-button--secondary" @click="initializePage">Reintentar</button>
+            </FgEmptyState>
+        </div>
         <div v-else>
             <FgResponsiveFilters
                 id="sales-filters-list"
@@ -198,14 +203,18 @@
                         </template>
                         <tr role="row" class="fg-table__state" v-else>
                             <td role="cell" class="text-center" colspan="7">
-                                <FgEmptyState title="No se encontraron registros"/>
+                                <FgEmptyState v-if="failedList" title="No pudimos cargar ventas" description="Vuelve a intentar la consulta.">
+                                    <button type="button" class="fg-button fg-button--secondary" @click="listEntity({url: failedList.url})">Reintentar</button>
+                                </FgEmptyState>
+                                <FgEmptyState v-else-if="Object.values(requestFilters()).some(Boolean)" title="No encontramos ventas" description="Ajusta los filtros y vuelve a buscar."/>
+                                <FgEmptyState v-else title="Aún no hay ventas registradas"/>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </ResponsiveTable>
 
-            <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
+            <Paginator v-if="!failedList" :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
         </div>
     </InitialLoadTransition>
@@ -281,20 +290,13 @@ export default {
 
         navbarItem("menu-parent-sales", {addClass: "open"});
         navbarItem(this.config.entity.page.menu.id, {});
-
-        let initParams = await this.loadInitialParams(() => this.initParams({})),
-            initOthers = await this.initOthers({});
-
-        if(initParams && initOthers) {
-
-            await this.listEntity({});
-
-        }
-
+        await this.initializePage();
     },
     data() {
         return {
             optionOrigin: "sales-list",
+            initialError: false,
+            failedList: null,
             lists: {
                 entity: {
                     extras: {
@@ -350,6 +352,15 @@ export default {
         };
     },
     methods: {
+        async initializePage() {
+            this.initialLoading = true;
+            const ready = await this.loadInitialParams(async () => {
+                const loaded = await this.initParams({});
+                this.initialError = !loaded;
+                return loaded;
+            });
+            if(ready) await this.listEntity({});
+        },
         defaultFilters() {
             return {
                 branch: null,
@@ -363,22 +374,13 @@ export default {
         },
         async initParams({}) {
 
-            let initParams = await Requests.get({route: this.config.entity.routes.initParams, data: {page: "list"}, showAlert: true});
+            let initParams = await Requests.get({route: this.config.entity.routes.initParams, data: {page: "list"}});
 
             this.options.branches    = initParams.data?.config?.branches;
             this.options.customers   = {records: []};
             this.options.salesHeader = initParams.data?.config?.salesHeader;
 
             return Requests.valid({result: initParams});
-
-        },
-        async initOthers({}) {
-
-            return new Promise(resolve => {
-
-                resolve(true);
-
-            });
 
         },
         async listEntity({url = null, applyFilters = false}) {
@@ -402,11 +404,13 @@ export default {
             }
 
             this.lists.entity.extras.loading = true;
+            this.failedList = null;
 
             try {
                 this.lists.entity.records = Requests.emptyPagination();
                 const response = await Requests.get({route: requestUrl, data: requestData});
-                this.lists.entity.records = response?.bool ? response.data : Requests.emptyPagination();
+                if(response?.bool && Array.isArray(response.data?.data)) this.lists.entity.records = response.data;
+                else this.failedList = {url};
             } finally {
                 this.lists.entity.extras.loading = false;
             }

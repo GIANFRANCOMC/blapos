@@ -51,6 +51,29 @@ final class SystemNavigationProvisioningTest extends TestCase {
 
     }
 
+    public function test_all_enabled_module_screen_routes_render_the_tenant_shell(): void {
+
+        $this->withoutVite();
+        $this->withoutMiddleware([
+            \App\Http\Middleware\TrustHosts::class,
+            \App\Http\Middleware\ResolveTenant::class,
+            \App\Http\Middleware\EnsureTenantSession::class,
+            \App\Http\Middleware\EnsureAuthenticatedSession::class,
+            \App\Http\Middleware\ShareTenantAnnouncements::class,
+        ]);
+        $admin = \App\Models\System\Organizations\User::query()->where("email", "admin@example.test")->firstOrFail();
+        $routes = DB::table("sub_sections")->where("status", "active")->orderBy("id")->pluck("dom_route");
+
+        $this->actingAs($admin);
+        $this->assertCount(52, $routes);
+        foreach ($routes as $routeName) {
+            $screen = $this->get(route($routeName));
+            $this->assertSame(200, $screen->getStatusCode(), $routeName);
+            $screen->assertSee('class="fg-topbar"', false);
+        }
+
+    }
+
     public function test_every_submodule_has_its_own_icon_in_the_catalog(): void {
 
         $this->assertSame(0, DB::table("sub_sections")->where("dom_icon", "")->count());

@@ -1,45 +1,40 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Cuentas por pagar" description="Consulta los saldos y vencimientos de las compras a crédito.">
+        <template #actions>
+            <span v-if="!initialLoading && !loading.list && !listError" class="fg-help">
+                {{ summary.accounts || 0 }} {{ summary.accounts === 1 ? "cuenta registrada" : "cuentas registradas" }}
+            </span>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
             <section class="fg-receivables">
-                <header class="fg-receivables__header">
-                    <div>
-                        <p class="fg-receivables__eyebrow">Gestión de compras</p>
-                        <h1>Cuentas por pagar</h1>
-                        <p>Controla saldos, vencimientos y pagos generados por compras a crédito.</p>
-                    </div>
-                    <div class="fg-receivables__header-meta">
-                        <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
-                        <span><strong>{{ summary.accounts || 0 }}</strong> cuentas registradas</span>
-                    </div>
-                </header>
-
                 <div class="fg-receivables__metrics">
                     <article v-for="metric in metrics" :key="metric.key" class="fg-receivables-metric" :class="`fg-receivables-metric--${metric.tone}`">
                         <span class="fg-receivables-metric__icon"><i :class="metric.icon" aria-hidden="true"></i></span>
                         <div>
                             <small>{{ metric.label }}</small>
-                            <strong class="fg-amount-inline__amount">{{ summaryAmount(metric.key) }}</strong>
-                            <span v-if="metric.key === 'overdue'">{{ summary.overdue_accounts || 0 }} cuentas vencidas</span>
+                            <strong class="fg-money__value">{{ loading.list || listError ? "—" : summaryAmount(metric.key) }}</strong>
+                            <span v-if="metric.key === 'overdue' && !loading.list && !listError">{{ summary.overdue_accounts || 0 }} cuentas vencidas</span>
                             <span v-else>{{ metric.description }}</span>
                         </div>
                     </article>
                 </div>
 
-                <section class="fg-filter-bar fg-receivables__filters">
-                    <label class="fg-filter-bar__field fg-receivables__search">
-                        <span class="form-label">Búsqueda</span>
-                        <span class="fg-receivables__search-control">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <SearchInput v-model.trim="filters.search" placeholder="Proveedor o documento de compra"/>
-                        </span>
-                    </label>
-                    <label class="fg-filter-bar__field">
-                        <span class="form-label">Estado</span>
-                        <select v-model="filters.status" class="form-select">
+                <FgResponsiveFilters
+                    id="purchase-payable-filters"
+                    class="fg-responsive-filters--receivables"
+                    label="Filtros de cuentas por pagar"
+                    :loading="loading.list"
+                    @search="searchAccounts"
+                    @clear="clearFilters">
+                    <div class="fg-field-cell col-12 col-sm-6 col-lg-4">
+                        <SearchInput title="Búsqueda" v-model.trim="filters.search" placeholder="Proveedor o documento de compra"/>
+                    </div>
+                    <FgField class="col-12 col-sm-6 col-lg-2" label="Estado" input-id="payable-status">
+                        <select id="payable-status" v-model="filters.status" class="fg-native-select">
                             <option value="">Todos</option>
                             <option value="pending">Pendientes</option>
                             <option value="partial">Pago parcial</option>
@@ -47,70 +42,76 @@
                             <option value="paid">Pagadas</option>
                             <option value="canceled">Anuladas</option>
                         </select>
-                    </label>
-                    <label class="fg-filter-bar__field">
-                        <span class="form-label">Desde</span>
-                        <input v-model="filters.date_from" type="date" class="form-control">
-                    </label>
-                    <label class="fg-filter-bar__field">
-                        <span class="form-label">Hasta</span>
-                        <input v-model="filters.date_to" type="date" class="form-control">
-                    </label>
-                    <div class="fg-filter-bar__actions">
-                        <SearchButton @click="searchAccounts" :disabled="loading.list"/>
-                        <ClearFiltersButton button-class="fg-button fg-button--secondary" :disabled="!hasFilters" @clear="clearFilters">
-                            <span>Limpiar</span>
-                        </ClearFiltersButton>
-                    </div>
-                </section>
+                    </FgField>
+                    <FgField class="col-12 col-sm-6 col-lg-2" label="Desde" input-id="payable-from">
+                        <input id="payable-from" v-model="filters.date_from" type="date" class="fg-input">
+                    </FgField>
+                    <FgField class="col-12 col-sm-6 col-lg-2" label="Hasta" input-id="payable-to">
+                        <input id="payable-to" v-model="filters.date_to" type="date" class="fg-input">
+                    </FgField>
+                </FgResponsiveFilters>
 
                 <section class="fg-receivables__panel">
-                    <Loader v-if="loading.list"/>
+                    <FgListLoading v-if="loading.list" label="Buscando cuentas por pagar…"/>
+                    <FgEmptyState v-else-if="listError" title="No se pudieron consultar las cuentas" description="Vuelve a intentar con los filtros aplicados.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="loadAccounts()">Reintentar</button>
+                    </FgEmptyState>
                     <template v-else-if="accounts.data?.length">
-                        <div class="table-responsive">
-                            <table class="table fg-entity-table fg-receivables-table mb-0">
-                                <thead class="fg-table-header-surface">
-                                    <tr>
-                                        <th>Compra</th>
-                                        <th>Proveedor</th>
-                                        <th>Vencimiento</th>
-                                        <th class="text-end">Total</th>
-                                        <th class="text-end">Pagado</th>
-                                        <th class="text-end">Saldo</th>
-                                        <th>Estado</th>
-                                        <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                        <ResponsiveTable class="fg-sales-table-scroll">
+                            <table role="table" class="fg-table fg-record-table fg-receivables-table mb-0">
+                                <thead role="rowgroup" class="fg-table-header-surface">
+                                    <tr role="row">
+                                        <th scope="col" role="columnheader">Compra</th>
+                                        <th scope="col" role="columnheader">Proveedor</th>
+                                        <th scope="col" role="columnheader">Vencimiento</th>
+                                        <th scope="col" role="columnheader" class="text-end">Total</th>
+                                        <th scope="col" role="columnheader" class="text-end">Pagado</th>
+                                        <th scope="col" role="columnheader" class="text-end">Saldo</th>
+                                        <th scope="col" role="columnheader">Estado</th>
+                                        <th scope="col" role="columnheader" class="text-center"><span class="visually-hidden">Acciones</span></th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr v-for="account in accounts.data" :key="account.id">
-                                        <td>
+                                <tbody role="rowgroup">
+                                    <tr role="row" v-for="account in accounts.data" :key="account.id">
+                                        <td role="cell" class="fg-record-table__identity">
                                             <strong class="fg-receivables-table__document">{{ account.document }}</strong>
                                             <small>{{ account.branch }} · {{ account.warehouse }}</small>
                                         </td>
-                                        <td>
-                                            <strong>{{ account.supplier.name }}</strong>
-                                            <small>{{ account.supplier.document_number }}</small>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Proveedor</span>
+                                            <div class="fg-record-table__value"><strong>{{ account.supplier.name }}</strong><small>{{ account.supplier.document_number }}</small></div>
                                         </td>
-                                        <td>{{ formatDate(account.due_date) }}</td>
-                                        <td class="text-end fg-amount-inline__amount">{{ money(account, account.total_amount) }}</td>
-                                        <td class="text-end fg-amount-inline__amount">{{ money(account, account.paid_amount) }}</td>
-                                        <td class="text-end fg-amount-inline__amount fg-receivables-table__pending">{{ money(account, account.pending_amount) }}</td>
-                                        <td>
-                                            <span class="fg-receivables-status" :class="`fg-receivables-status--${account.status}`">{{ statusLabel(account.status) }}</span>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Vencimiento</span>
+                                            <div class="fg-record-table__value">{{ formatDate(account.due_date) }}</div>
                                         </td>
-                                        <td class="text-center">
-                                            <button type="button" class="fg-icon-action fg-icon-action-edit" title="Ver cronograma" :aria-expanded="selectedAccount?.id === account.id" @click="openDetail(account, $event)">
+                                        <td role="cell" class="text-end fg-amount-inline__amount">
+                                            <span class="fg-record-table__label" aria-hidden="true">Total</span>
+                                            <div class="fg-record-table__value">{{ money(account, account.total_amount) }}</div>
+                                        </td>
+                                        <td role="cell" class="text-end fg-amount-inline__amount">
+                                            <span class="fg-record-table__label" aria-hidden="true">Pagado</span>
+                                            <div class="fg-record-table__value">{{ money(account, account.paid_amount) }}</div>
+                                        </td>
+                                        <td role="cell" class="text-end fg-amount-inline__amount fg-receivables-table__pending">
+                                            <span class="fg-record-table__label" aria-hidden="true">Saldo</span>
+                                            <div class="fg-record-table__value">{{ money(account, account.pending_amount) }}</div>
+                                        </td>
+                                        <td role="cell" class="fg-record-table__state">
+                                            <span class="fg-badge" :class="`fg-receivables-status--${account.status}`">{{ statusLabel(account.status) }}</span>
+                                        </td>
+                                        <td role="cell" class="text-center fg-record-table__actions">
+                                            <button type="button" class="fg-icon-action fg-icon-action-edit" title="Ver cronograma" :aria-label="'Ver cronograma de ' + account.document" :aria-expanded="selectedAccount?.id === account.id" @click="openDetail(account, $event)">
                                                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-
+                        </ResponsiveTable>
                     </template>
-                    <WithoutData v-else type="image"/>
-                    <Paginator :links="accounts.links" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts"/>
+                    <FgEmptyState v-else :title="hasAppliedFilters ? 'No encontramos cuentas por pagar' : 'Aún no hay cuentas por pagar'" :description="hasAppliedFilters ? 'Revisa los filtros e intenta otra búsqueda.' : 'Las compras a crédito aparecerán aquí.'"/>
+                    <Paginator v-if="!listError" :links="accounts.links" :pagination="accounts" :loading="loading.list" @clickPage="loadAccounts"/>
                 </section>
 
                 <section v-if="selectedAccount" class="fg-receivables__panel mt-3" aria-labelledby="payable-schedule-title">
@@ -124,7 +125,10 @@
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <Loader v-if="loading.detail"/>
+                    <FgListLoading v-if="loading.detail" label="Cargando el cronograma…"/>
+                    <FgEmptyState v-else-if="detailError" title="No se pudo cargar el cronograma" description="Vuelve a intentar para consultar las cuotas de esta compra.">
+                        <button type="button" class="fg-button fg-button--secondary" @click="openDetail(selectedAccount)">Reintentar</button>
+                    </FgEmptyState>
                     <div v-else class="table-responsive">
                         <table class="table fg-entity-table mb-0">
                             <thead class="fg-table-header-surface">
@@ -149,18 +153,22 @@
 </template>
 
 <script>
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgResponsiveFilters from "@System/Components/Figma/FgResponsiveFilters.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Utils from "@System/Helpers/Utils.js";
-import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, ClearFiltersButton, SearchInput},
+    components: {FgPageHeader, FgEmptyState, FgListLoading, FgResponsiveFilters, FgField, ResponsiveTable, SearchInput},
     name: "AccountsPayableMain",
     data() {
         return {
@@ -170,6 +178,8 @@ export default {
             selectedAccount: null,
             detailRequest: 0,
             detailTrigger: null,
+            detailError: false,
+            listError: false,
             filters: {search: "", status: "", date_from: "", date_to: ""},
             appliedFilters: null,
             loading: {list: false, detail: false},
@@ -182,11 +192,8 @@ export default {
         };
     },
     computed: {
-        breadcrumbTitles() {
-            return [{title: "Compras"}, {title: "Cuentas por pagar", active: true}];
-        },
-        hasFilters() {
-            return Object.values(this.filters).some(value => String(value || "").trim() !== "");
+        hasAppliedFilters() {
+            return Object.values(this.appliedFilters ?? {}).some(value => String(value || "").trim() !== "");
         }
     },
     async mounted() {
@@ -204,13 +211,15 @@ export default {
             this.appliedFilters ??= {...this.filters};
             pageUrl = typeof pageUrl === "object" ? pageUrl?.url : pageUrl;
             this.loading.list = true;
+            this.listError = false;
 
             try {
                 this.accounts = Requests.emptyPagination();
                 this.summary = {accounts: 0, overdue_accounts: 0, amounts: []};
-                const result = await Requests.get({route: pageUrl || this.config.routes.list, data: this.appliedFilters, showAlert: true});
+                const result = await Requests.get({route: pageUrl || this.config.routes.list, data: this.appliedFilters});
 
-                if(!Requests.valid({result})) return;
+                this.listError = !Requests.valid({result});
+                if(this.listError) return;
 
                 this.accounts = result.data.data || {data: [], links: []};
                 this.summary = result.data.summary || {accounts: 0, overdue_accounts: 0, amounts: []};
@@ -220,17 +229,19 @@ export default {
         },
         async openDetail(account, event) {
             const request = ++this.detailRequest;
-            this.detailTrigger = event.currentTarget;
+            if(event) this.detailTrigger = event.currentTarget;
+            this.detailError = false;
             this.selectedAccount = account;
             this.loading.detail = true;
             await this.$nextTick();
             this.$refs.detailHeading?.focus();
 
-            const result = await Requests.get({route: `${this.config.routes.consult}/${account.id}`, showAlert: true});
+            const result = await Requests.get({route: `${this.config.routes.consult}/${account.id}`});
             if(request !== this.detailRequest) return;
             this.loading.detail = false;
 
-            if(Requests.valid({result})) this.selectedAccount = result.data.data;
+            this.detailError = !Requests.valid({result});
+            if(!this.detailError) this.selectedAccount = result.data.data;
         },
         closeDetail() {
             this.detailRequest++;

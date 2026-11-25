@@ -5,195 +5,138 @@
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
-            <div class="row align-items-start g-3 mb-3 mb-md-4">
-                <div class="col-lg-9 col-12">
-                    <div class="row g-3">
-                        <InputSlot
-                            hasDiv
-                            title="Sucursal"
-                            :titleClass="[config.forms.classes.title]"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <v-select
-                                    v-model="lists.entity.filters.branch"
-                                    :options="branches"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="false"
-                                    :searchable="false"
-                                    placeholder="Seleccione una sucursal ..."/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            hasDiv
-                            title="Cliente"
-                            :titleClass="[config.forms.classes.title]"
-                            xl="12"
-                            lg="12">
-                            <template v-slot:input>
-                                <v-select
-                                    v-model="lists.entity.filters.customer"
-                                    :options="customers"
-                                    :class="config.forms.classes.select2"
-                                    :clearable="true"
-                                    placeholder="Seleccione un cliente ..."/>
-                            </template>
-                        </InputSlot>
-                        <InputDate
-                            v-model="lists.entity.filters.start_date"
-                            hasDiv
-                            title="Desde"
-                            :titleClass="[config.forms.classes.title]"
-                            xl="6"
-                            lg="6"/>
-                        <InputDate
-                            v-model="lists.entity.filters.end_date"
-                            hasDiv
-                            title="Hasta"
-                            :titleClass="[config.forms.classes.title]"
-                            xl="6"
-                            lg="6"/>
-                    </div>
+            <FgPageHeader
+                title="Membresías de clientes"
+                description="Consulta las vigencias y administra las membresías asignadas.">
+                <template #actions>
+                    <button type="button" class="fg-button" @click="createManualEntity">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        Registrar membresía
+                    </button>
+                </template>
+            </FgPageHeader>
+            <form class="fg-filters fg-filter-grid mb-3" aria-label="Filtros de membresías" @submit.prevent="listEntity({applyFilters: true})">
+                <div class="fg-filter-grid__field fg-filter-grid__field--compact">
+                    <FgField label="Sucursal" input-id="membership-list-branch">
+                        <FgSelect
+                            v-model="lists.entity.filters.branch"
+                            input-id="membership-list-branch"
+                            :options="branches"
+                            :clearable="false"
+                            :searchable="false"
+                            placeholder="Selecciona una sucursal"/>
+                    </FgField>
                 </div>
-                <div class="col-lg-3 col-12">
-                    <div class="row g-1">
-                        <div class="col-xl-12">
-                            <label :class="[config.forms.classes.title]">Estado</label>
-                        </div>
-                        <div class="col-lg-12 col-xl-12">
-                            <div class="form-check">
-                                <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == '' ? 'bg-secondary border-secondary' : '']" type="radio" value="" v-model="lists.entity.filters.status"/>
-                                    <span class="fw-bold text-secondary">Todos los estados</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-lg-12 col-xl-12">
-                            <div class="form-check">
-                                <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == 'active' ? 'bg-success border-success' : '']" type="radio" value="active" v-model="lists.entity.filters.status"/>
-                                    <span class="fw-bold text-success">Vigente</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-lg-12 col-xl-12">
-                            <div class="form-check">
-                                <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == 'inactive' ? 'bg-primary border-primary' : '']" type="radio" value="inactive" v-model="lists.entity.filters.status"/>
-                                    <span class="fw-bold text-primary">Vencida</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-lg-12 col-xl-12">
-                            <div class="form-check">
-                                <label class="py-1 cursor-pointer">
-                                    <input :class="['form-check-input', lists.entity.filters.status == 'canceled' ? 'bg-danger border-danger' : '']" type="radio" value="canceled" v-model="lists.entity.filters.status"/>
-                                    <span class="fw-bold text-danger">Anulada</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+                <div class="fg-filter-grid__field fg-filter-grid__field--compact">
+                    <FgField label="Cliente" input-id="membership-list-customer">
+                        <FgSelect
+                            v-model="lists.entity.filters.customer"
+                            input-id="membership-list-customer"
+                            :options="customers"
+                            placeholder="Todos los clientes"/>
+                    </FgField>
                 </div>
-                <InputSlot
-                    hasDiv
-                    :isInputGroup="false"
-                    :divInputClass="['d-flex flex-wrap justify-content-start gap-2 gap-md-3']"
-                    xl="12"
-                    lg="12">
-                    <template v-slot:input>
-                        <SearchButton @click="listEntity({applyFilters: true})" :disabled="lists.entity.extras.loading"/>
-                        <button type="button" class="fg-button waves-effect" @click="createManualEntity">
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                            <span>Agregar membresía</span>
-                        </button>
-                    </template>
-                </InputSlot>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr class="text-center">
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 10%;"></th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 20%;">SUCURSAL</th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 25%;">CLIENTE</th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">FECHA DE INICIO</th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">FECHA DE FINALIZACIÓN</th>
-                            <th class="bg-secondary text-white fw-semibold min-w-150px" style="width: 15%;">ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0 bg-white">
-                        <template v-if="lists.entity.extras.loading">
-                            <tr class="fg-table__state text-center">
-                                <td colspan="99" class="py-4">
-                                    <Loader/>
+                <div class="fg-filter-grid__field fg-filter-grid__field--compact">
+                    <InputDate v-model="lists.entity.filters.start_date" title="Desde"/>
+                </div>
+                <div class="fg-filter-grid__field fg-filter-grid__field--compact">
+                    <InputDate v-model="lists.entity.filters.end_date" title="Hasta"/>
+                </div>
+                <div class="fg-filter-grid__field fg-filter-grid__field--compact">
+                    <InputSelect
+                        v-model="lists.entity.filters.status"
+                        title="Estado"
+                        :options="membershipListStatuses"
+                        default-option-label="Todos los estados"/>
+                </div>
+                <div class="fg-filter-grid__actions">
+                    <SearchButton type="submit" :disabled="lists.entity.extras.loading || !lists.entity.filters.branch?.code"/>
+                    <ClearFiltersButton :disabled="lists.entity.extras.loading" @clear="clearMembershipFilters"/>
+                </div>
+            </form>
+
+            <section aria-labelledby="memberships-list-title">
+                <h2 id="memberships-list-title" class="fg-section-title mb-2">Membresías registradas</h2>
+                <div class="fg-table-scroll" tabindex="0" role="region" aria-label="Membresías registradas">
+                    <table class="table fg-entity-table fg-entity-table--directory mb-0">
+                        <thead class="fg-table-header-surface">
+                            <tr>
+                                <th scope="col">Cliente</th>
+                                <th scope="col">Duración</th>
+                                <th scope="col">Sucursal</th>
+                                <th scope="col">Inicio</th>
+                                <th scope="col">Vence</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col" class="text-center"><span class="visually-hidden">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="lists.entity.extras.loading" class="fg-table__state">
+                                <td colspan="7"><Loader label="Buscando membresías…"/></td>
+                            </tr>
+                            <tr v-else-if="lists.entity.extras.loadFailed" class="fg-table__state">
+                                <td colspan="7">
+                                    <FgEmptyState title="No se pudieron cargar las membresías" description="Reintenta con los mismos filtros." role="alert">
+                                        <button type="button" class="fg-button fg-button--secondary" @click="listEntity({})">Reintentar</button>
+                                    </FgEmptyState>
                                 </td>
                             </tr>
-                        </template>
-                        <template v-else>
-                            <template v-if="lists.entity.records.total > 0">
-                                <tr v-for="record in lists.entity.records.data" :key="record.id" class="text-center">
+                            <template v-else-if="lists.entity.records.total > 0">
+                                <tr v-for="record in lists.entity.records.data" :key="record.id">
                                     <td>
-                                        <StatusBadge
-                                            :status="record.status"
-                                            :formatted-status="record.formatted_status"
-                                            :custom-variants="statusBadgeSubscriptionVariants"/>
+                                        <span class="fg-entity-table__name">{{ record.customer?.name || '—' }}</span>
+                                        <span v-if="record.customer?.document_number" class="fg-entity-table__meta">{{ record.customer.document_number }}</span>
                                     </td>
-                                    <td class="text-start">
-                                        <span v-text="record.branch?.name" class="fw-medium d-block"></span>
-                                    </td>
-                                    <td class="text-start">
-                                        <span v-text="record.customer?.name" class="fw-medium d-block"></span>
-                                        <small v-text="record.customer?.document_number" class="d-block"></small>
-                                    </td>
+                                    <td>{{ record.formatted_duration || '—' }}</td>
+                                    <td>{{ record.branch?.name || '—' }}</td>
+                                    <td>{{ legibleFormatDate({dateString: record.start_date, type: 'datetime'}) || '—' }}</td>
                                     <td>
-                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'date'})" class="d-block fw-medium"></span>
-                                        <span v-text="legibleFormatDate({dateString: record.start_date, type: 'time'})" class="d-block fw-medium"></span>
-                                    </td>
-                                    <td>
-                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'date'})" class="d-block fw-medium"></span>
-                                        <span v-text="legibleFormatDate({dateString: record.end_date, type: 'time'})" class="d-block fw-medium"></span>
-                                        <small
+                                        {{ legibleFormatDate({dateString: record.end_date, type: 'datetime'}) || '—' }}
+                                        <span
                                             v-if="record.remaining_time_label"
-                                            :class="['d-block fw-medium mt-1', remainingTimeClass(record)]"
-                                            v-text="record.remaining_time_label"></small>
+                                            :class="['fg-entity-table__meta d-block', remainingTimeClass(record)]">
+                                            {{ record.remaining_time_label }}
+                                        </span>
                                     </td>
                                     <td>
-                                        <InputSlot
-                                            hasDiv
-                                            :isInputGroup="false"
-                                            :divInputClass="['d-flex flex-wrap justify-content-center gap-2 gap-md-1']"
-                                            xl="12"
-                                            lg="12">
-                                            <template v-slot:input>
-                                                <ActionsButton @click="modalActionsEntity({record})"/>
-                                            </template>
-                                        </InputSlot>
+                                        <StatusBadge :status="record.status" :formatted-status="record.formatted_status" :custom-variants="statusBadgeSubscriptionVariants"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <ActionsButton @click="modalActionsEntity({record})"/>
                                     </td>
                                 </tr>
                             </template>
-                            <template v-else>
-                                <tr class="fg-table__state">
-                                    <td class="text-center" colspan="99">
-                                        <WithoutData type="image"/>
-                                    </td>
-                                </tr>
-                            </template>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
+                            <tr v-else class="fg-table__state">
+                                <td colspan="7">
+                                    <FgEmptyState
+                                        v-if="!lists.entity.appliedFilters?.branch"
+                                        title="Selecciona una sucursal"
+                                        description="Elige una sucursal y pulsa Buscar para consultar las membresías."/>
+                                    <FgEmptyState
+                                        v-else-if="hasMembershipFilters"
+                                        title="No hay coincidencias"
+                                        description="Prueba con otros filtros."/>
+                                    <FgEmptyState v-else title="La sucursal aún no tiene membresías registradas"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
             <Paginator :links="lists.entity.records.links" :pagination="lists.entity.records" :loading="lists.entity.extras.loading" @clickPage="listEntity"/>
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" :id="forms.entity.createUpdate.extras.modals.actions.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal fade fg-modal fg-modal--compact" aria-labelledby="membership-detail-title" :id="forms.entity.createUpdate.extras.modals.actions.id" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold">Detalle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <div class="fg-modal__header">
+                    <h2 id="membership-detail-title" class="fg-modal__title mb-0">Detalle</h2>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="fg-modal__body">
                     <div class="row justify-content-center g-1">
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                             <span class="fw-semibold">• Cliente:</span>
@@ -229,26 +172,20 @@
                             <span class="fw-semibold">• Motivo:</span>
                             <span class="ms-2" v-text="forms.entity.createUpdate.extras.modals.actions.data?.motive"></span>
                         </div>
-                        <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mt-4">
-                            <div class="text-center cursor-pointer p-1" @click="renewEntity({})">
-                                <div class="badge bg-primary p-3 rounded mb-1">
-                                    <i class="fa-solid fa-rotate-right"></i>
-                                </div>
-                                <span class="d-block fw-semibold text-primary">Renovar membresía</span>
-                            </div>
-                        </div>
-                        <div v-if="['active'].includes(forms.entity.createUpdate.extras.modals.actions.data?.status)" class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mt-4">
-                            <div class="text-center cursor-pointer p-1" @click="cancelEntity({})">
-                                <div class="badge bg-danger p-3 rounded mb-1">
-                                    <i class="fa-solid fa-rectangle-xmark"></i>
-                                </div>
-                                <span class="d-block fw-semibold text-danger">Anular membresía</span>
-                            </div>
+                        <div v-if="forms.entity.createUpdate.extras.modals.actions.data?.status === 'active'" class="col-12 d-flex flex-wrap gap-2 mt-3">
+                            <button type="button" class="fg-button fg-button--secondary" @click="renewEntity({})">
+                                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+                                Renovar membresía
+                            </button>
+                            <button type="button" class="fg-button fg-button--danger" @click="cancelEntity({})">
+                                <i class="fa-solid fa-rectangle-xmark" aria-hidden="true"></i>
+                                Anular membresía
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cerrar</button>
+                <div class="fg-modal__footer">
+                    <button type="button" class="fg-button fg-button--secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -256,6 +193,11 @@
 </template>
 
 <script>
+import ClearFiltersButton from "@System/Components/Generics/ClearFiltersButton.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import ActionsButton from "@System/Components/Generics/ActionsButton.vue";
@@ -267,7 +209,7 @@ import * as Utils     from "@System/Helpers/Utils.js";
 import {STATUS_BADGE_CUSTOM_SUBSCRIPTION} from "@System/Helpers/ModuleConstants.js";
 
 export default {
-    components: {ActionsButton, SearchButton},
+    components: {ClearFiltersButton, FgEmptyState, FgSelect, FgField, FgPageHeader, ActionsButton, SearchButton},
     mixins: [InitialPageMixin],
     mounted: async function() {
 
@@ -287,6 +229,7 @@ export default {
                 entity: {
                     extras: {
                         loading: false,
+                        loadFailed: false,
                         route: Requests.config({entity: "tracking_subscriptions", type: "list"})
                     },
                     appliedFilters: null,
@@ -376,12 +319,18 @@ export default {
         // ============================================
         // Entity List Methods
         // ============================================
+        clearMembershipFilters() {
+            const branch = this.lists.entity.appliedFilters?.branch ?? this.branches[0] ?? null;
+            this.lists.entity.filters = {branch, customer: null, start_date: "", end_date: "", status: ""};
+            Alerts.showFiltersCleared();
+        },
         async listEntity({url = null, applyFilters = false}) {
             if(applyFilters || !this.lists.entity.appliedFilters) {
                 this.lists.entity.appliedFilters = {...this.lists.entity.filters};
             }
 
             const filters = this.lists.entity.appliedFilters;
+            if(!filters?.branch?.code) return;
             const filterJson = {
                 branch_id:   filters?.branch?.code,
                 customer_id: filters?.customer?.code,
@@ -391,6 +340,7 @@ export default {
             };
 
             this.lists.entity.extras.loading = true;
+            this.lists.entity.extras.loadFailed = false;
             this.lists.entity.records = Requests.emptyPagination();
 
             try {
@@ -400,7 +350,8 @@ export default {
                     data: filterJson
                 });
 
-                this.lists.entity.records = response?.bool ? response.data : Requests.emptyPagination();
+                this.lists.entity.extras.loadFailed = !response?.bool;
+                this.lists.entity.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }finally {
 
@@ -431,31 +382,31 @@ export default {
                 allowEscapeKey: false,
                 title: "¿Agregar membresía manual?",
                 html: `<div class="text-start">
-                           <p class="small text-muted mb-3">Registra una vigencia sin generar una venta. El sistema validará solapamientos según la política de la empresa.</p>
+                           <p class="fg-notice mb-3">Registra una vigencia sin generar una venta. El sistema validará solapamientos según la política de la empresa.</p>
                            <div class="row g-2">
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Sucursal</label>
+                                   <label class="form-label" for="manualBranch">Sucursal</label>
                                    <select class="form-select" id="manualBranch"></select>
                                </div>
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Cliente</label>
+                                   <label class="form-label" for="manualCustomer">Cliente</label>
                                    <select class="form-select" id="manualCustomer"></select>
                                </div>
                                <div class="col-12">
-                                   <label class="form-label colon-at-end">Membresía de catálogo</label>
+                                   <label class="form-label" for="manualItem">Membresía de catálogo</label>
                                    <select class="form-select" id="manualItem"></select>
                                    <small class="text-muted">Opcional. Si la seleccionas, se toma como referencia de duración.</small>
                                </div>
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Fecha inicial</label>
+                                   <label class="form-label" for="manualStartDate">Fecha inicial</label>
                                    <input type="datetime-local" class="form-control" id="manualStartDate">
                                </div>
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Fecha final</label>
+                                   <label class="form-label" for="manualEndDate">Fecha final</label>
                                    <input type="datetime-local" class="form-control" id="manualEndDate">
                                </div>
                                <div class="col-12 col-md-6">
-                                   <label class="form-label colon-at-end">Límite diario</label>
+                                   <label class="form-label" for="manualAttendanceLimit">Límite diario</label>
                                    <input type="number" min="1" max="999" class="form-control" id="manualAttendanceLimit" value="1">
                                </div>
                                <div class="col-12 col-md-6 d-flex align-items-end">
@@ -465,7 +416,7 @@ export default {
                                    </label>
                                </div>
                                <div class="col-12">
-                                   <label class="form-label colon-at-end">Observación</label>
+                                   <label class="form-label" for="manualObservation">Observación</label>
                                    <textarea class="form-control no-resize" maxlength="500" rows="2" id="manualObservation"></textarea>
                                </div>
                            </div>
@@ -476,6 +427,7 @@ export default {
                 showCloseButton: true,
                 closeButtonAriaLabel: "Cerrar confirmación",
                 confirmButtonText: "Agregar membresía",
+                cancelButtonText: "Cerrar",
                 customClass: {
                     confirmButton: "fg-button",
                     cancelButton: "fg-button fg-button--secondary ms-3"
@@ -848,6 +800,17 @@ export default {
         }
     },
     computed: {
+        membershipListStatuses() {
+            return [
+                {code: "active", label: "Vigente"},
+                {code: "inactive", label: "Vencida"},
+                {code: "canceled", label: "Anulada"}
+            ];
+        },
+        hasMembershipFilters() {
+            const filters = this.lists.entity.appliedFilters;
+            return Boolean(filters?.customer?.code || filters?.start_date || filters?.end_date || filters?.status);
+        },
         breadcrumbTitles: function() {
 
             return [{title: "Operaciones y clientes"}, {title: "Membresías"}, this.config.entity.page];
@@ -855,12 +818,12 @@ export default {
         },
         branches: function() {
 
-            return this.options?.branches?.records.map(e => ({code: e.id, label: e.name, data: e}));
+            return (this.options?.branches?.records ?? []).map(e => ({code: e.id, label: e.name, data: e}));
 
         },
         customers: function() {
 
-            return this.options?.customers?.records.map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
+            return (this.options?.customers?.records ?? []).map(e => ({code: e.id, label: `${e.document_number} - ${e.name}`, data: e}));
 
         },
         subscriptionItems: function() {

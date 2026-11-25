@@ -3,6 +3,11 @@
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
+        <div v-else-if="initialError">
+            <FgEmptyState title="No pudimos abrir el POS" description="Intenta cargar la pantalla de nuevo.">
+                <button type="button" class="fg-button fg-button--secondary" @click="initializePage">Reintentar</button>
+            </FgEmptyState>
+        </div>
         <div v-else>
             <section class="fg-pos" :class="{'fg-pos--with-items': cart.length > 0}">
                 <div class="fg-pos__catalog">
@@ -549,6 +554,7 @@ export default {
             branches: [],
             warehouses: [],
             optionOrigin: "sales-pos",
+            initialError: false,
             options: {items: {records: []}, customers: {records: []}},
             customerConfig: {},
             catalogTotal: 0,
@@ -749,14 +755,19 @@ export default {
     async mounted() {
         navbarItem("menu-parent-sales", {addClass: "open"});
         navbarItem("menu-sales-pos", {addClass: "active"});
-        const initialized = await this.loadInitialParams(async () => {
-            if(!await this.initParams()) return false;
-            await this.preloadServiceSession();
-            return true;
-        });
-        if(initialized) await this.openOptions("items");
+        await this.initializePage();
     },
     methods: {
+        async initializePage() {
+            this.initialLoading = true;
+            const ready = await this.loadInitialParams(async () => {
+                const loaded = await this.initParams();
+                this.initialError = !loaded;
+                if(loaded) await this.preloadServiceSession();
+                return loaded;
+            });
+            if(ready) await this.openOptions("items");
+        },
         optionFilters(entity) {
             return entity === "items" ? {category_id: this.selectedCategoryId} : undefined;
         },
@@ -833,10 +844,7 @@ export default {
             const result = await Requests.get({route: this.config.routes.initParams, data: {page: "pos"}});
             this.loading = false;
 
-            if(!Requests.valid({result})) {
-                Alerts.toastrs({type: "error", subtitle: "No fue posible cargar el POS."});
-                return;
-            }
+            if(!Requests.valid({result})) return false;
 
             const data = result.data.config;
             this.branches = data.branches?.records || [];

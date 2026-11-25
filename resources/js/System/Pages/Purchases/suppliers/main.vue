@@ -1,35 +1,31 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Proveedores" description="Consulta los datos de contacto y las condiciones de tus proveedores.">
+        <template #actions>
+            <button type="button" class="fg-button" :disabled="initialLoading" data-bs-toggle="modal" data-bs-target="#supplierModal" @click="prepareSupplier">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                <span>Agregar proveedor</span>
+            </button>
+        </template>
+    </FgPageHeader>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading" table/>
         <div v-else class="fg-page-content">
             <main class="fg-entity">
-                <section class="fg-filter-bar fg-filter-bar--compact">
-                    <div class="row align-items-end g-2">
-                        <div class="col-12 col-lg-8">
-                            <SearchInput v-model="word" title="Búsqueda" placeholder="Nombre, documento o contacto"/>
-                        </div>
-                        <div class="form-group col-xl-4 col-lg-4">
-                            <div class="fg-filter-bar__actions">
-                                <SearchButton class="fg-button--small" @click="listSuppliers({applyFilters: true})"/>
-                                <button
-                                    type="button"
-                                    class="fg-button fg-button--small"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#supplierModal"
-                                    @click="prepareSupplier">
-                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                    <span>Agregar proveedor</span>
-                                </button>
-                            </div>
-                        </div>
+                <FgResponsiveFilters
+                    id="purchases-supplier-filters"
+                    label="Filtros de proveedores"
+                    :loading="loading"
+                    @search="listSuppliers({applyFilters: true})"
+                    @clear="clearFilters">
+                    <div class="fg-field-cell col-12 col-lg-8">
+                        <SearchInput v-model.trim="word" title="Búsqueda" placeholder="Nombre, documento o contacto"/>
                     </div>
-                </section>
+                </FgResponsiveFilters>
 
                 <section class="fg-entity-list">
-                    <div class="table-responsive">
-                        <table class="table fg-entity-table fg-entity-table--directory mb-0">
+                    <ResponsiveTable class="fg-sales-table-scroll">
+                        <table role="table" class="fg-table fg-record-table mb-0">
                             <colgroup>
                                 <col style="width: 20%;">
                                 <col style="width: 17%;">
@@ -40,23 +36,24 @@
                                 <col style="width: 7%;">
                                 <col style="width: 5%;">
                             </colgroup>
-                            <thead class="fg-table-header-surface">
-                                <tr>
-                                    <th>Identificación</th>
-                                    <th>Proveedor</th>
-                                    <th>Contacto</th>
-                                    <th>Comunicación</th>
-                                    <th>Condiciones</th>
-                                    <th>Desempeño</th>
-                                    <th>Estado</th>
-                                    <th class="text-center"><span class="visually-hidden">Acciones</span></th>
+                            <thead role="rowgroup" class="fg-table-header-surface">
+                                <tr role="row">
+                                    <th scope="col" role="columnheader">Identificación</th>
+                                    <th scope="col" role="columnheader">Proveedor</th>
+                                    <th scope="col" role="columnheader">Contacto</th>
+                                    <th scope="col" role="columnheader">Comunicación</th>
+                                    <th scope="col" role="columnheader">Condiciones</th>
+                                    <th scope="col" role="columnheader">Desempeño</th>
+                                    <th scope="col" role="columnheader">Estado</th>
+                                    <th scope="col" role="columnheader" class="text-center"><span class="visually-hidden">Acciones</span></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="fg-table__state" v-if="loading"><td colspan="8" class="py-4"><Loader/></td></tr>
-                                <template v-else-if="records.total > 0">
-                                    <tr v-for="supplier in records.data" :key="supplier.id">
-                                        <td class="fg-entity-table__identification-cell">
+                            <tbody role="rowgroup">
+                                <tr role="row" class="fg-table__state" v-if="loading"><td role="cell" colspan="8" class="py-4"><FgListLoading label="Buscando proveedores…"/></td></tr>
+                                <template v-else-if="records.data?.length">
+                                    <tr role="row" v-for="supplier in records.data" :key="supplier.id">
+                                        <td role="cell" class="fg-entity-table__identification-cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Documento</span>
                                             <div class="fg-entity-identifiers fg-entity-identifiers--plain">
                                                 <div class="fg-entity-identifier">
                                                     <span class="fg-entity-identifier__label colon-at-end" v-text="supplier.document_type || 'Documento'"></span>
@@ -66,33 +63,45 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td role="cell" class="fg-record-table__identity">
                                             <strong>{{ supplier.name }}</strong>
                                             <span class="fg-purchases__meta">{{ supplier.address }}</span>
                                         </td>
-                                        <td>{{ supplier.contact_name || "Sin contacto" }}</td>
-                                        <td>
-                                            <span>{{ supplier.telephone }}</span>
-                                            <span class="fg-purchases__meta">{{ supplier.email }}</span>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Contacto</span>
+                                            <div class="fg-record-table__value">{{ supplier.contact_name || "Sin contacto" }}</div>
                                         </td>
-                                        <td>
-                                            <strong>{{ supplier.payment_term_days || 0 }} días</strong>
-                                            <span class="fg-purchases__meta">
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Comunicación</span>
+                                            <div class="fg-record-table__value">
+                                                <span>{{ supplier.telephone }}</span>
+                                                <span class="fg-purchases__meta">{{ supplier.email }}</span>
+                                            </div>
+                                        </td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Condiciones</span>
+                                            <div class="fg-record-table__value">
+                                                <strong>{{ supplier.payment_term_days || 0 }} días</strong>
+                                                <span class="fg-purchases__meta">
                                                 Crédito: S/ {{ separatorNumber(supplier.credit_limit || 0) }}
-                                            </span>
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <strong>{{ supplier.purchases_count || 0 }} compra{{ Number(supplier.purchases_count || 0) === 1 ? "" : "s" }}</strong>
-                                            <span class="fg-purchases__meta">
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Desempeño</span>
+                                            <div class="fg-record-table__value">
+                                                <strong>{{ supplier.purchases_count || 0 }} compra{{ Number(supplier.purchases_count || 0) === 1 ? "" : "s" }}</strong>
+                                                <span class="fg-purchases__meta">
                                                 Total: {{ formatCurrencyTotals(supplier.purchase_amounts) }}
-                                            </span>
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td>
+                                        <td role="cell" class="fg-record-table__state">
                                             <span :class="['fg-badge', `fg-status-${supplier.status}`]">
                                                 {{ supplier.status === "active" ? "Activo" : "Inactivo" }}
                                             </span>
                                         </td>
-                                        <td class="text-center">
+                                        <td role="cell" class="text-center fg-record-table__actions">
                                             <button
                                                 type="button"
                                                 class="fg-icon-action fg-icon-action-edit"
@@ -106,13 +115,24 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <tr class="fg-table__state" v-else><td colspan="8"><WithoutData type="image"/></td></tr>
+                                <tr role="row" v-else-if="listError" class="fg-table__state">
+                                    <td role="cell" colspan="8">
+                                        <FgEmptyState title="No se pudieron consultar los proveedores" description="Vuelve a intentar con los filtros aplicados.">
+                                            <button type="button" class="fg-button fg-button--secondary" @click="listSuppliers()">Reintentar</button>
+                                        </FgEmptyState>
+                                    </td>
+                                </tr>
+                                <tr role="row" v-else class="fg-table__state">
+                                    <td role="cell" colspan="8">
+                                        <FgEmptyState :title="appliedWord ? 'No encontramos proveedores' : 'Aún no hay proveedores'" :description="appliedWord ? 'Prueba otro nombre, documento o contacto.' : 'Agrega un proveedor para usarlo en tus compras.'"/>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </ResponsiveTable>
                 </section>
 
-                <Paginator :links="records.links" :pagination="records" :loading="loading" @clickPage="listSuppliers"/>
+                <Paginator v-if="!listError" :links="records.links" :pagination="records" :loading="loading" @clickPage="listSuppliers"/>
             </main>
 
         </div>
@@ -214,8 +234,12 @@
 </template>
 
 <script>
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
+import FgResponsiveFilters from "@System/Components/Figma/FgResponsiveFilters.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
-import SearchButton from "@/Shared/SearchButton.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -227,7 +251,7 @@ import FgSelect from "@System/Components/Figma/FgSelect.vue";
 
 export default {
     mixins: [InitialPageMixin],
-    components: {SearchButton, SearchInput, FgField, FgSelect},
+    components: {FgPageHeader, FgResponsiveFilters, FgListLoading, FgEmptyState, ResponsiveTable, SearchInput, FgField, FgSelect},
     async mounted() {
         navbarItem("menu-parent-purchases", {addClass: "open"});
         navbarItem("menu-purchases-suppliers", {});
@@ -238,6 +262,7 @@ export default {
             word: "",
             appliedWord: "",
             loading: false,
+            listError: false,
             saving: false,
             editingId: null,
             records: {total: 0, data: []},
@@ -252,7 +277,13 @@ export default {
         };
     },
     methods: {
+        clearFilters() {
+            this.word = "";
+            return Alerts.showFiltersCleared();
+        },
         async listSuppliers({url = null, applyFilters = false} = {}) {
+            if(this.loading) return;
+            this.listError = false;
             if(applyFilters) this.appliedWord = this.word;
             this.loading = true;
 
@@ -262,7 +293,8 @@ export default {
                     route: url || this.config.entity.routes.list,
                     data: {word: this.appliedWord}
                 });
-                this.records = result?.bool ? (result.data || Requests.emptyPagination()) : Requests.emptyPagination();
+                this.listError = !result.bool;
+                if(!this.listError) this.records = result.data;
             } finally {
                 this.loading = false;
             }
@@ -360,9 +392,6 @@ export default {
         }
     },
     computed: {
-        breadcrumbTitles() {
-            return [{title: "Compras"}, this.config.entity.page];
-        },
         statusOptions() {
             return [
                 {code: "active", label: "Activo"},

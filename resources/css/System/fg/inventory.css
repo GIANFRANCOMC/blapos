@@ -55,3 +55,34 @@
 @media (prefers-reduced-motion: reduce) {
     .fg-inventory-alert-trigger .fa-shake { animation: none; }
 }
+
+.fg-inventory-table { min-width: var(--fg-inventory-table-min, 0); }
+.fg-button.fg-inventory-filters__toggle { display: none; }
+.fg-inventory-alert-trigger__text { display: none; }
+
+@media (max-width: 767.98px) {
+    .fg-page-header__actions > .fg-button.fg-inventory-alert-trigger {
+        inline-size: auto;
+        padding-inline: var(--fg-space-3);
+    }
+    .fg-inventory-alert-trigger__text { display: inline; }
+    .fg-inventory-filters .fg-filter-grid__field { grid-column: span 1; }
+    .fg-inventory-filters:not(.fg-inventory-filters--expanded) .fg-inventory-filters__advanced { display: none; }
+    .fg-inventory-filters .fg-filter-grid__actions { display: flex; gap: var(--fg-space-1) var(--fg-space-2); }
+    .fg-button.fg-inventory-filters__toggle { display: inline-flex; margin-inline-start: auto; }
+    .fg-record-table.fg-inventory-table .fg-transfer-direction {
+        display: inline-flex;
+        justify-content: end;
+        inline-size: auto;
+        aspect-ratio: auto;
+        background: transparent;
+    }
+    .fg-record-table.fg-inventory-table .fg-transfer-direction > i { display: none; }
+    .fg-record-table.fg-inventory-table .fg-transfer-count {
+        position: static;
+        background: transparent;
+        color: var(--fg-text);
+        font-size: inherit;
+    }
+    .fg-record-table.fg-inventory-table .fg-inventory-row--scanned { border-color: var(--fg-primary); background: var(--fg-primary-soft); }
+}

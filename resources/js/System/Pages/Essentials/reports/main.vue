@@ -1,223 +1,128 @@
 <template>
-    <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Reportes" description="Configura una consulta o descarga la información autorizada."/>
 
     <InitialLoadTransition>
         <PageSkeleton v-if="initialLoading"/>
-        <div v-else class="fg-page-content">
-            <section class="fg-reports">
-                <FiltersSection
-                    class="fg-reports__parameters"
-                    :filter-by-value="forms.entity.createUpdate.data.report"
-                    @update:filterByValue="changeReport"
-                    :filter-word-value="quickSearch"
-                    @update:filterWordValue="quickSearch = $event"
-                    :filter-by-options="reports"
-                    :search-placeholder="quickSearchPlaceholder"
-                    :loading="isExporting"
-                    filter-by-title="Reporte"
-                    search-title="Búsqueda rápida"
-                    :show-search-input="reportUsesQuickSearch"
-                    :show-add-button="false"
-                    :show-search-button="selectedReportCode === 'settlements'"
-                    :show-download-button="selectedReportCode !== 'settlements'"
-                    download-button-text="Exportar"
-                    download-button-tooltip="Exportar reporte"
-                    :title-class="[config.forms.classes.title]"
-                    :select-class="config.forms.classes.select2"
-                    @search="exportReport({})"
-                    @download="exportReport({})">
-                    <template #extraFilters>
-                        <template v-if="selectedReportCode === 'customers'">
-                            <InputText v-model="forms.entity.createUpdate.data.customers.document_number" hasDiv title="Número de documento" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
-                        </template>
+        <div v-else class="fg-page-content fg-reports">
+            <form class="fg-filters fg-filter-grid fg-reports__parameters" aria-label="Parámetros del reporte"
+                @submit.prevent="exportReport({})">
+                <FgField label="Reporte" :error="forms.entity.createUpdate.errors.report">
+                    <FgSelect :model-value="forms.entity.createUpdate.data.report" :options="reports"
+                        :disabled="isExporting" :searchable="false" :clearable="false" @update:model-value="changeReport"/>
+                </FgField>
 
-                        <template v-else-if="selectedReportCode === 'users'">
-                            <InputText v-model="forms.entity.createUpdate.data.users.document_number" hasDiv title="Número de documento" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
-                        </template>
+                <FgField v-if="reportUsesQuickSearch" label="Búsqueda rápida" v-slot="{id}">
+                    <div class="fg-field__control">
+                        <input :id="id" v-model="quickSearch" class="fg-input" type="search"
+                            :placeholder="quickSearchPlaceholder" :disabled="isExporting"/>
+                    </div>
+                </FgField>
 
-                        <template v-else-if="selectedReportCode === 'items'">
-                            <InputText v-model="forms.entity.createUpdate.data.items.description" hasDiv title="Descripción" :titleClass="[config.forms.classes.title]" xl="3" lg="4"/>
-                        </template>
+                <FgField v-for="field in reportFields" :key="field.name" :label="field.label" :required="field.required"
+                    :error="forms.entity.createUpdate.errors[field.name]" v-slot="{id, invalid, describedBy}">
+                    <FgSelect v-if="field.options" v-model="forms.entity.createUpdate.data[selectedReportCode][field.name]"
+                        :input-id="id" :options="field.options" :disabled="isExporting" :searchable="false" :clearable="false"/>
+                    <div v-else class="fg-field__control" :class="{'fg-field__control--invalid': invalid}">
+                        <input :id="id" v-model="forms.entity.createUpdate.data[selectedReportCode][field.name]"
+                            class="fg-input" :type="field.type" :disabled="isExporting"
+                            :aria-required="field.required || undefined" :aria-invalid="invalid || undefined" :aria-describedby="describedBy"/>
+                    </div>
+                </FgField>
 
-                        <template v-else-if="selectedReportCode === 'sales'">
-                            <InputSlot
-                                hasDiv
-                                title="Tipo"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.type"
-                                xl="3"
-                                lg="4">
-                                <template #input>
-                                    <v-select
-                                        v-model="forms.entity.createUpdate.data.sales.type"
-                                        :options="salesType"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"
-                                        append-to-body/>
-                                </template>
-                            </InputSlot>
+                <div class="fg-reports__actions">
+                    <FgButton type="submit" :loading="isExporting">
+                        {{ selectedReportCode === 'settlements' ? 'Consultar' : 'Descargar Excel' }}
+                    </FgButton>
+                    <FgButton tone="link" :disabled="isExporting" @click="clearFilters">Limpiar</FgButton>
+                </div>
+            </form>
 
-                            <InputMonth
-                                v-if="['by_month', 'range_months'].includes(forms.entity.createUpdate.data.sales.type?.code)"
-                                v-model="forms.entity.createUpdate.data.sales.start_month"
-                                hasDiv
-                                title="Mes de"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.start_month"
-                                xl="3"
-                                lg="4"/>
-                            <InputMonth
-                                v-if="forms.entity.createUpdate.data.sales.type?.code === 'range_months'"
-                                v-model="forms.entity.createUpdate.data.sales.end_month"
-                                hasDiv
-                                title="Mes al"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.end_month"
-                                xl="3"
-                                lg="4"/>
+            <div class="fg-reports__help">
+                <h2 class="fg-section-title">{{ forms.entity.createUpdate.data.report?.label || 'Información del reporte' }}</h2>
+                <p class="fg-help mb-0">{{ selectedReportHelp }}</p>
+            </div>
 
-                            <InputDate
-                                v-if="['by_date', 'range_dates'].includes(forms.entity.createUpdate.data.sales.type?.code)"
-                                v-model="forms.entity.createUpdate.data.sales.start_date"
-                                hasDiv
-                                title="Fecha del"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.start_date"
-                                xl="3"
-                                lg="4"/>
-                            <InputDate
-                                v-if="forms.entity.createUpdate.data.sales.type?.code === 'range_dates'"
-                                v-model="forms.entity.createUpdate.data.sales.end_date"
-                                hasDiv
-                                title="Fecha al"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.end_date"
-                                xl="3"
-                                lg="4"/>
-                        </template>
-
-                        <template v-else-if="selectedReportCode === 'settlements'">
-                            <InputSlot
-                                hasDiv
-                                title="Resumen"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.type"
-                                xl="3"
-                                lg="4">
-                                <template #input>
-                                    <v-select
-                                        v-model="forms.entity.createUpdate.data.settlements.type"
-                                        :options="settlementType"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"
-                                        append-to-body/>
-                                </template>
-                            </InputSlot>
-
-                            <InputSlot
-                                hasDiv
-                                title="Alcance"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :textBottomInfo="forms.entity.createUpdate.errors?.scope"
-                                xl="3"
-                                lg="4">
-                                <template #input>
-                                    <v-select
-                                        v-model="forms.entity.createUpdate.data.settlements.scope"
-                                        :options="settlementScope"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"
-                                        append-to-body/>
-                                </template>
-                            </InputSlot>
-
-                            <InputDate
-                                v-model="forms.entity.createUpdate.data.settlements.date_from"
-                                hasDiv
-                                title="Fecha desde"
-                                :titleClass="[config.forms.classes.title]"
-                                :textBottomInfo="forms.entity.createUpdate.errors?.date_from"
-                                xl="3"
-                                lg="4"/>
-                            <InputDate
-                                v-model="forms.entity.createUpdate.data.settlements.date_to"
-                                hasDiv
-                                title="Fecha hasta"
-                                :titleClass="[config.forms.classes.title]"
-                                :textBottomInfo="forms.entity.createUpdate.errors?.date_to"
-                                xl="3"
-                                lg="4"/>
-                        </template>
-
-                    </template>
-                </FiltersSection>
-
-                <section class="fg-reports__help">
-                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                    <span>{{ selectedReportHelp }}</span>
-                </section>
-
-                <section v-if="selectedReportCode === 'settlements'" class="fg-entity-list fg-reports__results">
-                    <div class="table-responsive">
-                        <table class="table fg-entity-table mb-0">
-                            <thead class="fg-table-header-surface">
-                                <tr>
-                                    <th>Alcance</th>
-                                    <th>Concepto</th>
-                                    <th class="text-end">Documentos</th>
-                                    <th class="text-end">Cantidad</th>
-                                    <th class="text-end">Base</th>
-                                    <th class="text-end">Monto</th>
+            <section v-if="selectedReportCode === 'settlements'" aria-labelledby="fg-reports-preview">
+                <h2 class="fg-section-title" id="fg-reports-preview">Vista previa del resumen financiero</h2>
+                <div class="fg-reports__results" :aria-busy="settlements.loading">
+                    <ResponsiveTable>
+                        <table class="fg-table fg-record-table fg-reports__table" role="table" aria-labelledby="fg-reports-preview">
+                            <thead role="rowgroup">
+                                <tr role="row">
+                                    <th role="columnheader" scope="col">Concepto</th>
+                                    <th role="columnheader" scope="col">Origen</th>
+                                    <th role="columnheader" scope="col" class="text-end">Documentos</th>
+                                    <th role="columnheader" scope="col" class="text-end">Cantidad</th>
+                                    <th role="columnheader" scope="col" class="text-end">Base</th>
+                                    <th role="columnheader" scope="col" class="text-end">Monto</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="fg-table__state" v-if="settlements.loading">
-                                    <td colspan="6" class="py-4"><Loader/></td>
+                            <tbody role="rowgroup">
+                                <tr role="row" class="fg-table__state" v-if="settlements.loading">
+                                    <td role="cell" colspan="6"><FgListLoading label="Consultando resumen financiero…"/></td>
                                 </tr>
                                 <template v-else-if="settlements.records.length">
-                                    <tr v-for="(record, index) in settlements.records" :key="`${record.scope}-${record.name}-${index}`">
-                                        <td>
-                                            <span class="fg-badge fg-status-active">{{ scopeLabel(record.scope) }}</span>
-                                        </td>
-                                        <td>
+                                    <tr role="row" v-for="(record, index) in settlements.records" :key="[record.scope, record.name, index].join('-')">
+                                        <td role="cell" class="fg-record-table__identity">
                                             <strong class="fg-entity-primary">{{ record.name }}</strong>
                                             <span v-if="record.calculation_type" class="fg-entity-table__meta">
                                                 {{ settlementCalculationLabel(record) }}
                                             </span>
                                         </td>
-                                        <td class="text-end">{{ numberLabel(record.documents) }}</td>
-                                        <td class="text-end">{{ settlementQuantity(record) }}</td>
-                                        <td class="text-end">{{ amountLabel(record.base_amount, record) }}</td>
-                                        <td class="text-end fw-medium">{{ amountLabel(record.amount, record) }}</td>
+                                        <td role="cell">
+                                            <span class="fg-record-table__label" aria-hidden="true">Origen</span>
+                                            <span class="fg-record-table__value">{{ scopeLabel(record.scope) }}</span>
+                                        </td>
+                                        <td role="cell" class="text-end">
+                                            <span class="fg-record-table__label" aria-hidden="true">Documentos</span>
+                                            <span class="fg-record-table__value">{{ numberLabel(record.documents) }}</span>
+                                        </td>
+                                        <td role="cell" class="text-end">
+                                            <span class="fg-record-table__label" aria-hidden="true">Cantidad</span>
+                                            <span class="fg-record-table__value">{{ settlementQuantity(record) }}</span>
+                                        </td>
+                                        <td role="cell" class="text-end">
+                                            <span class="fg-record-table__label" aria-hidden="true">Base</span>
+                                            <span class="fg-record-table__value">{{ amountLabel(record.base_amount, record) }}</span>
+                                        </td>
+                                        <td role="cell" class="text-end">
+                                            <span class="fg-record-table__label" aria-hidden="true">Monto</span>
+                                            <strong class="fg-record-table__value">{{ amountLabel(record.amount, record) }}</strong>
+                                        </td>
                                     </tr>
                                 </template>
-                                <tr class="fg-table__state" v-else>
-                                    <td colspan="6">
-                                        <WithoutData v-if="settlements.hasConsulted" type="image"/>
-                                        <span v-else class="fg-reports__empty-hint">Consulta un resumen financiero para visualizar resultados.</span>
+                                <tr role="row" class="fg-table__state" v-else>
+                                    <td role="cell" colspan="6">
+                                        <FgEmptyState v-if="settlements.error" title="No se pudo consultar el resumen financiero" :description="settlements.error">
+                                            <FgButton tone="secondary" @click="consultSettlements(settlements.lastPayload)">Volver a intentar</FgButton>
+                                        </FgEmptyState>
+                                        <FgEmptyState v-else-if="settlements.hasConsulted" title="No encontramos resultados" description="Prueba con otro periodo u origen."/>
+                                        <FgEmptyState v-else title="Consulta el resumen financiero" description="Elige el origen y pulsa Consultar para ver los resultados."/>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                </section>
+                    </ResponsiveTable>
+                    <p v-if="settlements.records.length" class="fg-help mb-0">
+                        {{ settlements.records.length }} {{ settlements.records.length === 1 ? 'concepto' : 'conceptos' }}
+                    </p>
+                </div>
             </section>
         </div>
     </InitialLoadTransition>
 </template>
 
+
+
 <script>
 import {navbarItem} from "@System/Layout/Menu.js";
+import ResponsiveTable from "@/Shared/ResponsiveTable.vue";
+import FgField from "@System/Components/Figma/FgField.vue";
+import FgSelect from "@System/Components/Figma/FgSelect.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
+import FgButton from "@System/Components/Figma/FgButton.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgListLoading from "@System/Components/Figma/FgListLoading.vue";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts    from "@System/Helpers/Alerts.js";
 import * as Constants from "@System/Helpers/Constants.js";
@@ -251,7 +156,26 @@ const SETTLEMENT_SCOPE = [
     {code: "purchase", label: "Compras"}
 ];
 
+const SALES_PERIODS = [
+    {name: "start_month", label: "Mes desde", type: "month", modes: ["by_month", "range_months"]},
+    {name: "end_month", label: "Mes hasta", type: "month", modes: ["range_months"]},
+    {name: "start_date", label: "Fecha desde", type: "date", modes: ["by_date", "range_dates"]},
+    {name: "end_date", label: "Fecha hasta", type: "date", modes: ["range_dates"]}
+];
+
+function defaultReportFilters() {
+    return {
+        customers: {document_number: "", name: ""},
+        users: {document_number: "", name: ""},
+        items: {name: "", description: ""},
+        branches: {name: ""},
+        sales: {type: SALES_TYPE[0], start_date: "", end_date: "", start_month: "", end_month: ""},
+        settlements: {type: SETTLEMENT_TYPE[0], scope: SETTLEMENT_SCOPE[0], date_from: "", date_to: ""}
+    };
+}
+
 export default {
+    components: {FgButton, FgEmptyState, FgField, FgListLoading, FgPageHeader, FgSelect, ResponsiveTable},
     mixins: [InitialPageMixin],
     mounted: async function() {
         navbarItem(this.config.entity.page.menu.id, {});
@@ -268,23 +192,7 @@ export default {
                     createUpdate: {
                         data: {
                             report: null,
-                            customers: {document_number: "", name: ""},
-                            users: {document_number: "", name: ""},
-                            items: {name: "", description: ""},
-                            branches: {name: ""},
-                            sales: {
-                                type: null,
-                                start_date: "",
-                                end_date: "",
-                                start_month: "",
-                                end_month: ""
-                            },
-                            settlements: {
-                                type: null,
-                                scope: null,
-                                date_from: "",
-                                date_to: ""
-                            }
+                            ...defaultReportFilters()
                         },
                         errors: {}
                     }
@@ -294,7 +202,9 @@ export default {
             settlements: {
                 loading: false,
                 hasConsulted: false,
-                records: []
+                records: [],
+                error: "",
+                lastPayload: null
             },
             config: {
                 ...Constants.generalConfig,
@@ -316,9 +226,6 @@ export default {
         },
         async initOthers({}) {
             this.forms.entity.createUpdate.data.report = this.reports[0];
-            this.forms.entity.createUpdate.data.sales.type = this.salesType[0];
-            this.forms.entity.createUpdate.data.settlements.type = this.settlementType[0];
-            this.forms.entity.createUpdate.data.settlements.scope = this.settlementScope[0];
             return true;
         },
         changeReport(report) {
@@ -327,6 +234,16 @@ export default {
             this.forms.entity.createUpdate.errors = {};
             this.settlements.hasConsulted = false;
             this.settlements.records = [];
+            this.settlements.error = "";
+            this.settlements.lastPayload = null;
+        },
+        clearFilters() {
+            if(!this.selectedReportCode || this.isExporting) return;
+
+            this.forms.entity.createUpdate.data[this.selectedReportCode] = defaultReportFilters()[this.selectedReportCode];
+            this.forms.entity.createUpdate.errors = {};
+            this.quickSearch = "";
+            Alerts.showFiltersCleared();
         },
         async exportReport({}) {
             if(this.isExporting) return;
@@ -394,18 +311,18 @@ export default {
             return form;
         },
         async consultSettlements(payload) {
+            if (this.isExporting) return;
+
             this.isExporting = true;
+            this.settlements.lastPayload = payload;
+            this.settlements.error = "";
             this.settlements.loading = true;
             this.settlements.hasConsulted = true;
             this.settlements.records = [];
-            Alerts.swals({type: "loading", message: "Consultando resumen financiero"});
-
-            let failureMessage = "";
             try {
                 const result = await Requests.get({
                     route: `${this.config.entity.routes.consult}/settlements`,
-                    data: payload,
-                    showAlert: true
+                    data: payload
                 });
 
                 if(Requests.valid({result})) {
@@ -413,13 +330,13 @@ export default {
                     return;
                 }
 
-                failureMessage = result?.data?.msg || "No se pudo consultar el resumen financiero.";
+                this.settlements.error = result?.data?.msg || "Revisa tu conexión y vuelve a intentar.";
+            } catch {
+                this.settlements.error = "Revisa tu conexión y vuelve a intentar.";
             } finally {
-                Alerts.swals({show: false});
                 this.isExporting = false;
                 this.settlements.loading = false;
             }
-            if(failureMessage) Alerts.generateAlert({type: "error", msgContent: failureMessage});
         },
         validateReport({report, payload}) {
             const result = {bool: true, errors: {}};
@@ -438,8 +355,8 @@ export default {
                     }
                 };
 
-                required("type", "Selecciona el resumen.");
-                required("scope", "Selecciona el alcance.");
+                required("type", "Elige cómo agrupar el resumen.");
+                required("scope", "Selecciona el origen.");
 
                 if(payload.date_from && payload.date_to && payload.date_to < payload.date_from) {
                     result.bool = false;
@@ -500,9 +417,6 @@ export default {
         }
     },
     computed: {
-        breadcrumbTitles() {
-            return [this.config.entity.page];
-        },
         reports() {
             return REPORTS;
         },
@@ -517,6 +431,32 @@ export default {
         },
         selectedReportCode() {
             return this.forms.entity.createUpdate.data.report?.code;
+        },
+        reportFields() {
+            switch(this.selectedReportCode) {
+                case "customers":
+                case "users":
+                    return [{name: "document_number", label: "Número de documento", type: "text"}];
+                case "items":
+                    return [{name: "description", label: "Descripción", type: "text"}];
+                case "sales": {
+                    const mode = this.forms.entity.createUpdate.data.sales.type?.code;
+                    return [
+                        {name: "type", label: "Tipo", options: this.salesType, required: true},
+                        ...SALES_PERIODS.filter(field => field.modes.includes(mode))
+                            .map(field => ({...field, required: true}))
+                    ];
+                }
+                case "settlements":
+                    return [
+                        {name: "scope", label: "Origen", options: this.settlementScope, required: true},
+                        {name: "type", label: "Agrupar por", options: this.settlementType, required: true},
+                        {name: "date_from", label: "Desde", type: "date"},
+                        {name: "date_to", label: "Hasta", type: "date"}
+                    ];
+                default:
+                    return [];
+            }
         },
         quickSearchPlaceholder() {
             return {

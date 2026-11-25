@@ -7,13 +7,13 @@ const read = path => readFileSync(new URL("../../" + path, import.meta.url), "ut
 
 test("FG alinea encabezado e importes a la derecha en el Catálogo comercial", () => {
     const shared = read("resources/js/System/Components/Catalogs/FgCatalogList.vue");
-    assert.match(shared, /<th v-for="column in columns"[^>]*:class="column\.align"/);
+    assert.match(shared, /<th\b[^>]*v-for="column in columns"[^>]*:class="column\.align"/);
     for(const kind of ["products", "services", "subscriptions"]) {
         const columns = catalogColumns[kind];
         assert.equal(columns.find(column => column.title === "Precio").align, "fg-align-end");
         assert.equal(columns.reduce((sum, column) => sum + parseInt(column.width, 10), 0), 100);
         const source = read("resources/js/System/Pages/Catalogs/" + kind + "/main.vue");
-        assert.match(source, /<td class="fg-align-end">\s*<CatalogPriceCell/);
+        assert.match(source, /<td\b[^>]*class="fg-align-end">(?:(?!<\/td>)[\s\S])*?<CatalogPriceCell/);
     }
 });
 

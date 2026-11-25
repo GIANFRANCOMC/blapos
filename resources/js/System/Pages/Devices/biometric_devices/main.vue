@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Dispositivos biométricos" description="Consulta el último contacto de cada equipo y revisa sus eventos."/>
 
     <!-- Filters -->
     <InitialLoadTransition>
@@ -23,23 +24,23 @@
                 @add="openModal()"/>
 
             <!-- Records -->
-            <div class="list-section mb-1 mb-md-1 table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-secondary text-center">
+            <div class="fg-table-scroll mb-2" tabindex="0" role="region" aria-label="Dispositivos biométricos registrados">
+                <table class="table fg-entity-table fg-entity-table--directory mb-0">
+                    <thead class="fg-table-header-surface">
                         <tr>
-                            <th class="text-white" style="width: 20%;">NOMBRE</th>
-                            <th class="text-white" style="width: 20%;">MARCA / MODELO</th>
-                            <th class="text-white" style="width: 15%;">IP / PUERTO</th>
-                            <th class="text-white" style="width: 15%;">SUCURSAL</th>
-                            <th class="text-white" style="width: 15%;">ÚLTIMO CONTACTO</th>
-                            <th class="text-white" style="width: 10%;">ESTADO</th>
-                            <th class="text-white" style="width: 15%;">ACCIONES</th>
+                            <th scope="col" style="width: 22%;" class="text-center">Dispositivo</th>
+                            <th scope="col" style="width: 15%;" class="text-center">Marca y modelo</th>
+                            <th scope="col" style="width: 13%;" class="text-center">IP y puerto</th>
+                            <th scope="col" style="width: 14%;" class="text-center">Sucursal</th>
+                            <th scope="col" style="width: 18%;" class="text-center">Último contacto</th>
+                            <th scope="col" style="width: 10%;" class="text-center">Estado</th>
+                            <th scope="col" style="width: 8%;" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0 bg-white">
                         <tr class="fg-table__state" v-if="entityList.extras.loading">
-                            <td colspan="99">
-                                <Loader/>
+                            <td colspan="7">
+                                <Loader label="Buscando dispositivos…"/>
                             </td>
                         </tr>
                         <template v-else-if="entityList.records.total > 0">
@@ -70,35 +71,20 @@
                                     <StatusBadge class="flex-shrink-none" :status="record.status" :formatted-status="record.formatted_status"/>
                                 </td>
                                 <td class="text-center">
-                                    <div class="fg-table-actions justify-content-center">
-                                        <button
-                                            type="button"
-                                            class="fg-icon-action fg-icon-action-info"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Ver eventos"
-                                            @click="openEvents(record)">
-                                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="fg-icon-action fg-icon-action-primary"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Rotar credenciales"
-                                            @click="rotateCredentials(record)">
-                                            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
-                                        </button>
-                                        <button type="button" class="fg-icon-action fg-icon-action-edit" data-bs-toggle="tooltip" data-bs-placement="top" :title="MODULE.texts.actions.edit" @click="openModal(record)">
-                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
+                                    <TableActionsDropdown :label="'Acciones de ' + record.name">
+                                        <li><button type="button" class="dropdown-item" @click="openEvents(record)">Ver eventos</button></li>
+                                        <li><button type="button" class="dropdown-item" @click="rotateCredentials(record)">Rotar credenciales</button></li>
+                                        <li><button type="button" class="dropdown-item" @click="openModal(record)">Editar dispositivo</button></li>
+                                    </TableActionsDropdown>
                                 </td>
                             </tr>
                         </template>
                         <tr class="fg-table__state" v-else>
-                            <td colspan="99">
-                                <WithoutData type="image"/>
+                            <td colspan="7">
+                                <FgEmptyState v-if="entityList.extras.loadFailed" title="No se pudo completar la búsqueda" description="Reintenta con los mismos filtros." role="alert">
+                                    <button type="button" class="fg-button fg-button--secondary" @click="listEntity({})">Reintentar</button>
+                                </FgEmptyState>
+                                <FgEmptyState v-else :title="entityList.appliedFilters?.word ? 'No hay coincidencias' : 'Aún no hay dispositivos registrados'" :description="entityList.appliedFilters?.word ? 'Prueba con otros filtros.' : undefined"/>
                             </td>
                         </tr>
                     </tbody>
@@ -112,172 +98,175 @@
 
         </div>
     </InitialLoadTransition>
-    <div class="modal fade" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal fade fg-modal fg-modal--compact" aria-labelledby="biometric-device-title" :id="forms[entity].createUpdate.extras.modals.default.id" data-bs-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-uppercase fw-bold" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h5>
-                    <button type="button" class="btn-header-modal" data-bs-dismiss="modal" aria-label="Cerrar">
-                        <i class="fa fa-times icon-close-modal"></i>
+                <div class="fg-modal__header">
+                    <h2 id="biometric-device-title" class="fg-modal__title mb-0" v-text="modalTitles.createUpdate[isUpdate ? 'update' : 'store']"></h2>
+                    <button type="button" class="fg-button fg-button--icon" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="fg-modal__body">
                     <form @submit.prevent="saveEntity">
                         <div class="row g-3">
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.branch"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.branch_id"
-                                xl="12"
-                                lg="12">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.branch"
-                                        :options="branches"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.name"
-                                hasDiv
-                                :title="MODULE.texts.form.name"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                maxlength="50"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.name"
-                                xl="4"
-                                lg="4"/>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.description"
-                                hasDiv
-                                :title="MODULE.texts.form.description"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="100"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.description"
-                                xl="8"
-                                lg="8"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.brand"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.brand"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.brand"
-                                        :options="brands"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.model"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.model"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.model"
-                                        :options="modelsByBrand"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.serial_number"
-                                hasDiv
-                                :title="MODULE.texts.form.serialNumber"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="50"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.serial_number"
-                                xl="4"
-                                lg="4"/>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.ip_address"
-                                hasDiv
-                                :title="MODULE.texts.form.ipAddress"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                maxlength="15"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.ip_address"
-                                xl="4"
-                                lg="4"/>
-                            <InputNumber
-                                v-model="forms[entity].createUpdate.data.port"
-                                hasDiv
-                                :title="MODULE.texts.form.port"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                :minValue="1"
-                                :maxValue="65535"
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.port"
-                                xl="4"
-                                lg="4"/>
-                            <InputText
-                                v-model="forms[entity].createUpdate.data.device_id"
-                                hasDiv
-                                :title="MODULE.texts.form.deviceId"
-                                :titleClass="[config.forms.classes.title]"
-                                maxlength="50"
-                                showCharCounter
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.device_id"
-                                xl="4"
-                                lg="4"/>
-                            <InputSlot
-                                hasDiv
-                                :title="MODULE.texts.form.status"
-                                :titleClass="[config.forms.classes.title]"
-                                isRequired
-                                hasTextBottom
-                                :textBottomInfo="forms[entity].createUpdate.errors?.status"
-                                xl="4"
-                                lg="4">
-                                <template v-slot:input>
-                                    <v-select
-                                        v-model="forms[entity].createUpdate.data.status"
-                                        :options="statuses"
-                                        :class="config.forms.classes.select2"
-                                        :clearable="false"
-                                        :searchable="false"/>
-                                </template>
-                            </InputSlot>
+                            <div class="col-12 col-sm-6">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.branch"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.branch_id">
+                                    <template #input="{id}">
+                                        <v-select :input-id="id"
+                                            v-model="forms[entity].createUpdate.data.branch"
+                                            :options="branches"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.name"
+                                    hasDiv
+                                    :title="MODULE.texts.form.name"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    maxlength="50"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.name"/>
+                            </div>
+                            <div class="col-12">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.description"
+                                    hasDiv
+                                    :title="MODULE.texts.form.description"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="100"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.description"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.brand"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.brand">
+                                    <template #input="{id}">
+                                        <v-select :input-id="id"
+                                            v-model="forms[entity].createUpdate.data.brand"
+                                            :options="brands"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.model"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.model">
+                                    <template #input="{id}">
+                                        <v-select :input-id="id"
+                                            v-model="forms[entity].createUpdate.data.model"
+                                            :options="modelsByBrand"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.serial_number"
+                                    hasDiv
+                                    :title="MODULE.texts.form.serialNumber"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="50"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.serial_number"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.ip_address"
+                                    hasDiv
+                                    :title="MODULE.texts.form.ipAddress"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    maxlength="15"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.ip_address"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputNumber
+                                    v-model="forms[entity].createUpdate.data.port"
+                                    hasDiv
+                                    :title="MODULE.texts.form.port"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    :minValue="1"
+                                    :maxValue="65535"
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.port"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputText
+                                    v-model="forms[entity].createUpdate.data.device_id"
+                                    hasDiv
+                                    :title="MODULE.texts.form.deviceId"
+                                    :titleClass="[config.forms.classes.title]"
+                                    maxlength="50"
+                                    showCharCounter
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.device_id"/>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <InputSlot
+                                    hasDiv
+                                    :title="MODULE.texts.form.status"
+                                    :titleClass="[config.forms.classes.title]"
+                                    isRequired
+                                    hasTextBottom
+                                    :textBottomInfo="forms[entity].createUpdate.errors?.status">
+                                    <template #input="{id}">
+                                        <v-select :input-id="id"
+                                            v-model="forms[entity].createUpdate.data.status"
+                                            :options="statuses"
+                                            :class="config.forms.classes.select2"
+                                            :clearable="false"
+                                            :searchable="false"/>
+                                    </template>
+                                </InputSlot>
+                            </div>
+                            <div class="col-12">
+                                <p class="fg-notice mb-0">Al generar o rotar una credencial, el secreto se muestra una sola vez.</p>
+                            </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="fg-modal__footer">
                     <button
                         type="button"
-                        class="btn btn-secondary waves-effect"
+                        class="fg-button fg-button--secondary"
                         data-bs-dismiss="modal"
                         v-text="MODULE.texts.modal.close">
                     </button>
                     <button
                         type="button"
-                        :class="['btn waves-effect', isUpdate ? 'btn-warning' : 'btn-primary']"
+                        class="fg-button"
                         @click="saveEntity"
                         :disabled="isSaving">
                         <i class="fa fa-save"></i>
@@ -373,6 +362,9 @@
 </template>
 
 <script>
+import TableActionsDropdown from "@System/Components/Generics/TableActionsDropdown.vue";
+import FgEmptyState from "@System/Components/Figma/FgEmptyState.vue";
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import InitialPageMixin from "@System/Helpers/InitialPageMixin.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -491,6 +483,7 @@ const MODULE = {
 };
 
 export default {
+    components: {TableActionsDropdown, FgEmptyState, FgPageHeader},
     mixins: [InitialPageMixin],
     name: "BiometricDevicesMain",
     data() {
@@ -569,6 +562,7 @@ export default {
             const filterData   = {per_page: this.MODULE.config.perPage, filter_by: filters.filter_by?.code, word: filters.word};
 
             entityList.extras.loading = true;
+            entityList.extras.loadFailed = false;
             this.entityList.records = Requests.emptyPagination();
 
             try {
@@ -597,12 +591,14 @@ export default {
 
                 }
 
-                const response = await Requests.get({route: requestUrl, data: requestData, showAlert: true});
+                const response = await Requests.get({route: requestUrl, data: requestData});
+                entityList.extras.loadFailed = !response?.bool;
 
                 entityList.records = response?.bool ? (response.data || Requests.emptyPagination()) : Requests.emptyPagination();
 
             }catch(error) {
 
+                entityList.extras.loadFailed = true;
                 entityList.records = emptyRecords;
 
             }finally {

@@ -1,5 +1,6 @@
 <template>
     <Breadcrumb :list="breadcrumbTitles"/>
+    <FgPageHeader title="Mi empresa" description="Administra los datos generales, el contacto y la identidad visual de tu empresa."/>
 
     <InitialLoadTransition>
         <CompanySettingsSkeleton v-if="initialLoading"/>
@@ -225,26 +226,12 @@
                 </div>
                 <div v-show="false" id="company-tab-share" role="tabpanel">
                     <div class="row g-3">
-                        <InputSlot
-                            hasDiv
-                            :isInputGroup="false"
-                            :divInputClass="['d-flex justify-content-center']"
-                            xl="6"
-                            lg="6">
-                            <template v-slot:input>
-                                <MyDashboardCompany/>
-                            </template>
-                        </InputSlot>
-                        <InputSlot
-                            hasDiv
-                            :isInputGroup="false"
-                            :divInputClass="['d-flex justify-content-center']"
-                            xl="6"
-                            lg="6">
-                            <template v-slot:input>
-                                <MyWebCompany/>
-                            </template>
-                        </InputSlot>
+                        <div class="col-12 col-lg-6 d-flex justify-content-center">
+                            <MyDashboardCompany/>
+                        </div>
+                        <div class="col-12 col-lg-6 d-flex justify-content-center">
+                            <MyWebCompany/>
+                        </div>
                     </div>
                 </div>
                 <div v-show="false" id="company-tab-configuration" role="tabpanel">
@@ -285,6 +272,7 @@
 </template>
 
 <script>
+import FgPageHeader from "@System/Components/Figma/FgPageHeader.vue";
 import {navbarItem} from "@System/Layout/Menu.js";
 import SearchButton from "@/Shared/SearchButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
@@ -400,7 +388,7 @@ const MODULE = {
 
 export default {
     name: "CompaniesMain",
-    components: {SearchButton, InitialLoadTransition, CompanySettingsSkeleton},
+    components: {FgPageHeader, SearchButton, InitialLoadTransition, CompanySettingsSkeleton},
     data() {
 
         const crudModule = initCrudModule({

@@ -4,6 +4,18 @@
             <Breadcrumb :list="[{title: 'Configuración'}, {title: 'Preferencias'}, {title: 'Mi cuenta', active: true}]"/>
         </div>
 
+        <header class="fg-page-header fg-account-page__hero">
+            <div>
+                <h1 id="account-title" class="fg-title">Mi cuenta</h1>
+                <p class="fg-help">Actualiza tus datos de contacto y consulta tu perfil de acceso.</p>
+            </div>
+            <div v-if="!loadError" class="fg-page-header__actions">
+                <FgButton type="submit" form="fg-account-data-form" :disabled="loading || confirming" :loading="saving">
+                    {{ saving ? 'Guardando cambios…' : 'Guardar cambios' }}
+                </FgButton>
+            </div>
+        </header>
+
         <InitialLoadTransition>
             <AccountSkeleton v-if="loading"/>
             <div v-else-if="loadError" class="fg-account-page__load-error" role="alert">
@@ -13,56 +25,33 @@
             </div>
 
             <div v-else class="fg-account-page__layout">
-                <div class="fg-account-page__main">
-                    <header class="fg-account-page__hero">
-                        <div class="fg-account-page__intro">
-                            <h1 id="account-title">Mi cuenta</h1>
-                            <p>Actualiza tus datos personales y la información de tu cuenta.</p>
-                        </div>
-                    </header>
+                <form id="fg-account-data-form" class="fg-account-page__panel" aria-labelledby="account-personal-title" novalidate @submit.prevent="saveAccount">
+                    <h2 id="account-personal-title" class="fg-section-title">Datos personales</h2>
 
-                    <form class="fg-account-page__panel" novalidate @submit.prevent="saveAccount">
-                        <div class="fg-account-page__panel-head">
-                            <div>
-                                <h2>Datos personales</h2>
-                                <p>Actualiza tu información de contacto y otros datos personales.</p>
-                            </div>
+                    <div class="fg-account-page__fields">
+                        <div class="fg-account-page__field">
+                            <InputBase v-model="form.email" input-type="email" title="Correo electrónico" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.email || []"/>
                         </div>
-
-                        <div class="fg-account-page__fields">
-                            <div class="fg-account-page__field">
-                                <InputBase v-model="form.email" input-type="email" title="Correo electrónico" :is-required="true" :maxlength="100" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.email || []">
-                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span></template>
-                                </InputBase>
-                            </div>
-                            <div class="fg-account-page__field">
-                                <InputText v-model="form.phone_number" title="Celular" :maxlength="15" placeholder="Sin información" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.phone_number || []">
-                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span></template>
-                                </InputText>
-                            </div>
-                            <div class="fg-account-page__field">
-                                <InputSelect v-model="form.gender" title="Género" :options="genderOptions" default-option-label="Sin especificar" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.gender || []">
-                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-user" aria-hidden="true"></i></span></template>
-                                </InputSelect>
-                            </div>
-                            <div class="fg-account-page__field">
-                                <InputDate v-model="form.birthdate" title="Fecha de nacimiento" :max="today" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.birthdate || []">
-                                    <template #inputGroupPrepend><span class="input-group-text"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span></template>
-                                </InputDate>
-                            </div>
+                        <div class="fg-account-page__field">
+                            <InputText v-model="form.phone_number" title="Celular" :maxlength="15" placeholder="Sin información" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.phone_number || []"/>
                         </div>
+                        <div class="fg-account-page__field">
+                            <InputSelect v-model="form.gender" title="Género" :options="genderOptions" default-option-label="Sin especificar" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.gender || []"/>
+                        </div>
+                        <div class="fg-account-page__field">
+                            <InputDate v-model="form.birthdate" title="Fecha de nacimiento" :max="today" :disabled="saving" :has-text-bottom="true" :text-bottom-info="errors.birthdate || []"/>
+                        </div>
+                    </div>
 
-                        <footer class="fg-account-page__actions">
-                            <button type="submit" class="fg-button" :disabled="saving || confirming">
-                                <span>{{ saving ? 'Guardando...' : 'Guardar cambios' }}</span>
-                            </button>
-                        </footer>
-                    </form>
-                </div>
+                    <div class="fg-account-page__scope">
+                        <p class="fg-section-title">Alcance de la edición</p>
+                        <p>El nombre, documento y perfil de acceso se gestionan desde Colaboradores.</p>
+                    </div>
+                </form>
 
                 <aside class="fg-account-page__aside" aria-label="Identidad de la empresa y del usuario">
-                    <AccountCompanyCard :company="company"/>
                     <AccountUserCard :account="account"/>
+                    <AccountCompanyCard :company="company"/>
                 </aside>
             </div>
         </InitialLoadTransition>
@@ -70,6 +59,7 @@
 </template>
 
 <script>
+import FgButton from "@System/Components/Figma/FgButton.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import * as Requests from "@System/Helpers/Requests.js";
 import * as Alerts from "@System/Helpers/Alerts.js";
@@ -80,7 +70,7 @@ import AccountUserCard from "./AccountUserCard.vue";
 const emptyForm = () => ({email: "", phone_number: "", gender: "", birthdate: ""});
 
 export default {
-    components: {InitialLoadTransition, AccountSkeleton, AccountCompanyCard, AccountUserCard},
+    components: {FgButton, InitialLoadTransition, AccountSkeleton, AccountCompanyCard, AccountUserCard},
     data() {
         return {
             account: null,

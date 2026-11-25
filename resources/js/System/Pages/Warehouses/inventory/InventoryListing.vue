@@ -14,11 +14,11 @@
         <InitialLoadTransition>
             <InventorySkeleton v-if="initialLoading" :fields="fields" :view="view"/>
             <div v-else>
-                <section class="fg-filters fg-filter-grid" :aria-label="`Filtros de ${view.title.toLocaleLowerCase('es')}`">
-                    <div v-for="field in fields" :key="field.key" class="fg-filter-grid__field" :class="{'fg-filter-grid__field--compact': field.compact}">
+                <section class="fg-filters fg-filter-grid fg-inventory-filters" :class="{'fg-inventory-filters--expanded': advancedFiltersOpen}" :aria-label="`Filtros de ${view.title.toLocaleLowerCase('es')}`">
+                    <div v-for="field in fields" :id="filterFieldId(field)" :key="field.key" class="fg-filter-grid__field" :class="{'fg-filter-grid__field--compact': field.compact, 'fg-inventory-filters__advanced': isAdvancedField(field)}">
                         <SearchInput v-if="field.kind === 'search'" :ref="field.key === 'productSearch' ? setProductSearch : undefined"
                             :model-value="filters[field.key]" :title="field.label" :placeholder="field.placeholder" :maxlength="field.maxlength"
-                            :disabled="fieldDisabled(field)" @update:model-value="updateFilter(field, $event)"/>
+                            :disabled="fieldDisabled(field)" @update:model-value="updateFilter(field, $event)" @search="!searchDisabled && $emit('search')"/>
                         <InputDate v-else-if="field.kind === 'date'" :model-value="filters[field.key]" :title="field.label"
                             :disabled="fieldDisabled(field)" @update:model-value="updateFilter(field, $event)"/>
                         <FgField v-else :label="field.label" v-slot="{id}">
@@ -31,13 +31,17 @@
                     </div>
                     <div class="fg-filter-grid__actions">
                         <FgFilterActions :disabled="!warehouseAvailable" :loading="loading" @search="$emit('search')" @clear="$emit('clear')"/>
+                        <FgButton v-if="advancedFields.length" class="fg-inventory-filters__toggle" tone="link"
+                            :aria-controls="advancedFilterIds" :aria-expanded="advancedFiltersOpen" @click="toggleAdvancedFilters">
+                            {{ advancedFiltersOpen ? "Ocultar filtros" : "Más filtros" }}
+                        </FgButton>
                     </div>
                 </section>
                 <div class="fg-list-heading"><h2 class="fg-section-title">{{ view.listTitle }}</h2></div>
                 <section :aria-label="view.listTitle">
                     <InventoryTable :columns="view.columns" :min-width="view.minWidth" :loading="loading" :loading-label="view.loading"
-                        :error="error" :empty="!records.data?.length" :empty-title="warehouseAvailable ? 'No se encontraron registros' : 'No hay un almacén de trabajo'"
-                        :empty-description="warehouseAvailable ? 'Revisa los filtros y vuelve a buscar.' : 'Selecciona un almacén y pulsa Buscar.'" @retry="$emit('retry')">
+                        responsive-cards :error="error" :empty="!records.data?.length" :empty-title="emptyTitle"
+                        :empty-description="emptyDescription" @retry="$emit('retry')">
                         <slot/>
                     </InventoryTable>
                     <Paginator v-if="showResults" :aria-label="`Paginación de ${view.title.toLocaleLowerCase('es')}`" :links="records.links"
@@ -49,7 +53,8 @@
 </template>
 
 <script setup>
-import {computed, shallowRef} from "vue";
+import {computed, nextTick, ref, shallowRef} from "vue";
+import FgButton from "@System/Components/Figma/FgButton.vue";
 import ActionsDropdown from "@System/Components/Generics/ActionsDropdown.vue";
 import InitialLoadTransition from "@System/Components/Generics/InitialLoadTransition.vue";
 import SearchInput from "@System/Components/Generics/SearchInput.vue";
@@ -71,17 +76,49 @@ const props = defineProps({
     loading: Boolean,
     exporting: Boolean,
     appliedWarehouse: Boolean,
+    appliedFilters: {type: Object, default: () => ({})},
     error: String
 });
 defineEmits(["search", "clear", "export", "page", "retry"]);
 const filters = defineModel("filters", {type: Object, required: true});
 const fields = computed(() => inventoryFilters[props.page]);
 const view = computed(() => inventoryViews[props.page]);
+const advancedFiltersOpen = ref(false);
+const advancedFields = computed(() => fields.value.slice(2));
+const advancedFilterIds = computed(() => advancedFields.value.map(filterFieldId).join(" "));
+const hasAppliedContext = computed(() => props.page === "transfers" || props.appliedWarehouse);
+const hasAppliedFilters = computed(() => fields.value.some(({key}) => {
+    if (key === "warehouse") return false;
+    const filter = props.appliedFilters[key];
+    return Boolean(typeof filter === "string" ? filter.trim() : filter?.code);
+}));
+const emptyTitle = computed(() => {
+    if (!hasAppliedContext.value) return "No hay un almacén de trabajo aplicado";
+    return hasAppliedFilters.value ? "No hay resultados con estos filtros" : "Aún no hay registros";
+});
+const emptyDescription = computed(() => {
+    if (!hasAppliedContext.value) return "Selecciona un almacén y pulsa Buscar.";
+    return hasAppliedFilters.value ? "Ajusta los filtros y pulsa Buscar de nuevo." : "Los nuevos registros aparecerán aquí.";
+});
 const warehouseAvailable = computed(() => props.page === "transfers" || Boolean(filters.value.warehouse?.code));
 const searchDisabled = computed(() => props.loading || !warehouseAvailable.value);
 const exportDisabled = computed(() => searchDisabled.value || props.exporting || (props.page !== "transfers" && !props.appliedWarehouse));
 const showResults = computed(() => props.page !== "stock" || props.appliedWarehouse);
 const productSearch = shallowRef(null);
+function filterFieldId(field) {
+    return "inventory-" + props.page + "-" + field.key;
+}
+function isAdvancedField(field) {
+    return advancedFields.value.includes(field);
+}
+async function toggleAdvancedFilters() {
+    advancedFiltersOpen.value = !advancedFiltersOpen.value;
+    if (!advancedFiltersOpen.value) return;
+
+    await nextTick();
+    const field = advancedFields.value[0];
+    document.getElementById(filterFieldId(field))?.querySelector("input:not(:disabled), button:not(:disabled)")?.focus();
+}
 function setProductSearch(input) { productSearch.value = input; }
 function fieldDisabled(field) { return props.loading || (field.kind !== "warehouse" && !warehouseAvailable.value); }
 function updateFilter(field, value) {
